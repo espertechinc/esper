@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFacto
 import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,14 +39,16 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
     private final boolean unique;
     private final CoercionDesc hashCoercionDesc;
     private final MultiKeyClassRef multiKeyClassRef;
+    private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertyHashedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] indexedProps, EventType eventType, boolean unique, CoercionDesc hashCoercionDesc, MultiKeyClassRef multiKeyClassRef) {
+    public PropertyHashedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String[] indexedProps, EventType eventType, boolean unique, CoercionDesc hashCoercionDesc, MultiKeyClassRef multiKeyClassRef, StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexedProps = indexedProps;
         this.eventType = eventType;
         this.unique = unique;
         this.hashCoercionDesc = hashCoercionDesc;
         this.multiKeyClassRef = multiKeyClassRef;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     protected EPTypeClass typeOf() {
@@ -55,7 +58,6 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
     protected List<CodegenExpression> additionalParams(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         List<CodegenExpression> params = new ArrayList<>();
         params.add(constant(indexedProps));
-        params.add(constant(hashCoercionDesc.getCoercionTypes()));
         params.add(constant(unique));
         EPType[] propertyTypes = EventTypeUtility.getPropertyTypesEPType(eventType, indexedProps);
         EventPropertyGetterSPI[] getters = EventTypeUtility.getGetters(eventType, indexedProps);
@@ -64,6 +66,7 @@ public class PropertyHashedFactoryFactoryForge extends EventTableFactoryFactoryF
         params.add(getter);
         params.add(constantNull()); // no fire-and-forget transform for subqueries
         params.add(multiKeyClassRef.getExprMKSerde(method, classScope));
+        params.add(stateMgmtSettings.toExpression());
         return params;
     }
 

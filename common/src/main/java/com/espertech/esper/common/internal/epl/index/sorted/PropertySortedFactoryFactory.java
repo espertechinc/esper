@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class PropertySortedFactoryFactory extends EventTableFactoryFactoryBase {
     public final static EPTypeClass EPTYPE = new EPTypeClass(PropertySortedFactoryFactory.class);
@@ -25,17 +26,19 @@ public class PropertySortedFactoryFactory extends EventTableFactoryFactoryBase {
     private final EPTypeClass indexType;
     private final EventPropertyValueGetter valueGetter;
     private final DataInputOutputSerde<Object> indexSerde;
+    private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexProp, EPTypeClass indexType, EventPropertyValueGetter valueGetter, DataInputOutputSerde<Object> indexSerde) {
+    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexProp, EPTypeClass indexType, EventPropertyValueGetter valueGetter, DataInputOutputSerde<Object> indexSerde, StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProp = indexProp;
         this.indexType = indexType;
         this.valueGetter = valueGetter;
         this.indexSerde = indexSerde;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return eventTableFactoryContext.getEventTableIndexService().createSorted(indexedStreamNum, eventType, indexProp, indexType,
-                valueGetter, indexSerde, null, isFireAndForget, eventTableFactoryContext);
+                valueGetter, indexSerde, null, isFireAndForget, eventTableFactoryContext, stateMgmtSettings);
     }
 }

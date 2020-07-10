@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.guard;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.soda.GuardEnum;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -21,8 +22,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPr
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionPrecedenceEnum;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -40,7 +39,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
     /**
      * Constructor.
      *
-     * @param patternGuardSpec - factory for guard construction
+     * @param patternGuardSpec  - factory for guard construction
      * @param attachPatternText whether to attach EPL subexpression text
      */
     public EvalGuardForgeNode(boolean attachPatternText, PatternGuardSpec patternGuardSpec) {
@@ -77,7 +76,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
 
     public final String toString() {
         return "EvalGuardNode guardForge=" + guardForge +
-                "  children=" + this.getChildNodes().size();
+            "  children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {
@@ -98,8 +97,8 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
 
     protected void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock()
-                .exprDotMethod(ref("node"), "setChildNode", localMethod(getChildNodes().get(0).makeCodegen(method, symbols, classScope)))
-                .exprDotMethod(ref("node"), "setGuardFactory", guardForge.makeCodegen(method, symbols, classScope));
+            .exprDotMethod(ref("node"), "setChildNode", localMethod(getChildNodes().get(0).makeCodegen(method, symbols, classScope)))
+            .exprDotMethod(ref("node"), "setGuardFactory", guardForge.makeCodegen(method, symbols, classScope));
     }
 
     public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
@@ -115,7 +114,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
     public void toPrecedenceFreeEPL(StringWriter writer) {
         getChildNodes().get(0).toEPL(writer, getPrecedence());
         if (patternGuardSpec.getObjectNamespace().equals(GuardEnum.WHILE_GUARD.getNamespace()) &&
-                patternGuardSpec.getObjectName().equals(GuardEnum.WHILE_GUARD.getName())) {
+            patternGuardSpec.getObjectName().equals(GuardEnum.WHILE_GUARD.getName())) {
             writer.write(" while ");
         } else {
             writer.write(" where ");
@@ -132,5 +131,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.GUARD_POSTFIX;
     }
 
-    private static final Logger log = LoggerFactory.getLogger(EvalGuardForgeNode.class);
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_GUARD;
+    }
 }

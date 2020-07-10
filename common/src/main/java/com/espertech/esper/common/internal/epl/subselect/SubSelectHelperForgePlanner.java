@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
@@ -65,6 +66,8 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
@@ -382,7 +385,7 @@ public class SubSelectHelperForgePlanner {
                 Collections.emptyList(), groupByExpressions, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), aggExpressionNodesHaving, Collections.emptyList(),
                 groupKeyExpressions, hasGroupBy, annotations, services.getVariableCompileTimeResolver(), true, subselectSpec.getRaw().getWhereClause(), subselectSpec.getRaw().getHavingClause(),
                 subselectTypeService.getEventTypes(), null, subselectSpec.getRaw().getOptionalContextName(), null, null, false, services.isFireAndForget(), false,
-                services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver());
+                services.getClasspathImportServiceCompileTime(), statement.getStatementRawInfo(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
             additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
             // assign select-clause
@@ -433,7 +436,9 @@ public class SubSelectHelperForgePlanner {
         ViewResourceDelegateDesc viewResourceDelegateDesc = ViewResourceVerifyHelper.verifyPreviousAndPriorRequirements(new List[]{viewForges}, viewResourceDelegateSubselect)[0];
         if (ViewResourceDelegateDesc.hasPrior(new ViewResourceDelegateDesc[]{viewResourceDelegateDesc})) {
             if (!viewResourceDelegateDesc.getPriorRequests().isEmpty()) {
-                viewForges.add(new PriorEventViewForge(viewForges.isEmpty(), viewForges.isEmpty() ? eventType : viewForges.get(viewForges.size() - 1).getEventType()));
+                boolean unbound = viewForges.isEmpty();
+                StateMgmtSetting stateMgmtSettings = unbound ? StateMgmtSettingDefault.INSTANCE : services.getStateMgmtSettingsProvider().getView(statement.getStatementRawInfo(), -1, true, false, AppliesTo.WINDOW_PRIOR);
+                viewForges.add(new PriorEventViewForge(unbound, viewForges.isEmpty() ? eventType : viewForges.get(viewForges.size() - 1).getEventType(), stateMgmtSettings));
             }
         }
 
@@ -642,7 +647,8 @@ public class SubSelectHelperForgePlanner {
 
         // No filter expression means full table scan
         if ((filterExpr == null) || fullTableScan) {
-            UnindexedEventTableFactoryFactoryForge tableForge = new UnindexedEventTableFactoryFactoryForge(0, subqueryNumber, false);
+            StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_UNINDEXED);
+            UnindexedEventTableFactoryFactoryForge tableForge = new UnindexedEventTableFactoryFactoryForge(0, subqueryNumber, false, stateMgmtSettings);
             SubordFullTableScanLookupStrategyFactoryForge strategy = new SubordFullTableScanLookupStrategyFactoryForge();
             return new SubqueryIndexForgeDesc(tableForge, strategy, Collections.emptyList());
         }
@@ -694,7 +700,8 @@ public class SubSelectHelperForgePlanner {
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashCoercionDesc.getCoercionTypes(), false, statement.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
             hashMultikeyClasses = multiKeyPlan.getClassRef();
-            eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, indexedProps, viewableEventType, unique, hashCoercionDesc, multiKeyPlan.getClassRef());
+            StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_HASH);
+            eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, indexedProps, viewableEventType, unique, hashCoercionDesc, multiKeyPlan.getClassRef(), stateMgmtSettings);
         } else if (hashKeys.isEmpty() && rangeKeys.isEmpty()) {
             rangeCoercionDesc = new CoercionDesc(false, null);
             if (joinPropDesc.getInKeywordSingleIndex() != null) {
@@ -704,7 +711,8 @@ public class SubSelectHelperForgePlanner {
                 hashCoercionDesc = new CoercionDesc(false, CoercionUtil.getCoercionTypes(propTypes));
                 DataInputOutputSerdeForge serdeForge = services.getSerdeResolver().serdeForIndexHashNonArray(propTypeClass[0], statement.getStatementRawInfo());
                 hashMultikeyClasses = new MultiKeyClassRefWSerde(serdeForge, propTypes);
-                eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, new String[]{prop}, viewableEventType, unique, hashCoercionDesc, hashMultikeyClasses);
+                StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_IN);
+                eventTableFactory = new PropertyHashedFactoryFactoryForge(0, subqueryNumber, false, new String[]{prop}, viewableEventType, unique, hashCoercionDesc, hashMultikeyClasses, stateMgmtSettings);
                 inKeywordSingleIdxKeys = joinPropDesc.getInKeywordSingleIndex().getExpressions();
             } else if (joinPropDesc.getInKeywordMultiIndex() != null) {
                 String[] props = joinPropDesc.getInKeywordMultiIndex().getIndexedProp();
@@ -713,17 +721,20 @@ public class SubSelectHelperForgePlanner {
                 for (int i = 0; i < hashCoercionDesc.getCoercionTypes().length; i++) {
                     serdes[i] = services.getSerdeResolver().serdeForIndexHashNonArray(hashCoercionDesc.getCoercionTypes()[i], statement.getStatementRawInfo());
                 }
-                eventTableFactory = new PropertyHashedArrayFactoryFactoryForge(0, viewableEventType, props, hashCoercionDesc.getCoercionTypes(), serdes, unique, false);
+                StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_IN);
+                eventTableFactory = new PropertyHashedArrayFactoryFactoryForge(0, viewableEventType, props, hashCoercionDesc.getCoercionTypes(), serdes, unique, false, stateMgmtSettings);
                 inKeywordMultiIdxKey = joinPropDesc.getInKeywordMultiIndex().getExpression();
             } else {
                 hashCoercionDesc = new CoercionDesc(false, null);
-                eventTableFactory = new UnindexedEventTableFactoryFactoryForge(0, subqueryNumber, false);
+                StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_UNINDEXED);
+                eventTableFactory = new UnindexedEventTableFactoryFactoryForge(0, subqueryNumber, false, stateMgmtSettings);
             }
         } else if (hashKeys.isEmpty() && rangeKeys.size() == 1) {
             String indexedProp = rangeKeys.keySet().iterator().next();
             CoercionDesc coercionRangeTypes = CoercionUtil.getCoercionTypesRange(viewableEventType, rangeKeys, outerEventTypes);
             DataInputOutputSerdeForge serde = services.getSerdeResolver().serdeForIndexBtree(coercionRangeTypes.getCoercionTypes()[0], statement.getStatementRawInfo());
-            eventTableFactory = new PropertySortedFactoryFactoryForge(0, subqueryNumber, false, indexedProp, viewableEventType, coercionRangeTypes, serde);
+            StateMgmtSetting stateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(statement.getStatementRawInfo(), AppliesTo.INDEX_SORTED);
+            eventTableFactory = new PropertySortedFactoryFactoryForge(0, subqueryNumber, false, indexedProp, viewableEventType, coercionRangeTypes, serde, stateMgmtSettings);
             hashCoercionDesc = new CoercionDesc(false, null);
             rangeCoercionDesc = coercionRangeTypes;
         } else {

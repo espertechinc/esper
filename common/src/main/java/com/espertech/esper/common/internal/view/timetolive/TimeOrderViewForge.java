@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timetolive;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -41,7 +42,7 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
         viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
 
         if (viewParameters.size() != 2) {
@@ -81,6 +82,10 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
 
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_TIMEORDER;
     }
 
     private String getViewParamMessage() {

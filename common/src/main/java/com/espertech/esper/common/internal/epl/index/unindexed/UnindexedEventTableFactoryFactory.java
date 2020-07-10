@@ -15,15 +15,19 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class UnindexedEventTableFactoryFactory extends EventTableFactoryFactoryBase {
     public final static EPTypeClass EPTYPE = new EPTypeClass(UnindexedEventTableFactoryFactory.class);
 
-    public UnindexedEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget) {
+    private final StateMgmtSetting stateMgmtSettings;
+
+    public UnindexedEventTableFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
-        return eventTableFactoryContext.getEventTableIndexService().createUnindexed(indexedStreamNum, eventType, null, isFireAndForget, eventTableFactoryContext);
+        return eventTableFactoryContext.getEventTableIndexService().createUnindexed(indexedStreamNum, eventType, null, isFireAndForget, stateMgmtSettings);
     }
 }

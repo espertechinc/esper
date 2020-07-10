@@ -22,13 +22,13 @@ import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitT
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_SELECTEXPRPROCESSOR;
@@ -39,33 +39,30 @@ import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSe
  */
 public class ResultSetProcessorRowPerEventForge implements ResultSetProcessorFactoryForge {
     private final EventType resultEventType;
-    private final SelectExprProcessorForge selectExprProcessorForge;
     private final ExprForge optionalHavingNode;
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
     private final OutputLimitSpec outputLimitSpec;
-    private final ResultSetProcessorOutputConditionType outputConditionType;
     private final boolean hasOrderBy;
+    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
 
     public ResultSetProcessorRowPerEventForge(EventType resultEventType,
-                                              SelectExprProcessorForge selectExprProcessorForge,
                                               ExprForge optionalHavingNode,
                                               boolean isSelectRStream,
                                               boolean isUnidirectional,
                                               boolean isHistoricalOnly,
                                               OutputLimitSpec outputLimitSpec,
-                                              ResultSetProcessorOutputConditionType outputConditionType,
-                                              boolean hasOrderBy) {
+                                              boolean hasOrderBy,
+                                              Supplier<StateMgmtSetting> outputAllHelperSettings) {
         this.resultEventType = resultEventType;
-        this.selectExprProcessorForge = selectExprProcessorForge;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputLimitSpec = outputLimitSpec;
-        this.outputConditionType = outputConditionType;
         this.hasOrderBy = hasOrderBy;
+        this.outputAllHelperSettings = outputAllHelperSettings;
     }
 
     public EventType getResultEventType() {
@@ -172,5 +169,9 @@ public class ResultSetProcessorRowPerEventForge implements ResultSetProcessorFac
 
     public String getInstrumentedQName() {
         return "ResultSetProcessUngroupedNonfullyAgg";
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+        return outputAllHelperSettings;
     }
 }

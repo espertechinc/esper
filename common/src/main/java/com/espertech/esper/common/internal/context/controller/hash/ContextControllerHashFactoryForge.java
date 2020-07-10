@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,6 +24,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.LinkedHashMap;
 
@@ -32,6 +34,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ContextControllerHashFactoryForge extends ContextControllerForgeBase {
 
     private final ContextSpecHash detail;
+    private StateMgmtSetting stateMgmtSettings;
 
     public ContextControllerHashFactoryForge(ContextControllerFactoryEnv ctx, ContextSpecHash detail) {
         super(ctx);
@@ -40,12 +43,13 @@ public class ContextControllerHashFactoryForge extends ContextControllerForgeBas
 
     public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         ContextControllerHashUtil.validateContextDesc(contextName, detail, statementRawInfo, services);
+        stateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_HASH);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(ContextControllerHashFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextControllerHashFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("hashFactory"))
+                .declareVar(ContextControllerHashFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("hashFactory", stateMgmtSettings.toExpression()))
                 .exprDotMethod(ref("factory"), "setHashSpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return method;

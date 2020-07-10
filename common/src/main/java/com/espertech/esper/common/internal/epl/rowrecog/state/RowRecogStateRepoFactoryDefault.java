@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAView;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPartitionTerminationStateComparator;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPreviousStrategyImpl;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class RowRecogStateRepoFactoryDefault implements RowRecogStateRepoFactory {
 
@@ -22,11 +23,11 @@ public class RowRecogStateRepoFactoryDefault implements RowRecogStateRepoFactory
     private RowRecogStateRepoFactoryDefault() {
     }
 
-    public RowRecogPartitionStateRepo makeSingle(RowRecogPreviousStrategyImpl prevGetter, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare) {
+    public RowRecogPartitionStateRepo makeSingle(RowRecogPreviousStrategyImpl prevGetter, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare, StateMgmtSetting unpartitionedStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings) {
         return new RowRecogPartitionStateRepoNoGroup(prevGetter, keepScheduleState, terminationStateCompare);
     }
 
-    public RowRecogPartitionStateRepo makePartitioned(RowRecogPreviousStrategyImpl prevGetter, RowRecogPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare) {
+    public RowRecogPartitionStateRepo makePartitioned(RowRecogPreviousStrategyImpl prevGetter, RowRecogPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings) {
         return new RowRecogPartitionStateRepoGroup(prevGetter, stateRepoGroupMeta, keepScheduleState, terminationStateCompare);
     }
 }

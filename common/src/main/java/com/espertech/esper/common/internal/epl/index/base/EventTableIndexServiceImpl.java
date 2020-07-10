@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTab
 import com.espertech.esper.common.internal.epl.index.inkeyword.PropertyHashedArrayFactory;
 import com.espertech.esper.common.internal.epl.index.sorted.PropertySortedEventTableFactory;
 import com.espertech.esper.common.internal.epl.index.unindexed.UnindexedEventTableFactory;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class EventTableIndexServiceImpl implements EventTableIndexService {
 
@@ -31,15 +32,15 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return true;
     }
 
-    public EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, EPTypeClass[] indexTypes, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         return new PropertyHashedEventTableFactory(indexedStreamNum, indexProps, unique, optionalIndexName, getter, transformFireAndForget);
     }
 
-    public EventTableFactory createUnindexed(int indexedStreamNum, EventType eventType, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createUnindexed(int indexedStreamNum, EventType eventType, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         return new UnindexedEventTableFactory(indexedStreamNum);
     }
 
-    public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, EPTypeClass indexType, EventPropertyValueGetter getter, DataInputOutputSerde<Object> serde, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, EPTypeClass indexType, EventPropertyValueGetter getter, DataInputOutputSerde<Object> serde, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext, StateMgmtSetting stateMgmtSettings) {
         return new PropertySortedEventTableFactory(indexedStreamNum, indexedProp, getter, indexType);
     }
 
@@ -47,7 +48,7 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return new PropertyCompositeEventTableFactory(indexedStreamNum, indexProps, indexCoercionTypes, indexGetter, transformFireAndForget, rangeProps, rangeCoercionTypes, rangeGetters);
     }
 
-    public EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] indexTypes, DataInputOutputSerde<Object>[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext) {
+    public EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] indexTypes, DataInputOutputSerde<Object>[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, EventTableFactoryFactoryContext eventTableFactoryContext, StateMgmtSetting stateMgmtSettings) {
         return new PropertyHashedArrayFactory(streamNum, propertyNames, unique, null, getters);
     }
 

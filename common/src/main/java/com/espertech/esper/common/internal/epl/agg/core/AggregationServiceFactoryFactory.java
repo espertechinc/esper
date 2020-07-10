@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.Hint;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
@@ -43,6 +44,8 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -84,7 +87,8 @@ public class AggregationServiceFactoryFactory {
                                                          boolean isOnSelect,
                                                          ClasspathImportServiceCompileTime classpathImportService,
                                                          StatementRawInfo raw,
-                                                         SerdeCompileTimeResolver serdeResolver)
+                                                         SerdeCompileTimeResolver serdeResolver,
+                                                         StateMgmtSettingsProvider stateMgmtSettingsProvider)
             throws ExprValidationException {
         // No aggregates used, we do not need this service
         if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty())) {
@@ -193,6 +197,7 @@ public class AggregationServiceFactoryFactory {
         AggregationStateFactoryForge[] accessFactories = multiFunctionAggPlan.getStateFactoryForges();
         boolean hasAccessAgg = accessorPairsForge.length > 0;
         boolean hasMethodAgg = methodAggFactories.length > 0;
+        StateMgmtSetting stateMgmtSettings = stateMgmtSettingsProvider.getAggregation(raw, AppliesTo.AGGREGATION_GROUPBY);
 
         AggregationServiceFactoryForge serviceForge;
         AggregationUseFlags useFlags = new AggregationUseFlags(isUnidirectional, isFireAndForget, isOnSelect);
@@ -220,7 +225,7 @@ public class AggregationServiceFactoryFactory {
                 hasAccessAgg ? accessFactories : null, hasAccessAgg ? accessorPairsForge : null, useFlags);
         if (!hasGroupByClause) {
             if (localGroupByPlan != null) {
-                serviceForge = new AggSvcLocalGroupByForge(false, localGroupByPlan, useFlags);
+                serviceForge = new AggSvcLocalGroupByForge(false, localGroupByPlan, useFlags, stateMgmtSettings);
             } else {
                 serviceForge = new AggregationServiceGroupAllForge(rowStateDesc);
             }
@@ -230,24 +235,24 @@ public class AggregationServiceFactoryFactory {
             Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             if (localGroupByPlan != null) {
-                serviceForge = new AggSvcLocalGroupByForge(true, localGroupByPlan, useFlags);
+                serviceForge = new AggSvcLocalGroupByForge(true, localGroupByPlan, useFlags, stateMgmtSettings);
             } else {
                 if (!isDisallowNoReclaim && hasNoReclaim) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
                 } else if (!isDisallowNoReclaim && reclaimGroupAged != null) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
                     compileReclaim(groupDesc, reclaimGroupAged, reclaimGroupFrequency, variableCompileTimeResolver, optionalContextName);
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
                 } else if (groupByRollupDesc != null) {
-                    serviceForge = new AggSvcGroupByRollupForge(rowStateDesc, groupByRollupDesc, groupByNodes);
+                    serviceForge = new AggSvcGroupByRollupForge(rowStateDesc, groupByRollupDesc, groupByNodes, stateMgmtSettings);
                 } else {
                     groupDesc.setRefcounted(true);
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
                 }
             }
         }

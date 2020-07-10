@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.not;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -61,5 +62,9 @@ public class EvalNotForgeNode extends EvalForgeNodeBase {
     }
 
     public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_NOT;
     }
 }

@@ -35,6 +35,7 @@ import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProces
 import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.common.internal.epl.resultset.rowpergroup.ResultSetProcessorRowPerGroupImpl;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
@@ -1254,11 +1255,13 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowPerGroupRollupOutputAllHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupAll", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
+            StateMgmtSetting stateMgmtSettings = forge.getOutputAllSettings().get();
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupAll", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowPerGroupRollupOutputLastHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupLast", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes));
+            StateMgmtSetting stateMgmtSettings = forge.getOutputLastSettings().get();
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupRollupLast", MEMBER_AGENTINSTANCECONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), eventTypes, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -1331,8 +1334,9 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         if (!instance.hasMember(NAME_OUTPUTFIRSTHELPERS)) {
             CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
             instance.addMember(NAME_OUTPUTFIRSTHELPERS, ResultSetProcessorGroupedOutputFirstHelper.EPTYPEARRAY);
+            StateMgmtSetting stateMgmtSettings = forge.getOutputFirstSettings().get();
             instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPERS, staticMethod(ResultSetProcessorRowPerGroupRollupUtil.class, "initializeOutputFirstHelpers", factory,
-                    MEMBER_AGENTINSTANCECONTEXT, constant(forge.getGroupKeyTypes()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), outputConditionFactory));
+                    MEMBER_AGENTINSTANCECONTEXT, constant(forge.getGroupKeyTypes()), exprDotMethod(ref("this"), "getGroupByRollupDesc"), outputConditionFactory, stateMgmtSettings.toExpression()));
         }
     }
 }

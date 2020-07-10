@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.initterm;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -24,6 +25,8 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.ContextPropertyEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -34,6 +37,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ContextControllerInitTermFactoryForge extends ContextControllerForgeBase {
 
     private final ContextSpecInitiatedTerminated detail;
+    private StateMgmtSetting distinctStateMgmtSettings;
+    private StateMgmtSetting ctxStateMgmtSettings;
 
     public ContextControllerInitTermFactoryForge(ContextControllerFactoryEnv ctx, ContextSpecInitiatedTerminated detail) {
         super(ctx);
@@ -48,12 +53,18 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
         LinkedHashSet<String> allTags = new LinkedHashSet<String>();
         ContextPropertyEventType.addEndpointTypes(detail.getStartCondition(), props, allTags);
         ContextPropertyEventType.addEndpointTypes(detail.getEndCondition(), props, allTags);
+
+        distinctStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
+        if (detail.getDistinctExpressions() != null && detail.getDistinctExpressions().length > 0) {
+            distinctStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_INITTERM_DISTINCT);
+        }
+        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_INITTERM);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(ContextControllerInitTermFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(ContextControllerInitTermFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("initTermFactory"))
+                .declareVar(ContextControllerInitTermFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("initTermFactory", distinctStateMgmtSettings.toExpression(), ctxStateMgmtSettings.toExpression()))
                 .exprDotMethod(ref("factory"), "setInitTermSpec", detail.makeCodegen(method, symbols, classScope))
                 .methodReturn(ref("factory"));
         return method;

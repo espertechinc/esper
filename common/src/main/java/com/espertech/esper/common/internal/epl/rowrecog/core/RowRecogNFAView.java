@@ -38,7 +38,6 @@ import java.util.*;
  */
 public class RowRecogNFAView extends ViewSupport implements AgentInstanceMgmtCallback, RowRecogNFAViewService, RowRecogNFAViewScheduleCallback {
     private static final Logger log = LoggerFactory.getLogger(RowRecogNFAView.class);
-    private static final boolean IS_DEBUG = false;
 
     private final RowRecogNFAViewFactory factory;
     protected final AgentInstanceContext agentInstanceContext;
@@ -81,11 +80,11 @@ public class RowRecogNFAView extends ViewSupport implements AgentInstanceMgmtCal
         RowRecogStateRepoFactory repoFactory = agentInstanceContext.getRowRecogStateRepoFactory();
         RowRecogPartitionTerminationStateComparator terminationStateCompare = new RowRecogPartitionTerminationStateComparator(desc.getMultimatchStreamNumToVariable(), desc.getVariableStreams());
         if (desc.getPartitionEvalMayNull() == null) {
-            regexPartitionStateRepo = repoFactory.makeSingle(rowRecogPreviousStrategy, agentInstanceContext, this, desc.isHasInterval(), terminationStateCompare);
+            regexPartitionStateRepo = repoFactory.makeSingle(rowRecogPreviousStrategy, agentInstanceContext, this, desc.isHasInterval(), terminationStateCompare, desc.getPartitionMgmtStateMgmtSettings(), desc.getScheduleMgmtStateMgmtSettings());
         } else {
             RowRecogPartitionStateRepoGroupMeta stateRepoGroupMeta = new RowRecogPartitionStateRepoGroupMeta(desc.isHasInterval(),
                     desc.getPartitionEvalMayNull(), agentInstanceContext);
-            regexPartitionStateRepo = repoFactory.makePartitioned(rowRecogPreviousStrategy, stateRepoGroupMeta, agentInstanceContext, this, desc.isHasInterval(), terminationStateCompare);
+            regexPartitionStateRepo = repoFactory.makePartitioned(rowRecogPreviousStrategy, stateRepoGroupMeta, agentInstanceContext, this, desc.isHasInterval(), terminationStateCompare, desc.getPartitionMgmtStateMgmtSettings(), desc.getScheduleMgmtStateMgmtSettings());
         }
     }
 

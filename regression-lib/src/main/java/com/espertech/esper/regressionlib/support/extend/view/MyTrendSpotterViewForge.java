@@ -39,7 +39,7 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         ExprNode[] validated = ViewForgeSupport.validate("Trend spotter view", parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
         String message = "Trend spotter view accepts a single integer or double value";
         if (validated.length != 1) {

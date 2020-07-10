@@ -87,6 +87,7 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
 
         // validate index
         QueryPlanIndexItemForge explicitIndexDesc = EventTableIndexUtil.validateCompileExplicitIndex(spec.getIndexName(), spec.isUnique(), spec.getColumns(), indexedEventType, base.getStatementRawInfo(), services);
+        explicitIndexDesc.planStateMgmtSettings(base.getStatementRawInfo(), services);
         AdvancedIndexIndexMultiKeyPart advancedIndexDesc = explicitIndexDesc.getAdvancedIndexProvisionDesc() == null ? null : explicitIndexDesc.getAdvancedIndexProvisionDesc().getIndexDesc().getAdvancedIndexDescRuntime();
         final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), explicitIndexDesc.getHashPropsAsList(), explicitIndexDesc.getBtreePropsAsList(), advancedIndexDesc);
 

@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
@@ -35,13 +36,15 @@ public class PropertySortedFactoryFactoryForge extends EventTableFactoryFactoryF
     private final EventType eventType;
     private final CoercionDesc coercionDesc;
     private final DataInputOutputSerdeForge serde;
+    private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertySortedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexedProp, EventType eventType, CoercionDesc coercionDesc, DataInputOutputSerdeForge serde) {
+    public PropertySortedFactoryFactoryForge(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexedProp, EventType eventType, CoercionDesc coercionDesc, DataInputOutputSerdeForge serde, StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexedProp = indexedProp;
         this.eventType = eventType;
         this.coercionDesc = coercionDesc;
         this.serde = serde;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     protected EPTypeClass typeOf() {
@@ -57,6 +60,7 @@ public class PropertySortedFactoryFactoryForge extends EventTableFactoryFactoryF
         CodegenExpression getter = EventTypeUtility.codegenGetterWCoerce(getterSPI, propertyType, coercionDesc.getCoercionTypes()[0], method, this.getClass(), classScope);
         params.add(getter);
         params.add(serde.codegen(method, classScope, null));
+        params.add(stateMgmtSettings.toExpression());
         return params;
     }
 

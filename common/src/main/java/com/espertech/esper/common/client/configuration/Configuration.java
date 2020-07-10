@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompiler;
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntime;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProviderDefault;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProxy;
 import com.espertech.esper.common.internal.util.ConfigurationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,5 +301,9 @@ public class Configuration implements Serializable {
         common = new ConfigurationCommon();
         compiler = new ConfigurationCompiler();
         runtime = new ConfigurationRuntime();
+    }
+
+    public StateMgmtSettingsProvider internalUseGetStmtMgmtProvider(StateMgmtSettingsProxy proxy) {
+        return StateMgmtSettingsProviderDefault.INSTANCE;
     }
 }

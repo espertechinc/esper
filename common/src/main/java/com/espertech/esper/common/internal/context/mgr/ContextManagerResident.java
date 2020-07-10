@@ -51,7 +51,7 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
     public void setStatementContext(StatementContext statementContext) {
         this.statementContextCreate = statementContext;
         this.contextPartitionKeySerdes = statementContextCreate.getContextServiceFactory().getContextPartitionKeyBindings(contextDefinition);
-        this.contextPartitionIdService = statementContextCreate.getContextServiceFactory().getContextPartitionIdService(statementContextCreate, contextPartitionKeySerdes);
+        this.contextPartitionIdService = statementContextCreate.getContextServiceFactory().getContextPartitionIdService(statementContextCreate, contextPartitionKeySerdes, contextDefinition.getPartitionIdSvcStateMgmtSettings());
     }
 
     public void addStatement(ContextControllerStatementDesc statement, boolean recovery) {

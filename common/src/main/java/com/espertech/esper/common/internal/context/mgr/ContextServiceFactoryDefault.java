@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdSer
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdServiceImpl;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class ContextServiceFactoryDefault implements ContextServiceFactory {
     public final static ContextServiceFactoryDefault INSTANCE = new ContextServiceFactoryDefault();
@@ -26,19 +27,19 @@ public class ContextServiceFactoryDefault implements ContextServiceFactory {
     private ContextServiceFactoryDefault() {
     }
 
-    public ContextControllerKeyedFactory keyedFactory() {
+    public ContextControllerKeyedFactory keyedFactory(StateMgmtSetting terminationStateMgmtSettings, StateMgmtSetting ctxStateMgmtSettings) {
         return new ContextControllerKeyedFactory();
     }
 
-    public ContextControllerCategoryFactory categoryFactory() {
+    public ContextControllerCategoryFactory categoryFactory(StateMgmtSetting stateMgmtSettings) {
         return new ContextControllerCategoryFactory();
     }
 
-    public ContextControllerHashFactory hashFactory() {
+    public ContextControllerHashFactory hashFactory(StateMgmtSetting stateMgmtSettings) {
         return new ContextControllerHashFactory();
     }
 
-    public ContextControllerInitTermFactory initTermFactory() {
+    public ContextControllerInitTermFactory initTermFactory(StateMgmtSetting distinctStateMgmtSettings, StateMgmtSetting ctxStateMgmtSettings) {
         return new ContextControllerInitTermFactory();
     }
 
@@ -46,7 +47,7 @@ public class ContextServiceFactoryDefault implements ContextServiceFactory {
         return null;
     }
 
-    public ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerde[] bindings) {
+    public ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerde[] bindings, StateMgmtSetting stateMgmtSettings) {
         return new ContextPartitionIdServiceImpl();
     }
 

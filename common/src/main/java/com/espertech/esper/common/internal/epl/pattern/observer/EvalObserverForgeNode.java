@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.observer;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -100,5 +101,9 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
 
     public PatternExpressionPrecedenceEnum getPrecedence() {
         return PatternExpressionPrecedenceEnum.ATOM;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_OBSERVER;
     }
 }

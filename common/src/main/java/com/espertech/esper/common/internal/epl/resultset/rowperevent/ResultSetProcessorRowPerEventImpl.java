@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactoryField;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
@@ -163,7 +164,8 @@ public class ResultSetProcessorRowPerEventImpl {
 
         if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLUNORDHELPER, ResultSetProcessorRowPerEventOutputAllHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT));
+            StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLUNORDHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTUNORDHELPER, ResultSetProcessorRowPerEventOutputLastHelper.EPTYPE);

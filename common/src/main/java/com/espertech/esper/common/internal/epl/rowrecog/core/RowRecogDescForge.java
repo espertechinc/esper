@@ -32,6 +32,7 @@ import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCo
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateBase;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -68,8 +69,10 @@ public class RowRecogDescForge {
     private final TimePeriodComputeForge intervalCompute;
     private final int[] previousRandomAccessIndexes;
     private final AggregationServiceForgeDesc[] aggregationServices;
+    private final StateMgmtSetting partitionMgmtStateMgmtSettings;
+    private final StateMgmtSetting scheduleMgmtStateMgmtSettings;
 
-    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices) {
+    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings) {
         this.parentEventType = parentEventType;
         this.rowEventType = rowEventType;
         this.compositeEventType = compositeEventType;
@@ -96,6 +99,8 @@ public class RowRecogDescForge {
         this.intervalCompute = intervalCompute;
         this.previousRandomAccessIndexes = previousRandomAccessIndexes;
         this.aggregationServices = aggregationServices;
+        this.partitionMgmtStateMgmtSettings = partitionMgmtStateMgmtSettings;
+        this.scheduleMgmtStateMgmtSettings = scheduleMgmtStateMgmtSettings;
     }
 
     public EventType getRowEventType() {
@@ -159,6 +164,8 @@ public class RowRecogDescForge {
             .exprDotMethod(desc, "setPreviousRandomAccessIndexes", constant(previousRandomAccessIndexes))
             .exprDotMethod(desc, "setAggregationServiceFactories", aggregationServiceFactories)
             .exprDotMethod(desc, "setAggregationResultFutureAssignables", aggregationServices == null ? constantNull() : makeAggAssignables(method, classScope))
+            .exprDotMethod(desc, "setPartitionMgmtStateMgmtSettings", partitionMgmtStateMgmtSettings.toExpression())
+            .exprDotMethod(desc, "setScheduleMgmtStateMgmtSettings", scheduleMgmtStateMgmtSettings.toExpression())
             .methodReturn(desc);
         return localMethod(method);
     }

@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactor
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateBase;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,6 +58,8 @@ public class RowRecogDesc {
     private int[] previousRandomAccessIndexes;
     private AggregationServiceFactory[] aggregationServiceFactories;
     private AggregationResultFutureAssignable[] aggregationResultFutureAssignables;
+    private StateMgmtSetting partitionMgmtStateMgmtSettings;
+    private StateMgmtSetting scheduleMgmtStateMgmtSettings;
 
     public EventType getParentEventType() {
         return parentEventType;
@@ -288,5 +291,21 @@ public class RowRecogDesc {
 
     public void setAggregationResultFutureAssignables(AggregationResultFutureAssignable[] aggregationResultFutureAssignables) {
         this.aggregationResultFutureAssignables = aggregationResultFutureAssignables;
+    }
+
+    public StateMgmtSetting getPartitionMgmtStateMgmtSettings() {
+        return partitionMgmtStateMgmtSettings;
+    }
+
+    public void setPartitionMgmtStateMgmtSettings(StateMgmtSetting partitionMgmtStateMgmtSettings) {
+        this.partitionMgmtStateMgmtSettings = partitionMgmtStateMgmtSettings;
+    }
+
+    public StateMgmtSetting getScheduleMgmtStateMgmtSettings() {
+        return scheduleMgmtStateMgmtSettings;
+    }
+
+    public void setScheduleMgmtStateMgmtSettings(StateMgmtSetting scheduleMgmtStateMgmtSettings) {
+        this.scheduleMgmtStateMgmtSettings = scheduleMgmtStateMgmtSettings;
     }
 }

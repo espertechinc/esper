@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firsttime;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -42,7 +43,7 @@ public class FirstTimeViewForge extends ViewFactoryForgeBase implements Schedule
         timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv, streamNumber);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -74,5 +75,9 @@ public class FirstTimeViewForge extends ViewFactoryForgeBase implements Schedule
 
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_FIRSTTIME;
     }
 }

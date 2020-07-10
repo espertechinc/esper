@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStrea
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
@@ -38,6 +39,7 @@ public class OutputProcessViewConditionSpec {
     private TimePeriodCompute afterTimePeriod;
     private Integer afterConditionNumberOfEvents;
     private EventType[] eventTypes;
+    private StateMgmtSetting changeSetStateMgmtSettings;
 
     public OutputConditionFactory getOutputConditionFactory() {
         return outputConditionFactory;
@@ -149,5 +151,13 @@ public class OutputProcessViewConditionSpec {
 
     public void setDistinctKeyGetter(EventPropertyValueGetter distinctKeyGetter) {
         this.distinctKeyGetter = distinctKeyGetter;
+    }
+
+    public void setChangeSetStateMgmtSettings(StateMgmtSetting changeSetStateMgmtSettings) {
+        this.changeSetStateMgmtSettings = changeSetStateMgmtSettings;
+    }
+
+    public StateMgmtSetting getChangeSetStateMgmtSettings() {
+        return changeSetStateMgmtSettings;
     }
 }

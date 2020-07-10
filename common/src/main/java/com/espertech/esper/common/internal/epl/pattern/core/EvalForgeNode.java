@@ -14,7 +14,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.io.StringWriter;
@@ -43,7 +45,7 @@ public interface EvalForgeNode {
 
     void addChildNodes(Collection<EvalForgeNode> childNodes);
 
-    void setFactoryNodeId(short factoryNodeId);
+    void setFactoryNodeId(short factoryNodeId, StatementRawInfo statementRawInfo, int streamNum, StateMgmtSettingsProvider stateMgmtSettingsProvider);
 
     short getFactoryNodeId();
 

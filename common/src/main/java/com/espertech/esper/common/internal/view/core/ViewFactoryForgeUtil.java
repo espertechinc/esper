@@ -20,8 +20,8 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFact
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge;
 import com.espertech.esper.common.internal.view.groupwin.MergeViewFactoryForge;
 import com.espertech.esper.common.internal.view.intersect.IntersectViewFactoryForge;
@@ -57,7 +57,6 @@ public class ViewFactoryForgeUtil {
         try {
             // Clone the view spec list to prevent parameter modification
             List<ViewSpec> viewSpecList = new ArrayList<ViewSpec>(Arrays.asList(viewSpecDefinitions));
-            ViewForgeEnv viewForgeEnv = new ViewForgeEnv(args);
             List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
             // Inspect views and add merge views if required
@@ -65,6 +64,7 @@ public class ViewFactoryForgeUtil {
             addMergeViews(viewSpecList);
 
             // Instantiate factories, not making them aware of each other yet, we now have a chain
+            ViewForgeEnv viewForgeEnv = new ViewForgeEnv(args);
             List<ViewFactoryForge> forgesChain = instantiateFactories(viewSpecList, args, viewForgeEnv);
 
             // Determine event type serdes that may be required
@@ -91,7 +91,7 @@ public class ViewFactoryForgeUtil {
             for (int i = 0; i < forgesGrouped.size(); i++) {
                 ViewFactoryForge factoryToAttach = forgesGrouped.get(i);
                 try {
-                    factoryToAttach.attach(eventType, args.getStreamNum(), viewForgeEnv);
+                    factoryToAttach.attach(eventType, args.getStreamNum(), viewForgeEnv, false);
                     eventType = factoryToAttach.getEventType();
                 } catch (ViewParameterException ex) {
                     throw new ViewProcessingException(ex.getMessage(), ex);
@@ -152,7 +152,7 @@ public class ViewFactoryForgeUtil {
             groupeds.add(forge);
 
             try {
-                forge.attach(eventType, args.getStreamNum(), viewForgeEnv);
+                forge.attach(eventType, args.getStreamNum(), viewForgeEnv, true);
             } catch (ViewParameterException ex) {
                 throw new ViewProcessingException(ex.getMessage(), ex);
             }
@@ -207,7 +207,7 @@ public class ViewFactoryForgeUtil {
                                                          EventType parentEventType) {
         for (ViewFactoryForge forge : dataWindows) {
             try {
-                forge.attach(parentEventType, args.getStreamNum(), viewForgeEnv);
+                forge.attach(parentEventType, args.getStreamNum(), viewForgeEnv, false);
             } catch (ViewParameterException ex) {
                 throw new ViewProcessingException(ex.getMessage(), ex);
             }
@@ -343,11 +343,9 @@ public class ViewFactoryForgeUtil {
         method.getBlock()
                 .declareVar(ViewFactory.EPTYPEARRAY, "factories", newArrayByLength(ViewFactory.EPTYPE, constant(forges.size())));
 
-        boolean grouped = !forges.isEmpty() && forges.get(0) instanceof GroupByViewFactoryForge;
         method.getBlock().declareVarNewInstance(ViewFactoryContext.EPTYPE, "ctx")
                 .exprDotMethod(ref("ctx"), "setStreamNum", constant(streamNum))
-                .exprDotMethod(ref("ctx"), "setSubqueryNumber", constant(subqueryNum))
-                .exprDotMethod(ref("ctx"), "setGrouped", constant(grouped));
+                .exprDotMethod(ref("ctx"), "setSubqueryNumber", constant(subqueryNum));
         for (int i = 0; i < forges.size(); i++) {
             String ref = "factory_" + i;
             method.getBlock().declareVar(ViewFactory.EPTYPE, ref, forges.get(i).make(method, symbols, classScope))

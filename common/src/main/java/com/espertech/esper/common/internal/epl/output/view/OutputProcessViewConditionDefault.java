@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -42,13 +43,13 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
     private final OutputCondition outputCondition;
     private final OutputProcessViewConditionDeltaSet deltaSet;
 
-    public OutputProcessViewConditionDefault(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, boolean isJoin, EventType[] eventTypes) {
+    public OutputProcessViewConditionDefault(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings) {
         super(agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
         OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
         this.outputCondition = parent.getOutputConditionFactory().instantiateOutputCondition(agentInstanceContext, outputCallback);
-        this.deltaSet = agentInstanceContext.getResultSetProcessorHelperFactory().makeOutputConditionChangeSet(eventTypes, agentInstanceContext);
+        this.deltaSet = agentInstanceContext.getResultSetProcessorHelperFactory().makeOutputConditionChangeSet(eventTypes, agentInstanceContext, stateMgmtSettings);
     }
 
     public int getNumChangesetRows() {

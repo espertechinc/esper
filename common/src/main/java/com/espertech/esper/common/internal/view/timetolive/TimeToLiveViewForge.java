@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timetolive;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,7 +40,7 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
         viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
 
         if (viewParameters.size() != 1) {
@@ -79,5 +80,9 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
 
     private String getViewParamMessage() {
         return getViewName() + " view requires a single expression supplying long-type timestamp values as a parameter";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_TIMETOLIVE;
     }
 }

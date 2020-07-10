@@ -43,6 +43,7 @@ import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolv
 import com.espertech.esper.common.internal.event.core.EventTypeNameGeneratorStatement;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -232,5 +233,9 @@ public class StatementCompileTimeServices {
 
     public ClassProvidedClasspathExtension getClassProvidedClasspathExtension() {
         return classProvidedClasspathExtension;
+    }
+
+    public StateMgmtSettingsProvider getStateMgmtSettingsProvider() {
+        return services.getStateMgmtSettingsProvider();
     }
 }

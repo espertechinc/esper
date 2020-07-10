@@ -39,6 +39,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -67,6 +68,7 @@ public class ModuleCompileTimeServices {
     private final ModuleAccessModifierService moduleVisibilityRules;
     private final NamedWindowCompileTimeResolver namedWindowCompileTimeResolver;
     private final NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry;
+    private final StateMgmtSettingsProvider stateMgmtSettingsProvider;
     private final ParentClassLoader parentClassLoader;
     private final PatternObjectResolutionService patternObjectResolutionService;
     private final ScriptCompileTimeRegistry scriptCompileTimeRegistry;
@@ -82,8 +84,9 @@ public class ModuleCompileTimeServices {
 
     private final DataFlowCompileTimeRegistry dataFlowCompileTimeRegistry = new DataFlowCompileTimeRegistry();
 
-    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ClassProvidedCompileTimeRegistry classProvidedCompileTimeRegistry, ClassProvidedCompileTimeResolver classProvidedCompileTimeResolver, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, boolean fireAndForget, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
+    public ModuleCompileTimeServices(CompilerServices compilerServices, Configuration configuration, ClassProvidedCompileTimeRegistry classProvidedCompileTimeRegistry, ClassProvidedCompileTimeResolver classProvidedCompileTimeResolver, ContextCompileTimeRegistry contextCompileTimeRegistry, ContextCompileTimeResolver contextCompileTimeResolver, BeanEventTypeStemService beanEventTypeStemService, BeanEventTypeFactoryPrivate beanEventTypeFactoryPrivate, DatabaseConfigServiceCompileTime databaseConfigServiceCompileTime, ClasspathImportServiceCompileTime classpathImportService, ExprDeclaredCompileTimeRegistry exprDeclaredCompileTimeRegistry, ExprDeclaredCompileTimeResolver exprDeclaredCompileTimeResolver, EventTypeAvroHandler eventTypeAvroHandler, EventTypeCompileTimeRegistry eventTypeCompileTimeRegistry, EventTypeCompileTimeResolver eventTypeCompileTimeResolver, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, boolean fireAndForget, IndexCompileTimeRegistry indexCompileTimeRegistry, ModuleDependenciesCompileTime moduleDependencies, ModuleAccessModifierService moduleVisibilityRules, NamedWindowCompileTimeResolver namedWindowCompileTimeResolver, NamedWindowCompileTimeRegistry namedWindowCompileTimeRegistry, StateMgmtSettingsProvider stateMgmtSettingsProvider, ParentClassLoader parentClassLoader, PatternObjectResolutionService patternObjectResolutionService, ScriptCompileTimeRegistry scriptCompileTimeRegistry, ScriptCompileTimeResolver scriptCompileTimeResolver, SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry, SerdeCompileTimeResolver serdeResolver, TableCompileTimeRegistry tableCompileTimeRegistry, TableCompileTimeResolver tableCompileTimeResolver, VariableCompileTimeRegistry variableCompileTimeRegistry, VariableCompileTimeResolver variableCompileTimeResolver, ViewResolutionService viewResolutionService, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory) {
         this.parentClassLoader = parentClassLoader;
+        this.stateMgmtSettingsProvider = stateMgmtSettingsProvider;
         this.compilerServices = compilerServices;
         this.configuration = configuration;
         this.classProvidedCompileTimeRegistry = classProvidedCompileTimeRegistry;
@@ -123,6 +126,7 @@ public class ModuleCompileTimeServices {
         this.classProvidedCompileTimeRegistry = null;
         this.classProvidedCompileTimeResolver = null;
         this.parentClassLoader = null;
+        this.stateMgmtSettingsProvider = null;
         this.compilerServices = null;
         this.configuration = null;
         this.contextCompileTimeRegistry = null;
@@ -310,5 +314,9 @@ public class ModuleCompileTimeServices {
 
     public ClassProvidedCompileTimeRegistry getClassProvidedCompileTimeRegistry() {
         return classProvidedCompileTimeRegistry;
+    }
+
+    public StateMgmtSettingsProvider getStateMgmtSettingsProvider() {
+        return stateMgmtSettingsProvider;
     }
 }

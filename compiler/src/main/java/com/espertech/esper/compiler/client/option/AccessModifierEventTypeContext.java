@@ -26,7 +26,7 @@ public class AccessModifierEventTypeContext extends StatementOptionContextBase {
      * @param eventTypeName event type name
      */
     public AccessModifierEventTypeContext(StatementRawInfo raw, String eventTypeName) {
-        super(() -> raw.getCompilable().toEPL(), raw.getStatementName(), raw.getModuleName(), raw.getAnnotations(), raw.getStatementNumber());
+        super(raw);
         this.eventTypeName = eventTypeName;
     }
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -26,6 +27,8 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.ContextPropertyEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -36,6 +39,8 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBase {
 
     private final ContextSpecKeyed detail;
+    private StateMgmtSetting terminationStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
+    private StateMgmtSetting ctxStateMgmtSettings;
 
     public ContextControllerKeyedFactoryForge(ContextControllerFactoryEnv ctx, ContextSpecKeyed detail) throws ExprValidationException {
         super(ctx);
@@ -65,13 +70,16 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
 
         if (detail.getOptionalTermination() != null) {
             ContextPropertyEventType.addEndpointTypes(detail.getOptionalTermination(), props, allTags);
+            terminationStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_KEYED_TERM);
         }
+
+        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_KEYED);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
         CodegenMethod method = parent.makeChild(ContextControllerKeyedFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
-            .declareVar(ContextControllerKeyedFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory"))
+            .declareVar(ContextControllerKeyedFactory.EPTYPE, "factory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETCONTEXTSERVICEFACTORY).add("keyedFactory", terminationStateMgmtSettings.toExpression(), ctxStateMgmtSettings.toExpression()))
             .exprDotMethod(ref("factory"), "setKeyedSpec", detail.makeCodegen(method, symbols, classScope))
             .methodReturn(ref("factory"));
         return method;

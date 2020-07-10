@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.controller.core.ContextDefinition;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol.REF_STMTINITSVC;
@@ -34,13 +35,15 @@ public class StmtClassForgeableAIFactoryProviderCreateContext extends StmtClassF
     private final ContextControllerFactoryForge[] forges;
     private final EventType eventTypeContextProperties;
     private final StatementAgentInstanceFactoryCreateContextForge forge;
+    private final StateMgmtSetting partitionIdSvcStateMgmtSettings;
 
-    public StmtClassForgeableAIFactoryProviderCreateContext(String className, CodegenPackageScope packageScope, String contextName, ContextControllerFactoryForge[] forges, EventType eventTypeContextProperties, StatementAgentInstanceFactoryCreateContextForge forge) {
+    public StmtClassForgeableAIFactoryProviderCreateContext(String className, CodegenPackageScope packageScope, String contextName, ContextControllerFactoryForge[] forges, EventType eventTypeContextProperties, StatementAgentInstanceFactoryCreateContextForge forge, StateMgmtSetting partitionIdSvcStateMgmtSettings) {
         super(className, packageScope);
         this.contextName = contextName;
         this.forges = forges;
         this.eventTypeContextProperties = eventTypeContextProperties;
         this.forge = forge;
+        this.partitionIdSvcStateMgmtSettings = partitionIdSvcStateMgmtSettings;
     }
 
     protected EPTypeClass typeOfFactory() {
@@ -70,6 +73,7 @@ public class StmtClassForgeableAIFactoryProviderCreateContext extends StmtClassF
                 .exprDotMethod(ref("def"), "setContextName", constant(contextName))
                 .exprDotMethod(ref("def"), "setControllerFactories", ref("controllers"))
                 .exprDotMethod(ref("def"), "setEventTypeContextProperties", EventTypeUtility.resolveTypeCodegen(eventTypeContextProperties, EPStatementInitServices.REF))
+                .exprDotMethod(ref("def"), "setPartitionIdSvcStateMgmtSettings", partitionIdSvcStateMgmtSettings.toExpression())
                 .methodReturn(ref("def"));
         return localMethod(method);
     }

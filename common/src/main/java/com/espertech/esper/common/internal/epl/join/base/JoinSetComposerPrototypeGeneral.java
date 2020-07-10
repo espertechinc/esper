@@ -109,7 +109,7 @@ public class JoinSetComposerPrototypeGeneral extends JoinSetComposerPrototypeBas
                     if (virtualDWView != null) {
                         index = VirtualDWQueryPlanUtil.getJoinIndexTable(items.get(entry.getKey()));
                     } else {
-                        index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null, null, isFireAndForget);
+                        index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], entry.getValue().isUnique(), null, null, isFireAndForget);
                     }
                     indexesPerStream[streamNo].put(entry.getKey(), index);
                 }

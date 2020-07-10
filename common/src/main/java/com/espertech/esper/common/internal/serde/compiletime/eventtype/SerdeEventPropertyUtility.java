@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.serde.compiletime.eventtype;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.TypeBeanOrUnderlying;
@@ -38,7 +39,7 @@ public class SerdeEventPropertyUtility {
     public static SerdeEventPropertyDesc forgeForEventProperty(EventType eventTypeSerde, String propertyName, Object propertyType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
 
         DataInputOutputSerdeForge forge;
-        if (propertyType == null) {
+        if (propertyType == EPTypeNull.INSTANCE) {
             return new SerdeEventPropertyDesc(new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class), Collections.emptySet());
         }
         if (propertyType instanceof EPTypeClass) {

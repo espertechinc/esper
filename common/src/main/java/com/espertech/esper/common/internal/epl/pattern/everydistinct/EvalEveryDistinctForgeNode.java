@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.everydistinct;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -137,5 +138,9 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
 
     public PatternExpressionPrecedenceEnum getPrecedence() {
         return PatternExpressionPrecedenceEnum.UNARY;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_EVERYDISTINCT;
     }
 }

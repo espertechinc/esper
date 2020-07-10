@@ -134,6 +134,7 @@ public class SubordinateQueryPlanner {
                         SubordTableLookupStrategyFactoryQuadTreeForge lookupStrategyFactory = provisionDesc.getFactory().getForge().getSubordinateLookupStrategy(op.getKey().getOperationName(), op.getValue().getPositionalExpressions(), isNWOnTrigger, outerStreams.length);
                         EventAdvancedIndexProvisionCompileTime provisionCompileTime = provisionDesc.toCompileTime(eventTypeIndexed, statementRawInfo, services);
                         QueryPlanIndexItemForge indexItemForge = new QueryPlanIndexItemForge(new String[0], new EPTypeClass[0], new String[0], new EPTypeClass[0], false, provisionCompileTime, eventTypeIndexed);
+                        indexItemForge.planStateMgmtSettings(statementRawInfo, services);
                         SubordinateQueryIndexDescForge indexDesc = new SubordinateQueryIndexDescForge(null, index.getValue().getOptionalIndexName(), index.getValue().getOptionalIndexModuleName(), index.getKey(), indexItemForge);
                         SubordinateQueryPlanDescForge forge = new SubordinateQueryPlanDescForge(lookupStrategyFactory, new SubordinateQueryIndexDescForge[]{indexDesc});
                         return new SubordinateQueryPlan(forge, Collections.emptyList());
@@ -398,6 +399,7 @@ public class SubordinateQueryPlanner {
         EPTypeClass[] rangeCoercionTypes = IndexedPropDesc.getCoercionTypes(rangePropDescs);
 
         QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, unique, null, eventTypeIndexed);
+        indexItem.planStateMgmtSettings(raw, services);
 
         MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, true, raw, services.getSerdeResolver());
         indexItem.setHashMultiKeyClasses(multiKeyPlan.getClassRef());

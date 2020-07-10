@@ -18,17 +18,18 @@ import com.espertech.esper.common.internal.context.controller.keyed.ContextContr
 import com.espertech.esper.common.internal.context.cpidsvc.ContextPartitionIdService;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public interface ContextServiceFactory {
-    ContextControllerKeyedFactory keyedFactory();
+    ContextControllerKeyedFactory keyedFactory(StateMgmtSetting terminationStateMgmtSettings, StateMgmtSetting ctxStateMgmtSettings);
 
-    ContextControllerCategoryFactory categoryFactory();
+    ContextControllerCategoryFactory categoryFactory(StateMgmtSetting stateMgmtSettings);
 
-    ContextControllerHashFactory hashFactory();
+    ContextControllerHashFactory hashFactory(StateMgmtSetting stateMgmtSettings);
 
-    ContextControllerInitTermFactory initTermFactory();
+    ContextControllerInitTermFactory initTermFactory(StateMgmtSetting distinctStateMgmtSettings, StateMgmtSetting ctxStateMgmtSettings);
 
-    ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerde[] bindings);
+    ContextPartitionIdService getContextPartitionIdService(StatementContext statementContextCreateContext, DataInputOutputSerde[] bindings, StateMgmtSetting stateMgmtSettings);
 
     DataInputOutputSerde[] getContextPartitionKeyBindings(ContextDefinition contextDefinition);
 

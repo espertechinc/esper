@@ -17,8 +17,9 @@ import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRe
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 
 import java.lang.annotation.Annotation;
@@ -88,5 +89,13 @@ public class ViewForgeEnv {
 
     public SerdeCompileTimeResolver getSerdeResolver() {
         return args.getCompileTimeServices().getSerdeResolver();
+    }
+
+    public StateMgmtSettingsProvider getStateMgmtSettingsProvider() {
+        return args.getCompileTimeServices().getStateMgmtSettingsProvider();
+    }
+
+    public boolean isSubquery() {
+        return args.isSubquery();
     }
 }

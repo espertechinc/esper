@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.time_accum;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -39,7 +40,7 @@ public class TimeAccumViewForge extends ViewFactoryForgeBase implements DataWind
         timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv, streamNumber);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -71,5 +72,9 @@ public class TimeAccumViewForge extends ViewFactoryForgeBase implements DataWind
 
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric parameter or time period parameter";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_TIMEACCUM;
     }
 }

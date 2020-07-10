@@ -39,9 +39,11 @@ import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProces
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
@@ -71,6 +73,11 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final EPType[] groupKeyTypes;
     private final MultiKeyClassRef multiKeyClassRef;
+    private final Supplier<StateMgmtSetting> unboundGroupRepSettings;
+    private final Supplier<StateMgmtSetting> outputFirstSettings;
+    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
+    private final Supplier<StateMgmtSetting> outputAllOptHelperSettings;
+    private final Supplier<StateMgmtSetting> outputLastOptHelperSettings;
 
     private CodegenMethod generateGroupKeySingle;
     private CodegenMethod generateGroupKeyArrayView;
@@ -89,7 +96,12 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
                                               EventType[] eventTypes,
                                               OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
                                               MultiKeyClassRef multiKeyClassRef,
-                                              boolean unboundedProcessor) {
+                                              boolean unboundedProcessor,
+                                              Supplier<StateMgmtSetting> unboundGroupRepSettings,
+                                              Supplier<StateMgmtSetting> outputFirstSettings,
+                                              Supplier<StateMgmtSetting> outputAllHelperSettings,
+                                              Supplier<StateMgmtSetting> outputAllOptHelperSettings,
+                                              Supplier<StateMgmtSetting> outputLastOptHelperSettings) {
         this.resultEventType = resultEventType;
         this.typesPerStream = typesPerStream;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
@@ -105,6 +117,11 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
         this.unboundedProcessor = unboundedProcessor;
+        this.unboundGroupRepSettings = unboundGroupRepSettings;
+        this.outputFirstSettings = outputFirstSettings;
+        this.outputAllHelperSettings = outputAllHelperSettings;
+        this.outputAllOptHelperSettings = outputAllOptHelperSettings;
+        this.outputLastOptHelperSettings = outputLastOptHelperSettings;
     }
 
     public EventType getResultEventType() {
@@ -190,8 +207,9 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
             instance.addMember(NAME_GROUPREPS, ResultSetProcessorRowPerGroupUnboundHelper.EPTYPE);
             CodegenExpression groupKeySerde = getMultiKeyClassRef().getExprMKSerde(classScope.getPackageScope().getInitMethod(), classScope);
             CodegenExpressionField eventType = classScope.addFieldUnshared(true, EventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(typesPerStream[0], EPStatementInitServices.REF));
+            StateMgmtSetting stateMgmtSettings = unboundGroupRepSettings.get();
             instance.getServiceCtor().getBlock().assignRef(NAME_GROUPREPS, exprDotMethod(factory, "makeRSRowPerGroupUnboundGroupRep",
-                constant(groupKeyTypes), groupKeySerde, eventType, MEMBER_AGENTINSTANCECONTEXT))
+                constant(groupKeyTypes), groupKeySerde, eventType, stateMgmtSettings.toExpression(), MEMBER_AGENTINSTANCECONTEXT))
                 .exprDotMethod(MEMBER_AGGREGATIONSVC, "setRemovedCallback", member(NAME_GROUPREPS));
         } else {
             instance.getServiceCtor().getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "setRemovedCallback", ref("this"));
@@ -292,5 +310,21 @@ public class ResultSetProcessorRowPerGroupForge implements ResultSetProcessorFac
 
     public CodegenMethod getGenerateGroupKeyArrayJoin() {
         return generateGroupKeyArrayJoin;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputFirstSettings() {
+        return outputFirstSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+        return outputAllHelperSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllOptHelperSettings() {
+        return outputAllOptHelperSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputLastOptHelperSettings() {
+        return outputLastOptHelperSettings;
     }
 }

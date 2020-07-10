@@ -60,7 +60,7 @@ public class VirtualDWViewFactoryForge implements ViewFactoryForge, DataWindowVi
         this.streamNumber = streamNumber;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.parentEventType = parentEventType;
 
         validatedParameterExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, parameters, true, viewForgeEnv, streamNumber);
@@ -101,11 +101,11 @@ public class VirtualDWViewFactoryForge implements ViewFactoryForge, DataWindowVi
 
         SAIFFInitializeBuilder builder = new SAIFFInitializeBuilder(VirtualDWViewFactory.EPTYPE, this.getClass(), "factory", parent, symbols, classScope);
         builder.eventtype("eventType", parentEventType)
-                .expression("factory", exprDotMethod(factoryField, "createFactory", newInstance(VirtualDataWindowFactoryFactoryContext.EPTYPE)))
-                .constant("parameters", parameterValues)
-                .expression("parameterExpressions", ExprNodeUtilityCodegen.codegenEvaluators(validatedParameterExpressions, builder.getMethod(), this.getClass(), classScope))
-                .constant("namedWindowName", namedWindowName)
-                .expression("compileTimeConfiguration", SerializerUtil.expressionForUserObject(customConfigs));
+            .expression("factory", exprDotMethod(factoryField, "createFactory", newInstance(VirtualDataWindowFactoryFactoryContext.EPTYPE)))
+            .constant("parameters", parameterValues)
+            .expression("parameterExpressions", ExprNodeUtilityCodegen.codegenEvaluators(validatedParameterExpressions, builder.getMethod(), this.getClass(), classScope))
+            .constant("namedWindowName", namedWindowName)
+            .expression("compileTimeConfiguration", SerializerUtil.expressionForUserObject(customConfigs));
         return builder.build();
     }
 

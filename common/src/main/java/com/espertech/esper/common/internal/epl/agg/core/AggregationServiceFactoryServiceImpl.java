@@ -11,11 +11,11 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class AggregationServiceFactoryServiceImpl implements AggregationServiceFactoryService {
 
@@ -28,15 +28,15 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, EPType[] groupByTypes, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde) {
+    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde, StateMgmtSetting stateMgmtSettings) {
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, EPType[] groupByTypes) {
+    public AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory, AggregationGroupByRollupDesc groupByRollupDesc, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, StateMgmtSetting stateMgmtSettings) {
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupLocalGroupBy(AggregationServiceFactory nonHAFactory, AggregationUseFlags useFlags, boolean hasGroupBy, AggregationLocalGroupByLevel optionalTop, AggregationLocalGroupByLevel[] levels, AggregationLocalGroupByColumn[] columns) {
+    public AggregationServiceFactory groupLocalGroupBy(AggregationServiceFactory nonHAFactory, AggregationUseFlags useFlags, boolean hasGroupBy, AggregationLocalGroupByLevel optionalTop, AggregationLocalGroupByLevel[] levels, AggregationLocalGroupByColumn[] columns, StateMgmtSetting stateMgmtSettings) {
         return nonHAFactory;
     }
 }

@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFactory {
     public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyHashedArrayFactoryFactory.class);
@@ -28,8 +29,9 @@ public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFacto
     protected final boolean unique;
     protected final EventPropertyValueGetter[] propertyGetters;
     protected final boolean isFireAndForget;
+    private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, EPTypeClass[] propertyTypes, DataInputOutputSerde<Object>[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget) {
+    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, EPTypeClass[] propertyTypes, DataInputOutputSerde<Object>[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.propertyTypes = propertyTypes;
@@ -37,9 +39,10 @@ public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFacto
         this.unique = unique;
         this.propertyGetters = propertyGetters;
         this.isFireAndForget = isFireAndForget;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
-        return eventTableFactoryContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, eventTableFactoryContext);
+        return eventTableFactoryContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, eventTableFactoryContext, stateMgmtSettings);
     }
 }

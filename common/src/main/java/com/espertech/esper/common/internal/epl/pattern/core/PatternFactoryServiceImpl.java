@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.pattern.observer.TimerAtObserverF
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerIntervalObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerScheduleObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.or.EvalOrFactoryNode;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class PatternFactoryServiceImpl implements PatternFactoryService {
     public final static PatternFactoryServiceImpl INSTANCE = new PatternFactoryServiceImpl();
@@ -33,15 +34,15 @@ public class PatternFactoryServiceImpl implements PatternFactoryService {
     private PatternFactoryServiceImpl() {
     }
 
-    public EvalRootFactoryNode root() {
+    public EvalRootFactoryNode root(StateMgmtSetting stateMgmtSettings) {
         return new EvalRootFactoryNode();
     }
 
-    public EvalObserverFactoryNode observer() {
+    public EvalObserverFactoryNode observer(StateMgmtSetting stateMgmtSettings) {
         return new EvalObserverFactoryNode();
     }
 
-    public EvalGuardFactoryNode guard() {
+    public EvalGuardFactoryNode guard(StateMgmtSetting stateMgmtSettings) {
         return new EvalGuardFactoryNode();
     }
 
@@ -53,31 +54,31 @@ public class PatternFactoryServiceImpl implements PatternFactoryService {
         return new TimerIntervalObserverFactory();
     }
 
-    public EvalAndFactoryNode and() {
+    public EvalAndFactoryNode and(StateMgmtSetting stateMgmtSettings) {
         return new EvalAndFactoryNode();
     }
 
-    public EvalOrFactoryNode or() {
+    public EvalOrFactoryNode or(StateMgmtSetting stateMgmtSettings) {
         return new EvalOrFactoryNode();
     }
 
-    public EvalFilterFactoryNode filter() {
+    public EvalFilterFactoryNode filter(StateMgmtSetting stateMgmtSettings) {
         return new EvalFilterFactoryNode();
     }
 
-    public EvalEveryFactoryNode every() {
+    public EvalEveryFactoryNode every(StateMgmtSetting stateMgmtSettings) {
         return new EvalEveryFactoryNode();
     }
 
-    public EvalNotFactoryNode not() {
+    public EvalNotFactoryNode not(StateMgmtSetting stateMgmtSettings) {
         return new EvalNotFactoryNode();
     }
 
-    public EvalFollowedByFactoryNode followedby() {
+    public EvalFollowedByFactoryNode followedby(StateMgmtSetting stateMgmtSettings) {
         return new EvalFollowedByFactoryNode();
     }
 
-    public EvalMatchUntilFactoryNode matchUntil() {
+    public EvalMatchUntilFactoryNode matchUntil(StateMgmtSetting stateMgmtSettings) {
         return new EvalMatchUntilFactoryNode();
     }
 
@@ -85,7 +86,7 @@ public class PatternFactoryServiceImpl implements PatternFactoryService {
         return new TimerWithinOrMaxCountGuardFactory();
     }
 
-    public EvalEveryDistinctFactoryNode everyDistinct() {
+    public EvalEveryDistinctFactoryNode everyDistinct(StateMgmtSetting stateMgmtSettings) {
         return new EvalEveryDistinctFactoryNode();
     }
 

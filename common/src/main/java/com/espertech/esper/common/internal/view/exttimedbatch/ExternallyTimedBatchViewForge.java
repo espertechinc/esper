@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.exttimedbatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -40,7 +41,7 @@ public class ExternallyTimedBatchViewForge extends ViewFactoryForgeBase implemen
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         final String windowName = getViewName();
         ExprNode[] validated = ViewForgeSupport.validate(windowName, parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
         if (viewParameters.size() < 2 || viewParameters.size() > 3) {
@@ -86,6 +87,10 @@ public class ExternallyTimedBatchViewForge extends ViewFactoryForgeBase implemen
 
     public String getViewName() {
         return "Externally-timed-batch";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_EXTTIMEDBATCH;
     }
 
     private String getViewParamMessage() {

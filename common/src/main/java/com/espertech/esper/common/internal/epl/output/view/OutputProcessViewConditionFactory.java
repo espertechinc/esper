@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCond
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewConditionSnapshot;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
@@ -36,6 +37,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final boolean isUnaggregatedUngrouped;
     private final SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum;
     private final EventType[] eventTypes;
+    private final StateMgmtSetting changeSetStateMgmtSettings;
 
     public OutputProcessViewConditionFactory(OutputProcessViewConditionSpec spec) {
         super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getDistinctKeyGetter(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents(), spec.getResultEventType());
@@ -47,6 +49,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         this.isUnaggregatedUngrouped = spec.isUnaggregatedUngrouped();
         this.selectClauseStreamSelectorEnum = spec.getSelectClauseStreamSelector();
         this.eventTypes = spec.getEventTypes();
+        this.changeSetStateMgmtSettings = spec.getChangeSetStateMgmtSettings();
     }
 
     @Override
@@ -84,10 +87,10 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
             return new OutputProcessViewConditionLastAllUnordPostProcessAll(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         } else {
             if (super.postProcessFactory == null) {
-                return new OutputProcessViewConditionDefault(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, streamCount > 1, eventTypes);
+                return new OutputProcessViewConditionDefault(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, eventTypes, changeSetStateMgmtSettings);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
-            return new OutputProcessViewConditionDefaultPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess, streamCount > 1, eventTypes);
+            return new OutputProcessViewConditionDefaultPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess, eventTypes, changeSetStateMgmtSettings);
         }
     }
 

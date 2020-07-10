@@ -44,7 +44,7 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv env) throws ViewParameterException {
+    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv env, boolean grouped) throws ViewParameterException {
         if (viewParameters.size() != 2) {
             throw new ViewParameterException("View requires a two parameters: the expression returning timestamps and the expression supplying OHLC data points");
         }

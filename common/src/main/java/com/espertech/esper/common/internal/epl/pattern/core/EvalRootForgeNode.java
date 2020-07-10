@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.AuditEnum;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.io.StringWriter;
@@ -31,11 +34,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  */
 public class EvalRootForgeNode extends EvalForgeNodeBase {
 
-    public EvalRootForgeNode(boolean attachPatternText, EvalForgeNode childNode, Annotation[] annotations) {
+    public EvalRootForgeNode(boolean attachPatternText, EvalForgeNode childNode, StatementRawInfo statementRawInfo, int streamNum, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         super(attachPatternText);
         addChildNode(childNode);
+        Annotation[] annotations = statementRawInfo.getAnnotations();
         boolean audit = AuditEnum.PATTERN.getAudit(annotations) != null || AuditEnum.PATTERNINSTANCES.getAudit(annotations) != null;
-        assignFactoryNodeIds(audit);
+        assignFactoryNodeIds(audit, statementRawInfo, streamNum, stateMgmtSettingsProvider);
     }
 
     protected EPTypeClass typeOfFactory() {
@@ -44,6 +48,10 @@ public class EvalRootForgeNode extends EvalForgeNodeBase {
 
     protected String nameOfFactory() {
         return "root";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_ROOT;
     }
 
     protected void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -83,14 +91,14 @@ public class EvalRootForgeNode extends EvalForgeNodeBase {
 
     // assign factory ids, a short-type number assigned once-per-statement to each pattern node
     // return the count of all ids
-    private void assignFactoryNodeIds(boolean audit) {
+    private void assignFactoryNodeIds(boolean audit, StatementRawInfo statementRawInfo, int streamNum, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         short count = 0;
-        setFactoryNodeId(count);
+        setFactoryNodeId(count, statementRawInfo, streamNum, stateMgmtSettingsProvider);
         setAudit(audit);
         List<EvalForgeNode> factories = collectFactories();
         for (EvalForgeNode factoryNode : factories) {
             count++;
-            factoryNode.setFactoryNodeId(count);
+            factoryNode.setFactoryNodeId(count, statementRawInfo, streamNum, stateMgmtSettingsProvider);
             factoryNode.setAudit(audit);
         }
     }

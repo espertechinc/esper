@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timebatch;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -45,6 +46,7 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
     protected TimePeriodComputeForge timePeriodCompute;
     protected int scheduleCallbackId;
 
+
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         if ((parameters.size() < 1) || (parameters.size() > 3)) {
             throw new ViewParameterException(getViewParamMessage());
@@ -75,7 +77,7 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         this.isStartEager = timeBatchFlags.isStartEager();
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -110,5 +112,9 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
 
     public void setScheduleCallbackId(int scheduleCallbackId) {
         this.scheduleCallbackId = scheduleCallbackId;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_TIMEBATCH;
     }
 }

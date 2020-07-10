@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
@@ -21,8 +22,8 @@ import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeDefineItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeMeasureItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpec;
@@ -51,6 +52,8 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,6 +254,7 @@ public class RowRecogNFAViewPlanUtil {
         // validate partition-by expressions, if any
         ExprNode[] partitionBy;
         MultiKeyClassRef partitionMultiKey;
+        StateMgmtSetting partitionMgmtStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
         if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
             StreamTypeService typeServicePartition = new StreamTypeServiceImpl(parentEventType, "MATCH_RECOGNIZE_PARTITION", true);
             List<ExprNode> validated = new ArrayList<>();
@@ -263,16 +267,20 @@ public class RowRecogNFAViewPlanUtil {
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionBy, false, base.getStatementRawInfo(), services.getSerdeResolver());
             partitionMultiKey = multiKeyPlan.getClassRef();
             additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
+            partitionMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_PARTITIONED);
         } else {
+            partitionMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_UNPARTITIONED);
             partitionBy = null;
             partitionMultiKey = null;
         }
 
         // validate interval if present
+        StateMgmtSetting scheduleMgmtStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
         if (matchRecognizeSpec.getInterval() != null) {
             ExprValidationContext validationContext = new ExprValidationContextBuilder(new StreamTypeServiceImpl(false), statementRawInfo, services).withAllowBindingConsumption(true).build();
             ExprTimePeriod validated = (ExprTimePeriod) ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGINTERVAL, matchRecognizeSpec.getInterval().getTimePeriodExpr(), validationContext);
             matchRecognizeSpec.getInterval().setTimePeriodExpr(validated);
+            scheduleMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_SCHEDULE);
         }
 
         // compile variable definition expressions
@@ -363,7 +371,9 @@ public class RowRecogNFAViewPlanUtil {
                 startStates, allStates,
                 matchRecognizeSpec.isAllMatches(), matchRecognizeSpec.getSkip().getSkip(),
                 columnForges, columnNames,
-                intervalCompute, previousRandomAccessIndexes, aggregationServices);
+                intervalCompute, previousRandomAccessIndexes, aggregationServices, partitionMgmtStateMgmtSettings,
+                scheduleMgmtStateMgmtSettings
+            );
         return new RowRecogPlan(forge, additionalForgeables);
     }
 
@@ -450,7 +460,7 @@ public class RowRecogNFAViewPlanUtil {
                     false, base.getStatementRawInfo().getAnnotations(),
                     services.getVariableCompileTimeResolver(), true, null, null,
                     typesPerStream, null, base.getContextName(), null, services.getTableCompileTimeResolver(),
-                    false, true, false, services.getClasspathImportServiceCompileTime(), base.getStatementRawInfo(), services.getSerdeResolver());
+                    false, true, false, services.getClasspathImportServiceCompileTime(), base.getStatementRawInfo(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
             aggServices[entry.getKey()] = desc;
         }
 

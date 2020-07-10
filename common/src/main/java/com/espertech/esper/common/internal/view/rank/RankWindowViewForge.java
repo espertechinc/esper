@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.rank;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -50,7 +51,7 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         this.useCollatorSort = viewForgeEnv.getConfiguration().getCompiler().getLanguage().isSortUsingCollator();
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         eventType = parentEventType;
         String message = getViewName() + " view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys";
         if (viewParameters.size() < 3) {
@@ -139,5 +140,9 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
 
     public String getViewName() {
         return ViewEnum.RANK_WINDOW.getName();
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_RANK;
     }
 }

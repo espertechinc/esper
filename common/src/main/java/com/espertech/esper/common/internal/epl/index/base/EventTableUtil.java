@@ -21,18 +21,17 @@ public class EventTableUtil {
     /**
      * Build an index/table instance using the event properties for the event type.
      *
-     * @param indexedStreamNum     - number of stream indexed
-     * @param eventType            - type of event to expect
-     * @param optionalIndexName    index name
      * @param agentInstanceContext context
+     * @param indexedStreamNum     - number of stream indexed
      * @param item                 plan item
+     * @param eventType            - type of event to expect
+     * @param unique               indicates unique
+     * @param optionalIndexName    index name
      * @param optionalValueSerde   value serde if any
      * @param isFireAndForget      indicates fire-and-forget
-     * @param unique               indicates unique
-     * @param coerceOnAddOnly      indicator whether to coerce on value-add
      * @return table build
      */
-    public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean coerceOnAddOnly, boolean unique, String optionalIndexName, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
+    public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean unique, String optionalIndexName, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
         String[] indexProps = item.getHashProps();
         EPTypeClass[] indexTypes = item.getHashPropTypes();
         EventPropertyValueGetter indexGetter = item.getHashGetter();
@@ -47,15 +46,15 @@ public class EventTableUtil {
             table = eventTableIndexService.createCustom(optionalIndexName, indexedStreamNum, eventType, item.isUnique(), item.getAdvancedIndexProvisionDesc()).makeEventTables(agentInstanceContext, null)[0];
         } else if (rangeProps == null || rangeProps.length == 0) {
             if (indexProps == null || indexProps.length == 0) {
-                EventTableFactory factory = eventTableIndexService.createUnindexed(indexedStreamNum, eventType, optionalValueSerde, isFireAndForget, agentInstanceContext.getStatementContext().getEventTableFactoryContext());
+                EventTableFactory factory = eventTableIndexService.createUnindexed(indexedStreamNum, eventType, optionalValueSerde, isFireAndForget, item.getStateMgmtSettings());
                 table = factory.makeEventTables(agentInstanceContext, null)[0];
             } else {
-                EventTableFactory factory = eventTableIndexService.createHashedOnly(indexedStreamNum, eventType, indexProps, indexTypes, item.getTransformFireAndForget(), item.getHashKeySerde(), unique, optionalIndexName, indexGetter, optionalValueSerde, isFireAndForget, agentInstanceContext.getStatementContext().getEventTableFactoryContext());
+                EventTableFactory factory = eventTableIndexService.createHashedOnly(indexedStreamNum, eventType, indexProps, item.getTransformFireAndForget(), item.getHashKeySerde(), unique, optionalIndexName, indexGetter, optionalValueSerde, isFireAndForget, item.getStateMgmtSettings());
                 table = factory.makeEventTables(agentInstanceContext, null)[0];
             }
         } else {
             if ((rangeProps.length == 1) && (indexProps == null || indexProps.length == 0)) {
-                EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], rangeTypes[0], rangeGetters[0], rangeKeySerdes[0], optionalValueSerde, isFireAndForget, agentInstanceContext.getStatementContext().getEventTableFactoryContext());
+                EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], rangeTypes[0], rangeGetters[0], rangeKeySerdes[0], optionalValueSerde, isFireAndForget, agentInstanceContext.getStatementContext().getEventTableFactoryContext(), item.getStateMgmtSettings());
                 table = factory.makeEventTables(agentInstanceContext, null)[0];
             } else {
                 EventTableFactory factory = eventTableIndexService.createComposite(indexedStreamNum, eventType, indexProps, indexTypes, indexGetter, item.getTransformFireAndForget(), item.getHashKeySerde(), rangeProps, rangeTypes, rangeGetters, rangeKeySerdes, optionalValueSerde, isFireAndForget);

@@ -34,9 +34,11 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
@@ -61,6 +63,10 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final EPType[] groupKeyTypes;
     private final MultiKeyClassRef multiKeyClassRef;
+    private final Supplier<StateMgmtSetting> outputFirstHelperSettings;
+    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
+    private final Supplier<StateMgmtSetting> outputAllOptSettings;
+    private final Supplier<StateMgmtSetting> outputLastOptSettings;
 
     private CodegenMethod generateGroupKeySingle;
     private CodegenMethod generateGroupKeyArrayView;
@@ -77,7 +83,11 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
                                                    ResultSetProcessorOutputConditionType outputConditionType,
                                                    OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
                                                    EventType[] eventTypes,
-                                                   MultiKeyClassRef multiKeyClassRef) {
+                                                   MultiKeyClassRef multiKeyClassRef,
+                                                   Supplier<StateMgmtSetting> outputFirstHelperSettings,
+                                                   Supplier<StateMgmtSetting> outputAllHelperSettings,
+                                                   Supplier<StateMgmtSetting> outputAllOptSettings,
+                                                   Supplier<StateMgmtSetting> outputLastOptSettings) {
         this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.optionalHavingNode = optionalHavingNode;
@@ -91,6 +101,10 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
+        this.outputFirstHelperSettings = outputFirstHelperSettings;
+        this.outputAllHelperSettings = outputAllHelperSettings;
+        this.outputAllOptSettings = outputAllOptSettings;
+        this.outputLastOptSettings = outputLastOptSettings;
     }
 
     public EventType getResultEventType() {
@@ -255,5 +269,21 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
 
     public MultiKeyClassRef getMultiKeyClassRef() {
         return multiKeyClassRef;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputFirstHelperSettings() {
+        return outputFirstHelperSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+        return outputAllHelperSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllOptSettings() {
+        return outputAllOptSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputLastOptSettings() {
+        return outputLastOptSettings;
     }
 }

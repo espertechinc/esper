@@ -38,9 +38,11 @@ import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPoll
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
@@ -70,6 +72,10 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     private final EPType[] groupKeyTypes;
     private final boolean unbounded;
     private final MultiKeyClassRef multiKeyClassRef;
+    private final Supplier<StateMgmtSetting> outputFirstSettings;
+    private final Supplier<StateMgmtSetting> outputAllSettings;
+    private final Supplier<StateMgmtSetting> outputLastSettings;
+    private final Supplier<StateMgmtSetting> outputSnapshotSettings;
 
     private CodegenMethod generateGroupKeySingle;
 
@@ -88,7 +94,11 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
                                                     ResultSetProcessorOutputConditionType outputConditionType,
                                                     OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
                                                     EventType[] eventTypes,
-                                                    MultiKeyClassRef multiKeyClassRef) {
+                                                    MultiKeyClassRef multiKeyClassRef,
+                                                    Supplier<StateMgmtSetting> outputFirstSettings,
+                                                    Supplier<StateMgmtSetting> outputAllSettings,
+                                                    Supplier<StateMgmtSetting> outputLastSettings,
+                                                    Supplier<StateMgmtSetting> outputSnapshotSettings) {
         this.resultEventType = resultEventType;
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelForges = perLevelForges;
@@ -106,6 +116,10 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
+        this.outputFirstSettings = outputFirstSettings;
+        this.outputAllSettings = outputAllSettings;
+        this.outputLastSettings = outputLastSettings;
+        this.outputSnapshotSettings = outputSnapshotSettings;
     }
 
     public EventType getResultEventType() {
@@ -282,5 +296,21 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
 
     public CodegenMethod getGenerateGroupKeySingle() {
         return generateGroupKeySingle;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputFirstSettings() {
+        return outputFirstSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllSettings() {
+        return outputAllSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputLastSettings() {
+        return outputLastSettings;
+    }
+
+    public Supplier<StateMgmtSetting> getOutputSnapshotSettings() {
+        return outputSnapshotSettings;
     }
 }

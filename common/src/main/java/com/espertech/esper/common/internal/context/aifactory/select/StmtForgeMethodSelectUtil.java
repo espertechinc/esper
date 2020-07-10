@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.select;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.IterableUnbound;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
@@ -69,6 +70,8 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
@@ -299,7 +302,9 @@ public class StmtForgeMethodSelectUtil {
         if (hasPrior) {
             for (int stream = 0; stream < numStreams; stream++) {
                 if (!viewResourceDelegateDesc[stream].getPriorRequests().isEmpty()) {
-                    viewForges[stream].add(new PriorEventViewForge(viewForges[stream].isEmpty(), streamEventTypes[stream]));
+                    boolean unbound = viewForges[stream].isEmpty();
+                    StateMgmtSetting stateMgmtSettings = unbound ? StateMgmtSettingDefault.INSTANCE : services.getStateMgmtSettingsProvider().getView(base.getStatementRawInfo(), stream, false, false, AppliesTo.WINDOW_PRIOR);
+                    viewForges[stream].add(new PriorEventViewForge(unbound, streamEventTypes[stream], stateMgmtSettings));
                     List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
                     additionalForgeables.addAll(serdeForgeables);
                 }

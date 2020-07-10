@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewCond
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionFactory;
 import com.espertech.esper.common.internal.epl.output.view.OutputStrategyPostProcess;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * A view that prepares output events, batching incoming
@@ -28,8 +29,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessViewConditionDefault {
     private final OutputStrategyPostProcess postProcessor;
 
-    public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, boolean isJoin, EventType[] eventTypes) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, isJoin, eventTypes);
+    public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings) {
+        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, eventTypes, stateMgmtSettings);
         this.postProcessor = postProcessor;
     }
 

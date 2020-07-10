@@ -31,6 +31,7 @@ public class CompilerOptions {
     private ModuleNameOption moduleName;
     private ModuleUsesOption moduleUses;
     private InlinedClassInspectionOption inlinedClassInspection;
+    private StateMgmtSettingOption stateMgmtSetting;
 
     /**
      * Returns the callback that determines the access modifier of a given event type
@@ -290,5 +291,13 @@ public class CompilerOptions {
      */
     public void setInlinedClassInspection(InlinedClassInspectionOption inlinedClassInspection) {
         this.inlinedClassInspection = inlinedClassInspection;
+    }
+
+    public StateMgmtSettingOption getStateMgmtSetting() {
+        return stateMgmtSetting;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSettingOption stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 }

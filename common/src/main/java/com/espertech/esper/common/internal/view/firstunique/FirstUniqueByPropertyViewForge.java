@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firstunique;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -41,7 +42,7 @@ public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase impleme
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
 
         if (criteriaExpressions.length == 0) {
@@ -77,5 +78,9 @@ public class FirstUniqueByPropertyViewForge extends ViewFactoryForgeBase impleme
 
     public String getViewName() {
         return ViewEnum.UNIQUE_FIRST_BY_PROPERTY.getName();
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_FIRSTUNIQUE;
     }
 }

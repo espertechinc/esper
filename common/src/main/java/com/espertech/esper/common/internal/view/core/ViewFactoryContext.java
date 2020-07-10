@@ -15,13 +15,8 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 public class ViewFactoryContext {
     public final static EPTypeClass EPTYPE = new EPTypeClass(ViewFactoryContext.class);
 
-    private boolean isGrouped;
     private int streamNum;
     private Integer subqueryNumber;
-
-    public void setGrouped(boolean grouped) {
-        isGrouped = grouped;
-    }
 
     public void setStreamNum(int streamNum) {
         this.streamNum = streamNum;
@@ -29,10 +24,6 @@ public class ViewFactoryContext {
 
     public void setSubqueryNumber(Integer subqueryNumber) {
         this.subqueryNumber = subqueryNumber;
-    }
-
-    public boolean isGrouped() {
-        return isGrouped;
     }
 
     public int getStreamNum() {

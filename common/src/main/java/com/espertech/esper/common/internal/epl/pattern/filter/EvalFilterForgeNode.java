@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.filter;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -20,8 +21,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPr
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionPrecedenceEnum;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -168,5 +167,7 @@ public class EvalFilterForgeNode extends EvalForgeNodeBase {
         filters.add(filterSpec);
     }
 
-    private static final Logger log = LoggerFactory.getLogger(EvalFilterForgeNode.class);
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_FILTER;
+    }
 }

@@ -66,7 +66,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
         QueryPlanIndexItemForge proposed = new QueryPlanIndexItemForge(indexProps, new EPTypeClass[indexProps.length], rangeProps, new EPTypeClass[rangeProps.length], false, null, null);
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : items.entrySet()) {
             if (entry.getValue().equalsCompareSortedProps(proposed)) {
-                return new Pair<TableLookupIndexReqKey, int[]>(entry.getKey(), null);
+                return new Pair<>(entry.getKey(), null);
             }
         }
 
@@ -75,7 +75,7 @@ public class QueryPlanIndexForge implements CodegenMakeable<SAIFFInitializeSymbo
             if (entry.getValue().getRangeProps() == null || entry.getValue().getRangeProps().length == 0) {
                 int[] indexes = QueryPlanIndexUniqueHelper.checkSufficientGetAssignment(entry.getValue().getHashProps(), indexProps);
                 if (indexes != null && indexes.length != 0) {
-                    return new Pair<TableLookupIndexReqKey, int[]>(entry.getKey(), indexes);
+                    return new Pair<>(entry.getKey(), indexes);
                 }
             }
         }

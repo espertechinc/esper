@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.index.advanced.index.service.Even
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.lookup.AdvancedIndexIndexMultiKeyPart;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +42,11 @@ public class QueryPlanIndexItem {
     private final DataInputOutputSerde<Object>[] rangeKeySerdes;
     private final boolean unique;
     private final EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc;
+    private final StateMgmtSetting stateMgmtSettings;
 
     public QueryPlanIndexItem(String[] hashProps, EPTypeClass[] hashPropTypes, EventPropertyValueGetter hashGetter, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> hashKeySerde,
                               String[] rangeProps, EPTypeClass[] rangePropTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeKeySerdes,
-                              boolean unique, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc) {
+                              boolean unique, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, StateMgmtSetting stateMgmtSettings) {
         this.hashProps = hashProps;
         this.hashPropTypes = hashPropTypes;
         this.hashGetter = hashGetter;
@@ -56,6 +58,7 @@ public class QueryPlanIndexItem {
         this.rangeKeySerdes = rangeKeySerdes;
         this.unique = unique;
         this.advancedIndexProvisionDesc = advancedIndexProvisionDesc;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public String[] getHashProps() {
@@ -139,5 +142,9 @@ public class QueryPlanIndexItem {
             part = new AdvancedIndexIndexMultiKeyPart(advancedIndexProvisionDesc.getIndexTypeName(), advancedIndexProvisionDesc.getIndexExpressionTexts(), advancedIndexProvisionDesc.getIndexProperties());
         }
         return new IndexMultiKey(unique, getHashPropsAsList(), getBtreePropsAsList(), part);
+    }
+
+    public StateMgmtSetting getStateMgmtSettings() {
+        return stateMgmtSettings;
     }
 }

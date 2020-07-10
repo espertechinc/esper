@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTab
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.Arrays;
@@ -37,8 +38,9 @@ public class PropertyHashedArrayFactoryFactoryForge implements EventTableFactory
     protected final DataInputOutputSerdeForge[] serdes;
     protected final boolean unique;
     protected final boolean isFireAndForget;
+    private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertyHashedArrayFactoryFactoryForge(int streamNum, EventType eventType, String[] propertyNames, EPType[] propertyTypes, DataInputOutputSerdeForge[] serdes, boolean unique, boolean isFireAndForget) {
+    public PropertyHashedArrayFactoryFactoryForge(int streamNum, EventType eventType, String[] propertyNames, EPType[] propertyTypes, DataInputOutputSerdeForge[] serdes, boolean unique, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyNames = propertyNames;
@@ -46,6 +48,7 @@ public class PropertyHashedArrayFactoryFactoryForge implements EventTableFactory
         this.serdes = serdes;
         this.unique = unique;
         this.isFireAndForget = isFireAndForget;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public Class getEventTableClass() {
@@ -64,7 +67,7 @@ public class PropertyHashedArrayFactoryFactoryForge implements EventTableFactory
 
         method.getBlock().methodReturn(newInstance(PropertyHashedArrayFactoryFactory.EPTYPE,
                 constant(streamNum), constant(propertyNames), constant(propertyTypes), DataInputOutputSerdeForge.codegenArray(serdes, method, classScope, null), constant(unique), ref("getters"),
-                constant(isFireAndForget)));
+                constant(isFireAndForget), stateMgmtSettings.toExpression()));
         return localMethod(method);
     }
 

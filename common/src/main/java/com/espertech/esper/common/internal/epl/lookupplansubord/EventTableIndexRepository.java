@@ -155,7 +155,7 @@ public class EventTableIndexRepository {
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = indexItem.toIndexMultiKey();
 
-        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, indexItem.isUnique(), indexName, optionalValueSerde, false);
+        EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, indexItem.isUnique(), indexName, optionalValueSerde, false);
 
         try {
             // fill table since its new

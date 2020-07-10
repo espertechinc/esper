@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createcontext;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -51,6 +52,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.schedule.ScheduleExpressionUtil;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
@@ -127,7 +129,8 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         String statementAIFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
 
         StatementAgentInstanceFactoryCreateContextForge forge = new StatementAgentInstanceFactoryCreateContextForge(context.getContextName(), statementEventType);
-        forgeables.add(new StmtClassForgeableAIFactoryProviderCreateContext(statementAIFactoryProviderClassName, packageScope, context.getContextName(), controllerFactoryForges, contextPropertiesType, forge));
+        StateMgmtSetting partitionIdSvcStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(base.getStatementRawInfo(), context.getContextName(), AppliesTo.CONTEXT_PARTITIONID);
+        forgeables.add(new StmtClassForgeableAIFactoryProviderCreateContext(statementAIFactoryProviderClassName, packageScope, context.getContextName(), controllerFactoryForges, contextPropertiesType, forge, partitionIdSvcStateMgmtSettings));
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);

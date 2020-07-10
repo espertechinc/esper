@@ -23,12 +23,12 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
@@ -43,30 +43,27 @@ public class ResultSetProcessorRowForAllForge implements ResultSetProcessorFacto
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
-    private final SelectExprProcessorForge selectExprProcessorForge;
     private final ExprForge optionalHavingNode;
     private final OutputLimitSpec outputLimitSpec;
     private final boolean hasOrderBy;
-    private final ResultSetProcessorOutputConditionType outputConditionType;
+    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
 
     public ResultSetProcessorRowForAllForge(EventType resultEventType,
-                                            SelectExprProcessorForge selectExprProcessorForge,
                                             ExprForge optionalHavingNode,
                                             boolean isSelectRStream,
                                             boolean isUnidirectional,
                                             boolean isHistoricalOnly,
                                             OutputLimitSpec outputLimitSpec,
                                             boolean hasOrderBy,
-                                            ResultSetProcessorOutputConditionType outputConditionType) {
+                                            Supplier<StateMgmtSetting> outputAllHelperSettings) {
         this.resultEventType = resultEventType;
-        this.selectExprProcessorForge = selectExprProcessorForge;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputLimitSpec = outputLimitSpec;
         this.hasOrderBy = hasOrderBy;
-        this.outputConditionType = outputConditionType;
+        this.outputAllHelperSettings = outputAllHelperSettings;
     }
 
     public EventType getResultEventType() {
@@ -171,5 +168,9 @@ public class ResultSetProcessorRowForAllForge implements ResultSetProcessorFacto
 
     public String getInstrumentedQName() {
         return "ResultSetProcessUngroupedFullyAgg";
+    }
+
+    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+        return outputAllHelperSettings;
     }
 }

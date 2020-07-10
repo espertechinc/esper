@@ -14,12 +14,13 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAView;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPartitionTerminationStateComparator;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPreviousStrategyImpl;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * Service for creating match-recognize factory and state services.
  */
 public interface RowRecogStateRepoFactory {
-    RowRecogPartitionStateRepo makeSingle(RowRecogPreviousStrategyImpl prevGetter, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare);
+    RowRecogPartitionStateRepo makeSingle(RowRecogPreviousStrategyImpl prevGetter, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare, StateMgmtSetting unpartitionedStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings);
 
-    RowRecogPartitionStateRepo makePartitioned(RowRecogPreviousStrategyImpl prevGetter, RowRecogPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare);
+    RowRecogPartitionStateRepo makePartitioned(RowRecogPreviousStrategyImpl prevGetter, RowRecogPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, RowRecogNFAView view, boolean keepScheduleState, RowRecogPartitionTerminationStateComparator terminationStateCompare, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings);
 }

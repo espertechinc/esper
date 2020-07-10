@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.derived;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -44,7 +45,7 @@ public class WeightedAverageViewForge extends ViewFactoryForgeBase {
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
 
         if (validated.length < 2) {
@@ -84,6 +85,10 @@ public class WeightedAverageViewForge extends ViewFactoryForgeBase {
 
     public String getViewName() {
         return ViewEnum.WEIGHTED_AVERAGE.getName();
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_WEIGHTEDAVG;
     }
 
     private String getViewParamMessage() {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.lastevent;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -30,12 +31,12 @@ public class LastEventViewForge extends ViewFactoryForgeBase implements DataWind
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
     protected EPTypeClass typeOfFactory() {
-        return ViewFactory.EPTYPE;
+        return LastEventViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -47,5 +48,9 @@ public class LastEventViewForge extends ViewFactoryForgeBase implements DataWind
 
     public String getViewName() {
         return ViewEnum.LAST_EVENT.getName();
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_LASTEVENT;
     }
 }

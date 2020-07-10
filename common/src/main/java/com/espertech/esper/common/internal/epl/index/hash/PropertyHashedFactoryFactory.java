@@ -18,31 +18,33 @@ import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryBase;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
     public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyHashedFactoryFactory.class);
 
     private final String[] indexProps;
-    private final EPTypeClass[] indexTypes;
     private final boolean unique;
     private final EventPropertyValueGetter valueGetter;
     private final MultiKeyFromObjectArray transformFireAndForget;
     private final DataInputOutputSerde<Object> keySerde;
+    private final StateMgmtSetting stateMgmtSettings;
 
     public PropertyHashedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget,
-                                        String[] indexProps, EPTypeClass[] indexTypes, boolean unique, EventPropertyValueGetter valueGetter,
-                                        MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde) {
+                                        String[] indexProps, boolean unique, EventPropertyValueGetter valueGetter,
+                                        MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde,
+                                        StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProps = indexProps;
-        this.indexTypes = indexTypes;
         this.unique = unique;
         this.valueGetter = valueGetter;
         this.transformFireAndForget = transformFireAndForget;
         this.keySerde = keySerde;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return eventTableFactoryContext.getEventTableIndexService().createHashedOnly(indexedStreamNum, eventType, indexProps,
-                indexTypes, transformFireAndForget, keySerde, unique, null, valueGetter, null, isFireAndForget, eventTableFactoryContext);
+                transformFireAndForget, keySerde, unique, null, valueGetter, null, isFireAndForget, stateMgmtSettings);
     }
 }

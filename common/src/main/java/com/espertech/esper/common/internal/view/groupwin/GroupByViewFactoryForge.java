@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.groupwin;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.Hint;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
@@ -107,7 +108,7 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         }
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
 
         if (criteriaExpressions.length == 0) {
@@ -249,5 +250,9 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         EventType eventType = WrapperEventTypeUtil.makeWrapper(metadata, groupedEventType, additionalProps, EventBeanTypedEventFactoryCompileTime.INSTANCE, viewForgeEnv.getBeanEventTypeFactoryProtected(), viewForgeEnv.getEventTypeCompileTimeResolver());
         viewForgeEnv.getEventTypeModuleCompileTimeRegistry().newType(eventType);
         return eventType;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_GROUP;
     }
 }

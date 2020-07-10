@@ -12,8 +12,10 @@ package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,6 +23,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenMakeable;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionCompileTime;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
@@ -28,6 +32,7 @@ import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -50,6 +55,7 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
     private final boolean unique;
     private final EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc;
     private final EventType eventType;
+    private StateMgmtSetting stateMgmtSettings;
 
     public QueryPlanIndexItemForge(String[] hashProps, EPTypeClass[] hashTypes, String[] rangeProps, EPTypeClass[] rangeTypes, boolean unique, EventAdvancedIndexProvisionCompileTime advancedIndexProvisionDesc, EventType eventType) {
         if (advancedIndexProvisionDesc == null) {
@@ -200,7 +206,8 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
             constant(hashProps), constant(hashTypes), valueGetter, multiKeyTransform, hashMultiKeyClasses == null ? constantNull() : hashMultiKeyClasses.getExprMKSerde(method, classScope),
             constant(rangeProps), constant(rangeTypes), rangeGetters, DataInputOutputSerdeForge.codegenArray(rangeSerdes, method, classScope, null),
             constant(unique),
-            advancedIndexProvisionDesc == null ? constantNull() : advancedIndexProvisionDesc.codegenMake(method, classScope)));
+            advancedIndexProvisionDesc == null ? constantNull() : advancedIndexProvisionDesc.codegenMake(method, classScope),
+            stateMgmtSettings.toExpression()));
         return localMethod(method);
     }
 
@@ -224,10 +231,28 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
         if (advancedIndexProvisionDesc == null) {
             return null;
         }
+
         return new QueryPlanIndexItem(
             hashProps, hashTypes, null, null, null,
             rangeProps, rangeTypes, null, null,
             unique,
-            advancedIndexProvisionDesc.toRuntime());
+            advancedIndexProvisionDesc.toRuntime(), stateMgmtSettings);
+    }
+
+    public void planStateMgmtSettings(StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
+        AppliesTo appliesTo;
+        if (hashProps.length > 0 && rangeProps.length == 0) {
+            appliesTo = AppliesTo.INDEX_HASH;
+        } else if (hashProps.length == 0 && rangeProps.length > 0) {
+            appliesTo = AppliesTo.INDEX_SORTED;
+        } else if (hashProps.length > 0) {
+            stateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
+            return;
+        } else if (advancedIndexProvisionDesc == null) {
+            appliesTo = AppliesTo.INDEX_UNINDEXED;
+        } else {
+            appliesTo = AppliesTo.INDEX_OTHER;
+        }
+        stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().getIndex(raw, appliesTo);
     }
 }

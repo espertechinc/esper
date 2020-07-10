@@ -151,6 +151,9 @@ public class JoinSetComposerPrototypeForgeFactory {
         List<StmtClassForgeableFactory> multikeyForgeables = planMultikeys(indexSpecs, statementRawInfo, compileTimeServices);
         additionalForgeables.addAll(multikeyForgeables);
 
+        // plan objectsettings
+        planStateMgmtSettings(indexSpecs, statementRawInfo, compileTimeServices);
+
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(spec.getAnnotations(), compileTimeServices.getClasspathImportServiceCompileTime());
         if (queryPlanLogging && (QUERY_PLAN_LOG.isInfoEnabled() || hook != null)) {
             QUERY_PLAN_LOG.info("Query plan: " + queryPlan.toQueryPlan());
@@ -194,6 +197,18 @@ public class JoinSetComposerPrototypeForgeFactory {
             }
         }
         return multiKeyForgeables;
+    }
+
+    private static void planStateMgmtSettings(QueryPlanIndexForge[] indexSpecs, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
+        for (QueryPlanIndexForge spec : indexSpecs) {
+            if (spec == null) {
+                continue;
+            }
+            for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : spec.getItems().entrySet()) {
+                QueryPlanIndexItemForge forge = entry.getValue();
+                forge.planStateMgmtSettings(raw, compileTimeServices);
+            }
+        }
     }
 
     private static JoinSetComposerPrototypeHistorical2StreamDesc makeComposerHistorical2Stream(OuterJoinDesc[] outerJoinDescs,

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewFactory;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.view.derived.*;
 import com.espertech.esper.common.internal.view.expression.ExpressionBatchViewFactory;
 import com.espertech.esper.common.internal.view.expression.ExpressionWindowViewFactory;
@@ -44,123 +45,123 @@ public class ViewFactoryServiceImpl implements ViewFactoryService {
     private ViewFactoryServiceImpl() {
     }
 
-    public LengthWindowViewFactory length() {
+    public LengthWindowViewFactory length(StateMgmtSetting stateMgmtSettings) {
         return new LengthWindowViewFactory();
     }
 
-    public PriorEventViewFactory prior() {
+    public PriorEventViewFactory prior(StateMgmtSetting stateMgmtSettings) {
         return new PriorEventViewFactory();
     }
 
-    public TimeWindowViewFactory time() {
+    public TimeWindowViewFactory time(StateMgmtSetting stateMgmtSettings) {
         return new TimeWindowViewFactory();
     }
 
-    public KeepAllViewFactory keepall() {
+    public KeepAllViewFactory keepall(StateMgmtSetting stateMgmtSettings) {
         return new KeepAllViewFactory();
     }
 
-    public TimeBatchViewFactory timebatch() {
+    public TimeBatchViewFactory timebatch(StateMgmtSetting stateMgmtSettings) {
         return new TimeBatchViewFactory();
     }
 
-    public TimeLengthBatchViewFactory timelengthbatch() {
+    public TimeLengthBatchViewFactory timelengthbatch(StateMgmtSetting stateMgmtSettings) {
         return new TimeLengthBatchViewFactory();
     }
 
-    public LengthBatchViewFactory lengthbatch() {
+    public LengthBatchViewFactory lengthbatch(StateMgmtSetting stateMgmtSettings) {
         return new LengthBatchViewFactory();
     }
 
-    public SortWindowViewFactory sort() {
+    public SortWindowViewFactory sort(StateMgmtSetting stateMgmtSettings) {
         return new SortWindowViewFactory();
     }
 
-    public RankWindowViewFactory rank() {
+    public RankWindowViewFactory rank(StateMgmtSetting stateMgmtSettings) {
         return new RankWindowViewFactory();
     }
 
-    public TimeAccumViewFactory timeaccum() {
+    public TimeAccumViewFactory timeaccum(StateMgmtSetting stateMgmtSettings) {
         return new TimeAccumViewFactory();
     }
 
-    public UniqueByPropertyViewFactory unique() {
+    public UniqueByPropertyViewFactory unique(StateMgmtSetting stateMgmtSettings) {
         return new UniqueByPropertyViewFactory();
     }
 
-    public FirstUniqueByPropertyViewFactory firstunique() {
+    public FirstUniqueByPropertyViewFactory firstunique(StateMgmtSetting stateMgmtSettings) {
         return new FirstUniqueByPropertyViewFactory();
     }
 
-    public FirstTimeViewFactory firsttime() {
+    public FirstTimeViewFactory firsttime(StateMgmtSetting stateMgmtSettings) {
         return new FirstTimeViewFactory();
     }
 
-    public ExternallyTimedBatchViewFactory exttimebatch() {
+    public ExternallyTimedBatchViewFactory exttimebatch(StateMgmtSetting stateMgmtSettings) {
         return new ExternallyTimedBatchViewFactory();
     }
 
-    public ExternallyTimedWindowViewFactory exttime() {
+    public ExternallyTimedWindowViewFactory exttime(StateMgmtSetting stateMgmtSettings) {
         return new ExternallyTimedWindowViewFactory();
     }
 
-    public TimeOrderViewFactory timeorder() {
+    public TimeOrderViewFactory timeorder(StateMgmtSetting stateMgmtSettings) {
         return new TimeOrderViewFactory();
     }
 
-    public LastEventViewFactory lastevent() {
+    public LastEventViewFactory lastevent(StateMgmtSetting stateMgmtSettings) {
         return new LastEventViewFactory();
     }
 
-    public FirstEventViewFactory firstevent() {
+    public FirstEventViewFactory firstevent(StateMgmtSetting stateMgmtSettings) {
         return new FirstEventViewFactory();
     }
 
-    public FirstLengthWindowViewFactory firstlength() {
+    public FirstLengthWindowViewFactory firstlength(StateMgmtSetting stateMgmtSettings) {
         return new FirstLengthWindowViewFactory();
     }
 
-    public SizeViewFactory size() {
+    public SizeViewFactory size(StateMgmtSetting stateMgmtSettings) {
         return new SizeViewFactory();
     }
 
-    public UnivariateStatisticsViewFactory uni() {
+    public UnivariateStatisticsViewFactory uni(StateMgmtSetting stateMgmtSettings) {
         return new UnivariateStatisticsViewFactory();
     }
 
-    public WeightedAverageViewFactory weightedavg() {
+    public WeightedAverageViewFactory weightedavg(StateMgmtSetting stateMgmtSettings) {
         return new WeightedAverageViewFactory();
     }
 
-    public RegressionLinestViewFactory regression() {
+    public RegressionLinestViewFactory regression(StateMgmtSetting stateMgmtSettings) {
         return new RegressionLinestViewFactory();
     }
 
-    public CorrelationViewFactory correlation() {
+    public CorrelationViewFactory correlation(StateMgmtSetting stateMgmtSettings) {
         return new CorrelationViewFactory();
     }
 
-    public GroupByViewFactory group() {
+    public GroupByViewFactory group(StateMgmtSetting stateMgmtSettings) {
         return new GroupByViewFactory();
     }
 
-    public IntersectViewFactory intersect() {
+    public IntersectViewFactory intersect(StateMgmtSetting stateMgmtSettings) {
         return new IntersectViewFactory();
     }
 
-    public UnionViewFactory union() {
+    public UnionViewFactory union(StateMgmtSetting stateMgmtSettings) {
         return new UnionViewFactory();
     }
 
-    public ExpressionBatchViewFactory exprbatch() {
+    public ExpressionBatchViewFactory exprbatch(StateMgmtSetting stateMgmtSettings) {
         return new ExpressionBatchViewFactory();
     }
 
-    public ExpressionWindowViewFactory expr() {
+    public ExpressionWindowViewFactory expr(StateMgmtSetting stateMgmtSettings) {
         return new ExpressionWindowViewFactory();
     }
 
-    public RowRecogNFAViewFactory rowRecog() {
+    public RowRecogNFAViewFactory rowRecog(StateMgmtSetting stateMgmtSettings) {
         return new RowRecogNFAViewFactory();
     }
 }

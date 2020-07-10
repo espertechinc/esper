@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.matchuntil;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,8 +26,6 @@ import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionPrecedenceEnum;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -70,19 +69,19 @@ public class EvalMatchUntilForgeNode extends EvalForgeNodeBase {
 
         CodegenExpression converterExpression;
         if ((lowerBounds == null || lowerBounds.getForge().getForgeConstantType().isCompileTimeConstant()) &&
-                (upperBounds == null || upperBounds.getForge().getForgeConstantType().isCompileTimeConstant()) &&
-                (singleBound == null || singleBound.getForge().getForgeConstantType().isCompileTimeConstant())) {
+            (upperBounds == null || upperBounds.getForge().getForgeConstantType().isCompileTimeConstant()) &&
+            (singleBound == null || singleBound.getForge().getForgeConstantType().isCompileTimeConstant())) {
             converterExpression = constantNull();
         } else {
             converterExpression = convertor.makeAnonymous(method, classScope);
         }
         method.getBlock()
-                .exprDotMethod(node, "setChildren", ref("children"))
-                .exprDotMethod(node, "setLowerBounds", lowerBounds == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(lowerBounds.getForge(), method, this.getClass(), classScope))
-                .exprDotMethod(node, "setUpperBounds", upperBounds == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(upperBounds.getForge(), method, this.getClass(), classScope))
-                .exprDotMethod(node, "setSingleBound", singleBound == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(singleBound.getForge(), method, this.getClass(), classScope))
-                .exprDotMethod(node, "setTagsArrayed", constant(tagsArrayed))
-                .exprDotMethod(node, "setOptionalConvertor", converterExpression);
+            .exprDotMethod(node, "setChildren", ref("children"))
+            .exprDotMethod(node, "setLowerBounds", lowerBounds == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(lowerBounds.getForge(), method, this.getClass(), classScope))
+            .exprDotMethod(node, "setUpperBounds", upperBounds == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(upperBounds.getForge(), method, this.getClass(), classScope))
+            .exprDotMethod(node, "setSingleBound", singleBound == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(singleBound.getForge(), method, this.getClass(), classScope))
+            .exprDotMethod(node, "setTagsArrayed", constant(tagsArrayed))
+            .exprDotMethod(node, "setOptionalConvertor", converterExpression);
     }
 
     public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
@@ -185,5 +184,7 @@ public class EvalMatchUntilForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.REPEAT_UNTIL;
     }
 
-    private static final Logger log = LoggerFactory.getLogger(EvalMatchUntilForgeNode.class);
+    protected AppliesTo appliesTo() {
+        return AppliesTo.PATTERN_MATCHUNTIL;
+    }
 }

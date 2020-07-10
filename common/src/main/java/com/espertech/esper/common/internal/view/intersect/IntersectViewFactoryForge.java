@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.intersect;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,7 +59,7 @@ public class IntersectViewFactoryForge extends ViewFactoryForgeBase implements D
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -123,5 +124,9 @@ public class IntersectViewFactoryForge extends ViewFactoryForgeBase implements D
     @Override
     public List<ViewFactoryForge> getInnerForges() {
         return intersected;
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_INTERSECT;
     }
 }

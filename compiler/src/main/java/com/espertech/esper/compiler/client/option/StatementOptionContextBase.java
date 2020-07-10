@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.client.option;
 
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 
 import java.lang.annotation.Annotation;
@@ -32,11 +33,20 @@ public abstract class StatementOptionContextBase {
      * @param base statement info
      */
     StatementOptionContextBase(StatementBaseInfo base) {
-        this.eplSupplier = () -> base.getCompilable().toEPL();
-        this.statementName = base.getStatementName();
-        this.moduleName = base.getModuleName();
-        this.annotations = base.getStatementRawInfo().getAnnotations();
-        this.statementNumber = base.getStatementNumber();
+        this(base.getStatementRawInfo());
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param raw statement info
+     */
+    StatementOptionContextBase(StatementRawInfo raw) {
+        this.eplSupplier = () -> raw.getCompilable().toEPL();
+        this.statementName = raw.getStatementName();
+        this.moduleName = raw.getModuleName();
+        this.annotations = raw.getAnnotations();
+        this.statementNumber = raw.getStatementNumber();
     }
 
     /**

@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPoll
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedOutputFirstHelper;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessor;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -100,10 +101,10 @@ public class ResultSetProcessorRowPerGroupRollupUtil {
      * @param outputConditionPolledFactory    condition factory
      * @return helpers
      */
-    public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, EPType[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory) {
+    public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, EPType[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory, StateMgmtSetting outputLimitHelperSettings) {
         ResultSetProcessorGroupedOutputFirstHelper[] outputFirstHelpers = new ResultSetProcessorGroupedOutputFirstHelper[groupByRollupDesc.getLevels().length];
         for (int i = 0; i < groupByRollupDesc.getLevels().length; i++) {
-            outputFirstHelpers[i] = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, groupKeyTypes, outputConditionPolledFactory, groupByRollupDesc, i, null);
+            outputFirstHelpers[i] = resultSetProcessorHelperFactory.makeRSGroupedOutputFirst(agentInstanceContext, groupKeyTypes, outputConditionPolledFactory, groupByRollupDesc, i, null, outputLimitHelperSettings);
         }
         return outputFirstHelpers;
     }

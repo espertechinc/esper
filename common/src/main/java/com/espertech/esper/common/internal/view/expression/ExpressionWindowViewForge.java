@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.view.expression;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -42,5 +43,9 @@ public class ExpressionWindowViewForge extends ExpressionViewForgeBase {
 
     public String getViewName() {
         return "Expression";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_EXPRESSION;
     }
 }

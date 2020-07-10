@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadata;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.Copyable;
 
 import java.util.*;
@@ -50,11 +51,12 @@ public class TableMetaData implements Copyable<TableMetaData> {
     private int numMethodAggs;
     private IndexMultiKey keyIndexMultiKey;
     private EventTableIndexMetadata indexMetadata = new EventTableIndexMetadata();
+    private StateMgmtSetting primaryKeyStateMgmtSettings;
 
     public TableMetaData() {
     }
 
-    public TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs) {
+    public TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, StateMgmtSetting primaryKeyStateMgmtSettings) {
         this.tableName = tableName;
         this.tableModuleName = tableModuleName;
         this.tableVisibility = tableVisibility;
@@ -68,10 +70,11 @@ public class TableMetaData implements Copyable<TableMetaData> {
         this.columns = columns;
         this.keyColNums = keyColNums;
         this.numMethodAggs = numMethodAggs;
+        this.primaryKeyStateMgmtSettings = primaryKeyStateMgmtSettings;
         init();
     }
 
-    private TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, IndexMultiKey keyIndexMultiKey, EventTableIndexMetadata indexMetadata) {
+    private TableMetaData(String tableName, String tableModuleName, NameAccessModifier tableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalContextModule, EventType internalEventType, EventType publicEventType, String[] keyColumns, EPTypeClass[] keyTypes, int[] keyColNums, Map<String, TableMetadataColumn> columns, int numMethodAggs, IndexMultiKey keyIndexMultiKey, EventTableIndexMetadata indexMetadata, StateMgmtSetting primaryKeyStateMgmtSettings) {
         this.tableName = tableName;
         this.tableModuleName = tableModuleName;
         this.tableVisibility = tableVisibility;
@@ -87,11 +90,12 @@ public class TableMetaData implements Copyable<TableMetaData> {
         this.numMethodAggs = numMethodAggs;
         this.keyIndexMultiKey = keyIndexMultiKey;
         this.indexMetadata = indexMetadata;
+        this.primaryKeyStateMgmtSettings = primaryKeyStateMgmtSettings;
     }
 
     public TableMetaData copy() {
         return new TableMetaData(tableName, tableModuleName, tableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule,
-            internalEventType, publicEventType, keyColumns, keyTypes, keyColNums, columns, numMethodAggs, keyIndexMultiKey, indexMetadata.copy());
+            internalEventType, publicEventType, keyColumns, keyTypes, keyColNums, columns, numMethodAggs, keyIndexMultiKey, indexMetadata.copy(), primaryKeyStateMgmtSettings);
     }
 
     public void init() {
@@ -128,6 +132,7 @@ public class TableMetaData implements Copyable<TableMetaData> {
             .exprDotMethod(ref("meta"), "setKeyColNums", constant(keyColNums))
             .exprDotMethod(ref("meta"), "setColumns", TableMetadataColumn.makeColumns(columns, method, symbols, classScope))
             .exprDotMethod(ref("meta"), "setNumMethodAggs", constant(numMethodAggs))
+            .exprDotMethod(ref("meta"), "setPrimaryKeyStateMgmtSettings", primaryKeyStateMgmtSettings.toExpression())
             .exprDotMethod(ref("meta"), "init")
             .methodReturn(ref("meta"));
         return localMethod(method);
@@ -273,5 +278,13 @@ public class TableMetaData implements Copyable<TableMetaData> {
 
     public void addIndex(String indexName, String indexModuleName, IndexMultiKey imk, QueryPlanIndexItem indexItem) throws ExprValidationException {
         indexMetadata.addIndexExplicit(false, imk, indexName, indexModuleName, indexItem, "");
+    }
+
+    public StateMgmtSetting getPrimaryKeyStateMgmtSettings() {
+        return primaryKeyStateMgmtSettings;
+    }
+
+    public void setPrimaryKeyStateMgmtSettings(StateMgmtSetting primaryKeyStateMgmtSettings) {
+        this.primaryKeyStateMgmtSettings = primaryKeyStateMgmtSettings;
     }
 }

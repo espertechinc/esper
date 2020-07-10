@@ -70,7 +70,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
 
     protected abstract void makeSetters(CodegenExpressionRef factory, CodegenBlock block);
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
         this.streamNumber = streamNumber;
 
@@ -112,7 +112,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
                     Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
                     viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
                     streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
-                    viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver());
+                    viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
             } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }

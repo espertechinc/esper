@@ -171,7 +171,7 @@ public class StreamSpecCompiler {
 
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
-        EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
+        EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo, streamNum, services.getStateMgmtSettingsProvider());
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
         recursiveCompile(top, tags, allowDuplicateTags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
 

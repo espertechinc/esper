@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createtable;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -51,6 +52,8 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyDesc;
@@ -123,8 +126,14 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             contextModuleName = contextDetail.getContextModuleName();
         }
 
+        // Primary key objectsettings
+        StateMgmtSetting primaryKeyStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
+        if (plan.getPrimaryKeyTypes() != null && plan.getPrimaryKeyTypes().length > 0) {
+            primaryKeyStateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(base.getStatementRawInfo(), AppliesTo.INDEX_HASH);
+        }
+
         // add table
-        TableMetaData tableMetaData = new TableMetaData(tableName, base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, plan.getInternalEventType(), plan.getPublicEventType(), plan.getPrimaryKeyColumns(), plan.getPrimaryKeyTypes(), plan.getPrimaryKeyColNums(), plan.getTableColumns(), plan.getColsAggMethod().length);
+        TableMetaData tableMetaData = new TableMetaData(tableName, base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, plan.getInternalEventType(), plan.getPublicEventType(), plan.getPrimaryKeyColumns(), plan.getPrimaryKeyTypes(), plan.getPrimaryKeyColNums(), plan.getTableColumns(), plan.getColsAggMethod().length, primaryKeyStateMgmtSettings);
         services.getTableCompileTimeRegistry().newTable(tableMetaData);
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);

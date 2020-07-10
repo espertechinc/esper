@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -26,9 +25,9 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.*;
-import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.List;
 
@@ -53,18 +52,18 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     protected final AggGroupByDesc aggGroupByDesc;
     protected final TimeAbacus timeAbacus;
+    private final StateMgmtSetting stateMgmtSettings;
 
     protected CodegenExpression reclaimAge;
     protected CodegenExpression reclaimFreq;
 
-    public AggregationServiceGroupByForge(AggGroupByDesc aggGroupByDesc, TimeAbacus timeAbacus) {
+    public AggregationServiceGroupByForge(AggGroupByDesc aggGroupByDesc, TimeAbacus timeAbacus, StateMgmtSetting stateMgmtSettings) {
         this.aggGroupByDesc = aggGroupByDesc;
         this.timeAbacus = timeAbacus;
+        this.stateMgmtSettings = stateMgmtSettings;
     }
 
     public void providerCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
-        EPType[] groupByTypes = ExprNodeUtilityQuery.getExprResultTypes(aggGroupByDesc.getGroupByNodes());
-
         if (aggGroupByDesc.isReclaimAged()) {
             reclaimAge = aggGroupByDesc.getReclaimEvaluationFunctionMaxAge().make(classScope);
             reclaimFreq = aggGroupByDesc.getReclaimEvaluationFunctionFrequency().make(classScope);
@@ -82,7 +81,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
             .declareVar(DataInputOutputSerde.EPTYPE, "serde", aggGroupByDesc.getGroupByMultiKey().getExprMKSerde(method, classScope))
             .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
                 "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
-                ref("rowSerde"), constant(groupByTypes), reclaimAge, reclaimFreq, timeAbacus, ref("serde")));
+                ref("rowSerde"), reclaimAge, reclaimFreq, timeAbacus, ref("serde"), stateMgmtSettings.toExpression()));
     }
 
     public void rowCtorCodegen(AggregationRowCtorDesc rowCtorDesc) {

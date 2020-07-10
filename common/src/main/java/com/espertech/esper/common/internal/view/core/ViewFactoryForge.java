@@ -22,7 +22,7 @@ import java.util.List;
 public interface ViewFactoryForge extends CodegenMakeable<SAIFFInitializeSymbol> {
     void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException;
 
-    void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException;
+    void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException;
 
     default List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
         return Collections.emptyList();

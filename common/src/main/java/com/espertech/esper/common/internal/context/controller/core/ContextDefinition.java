@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.controller.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class ContextDefinition {
     public final static EPTypeClass EPTYPE = new EPTypeClass(ContextDefinition.class);
@@ -19,6 +20,7 @@ public class ContextDefinition {
     private String contextName;
     private ContextControllerFactory[] controllerFactories;
     private EventType eventTypeContextProperties;
+    private StateMgmtSetting partitionIdSvcStateMgmtSettings;
 
     public String getContextName() {
         return contextName;
@@ -42,5 +44,13 @@ public class ContextDefinition {
 
     public EventType getEventTypeContextProperties() {
         return eventTypeContextProperties;
+    }
+
+    public StateMgmtSetting getPartitionIdSvcStateMgmtSettings() {
+        return partitionIdSvcStateMgmtSettings;
+    }
+
+    public void setPartitionIdSvcStateMgmtSettings(StateMgmtSetting partitionIdSvcStateMgmtSettings) {
+        this.partitionIdSvcStateMgmtSettings = partitionIdSvcStateMgmtSettings;
     }
 }

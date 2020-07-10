@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.length;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -34,7 +35,7 @@ public class LengthWindowViewForge extends ViewFactoryForgeBase implements DataW
         sizeForge = ViewForgeSupport.validateSizeSingleParam(getViewName(), parameters, viewForgeEnv, streamNumber);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -53,5 +54,9 @@ public class LengthWindowViewForge extends ViewFactoryForgeBase implements DataW
     public void assign(CodegenMethod method, CodegenExpressionRef factory, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionNewAnonymousClass sizeEval = codegenEvaluator(sizeForge, method, this.getClass(), classScope);
         method.getBlock().exprDotMethod(factory, "setSize", sizeEval);
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_LENGTH;
     }
 }

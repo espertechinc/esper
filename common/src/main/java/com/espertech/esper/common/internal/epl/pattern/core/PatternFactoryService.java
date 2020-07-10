@@ -26,29 +26,30 @@ import com.espertech.esper.common.internal.epl.pattern.observer.TimerAtObserverF
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerIntervalObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerScheduleObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.or.EvalOrFactoryNode;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public interface PatternFactoryService {
-    EvalRootFactoryNode root();
+    EvalRootFactoryNode root(StateMgmtSetting stateMgmtSettings);
 
-    EvalObserverFactoryNode observer();
+    EvalObserverFactoryNode observer(StateMgmtSetting stateMgmtSettings);
 
-    EvalGuardFactoryNode guard();
+    EvalGuardFactoryNode guard(StateMgmtSetting stateMgmtSettings);
 
-    EvalAndFactoryNode and();
+    EvalAndFactoryNode and(StateMgmtSetting stateMgmtSettings);
 
-    EvalOrFactoryNode or();
+    EvalOrFactoryNode or(StateMgmtSetting stateMgmtSettings);
 
-    EvalFilterFactoryNode filter();
+    EvalFilterFactoryNode filter(StateMgmtSetting stateMgmtSettings);
 
-    EvalEveryFactoryNode every();
+    EvalEveryFactoryNode every(StateMgmtSetting stateMgmtSettings);
 
-    EvalNotFactoryNode not();
+    EvalNotFactoryNode not(StateMgmtSetting stateMgmtSettings);
 
-    EvalFollowedByFactoryNode followedby();
+    EvalFollowedByFactoryNode followedby(StateMgmtSetting stateMgmtSettings);
 
-    EvalMatchUntilFactoryNode matchUntil();
+    EvalMatchUntilFactoryNode matchUntil(StateMgmtSetting stateMgmtSettings);
 
-    EvalEveryDistinctFactoryNode everyDistinct();
+    EvalEveryDistinctFactoryNode everyDistinct(StateMgmtSetting stateMgmtSettings);
 
     TimerIntervalObserverFactory observerTimerInterval();
 

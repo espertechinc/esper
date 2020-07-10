@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.timewin;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +26,8 @@ import com.espertech.esper.common.internal.view.util.ViewFactoryTimePeriodHelper
 
 import java.util.List;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWindowViewForge, DataWindowViewForgeWithPrevious, ScheduleHandleCallbackProvider {
     protected TimePeriodComputeForge timePeriodComputeForge;
@@ -38,7 +40,7 @@ public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWin
         timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv, streamNumber);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    protected void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -70,5 +72,9 @@ public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWin
 
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric or time period parameter";
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_TIME;
     }
 }

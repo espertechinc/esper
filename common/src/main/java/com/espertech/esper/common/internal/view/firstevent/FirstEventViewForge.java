@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.firstevent;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -27,12 +28,12 @@ public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWin
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
     protected EPTypeClass typeOfFactory() {
-        return ViewFactory.EPTYPE;
+        return FirstEventViewFactory.EPTYPE;
     }
 
     protected String factoryMethod() {
@@ -44,5 +45,9 @@ public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWin
 
     public String getViewName() {
         return ViewEnum.FIRST_EVENT.getName();
+    }
+
+    protected AppliesTo appliesTo() {
+        return AppliesTo.WINDOW_FIRSTEVENT;
     }
 }

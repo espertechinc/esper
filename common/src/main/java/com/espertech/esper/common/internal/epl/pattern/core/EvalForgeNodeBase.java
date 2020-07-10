@@ -10,12 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -29,10 +33,13 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
     protected short factoryNodeId;
     protected boolean audit;
     private boolean attachPatternText;
+    private StateMgmtSetting stateMgmtSettings;
 
     protected abstract EPTypeClass typeOfFactory();
 
     protected abstract String nameOfFactory();
+
+    protected abstract AppliesTo appliesTo();
 
     protected abstract void inlineCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
@@ -69,8 +76,9 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
         return childNodes;
     }
 
-    public void setFactoryNodeId(short factoryNodeId) {
+    public void setFactoryNodeId(short factoryNodeId, StatementRawInfo statementRawInfo, int streamNum, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         this.factoryNodeId = factoryNodeId;
+        this.stateMgmtSettings = stateMgmtSettingsProvider.getPattern(statementRawInfo, streamNum, appliesTo());
     }
 
     public short getFactoryNodeId() {
@@ -98,7 +106,7 @@ public abstract class EvalForgeNodeBase implements EvalForgeNode {
     public final CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(typeOfFactory(), this.getClass(), classScope);
         method.getBlock()
-                .declareVar(typeOfFactory(), "node", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add(nameOfFactory()))
+                .declareVar(typeOfFactory(), "node", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETPATTERNFACTORYSERVICE).add(nameOfFactory(), stateMgmtSettings.toExpression()))
                 .exprDotMethod(ref("node"), "setFactoryNodeId", constant(factoryNodeId));
         if (audit || classScope.isInstrumented() || attachPatternText) {
             StringWriter writer = new StringWriter();

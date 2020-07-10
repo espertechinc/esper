@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.IterableUnbound;
 import com.espertech.esper.common.client.type.EPType;
@@ -63,6 +64,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypesException;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.event.core.NativeEventType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
@@ -71,6 +73,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Factory for output processors. Output processors process the result set of a join or of a view
@@ -333,7 +336,7 @@ public class ResultSetProcessorFactoryFactory {
             typeService.getEventTypes(), groupByRollupDesc,
             spec.getContextName(), spec.getIntoTableSpec(), services.getTableCompileTimeResolver(),
             isUnidirectional, isFireAndForget, isOnSelect,
-            services.getClasspathImportServiceCompileTime(), statementRawInfo, services.getSerdeResolver());
+            services.getClasspathImportServiceCompileTime(), statementRawInfo, services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
         additionalForgeables.addAll(aggregationServiceForgeDesc.getAdditionalForgeables());
 
         // Compare local-aggregation versus group-by
@@ -418,7 +421,8 @@ public class ResultSetProcessorFactoryFactory {
             // We need to process the select expression in a simple fashion, with each event (old and new)
             // directly generating one row, and no need to update aggregate state since there is no aggregate function.
             // There might be some order-by expressions.
-            ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes());
+            Supplier<StateMgmtSetting> outputAllHelperSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_SIMPLE_OUTPUTALL);
+            ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes(), outputAllHelperSettings);
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
                 join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
@@ -428,7 +432,8 @@ public class ResultSetProcessorFactoryFactory {
         boolean isLast = outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST;
         boolean isFirst = outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
         if ((namedSelectionList.isEmpty()) && (propertiesAggregatedHaving.isEmpty()) && (havingAggregateExprNodes.isEmpty()) && !isLast && !isFirst) {
-            ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes());
+            Supplier<StateMgmtSetting> outputAllHelperSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_SIMPLE_OUTPUTALL);
+            ResultSetProcessorSimpleForge forge = new ResultSetProcessorSimpleForge(resultEventType, optionalHavingForge, isSelectRStream, outputLimitSpec, outputConditionType, hasOrderBy, typeService.getEventTypes(), outputAllHelperSettings);
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.UNAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
                 join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
@@ -441,7 +446,8 @@ public class ResultSetProcessorFactoryFactory {
             boolean hasStreamSelect = ExprNodeUtilityQuery.hasStreamSelect(selectNodes);
             if ((nonAggregatedPropsSelect.isEmpty()) && !hasStreamSelect && !isUsingWildcard && !isUsingStreamSelect && localGroupByMatchesGroupBy && (viewResourceDelegate == null || viewResourceDelegate.getPreviousRequests().isEmpty())) {
                 log.debug(".getProcessor Using ResultSetProcessorRowForAll");
-                ResultSetProcessorRowForAllForge forge = new ResultSetProcessorRowForAllForge(resultEventType, selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOrderBy, outputConditionType);
+                Supplier<StateMgmtSetting> outputAllHelperSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_FULLYAGGREGATED_OUTPUTALL);
+                ResultSetProcessorRowForAllForge forge = new ResultSetProcessorRowForAllForge(resultEventType, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOrderBy, outputAllHelperSettings);
                 return new ResultSetProcessorDesc(forge, ResultSetProcessorType.FULLYAGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
                     join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
             }
@@ -450,7 +456,8 @@ public class ResultSetProcessorFactoryFactory {
             // There is no group-by clause but there are aggregate functions with event properties in the select clause (aggregation case)
             // or having clause and not all event properties are aggregated (some properties are not under aggregation functions).
             log.debug(".getProcessor Using ResultSetProcessorRowPerEventImpl");
-            ResultSetProcessorRowPerEventForge forge = new ResultSetProcessorRowPerEventForge(selectExprProcessorForge.getResultEventType(), selectExprProcessorForge, optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, outputConditionType, hasOrderBy);
+            Supplier<StateMgmtSetting> outputAllHelperSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPEREVENT_OUTPUTALL);
+            ResultSetProcessorRowPerEventForge forge = new ResultSetProcessorRowPerEventForge(selectExprProcessorForge.getResultEventType(), optionalHavingForge, isSelectRStream, isUnidirectional, isHistoricalOnly, outputLimitSpec, hasOrderBy, outputAllHelperSettings);
             return new ResultSetProcessorDesc(forge, ResultSetProcessorType.AGGREGATED_UNGROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
                 join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
         }
@@ -510,8 +517,11 @@ public class ResultSetProcessorFactoryFactory {
                 if (outputLimitSpec != null) {
                     planSerdes(typeService, additionalForgeables, statementRawInfo, services);
                 }
-
-                forge = new ResultSetProcessorRowPerGroupRollupForge(resultEventType, rollupPerLevelForges, groupByNodesValidated, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey);
+                Supplier<StateMgmtSetting> outputFirstSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROLLUP_OUTPUTFIRST);
+                Supplier<StateMgmtSetting> outputAllSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROLLUP_OUTPUTALL);
+                Supplier<StateMgmtSetting> outputLastSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROLLUP_OUTPUTLAST);
+                Supplier<StateMgmtSetting> outputSnapshotSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROLLUP_OUTPUTSNAPSHOT);
+                forge = new ResultSetProcessorRowPerGroupRollupForge(resultEventType, rollupPerLevelForges, groupByNodesValidated, isSelectRStream, isUnidirectional, outputLimitSpec, orderByProcessorFactory != null, noDataWindowSingleStream, groupByRollupDesc, typeService.getEventTypes().length > 1, isHistoricalOnly, iterateUnbounded, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey, outputFirstSettings, outputAllSettings, outputLastSettings, outputSnapshotSettings);
                 type = ResultSetProcessorType.FULLYAGGREGATED_GROUPED_ROLLUP;
                 selectExprProcessorForges = rollupPerLevelForges.getSelectExprProcessorForges();
                 rollup = true;
@@ -521,7 +531,12 @@ public class ResultSetProcessorFactoryFactory {
                 if (unboundedProcessor) {
                     planSerdes(typeService, additionalForgeables, statementRawInfo, services);
                 }
-                forge = new ResultSetProcessorRowPerGroupForge(resultEventType, typeService.getEventTypes(), groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, typeService.getEventTypes(), optionalOutputFirstConditionFactoryForge, groupByMultiKey, unboundedProcessor);
+                Supplier<StateMgmtSetting> unboundGroupRepSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPERGROUP_UNBOUND);
+                Supplier<StateMgmtSetting> outputFirstSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPERGROUP_OUTPUTFIRST);
+                Supplier<StateMgmtSetting> outputAllSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPERGROUP_OUTPUTALL);
+                Supplier<StateMgmtSetting> outputAllOptSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPERGROUP_OUTPUTALL_OPT);
+                Supplier<StateMgmtSetting> outputLastOptSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_ROWPERGROUP_OUTPUTLAST_OPT);
+                forge = new ResultSetProcessorRowPerGroupForge(resultEventType, typeService.getEventTypes(), groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, typeService.getEventTypes(), optionalOutputFirstConditionFactoryForge, groupByMultiKey, unboundedProcessor, unboundGroupRepSettings, outputFirstSettings, outputAllSettings, outputAllOptSettings, outputLastOptSettings);
                 type = ResultSetProcessorType.FULLYAGGREGATED_GROUPED;
                 selectExprProcessorForges = new SelectExprProcessorForge[]{selectExprProcessorForge};
                 rollup = false;
@@ -537,7 +552,11 @@ public class ResultSetProcessorFactoryFactory {
         // (6)
         // There is a group-by clause, and one or more event properties in the select clause that are not under an aggregation
         // function are not listed in the group-by clause (output one row per event, not one row per group)
-        ResultSetProcessorAggregateGroupedForge forge = new ResultSetProcessorAggregateGroupedForge(resultEventType, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey);
+        Supplier<StateMgmtSetting> outputFirstSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_AGGREGATEGROUPED_OUTPUTFIRST);
+        Supplier<StateMgmtSetting> outputAllSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_AGGREGATEGROUPED_OUTPUTALL);
+        Supplier<StateMgmtSetting> outputAllOptSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_AGGREGATEGROUPED_OUTPUTALL_OPT);
+        Supplier<StateMgmtSetting> outputLastOptSettings = () -> services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_AGGREGATEGROUPED_OUTPUTLAST_OPT);
+        ResultSetProcessorAggregateGroupedForge forge = new ResultSetProcessorAggregateGroupedForge(resultEventType, groupByNodesValidated, optionalHavingForge, isSelectRStream, isUnidirectional, outputLimitSpec, hasOrderBy, isHistoricalOnly, outputConditionType, optionalOutputFirstConditionFactoryForge, typeService.getEventTypes(), groupByMultiKey, outputFirstSettings, outputAllSettings, outputAllOptSettings, outputLastOptSettings);
         return new ResultSetProcessorDesc(forge, ResultSetProcessorType.AGGREGATED_GROUPED, new SelectExprProcessorForge[]{selectExprProcessorForge},
             join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
     }
