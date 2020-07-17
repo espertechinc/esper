@@ -29,26 +29,35 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.*;
+import com.espertech.esper.common.internal.epl.resultset.handthru.ResultSetProcessorHandThroughFactory;
+import com.espertech.esper.common.internal.epl.resultset.handthru.ResultSetProcessorHandThroughFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessor;
-import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCompiler;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorFactory;
+import com.espertech.esper.common.internal.epl.resultset.select.core.ListenerOnlySelectExprProcessorForge;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
+import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalWildcardNonJoin;
+import com.espertech.esper.common.internal.epl.resultset.select.eval.SelectEvalWildcardNonJoinImpl;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.context.module.EPStatementInitServices.GETSTATEMENTRESULTSERVICE;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType.POLICY_LASTALL_UNORDERED;
+import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCompiler.makeOrderByProcessors;
 
 public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable {
     private final static String CLASSNAME_RESULTSETPROCESSORFACTORY = "RSPFactory";
@@ -96,29 +105,41 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             providerExplicitMembers.add(new CodegenTypedParam(EventType.EPTYPE, MEMBERNAME_RESULTEVENTTYPE));
             providerCtor.getBlock().assignMember(MEMBERNAME_RESULTEVENTTYPE, EventTypeUtility.resolveTypeCodegen(spec.getResultEventType(), EPStatementInitServices.REF));
 
-            makeResultSetProcessorFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, className);
+            providerExplicitMembers.add(new CodegenTypedParam(ResultSetProcessorFactory.EPTYPE, "rspFactory"));
+            if (spec.getResultSetProcessorType() != ResultSetProcessorType.HANDTHROUGH) {
+                makeResultSetProcessorFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, className);
 
-            makeResultSetProcessor(classScope, innerClasses, providerExplicitMembers, providerCtor, className, spec);
+                makeResultSetProcessor(classScope, innerClasses, providerExplicitMembers, providerCtor, className, spec);
+            }
 
-            OrderByProcessorCompiler.makeOrderByProcessors(spec.getOrderByProcessorFactoryForge(), classScope, innerClasses, providerExplicitMembers, providerCtor, className, MEMBERNAME_ORDERBYFACTORY);
+            makeOrderByProcessors(spec.getOrderByProcessorFactoryForge(), classScope, innerClasses, providerExplicitMembers, providerCtor, className, MEMBERNAME_ORDERBYFACTORY);
 
-            providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.EPTYPE, MEMBERNAME_AGGREGATIONSVCFACTORY));
-            AggregationClassNames aggregationClassNames = new AggregationClassNames();
-            AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), spec.getAggregationServiceForgeDesc().getAggregationServiceFactoryForge(), providerCtor, classScope, className, aggregationClassNames);
-            providerCtor.getBlock().assignMember(MEMBERNAME_AGGREGATIONSVCFACTORY, localMethod(aggResult.getInitMethod(), EPStatementInitServices.REF));
-            innerClasses.addAll(aggResult.getInnerClasses());
+            AggregationServiceFactoryForge aggregationForge = spec.getAggregationServiceForgeDesc().getAggregationServiceFactoryForge();
+            boolean aggregationNull = aggregationForge == AggregationServiceNullFactory.INSTANCE;
+            if (!aggregationNull) {
+                providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.EPTYPE, MEMBERNAME_AGGREGATIONSVCFACTORY));
+                AggregationClassNames aggregationClassNames = new AggregationClassNames();
+                AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), aggregationForge, providerCtor, classScope, className, aggregationClassNames);
+                providerCtor.getBlock().assignMember(MEMBERNAME_AGGREGATIONSVCFACTORY, localMethod(aggResult.getInitMethod(), EPStatementInitServices.REF));
+                innerClasses.addAll(aggResult.getInnerClasses());
+            }
 
             makeSelectExprProcessors(classScope, innerClasses, providerExplicitMembers, providerCtor, className, spec.isRollup(), spec.getSelectExprProcessorForges());
+
+            if (spec.getResultSetProcessorType() == ResultSetProcessorType.HANDTHROUGH) {
+                ResultSetProcessorHandThroughFactoryForge handThrough = (ResultSetProcessorHandThroughFactoryForge) spec.getResultSetProcessorFactoryForge();
+                providerCtor.getBlock().assignMember(MEMBERNAME_RESULTSETPROCESSORFACTORY, newInstance(ResultSetProcessorHandThroughFactory.EPTYPE, ref("selectExprProcessor"), ref("resultEventType"), constant(handThrough.isSelectRStream())));
+            }
 
             // make provider methods
             CodegenMethod getResultSetProcessorFactoryMethod = CodegenMethod.makeParentNode(ResultSetProcessorFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getResultSetProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_RESULTSETPROCESSORFACTORY));
 
             CodegenMethod getAggregationServiceFactoryMethod = CodegenMethod.makeParentNode(AggregationServiceFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
-            getAggregationServiceFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_AGGREGATIONSVCFACTORY));
+            getAggregationServiceFactoryMethod.getBlock().methodReturn(aggregationNull ? publicConstValue(AggregationServiceNullFactory.class, "INSTANCE") : ref(MEMBERNAME_AGGREGATIONSVCFACTORY));
 
             CodegenMethod getOrderByProcessorFactoryMethod = CodegenMethod.makeParentNode(OrderByProcessorFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
-            getOrderByProcessorFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_ORDERBYFACTORY));
+            getOrderByProcessorFactoryMethod.getBlock().methodReturn(spec.getOrderByProcessorFactoryForge() == null ? constantNull() : ref(MEMBERNAME_ORDERBYFACTORY));
 
             CodegenMethod getResultSetProcessorTypeMethod = CodegenMethod.makeParentNode(ResultSetProcessor.EPTYPE_PROCESSORTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             getResultSetProcessorTypeMethod.getBlock().methodReturn(enumValue(ResultSetProcessorType.class, spec.getResultSetProcessorType().name()));
@@ -156,7 +177,6 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         CodegenInnerClass innerClass = new CodegenInnerClass(CLASSNAME_RESULTSETPROCESSORFACTORY, ResultSetProcessorFactory.EPTYPE, ctor, Collections.emptyList(), methods);
         innerClasses.add(innerClass);
 
-        providerExplicitMembers.add(new CodegenTypedParam(ResultSetProcessorFactory.EPTYPE, "rspFactory"));
         providerCtor.getBlock().assignMember(MEMBERNAME_RESULTSETPROCESSORFACTORY, CodegenExpressionBuilder.newInstance(CLASSNAME_RESULTSETPROCESSORFACTORY, ref("this")));
     }
 
@@ -371,9 +391,22 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
         if (!rollup) {
             String name = "SelectExprProcessorImpl";
             explicitMembers.add(new CodegenTypedParam(SelectExprProcessor.EPTYPE, "selectExprProcessor"));
-            outerClassCtor.getBlock().assignRef("selectExprProcessor", CodegenExpressionBuilder.newInstance(name, ref("this"), EPStatementInitServices.REF));
-            CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forges[0]);
-            innerClasses.add(innerClass);
+            boolean shortcut = false;
+
+            if (forges[0] instanceof ListenerOnlySelectExprProcessorForge) {
+                ListenerOnlySelectExprProcessorForge forge = (ListenerOnlySelectExprProcessorForge) forges[0];
+                if (forge.getSyntheticProcessorForge() instanceof SelectEvalWildcardNonJoin) {
+                    shortcut = true;
+                }
+            }
+
+            if (shortcut) {
+                outerClassCtor.getBlock().assignRef("selectExprProcessor", newInstance(SelectEvalWildcardNonJoinImpl.EPTYPE, exprDotMethod(EPStatementInitServices.REF, GETSTATEMENTRESULTSERVICE)));
+            } else {
+                outerClassCtor.getBlock().assignRef("selectExprProcessor", CodegenExpressionBuilder.newInstance(name, ref("this"), EPStatementInitServices.REF));
+                CodegenInnerClass innerClass = makeSelectExprProcessor(name, classNameParent, classScope, forges[0]);
+                innerClasses.add(innerClass);
+            }
             return;
         }
 

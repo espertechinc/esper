@@ -39,18 +39,18 @@ public class AnnotationXMLSchema implements XMLSchema {
 
     public static CodegenExpression toExpression(XMLSchema xmlSchema, CodegenMethodScope parent, CodegenClassScope scope) {
         return new CodegenSetterBuilder(AnnotationXMLSchema.EPTYPE, AnnotationXMLSchema.class, "xmlschema", parent, scope)
-            .constant("rootElementName", xmlSchema.rootElementName())
-            .constant("schemaResource", xmlSchema.schemaResource())
-            .constant("schemaText", xmlSchema.schemaText())
-            .constant("schemaText", xmlSchema.schemaText())
-            .constant("xpathPropertyExpr", xmlSchema.xpathPropertyExpr())
-            .constant("defaultNamespace", xmlSchema.defaultNamespace())
-            .constant("eventSenderValidatesRoot", xmlSchema.eventSenderValidatesRoot())
-            .constant("autoFragment", xmlSchema.autoFragment())
-            .constant("xpathFunctionResolver", xmlSchema.xpathFunctionResolver())
-            .constant("xpathVariableResolver", xmlSchema.xpathVariableResolver())
-            .constant("rootElementNamespace", xmlSchema.rootElementNamespace())
-            .constant("xpathResolvePropertiesAbsolute", xmlSchema.xpathResolvePropertiesAbsolute())
+            .constantExplicit("rootElementName", xmlSchema.rootElementName())
+            .constantExplicit("schemaResource", xmlSchema.schemaResource())
+            .constantExplicit("schemaText", xmlSchema.schemaText())
+            .constantExplicit("schemaText", xmlSchema.schemaText())
+            .constantExplicit("xpathPropertyExpr", xmlSchema.xpathPropertyExpr())
+            .constantExplicit("defaultNamespace", xmlSchema.defaultNamespace())
+            .constantExplicit("eventSenderValidatesRoot", xmlSchema.eventSenderValidatesRoot())
+            .constantExplicit("autoFragment", xmlSchema.autoFragment())
+            .constantExplicit("xpathFunctionResolver", xmlSchema.xpathFunctionResolver())
+            .constantExplicit("xpathVariableResolver", xmlSchema.xpathVariableResolver())
+            .constantExplicit("rootElementNamespace", xmlSchema.rootElementNamespace())
+            .constantExplicit("xpathResolvePropertiesAbsolute", xmlSchema.xpathResolvePropertiesAbsolute())
             .build();
     }
 

@@ -225,7 +225,7 @@ public final class FilterSpecCompiled {
         CodegenExpression propertyEval = optionalPropertyEvaluator == null ? constantNull() : optionalPropertyEvaluator.make(method, symbols, classScope);
         method.getBlock()
                 .declareVar(EventType.EPTYPE, "eventType", EventTypeUtility.resolveTypeCodegen(filterForEventType, EPStatementInitServices.REF))
-                .declareVar(FilterSpecPlan.EPTYPE, "plan", localMethod(parameters.codegenWithEventType(method, classScope), ref("eventType"), symbols.getAddInitSvc(method)))
+                .declareVar(FilterSpecPlan.EPTYPE, "plan", parameters.codegenWithEventType(method, ref("eventType"), symbols.getAddInitSvc(method), classScope))
                 .declareVar(FilterSpecActivatable.EPTYPE, "activatable", newInstance(FilterSpecActivatable.EPTYPE, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE,
                         constant(filterForEventType.getName()), ref("plan"), propertyEval, constant(filterCallbackId)))
                 .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSPECACTIVATABLEREGISTRY).add("register", ref("activatable")))

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.context.activator;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
@@ -41,14 +42,16 @@ public class ViewableActivatorFilterForge implements ViewableActivatorForge {
         CodegenMethod method = parent.makeChild(ViewableActivatorFilter.EPTYPE, this.getClass(), classScope);
 
         CodegenMethod makeFilter = filterSpecCompiled.makeCodegen(method, symbols, classScope);
-        method.getBlock().declareVar(FilterSpecActivatable.EPTYPE, "filterSpecCompiled", localMethod(makeFilter))
-                .declareVar(ViewableActivatorFilter.EPTYPE, "activator", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createFilter"))
-                .exprDotMethod(ref("activator"), "setFilterSpec", ref("filterSpecCompiled"))
-                .exprDotMethod(ref("activator"), "setCanIterate", constant(canIterate))
-                .exprDotMethod(ref("activator"), "setStreamNumFromClause", constant(streamNumFromClause))
-                .exprDotMethod(ref("activator"), "setSubSelect", constant(isSubSelect))
-                .exprDotMethod(ref("activator"), "setSubselectNumber", constant(subselectNumber))
-                .methodReturn(ref("activator"));
+        method.getBlock().declareVar(FilterSpecActivatable.EPTYPE, "filterSpecCompiled", localMethod(makeFilter));
+
+        CodegenExpression initializer = exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETVIEWABLEACTIVATORFACTORY).add("createFilter");
+        CodegenSetterBuilder builder = new CodegenSetterBuilder(ViewableActivatorFilter.EPTYPE, ViewableActivatorFilterForge.class, "activator", classScope, method, initializer)
+                .expression("filterSpec", ref("filterSpecCompiled"))
+                .constantDefaultChecked("canIterate", canIterate)
+                .constantDefaultChecked("streamNumFromClause", streamNumFromClause)
+                .constantDefaultChecked("subSelect", isSubSelect)
+                .constantDefaultChecked("subselectNumber", subselectNumber);
+        method.getBlock().methodReturn(builder.getRefName());
         return localMethod(method);
     }
 }

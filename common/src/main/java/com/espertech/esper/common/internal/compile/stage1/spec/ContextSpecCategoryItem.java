@@ -20,7 +20,8 @@ import com.espertech.esper.common.internal.context.controller.category.ContextCo
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType.REF_EVENTTYPE;
 import static com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType.REF_STMTINITSVC;
 
@@ -53,9 +54,8 @@ public class ContextSpecCategoryItem {
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent) {
         CodegenMethod method = parent.makeChild(ContextControllerDetailCategoryItem.EPTYPE, this.getClass(), classScope).addParam(EventType.EPTYPE, REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.EPTYPE, REF_STMTINITSVC.getRef());
-        CodegenMethod makeFilter = filterPlan.codegenWithEventType(method, classScope);
         method.getBlock()
-                .declareVar(FilterSpecPlan.EPTYPE, "filterPlan", localMethod(makeFilter, REF_EVENTTYPE, REF_STMTINITSVC))
+                .declareVar(FilterSpecPlan.EPTYPE, "filterPlan", filterPlan.codegenWithEventType(method, REF_EVENTTYPE, REF_STMTINITSVC, classScope))
                 .declareVarNewInstance(ContextControllerDetailCategoryItem.EPTYPE, "item")
                 .exprDotMethod(ref("item"), "setFilterPlan", ref("filterPlan"))
                 .exprDotMethod(ref("item"), "setName", constant(name))

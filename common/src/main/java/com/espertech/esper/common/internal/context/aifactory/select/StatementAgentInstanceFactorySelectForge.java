@@ -87,21 +87,21 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
         method.getBlock().exprDotMethod(ref("saiff"), "setViewableActivators", ref("activators"));
 
         // views
-        method.getBlock().declareVar(ViewFactory.EPTYPEARRAYARRAY, "viewFactories", newArrayByLength(ViewFactory.EPTYPEARRAY, constant(views.length)));
-        for (int i = 0; i < views.length; i++) {
-            if (views[i] != null) {
-                CodegenExpression array = ViewFactoryForgeUtil.codegenForgesWInit(views[i], i, null, method, symbols, classScope);
-                method.getBlock().assignArrayElement("viewFactories", constant(i), array);
+        if (views.length == 1 && views[0].isEmpty()) {
+            method.getBlock().exprDotMethod(ref("saiff"), "setViewFactories", publicConstValue(ViewFactory.EPTYPE, "SINGLE_ELEMENT_ARRAY"));
+        } else {
+            method.getBlock().declareVar(ViewFactory.EPTYPEARRAYARRAY, "viewFactories", newArrayByLength(ViewFactory.EPTYPEARRAY, constant(views.length)));
+            for (int i = 0; i < views.length; i++) {
+                if (views[i] != null) {
+                    CodegenExpression array = ViewFactoryForgeUtil.codegenForgesWInit(views[i], i, null, method, symbols, classScope);
+                    method.getBlock().assignArrayElement("viewFactories", constant(i), array);
+                }
             }
+            method.getBlock().exprDotMethod(ref("saiff"), "setViewFactories", ref("viewFactories"));
         }
-        method.getBlock().exprDotMethod(ref("saiff"), "setViewFactories", ref("viewFactories"));
 
         // view delegate information ('prior' and 'prev')
-        method.getBlock().declareVar(ViewResourceDelegateDesc.EPTYPEARRAY, "viewResourceDelegates", newArrayByLength(ViewResourceDelegateDesc.EPTYPE, constant(viewResourceDelegates.length)));
-        for (int i = 0; i < viewResourceDelegates.length; i++) {
-            method.getBlock().assignArrayElement("viewResourceDelegates", constant(i), viewResourceDelegates[i].toExpression());
-        }
-        method.getBlock().exprDotMethod(ref("saiff"), "setViewResourceDelegates", ref("viewResourceDelegates"));
+        method.getBlock().exprDotMethod(ref("saiff"), "setViewResourceDelegates", ViewResourceDelegateDesc.toExpression(viewResourceDelegates));
 
         // result set processor
         method.getBlock().declareVar(resultSetProcessorProviderClassName, RSPFACTORYPROVIDER, CodegenExpressionBuilder.newInstance(resultSetProcessorProviderClassName, symbols.getAddInitSvc(method)))
@@ -136,10 +136,14 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
         }
 
         // order-by with no output-limit
-        method.getBlock().exprDotMethod(ref("saiff"), "setOrderByWithoutOutputRateLimit", constant(orderByWithoutOutputRateLimit));
+        if (orderByWithoutOutputRateLimit) {
+            method.getBlock().exprDotMethod(ref("saiff"), "setOrderByWithoutOutputRateLimit", constant(orderByWithoutOutputRateLimit));
+        }
 
         // unidirectional join
-        method.getBlock().exprDotMethod(ref("saiff"), "setUnidirectionalJoin", constant(unidirectionalJoin));
+        if (unidirectionalJoin) {
+            method.getBlock().exprDotMethod(ref("saiff"), "setUnidirectionalJoin", constant(unidirectionalJoin));
+        }
 
         method.getBlock().methodReturn(ref("saiff"));
 

@@ -67,7 +67,7 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
         CodegenExpressionRef select = ref("select");
         method.getBlock()
                 .declareVarNewInstance(FAFQueryMethodSelect.EPTYPE, select.getRef())
-                .exprDotMethod(select, "setAnnotations", localMethod(AnnotationUtil.makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), desc.getAnnotations(), method, classScope)))
+                .exprDotMethod(select, "setAnnotations", AnnotationUtil.makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), desc.getAnnotations(), method, classScope))
                 .exprDotMethod(select, "setProcessors", FireAndForgetProcessorForge.makeArray(desc.getProcessors(), method, symbols, classScope))
                 .declareVar(classNameResultSetProcessor, "rsp", CodegenExpressionBuilder.newInstance(classNameResultSetProcessor, symbols.getAddInitSvc(method)))
                 .exprDotMethod(select, "setResultSetProcessorFactoryProvider", ref("rsp"))

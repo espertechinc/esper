@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.event.path;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -62,43 +61,43 @@ public class EventTypeResolverImpl implements EventTypeResolver, EventTypeNameRe
         return beanEventTypeFactoryPrivate.getCreateBeanType(clazz, publicFields);
     }
 
-    public EventType resolve(EventTypeMetadata metadata) {
-        return resolve(metadata, publics, locals, path);
+    public EventType resolve(String name, String moduleName, NameAccessModifier accessModifier) {
+        return resolve(name, moduleName, accessModifier, publics, locals, path);
     }
 
     public EventSerdeFactory getEventSerdeFactory() {
         return eventSerdeFactory;
     }
 
-    public static EventType resolve(EventTypeMetadata metadata, EventTypeNameResolver publics, Map<String, EventType> locals, PathRegistry<String, EventType> path) {
+    public static EventType resolve(String name, String moduleName, NameAccessModifier accessModifier, EventTypeNameResolver publics, Map<String, EventType> locals, PathRegistry<String, EventType> path) {
         EventType type;
         // public can only see public
-        if (metadata.getAccessModifier() == NameAccessModifier.PRECONFIGURED) {
-            type = publics.getTypeByName(metadata.getName());
+        if (accessModifier == NameAccessModifier.PRECONFIGURED) {
+            type = publics.getTypeByName(name);
 
             // for create-schema the type may be defined by the same module
             if (type == null) {
-                type = locals.get(metadata.getName());
+                type = locals.get(name);
             }
-        } else if (metadata.getAccessModifier() == NameAccessModifier.PUBLIC || metadata.getAccessModifier() == NameAccessModifier.PROTECTED) {
+        } else if (accessModifier == NameAccessModifier.PUBLIC || accessModifier == NameAccessModifier.PROTECTED) {
             // path-visibility can be provided as local
-            EventType local = locals.get(metadata.getName());
+            EventType local = locals.get(name);
             if (local != null) {
                 if (local.getMetadata().getAccessModifier() == NameAccessModifier.PUBLIC || local.getMetadata().getAccessModifier() == NameAccessModifier.PROTECTED) {
                     return local;
                 }
             }
             try {
-                Pair<EventType, String> pair = path.getAnyModuleExpectSingle(metadata.getName(), Collections.singleton(metadata.getModuleName()));
+                Pair<EventType, String> pair = path.getAnyModuleExpectSingle(name, Collections.singleton(moduleName));
                 type = pair == null ? null : pair.getFirst();
             } catch (PathException e) {
                 throw new EPException(e.getMessage(), e);
             }
         } else {
-            type = locals.get(metadata.getName());
+            type = locals.get(name);
         }
         if (type == null) {
-            throw new EPException("Failed to find event type '" + metadata.getName() + "' among public types, modules-in-path or the current module itself");
+            throw new EPException("Failed to find event type '" + name + "' among public types, modules-in-path or the current module itself");
         }
         return type;
     }

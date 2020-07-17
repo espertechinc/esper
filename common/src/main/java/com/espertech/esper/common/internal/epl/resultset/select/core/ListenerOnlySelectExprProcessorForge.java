@@ -50,4 +50,8 @@ public class ListenerOnlySelectExprProcessorForge implements SelectExprProcessor
 
         return processMethod;
     }
+
+    public SelectExprProcessorForge getSyntheticProcessorForge() {
+        return syntheticProcessorForge;
+    }
 }

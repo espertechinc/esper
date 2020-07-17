@@ -537,6 +537,10 @@ public class CodegenBlock {
         }
     }
 
+    public boolean isEmpty() {
+        return statements.isEmpty();
+    }
+
     private final static class InstanceAccessConsumer implements Consumer<CodegenExpression> {
         private final Function<CodegenMethod, Boolean> permittedMethod;
         private boolean hasInstanceAccess = false;

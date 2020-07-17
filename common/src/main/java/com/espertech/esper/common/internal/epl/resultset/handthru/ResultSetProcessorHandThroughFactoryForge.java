@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -19,29 +18,18 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 
 import java.util.List;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
-
 /**
- * Result set processor prototye for the hand-through case:
+ * Result set processor prototype for the hand-through case:
  * no aggregation functions used in the select clause, and no group-by, no having and ordering.
  */
 public class ResultSetProcessorHandThroughFactoryForge implements ResultSetProcessorFactoryForge {
-    private final EventType resultEventType;
-    private final SelectExprProcessorForge selectExprProcessorForge;
     private final boolean isSelectRStream;
 
-    public ResultSetProcessorHandThroughFactoryForge(EventType resultEventType, SelectExprProcessorForge selectExprProcessorForge, boolean selectRStream) {
-        this.resultEventType = resultEventType;
-        this.selectExprProcessorForge = selectExprProcessorForge;
+    public ResultSetProcessorHandThroughFactoryForge(boolean selectRStream) {
         this.isSelectRStream = selectRStream;
-    }
-
-    public EventType getResultEventType() {
-        return resultEventType;
     }
 
     public boolean isSelectRStream() {
@@ -53,62 +41,74 @@ public class ResultSetProcessorHandThroughFactoryForge implements ResultSetProce
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
+        throw notImplemented();
     }
 
     public void processViewResultCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        ResultSetProcessorHandThrough.processViewResultCodegen(this, method);
+        throw notImplemented();
     }
 
     public void processJoinResultCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        ResultSetProcessorHandThrough.processJoinResultCodegen(this, method);
+        throw notImplemented();
     }
 
     public void getIteratorViewCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        ResultSetProcessorHandThrough.getIteratorViewCodegen(method);
+        throw notImplemented();
     }
 
     public void getIteratorJoinCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        ResultSetProcessorHandThrough.getIteratorJoinCodegen(method);
+        throw notImplemented();
     }
 
     public void processOutputLimitedViewCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().methodReturn(constantNull());
+        throw notImplemented();
     }
 
     public void processOutputLimitedJoinCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().methodReturn(constantNull());
+        throw notImplemented();
     }
 
     public void applyViewResultCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void applyJoinResultCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void continueOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().methodReturn(constantNull());
+        throw notImplemented();
     }
 
     public void continueOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        method.getBlock().methodReturn(constantNull());
+        throw notImplemented();
     }
 
     public void processOutputLimitedLastAllNonBufferedViewCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void processOutputLimitedLastAllNonBufferedJoinCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void acceptHelperVisitorCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void stopMethodCodegen(CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        throw notImplemented();
     }
 
     public void clearMethodCodegen(CodegenClassScope classScope, CodegenMethod method) {
+        throw notImplemented();
     }
 
     public String getInstrumentedQName() {
         return "ResultSetProcessSimple";
+    }
+
+    private UnsupportedOperationException notImplemented() {
+        throw new UnsupportedOperationException("Implemented by " + ResultSetProcessorHandThroughImpl.class);
     }
 }

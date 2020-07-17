@@ -38,7 +38,7 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
         this.numberCoercer = numberCoercer;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
 
         method.getBlock()
@@ -55,7 +55,7 @@ public class FilterSpecParamDeployTimeConstParamForge extends FilterSpecParamFor
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(value));
 
         method.getBlock().methodReturn(param);
-        return method;
+        return localMethod(method);
     }
 
     public void valueExprToString(StringBuilder out, int i) {

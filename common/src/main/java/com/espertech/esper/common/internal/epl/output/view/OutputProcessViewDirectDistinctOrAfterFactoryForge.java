@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryForge;
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyPostProcessForge;
-import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.List;
@@ -53,12 +52,11 @@ public class OutputProcessViewDirectDistinctOrAfterFactoryForge implements Outpu
 
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         method.getBlock().methodReturn(
-                newInstance(OutputProcessViewDirectDistinctOrAfterFactory.EPTYPE,
-                        outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope),
-                        constant(isDistinct), MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope),
-                        afterTimePeriod == null ? constantNull() : afterTimePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope),
-                        constant(afterConditionNumberOfEvents),
-                        EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method))));
+            newInstance(OutputProcessViewDirectDistinctOrAfterFactory.EPTYPE,
+                outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope),
+                constant(isDistinct), MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope),
+                afterTimePeriod == null ? constantNull() : afterTimePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope),
+                constant(afterConditionNumberOfEvents)));
     }
 
     public void updateCodegen(CodegenMethod method, CodegenClassScope classScope) {

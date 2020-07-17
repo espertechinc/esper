@@ -94,6 +94,10 @@ public class CodegenPackageScope {
         return fieldsNamed;
     }
 
+    public boolean hasStatementFields() {
+        return !fieldsNamed.isEmpty();
+    }
+
     public LinkedHashMap<CodegenField, CodegenExpression> getFieldsUnshared() {
         return fieldsUnshared;
     }
@@ -161,5 +165,9 @@ public class CodegenPackageScope {
 
     public boolean isInstrumented() {
         return instrumented;
+    }
+
+    public boolean isHasSubstitution() {
+        return !substitutionParamsByNumber.isEmpty() || !substitutionParamsByName.isEmpty();
     }
 }

@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCo
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiler.NEWLINE;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecPlanForge.optionalEvaluator;
 
@@ -55,7 +55,7 @@ public class FilterSpecPlanPathTripletForge {
         CodegenMethod method = parent.makeChild(FilterSpecPlanPathTriplet.EPTYPE, FilterSpecParamForge.class, classScope);
         method.getBlock()
             .declareVarNewInstance(FilterSpecPlanPathTriplet.EPTYPE, "triplet")
-            .exprDotMethod(ref("triplet"), "setParam", localMethod(param.makeCodegen(classScope, method, symbols)))
+            .exprDotMethod(ref("triplet"), "setParam", param.makeCodegen(classScope, method, symbols))
             .exprDotMethod(ref("triplet"), "setTripletConfirm", optionalEvaluator(tripletConfirm, method, classScope))
             .methodReturn(ref("triplet"));
         return method;

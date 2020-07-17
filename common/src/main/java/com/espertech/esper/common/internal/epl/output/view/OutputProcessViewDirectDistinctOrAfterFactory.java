@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
@@ -35,8 +34,7 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
                                                          boolean distinct,
                                                          EventPropertyValueGetter distinctKeyGetter,
                                                          TimePeriodCompute afterTimePeriod,
-                                                         Integer afterConditionNumberOfEvents,
-                                                         EventType resultEventType) {
+                                                         Integer afterConditionNumberOfEvents) {
         super(postProcessFactory);
         isDistinct = distinct;
         this.distinctKeyGetter = distinctKeyGetter;

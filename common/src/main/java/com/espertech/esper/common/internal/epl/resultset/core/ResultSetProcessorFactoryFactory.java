@@ -412,7 +412,7 @@ public class ResultSetProcessorFactoryFactory {
             // events in the desired format, therefore there is no output processor. There are no order-by expressions.
             if (orderByNodes.isEmpty() && optionalHavingNode == null && !isOutputLimitingNoSnapshot && spec.getRowLimitSpec() == null) {
                 log.debug(".getProcessor Using no result processor");
-                ResultSetProcessorHandThroughFactoryForge forge = new ResultSetProcessorHandThroughFactoryForge(resultEventType, selectExprProcessorForge, isSelectRStream);
+                ResultSetProcessorHandThroughFactoryForge forge = new ResultSetProcessorHandThroughFactoryForge(isSelectRStream);
                 return new ResultSetProcessorDesc(forge, ResultSetProcessorType.HANDTHROUGH, new SelectExprProcessorForge[]{selectExprProcessorForge},
                     join, hasOutputLimit, outputConditionType, hasOutputLimitSnapshot, resultEventType, false, aggregationServiceForgeDesc, orderByProcessorFactory, selectSubscriberDescriptor, additionalForgeables);
             }

@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.context.module;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSetterBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.namedwindow.compile.NamedWindowCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
@@ -23,7 +23,8 @@ import com.espertech.esper.common.internal.type.NameAndModule;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class ModuleDependenciesCompileTime {
     private final Collection<NameAndModule> pathEventTypes = new HashSet<>();
@@ -94,22 +95,23 @@ public class ModuleDependenciesCompileTime {
         pathIndexes.add(new ModuleIndexMeta(namedWindow, infraName, infraModuleName, indexName, indexModuleName));
     }
 
-    public CodegenExpression make(CodegenMethodScope parent, CodegenClassScope classScope) {
-        CodegenMethod method = parent.makeChild(ModuleDependenciesRuntime.EPTYPE, this.getClass(), classScope);
-        method.getBlock()
-                .declareVarNewInstance(ModuleDependenciesRuntime.EPTYPE, "md")
-                .exprDotMethod(ref("md"), "setPathEventTypes", NameAndModule.makeArray(pathEventTypes))
-                .exprDotMethod(ref("md"), "setPathNamedWindows", NameAndModule.makeArray(pathNamedWindows))
-                .exprDotMethod(ref("md"), "setPathTables", NameAndModule.makeArray(pathTables))
-                .exprDotMethod(ref("md"), "setPathVariables", NameAndModule.makeArray(pathVariables))
-                .exprDotMethod(ref("md"), "setPathContexts", NameAndModule.makeArray(pathContexts))
-                .exprDotMethod(ref("md"), "setPathExpressions", NameAndModule.makeArray(pathExpressions))
-                .exprDotMethod(ref("md"), "setPathIndexes", ModuleIndexMeta.makeArray(pathIndexes))
-                .exprDotMethod(ref("md"), "setPathScripts", NameParamNumAndModule.makeArray(pathScripts))
-                .exprDotMethod(ref("md"), "setPathClasses", NameAndModule.makeArray(pathClasses))
-                .exprDotMethod(ref("md"), "setPublicEventTypes", constant(publicEventTypes.toArray(new String[publicEventTypes.size()])))
-                .exprDotMethod(ref("md"), "setPublicVariables", constant(publicVariables.toArray(new String[publicVariables.size()])))
-                .methodReturn(ref("md"));
-        return localMethod(method);
+    public void make(CodegenMethod method, CodegenClassScope classScope) {
+        CodegenSetterBuilder builder = new CodegenSetterBuilder(ModuleDependenciesRuntime.EPTYPE, ModuleDependenciesCompileTime.class, "md", classScope, method);
+        builder.expressionDefaultChecked("pathEventTypes", NameAndModule.makeArrayNullIfEmpty(pathEventTypes))
+            .expressionDefaultChecked("pathNamedWindows", NameAndModule.makeArrayNullIfEmpty(pathNamedWindows))
+            .expressionDefaultChecked("pathTables", NameAndModule.makeArrayNullIfEmpty(pathTables))
+            .expressionDefaultChecked("pathVariables", NameAndModule.makeArrayNullIfEmpty(pathVariables))
+            .expressionDefaultChecked("pathContexts", NameAndModule.makeArrayNullIfEmpty(pathContexts))
+            .expressionDefaultChecked("pathExpressions", NameAndModule.makeArrayNullIfEmpty(pathExpressions))
+            .expressionDefaultChecked("pathIndexes", ModuleIndexMeta.makeArrayNullIfEmpty(pathIndexes))
+            .expressionDefaultChecked("pathScripts", NameParamNumAndModule.makeArrayNullIfEmpty(pathScripts))
+            .expressionDefaultChecked("pathClasses", NameAndModule.makeArrayNullIfEmpty(pathClasses))
+            .expressionDefaultChecked("publicEventTypes", makeStringArrayNullIfEmpty(publicEventTypes))
+            .expressionDefaultChecked("publicVariables", makeStringArrayNullIfEmpty(publicVariables));
+        method.getBlock().methodReturn(builder.getRefName());
+    }
+
+    private CodegenExpression makeStringArrayNullIfEmpty(Collection<String> values) {
+        return values.isEmpty() ? constantNull() : constant(values.toArray(new String[0]));
     }
 }

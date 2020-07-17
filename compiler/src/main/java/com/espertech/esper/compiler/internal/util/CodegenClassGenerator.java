@@ -36,30 +36,25 @@ public class CodegenClassGenerator {
         Map<Class, String> imports = new HashMap<>();
         Map<String, Class> assignments = new HashMap<>();
         for (Class clazz : classes) {
-            if (clazz == null || clazz.getEnclosingClass() != null) {
+            if (clazz == null || clazz.getEnclosingClass() != null || clazz.isPrimitive()) {
                 continue;
             }
+            Class target = clazz;
             if (clazz.isArray()) {
-                compileImports(getComponentTypeOutermost(clazz), imports, assignments);
-            } else {
-                compileImports(clazz, imports, assignments);
+                target = getComponentTypeOutermost(clazz);
             }
+            if (target.isPrimitive() || target.getEnclosingClass() != null) {
+                continue;
+            }
+            compileImports(target, imports, assignments);
         }
         return imports;
     }
 
     private static void compileImports(Class clazz, Map<Class, String> imports, Map<String, Class> assignments) {
-        if (clazz == null || clazz.isPrimitive()) {
+        if (clazz.getPackage() != null && clazz.getPackage().getName().equals("java.lang")) {
+            imports.put(clazz, clazz.getSimpleName());
             return;
-        }
-
-        try {
-            if (clazz.getPackage() != null && clazz.getPackage().getName().equals("java.lang")) {
-                imports.put(clazz, clazz.getSimpleName());
-                return;
-            }
-        } catch (Throwable r) {
-            System.out.println(r);
         }
 
         if (assignments.containsKey(clazz.getSimpleName())) {
@@ -123,6 +118,21 @@ public class CodegenClassGenerator {
     }
 
     private static void generateCodeCtor(StringBuilder builder, String className, boolean isInnerClass, CodegenCtor optionalCtor, Map<Class, String> imports, int additionalIndent) {
+        if (optionalCtor == null) {
+            return;
+        }
+
+        boolean hasAssignments = false;
+        for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
+            if (param.isMemberWhenCtorParam()) {
+                hasAssignments = true;
+                break;
+            }
+        }
+        if (optionalCtor.getBlock().isEmpty() && !hasAssignments) {
+            return;
+        }
+
         INDENT.indent(builder, 1 + additionalIndent);
         builder.append("public ").append(className).append("(");
         String delimiter = "";

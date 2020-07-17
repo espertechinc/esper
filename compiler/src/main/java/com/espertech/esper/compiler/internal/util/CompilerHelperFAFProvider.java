@@ -49,7 +49,7 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
-import static com.espertech.esper.compiler.internal.util.CompilerHelperModuleProvider.makeInitEventTypes;
+import static com.espertech.esper.compiler.internal.util.CompilerHelperModuleProvider.makeInitEventTypesOptional;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperStatementProvider.getNameFromAnnotation;
 import static com.espertech.esper.compiler.internal.util.CompilerHelperValidator.verifySubstitutionParams;
 import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
@@ -154,10 +154,10 @@ public class CompilerHelperFAFProvider {
 
         // provide module dependencies
         CodegenMethod getModuleDependenciesMethod = CodegenMethod.makeParentNode(ModuleDependenciesRuntime.EPTYPE, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        getModuleDependenciesMethod.getBlock().methodReturn(compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope));
+        compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope);
 
         // initialize-event-types
-        CodegenMethod initializeEventTypesMethod = makeInitEventTypes(classScope, compileTimeServices);
+        CodegenMethod initializeEventTypesMethod = makeInitEventTypesOptional(classScope, compileTimeServices);
 
         // initialize-query
         CodegenMethod initializeQueryMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
@@ -169,7 +169,9 @@ public class CompilerHelperFAFProvider {
 
         // build stack
         CodegenStackGenerator.recursiveBuildStack(getModuleDependenciesMethod, "getModuleDependencies", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeEventTypesMethod, "initializeEventTypes", methods);
+        if (initializeEventTypesMethod != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeEventTypesMethod, "initializeEventTypes", methods);
+        }
         CodegenStackGenerator.recursiveBuildStack(initializeQueryMethod, "initializeQuery", methods);
         CodegenStackGenerator.recursiveBuildStack(getQueryMethodProviderMethod, "getQueryMethodProvider", methods);
 

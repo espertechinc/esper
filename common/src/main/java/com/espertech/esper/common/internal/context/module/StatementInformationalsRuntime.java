@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
+import com.espertech.esper.common.internal.metrics.audit.AuditProviderDefault;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 
 import java.lang.annotation.Annotation;
@@ -51,7 +52,7 @@ public class StatementInformationalsRuntime {
     private ExprEvaluator groupDeliveryEval;
     private Map<StatementProperty, Object> properties;
     private boolean hasMatchRecognize;
-    private AuditProvider auditProvider;
+    private AuditProvider auditProvider = AuditProviderDefault.INSTANCE;
     private boolean instrumented;
     private InstrumentationCommon instrumentationProvider;
     private Class[] substitutionParamTypes;

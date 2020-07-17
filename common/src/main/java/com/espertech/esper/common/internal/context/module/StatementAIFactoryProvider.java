@@ -18,9 +18,9 @@ public interface StatementAIFactoryProvider {
 
     StatementAgentInstanceFactory getFactory();
 
-    void assign(StatementAIFactoryAssignments assignments);
+    default void assign(StatementAIFactoryAssignments assignments) {}
 
-    void unassign();
+    default void unassign() {};
 
-    void setValue(int number, Object value);
+    default void setValue(int number, Object value) {};
 }

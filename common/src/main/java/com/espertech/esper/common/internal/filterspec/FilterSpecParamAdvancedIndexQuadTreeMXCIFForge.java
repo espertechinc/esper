@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.filterspec;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
@@ -34,7 +35,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreeMXCIFForge extends Filter
         this.heightEval = heightEval;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParamAdvancedIndexQuadTreeMXCIF.EPTYPE, this.getClass(), classScope);
         method.getBlock()
                 .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
@@ -45,7 +46,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreeMXCIFForge extends Filter
                 .exprDotMethod(ref("fpai"), "setWidthEval", makeAnonymous(widthEval, this.getClass(), classScope, method))
                 .exprDotMethod(ref("fpai"), "setHeightEval", makeAnonymous(heightEval, this.getClass(), classScope, method))
                 .methodReturn(ref("fpai"));
-        return method;
+        return localMethod(method);
     }
 
     public boolean equals(Object obj) {

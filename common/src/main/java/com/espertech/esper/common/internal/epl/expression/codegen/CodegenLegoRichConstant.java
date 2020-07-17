@@ -14,12 +14,16 @@ import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.SortedSet;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class CodegenLegoRichConstant {
     public static CodegenExpression toExpression(SortedSet<Integer> values) {
+        if (values.isEmpty()) {
+            return staticMethod(Collections.class, "emptySortedSet");
+        }
         Integer[] arr = values.toArray(new Integer[values.size()]);
         return newInstance(EPTypePremade.TREESET.getEPType(), staticMethod(Arrays.class, "asList", constant(arr)));
     }

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.filterspec;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
@@ -31,7 +32,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegionForge extends 
         this.yEval = yEval;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParamAdvancedIndexQuadTreePointRegion.EPTYPE, this.getClass(), classScope);
         method.getBlock()
                 .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
@@ -40,7 +41,7 @@ public final class FilterSpecParamAdvancedIndexQuadTreePointRegionForge extends 
                 .exprDotMethod(ref("fpai"), "setxEval", makeAnonymous(xEval, this.getClass(), classScope, method))
                 .exprDotMethod(ref("fpai"), "setyEval", makeAnonymous(yEval, this.getClass(), classScope, method))
                 .methodReturn(ref("fpai"));
-        return method;
+        return localMethod(method);
     }
 
     public boolean equals(Object obj) {

@@ -253,7 +253,7 @@ public class EventTypeUtility {
             boolean publicFields = beanEventType.getStem().isPublicFields();
             return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_PRIVATE_BEAN_METHOD, constant(eventType.getUnderlyingEPType()), constant(publicFields));
         }
-        return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_METHOD, eventType.getMetadata().toExpression());
+        return exprDotMethod(typeResolver, EventTypeResolver.RESOLVE_METHOD, constant(eventType.getMetadata().getName()), constant(eventType.getMetadata().getModuleName()), constant(eventType.getMetadata().getAccessModifier()));
     }
 
     public static CodegenExpression resolveTypeArrayCodegen(EventType[] eventTypes, CodegenExpression initServicesRef) {

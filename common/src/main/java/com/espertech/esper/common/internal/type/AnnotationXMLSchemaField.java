@@ -34,11 +34,11 @@ public class AnnotationXMLSchemaField implements XMLSchemaField {
     public static CodegenExpression toExpression(XMLSchemaField field, CodegenMethod parent, CodegenClassScope scope) {
         return new CodegenSetterBuilder(AnnotationXMLSchemaField.EPTYPE, AnnotationXMLSchemaField.class,
             "field", parent, scope)
-            .constant("name", field.name())
-            .constant("xpath", field.xpath())
-            .constant("type", field.type())
-            .constant("eventTypeName", field.eventTypeName())
-            .constant("castToType", field.castToType())
+            .constantExplicit("name", field.name())
+            .constantExplicit("xpath", field.xpath())
+            .constantExplicit("type", field.type())
+            .constantExplicit("eventTypeName", field.eventTypeName())
+            .constantExplicit("castToType", field.castToType())
             .build();
     }
 

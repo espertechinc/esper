@@ -57,27 +57,34 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
         }
         codegenCtor.getBlock().assignMember(MEMBERNAME_STATEMENTAIFACTORY, localMethod(codegenConstructorInit(codegenCtor, classScope), SAIFFInitializeSymbol.REF_STMTINITSVC));
 
+        CodegenClassMethods methods = new CodegenClassMethods();
         CodegenMethod getFactoryMethod = CodegenMethod.makeParentNode(StatementAgentInstanceFactory.EPTYPE, this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
         getFactoryMethod.getBlock().methodReturn(ref(MEMBERNAME_STATEMENTAIFACTORY));
 
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
-        if (packageScope.getFieldsClassNameOptional() != null) {
+        CodegenMethod assignMethod = null;
+        CodegenMethod unassignMethod = null;
+        if (packageScope.getFieldsClassNameOptional() != null && packageScope.hasStatementFields()) {
+            assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
             assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
-        }
 
-        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        if (packageScope.getFieldsClassNameOptional() != null) {
+            unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope);
             unassignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "unassign");
         }
 
-        CodegenMethod setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
-        CodegenSubstitutionParamEntry.codegenSetterMethod(classScope, setValueMethod);
+        CodegenMethod setValueMethod = null;
+        if (classScope.getPackageScope().isHasSubstitution()) {
+            setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
+            CodegenSubstitutionParamEntry.codegenSetterMethod(classScope, setValueMethod);
+        }
 
-        CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(getFactoryMethod, "getFactory", methods);
-        CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
-        CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
-        CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
+        if (assignMethod != null) {
+            CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
+            CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
+        }
+        if (setValueMethod != null) {
+            CodegenStackGenerator.recursiveBuildStack(setValueMethod, "setValue", methods);
+        }
         CodegenStackGenerator.recursiveBuildStack(codegenCtor, "ctor", methods);
 
         return new CodegenClass(CodegenClassType.STATEMENTAIFACTORYPROVIDER, StatementAIFactoryProvider.EPTYPE, className, classScope, members, codegenCtor, methods, Collections.emptyList());

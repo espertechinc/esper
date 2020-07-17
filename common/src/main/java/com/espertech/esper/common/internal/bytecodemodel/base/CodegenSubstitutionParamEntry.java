@@ -46,9 +46,6 @@ public class CodegenSubstitutionParamEntry {
     public static void codegenSetterMethod(CodegenClassScope classScope, CodegenMethod method) {
         List<CodegenSubstitutionParamEntry> numbered = classScope.getPackageScope().getSubstitutionParamsByNumber();
         LinkedHashMap<String, CodegenSubstitutionParamEntry> named = classScope.getPackageScope().getSubstitutionParamsByName();
-        if (numbered.isEmpty() && named.isEmpty()) {
-            return;
-        }
         if (!numbered.isEmpty() && !named.isEmpty()) {
             throw new IllegalStateException("Both named and numbered substitution parameters are non-empty");
         }

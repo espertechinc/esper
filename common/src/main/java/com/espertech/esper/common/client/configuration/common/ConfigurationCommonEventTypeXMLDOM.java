@@ -570,11 +570,11 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
 
         public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
             return new CodegenSetterBuilder(XPathPropertyDesc.EPTYPE, XPathPropertyDesc.class, "desc", parent, scope)
-                .constant("name", name)
+                .constantExplicit("name", name)
                 .expression("type", newInstance(EPTypePremade.QNAME.getEPType(), constant(type.getNamespaceURI()), constant(type.getLocalPart()), constant(type.getPrefix())))
-                .constant("xpath", xpath)
-                .constant("optionaleventTypeName", optionaleventTypeName)
-                .constant("optionalCastToType", optionalCastToType)
+                .constantExplicit("xpath", xpath)
+                .constantExplicit("optionaleventTypeName", optionaleventTypeName)
+                .constantExplicit("optionalCastToType", optionalCastToType)
                 .build();
         }
     }
@@ -642,21 +642,21 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
     public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
         CodegenSetterBuilderItemConsumer<XPathPropertyDesc> xPathBuild = (o, parentXPath, scopeXPath) -> o.toExpression(parentXPath, scopeXPath);
         return new CodegenSetterBuilder(ConfigurationCommonEventTypeXMLDOM.EPTYPE, ConfigurationCommonEventTypeXMLDOM.class, "xmlconfig", parent, scope)
-            .constant("rootElementName", rootElementName)
+            .constantExplicit("rootElementName", rootElementName)
             .map("xPathProperties", xPathProperties, xPathBuild)
             .mapOfConstants("namespacePrefixes", namespacePrefixes)
-            .constant("schemaResource", schemaResource)
-            .constant("schemaText", schemaText)
-            .constant("eventSenderValidatesRoot", isEventSenderValidatesRoot)
-            .constant("autoFragment", isAutoFragment)
-            .constant("xPathPropertyExpr", isXPathPropertyExpr)
-            .constant("xPathFunctionResolver", xPathFunctionResolver)
-            .constant("xPathVariableResolver", xPathVariableResolver)
-            .constant("xPathResolvePropertiesAbsolute", isXPathResolvePropertiesAbsolute)
-            .constant("defaultNamespace", defaultNamespace)
-            .constant("rootElementNamespace", rootElementNamespace)
-            .constant("startTimestampPropertyName", startTimestampPropertyName)
-            .constant("endTimestampPropertyName", endTimestampPropertyName)
+            .constantExplicit("schemaResource", schemaResource)
+            .constantExplicit("schemaText", schemaText)
+            .constantExplicit("eventSenderValidatesRoot", isEventSenderValidatesRoot)
+            .constantExplicit("autoFragment", isAutoFragment)
+            .constantExplicit("xPathPropertyExpr", isXPathPropertyExpr)
+            .constantExplicit("xPathFunctionResolver", xPathFunctionResolver)
+            .constantExplicit("xPathVariableResolver", xPathVariableResolver)
+            .constantExplicit("xPathResolvePropertiesAbsolute", isXPathResolvePropertiesAbsolute)
+            .constantExplicit("defaultNamespace", defaultNamespace)
+            .constantExplicit("rootElementNamespace", rootElementNamespace)
+            .constantExplicit("startTimestampPropertyName", startTimestampPropertyName)
+            .constantExplicit("endTimestampPropertyName", endTimestampPropertyName)
             .build();
     }
 }

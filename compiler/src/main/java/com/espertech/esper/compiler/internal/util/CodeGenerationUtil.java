@@ -26,10 +26,8 @@ public class CodeGenerationUtil {
     }
 
     static void importsdecl(StringBuilder builder, Collection<Class> imports) {
-        for (Class importClass : imports) {
-            if (importClass.getPackage() != null && importClass.getPackage().getName().equals("java.lang")) {
-                continue;
-            }
+        // we do not use package wildcard imports -- since they appear to take much more time to process
+        for (Class<?> importClass : imports) {
             importdecl(builder, importClass);
         }
     }

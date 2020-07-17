@@ -49,7 +49,7 @@ public class OperatorMetadataDescriptor {
                 .declareVarNewInstance(OperatorMetadataDescriptor.EPTYPE, "op")
                 .exprDotMethod(ref("op"), "setForgeClass", constant(forgeClass))
                 .exprDotMethod(ref("op"), "setOperatorPrettyPrint", constant(operatorPrettyPrint))
-                .exprDotMethod(ref("op"), "setOperatorAnnotations", operatorAnnotations == null ? constantNull() : localMethod(makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), operatorAnnotations, method, classScope)))
+                .exprDotMethod(ref("op"), "setOperatorAnnotations", operatorAnnotations == null ? constantNull() : makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), operatorAnnotations, method, classScope))
                 .exprDotMethod(ref("op"), "setNumOutputPorts", constant(numOutputPorts))
                 .exprDotMethod(ref("op"), "setOperatorName", constant(operatorName))
                 .methodReturn(ref("op"));

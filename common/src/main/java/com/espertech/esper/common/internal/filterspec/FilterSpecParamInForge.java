@@ -147,7 +147,7 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
         return result;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
         method.getBlock()
             .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
@@ -185,9 +185,8 @@ public final class FilterSpecParamInForge extends FilterSpecParamForge {
             .declareVar(EPTypePremade.OBJECT.getEPType(), "val", filterForValue)
             .methodReturn(FilterValueSetParamImpl.codegenNew(ref("val")));
 
-        method.getBlock()
-            .methodReturn(param);
-        return method;
+        method.getBlock().methodReturn(param);
+        return localMethod(method);
     }
 
     private Object[] getFilterValues(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {

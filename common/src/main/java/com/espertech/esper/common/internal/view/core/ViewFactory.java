@@ -18,6 +18,8 @@ public interface ViewFactory {
     EPTypeClass EPTYPE = new EPTypeClass(ViewFactory.class);
     EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewFactory[].class);
     EPTypeClass EPTYPEARRAYARRAY = new EPTypeClass(ViewFactory[][].class);
+    ViewFactory[] EMPTY_ARRAY = new ViewFactory[0];
+    ViewFactory[][] SINGLE_ELEMENT_ARRAY = new ViewFactory[][] {EMPTY_ARRAY};
 
     void setEventType(EventType eventType);
 

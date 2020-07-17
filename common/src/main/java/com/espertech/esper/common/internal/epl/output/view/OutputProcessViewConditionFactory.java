@@ -40,7 +40,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final StateMgmtSetting changeSetStateMgmtSettings;
 
     public OutputProcessViewConditionFactory(OutputProcessViewConditionSpec spec) {
-        super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getDistinctKeyGetter(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents(), spec.getResultEventType());
+        super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getDistinctKeyGetter(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents());
         this.outputConditionFactory = spec.getOutputConditionFactory();
         this.streamCount = spec.getStreamCount();
         this.conditionType = spec.getConditionType();

@@ -56,9 +56,9 @@ public class ModuleIndexMeta {
         return indexModuleName;
     }
 
-    public static CodegenExpression makeArray(Collection<ModuleIndexMeta> names) {
+    public static CodegenExpression makeArrayNullIfEmpty(Collection<ModuleIndexMeta> names) {
         if (names.isEmpty()) {
-            return enumValue(ModuleIndexMeta.class, "EMPTY_ARRAY");
+            return constantNull();
         }
         CodegenExpression[] expressions = new CodegenExpression[names.size()];
         int count = 0;

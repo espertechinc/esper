@@ -339,6 +339,9 @@ public class ViewFactoryForgeUtil {
 
     public static CodegenExpression codegenForgesWInit(List<ViewFactoryForge> forges, int streamNum, Integer subqueryNum,
                                                        CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+        if (forges.isEmpty()) {
+            return publicConstValue(ViewFactory.EPTYPE.getType(), "EMPTY_ARRAY");
+        }
         CodegenMethod method = parent.makeChild(ViewFactory.EPTYPEARRAY, ViewFactoryForgeUtil.class, classScope);
         method.getBlock()
                 .declareVar(ViewFactory.EPTYPEARRAY, "factories", newArrayByLength(ViewFactory.EPTYPE, constant(forges.size())));

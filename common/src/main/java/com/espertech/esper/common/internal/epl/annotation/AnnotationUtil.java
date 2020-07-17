@@ -93,15 +93,13 @@ public class AnnotationUtil {
         return annotations;
     }
 
-    public static CodegenMethod makeAnnotations(EPTypeClass arrayType, Annotation[] annotations, CodegenMethod parent, CodegenClassScope classScope) {
+    public static CodegenExpression makeAnnotations(EPTypeClass arrayType, Annotation[] annotations, CodegenMethod parent, CodegenClassScope classScope) {
         EPTypeClass componentType = JavaClassHelper.getArrayComponentType(arrayType);
-        CodegenMethod method = parent.makeChild(arrayType, AnnotationUtil.class, classScope);
-        method.getBlock().declareVar(arrayType, "annotations", newArrayByLength(componentType, constant(annotations.length)));
+        CodegenExpression[] expressions = new CodegenExpression[annotations.length];
         for (int i = 0; i < annotations.length; i++) {
-            method.getBlock().assignArrayElement("annotations", constant(i), makeAnnotation(annotations[i], parent, classScope));
+            expressions[i] = makeAnnotation(annotations[i], parent, classScope);
         }
-        method.getBlock().methodReturn(ref("annotations"));
-        return method;
+        return newArrayWithInit(componentType, expressions);
     }
 
     /**
@@ -511,7 +509,7 @@ public class AnnotationUtil {
                     valueExpression = clazz((Class) value);
                 } else if (method.getReturnType().isArray() && method.getReturnType().getComponentType().isAnnotation()) {
                     EPTypeClass returnTypeMethod = ClassHelperGenericType.getMethodReturnEPType(method);
-                    valueExpression = localMethod(makeAnnotations(returnTypeMethod, (Annotation[]) value, methodNode, codegenClassScope));
+                    valueExpression = makeAnnotations(returnTypeMethod, (Annotation[]) value, methodNode, codegenClassScope);
                 } else if (!method.getReturnType().isAnnotation()) {
                     valueExpression = constant(value);
                 } else {

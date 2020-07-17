@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.filterspec;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupableForge;
 
@@ -21,7 +21,7 @@ import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompi
 public abstract class FilterSpecParamForge {
     public final static FilterSpecParamForge[] EMPTY_PARAM_ARRAY = new FilterSpecParamForge[0];
 
-    public abstract CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols);
+    public abstract CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols);
     public abstract void valueExprToString(StringBuilder out, int indent);
 
     /**

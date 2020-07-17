@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class CodegenSetterBuilder {
     private final Class originator;
     private final String refName;
     private final CodegenClassScope classScope;
+    private final boolean methodProvided;
 
     private CodegenMethod method;
     private boolean closed;
@@ -35,16 +37,54 @@ public class CodegenSetterBuilder {
         this.originator = originator;
         this.refName = refName;
         this.classScope = classScope;
-
+        this.methodProvided = false;
         method = parent.makeChild(returnType, originator, classScope);
         method.getBlock().declareVarNewInstance(returnType, refName);
     }
 
-    public CodegenSetterBuilder constant(String name, Object value) {
+    public CodegenSetterBuilder(EPTypeClass returnType, Class originator, String refName, CodegenClassScope classScope, CodegenMethod method) {
+        this.originator = originator;
+        this.refName = refName;
+        this.classScope = classScope;
+        this.method = method;
+        this.methodProvided = true;
+        method.getBlock().declareVarNewInstance(returnType, refName);
+    }
+
+    public CodegenSetterBuilder(EPTypeClass returnType, Class originator, String refName, CodegenClassScope classScope, CodegenMethod method, CodegenExpression initializer) {
+        this.originator = originator;
+        this.refName = refName;
+        this.classScope = classScope;
+        this.method = method;
+        this.methodProvided = true;
+        method.getBlock().declareVar(returnType, refName, initializer);
+    }
+
+    public CodegenSetterBuilder constantExplicit(String name, Object value) {
         if (value instanceof CodegenExpression) {
             throw new IllegalArgumentException("Expected a non-expression value, received " + value);
         }
         return setValue(name, value == null ? constantNull() : CodegenExpressionBuilder.constant(value));
+    }
+
+    public CodegenSetterBuilder constantDefaultChecked(String name, Object value) {
+        if (value instanceof CodegenExpression) {
+            throw new IllegalArgumentException("Expected a non-expression value, received " + value);
+        }
+        if (value == null || value == Boolean.FALSE) {
+            return this;
+        }
+        if (value instanceof Number && ((Number) value).doubleValue() == 0d) {
+            return this;
+        }
+        return setValue(name, CodegenExpressionBuilder.constant(value));
+    }
+
+    public CodegenSetterBuilder expressionDefaultChecked(String name, CodegenExpression expression) {
+        if (expression.equals(constantNull())) {
+            return this;
+        }
+        return setValue(name, expression);
     }
 
     public CodegenSetterBuilder expression(String name, CodegenExpression expression) {
@@ -69,7 +109,14 @@ public class CodegenSetterBuilder {
         return setValue(name, buildMap(values, consumer, originator, method, classScope));
     }
 
+    public CodegenExpressionRef getRefName() {
+        return ref(refName);
+    }
+
     public CodegenExpression build() {
+        if (methodProvided) {
+            throw new IllegalStateException("Builder build is reserved for the case when the method is not already provided");
+        }
         if (closed) {
             throw new IllegalStateException("Builder already completed build");
         }

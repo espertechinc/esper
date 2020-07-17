@@ -152,7 +152,7 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         CodegenExpressionRef queryMethod = ref("qm");
         method.getBlock()
             .declareVar(typeOfMethod(), queryMethod.getRef(), newInstance(typeOfMethod()))
-            .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : localMethod(makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), annotations, method, classScope)))
+            .exprDotMethod(queryMethod, "setAnnotations", annotations == null ? constantNull() : makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), annotations, method, classScope))
             .exprDotMethod(queryMethod, "setProcessor", processor.make(method, symbols, classScope))
             .exprDotMethod(queryMethod, "setQueryGraph", queryGraph == null ? constantNull() : queryGraph.make(method, symbols, classScope))
             .exprDotMethod(queryMethod, "setInternalEventRouteDest", exprDotMethod(symbols.getAddInitSvc(method), EPStatementInitServices.GETINTERNALEVENTROUTEDEST))

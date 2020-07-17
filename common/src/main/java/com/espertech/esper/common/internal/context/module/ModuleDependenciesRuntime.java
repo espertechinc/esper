@@ -13,21 +13,22 @@ package com.espertech.esper.common.internal.context.module;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.script.core.NameParamNumAndModule;
 import com.espertech.esper.common.internal.type.NameAndModule;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 
 public class ModuleDependenciesRuntime {
     public final static EPTypeClass EPTYPE = new EPTypeClass(ModuleDependenciesRuntime.class);
 
-    private NameAndModule[] pathEventTypes;
-    private NameAndModule[] pathNamedWindows;
-    private NameAndModule[] pathTables;
-    private NameAndModule[] pathVariables;
-    private NameAndModule[] pathContexts;
-    private NameAndModule[] pathExpressions;
-    private NameAndModule[] pathClasses;
-    private ModuleIndexMeta[] pathIndexes;
-    private NameParamNumAndModule[] pathScripts;
-    private String[] publicEventTypes;
-    private String[] publicVariables;
+    private NameAndModule[] pathEventTypes = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathNamedWindows = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathTables = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathVariables = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathContexts = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathExpressions = NameAndModule.EMPTY_ARRAY;
+    private NameAndModule[] pathClasses = NameAndModule.EMPTY_ARRAY;
+    private ModuleIndexMeta[] pathIndexes = ModuleIndexMeta.EMPTY_ARRAY;
+    private NameParamNumAndModule[] pathScripts = NameParamNumAndModule.EMPTY_ARRAY;
+    private String[] publicEventTypes = CollectionUtil.STRINGARRAY_EMPTY;
+    private String[] publicVariables = CollectionUtil.STRINGARRAY_EMPTY;
 
     public NameAndModule[] getPathEventTypes() {
         return pathEventTypes;

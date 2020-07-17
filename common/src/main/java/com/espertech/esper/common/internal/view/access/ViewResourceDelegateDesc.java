@@ -14,10 +14,10 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoRichConstant;
 
+import java.util.Collections;
 import java.util.SortedSet;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Coordinates between view factories and requested resource (by expressions) the
@@ -26,6 +26,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ViewResourceDelegateDesc {
     public final static EPTypeClass EPTYPE = new EPTypeClass(ViewResourceDelegateDesc.class);
     public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewResourceDelegateDesc[].class);
+    public final static ViewResourceDelegateDesc[] SINGLE_ELEMENT_ARRAY = new ViewResourceDelegateDesc[] {new ViewResourceDelegateDesc(false, Collections.emptySortedSet())};
 
     private final boolean hasPrevious;
     private final SortedSet<Integer> priorRequests;
@@ -33,6 +34,17 @@ public class ViewResourceDelegateDesc {
     public ViewResourceDelegateDesc(boolean hasPrevious, SortedSet<Integer> priorRequests) {
         this.hasPrevious = hasPrevious;
         this.priorRequests = priorRequests;
+    }
+
+    public static CodegenExpression toExpression(ViewResourceDelegateDesc[] descs) {
+        if (descs.length == 1 && !descs[0].hasPrevious && descs[0].priorRequests.isEmpty()) {
+            return publicConstValue(ViewResourceDelegateDesc.class, "SINGLE_ELEMENT_ARRAY");
+        }
+        CodegenExpression[] values = new CodegenExpression[descs.length];
+        for (int i = 0; i < descs.length; i++) {
+            values[i] = descs[i].toExpression();
+        }
+        return newArrayWithInit(ViewResourceDelegateDesc.EPTYPE, values);
     }
 
     public boolean isHasPrevious() {

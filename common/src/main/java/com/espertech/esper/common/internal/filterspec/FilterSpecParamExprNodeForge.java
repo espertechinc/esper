@@ -136,7 +136,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         this.filterBoolExprId = filterBoolExprId;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         if (filterBoolExprId == -1) {
             throw new IllegalStateException("Unassigned filter boolean expression path num");
         }
@@ -226,7 +226,7 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
         method.getBlock().expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDBOOLEXPRREGISTERY).add("registerBoolExpr", ref("node")));
 
         method.getBlock().methodReturn(ref("node"));
-        return method;
+        return localMethod(method);
     }
 
     public void valueExprToString(StringBuilder out, int i) {

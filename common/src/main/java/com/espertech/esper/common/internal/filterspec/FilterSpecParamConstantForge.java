@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.filterspec;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionUtil;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
@@ -42,7 +43,7 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
         }
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, FilterSpecParamConstantForge.class, classScope);
         method.getBlock()
             .declareVar(ExprFilterSpecLookupable.EPTYPE, "lookupable", localMethod(lookupable.makeCodegen(method, symbols, classScope)))
@@ -54,7 +55,7 @@ public final class FilterSpecParamConstantForge extends FilterSpecParamForge {
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(constant(filterConstant)));
 
         method.getBlock().methodReturn(inner);
-        return method;
+        return localMethod(method);
     }
 
     /**

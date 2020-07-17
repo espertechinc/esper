@@ -53,9 +53,9 @@ public class NameAndModule {
         return result;
     }
 
-    public static CodegenExpression makeArray(Collection<NameAndModule> names) {
+    public static CodegenExpression makeArrayNullIfEmpty(Collection<NameAndModule> names) {
         if (names.isEmpty()) {
-            return enumValue(NameAndModule.class, "EMPTY_ARRAY");
+            return constantNull();
         }
         CodegenExpression[] expressions = new CodegenExpression[names.size()];
         int count = 0;

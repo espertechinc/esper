@@ -175,101 +175,89 @@ public class CompilerHelperModuleProvider {
         CodegenClassMethods methods = new CodegenClassMethods();
 
         // provide module name
-        CodegenMethod getModuleNameMethod = CodegenMethod.makeParentNode(EPTypePremade.STRING.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        getModuleNameMethod.getBlock().methodReturn(constant(optionalModuleName));
+        CodegenMethod getModuleNameMethodOpt = null;
+        if (optionalModuleName != null) {
+            getModuleNameMethodOpt = CodegenMethod.makeParentNode(EPTypePremade.STRING.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            getModuleNameMethodOpt.getBlock().methodReturn(constant(optionalModuleName));
+        }
 
         // provide module properties
-        CodegenMethod getModulePropertiesMethod = CodegenMethod.makeParentNode(EPTypePremade.MAP.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        makeModuleProperties(moduleProperties, getModulePropertiesMethod);
+        CodegenMethod getModulePropertiesMethodOpt = null;
+        if (!moduleProperties.isEmpty()) {
+            getModulePropertiesMethodOpt = CodegenMethod.makeParentNode(EPTypePremade.MAP.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
+            makeModuleProperties(moduleProperties, getModulePropertiesMethodOpt);
+        }
 
         // provide module dependencies
         CodegenMethod getModuleDependenciesMethod = CodegenMethod.makeParentNode(ModuleDependenciesRuntime.EPTYPE, EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
-        getModuleDependenciesMethod.getBlock().methodReturn(compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope));
+        compileTimeServices.getModuleDependencies().make(getModuleDependenciesMethod, classScope);
 
         // register types
-        CodegenMethod initializeEventTypesMethod = makeInitEventTypes(classScope, compileTimeServices);
+        CodegenMethod initializeEventTypesMethodOpt = makeInitEventTypesOptional(classScope, compileTimeServices);
 
         // register named windows
-        ModuleNamedWindowInitializeSymbol symbolsNamedWindowInit = new ModuleNamedWindowInitializeSymbol();
-        CodegenMethod initializeNamedWindowsMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsNamedWindowInit, classScope).addParam(EPModuleNamedWindowInitServices.EPTYPE, ModuleNamedWindowInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, NamedWindowMetaData> namedWindow : compileTimeServices.getNamedWindowCompileTimeRegistry().getNamedWindows().entrySet()) {
-            CodegenMethod addNamedWindow = registerNamedWindowCodegen(namedWindow, initializeNamedWindowsMethod, classScope, symbolsNamedWindowInit);
-            initializeNamedWindowsMethod.getBlock().expression(localMethod(addNamedWindow));
-        }
+        CodegenMethod initializeNamedWindowsMethodOpt = makeInitNamedWindowsOptional(classScope, compileTimeServices);
 
         // register tables
-        ModuleTableInitializeSymbol symbolsTableInit = new ModuleTableInitializeSymbol();
-        CodegenMethod initializeTablesMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsTableInit, classScope).addParam(EPModuleTableInitServices.EPTYPE, ModuleTableInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, TableMetaData> table : compileTimeServices.getTableCompileTimeRegistry().getTables().entrySet()) {
-            CodegenMethod addTable = registerTableCodegen(table, initializeTablesMethod, classScope, symbolsTableInit);
-            initializeTablesMethod.getBlock().expression(localMethod(addTable));
-        }
+        CodegenMethod initializeTablesMethodOpt = makeInitTablesOptional(classScope, compileTimeServices);
 
         // register indexes
-        ModuleIndexesInitializeSymbol symbolsIndexInit = new ModuleIndexesInitializeSymbol();
-        CodegenMethod initializeIndexesMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsIndexInit, classScope).addParam(EPModuleIndexInitServices.EPTYPE, EPModuleIndexInitServices.REF.getRef());
-        for (Map.Entry<IndexCompileTimeKey, IndexDetailForge> index : compileTimeServices.getIndexCompileTimeRegistry().getIndexes().entrySet()) {
-            CodegenMethod addIndex = registerIndexCodegen(index, initializeIndexesMethod, classScope, symbolsIndexInit);
-            initializeIndexesMethod.getBlock().expression(localMethod(addIndex));
-        }
+        CodegenMethod initializeIndexesMethodOpt = makeInitIndexesOptional(classScope, compileTimeServices);
 
         // register contexts
-        ModuleContextInitializeSymbol symbolsContextInit = new ModuleContextInitializeSymbol();
-        CodegenMethod initializeContextsMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsContextInit, classScope).addParam(EPModuleContextInitServices.EPTYPE, ModuleContextInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, ContextMetaData> context : compileTimeServices.getContextCompileTimeRegistry().getContexts().entrySet()) {
-            CodegenMethod addContext = registerContextCodegen(context, initializeContextsMethod, classScope, symbolsContextInit);
-            initializeContextsMethod.getBlock().expression(localMethod(addContext));
-        }
+        CodegenMethod initializeContextsMethodOpt = makeInitContextsOptional(classScope, compileTimeServices);
 
         // register variables
-        ModuleVariableInitializeSymbol symbolsVariablesInit = new ModuleVariableInitializeSymbol();
-        CodegenMethod initializeVariablesMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsVariablesInit, classScope).addParam(EPModuleVariableInitServices.EPTYPE, ModuleVariableInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, VariableMetaData> variable : compileTimeServices.getVariableCompileTimeRegistry().getVariables().entrySet()) {
-            CodegenMethod addVariable = registerVariableCodegen(variable, initializeVariablesMethod, classScope, symbolsVariablesInit);
-            initializeVariablesMethod.getBlock().expression(localMethod(addVariable));
-        }
+        CodegenMethod initializeVariablesMethodOpt = makeInitVariablesOptional(classScope, compileTimeServices);
 
         // register expressions
-        ModuleExpressionDeclaredInitializeSymbol symbolsExprDeclaredInit = new ModuleExpressionDeclaredInitializeSymbol();
-        CodegenMethod initializeExprDeclaredMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsExprDeclaredInit, classScope).addParam(EPModuleExprDeclaredInitServices.EPTYPE, ModuleExpressionDeclaredInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, ExpressionDeclItem> expression : compileTimeServices.getExprDeclaredCompileTimeRegistry().getExpressions().entrySet()) {
-            CodegenMethod addExpression = registerExprDeclaredCodegen(expression, initializeExprDeclaredMethod, classScope, symbolsExprDeclaredInit);
-            initializeExprDeclaredMethod.getBlock().expression(localMethod(addExpression));
-        }
+        CodegenMethod initializeExprDeclaredMethodOpt = makeInitDeclExprOptional(classScope, compileTimeServices);
 
         // register scripts
-        ModuleScriptInitializeSymbol symbolsScriptInit = new ModuleScriptInitializeSymbol();
-        CodegenMethod initializeScriptsMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsScriptInit, classScope).addParam(EPModuleScriptInitServices.EPTYPE, ModuleScriptInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> expression : compileTimeServices.getScriptCompileTimeRegistry().getScripts().entrySet()) {
-            CodegenMethod addScript = registerScriptCodegen(expression, initializeScriptsMethod, classScope, symbolsScriptInit);
-            initializeScriptsMethod.getBlock().expression(localMethod(addScript));
-        }
+        CodegenMethod initializeScriptsMethodOpt = makeInitScriptsOptional(classScope, compileTimeServices);
 
         // register provided classes
-        ModuleClassProvidedInitializeSymbol symbolsClassProvidedInit = new ModuleClassProvidedInitializeSymbol();
-        CodegenMethod initializeClassProvidedMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsClassProvidedInit, classScope).addParam(EPModuleClassProvidedInitServices.EPTYPE, ModuleClassProvidedInitializeSymbol.REF_INITSVC.getRef());
-        for (Map.Entry<String, ClassProvided> clazz : compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
-            CodegenMethod addClassProvided = registerClassProvidedCodegen(clazz, initializeClassProvidedMethod, classScope, symbolsClassProvidedInit);
-            initializeClassProvidedMethod.getBlock().expression(localMethod(addClassProvided));
-        }
+        CodegenMethod initializeClassProvidedMethodOpt = makeInitClassProvidedOptional(classScope, compileTimeServices);
 
         // instantiate factories for statements
         CodegenMethod statementsMethod = CodegenMethod.makeParentNode(EPTypePremade.LIST.getEPType(), EPCompilerImpl.class, CodegenSymbolProviderEmpty.INSTANCE, classScope);
         makeStatementsMethod(statementsMethod, statementClassNames, classScope);
 
         // build stack
-        CodegenStackGenerator.recursiveBuildStack(getModuleNameMethod, "getModuleName", methods);
-        CodegenStackGenerator.recursiveBuildStack(getModulePropertiesMethod, "getModuleProperties", methods);
+        if (getModuleNameMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(getModuleNameMethodOpt, "getModuleName", methods);
+        }
+        if (getModulePropertiesMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(getModulePropertiesMethodOpt, "getModuleProperties", methods);
+        }
         CodegenStackGenerator.recursiveBuildStack(getModuleDependenciesMethod, "getModuleDependencies", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeEventTypesMethod, "initializeEventTypes", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeNamedWindowsMethod, "initializeNamedWindows", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeTablesMethod, "initializeTables", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeIndexesMethod, "initializeIndexes", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeContextsMethod, "initializeContexts", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeVariablesMethod, "initializeVariables", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeExprDeclaredMethod, "initializeExprDeclareds", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeScriptsMethod, "initializeScripts", methods);
-        CodegenStackGenerator.recursiveBuildStack(initializeClassProvidedMethod, "initializeClassProvided", methods);
+        if (initializeEventTypesMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeEventTypesMethodOpt, "initializeEventTypes", methods);
+        }
+        if (initializeNamedWindowsMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeNamedWindowsMethodOpt, "initializeNamedWindows", methods);
+        }
+        if (initializeTablesMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeTablesMethodOpt, "initializeTables", methods);
+        }
+        if (initializeIndexesMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeIndexesMethodOpt, "initializeIndexes", methods);
+        }
+        if (initializeContextsMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeContextsMethodOpt, "initializeContexts", methods);
+        }
+        if (initializeVariablesMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeVariablesMethodOpt, "initializeVariables", methods);
+        }
+        if (initializeExprDeclaredMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeExprDeclaredMethodOpt, "initializeExprDeclareds", methods);
+        }
+        if (initializeScriptsMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeScriptsMethodOpt, "initializeScripts", methods);
+        }
+        if (initializeClassProvidedMethodOpt != null) {
+            CodegenStackGenerator.recursiveBuildStack(initializeClassProvidedMethodOpt, "initializeClassProvided", methods);
+        }
         CodegenStackGenerator.recursiveBuildStack(statementsMethod, "statements", methods);
 
         CodegenClass clazz = new CodegenClass(CodegenClassType.MODULEPROVIDER, ModuleProvider.EPTYPE, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
@@ -278,20 +266,132 @@ public class CompilerHelperModuleProvider {
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), ModuleProvider.class, moduleIdentPostfix);
     }
 
-    private static void makeStatementsMethod(CodegenMethod statementsMethod, List<String> statementClassNames, CodegenClassScope classScope) {
-        statementsMethod.getBlock().declareVar(EPTypePremade.LIST.getEPType(), "statements", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(statementClassNames.size())));
-        if (statementClassNames.size() <= NUM_STATEMENT_NAMES_PER_BATCH) {
-            makeStatementsAdd(statementsMethod, statementClassNames);
-        } else {
-            // subdivide to N each
-            List<List<String>> lists = CollectionUtil.subdivide(statementClassNames, NUM_STATEMENT_NAMES_PER_BATCH);
-            for (List<String> names : lists) {
-                CodegenMethod sub = statementsMethod.makeChild(EPTypePremade.VOID.getEPType(), CompilerHelperModuleProvider.class, classScope).addParam(EPTypePremade.LIST.getEPType(), "statements");
-                makeStatementsAdd(sub, names);
-                statementsMethod.getBlock().localMethod(sub, ref("statements"));
-            }
+    private static CodegenMethod makeInitClassProvidedOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().isEmpty()) {
+            return null;
         }
-        statementsMethod.getBlock().methodReturn(ref("statements"));
+        ModuleClassProvidedInitializeSymbol symbols = new ModuleClassProvidedInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleClassProvidedInitServices.EPTYPE, ModuleClassProvidedInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, ClassProvided> clazz : compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
+            CodegenMethod addClassProvided = registerClassProvidedCodegen(clazz, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addClassProvided));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitScriptsOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getScriptCompileTimeRegistry().getScripts().isEmpty()) {
+            return null;
+        }
+        ModuleScriptInitializeSymbol symbols = new ModuleScriptInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleScriptInitServices.EPTYPE, ModuleScriptInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> expression : compileTimeServices.getScriptCompileTimeRegistry().getScripts().entrySet()) {
+            CodegenMethod addScript = registerScriptCodegen(expression, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addScript));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitDeclExprOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getExprDeclaredCompileTimeRegistry().getExpressions().isEmpty()) {
+            return null;
+        }
+        ModuleExpressionDeclaredInitializeSymbol symbols = new ModuleExpressionDeclaredInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleExprDeclaredInitServices.EPTYPE, ModuleExpressionDeclaredInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, ExpressionDeclItem> expression : compileTimeServices.getExprDeclaredCompileTimeRegistry().getExpressions().entrySet()) {
+            CodegenMethod addExpression = registerExprDeclaredCodegen(expression, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addExpression));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitVariablesOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getVariableCompileTimeRegistry().getVariables().isEmpty()) {
+            return null;
+        }
+        ModuleVariableInitializeSymbol symbols = new ModuleVariableInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleVariableInitServices.EPTYPE, ModuleVariableInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, VariableMetaData> variable : compileTimeServices.getVariableCompileTimeRegistry().getVariables().entrySet()) {
+            CodegenMethod addVariable = registerVariableCodegen(variable, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addVariable));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitContextsOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getContextCompileTimeRegistry().getContexts().isEmpty()) {
+            return null;
+        }
+        ModuleContextInitializeSymbol symbols = new ModuleContextInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleContextInitServices.EPTYPE, ModuleContextInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, ContextMetaData> context : compileTimeServices.getContextCompileTimeRegistry().getContexts().entrySet()) {
+            CodegenMethod addContext = registerContextCodegen(context, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addContext));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitIndexesOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getIndexCompileTimeRegistry().getIndexes().isEmpty()) {
+            return null;
+        }
+        ModuleIndexesInitializeSymbol symbols = new ModuleIndexesInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleIndexInitServices.EPTYPE, EPModuleIndexInitServices.REF.getRef());
+        for (Map.Entry<IndexCompileTimeKey, IndexDetailForge> index : compileTimeServices.getIndexCompileTimeRegistry().getIndexes().entrySet()) {
+            CodegenMethod addIndex = registerIndexCodegen(index, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addIndex));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitTablesOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getTableCompileTimeRegistry().getTables().isEmpty()) {
+            return null;
+        }
+        ModuleTableInitializeSymbol symbols = new ModuleTableInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleTableInitServices.EPTYPE, ModuleTableInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, TableMetaData> table : compileTimeServices.getTableCompileTimeRegistry().getTables().entrySet()) {
+            CodegenMethod addTable = registerTableCodegen(table, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addTable));
+        }
+        return method;
+    }
+
+    private static CodegenMethod makeInitNamedWindowsOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (compileTimeServices.getNamedWindowCompileTimeRegistry().getNamedWindows().isEmpty()) {
+            return null;
+        }
+        ModuleNamedWindowInitializeSymbol symbols = new ModuleNamedWindowInitializeSymbol();
+        CodegenMethod method = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbols, classScope).addParam(EPModuleNamedWindowInitServices.EPTYPE, ModuleNamedWindowInitializeSymbol.REF_INITSVC.getRef());
+        for (Map.Entry<String, NamedWindowMetaData> namedWindow : compileTimeServices.getNamedWindowCompileTimeRegistry().getNamedWindows().entrySet()) {
+            CodegenMethod addNamedWindow = registerNamedWindowCodegen(namedWindow, method, classScope, symbols);
+            method.getBlock().expression(localMethod(addNamedWindow));
+        }
+        return method;
+    }
+
+    private static void makeStatementsMethod(CodegenMethod statementsMethod, List<String> statementClassNames, CodegenClassScope classScope) {
+        CodegenExpression returnValue;
+        if (statementClassNames.isEmpty()) {
+            returnValue = staticMethod(Collections.class, "emptyList");
+        } else if (statementClassNames.size() == 1) {
+            returnValue = staticMethod(Collections.class, "singletonList", newInstance(statementClassNames.get(0)));
+        } else {
+            statementsMethod.getBlock().declareVar(EPTypePremade.LIST.getEPType(), "statements", newInstance(EPTypePremade.ARRAYLIST.getEPType(), constant(statementClassNames.size())));
+            if (statementClassNames.size() <= NUM_STATEMENT_NAMES_PER_BATCH) {
+                makeStatementsAdd(statementsMethod, statementClassNames);
+            } else {
+                // subdivide to N each
+                List<List<String>> lists = CollectionUtil.subdivide(statementClassNames, NUM_STATEMENT_NAMES_PER_BATCH);
+                for (List<String> names : lists) {
+                    CodegenMethod sub = statementsMethod.makeChild(EPTypePremade.VOID.getEPType(), CompilerHelperModuleProvider.class, classScope).addParam(EPTypePremade.LIST.getEPType(), "statements");
+                    makeStatementsAdd(sub, names);
+                    statementsMethod.getBlock().localMethod(sub, ref("statements"));
+                }
+            }
+            returnValue = ref("statements");
+        }
+        statementsMethod.getBlock().methodReturn(returnValue);
     }
 
     private static void makeStatementsAdd(CodegenMethod statementsMethod, Collection<String> statementClassNames) {
@@ -355,7 +455,10 @@ public class CompilerHelperModuleProvider {
         return method;
     }
 
-    protected static CodegenMethod makeInitEventTypes(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+    protected static CodegenMethod makeInitEventTypesOptional(CodegenClassScope classScope, ModuleCompileTimeServices compileTimeServices) {
+        if (!hasEventTypes(compileTimeServices)) {
+            return null;
+        }
         ModuleEventTypeInitializeSymbol symbolsEventTypeInit = new ModuleEventTypeInitializeSymbol();
         CodegenMethod initializeEventTypesMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), EPCompilerImpl.class, symbolsEventTypeInit, classScope).addParam(EPModuleEventTypeInitServices.EPTYPE, ModuleEventTypeInitializeSymbol.REF_INITSVC.getRef());
         for (EventType eventType : compileTimeServices.getEventTypeCompileTimeRegistry().getNewTypesAdded()) {
@@ -370,6 +473,14 @@ public class CompilerHelperModuleProvider {
             }
         }
         return initializeEventTypesMethod;
+    }
+
+    private static boolean hasEventTypes(ModuleCompileTimeServices compileTimeServices) {
+        boolean has = !compileTimeServices.getEventTypeCompileTimeRegistry().getNewTypesAdded().isEmpty();
+        if (!has) {
+            has = !compileTimeServices.getSerdeEventTypeRegistry().getEventTypes().isEmpty();
+        }
+        return has;
     }
 
     private static CodegenMethod registerNamedWindowCodegen(Map.Entry<String, NamedWindowMetaData> namedWindow, CodegenMethodScope parent, CodegenClassScope classScope, ModuleNamedWindowInitializeSymbol symbols) {

@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.output.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -37,11 +36,14 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
     }
 
     public boolean isCodeGenerated() {
-        return true;
+        return postProcess != null;
     }
 
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        throw new IllegalStateException("Provide is not required");
+        if (postProcess != null) {
+            throw new IllegalStateException("Provide is not required");
+        }
+        method.getBlock().methodReturn(publicConstValue(OutputProcessViewDirectSimpleFactory.EPTYPE, "INSTANCE"));
     }
 
     public void updateCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -50,33 +52,15 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
 
         generateRSPCall("processViewResult", method, classScope);
 
-        if (postProcess != null) {
-            CodegenExpression newOldIsNull = and(equalsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), equalsNull(exprDotMethod(ref("newOldEvents"), "getSecond")));
-            method.getBlock()
-                    .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "forceOutput", constant(false))
-                    .ifCondition(and(equalsNull(REF_NEWDATA), equalsNull(REF_OLDDATA)))
-                    .ifCondition(or(equalsNull(ref("newOldEvents")), newOldIsNull))
-                    .assignRef("forceOutput", constantTrue());
+        CodegenExpression newOldIsNull = and(equalsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), equalsNull(exprDotMethod(ref("newOldEvents"), "getSecond")));
+        method.getBlock()
+                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "forceOutput", constant(false))
+                .ifCondition(and(equalsNull(REF_NEWDATA), equalsNull(REF_OLDDATA)))
+                .ifCondition(or(equalsNull(ref("newOldEvents")), newOldIsNull))
+                .assignRef("forceOutput", constantTrue());
 
-            method.getBlock()
-                    .expression(localMethod(postProcess.postProcessCodegenMayNullMayForce(classScope, method), ref("forceOutput"), ref("newOldEvents")))
-                    .apply(instblock(classScope, "aOutputProcessNonBuffered"));
-            return;
-        }
-
-        CodegenBlock ifChild = method.getBlock().ifCondition(notEqualsNull(MEMBER_CHILD));
-
-        CodegenBlock ifResultNotNull = ifChild.ifRefNotNull("newOldEvents");
-        CodegenBlock ifPairHasData = ifResultNotNull.ifCondition(or(notEqualsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), notEqualsNull(exprDotMethod(ref("newOldEvents"), "getSecond"))));
-        ifPairHasData.exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
-                .ifElseIf(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"));
-
-        CodegenBlock ifResultNull = ifResultNotNull.ifElse();
-        ifResultNull.ifCondition(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
-                .blockEnd()
-                .blockEnd()
+        method.getBlock()
+                .expression(localMethod(postProcess.postProcessCodegenMayNullMayForce(classScope, method), ref("forceOutput"), ref("newOldEvents")))
                 .apply(instblock(classScope, "aOutputProcessNonBuffered"));
     }
 
@@ -89,14 +73,7 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
                 .apply(instblock(classScope, "aOutputProcessNonBufferedJoin"))
                 .blockReturnNoValue();
 
-        if (postProcess != null) {
-            method.getBlock().expression(localMethod(postProcess.postProcessCodegenMayNullMayForce(classScope, method), constantFalse(), ref("newOldEvents")));
-        } else {
-            CodegenBlock ifPairHasData = method.getBlock().ifCondition(or(notEqualsNull(exprDotMethod(ref("newOldEvents"), "getFirst")), notEqualsNull(exprDotMethod(ref("newOldEvents"), "getSecond"))));
-            ifPairHasData.exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"))
-                    .ifElseIf(and(equalsNull(ref("newData")), equalsNull(ref("oldData"))))
-                    .exprDotMethod(MEMBER_CHILD, "newResult", ref("newOldEvents"));
-        }
+        method.getBlock().expression(localMethod(postProcess.postProcessCodegenMayNullMayForce(classScope, method), constantFalse(), ref("newOldEvents")));
 
         method.getBlock().apply(instblock(classScope, "aOutputProcessNonBufferedJoin"));
     }

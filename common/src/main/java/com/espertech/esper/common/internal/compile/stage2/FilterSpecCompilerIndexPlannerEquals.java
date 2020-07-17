@@ -230,9 +230,9 @@ public class FilterSpecCompilerIndexPlannerEquals {
             EventType innerEventType = getArrayInnerEventType(arrayEventTypes, streamName);
             Pair<Integer, String> indexAndProp = getStreamIndex(identNodeRight.getResolvedPropertyName());
             return new FilterSpecParamEventPropIndexedForge(identNodeLeft.getFilterLookupable(), op, identNodeRight.getResolvedStreamName(), indexAndProp.getFirst(),
-                indexAndProp.getSecond(), innerEventType, isMustCoerce, numberCoercer, numericCoercionType, statementName);
+                indexAndProp.getSecond(), innerEventType, isMustCoerce, numberCoercer, numericCoercionType);
         }
         return new FilterSpecParamEventPropForge(identNodeLeft.getFilterLookupable(), op, identNodeRight.getResolvedStreamName(), identNodeRight.getResolvedPropertyName(), identNodeRight.getExprEvaluatorIdent(),
-            isMustCoerce, numberCoercer, numericCoercionType, statementName);
+            isMustCoerce, numberCoercer, numericCoercionType);
     }
 }

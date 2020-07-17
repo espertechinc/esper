@@ -44,7 +44,7 @@ public class FilterSpecParamValueLimitedExprForge extends FilterSpecParamForge {
         this.numberCoercer = numberCoercer;
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, this.getClass(), classScope);
         CodegenMethod rhsExpression = CodegenLegoMethodExpression.codegenExpression(value.getForge(), method, classScope);
         CodegenMethod matchEventConvertor = convertor.make(method, classScope);
@@ -66,7 +66,7 @@ public class FilterSpecParamValueLimitedExprForge extends FilterSpecParamForge {
                 .methodReturn(FilterValueSetParamImpl.codegenNew(valueExpr));
 
         method.getBlock().methodReturn(param);
-        return method;
+        return localMethod(method);
     }
 
     public void valueExprToString(StringBuilder out, int i) {

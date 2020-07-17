@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbolWEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLookupable;
@@ -24,8 +25,6 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLoo
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -36,7 +35,6 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * in the event pattern result, for use to describe a filter parameter in a filter specification.
  */
 public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamForge {
-    private static final Logger log = LoggerFactory.getLogger(FilterSpecParamEventPropIndexedForge.class);
     private final String resultEventAsName;
     private final int resultEventIndex;
     private final String resultEventProperty;
@@ -44,7 +42,6 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
     private final boolean isMustCoerce;
     private final transient SimpleNumberCoercer numberCoercer;
     private final EPTypeClass coercionType;
-    private final String statementName;
 
     /**
      * Constructor.
@@ -52,18 +49,17 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
      * @param lookupable          is the lookupable
      * @param filterOperator      is the type of compare
      * @param resultEventAsName   is the name of the result event from which to get a property value to compare
-     * @param resultEventProperty is the name of the property to get from the named result event
-     * @param isMustCoerce        indicates on whether numeric coercion must be performed
-     * @param coercionType        indicates the numeric coercion type to use
-     * @param numberCoercer       interface to use to perform coercion
      * @param resultEventIndex    index
-     * @param statementName       statement name
+     * @param resultEventProperty is the name of the property to get from the named result event
      * @param eventType           event type
+     * @param isMustCoerce        indicates on whether numeric coercion must be performed
+     * @param numberCoercer       interface to use to perform coercion
+     * @param coercionType        indicates the numeric coercion type to use
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
     public FilterSpecParamEventPropIndexedForge(ExprFilterSpecLookupableForge lookupable, FilterOperator filterOperator, String resultEventAsName,
                                                 int resultEventIndex, String resultEventProperty, EventType eventType, boolean isMustCoerce,
-                                                SimpleNumberCoercer numberCoercer, EPTypeClass coercionType, String statementName)
+                                                SimpleNumberCoercer numberCoercer, EPTypeClass coercionType)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.resultEventAsName = resultEventAsName;
@@ -73,7 +69,6 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
         this.isMustCoerce = isMustCoerce;
         this.numberCoercer = numberCoercer;
         this.coercionType = coercionType;
-        this.statementName = statementName;
 
         if (filterOperator.isRangeOperator()) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
@@ -81,7 +76,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
         }
     }
 
-    public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
+    public CodegenExpression makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbolWEventType symbols) {
         EventPropertyGetterSPI getterSPI = ((EventTypeSPI) eventType).getGetterSPI(resultEventProperty);
         CodegenMethod method = parent.makeChild(FilterSpecParam.EPTYPE, FilterSpecParamConstantForge.class, classScope);
 
@@ -105,7 +100,7 @@ public final class FilterSpecParamEventPropIndexedForge extends FilterSpecParamF
         getFilterValue.getBlock().methodReturn(FilterValueSetParamImpl.codegenNew(ref("value")));
 
         method.getBlock().methodReturn(param);
-        return method;
+        return localMethod(method);
     }
 
     /**

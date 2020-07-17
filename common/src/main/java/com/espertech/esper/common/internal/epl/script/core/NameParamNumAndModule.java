@@ -62,9 +62,9 @@ public class NameParamNumAndModule {
         return result;
     }
 
-    public static CodegenExpression makeArray(Collection<NameParamNumAndModule> names) {
+    public static CodegenExpression makeArrayNullIfEmpty(Collection<NameParamNumAndModule> names) {
         if (names.isEmpty()) {
-            return enumValue(NameParamNumAndModule.class, "EMPTY_ARRAY");
+            return constantNull();
         }
         CodegenExpression[] expressions = new CodegenExpression[names.size()];
         int count = 0;

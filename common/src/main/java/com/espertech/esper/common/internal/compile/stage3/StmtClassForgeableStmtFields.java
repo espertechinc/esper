@@ -62,16 +62,18 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
             initMethod.getBlock().assignRef(entry.getKey().getName(), entry.getValue());
         }
 
-        // assignment methods
-        CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments").setStatic(true);
-        CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).setStatic(true);
-        generateAssignAndUnassign(numStreams, assignMethod, unassignMethod, packageScope.getFieldsNamed());
-
         // build methods
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenStackGenerator.recursiveBuildStack(initMethod, "init", methods);
-        CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
-        CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
+
+        // assignment methods
+        if (packageScope.hasStatementFields()) {
+            CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments").setStatic(true);
+            CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).setStatic(true);
+            generateAssignAndUnassign(numStreams, assignMethod, unassignMethod, packageScope.getFieldsNamed());
+            CodegenStackGenerator.recursiveBuildStack(assignMethod, "assign", methods);
+            CodegenStackGenerator.recursiveBuildStack(unassignMethod, "unassign", methods);
+        }
 
         return new CodegenClass(CodegenClassType.STATEMENTFIELDS, StatementFields.EPTYPE, className, classScope, members, ctor, methods, Collections.emptyList());
     }
@@ -196,7 +198,9 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
 
         CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
         assignerSetterClass.addMethod("assign", assignMethod);
-        assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
+        if (!packageScope.getFieldsNamed().isEmpty()) {
+            assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
+        }
 
         CodegenMethod setValueMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), StmtClassForgeableStmtFields.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
         assignerSetterClass.addMethod("setValue", setValueMethod);

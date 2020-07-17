@@ -85,11 +85,11 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
             CodegenCtor providerCtor = new CodegenCtor(StmtClassForgeableOPVFactoryProvider.class, includeDebugSymbols, ctorParms);
             CodegenClassScope classScope = new CodegenClassScope(includeDebugSymbols, packageScope, className);
             List<CodegenTypedParam> providerExplicitMembers = new ArrayList<>();
-            providerExplicitMembers.add(new CodegenTypedParam(StatementResultService.EPTYPE, MEMBERNAME_STATEMENTRESULTSVC));
             providerExplicitMembers.add(new CodegenTypedParam(OutputProcessViewFactory.EPTYPE, MEMBERNAME_OPVFACTORY));
 
             if (spec.isCodeGenerated()) {
                 // make factory and view both, assign to member
+                providerExplicitMembers.add(new CodegenTypedParam(StatementResultService.EPTYPE, MEMBERNAME_STATEMENTRESULTSVC));
                 makeOPVFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, className);
                 makeOPV(classScope, innerClasses, Collections.emptyList(), providerCtor, className, spec, numStreams);
             } else {

@@ -13,10 +13,7 @@ package com.espertech.esper.common.internal.bytecodemodel.core;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CodegenClass {
     private final CodegenClassType classType;
@@ -118,6 +115,20 @@ public class CodegenClass {
             addReferencedClasses(inner.getExplicitMembers(), classes);
             if (inner.getCtor() != null) {
                 inner.getCtor().mergeClasses(classes);
+            }
+        }
+
+        // remove no-package and "java.lang"-classes
+        Iterator<Class> it = classes.iterator();
+        while (it.hasNext()) {
+            Class clazz = it.next();
+            if (clazz == null) {
+                it.remove();
+                continue;
+            }
+            Package pack = clazz.getPackage();
+            if (pack == null || pack.getName().equals("java.lang")) {
+                it.remove();
             }
         }
         return classes;

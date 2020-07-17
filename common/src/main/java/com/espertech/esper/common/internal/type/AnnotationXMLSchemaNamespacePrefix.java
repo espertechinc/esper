@@ -43,8 +43,8 @@ public class AnnotationXMLSchemaNamespacePrefix implements XMLSchemaNamespacePre
     public static CodegenExpression toExpression(XMLSchemaNamespacePrefix prefix, CodegenMethod parent, CodegenClassScope scope) {
         return new CodegenSetterBuilder(AnnotationXMLSchemaNamespacePrefix.EPTYPE, AnnotationXMLSchemaNamespacePrefix.class,
             "nsprefix", parent, scope)
-            .constant("prefix", prefix.prefix())
-            .constant("namespace", prefix.namespace())
+            .constantExplicit("prefix", prefix.prefix())
+            .constantExplicit("namespace", prefix.namespace())
             .build();
     }
 

@@ -21,7 +21,7 @@ public interface FAFProvider {
 
     ModuleDependenciesRuntime getModuleDependencies();
 
-    void initializeEventTypes(EPModuleEventTypeInitServices svc);
+    default void initializeEventTypes(EPModuleEventTypeInitServices svc) {};
 
     void initializeQuery(EPStatementInitServices epInitServices);
 

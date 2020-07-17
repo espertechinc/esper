@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
@@ -36,11 +35,11 @@ import static com.espertech.esper.common.internal.epl.resultset.order.OrderByPro
 public class OrderByProcessorCompiler {
 
     public static void makeOrderByProcessors(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName, String memberOrderByFactory) {
-        providerExplicitMembers.add(new CodegenTypedParam(OrderByProcessorFactory.EPTYPE, memberOrderByFactory));
         if (forge == null) {
-            providerCtor.getBlock().assignRef(memberOrderByFactory, constantNull());
             return;
         }
+
+        providerExplicitMembers.add(new CodegenTypedParam(OrderByProcessorFactory.EPTYPE, memberOrderByFactory));
 
         makeFactory(forge, classScope, innerClasses, providerClassName);
         makeService(forge, classScope, innerClasses, providerClassName);

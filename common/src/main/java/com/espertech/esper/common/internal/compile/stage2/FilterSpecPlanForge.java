@@ -77,7 +77,15 @@ public class FilterSpecPlanForge {
         return ExprNodeUtilityCompare.deepEqualsNullChecked(filterNegate, other.filterNegate, true);
     }
 
-    public CodegenMethod codegenWithEventType(CodegenMethodScope parent, CodegenClassScope classScope) {
+    public CodegenExpression codegenWithEventType(CodegenMethodScope parent, CodegenExpression eventType, CodegenExpression stmtInitSvc, CodegenClassScope classScope) {
+        if (paths.length == 0) {
+            return publicConstValue(FilterSpecPlan.class, "EMPTY_PLAN");
+        }
+        CodegenMethod method = codegenWithEventType(parent, classScope);
+        return localMethod(method, eventType, stmtInitSvc);
+    }
+
+    private CodegenMethod codegenWithEventType(CodegenMethodScope parent, CodegenClassScope classScope) {
         SAIFFInitializeSymbolWEventType symbolsWithType = new SAIFFInitializeSymbolWEventType();
         CodegenMethod method = parent.makeChildWithScope(FilterSpecPlan.EPTYPE, FilterSpecParamForge.class, symbolsWithType, classScope).addParam(EventType.EPTYPE, SAIFFInitializeSymbolWEventType.REF_EVENTTYPE.getRef()).addParam(EPStatementInitServices.EPTYPE, SAIFFInitializeSymbolWEventType.REF_STMTINITSVC.getRef());
         if (paths.length == 0) {

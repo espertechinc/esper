@@ -13,35 +13,49 @@ package com.espertech.esper.common.internal.context.module;
 import com.espertech.esper.common.client.module.ModuleProperty;
 import com.espertech.esper.common.client.type.EPTypeClass;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public interface ModuleProvider {
     EPTypeClass EPTYPE = new EPTypeClass(ModuleProvider.class);
 
-    String getModuleName();
+    default String getModuleName() {
+        return null;
+    }
 
-    Map<ModuleProperty, Object> getModuleProperties();
+    default Map<ModuleProperty, Object> getModuleProperties() {
+        return Collections.emptyMap();
+    }
 
     ModuleDependenciesRuntime getModuleDependencies();
 
-    void initializeEventTypes(EPModuleEventTypeInitServices svc);
+    default void initializeEventTypes(EPModuleEventTypeInitServices svc) {
+    }
 
-    void initializeNamedWindows(EPModuleNamedWindowInitServices svc);
+    default void initializeNamedWindows(EPModuleNamedWindowInitServices svc) {
+    }
 
-    void initializeIndexes(EPModuleIndexInitServices svc);
+    default void initializeIndexes(EPModuleIndexInitServices svc) {
+    }
 
-    void initializeContexts(EPModuleContextInitServices svc);
+    default void initializeContexts(EPModuleContextInitServices svc) {
+    }
 
-    void initializeVariables(EPModuleVariableInitServices svc);
+    default void initializeVariables(EPModuleVariableInitServices svc) {
+    }
 
-    void initializeExprDeclareds(EPModuleExprDeclaredInitServices svc);
+    default void initializeExprDeclareds(EPModuleExprDeclaredInitServices svc) {
+    }
 
-    void initializeTables(EPModuleTableInitServices svc);
+    default void initializeTables(EPModuleTableInitServices svc) {
+    }
 
-    void initializeScripts(EPModuleScriptInitServices svc);
+    default void initializeScripts(EPModuleScriptInitServices svc) {
+    }
 
-    void initializeClassProvided(EPModuleClassProvidedInitServices svc);
+    default void initializeClassProvided(EPModuleClassProvidedInitServices svc) {
+    }
 
     List<StatementProvider> statements();
 }

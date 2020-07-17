@@ -64,6 +64,10 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionEnumOrPublicConstantValue(enumType, enumValue);
     }
 
+    public static CodegenExpression publicConstValue(EPTypeClass enumType, String enumValue) {
+        return publicConstValue(enumType.getType(), enumValue);
+    }
+
     public static CodegenExpression publicConstValue(String enumType, String enumValue) {
         return new CodegenExpressionEnumOrPublicConstantValue(enumType, enumValue);
     }
