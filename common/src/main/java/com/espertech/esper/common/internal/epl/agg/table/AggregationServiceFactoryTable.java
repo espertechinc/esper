@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.table.core.*;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 public class AggregationServiceFactoryTable implements AggregationServiceFactory {
     public final static EPTypeClass EPTYPE = new EPTypeClass(AggregationServiceFactoryTable.class);
@@ -48,7 +47,7 @@ public class AggregationServiceFactoryTable implements AggregationServiceFactory
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
-    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, ClasspathImportServiceRuntime classpathImportService, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
+    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
         TableInstance tableInstance = table.getTableInstance(exprEvaluatorContext.getAgentInstanceId());
         if (!table.getMetaData().isKeyed()) {
             TableInstanceUngrouped tableInstanceUngrouped = (TableInstanceUngrouped) tableInstance;

@@ -11,9 +11,9 @@
 package com.espertech.esper.common.internal.epl.namedwindow.core;
 
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.ContextRuntimeDescriptor;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
@@ -69,17 +69,17 @@ public class NamedWindowImpl implements NamedWindowWDirectConsume {
         return statementResourceService.getResourcesUnpartitioned().getNamedWindowInstance().getTailViewInstance().addConsumer(consumerDesc, isSubselect);
     }
 
-    public NamedWindowInstance getNamedWindowInstance(AgentInstanceContext agentInstanceContext) {
+    public NamedWindowInstance getNamedWindowInstance(ExprEvaluatorContext exprEvaluatorContext) {
         if (rootView.getContextName() == null) {
             return getNamedWindowInstanceNoContext();
         }
 
-        if (agentInstanceContext.getStatementContext().getContextRuntimeDescriptor() == null) {
+        if (exprEvaluatorContext.getContextName() == null) {
             return null;
         }
 
-        if (this.rootView.getContextName().equals(agentInstanceContext.getStatementContext().getContextRuntimeDescriptor().getContextName())) {
-            return getNamedWindowInstance(agentInstanceContext.getAgentInstanceId());
+        if (this.rootView.getContextName().equals(exprEvaluatorContext.getContextName())) {
+            return getNamedWindowInstance(exprEvaluatorContext.getAgentInstanceId());
         }
 
         return null;

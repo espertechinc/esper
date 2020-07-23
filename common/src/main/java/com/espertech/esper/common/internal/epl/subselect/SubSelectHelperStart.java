@@ -39,7 +39,7 @@ public class SubSelectHelperStart {
             stopCallbacks.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
-            SubSelectStrategyRealization realization = factory.getStrategyFactory().instantiate(subselectActivationResult.getViewable(), agentInstanceContext, stopCallbacks, subselectEntry.getKey(), isRecoveringResilient);
+            SubSelectStrategyRealization realization = factory.getStrategyFactory().instantiate(subselectActivationResult.getViewable(), agentInstanceContext, stopCallbacks, subselectEntry.getKey(), isRecoveringResilient, agentInstanceContext.getAnnotations());
 
             // set aggregation
             final SubordTableLookupStrategy lookupStrategyDefault = realization.getLookupStrategy();

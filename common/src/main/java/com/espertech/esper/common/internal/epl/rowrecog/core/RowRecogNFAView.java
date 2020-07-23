@@ -863,7 +863,7 @@ public class RowRecogNFAView extends ViewSupport implements AgentInstanceMgmtCal
             AggregationService[] aggregationServices = new AggregationService[aggregationServiceFactories.length];
             for (int i = 0; i < aggregationServices.length; i++) {
                 if (aggregationServiceFactories[i] != null) {
-                    aggregationServices[i] = aggregationServiceFactories[i].makeService(agentInstanceContext, agentInstanceContext.getClasspathImportServiceRuntime(), false, null, null);
+                    aggregationServices[i] = aggregationServiceFactories[i].makeService(agentInstanceContext, false, null, null);
                     factory.getDesc().getAggregationResultFutureAssignables()[i].assign(aggregationServices[i]);
                 }
             }

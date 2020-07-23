@@ -86,7 +86,7 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
         }
 
         if (factory.getAggregationServiceFactory() != null) {
-            aggregationService = factory.getAggregationServiceFactory().makeService(agentInstanceContext.getAgentInstanceContext(), agentInstanceContext.getClasspathImportService(), false, null, null);
+            aggregationService = factory.getAggregationServiceFactory().makeService(agentInstanceContext.getAgentInstanceContext(), false, null, null);
         } else {
             aggregationService = null;
         }

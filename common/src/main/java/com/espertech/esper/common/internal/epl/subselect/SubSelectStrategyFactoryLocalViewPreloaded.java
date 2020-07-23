@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceTransferSer
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.expression.prior.PriorEvalStrategy;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -41,6 +42,7 @@ import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 import com.espertech.esper.common.internal.view.util.BufferView;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -118,7 +120,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         eventTableIndexService = subselectFactoryContext.getEventTableIndexService();
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient, Annotation[] annotations) {
 
         // create factory chain context to hold callbacks specific to "prior" and "prev"
         AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactories, agentInstanceContext, viewResourceDelegate);
@@ -128,7 +130,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // make aggregation service
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, agentInstanceContext.getClasspathImportServiceRuntime(), true, subqueryNumber, null);
+            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
             stopCallbackList.add(new AgentInstanceMgmtCallback() {
@@ -167,7 +169,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             subselectView.setChild(aggregatorView);
 
             if (namedWindow != null && eventTableIndexService.allowInitIndex(isRecoveringResilient)) {
-                preloadFromNamedWindow(null, aggregatorView, agentInstanceContext);
+                preloadFromNamedWindow(null, aggregatorView, agentInstanceContext, annotations);
             }
 
             return new SubSelectStrategyRealization(SubordTableLookupStrategyNullRow.INSTANCE, null, aggregationService, priorStrategy, previousGetter, subselectView, null);
@@ -200,7 +202,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         // preload when allowed
         if (namedWindow != null && eventTableIndexService.allowInitIndex(isRecoveringResilient)) {
-            preloadFromNamedWindow(index, subselectView, agentInstanceContext);
+            preloadFromNamedWindow(index, subselectView, agentInstanceContext, annotations);
         }
 
         BufferView bufferView = new BufferView(subqueryNumber);
@@ -210,9 +212,9 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         return new SubSelectStrategyRealization(strategy, subselectAggregationPreprocessor, aggregationService, priorStrategy, previousGetter, subselectView, index);
     }
 
-    private void preloadFromNamedWindow(EventTable[] eventIndex, Viewable subselectView, AgentInstanceContext agentInstanceContext) {
+    private void preloadFromNamedWindow(EventTable[] eventIndex, Viewable subselectView, ExprEvaluatorContext exprEvaluatorContext, Annotation[] annotations) {
 
-        NamedWindowInstance instance = namedWindow.getNamedWindowInstance(agentInstanceContext);
+        NamedWindowInstance instance = namedWindow.getNamedWindowInstance(exprEvaluatorContext);
         if (instance == null) {
             throw new EPException("Named window '" + namedWindow.getName() + "' is associated to context '" + namedWindow.getStatementContext().getContextName() + "' that is not available for querying");
         }
@@ -221,9 +223,9 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // preload view for stream
         Collection<EventBean> eventsInWindow;
         if (namedWindowFilterExpr != null) {
-            Collection<EventBean> snapshot = consumerView.snapshotNoLock(namedWindowFilterQueryGraph, agentInstanceContext.getAnnotations());
+            Collection<EventBean> snapshot = consumerView.snapshotNoLock(namedWindowFilterQueryGraph, annotations);
             eventsInWindow = new ArrayList<>(snapshot.size());
-            ExprNodeUtilityEvaluate.applyFilterExpressionIterable(snapshot.iterator(), namedWindowFilterExpr, agentInstanceContext, eventsInWindow);
+            ExprNodeUtilityEvaluate.applyFilterExpressionIterable(snapshot.iterator(), namedWindowFilterExpr, exprEvaluatorContext, eventsInWindow);
         } else {
             eventsInWindow = new ArrayList<>();
             for (Iterator<EventBean> it = consumerView.iterator(); it.hasNext(); ) {
@@ -236,7 +238,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         }
         if (eventIndex != null) {
             for (EventTable table : eventIndex) {
-                table.add(newEvents, agentInstanceContext);  // fill index
+                table.add(newEvents, exprEvaluatorContext);  // fill index
             }
         }
     }

@@ -21,7 +21,7 @@ public class StatementAgentInstanceFactoryUtil {
     public static Pair<ResultSetProcessor, AggregationService> startResultSetAndAggregation(ResultSetProcessorFactoryProvider resultSetProcessorPrototype, AgentInstanceContext agentInstanceContext, boolean isSubquery, Integer subqueryNumber) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactory() != null) {
-            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactory().makeService(agentInstanceContext, null, isSubquery, subqueryNumber, null);
+            aggregationService = resultSetProcessorPrototype.getAggregationServiceFactory().makeService(agentInstanceContext, isSubquery, subqueryNumber, null);
         }
 
         OrderByProcessor orderByProcessor = null;

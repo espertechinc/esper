@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class AggregationServiceNullFactory implements AggregationServiceFactory,
     private AggregationServiceNullFactory() {
     }
 
-    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, ClasspathImportServiceRuntime classpathImportService, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
+    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
         return AggregationServiceNull.INSTANCE;
     }
 

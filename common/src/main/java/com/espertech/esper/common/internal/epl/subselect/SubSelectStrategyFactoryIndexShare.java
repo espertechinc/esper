@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -68,12 +69,12 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
         // no action
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient, Annotation[] annotations) {
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, agentInstanceContext.getClasspathImportServiceRuntime(), true, subqueryNumber, null);
+            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
             stopCallbackList.add(new AgentInstanceMgmtCallback() {

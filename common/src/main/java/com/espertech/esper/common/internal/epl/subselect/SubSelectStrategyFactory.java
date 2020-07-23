@@ -16,12 +16,13 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallbac
 import com.espertech.esper.common.internal.epl.lookup.LookupStrategyDesc;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 public interface SubSelectStrategyFactory {
     void ready(SubSelectStrategyFactoryContext subselectFactoryContext, EventType eventType);
 
-    SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient);
+    SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient, Annotation[] annotations);
 
     LookupStrategyDesc getLookupStrategyDesc();
 }
