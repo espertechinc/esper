@@ -23,7 +23,7 @@ import java.util.*;
 
 public class SubSelectHelperStart {
 
-    public static Map<Integer, SubSelectFactoryResult> startSubselects(Map<Integer, SubSelectFactory> subselects, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringResilient) {
+    public static Map<Integer, SubSelectFactoryResult> startSubselects(Map<Integer, SubSelectFactory> subselects, ExprEvaluatorContext exprEvaluatorContext, AgentInstanceContext agentInstanceContextOpt, List<AgentInstanceMgmtCallback> stopCallbacks, boolean isRecoveringResilient) {
         if (subselects == null || subselects.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -35,11 +35,11 @@ public class SubSelectHelperStart {
             SubSelectFactory factory = subselectEntry.getValue();
 
             // activate viewable
-            ViewableActivationResult subselectActivationResult = factory.getActivator().activate(agentInstanceContext, true, isRecoveringResilient);
+            ViewableActivationResult subselectActivationResult = factory.getActivator().activate(agentInstanceContextOpt, true, isRecoveringResilient);
             stopCallbacks.add(subselectActivationResult.getStopCallback());
 
             // apply returning the strategy instance
-            SubSelectStrategyRealization realization = factory.getStrategyFactory().instantiate(subselectActivationResult.getViewable(), agentInstanceContext, stopCallbacks, subselectEntry.getKey(), isRecoveringResilient);
+            SubSelectStrategyRealization realization = factory.getStrategyFactory().instantiate(subselectActivationResult.getViewable(), exprEvaluatorContext, stopCallbacks, subselectEntry.getKey(), isRecoveringResilient);
 
             // set aggregation
             final SubordTableLookupStrategy lookupStrategyDefault = realization.getLookupStrategy();

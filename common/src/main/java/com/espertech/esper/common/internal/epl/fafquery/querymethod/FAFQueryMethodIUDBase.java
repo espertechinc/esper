@@ -186,7 +186,7 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
 
         // start subselects
         List<AgentInstanceMgmtCallback> subselectStopCallbacks = new ArrayList<>(2);
-        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, subselectStopCallbacks, false);
+        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, agentInstanceContext, subselectStopCallbacks, false);
 
         // assign
         assignerSetter.assign(new StatementAIFactoryAssignmentsImpl(null, null, null, subselectActivations, tableAccessEvals, null));

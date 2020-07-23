@@ -69,7 +69,7 @@ public class StatementAgentInstanceFactoryUpdate implements StatementAgentInstan
             }
         });
 
-        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, stopCallbacks, isRecoveringResilient);
+        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
         boolean hasSubselect = !subselectActivations.isEmpty();
         agentInstanceContext.getInternalEventRouter().addPreprocessing(desc, viewable, agentInstanceContext.getStatementContext(), hasSubselect);

@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
@@ -47,15 +48,19 @@ public class FAFQueryMethodSelectExecUtil {
     }
 
     static ResultSetProcessor processorWithAssign(ResultSetProcessorFactoryProvider processorProvider, AgentInstanceContext agentInstanceContext, FAFQueryMethodAssignerSetter assignerSetter, Map<Integer, ExprTableEvalStrategyFactory> tableAccesses, Map<Integer, SubSelectFactory> subselects) {
+        return processorWithAssign(processorProvider, agentInstanceContext, agentInstanceContext, assignerSetter, tableAccesses, subselects);
+    }
+
+    static ResultSetProcessor processorWithAssign(ResultSetProcessorFactoryProvider processorProvider, ExprEvaluatorContext exprEvaluatorContext, AgentInstanceContext agentInstanceContextOpt, FAFQueryMethodAssignerSetter assignerSetter, Map<Integer, ExprTableEvalStrategyFactory> tableAccesses, Map<Integer, SubSelectFactory> subselects) {
         // start table-access
-        Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);
+        Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContextOpt);
 
         // get RSP
-        Pair<ResultSetProcessor, AggregationService> pair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(processorProvider, agentInstanceContext, false, null);
+        Pair<ResultSetProcessor, AggregationService> pair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(processorProvider, exprEvaluatorContext, false, null);
 
         // start subselects
         List<AgentInstanceMgmtCallback> subselectStopCallbacks = new ArrayList<>(2);
-        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, subselectStopCallbacks, false);
+        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, exprEvaluatorContext, agentInstanceContextOpt, subselectStopCallbacks, false);
 
         // assign
         assignerSetter.assign(new StatementAIFactoryAssignmentsImpl(pair.getSecond(), null, null, subselectActivations, tableAccessEvals, null));

@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSymbolProvi
 import com.espertech.esper.common.internal.bytecodemodel.core.*;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -48,7 +47,7 @@ public class OrderByProcessorCompiler {
     }
 
     private static void makeFactory(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName) {
-        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.EPTYPE, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceContext.EPTYPE, MEMBER_EXPREVALCONTEXT.getRef());
+        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.EPTYPE, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(ExprEvaluatorContext.EPTYPE, MEMBER_EXPREVALCONTEXT.getRef());
         forge.instantiateCodegen(instantiateMethod, classScope);
 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));

@@ -100,7 +100,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
             view = determineFinalOutputView(agentInstanceContext, view);
 
             // start subselects
-            subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, stopCallbacks, isRecoveringResilient);
+            subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
             // start table-access
             tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);

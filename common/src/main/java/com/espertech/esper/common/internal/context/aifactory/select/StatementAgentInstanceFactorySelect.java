@@ -192,7 +192,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         }
 
         // start subselects
-        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, stopCallbacks, isRecoveringResilient);
+        Map<Integer, SubSelectFactoryResult> subselectActivations = SubSelectHelperStart.startSubselects(subselects, agentInstanceContext, agentInstanceContext, stopCallbacks, isRecoveringResilient);
 
         // start table-access
         Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);

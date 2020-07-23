@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 /**
  * A processor for ordering output events according to the order specified in the order-by clause.
@@ -20,5 +20,5 @@ public interface OrderByProcessorFactory {
 
     EPTypeClass EPTYPE = new EPTypeClass(OrderByProcessorFactory.class);
 
-    OrderByProcessor instantiate(AgentInstanceContext agentInstanceContext);
+    OrderByProcessor instantiate(ExprEvaluatorContext exprEvaluatorContext);
 }
