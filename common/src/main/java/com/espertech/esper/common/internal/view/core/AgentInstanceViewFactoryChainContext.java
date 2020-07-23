@@ -221,4 +221,8 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
     public String getModuleName() {
         return agentInstanceContext.getModuleName();
     }
+
+    public boolean isWritesToTables() {
+        return agentInstanceContext.isWritesToTables();
+    }
 }

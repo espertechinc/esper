@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.hook.vdw.*;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganizationType;
@@ -76,7 +77,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         dataExternal.destroy();
     }
 
-    public SubordTableLookupStrategy getSubordinateLookupStrategy(SubordTableLookupStrategyFactoryVDW subordTableFactory, AgentInstanceContext agentInstanceContext) {
+    public SubordTableLookupStrategy getSubordinateLookupStrategy(SubordTableLookupStrategyFactoryVDW subordTableFactory, ExprEvaluatorContext exprEvaluatorContext) {
         Pair<IndexMultiKey, VirtualDWEventTable> tableVW = VirtualDWQueryPlanUtil.getSubordinateQueryDesc(false, subordTableFactory.getIndexHashedProps(), subordTableFactory.getIndexBtreeProps());
         VirtualDWEventTable noopTable = tableVW.getSecond();
         for (int i = 0; i < noopTable.getBtreeAccess().size(); i++) {
@@ -91,8 +92,8 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         }
         lastAccessedByNum++;
 
-        VirtualDataWindowLookupContextSPI context = new VirtualDataWindowLookupContextSPI(agentInstanceContext.getDeploymentId(), agentInstanceContext.getStatementName(),
-            agentInstanceContext.getStatementId(), agentInstanceContext.getAnnotations(), false, factory.getNamedWindowName(), noopTable.getHashAccess(), noopTable.getBtreeAccess(), lastAccessedByNum);
+        VirtualDataWindowLookupContextSPI context = new VirtualDataWindowLookupContextSPI(exprEvaluatorContext.getDeploymentId(), exprEvaluatorContext.getStatementName(),
+                exprEvaluatorContext.getStatementId(), exprEvaluatorContext.getAnnotations(), false, factory.getNamedWindowName(), noopTable.getHashAccess(), noopTable.getBtreeAccess(), lastAccessedByNum);
         VirtualDataWindowLookup index;
         try {
             index = dataExternal.getLookup(context);

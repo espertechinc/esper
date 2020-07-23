@@ -494,4 +494,8 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
     public TimeAbacus getTimeAbacus() {
         return getClasspathImportServiceRuntime().getTimeAbacus();
     }
+
+    public boolean isWritesToTables() {
+        return getStatementInformationals().isWritesToTables();
+    }
 }

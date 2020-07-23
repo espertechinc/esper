@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.lookup.LookupStrategyDesc;
 import com.espertech.esper.common.internal.epl.lookup.LookupStrategyType;
@@ -34,7 +34,7 @@ public class SubordTableLookupStrategyFactoryQuadTree implements SubordTableLook
     public SubordTableLookupStrategyFactoryQuadTree() {
     }
 
-    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, AgentInstanceContext agentInstanceContext, VirtualDWView vdw) {
+    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, ExprEvaluatorContext exprEvaluatorContext, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordTableLookupStrategyQuadTreeNW((EventTableQuadTree) eventTable[0], this);
         }

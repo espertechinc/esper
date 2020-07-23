@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.index.hash;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.internal.collection.MultiKeyFromObjectArray;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -41,7 +41,7 @@ public class PropertyHashedEventTableFactory implements EventTableFactory {
         }
     }
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber) {
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber) {
         if (unique) {
             return new EventTable[]{new PropertyHashedEventTableUnique(this)};
         } else {

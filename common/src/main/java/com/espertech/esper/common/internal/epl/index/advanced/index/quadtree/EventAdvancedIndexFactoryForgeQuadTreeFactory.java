@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.advanced.index.quadtree;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionRuntime;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
 import com.espertech.esper.common.internal.epl.lookup.AdvancedIndexConfigContextPartition;
@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.epl.lookup.EventAdvancedIndexFactory;
 
 public abstract class EventAdvancedIndexFactoryForgeQuadTreeFactory implements EventAdvancedIndexFactory {
 
-    public AdvancedIndexConfigContextPartition configureContextPartition(AgentInstanceContext agentInstanceContext, EventType eventType, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, EventTableOrganization organization) {
-        return AdvancedIndexFactoryProviderQuadTree.configureQuadTree(organization.getIndexName(), advancedIndexProvisionDesc.getParameterEvaluators(), agentInstanceContext);
+    public AdvancedIndexConfigContextPartition configureContextPartition(ExprEvaluatorContext exprEvaluatorContext, EventType eventType, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, EventTableOrganization organization) {
+        return AdvancedIndexFactoryProviderQuadTree.configureQuadTree(organization.getIndexName(), advancedIndexProvisionDesc.getParameterEvaluators(), exprEvaluatorContext);
     }
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.lookup;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.index.advanced.index.service.EventAdvancedIndexProvisionRuntime;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization
 public interface EventAdvancedIndexFactory {
     EventAdvancedIndexFactoryForge getForge();
 
-    AdvancedIndexConfigContextPartition configureContextPartition(AgentInstanceContext agentInstanceContext, EventType eventType, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, EventTableOrganization organization);
+    AdvancedIndexConfigContextPartition configureContextPartition(ExprEvaluatorContext exprEvaluatorContext, EventType eventType, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, EventTableOrganization organization);
 
     EventTable make(EventAdvancedIndexConfigStatement configStatement, AdvancedIndexConfigContextPartition configContextPartition, EventTableOrganization organization);
 

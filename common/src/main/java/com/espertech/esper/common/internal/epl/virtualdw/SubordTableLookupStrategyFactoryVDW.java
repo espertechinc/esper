@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.virtualdw;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRange;
@@ -37,8 +37,8 @@ public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStr
     private EPTypeClass[] rangeCoercionTypes;
     private int numOuterStreams;
 
-    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, AgentInstanceContext agentInstanceContext, VirtualDWView vdw) {
-        return vdw.getSubordinateLookupStrategy(this, agentInstanceContext);
+    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, ExprEvaluatorContext exprEvaluatorContext, VirtualDWView vdw) {
+        return vdw.getSubordinateLookupStrategy(this, exprEvaluatorContext);
     }
 
     public void setIndexHashedProps(IndexedPropDesc[] indexHashedProps) {

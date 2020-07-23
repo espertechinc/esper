@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
+import java.lang.annotation.Annotation;
 import java.util.TimeZone;
 
 public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
@@ -141,5 +142,13 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
 
     public String getModuleName() {
         return statementContext.getModuleName();
+    }
+
+    public boolean isWritesToTables() {
+        return statementContext.isWritesToTables();
+    }
+
+    public Annotation[] getAnnotations() {
+        return statementContext.getAnnotations();
     }
 }

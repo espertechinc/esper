@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.lookup;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTable;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
@@ -35,7 +35,7 @@ public class SubordInKeywordMultiTableLookupStrategyFactory implements SubordTab
         this.expression = expression;
     }
 
-    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, AgentInstanceContext agentInstanceContext, VirtualDWView vdw) {
+    public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, ExprEvaluatorContext exprEvaluatorContext, VirtualDWView vdw) {
         PropertyHashedEventTable[] indexes = new PropertyHashedEventTable[eventTable.length];
         for (int i = 0; i < eventTable.length; i++) {
             indexes[i] = (PropertyHashedEventTable) eventTable[i];

@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.base;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 /**
  * Table of events allowing add and remove. Lookup in table is coordinated
@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 public interface EventTableFactory {
     public Class getEventTableClass();
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber);
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber);
 
     public String toQueryPlan();
 }

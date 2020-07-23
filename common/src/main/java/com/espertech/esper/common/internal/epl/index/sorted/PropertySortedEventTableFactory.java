@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.index.sorted;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -35,7 +35,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory {
         this.valueType = valueType;
     }
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber) {
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber) {
         return new EventTable[]{new PropertySortedEventTableImpl(this)};
     }
 

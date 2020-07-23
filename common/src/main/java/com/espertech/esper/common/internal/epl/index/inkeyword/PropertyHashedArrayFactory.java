@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.inkeyword;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTable;
@@ -41,7 +41,7 @@ public class PropertyHashedArrayFactory implements EventTableFactory {
         }
     }
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber) {
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber) {
         EventTable[] tables = new EventTable[propertyGetters.length];
         if (unique) {
             for (int i = 0; i < tables.length; i++) {

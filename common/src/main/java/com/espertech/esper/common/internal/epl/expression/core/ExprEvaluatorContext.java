@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.metrics.instrumentation.Instrumentati
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
+import java.lang.annotation.Annotation;
 import java.util.TimeZone;
 
 /**
@@ -85,4 +86,8 @@ public interface ExprEvaluatorContext {
     EventBeanTypedEventFactory getEventBeanTypedEventFactory();
 
     String getModuleName();
+
+    boolean isWritesToTables();
+
+    Annotation[] getAnnotations();
 }

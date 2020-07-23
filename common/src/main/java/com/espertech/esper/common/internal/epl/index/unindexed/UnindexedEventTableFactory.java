@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.index.unindexed;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 
@@ -24,7 +24,7 @@ public class UnindexedEventTableFactory implements EventTableFactory {
         this.streamNum = streamNum;
     }
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber) {
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber) {
         return new EventTable[]{new UnindexedEventTableImpl(streamNum)};
     }
 

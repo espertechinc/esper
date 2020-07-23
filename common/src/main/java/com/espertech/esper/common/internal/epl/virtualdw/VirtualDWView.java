@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.vdw.VirtualDataWindow;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.join.exec.base.JoinExecTableLookupStrategy;
 import com.espertech.esper.common.internal.epl.join.exec.util.RangeIndexLookupValue;
@@ -29,7 +30,7 @@ public interface VirtualDWView {
 
     EventType getEventType();
 
-    SubordTableLookupStrategy getSubordinateLookupStrategy(SubordTableLookupStrategyFactoryVDW subordTableFactory, AgentInstanceContext agentInstanceContext);
+    SubordTableLookupStrategy getSubordinateLookupStrategy(SubordTableLookupStrategyFactoryVDW subordTableFactory, ExprEvaluatorContext exprEvaluatorContext);
 
     JoinExecTableLookupStrategy getJoinLookupStrategy(TableLookupPlan tableLookupPlan, AgentInstanceContext agentInstanceContext, EventTable[] eventTables, int lookupStream);
 

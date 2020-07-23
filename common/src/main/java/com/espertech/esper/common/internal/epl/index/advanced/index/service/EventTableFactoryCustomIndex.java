@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.index.advanced.index.service;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
@@ -33,8 +33,8 @@ public class EventTableFactoryCustomIndex implements EventTableFactory {
         return EventTable.class;
     }
 
-    public EventTable[] makeEventTables(AgentInstanceContext agentInstanceContext, Integer subqueryNumber) {
-        AdvancedIndexConfigContextPartition configCP = advancedIndexProvisionDesc.getFactory().configureContextPartition(agentInstanceContext, eventType, advancedIndexProvisionDesc, organization);
+    public EventTable[] makeEventTables(ExprEvaluatorContext exprEvaluatorContext, Integer subqueryNumber) {
+        AdvancedIndexConfigContextPartition configCP = advancedIndexProvisionDesc.getFactory().configureContextPartition(exprEvaluatorContext, eventType, advancedIndexProvisionDesc, organization);
         EventTable eventTable = advancedIndexProvisionDesc.getFactory().make(advancedIndexProvisionDesc.getConfigStatement(), configCP, organization);
         return new EventTable[]{eventTable};
     }

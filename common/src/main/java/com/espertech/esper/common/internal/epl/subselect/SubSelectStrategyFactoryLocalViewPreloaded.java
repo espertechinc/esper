@@ -42,7 +42,6 @@ import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 import com.espertech.esper.common.internal.view.util.BufferView;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -120,17 +119,29 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         eventTableIndexService = subselectFactoryContext.getEventTableIndexService();
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient, Annotation[] annotations) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, ExprEvaluatorContext exprEvaluatorContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
 
-        // create factory chain context to hold callbacks specific to "prior" and "prev"
-        AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactories, agentInstanceContext, viewResourceDelegate);
-        ViewablePair viewables = ViewFactoryUtil.materialize(viewFactories, viewableRoot, viewFactoryChainContext, stopCallbackList);
-        final Viewable subselectView = viewables.getLast();
+        Viewable subselectView = viewableRoot;
+        PriorEvalStrategy priorStrategy = null;
+        PreviousGetterStrategy previousGetter = null;
+
+        // create factory chain context to hold callbacks specific to "prior" and "prev", when handling subqueries for statements (and not FAF)
+        if (viewFactories.length > 0 && exprEvaluatorContext instanceof AgentInstanceContext) {
+            AgentInstanceViewFactoryChainContext viewFactoryChainContext = AgentInstanceViewFactoryChainContext.create(viewFactories, (AgentInstanceContext) exprEvaluatorContext, viewResourceDelegate);
+            ViewablePair viewables = ViewFactoryUtil.materialize(viewFactories, viewableRoot, viewFactoryChainContext, stopCallbackList);
+            subselectView = viewables.getLast();
+
+            // handle "prior" nodes and their strategies
+            priorStrategy = PriorHelper.toStrategy(viewFactoryChainContext);
+
+            // handle "previous" nodes and their strategies
+            previousGetter = viewFactoryChainContext.getPreviousNodeGetter();
+        }
 
         // make aggregation service
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, true, subqueryNumber, null);
+            aggregationService = aggregationServiceFactory.makeService(exprEvaluatorContext, true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
             stopCallbackList.add(new AgentInstanceMgmtCallback() {
@@ -144,43 +155,37 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             });
         }
 
-        // handle "prior" nodes and their strategies
-        PriorEvalStrategy priorStrategy = PriorHelper.toStrategy(viewFactoryChainContext);
-
-        // handle "previous" nodes and their strategies
-        PreviousGetterStrategy previousGetter = viewFactoryChainContext.getPreviousNodeGetter();
-
         // handle aggregated and non-correlated queries: there is no strategy or index
         if (aggregationServiceFactory != null && !correlatedSubquery) {
             View aggregatorView;
             if (groupKeyEval == null) {
                 if (filterExprEval == null) {
-                    aggregatorView = new SubselectAggregatorViewUnfilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null);
+                    aggregatorView = new SubselectAggregatorViewUnfilteredUngrouped(aggregationService, filterExprEval, exprEvaluatorContext, null);
                 } else {
-                    aggregatorView = new SubselectAggregatorViewFilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null);
+                    aggregatorView = new SubselectAggregatorViewFilteredUngrouped(aggregationService, filterExprEval, exprEvaluatorContext, null);
                 }
             } else {
                 if (filterExprEval == null) {
-                    aggregatorView = new SubselectAggregatorViewUnfilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeyEval);
+                    aggregatorView = new SubselectAggregatorViewUnfilteredGrouped(aggregationService, filterExprEval, exprEvaluatorContext, groupKeyEval);
                 } else {
-                    aggregatorView = new SubselectAggregatorViewFilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeyEval);
+                    aggregatorView = new SubselectAggregatorViewFilteredGrouped(aggregationService, filterExprEval, exprEvaluatorContext, groupKeyEval);
                 }
             }
             subselectView.setChild(aggregatorView);
 
             if (namedWindow != null && eventTableIndexService.allowInitIndex(isRecoveringResilient)) {
-                preloadFromNamedWindow(null, aggregatorView, agentInstanceContext, annotations);
+                preloadFromNamedWindow(null, aggregatorView, exprEvaluatorContext);
             }
 
             return new SubSelectStrategyRealization(SubordTableLookupStrategyNullRow.INSTANCE, null, aggregationService, priorStrategy, previousGetter, subselectView, null);
         }
 
         // create index/holder table
-        final EventTable[] index = eventTableFactory.makeEventTables(agentInstanceContext, subqueryNumber);
+        final EventTable[] index = eventTableFactory.makeEventTables(exprEvaluatorContext, subqueryNumber);
         stopCallbackList.add(new SubqueryIndexMgmtCallback(index));
 
         // create strategy
-        SubordTableLookupStrategy strategy = lookupStrategyFactory.makeStrategy(index, agentInstanceContext, null);
+        SubordTableLookupStrategy strategy = lookupStrategyFactory.makeStrategy(index, exprEvaluatorContext, null);
 
         // handle unaggregated or correlated queries or
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
@@ -202,17 +207,17 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
 
         // preload when allowed
         if (namedWindow != null && eventTableIndexService.allowInitIndex(isRecoveringResilient)) {
-            preloadFromNamedWindow(index, subselectView, agentInstanceContext, annotations);
+            preloadFromNamedWindow(index, subselectView, exprEvaluatorContext);
         }
 
         BufferView bufferView = new BufferView(subqueryNumber);
-        bufferView.setObserver(new SubselectBufferObserver(index, agentInstanceContext));
+        bufferView.setObserver(new SubselectBufferObserver(index, exprEvaluatorContext));
         subselectView.setChild(bufferView);
 
         return new SubSelectStrategyRealization(strategy, subselectAggregationPreprocessor, aggregationService, priorStrategy, previousGetter, subselectView, index);
     }
 
-    private void preloadFromNamedWindow(EventTable[] eventIndex, Viewable subselectView, ExprEvaluatorContext exprEvaluatorContext, Annotation[] annotations) {
+    private void preloadFromNamedWindow(EventTable[] eventIndex, Viewable subselectView, ExprEvaluatorContext exprEvaluatorContext) {
 
         NamedWindowInstance instance = namedWindow.getNamedWindowInstance(exprEvaluatorContext);
         if (instance == null) {
@@ -223,7 +228,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         // preload view for stream
         Collection<EventBean> eventsInWindow;
         if (namedWindowFilterExpr != null) {
-            Collection<EventBean> snapshot = consumerView.snapshotNoLock(namedWindowFilterQueryGraph, annotations);
+            Collection<EventBean> snapshot = consumerView.snapshotNoLock(namedWindowFilterQueryGraph, exprEvaluatorContext.getAnnotations());
             eventsInWindow = new ArrayList<>(snapshot.size());
             ExprNodeUtilityEvaluate.applyFilterExpressionIterable(snapshot.iterator(), namedWindowFilterExpr, exprEvaluatorContext, eventsInWindow);
         } else {

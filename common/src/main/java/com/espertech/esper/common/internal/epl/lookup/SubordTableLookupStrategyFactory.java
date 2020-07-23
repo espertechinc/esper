@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.lookup;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
 
@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
 public interface SubordTableLookupStrategyFactory {
     EPTypeClass EPTYPE = new EPTypeClass(SubordTableLookupStrategyFactory.class);
 
-    SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, AgentInstanceContext agentInstanceContext, VirtualDWView vdw);
+    SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, ExprEvaluatorContext exprEvaluatorContext, VirtualDWView vdw);
 
     LookupStrategyDesc getLookupStrategyDesc();
 }

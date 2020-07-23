@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.schedule.SchedulingService;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 
+import java.lang.annotation.Annotation;
 import java.util.TimeZone;
 
 public class EPEventServiceExprEvaluatorContext implements ExprEvaluatorContext {
@@ -149,6 +150,14 @@ public class EPEventServiceExprEvaluatorContext implements ExprEvaluatorContext 
     }
 
     public String getModuleName() {
+        return null;
+    }
+
+    public boolean isWritesToTables() {
+        return false;
+    }
+
+    public Annotation[] getAnnotations() {
         return null;
     }
 }

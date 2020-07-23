@@ -12,12 +12,12 @@ package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceMgmtCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.lookup.*;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateQueryPlanDesc;
@@ -27,7 +27,6 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -69,12 +68,12 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
         // no action
     }
 
-    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, AgentInstanceContext agentInstanceContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient, Annotation[] annotations) {
+    public SubSelectStrategyRealization instantiate(Viewable viewableRoot, ExprEvaluatorContext exprEvaluatorContext, List<AgentInstanceMgmtCallback> stopCallbackList, int subqueryNumber, boolean isRecoveringResilient) {
         SubselectAggregationPreprocessorBase subselectAggregationPreprocessor = null;
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.makeService(agentInstanceContext, true, subqueryNumber, null);
+            aggregationService = aggregationServiceFactory.makeService(exprEvaluatorContext, true, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
             stopCallbackList.add(new AgentInstanceMgmtCallback() {
@@ -100,20 +99,20 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
 
         SubordTableLookupStrategy subqueryLookup;
         if (namedWindow != null) {
-            NamedWindowInstance instance = namedWindow.getNamedWindowInstance(agentInstanceContext);
+            NamedWindowInstance instance = namedWindow.getNamedWindowInstance(exprEvaluatorContext);
             if (queryPlan == null) {
-                subqueryLookup = new SubordFullTableScanLookupStrategyLocking(instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock());
+                subqueryLookup = new SubordFullTableScanLookupStrategyLocking(instance.getRootViewInstance().getDataWindowContents(), exprEvaluatorContext.getAgentInstanceLock());
             } else {
                 EventTable[] indexes = new EventTable[queryPlan.getIndexDescs().length];
                 for (int i = 0; i < indexes.length; i++) {
                     indexes[i] = instance.getRootViewInstance().getIndexRepository().getIndexByDesc(queryPlan.getIndexDescs()[i].getIndexMultiKey());
                 }
-                subqueryLookup = queryPlan.getLookupStrategyFactory().makeStrategy(indexes, agentInstanceContext, instance.getRootViewInstance().getVirtualDataWindow());
+                subqueryLookup = queryPlan.getLookupStrategyFactory().makeStrategy(indexes, exprEvaluatorContext, instance.getRootViewInstance().getVirtualDataWindow());
                 subqueryLookup = new SubordIndexedTableLookupStrategyLocking(subqueryLookup, instance.getTailViewInstance().getAgentInstanceContext().getAgentInstanceLock());
             }
         } else {
-            TableInstance instance = table.getTableInstance(agentInstanceContext.getAgentInstanceId());
-            Lock lock = agentInstanceContext.getStatementContext().getStatementInformationals().isWritesToTables() ?
+            TableInstance instance = table.getTableInstance(exprEvaluatorContext.getAgentInstanceId());
+            Lock lock = exprEvaluatorContext.isWritesToTables() ?
                     instance.getTableLevelRWLock().writeLock() : instance.getTableLevelRWLock().readLock();
             if (queryPlan == null) {
                 subqueryLookup = new SubordFullTableScanTableLookupStrategy(lock, instance.getIterableTableScan());
@@ -122,7 +121,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                 for (int i = 0; i < indexes.length; i++) {
                     indexes[i] = instance.getIndexRepository().getIndexByDesc(queryPlan.getIndexDescs()[i].getIndexMultiKey());
                 }
-                subqueryLookup = queryPlan.getLookupStrategyFactory().makeStrategy(indexes, agentInstanceContext, null);
+                subqueryLookup = queryPlan.getLookupStrategyFactory().makeStrategy(indexes, exprEvaluatorContext, null);
                 subqueryLookup = new SubordIndexedTableLookupTableStrategy(subqueryLookup, lock);
             }
         }

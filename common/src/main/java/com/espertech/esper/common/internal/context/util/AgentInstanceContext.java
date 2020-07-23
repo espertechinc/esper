@@ -362,4 +362,8 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     public TimeAbacus getTimeAbacus() {
         return statementContext.getTimeAbacus();
     }
+
+    public boolean isWritesToTables() {
+        return statementContext.isWritesToTables();
+    }
 }
