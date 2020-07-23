@@ -15,12 +15,17 @@ import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
+
+import java.util.TimeZone;
 
 /**
  * Returns the context for expression evaluation.
@@ -29,6 +34,8 @@ public interface ExprEvaluatorContext {
     EPTypeClass EPTYPE = new EPTypeClass(ExprEvaluatorContext.class);
 
     String getStatementName();
+
+    String getContextName();
 
     Object getUserObjectCompileTime();
 
@@ -66,4 +73,16 @@ public interface ExprEvaluatorContext {
 
     default void setFilterReboolConstant(Object value) {
     }
+
+    String getEPLWhenAvailable();
+
+    TimeZone getTimeZone();
+
+    TimeAbacus getTimeAbacus();
+
+    VariableManagementService getVariableManagementService();
+
+    EventBeanTypedEventFactory getEventBeanTypedEventFactory();
+
+    String getModuleName();
 }

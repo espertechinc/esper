@@ -58,7 +58,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
                 }
-                processor.getAggregationService().applyEnter(eventsPerStream, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(eventsPerStream, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
         if (oldData != null) {
@@ -74,7 +74,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, eventsPerStream, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
                 }
-                processor.getAggregationService().applyLeave(eventsPerStream, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(eventsPerStream, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
     }
@@ -95,7 +95,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, aNewData, true, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
                 }
-                processor.getAggregationService().applyEnter(aNewData, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(aNewData, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
         if (oldEvents != null) {
@@ -111,7 +111,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputLastHelperImpl implements 
                         processor.generateOutputBatchedMapUnsorted(false, groupKey, level, aOldData, false, isGenerateSynthetic, groupRepsOutputLastUnordRStream[level.getLevelNumber()]);
                     }
                 }
-                processor.getAggregationService().applyLeave(aOldData, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(aOldData, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
     }

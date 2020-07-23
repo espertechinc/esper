@@ -12,8 +12,8 @@ package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionExpressionTypeUtil;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReadWritePackage;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
@@ -42,26 +42,26 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
         isUsingBuiltinProperties = usingBuiltinProperties;
     }
 
-    public OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state) {
+    public OutputConditionPolled makeFromState(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledState state) {
         ObjectArrayEventBean builtinProperties = null;
         if (isUsingBuiltinProperties) {
-            initType(agentInstanceContext);
+            initType(exprEvaluatorContext);
             builtinProperties = new ObjectArrayEventBean(OutputConditionExpressionTypeUtil.getOAPrototype(), builtinPropertiesEventType);
         }
         OutputConditionPolledExpressionState expressionState = (OutputConditionPolledExpressionState) state;
-        return new OutputConditionPolledExpression(this, expressionState, agentInstanceContext, builtinProperties);
+        return new OutputConditionPolledExpression(this, expressionState, exprEvaluatorContext, builtinProperties);
     }
 
-    public OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext) {
+    public OutputConditionPolled makeNew(ExprEvaluatorContext exprEvaluatorContext) {
         ObjectArrayEventBean builtinProperties = null;
         Long lastOutputTimestamp = null;
         if (isUsingBuiltinProperties) {
-            initType(agentInstanceContext);
+            initType(exprEvaluatorContext);
             builtinProperties = new ObjectArrayEventBean(OutputConditionExpressionTypeUtil.getOAPrototype(), builtinPropertiesEventType);
-            lastOutputTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+            lastOutputTimestamp = exprEvaluatorContext.getTimeProvider().getTime();
         }
         OutputConditionPolledExpressionState state = new OutputConditionPolledExpressionState(0, 0, 0, 0, lastOutputTimestamp);
-        return new OutputConditionPolledExpression(this, state, agentInstanceContext, builtinProperties);
+        return new OutputConditionPolledExpression(this, state, exprEvaluatorContext, builtinProperties);
     }
 
     public ExprEvaluator getWhenExpression() {
@@ -72,9 +72,9 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
         return variableReadWritePackage;
     }
 
-    private void initType(AgentInstanceContext agentInstanceContext) {
+    private void initType(ExprEvaluatorContext exprEvaluatorContext) {
         if (builtinPropertiesEventType == null) {
-            builtinPropertiesEventType = OutputConditionExpressionTypeUtil.getBuiltInEventType(agentInstanceContext.getModuleName(), new BeanEventTypeFactoryDisallow(agentInstanceContext.getEventBeanTypedEventFactory()));
+            builtinPropertiesEventType = OutputConditionExpressionTypeUtil.getBuiltInEventType(exprEvaluatorContext.getModuleName(), new BeanEventTypeFactoryDisallow(exprEvaluatorContext.getEventBeanTypedEventFactory()));
         }
     }
 }

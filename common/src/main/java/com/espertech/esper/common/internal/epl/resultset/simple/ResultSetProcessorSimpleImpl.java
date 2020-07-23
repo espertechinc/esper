@@ -79,13 +79,13 @@ public class ResultSetProcessorSimpleImpl {
         {
             CodegenBlock loop = method.getBlock().forEach(EventBean.EPTYPE, "aParent", REF_VIEWABLE);
             loop.assignArrayElement("eventsPerStream", constant(0), ref("aParent"))
-                    .declareVar(EPTypePremade.OBJECT.getEPType(), "orderKey", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "orderKey", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_EXPREVALCONTEXT));
 
             if (forge.getOptionalHavingNode() == null) {
-                loop.declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                loop.declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                loop.declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_SELECTEXPRNONMEMBER, ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             }
 
             loop.ifCondition(and(notEqualsNull(ref("result")), not(equalsIdentity(arrayLength(ref("result")), constant(0)))))
@@ -95,7 +95,7 @@ public class ResultSetProcessorSimpleImpl {
 
         method.getBlock().declareVar(EventBean.EPTYPEARRAY, "outgoingEvents", staticMethod(CollectionUtil.class, METHOD_TOARRAYEVENTS, ref("events")))
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "orderKeysArr", staticMethod(CollectionUtil.class, METHOD_TOARRAYOBJECTS, ref("orderKeys")))
-                .declareVar(EventBean.EPTYPEARRAY, "orderedEvents", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), MEMBER_AGENTINSTANCECONTEXT))
+                .declareVar(EventBean.EPTYPEARRAY, "orderedEvents", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "sortWOrderKeys", ref("outgoingEvents"), ref("orderKeysArr"), MEMBER_EXPREVALCONTEXT))
                 .methodReturn(newInstance(ArrayEventIterator.EPTYPE, ref("orderedEvents")));
     }
 
@@ -116,11 +116,11 @@ public class ResultSetProcessorSimpleImpl {
         if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorSimpleOutputAllHelper.EPTYPE);
             StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSSimpleOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSSimpleOutputAll", ref("this"), MEMBER_EXPREVALCONTEXT, eventTypes, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorSimpleOutputLastHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSSimpleOutputLast", ref("this"), MEMBER_AGENTINSTANCECONTEXT, eventTypes));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSSimpleOutputLast", ref("this"), MEMBER_EXPREVALCONTEXT, eventTypes));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA);
         }
     }

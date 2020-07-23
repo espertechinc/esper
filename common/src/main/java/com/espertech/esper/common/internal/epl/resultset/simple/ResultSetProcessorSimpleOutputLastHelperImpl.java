@@ -43,7 +43,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
                 for (EventBean theEvent : newData) {
                     eventsPerStream[0] = theEvent;
 
-                    boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, true, processor.getAgentInstanceContext());
+                    boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, true, processor.getExprEvaluatorContext());
                     if (!passesHaving) {
                         continue;
                     }
@@ -54,7 +54,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
                 for (EventBean theEvent : oldData) {
                     eventsPerStream[0] = theEvent;
 
-                    boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, false, processor.getAgentInstanceContext());
+                    boolean passesHaving = processor.evaluateHavingClause(eventsPerStream, false, processor.getExprEvaluatorContext());
                     if (!passesHaving) {
                         continue;
                     }
@@ -75,7 +75,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
         } else {
             if (newEvents != null && newEvents.size() > 0) {
                 for (MultiKeyArrayOfKeys<EventBean> theEvent : newEvents) {
-                    boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), true, processor.getAgentInstanceContext());
+                    boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), true, processor.getExprEvaluatorContext());
                     if (!passesHaving) {
                         continue;
                     }
@@ -85,7 +85,7 @@ public class ResultSetProcessorSimpleOutputLastHelperImpl implements ResultSetPr
             if (oldEvents != null && oldEvents.size() > 0) {
                 for (MultiKeyArrayOfKeys<EventBean> theEvent : oldEvents) {
 
-                    boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), false, processor.getAgentInstanceContext());
+                    boolean passesHaving = processor.evaluateHavingClause(theEvent.getArray(), false, processor.getExprEvaluatorContext());
                     if (!passesHaving) {
                         continue;
                     }

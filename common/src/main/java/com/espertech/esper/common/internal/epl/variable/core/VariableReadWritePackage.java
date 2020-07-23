@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.variable.core;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.core.EventBeanCopyMethod;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
@@ -72,13 +72,13 @@ public class VariableReadWritePackage {
      *
      * @param eventsPerStream      events per stream
      * @param valuesWritten        null or an empty map to populate with written values
-     * @param agentInstanceContext expression evaluation context
+     * @param exprEvaluatorContext expression evaluation context
      */
     public void writeVariables(EventBean[] eventsPerStream,
                                Map<String, Object> valuesWritten,
-                               AgentInstanceContext agentInstanceContext) {
+                               ExprEvaluatorContext exprEvaluatorContext) {
         Set<String> variablesBeansCopied = null;
-        VariableManagementService variableService = agentInstanceContext.getVariableManagementService();
+        VariableManagementService variableService = exprEvaluatorContext.getVariableManagementService();
         if (!copyMethods.isEmpty()) {
             variablesBeansCopied = new HashSet<String>();
         }
@@ -94,7 +94,7 @@ public class VariableReadWritePackage {
             for (VariableTriggerSetDesc assignment : assignments) {
                 Variable variable = variables[count];
                 VariableMetaData variableMetaData = variable.getMetaData();
-                int agentInstanceId = variableMetaData.getOptionalContextName() == null ? DEFAULT_AGENT_INSTANCE_ID : agentInstanceContext.getAgentInstanceId();
+                int agentInstanceId = variableMetaData.getOptionalContextName() == null ? DEFAULT_AGENT_INSTANCE_ID : exprEvaluatorContext.getAgentInstanceId();
                 int variableNumber = variable.getVariableNumber();
                 VariableTriggerWrite writeBase = writers[count];
                 Object written;
@@ -103,7 +103,7 @@ public class VariableReadWritePackage {
                     VariableTriggerWriteDesc writeDesc = (VariableTriggerWriteDesc) writeBase;
                     VariableReader reader = variableService.getReader(variables[count].getDeploymentId(), variableMetaData.getVariableName(), agentInstanceId);
                     EventBean current = (EventBean) reader.getValue();
-                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
+                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
                     written = value;
                     if (current != null) {
                         boolean copy = variablesBeansCopied.add(writeDesc.getVariableName());
@@ -115,7 +115,7 @@ public class VariableReadWritePackage {
                     }
                 } else if (writeBase instanceof VariableTriggerWriteArrayElement) {
                     VariableTriggerWriteArrayElement writeDesc = (VariableTriggerWriteArrayElement) writeBase;
-                    Integer index = (Integer) writeDesc.getIndexExpression().evaluate(eventsPerStream, true, agentInstanceContext);
+                    Integer index = (Integer) writeDesc.getIndexExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
                     VariableReader reader = variableService.getReader(variables[count].getDeploymentId(), variableMetaData.getVariableName(), agentInstanceId);
                     Object arrayValue = reader.getValue();
                     written = arrayValue;
@@ -123,7 +123,7 @@ public class VariableReadWritePackage {
                         if (arrayValue != null) {
                             int len = Array.getLength(arrayValue);
                             if (index < len) {
-                                Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
+                                Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
                                 if (writeDesc.getTypeWidener() != null) {
                                     value = writeDesc.getTypeWidener().widen(value);
                                 }
@@ -140,16 +140,16 @@ public class VariableReadWritePackage {
                     VariableTriggerWriteCurly writeDesc = (VariableTriggerWriteCurly) writeBase;
                     VariableReader reader = variableService.getReader(variables[count].getDeploymentId(), variableMetaData.getVariableName(), agentInstanceId);
                     Object value = reader.getValue();
-                    writeDesc.getExpression().evaluate(eventsPerStream, true, agentInstanceContext);
+                    writeDesc.getExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
                     variableService.write(variableNumber, agentInstanceId, value);
                     written = value;
                 } else if (variableMetaData.getEventType() != null) {
-                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
-                    EventBean eventBean = agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedBean(value, variableMetaData.getEventType());
+                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
+                    EventBean eventBean = exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForTypedBean(value, variableMetaData.getEventType());
                     variableService.write(variableNumber, agentInstanceId, eventBean);
                     written = value;
                 } else {
-                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, agentInstanceContext);
+                    Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
                     if ((value != null) && (mustCoerce[count])) {
                         value = JavaClassHelper.coerceBoxed((Number) value, variableMetaData.getType().getType());
                     }

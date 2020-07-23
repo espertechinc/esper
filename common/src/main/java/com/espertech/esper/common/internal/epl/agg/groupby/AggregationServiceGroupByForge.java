@@ -23,11 +23,12 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.*;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames;
 
 import java.util.List;
 
@@ -37,8 +38,7 @@ import static com.espertech.esper.common.internal.context.module.EPStatementInit
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_AGGVISITOR;
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_GROUPKEY;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 /**
@@ -107,11 +107,11 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
     }
 
     public void makeServiceCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
-        method.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(classNames.getService(), ref("o"), MEMBER_AGENTINSTANCECONTEXT));
+        method.getBlock().methodReturn(CodegenExpressionBuilder.newInstance(classNames.getService(), ref("o"), MEMBER_EXPREVALCONTEXT));
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        ctor.getCtorParams().add(new CodegenTypedParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT));
+        ctor.getCtorParams().add(new CodegenTypedParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT));
         explicitMembers.add(new CodegenTypedParam(EPTypePremade.MAP.getEPType(), MEMBER_AGGREGATORSPERGROUP.getRef()));
         explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()));
         explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_CURRENTROW.getRef()));

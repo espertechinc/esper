@@ -20,9 +20,11 @@ import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLo
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.prior.PriorHelper;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
@@ -37,6 +39,7 @@ import com.espertech.esper.common.internal.view.previous.PreviousGetterStrategy;
 import com.espertech.esper.common.internal.view.prior.PriorEventViewFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.TimeZone;
 
 public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContext {
     private final AgentInstanceContext agentInstanceContext;
@@ -195,4 +198,27 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
         return agentInstanceContext.getExceptionHandlingService();
     }
 
+    public String getContextName() {
+        return agentInstanceContext.getContextName();
+    }
+
+    public String getEPLWhenAvailable() {
+        return agentInstanceContext.getEPLWhenAvailable();
+    }
+
+    public TimeZone getTimeZone() {
+        return agentInstanceContext.getTimeZone();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return agentInstanceContext.getTimeAbacus();
+    }
+
+    public VariableManagementService getVariableManagementService() {
+        return agentInstanceContext.getVariableManagementService();
+    }
+
+    public String getModuleName() {
+        return agentInstanceContext.getModuleName();
+    }
 }

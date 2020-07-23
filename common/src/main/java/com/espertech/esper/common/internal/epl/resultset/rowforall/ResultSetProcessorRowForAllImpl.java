@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.rowforall;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,12 +26,13 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactoryField;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.NAME_ISNEWDATA;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.*;
 import static com.espertech.esper.common.internal.util.CollectionUtil.METHOD_TOARRAYMAYNULL;
@@ -62,7 +64,7 @@ public class ResultSetProcessorRowForAllImpl {
         }
         method.getBlock()
                 .declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", selectOld)
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA)
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA)
                 .declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(selectList, constantTrue(), REF_ISSYNTHESIZE, constantTrue()))
                 .ifCondition(and(equalsNull(ref("selectNewEvents")), equalsNull(ref("selectOldEvents"))))
                 .blockReturn(constantNull())
@@ -82,7 +84,7 @@ public class ResultSetProcessorRowForAllImpl {
         method.getBlock()
                 .declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", selectOld)
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"))
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"))
                 .declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(selectList, constantTrue(), REF_ISSYNTHESIZE, constantFalse()))
                 .ifCondition(and(equalsNull(ref("selectNewEvents")), equalsNull(ref("selectOldEvents"))))
                 .blockReturn(constantNull())
@@ -97,9 +99,9 @@ public class ResultSetProcessorRowForAllImpl {
         }
 
         method.getBlock()
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_CLEARANDAGGREGATEUNGROUPED, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC, REF_VIEWABLE)
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_CLEARANDAGGREGATEUNGROUPED, MEMBER_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC, REF_VIEWABLE)
                 .declareVar(EPTypePremade.ITERATOR.getEPType(), "iterator", localMethod(obtainMethod))
-                .expression(exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT))
+                .expression(exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_EXPREVALCONTEXT))
                 .methodReturn(ref("iterator"));
     }
 
@@ -111,7 +113,7 @@ public class ResultSetProcessorRowForAllImpl {
     }
 
     static void clearCodegen(CodegenMethod method) {
-        method.getBlock().expression(exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT));
+        method.getBlock().expression(exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_EXPREVALCONTEXT));
     }
 
     public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowForAllForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -131,11 +133,11 @@ public class ResultSetProcessorRowForAllImpl {
     }
 
     public static void applyViewResultCodegen(CodegenMethod method) {
-        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, newArrayByLength(EventBean.EPTYPE, constant(1)));
+        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA, newArrayByLength(EventBean.EPTYPE, constant(1)));
     }
 
     public static void applyJoinResultCodegen(CodegenMethod method) {
-        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA);
+        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA);
     }
 
     static void stopCodegen(CodegenMethod method, CodegenInstanceAux instance) {
@@ -161,11 +163,11 @@ public class ResultSetProcessorRowForAllImpl {
         if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowForAllOutputAllHelper.EPTYPE);
             StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowForAllOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowForAllOutputAll", ref("this"), MEMBER_EXPREVALCONTEXT, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowForAllOutputLastHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowForAllOutputLast", ref("this"), MEMBER_AGENTINSTANCECONTEXT));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowForAllOutputLast", ref("this"), MEMBER_EXPREVALCONTEXT));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -209,13 +211,13 @@ public class ResultSetProcessorRowForAllImpl {
             if (forge.isSelectRStream()) {
                 forEach.localMethod(getSelectListEventAddList, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"));
                 if (forge.isSorting()) {
-                    forEach.exprDotMethod(ref("oldEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantFalse(), MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.exprDotMethod(ref("oldEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantFalse(), MEMBER_EXPREVALCONTEXT));
                 }
             }
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")), cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")), cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
             forEach.localMethod(getSelectListEventAddList, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"));
             if (forge.isSorting()) {
-                forEach.exprDotMethod(ref("newEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                forEach.exprDotMethod(ref("newEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             }
             forEach.blockEnd();
         }
@@ -244,7 +246,7 @@ public class ResultSetProcessorRowForAllImpl {
                         .assignRef("lastOldEvent", localMethod(getSelectListEventSingle, constantFalse(), REF_ISSYNTHESIZE))
                         .blockEnd();
             }
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")), cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")), cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
             forEach.assignRef("lastNewEvent", localMethod(getSelectListEventSingle, constantTrue(), REF_ISSYNTHESIZE));
         }
 
@@ -278,13 +280,13 @@ public class ResultSetProcessorRowForAllImpl {
             if (forge.isSelectRStream()) {
                 forEach.localMethod(getSelectListEventAddList, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"));
                 if (forge.isSorting()) {
-                    forEach.exprDotMethod(ref("oldEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantFalse(), MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.exprDotMethod(ref("oldEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantFalse(), MEMBER_EXPREVALCONTEXT));
                 }
             }
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")), ref("eventsPerStream"));
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")), ref("eventsPerStream"));
             forEach.localMethod(getSelectListEventAddList, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"));
             if (forge.isSorting()) {
-                forEach.exprDotMethod(ref("newEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                forEach.exprDotMethod(ref("newEventsSortKey"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", constantNull(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             }
             forEach.blockEnd();
         }
@@ -311,7 +313,7 @@ public class ResultSetProcessorRowForAllImpl {
                         .assignRef("lastOldEvent", localMethod(getSelectListEventSingle, constantFalse(), REF_ISSYNTHESIZE))
                         .blockEnd();
             }
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")), ref("eventsPerStream"));
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")), ref("eventsPerStream"));
             forEach.assignRef("lastNewEvent", localMethod(getSelectListEventSingle, constantTrue(), REF_ISSYNTHESIZE));
         }
 
@@ -346,10 +348,10 @@ public class ResultSetProcessorRowForAllImpl {
     private static CodegenMethod getSelectListEventSingleCodegen(ResultSetProcessorRowForAllForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             if (forge.getOptionalHavingNode() != null) {
-                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT)))
+                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT)))
                         .blockReturn(constantNull());
             }
-            method.getBlock().methodReturn(exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+            method.getBlock().methodReturn(exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
         };
         return instance.getMethods().addMethod(EventBean.EPTYPE, "getSelectListEventSingle", CodegenNamedParam.from(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowForAllImpl.class, classScope, code);
     }
@@ -357,10 +359,10 @@ public class ResultSetProcessorRowForAllImpl {
     private static CodegenMethod getSelectListEventsAddListCodegen(ResultSetProcessorRowForAllForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             if (forge.getOptionalHavingNode() != null) {
-                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT)))
+                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT)))
                         .blockReturnNoValue();
             }
-            method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT))
+            method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT))
                     .expression(exprDotMethod(ref("resultEvents"), "add", ref("theEvent")));
         };
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "getSelectListEventsAddList", CodegenNamedParam.from(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "resultEvents"), ResultSetProcessorRowForAllImpl.class, classScope, code);
@@ -369,10 +371,10 @@ public class ResultSetProcessorRowForAllImpl {
     static CodegenMethod getSelectListEventsAsArrayCodegen(ResultSetProcessorRowForAllForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
         Consumer<CodegenMethod> code = method -> {
             if (forge.getOptionalHavingNode() != null) {
-                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT)))
+                method.getBlock().ifCondition(not(localMethod(instance.getMethods().getMethod("evaluateHavingClause"), constantNull(), REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT)))
                         .blockReturn(constantNull());
             }
-            method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT))
+            method.getBlock().declareVar(EventBean.EPTYPE, "theEvent", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", enumValue(CollectionUtil.class, "EVENTBEANARRAY_EMPTY"), REF_ISNEWDATA, REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT))
                     .declareVar(EventBean.EPTYPEARRAY, "result", newArrayByLength(EventBean.EPTYPE, constant(1)))
                     .assignArrayElement("result", constant(0), ref("theEvent"))
                     .methodReturn(ref("result"));

@@ -14,9 +14,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionExpressionFactory;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactory;
@@ -47,20 +48,19 @@ import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcess
 import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputFirstHelper;
 import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputLastHelper;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public interface ResultSetProcessorHelperFactory {
     EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorHelperFactory.class);
 
-    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType eventType, StateMgmtSetting stateMgmtSettings, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType eventType, StateMgmtSetting stateMgmtSettings, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(AgentInstanceContext agentInstanceContext, EPType[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
 
-    OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(EventType[] eventTypes, AgentInstanceContext agentInstanceContext, StateMgmtSetting stateMgmtSettings);
+    OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(EventType[] eventTypes, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
     OutputConditionFactory makeOutputConditionTime(boolean hasVariable, TimePeriodCompute timePeriodCompute, boolean isStartConditionOnCreation, int scheduleCallbackId);
 
-    ResultSetProcessorRowForAllOutputAllHelper makeRSRowForAllOutputAll(ResultSetProcessorRowForAll processor, AgentInstanceContext agentInstanceContext, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowForAllOutputAllHelper makeRSRowForAllOutputAll(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
     OutputConditionExpressionFactory makeOutputConditionExpression();
 
@@ -68,33 +68,33 @@ public interface ResultSetProcessorHelperFactory {
 
     OutputConditionFactory makeOutputConditionCount(int rate, Variable variableMetaData);
 
-    OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, AgentInstanceContext agentInstanceContext);
+    OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext, EventType[] eventTypes);
+    ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes);
 
-    ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimple simple, AgentInstanceContext agentInstanceContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorSimpleOutputFirstHelper makeRSSimpleOutputFirst(AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorSimpleOutputFirstHelper makeRSSimpleOutputFirst(ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorRowPerEventOutputLastHelper makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorRowPerEventOutputLastHelper makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorRowPerEventOutputAllHelper makeRSRowPerEventOutputAll(ResultSetProcessorRowPerEvent processor, AgentInstanceContext agentInstanceContext, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerEventOutputAllHelper makeRSRowPerEventOutputAll(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(AgentInstanceContext agentInstanceContext, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(AgentInstanceContext agentInstanceContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollupLast(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollupLast(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupRollupOutputAllHelper makeRSRowPerGroupRollupAll(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupRollupOutputAllHelper makeRSRowPerGroupRollupAll(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupRollupUnboundHelper makeRSRowPerGroupRollupSnapshotUnbound(AgentInstanceContext agentInstanceContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, int numStreams, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupRollupUnboundHelper makeRSRowPerGroupRollupSnapshotUnbound(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, int numStreams, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 }

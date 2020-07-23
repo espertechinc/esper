@@ -41,7 +41,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
                         }
                     }
                 }
-                processor.getAggregationService().applyEnter(eventsPerStream, mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(eventsPerStream, mk, processor.getExprEvaluatorContext());
             }
         }
         if (oldData != null) {
@@ -58,7 +58,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
                     }
                 }
 
-                processor.getAggregationService().applyLeave(eventsPerStream, mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(eventsPerStream, mk, processor.getExprEvaluatorContext());
             }
         }
     }
@@ -75,7 +75,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
                         }
                     }
                 }
-                processor.getAggregationService().applyEnter(aNewData.getArray(), mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(aNewData.getArray(), mk, processor.getExprEvaluatorContext());
             }
         }
         if (oldData != null) {
@@ -89,7 +89,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
                         }
                     }
                 }
-                processor.getAggregationService().applyLeave(anOldData.getArray(), mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(anOldData.getArray(), mk, processor.getExprEvaluatorContext());
             }
         }
     }

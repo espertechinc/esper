@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
+import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.context.airegistry.StatementAIResourceRegistry;
@@ -26,6 +27,7 @@ import com.espertech.esper.common.internal.context.module.StatementInformational
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigServiceRuntime;
 import com.espertech.esper.common.internal.epl.historical.datacache.HistoricalDataCacheFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
@@ -481,4 +483,15 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
         this.internalEventRouteDest = internalEventRouteDest;
     }
 
+    public String getEPLWhenAvailable() {
+        return (String) getStatementInformationals().getProperties().get(StatementProperty.EPL);
+    }
+
+    public TimeZone getTimeZone() {
+        return getClasspathImportServiceRuntime().getTimeZone();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return getClasspathImportServiceRuntime().getTimeAbacus();
+    }
 }

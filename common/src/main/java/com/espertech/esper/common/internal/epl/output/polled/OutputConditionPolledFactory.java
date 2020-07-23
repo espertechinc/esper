@@ -12,11 +12,12 @@ package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface OutputConditionPolledFactory {
     EPTypeClass EPTYPE = new EPTypeClass(OutputConditionPolledFactory.class);
 
-    OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext);
+    OutputConditionPolled makeNew(ExprEvaluatorContext exprEvaluatorContext);
 
-    OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state);
+    OutputConditionPolled makeFromState(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledState state);
 }

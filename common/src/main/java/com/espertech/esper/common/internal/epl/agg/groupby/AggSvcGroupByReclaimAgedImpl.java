@@ -35,7 +35,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 import static com.espertech.esper.common.internal.epl.agg.groupby.AggregationServiceGroupByForge.MEMBER_AGGREGATORSPERGROUP;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 
 /**
  * Implementation for handling aggregation with grouping by group-keys.
@@ -66,8 +66,8 @@ public class AggSvcGroupByReclaimAgedImpl {
         explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.EPTYPE, REF_EVALUATIONFUNCTIONFREQUENCY.getRef()));
         ctor.getBlock().assignRef(REF_CURRENTMAXAGE, constant(DEFAULT_MAX_AGE_MSEC))
                 .assignRef(REF_CURRENTRECLAIMFREQUENCY, constant(DEFAULT_MAX_AGE_MSEC))
-                .assignRef(REF_EVALUATORFUNCTIONMAXAGE, exprDotMethod(maxAgeFactory, "make", MEMBER_AGENTINSTANCECONTEXT))
-                .assignRef(REF_EVALUATIONFUNCTIONFREQUENCY, exprDotMethod(frequencyFactory, "make", MEMBER_AGENTINSTANCECONTEXT));
+                .assignRef(REF_EVALUATORFUNCTIONMAXAGE, exprDotMethod(maxAgeFactory, "make", MEMBER_EXPREVALCONTEXT))
+                .assignRef(REF_EVALUATIONFUNCTIONFREQUENCY, exprDotMethod(frequencyFactory, "make", MEMBER_EXPREVALCONTEXT));
     }
 
     public static void applyEnterCodegenSweep(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {

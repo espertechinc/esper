@@ -53,8 +53,8 @@ import java.util.function.Function;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.annotation.AnnotationUtil.makeAnnotations;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.NAME_AGENTINSTANCECONTEXT;
 
 public class StatementInformationalsCompileTime {
     private final String statementNameCompileTime;

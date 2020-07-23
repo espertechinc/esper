@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggSvcGroupByReclaimAgedEvalFunc;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
@@ -25,8 +25,8 @@ public class AggSvcGroupByReclaimAgedEvalFuncFactoryVariable implements AggSvcGr
         this.variable = variable;
     }
 
-    public AggSvcGroupByReclaimAgedEvalFunc make(AgentInstanceContext agentInstanceContext) {
-        VariableReader reader = agentInstanceContext.getVariableManagementService().getReader(variable.getDeploymentId(), variable.getMetaData().getVariableName(), agentInstanceContext.getAgentInstanceId());
+    public AggSvcGroupByReclaimAgedEvalFunc make(ExprEvaluatorContext exprEvaluatorContext) {
+        VariableReader reader = exprEvaluatorContext.getVariableManagementService().getReader(variable.getDeploymentId(), variable.getMetaData().getVariableName(), exprEvaluatorContext.getAgentInstanceId());
         return new AggSvcGroupByReclaimAgedEvalFuncVariable(reader);
     }
 }

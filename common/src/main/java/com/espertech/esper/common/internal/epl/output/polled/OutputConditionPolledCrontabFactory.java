@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.schedule.ScheduleParameterException;
@@ -31,20 +30,20 @@ public final class OutputConditionPolledCrontabFactory implements OutputConditio
         this.expressions = expressions;
     }
 
-    public OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext) {
+    public OutputConditionPolled makeNew(ExprEvaluatorContext exprEvaluatorContext) {
         ScheduleSpec scheduleSpec;
         try {
-            Object[] scheduleSpecParameterList = evaluate(expressions, agentInstanceContext);
+            Object[] scheduleSpecParameterList = evaluate(expressions, exprEvaluatorContext);
             scheduleSpec = ScheduleSpecUtil.computeValues(scheduleSpecParameterList);
         } catch (ScheduleParameterException e) {
             throw new IllegalArgumentException("Invalid schedule specification : " + e.getMessage(), e);
         }
         OutputConditionPolledCrontabState state = new OutputConditionPolledCrontabState(scheduleSpec, null, 0);
-        return new OutputConditionPolledCrontab(agentInstanceContext, state);
+        return new OutputConditionPolledCrontab(exprEvaluatorContext, state);
     }
 
-    public OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state) {
-        return new OutputConditionPolledCrontab(agentInstanceContext, (OutputConditionPolledCrontabState) state);
+    public OutputConditionPolled makeFromState(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledState state) {
+        return new OutputConditionPolledCrontab(exprEvaluatorContext, (OutputConditionPolledCrontabState) state);
     }
 
     private static Object[] evaluate(ExprEvaluator[] parameters, ExprEvaluatorContext exprEvaluatorContext) {

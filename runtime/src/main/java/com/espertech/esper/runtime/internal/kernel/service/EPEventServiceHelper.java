@@ -18,6 +18,8 @@ import com.espertech.esper.common.internal.context.util.EPStatementAgentInstance
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
+import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
 import com.espertech.esper.common.internal.schedule.ScheduleHandle;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallback;
@@ -25,10 +27,7 @@ import com.espertech.esper.common.internal.schedule.SchedulingService;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class EPEventServiceHelper {
     /**
@@ -113,7 +112,7 @@ public class EPEventServiceHelper {
         }
     }
 
-    public static ThreadLocal<EPEventServiceThreadLocalEntry> allocateThreadLocals(boolean isPrioritized, String runtimeURI, EventBeanService eventBeanService, ExceptionHandlingService exceptionHandlingService, SchedulingService schedulingService) {
+    public static ThreadLocal<EPEventServiceThreadLocalEntry> allocateThreadLocals(boolean isPrioritized, String runtimeURI, EventBeanService eventBeanService, ExceptionHandlingService exceptionHandlingService, SchedulingService schedulingService, TimeZone timeZone, TimeAbacus timeAbacus, VariableManagementService variableManagementService) {
         return ThreadLocal.withInitial(() -> {
             DualWorkQueue<Object> dualWorkQueue = new DualWorkQueue<>();
             ArrayBackedCollection<FilterHandle> filterHandles = new ArrayBackedCollection<>(100);
@@ -129,7 +128,7 @@ public class EPEventServiceHelper {
                 schedulesPerStmt = new HashMap<>();
             }
 
-            ExprEvaluatorContext runtimeFilterAndDispatchTimeContext = new EPEventServiceExprEvaluatorContext(runtimeURI, eventBeanService, exceptionHandlingService, schedulingService);
+            ExprEvaluatorContext runtimeFilterAndDispatchTimeContext = new EPEventServiceExprEvaluatorContext(runtimeURI, eventBeanService, exceptionHandlingService, schedulingService, timeZone, timeAbacus, variableManagementService);
             return new EPEventServiceThreadLocalEntry(dualWorkQueue, filterHandles, scheduleHandles, matchesPerStmt, schedulesPerStmt, runtimeFilterAndDispatchTimeContext);
         });
     }

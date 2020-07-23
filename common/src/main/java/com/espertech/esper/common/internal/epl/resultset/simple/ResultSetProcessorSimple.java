@@ -22,5 +22,5 @@ public interface ResultSetProcessorSimple extends ResultSetProcessor {
 
     boolean evaluateHavingClause(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
-    ExprEvaluatorContext getAgentInstanceContext();
+    ExprEvaluatorContext getExprEvaluatorContext();
 }

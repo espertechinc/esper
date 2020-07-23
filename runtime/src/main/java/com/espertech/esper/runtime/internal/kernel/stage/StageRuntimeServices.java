@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.variable.core.VariableManagementS
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeResolvingBeanFactory;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepository;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
 import com.espertech.esper.common.internal.statement.dispatch.DispatchService;
@@ -24,6 +25,7 @@ import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
 import com.espertech.esper.runtime.internal.statementlifesvc.StatementLifecycleService;
 
 public class StageRuntimeServices {
+    private final ClasspathImportServiceRuntime classpathImportServiceRuntime;
     private final DispatchService dispatchService;
     private final EventBeanService eventBeanService;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
@@ -38,7 +40,8 @@ public class StageRuntimeServices {
     private final ThreadingService threadingService;
     private final VariableManagementService variableManagementService;
 
-    public StageRuntimeServices(DispatchService dispatchService, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepository eventTypeRepositoryBus, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, NamedWindowDispatchService namedWindowDispatchService, String runtimeURI, RuntimeSettingsService runtimeSettingsService, StatementLifecycleService statementLifecycleService, TableExprEvaluatorContext tableExprEvaluatorContext, ThreadingService threadingService, VariableManagementService variableManagementService) {
+    public StageRuntimeServices(ClasspathImportServiceRuntime classpathImportServiceRuntime, DispatchService dispatchService, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepository eventTypeRepositoryBus, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, NamedWindowDispatchService namedWindowDispatchService, String runtimeURI, RuntimeSettingsService runtimeSettingsService, StatementLifecycleService statementLifecycleService, TableExprEvaluatorContext tableExprEvaluatorContext, ThreadingService threadingService, VariableManagementService variableManagementService) {
+        this.classpathImportServiceRuntime = classpathImportServiceRuntime;
         this.dispatchService = dispatchService;
         this.eventBeanService = eventBeanService;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
@@ -52,6 +55,10 @@ public class StageRuntimeServices {
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
         this.threadingService = threadingService;
         this.variableManagementService = variableManagementService;
+    }
+
+    public ClasspathImportServiceRuntime getClasspathImportServiceRuntime() {
+        return classpathImportServiceRuntime;
     }
 
     public DispatchService getDispatchService() {

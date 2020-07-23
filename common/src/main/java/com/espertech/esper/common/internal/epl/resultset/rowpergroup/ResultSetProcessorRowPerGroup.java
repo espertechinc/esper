@@ -35,7 +35,7 @@ public interface ResultSetProcessorRowPerGroup extends ResultSetProcessor, Aggre
 
     AggregationService getAggregationService();
 
-    ExprEvaluatorContext getAgentInstanceContext();
+    ExprEvaluatorContext getExprEvaluatorContext();
 
     SelectExprProcessor getSelectExprProcessor();
 

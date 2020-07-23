@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.util.StopCallback;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
@@ -103,7 +103,7 @@ public interface ResultSetProcessor extends StopCallback {
      */
     public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic);
 
-    public void setAgentInstanceContext(AgentInstanceContext context);
+    public void setExprEvaluatorContext(ExprEvaluatorContext context);
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData);
 

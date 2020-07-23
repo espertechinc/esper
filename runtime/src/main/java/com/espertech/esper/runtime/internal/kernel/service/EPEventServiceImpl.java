@@ -842,7 +842,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
 
     private void initThreadLocals() {
         removeFromThreadLocals();
-        threadLocals = allocateThreadLocals(isPrioritized, services.getRuntimeURI(), services.getEventBeanService(), services.getExceptionHandlingService(), services.getSchedulingService());
+        threadLocals = allocateThreadLocals(isPrioritized, services.getRuntimeURI(), services.getEventBeanService(), services.getExceptionHandlingService(), services.getSchedulingService(), services.getClasspathImportServiceRuntime().getTimeZone(), services.getClasspathImportServiceRuntime().getTimeAbacus(), services.getVariableManagementService());
     }
 
     private void processSchedule(long time) {

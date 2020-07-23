@@ -45,11 +45,11 @@ public class ResultSetProcessorRowPerEventImpl {
 
     public static void applyViewResultCodegen(CodegenMethod method) {
         method.getBlock().declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
     }
 
     public static void applyJoinResultCodegen(CodegenMethod method) {
-        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA);
+        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA);
     }
 
     public static void processJoinResultCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -59,7 +59,7 @@ public class ResultSetProcessorRowPerEventImpl {
         if (forge.isUnidirectional()) {
             method.getBlock().exprDotMethod(ref("this"), "clear");
         }
-        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA);
+        method.getBlock().staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA);
 
         ResultSetProcessorUtil.processJoinResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), true);
     }
@@ -68,7 +68,7 @@ public class ResultSetProcessorRowPerEventImpl {
         method.getBlock().declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", constantNull())
                 .declareVarNoInit(EventBean.EPTYPEARRAY, "selectNewEvents")
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
 
         ResultSetProcessorUtil.processViewResultCodegen(method, classScope, instance, forge.getOptionalHavingNode() != null, forge.isSelectRStream(), forge.isSorting(), true);
     }
@@ -80,17 +80,17 @@ public class ResultSetProcessorRowPerEventImpl {
         }
 
         method.getBlock()
-                .staticMethod(ResultSetProcessorUtil.class, METHOD_CLEARANDAGGREGATEUNGROUPED, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC, REF_VIEWABLE)
+                .staticMethod(ResultSetProcessorUtil.class, METHOD_CLEARANDAGGREGATEUNGROUPED, MEMBER_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC, REF_VIEWABLE)
                 .declareVar(EPTypePremade.ITERATOR.getEPType(), "iterator", localMethod(obtainIteratorCodegen(forge, classScope, method), REF_VIEWABLE))
                 .declareVar(EPTypePremade.ARRAYDEQUE.getEPType(), "deque", staticMethod(ResultSetProcessorUtil.class, METHOD_ITERATORTODEQUE, ref("iterator")))
-                .exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT)
+                .exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_EXPREVALCONTEXT)
                 .methodReturn(exprDotMethod(ref("deque"), "iterator"));
     }
 
     private static CodegenMethod obtainIteratorCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethod parent) {
         CodegenMethod iterator = parent.makeChild(EPTypePremade.ITERATOR.getEPType(), ResultSetProcessorRowPerEventImpl.class, classScope).addParam(Viewable.EPTYPE, NAME_VIEWABLE);
         if (!forge.isSorting()) {
-            iterator.getBlock().methodReturn(newInstance(ResultSetProcessorRowPerEventIterator.EPTYPE, exprDotMethod(REF_VIEWABLE, "iterator"), ref("this"), MEMBER_AGENTINSTANCECONTEXT));
+            iterator.getBlock().methodReturn(newInstance(ResultSetProcessorRowPerEventIterator.EPTYPE, exprDotMethod(REF_VIEWABLE, "iterator"), ref("this"), MEMBER_EXPREVALCONTEXT));
             return iterator;
         }
 
@@ -102,37 +102,37 @@ public class ResultSetProcessorRowPerEventImpl {
             CodegenBlock forEach = iterator.getBlock().forEach(EventBean.EPTYPE, "candidate", REF_VIEWABLE);
             forEach.assignArrayElement("eventsPerStream", constant(0), ref("candidate"));
             if (forge.getOptionalHavingNode() != null) {
-                forEach.ifCondition(not(exprDotMethod(ref("this"), "evaluateHavingClause", ref("eventsPerStream"), constant(true), MEMBER_AGENTINSTANCECONTEXT))).blockContinue();
+                forEach.ifCondition(not(exprDotMethod(ref("this"), "evaluateHavingClause", ref("eventsPerStream"), constant(true), MEMBER_EXPREVALCONTEXT))).blockContinue();
             }
-            forEach.exprDotMethod(ref("outgoingEvents"), "add", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT))
-                    .exprDotMethod(ref("orderKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+            forEach.exprDotMethod(ref("outgoingEvents"), "add", exprDotMethod(MEMBER_SELECTEXPRPROCESSOR, "process", ref("eventsPerStream"), constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT))
+                    .exprDotMethod(ref("orderKeys"), "add", exprDotMethod(MEMBER_ORDERBYPROCESSOR, "getSortKey", ref("eventsPerStream"), constantTrue(), MEMBER_EXPREVALCONTEXT));
         }
 
-        iterator.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_ORDEROUTGOINGGETITERATOR, ref("outgoingEvents"), ref("orderKeys"), MEMBER_ORDERBYPROCESSOR, MEMBER_AGENTINSTANCECONTEXT));
+        iterator.getBlock().methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_ORDEROUTGOINGGETITERATOR, ref("outgoingEvents"), ref("orderKeys"), MEMBER_ORDERBYPROCESSOR, MEMBER_EXPREVALCONTEXT));
         return iterator;
     }
 
     public static void getIteratorJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         if (forge.getOptionalHavingNode() == null) {
             if (!forge.isSorting()) {
-                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             } else {
-                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             }
         } else {
             if (!forge.isSorting()) {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingCodegen(classScope, instance);
-                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_AGENTINSTANCECONTEXT));
+                method.getBlock().declareVar(EventBean.EPTYPEARRAY, "result", localMethod(select, MEMBER_AGGREGATIONSVC, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_JOINSET, constantTrue(), constantTrue(), MEMBER_EXPREVALCONTEXT));
             }
         }
         method.getBlock().methodReturn(newInstance(ArrayEventIterator.EPTYPE, ref("result")));
     }
 
     public static void clearMethodCodegen(CodegenMethod method) {
-        method.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_AGENTINSTANCECONTEXT);
+        method.getBlock().exprDotMethod(MEMBER_AGGREGATIONSVC, "clearResults", MEMBER_EXPREVALCONTEXT);
     }
 
     public static void processOutputLimitedJoinCodegen(ResultSetProcessorRowPerEventForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -165,11 +165,11 @@ public class ResultSetProcessorRowPerEventImpl {
         if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLUNORDHELPER, ResultSetProcessorRowPerEventOutputAllHelper.EPTYPE);
             StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputAll", ref("this"), MEMBER_AGENTINSTANCECONTEXT, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputAll", ref("this"), MEMBER_EXPREVALCONTEXT, stateMgmtSettings.toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLUNORDHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTUNORDHELPER, ResultSetProcessorRowPerEventOutputLastHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputLast", ref("this"), MEMBER_AGENTINSTANCECONTEXT));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTUNORDHELPER, exprDotMethod(factory, "makeRSRowPerEventOutputLast", ref("this"), MEMBER_EXPREVALCONTEXT));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTUNORDHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -213,24 +213,24 @@ public class ResultSetProcessorRowPerEventImpl {
             if (forge.isUnidirectional()) {
                 forEach.exprDotMethod(ref("this"), "clear");
             }
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA);
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA);
 
             // generate old events using select expressions
             if (forge.isSelectRStream()) {
                 if (forge.getOptionalHavingNode() == null) {
                     if (!forge.isSorting()) {
-                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_EXPREVALCONTEXT);
                     } else {
-                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                     }
                 } else {
                     // generate old events using having then select
                     if (!forge.isSorting()) {
                         CodegenMethod select = ResultSetProcessorUtil.populateSelectJoinEventsHavingCodegen(classScope, instance);
-                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_EXPREVALCONTEXT);
                     } else {
                         CodegenMethod select = ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                     }
                 }
             }
@@ -238,17 +238,17 @@ public class ResultSetProcessorRowPerEventImpl {
             // generate new events using select expressions
             if (forge.getOptionalHavingNode() == null) {
                 if (!forge.isSorting()) {
-                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_EXPREVALCONTEXT);
                 } else {
-                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTJOINEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                 }
             } else {
                 if (!forge.isSorting()) {
                     CodegenMethod select = ResultSetProcessorUtil.populateSelectJoinEventsHavingCodegen(classScope, instance);
-                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_EXPREVALCONTEXT);
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.populateSelectJoinEventsHavingWithOrderByCodegen(classScope, instance);
-                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                 }
             }
         }
@@ -269,14 +269,14 @@ public class ResultSetProcessorRowPerEventImpl {
                 forEach.exprDotMethod(ref("this"), "clear");
             }
 
-            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, ref("newData"), ref("oldData"));
+            forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGJOINRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, ref("newData"), ref("oldData"));
 
             if (forge.isSelectRStream()) {
                 if (forge.getOptionalHavingNode() == null) {
-                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingCodegen(classScope, instance);
-                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
                 }
                 forEach.ifCondition(and(notEqualsNull(ref("selectOldEvents")), relational(arrayLength(ref("selectOldEvents")), CodegenExpressionRelational.CodegenRelational.GT, constant(0))))
                         .assignRef("lastOldEvent", arrayAtIndex(ref("selectOldEvents"), op(arrayLength(ref("selectOldEvents")), "-", constant(1))))
@@ -285,10 +285,10 @@ public class ResultSetProcessorRowPerEventImpl {
 
             // generate new events using select expressions
             if (forge.getOptionalHavingNode() == null) {
-                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTJOINEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectJoinEventsHavingCodegen(classScope, instance);
-                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
             }
             forEach.ifCondition(and(notEqualsNull(ref("selectNewEvents")), relational(arrayLength(ref("selectNewEvents")), CodegenExpressionRelational.CodegenRelational.GT, constant(0))))
                     .assignRef("lastNewEvent", arrayAtIndex(ref("selectNewEvents"), op(arrayLength(ref("selectNewEvents")), "-", constant(1))))
@@ -310,24 +310,24 @@ public class ResultSetProcessorRowPerEventImpl {
             forEach.declareVar(EventBean.EPTYPEARRAY, "newData", cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")))
                     .declareVar(EventBean.EPTYPEARRAY, "oldData", cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)))
-                    .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
+                    .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, REF_NEWDATA, REF_OLDDATA, ref("eventsPerStream"));
 
             // generate old events using select expressions
             if (forge.isSelectRStream()) {
                 if (forge.getOptionalHavingNode() == null) {
                     if (!forge.isSorting()) {
-                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_EXPREVALCONTEXT);
                     } else {
-                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_EXPREVALCONTEXT);
                     }
                 } else {
                     // generate old events using having then select
                     if (!forge.isSorting()) {
                         CodegenMethod select = ResultSetProcessorUtil.populateSelectEventsHavingCodegen(classScope, instance);
-                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), MEMBER_EXPREVALCONTEXT);
                     } else {
                         CodegenMethod select = ResultSetProcessorUtil.populateSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                        forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_OLDDATA, constantFalse(), REF_ISSYNTHESIZE, ref("oldEvents"), ref("oldEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                         throw new UnsupportedOperationException();
                     }
                 }
@@ -336,17 +336,17 @@ public class ResultSetProcessorRowPerEventImpl {
             // generate new events using select expressions
             if (forge.getOptionalHavingNode() == null) {
                 if (!forge.isSorting()) {
-                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_EXPREVALCONTEXT);
                 } else {
-                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.staticMethod(ResultSetProcessorUtil.class, METHOD_POPULATESELECTEVENTSNOHAVINGWITHORDERBY, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                 }
             } else {
                 if (!forge.isSorting()) {
                     CodegenMethod select = ResultSetProcessorUtil.populateSelectEventsHavingCodegen(classScope, instance);
-                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), MEMBER_EXPREVALCONTEXT);
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.populateSelectEventsHavingWithOrderByCodegen(classScope, instance);
-                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_AGENTINSTANCECONTEXT);
+                    forEach.localMethod(select, MEMBER_SELECTEXPRPROCESSOR, MEMBER_ORDERBYPROCESSOR, REF_NEWDATA, constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"), MEMBER_EXPREVALCONTEXT);
                 }
             }
         }
@@ -363,14 +363,14 @@ public class ResultSetProcessorRowPerEventImpl {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_VIEWEVENTSLIST);
             forEach.declareVar(EventBean.EPTYPEARRAY, "newData", cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getFirst")))
                     .declareVar(EventBean.EPTYPEARRAY, "oldData", cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("pair"), "getSecond")))
-                    .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_AGENTINSTANCECONTEXT, ref("newData"), ref("oldData"), ref("eventsPerStream"));
+                    .staticMethod(ResultSetProcessorUtil.class, METHOD_APPLYAGGVIEWRESULT, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, ref("newData"), ref("oldData"), ref("eventsPerStream"));
 
             if (forge.isSelectRStream()) {
                 if (forge.getOptionalHavingNode() == null) {
-                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
                 } else {
                     CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                    forEach.declareVar(EventBean.EPTYPEARRAY, "selectOldEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("oldData"), constantFalse(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
                 }
                 forEach.ifCondition(and(notEqualsNull(ref("selectOldEvents")), relational(arrayLength(ref("selectOldEvents")), CodegenExpressionRelational.CodegenRelational.GT, constant(0))))
                         .assignRef("lastOldEvent", arrayAtIndex(ref("selectOldEvents"), op(arrayLength(ref("selectOldEvents")), "-", constant(1))))
@@ -379,10 +379,10 @@ public class ResultSetProcessorRowPerEventImpl {
 
             // generate new events using select expressions
             if (forge.getOptionalHavingNode() == null) {
-                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", staticMethod(ResultSetProcessorUtil.class, METHOD_GETSELECTEVENTSNOHAVING, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
             } else {
                 CodegenMethod select = ResultSetProcessorUtil.getSelectEventsHavingCodegen(classScope, instance);
-                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_AGENTINSTANCECONTEXT));
+                forEach.declareVar(EventBean.EPTYPEARRAY, "selectNewEvents", localMethod(select, MEMBER_SELECTEXPRPROCESSOR, ref("newData"), constantTrue(), REF_ISSYNTHESIZE, MEMBER_EXPREVALCONTEXT));
             }
             forEach.ifCondition(and(notEqualsNull(ref("selectNewEvents")), relational(arrayLength(ref("selectNewEvents")), CodegenExpressionRelational.CodegenRelational.GT, constant(0))))
                     .assignRef("lastNewEvent", arrayAtIndex(ref("selectNewEvents"), op(arrayLength(ref("selectNewEvents")), "-", constant(1))))

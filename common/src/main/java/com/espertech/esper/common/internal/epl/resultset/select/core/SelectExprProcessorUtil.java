@@ -29,9 +29,7 @@ import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EPS;
-import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_ISNEWDATA;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.REF_ISSYNTHESIZE;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
@@ -51,19 +49,19 @@ public class SelectExprProcessorUtil {
 
         CodegenExpressionNewAnonymousClass anonymousSelect = newAnonymousClass(method.getBlock(), SelectExprProcessor.EPTYPE);
         CodegenMethod processMethod = CodegenMethod.makeParentNode(EventBean.EPTYPE, SelectExprProcessorUtil.class, symbolProvider, classScope)
-                .addParam(EventBean.EPTYPEARRAY, ExprForgeCodegenNames.NAME_EPS)
-                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA)
-                .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
-                .addParam(ExprEvaluatorContext.EPTYPE, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
+            .addParam(EventBean.EPTYPEARRAY, ExprForgeCodegenNames.NAME_EPS)
+            .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA)
+            .addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), SelectExprProcessorCodegenSymbol.NAME_ISSYNTHESIZE)
+            .addParam(ExprEvaluatorContext.EPTYPE, ExprForgeCodegenNames.NAME_EXPREVALCONTEXT);
         anonymousSelect.addMethod("process", processMethod);
         processMethod.getBlock().apply(instblock(classScope, "qSelectClause", REF_EPS, REF_ISNEWDATA, REF_ISSYNTHESIZE, REF_EXPREVALCONTEXT));
 
         CodegenMethod performMethod = insertHelper.processCodegen(resultType, eventBeanFactory, processMethod, selectEnv, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(processMethod, processMethod.getBlock(), classScope);
         processMethod.getBlock()
-                .declareVar(EventBean.EPTYPE, "result", localMethod(performMethod))
-                .apply(instblock(classScope, "aSelectClause", REF_ISNEWDATA, ref("result"), constantNull()))
-                .methodReturn(ref("result"));
+            .declareVar(EventBean.EPTYPE, "result", localMethod(performMethod))
+            .apply(instblock(classScope, "aSelectClause", REF_ISNEWDATA, ref("result"), constantNull()))
+            .methodReturn(ref("result"));
 
         return anonymousSelect;
     }

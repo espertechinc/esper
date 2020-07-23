@@ -14,12 +14,17 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
+
+import java.util.TimeZone;
 
 public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
     private final ExprEvaluatorContext context;
@@ -94,4 +99,31 @@ public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
         return context.getExceptionHandlingService();
     }
 
+    public String getContextName() {
+        return context.getContextName();
+    }
+
+    public String getEPLWhenAvailable() {
+        return context.getEPLWhenAvailable();
+    }
+
+    public TimeZone getTimeZone() {
+        return context.getTimeZone();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return context.getTimeAbacus();
+    }
+
+    public VariableManagementService getVariableManagementService() {
+        return context.getVariableManagementService();
+    }
+
+    public EventBeanTypedEventFactory getEventBeanTypedEventFactory() {
+        return context.getEventBeanTypedEventFactory();
+    }
+
+    public String getModuleName() {
+        return context.getModuleName();
+    }
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
@@ -34,19 +34,19 @@ public final class OutputConditionPolledCountFactory implements OutputConditionP
         this.variable = variable;
     }
 
-    public OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext) {
+    public OutputConditionPolled makeNew(ExprEvaluatorContext exprEvaluatorContext) {
         OutputConditionPolledCountState state = new OutputConditionPolledCountState(eventRate, eventRate, eventRate, true);
-        return new OutputConditionPolledCount(state, getVariableReader(agentInstanceContext));
+        return new OutputConditionPolledCount(state, getVariableReader(exprEvaluatorContext));
     }
 
-    public OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state) {
-        return new OutputConditionPolledCount((OutputConditionPolledCountState) state, getVariableReader(agentInstanceContext));
+    public OutputConditionPolled makeFromState(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledState state) {
+        return new OutputConditionPolledCount((OutputConditionPolledCountState) state, getVariableReader(exprEvaluatorContext));
     }
 
-    private VariableReader getVariableReader(AgentInstanceContext agentInstanceContext) {
+    private VariableReader getVariableReader(ExprEvaluatorContext exprEvaluatorContext) {
         if (variable == null) {
             return null;
         }
-        return agentInstanceContext.getVariableManagementService().getReader(variable.getDeploymentId(), variable.getMetaData().getVariableName(), agentInstanceContext.getAgentInstanceId());
+        return exprEvaluatorContext.getVariableManagementService().getReader(variable.getDeploymentId(), variable.getMetaData().getVariableName(), exprEvaluatorContext.getAgentInstanceId());
     }
 }

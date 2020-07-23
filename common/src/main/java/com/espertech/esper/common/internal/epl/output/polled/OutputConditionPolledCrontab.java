@@ -10,9 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.output.polled;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.schedule.ScheduleComputeHelper;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +20,11 @@ import org.slf4j.LoggerFactory;
  * Output condition handling crontab-at schedule output.
  */
 public final class OutputConditionPolledCrontab implements OutputConditionPolled {
-    private final AgentInstanceContext agentInstanceContext;
+    private final ExprEvaluatorContext exprEvaluatorContext;
     private final OutputConditionPolledCrontabState state;
 
-    public OutputConditionPolledCrontab(AgentInstanceContext agentInstanceContext, OutputConditionPolledCrontabState state) {
-        this.agentInstanceContext = agentInstanceContext;
+    public OutputConditionPolledCrontab(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledCrontabState state) {
+        this.exprEvaluatorContext = exprEvaluatorContext;
         this.state = state;
     }
 
@@ -41,16 +40,15 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
         }
 
         boolean output = false;
-        long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        ClasspathImportServiceRuntime classpathImportService = agentInstanceContext.getClasspathImportServiceRuntime();
+        long currentTime = exprEvaluatorContext.getTimeProvider().getTime();
         if (state.getCurrentReferencePoint() == null) {
             state.setCurrentReferencePoint(currentTime);
-            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus()));
+            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, exprEvaluatorContext.getTimeZone(), exprEvaluatorContext.getTimeAbacus()));
             output = true;
         }
 
         if (state.getNextScheduledTime() <= currentTime) {
-            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, classpathImportService.getTimeZone(), classpathImportService.getTimeAbacus()));
+            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, exprEvaluatorContext.getTimeZone(), exprEvaluatorContext.getTimeAbacus()));
             output = true;
         }
 

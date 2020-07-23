@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionExpressionTypeUtil;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 
@@ -21,16 +21,16 @@ import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 public class OutputConditionPolledExpression implements OutputConditionPolled {
     private final OutputConditionPolledExpressionFactory factory;
     private final OutputConditionPolledExpressionState state;
-    private final AgentInstanceContext agentInstanceContext;
+    private final ExprEvaluatorContext exprEvaluatorContext;
 
     private ObjectArrayEventBean builtinProperties;
     private EventBean[] eventsPerStream = new EventBean[1];
 
-    public OutputConditionPolledExpression(OutputConditionPolledExpressionFactory factory, OutputConditionPolledExpressionState state, AgentInstanceContext agentInstanceContext, ObjectArrayEventBean builtinProperties) {
+    public OutputConditionPolledExpression(OutputConditionPolledExpressionFactory factory, OutputConditionPolledExpressionState state, ExprEvaluatorContext exprEvaluatorContext, ObjectArrayEventBean builtinProperties) {
         this.factory = factory;
         this.state = state;
         this.builtinProperties = builtinProperties;
-        this.agentInstanceContext = agentInstanceContext;
+        this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
     public OutputConditionPolledState getState() {
@@ -55,7 +55,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled {
                 }
 
                 try {
-                    factory.getVariableReadWritePackage().writeVariables(eventsPerStream, null, agentInstanceContext);
+                    factory.getVariableReadWritePackage().writeVariables(eventsPerStream, null, exprEvaluatorContext);
                 } finally {
                 }
             }
@@ -76,7 +76,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled {
         }
 
         boolean result = false;
-        Boolean output = (Boolean) factory.getWhenExpression().evaluate(eventsPerStream, true, agentInstanceContext);
+        Boolean output = (Boolean) factory.getWhenExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
         if ((output != null) && output) {
             result = true;
         }
@@ -88,7 +88,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled {
         if (builtinProperties != null) {
             state.setTotalNewEventsCount(0);
             state.setTotalOldEventsCount(0);
-            state.setLastOutputTimestamp(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
+            state.setLastOutputTimestamp(exprEvaluatorContext.getTimeProvider().getTime());
         }
     }
 }

@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupLevel;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.agg.rollup.GroupByRollupKey;
@@ -63,11 +62,11 @@ public interface OrderByProcessor {
      * @param outgoingEvents       - the events to sort
      * @param currentGenerators    - the events that generated the output events (each event has a corresponding array of generating events per different event streams)
      * @param newData              - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param agentInstanceContext context for expression evaluation
+     * @param exprEvaluatorContext context for expression evaluation
      * @param aggregationService   aggregation svc
      * @return an array containing the output events in sorted order
      */
-    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, AgentInstanceContext agentInstanceContext, AggregationService aggregationService);
+    public EventBean[] sortRollup(EventBean[] outgoingEvents, List<GroupByRollupKey> currentGenerators, boolean newData, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService);
 
     /**
      * Returns the sort key for a given row.

@@ -20,9 +20,9 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
@@ -34,8 +34,8 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 public class ResultSetProcessorGroupedUtil {
@@ -46,27 +46,27 @@ public class ResultSetProcessorGroupedUtil {
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
      * @param aggregationService   aggs
-     * @param agentInstanceContext ctx
+     * @param exprEvaluatorContext ctx
      * @param newData              new data
      * @param newDataMultiKey      new data keys
      * @param oldData              old data
      * @param oldDataMultiKey      old data keys
      * @param eventsPerStream      event buffer, transient buffer
      */
-    public static void applyAggViewResultKeyedView(AggregationService aggregationService, AgentInstanceContext agentInstanceContext, EventBean[] newData, Object[] newDataMultiKey, EventBean[] oldData, Object[] oldDataMultiKey, EventBean[] eventsPerStream) {
+    public static void applyAggViewResultKeyedView(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, EventBean[] newData, Object[] newDataMultiKey, EventBean[] oldData, Object[] oldDataMultiKey, EventBean[] eventsPerStream) {
         // update aggregates
         if (newData != null) {
             // apply new data to aggregates
             for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
-                aggregationService.applyEnter(eventsPerStream, newDataMultiKey[i], agentInstanceContext);
+                aggregationService.applyEnter(eventsPerStream, newDataMultiKey[i], exprEvaluatorContext);
             }
         }
         if (oldData != null) {
             // apply old data to aggregates
             for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
-                aggregationService.applyLeave(eventsPerStream, oldDataMultiKey[i], agentInstanceContext);
+                aggregationService.applyLeave(eventsPerStream, oldDataMultiKey[i], exprEvaluatorContext);
             }
         }
     }
@@ -75,19 +75,19 @@ public class ResultSetProcessorGroupedUtil {
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      *
      * @param aggregationService   aggs
-     * @param agentInstanceContext ctx
+     * @param exprEvaluatorContext ctx
      * @param newEvents            new data
      * @param newDataMultiKey      new data keys
      * @param oldEvents            old data
      * @param oldDataMultiKey      old data keys
      */
-    public static void applyAggJoinResultKeyedJoin(AggregationService aggregationService, AgentInstanceContext agentInstanceContext, Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Object[] newDataMultiKey, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, Object[] oldDataMultiKey) {
+    public static void applyAggJoinResultKeyedJoin(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Object[] newDataMultiKey, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, Object[] oldDataMultiKey) {
         // update aggregates
         if (!newEvents.isEmpty()) {
             // apply old data to aggregates
             int count = 0;
             for (MultiKeyArrayOfKeys<EventBean> eventsPerStream : newEvents) {
-                aggregationService.applyEnter(eventsPerStream.getArray(), newDataMultiKey[count], agentInstanceContext);
+                aggregationService.applyEnter(eventsPerStream.getArray(), newDataMultiKey[count], exprEvaluatorContext);
                 count++;
             }
         }
@@ -95,7 +95,7 @@ public class ResultSetProcessorGroupedUtil {
             // apply old data to aggregates
             int count = 0;
             for (MultiKeyArrayOfKeys<EventBean> eventsPerStream : oldEvents) {
-                aggregationService.applyLeave(eventsPerStream.getArray(), oldDataMultiKey[count], agentInstanceContext);
+                aggregationService.applyLeave(eventsPerStream.getArray(), oldDataMultiKey[count], exprEvaluatorContext);
                 count++;
             }
         }
@@ -112,7 +112,7 @@ public class ResultSetProcessorGroupedUtil {
             if (optionalMultiKeyClasses != null && optionalMultiKeyClasses.getClassNameMK() != null) {
                 CodegenMethod method = MultiKeyCodegen.codegenMethod(groupKeyExpressions, optionalMultiKeyClasses, methodNode, classScope);
                 methodNode.getBlock()
-                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(method, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(method, REF_EPS, REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
                 return;
@@ -124,7 +124,7 @@ public class ResultSetProcessorGroupedUtil {
 
             CodegenMethod expression = CodegenLegoMethodExpression.codegenExpression(groupKeyExpressions[0].getForge(), methodNode, classScope);
             methodNode.getBlock()
-                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT))
+                    .declareVar(EPTypePremade.OBJECT.getEPType(), "key", localMethod(expression, REF_EPS, REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT))
                     .apply(instblock(classScope, "aResultSetProcessComputeGroupKeys", REF_ISNEWDATA, ref("key")))
                     .methodReturn(ref("key"));
         };

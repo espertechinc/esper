@@ -58,7 +58,7 @@ public class FAFQueryMethodSelectExecGivenContextNoJoin implements FAFQueryMetho
                 snapshot = FAFQueryMethodSelectExecUtil.filtered(snapshot, select.getWhereClause(), contextPartitionResult.context);
             }
             EventBean[] rows = snapshot.toArray(new EventBean[snapshot.size()]);
-            resultSetProcessor.setAgentInstanceContext(contextPartitionResult.getContext());
+            resultSetProcessor.setExprEvaluatorContext(contextPartitionResult.getContext());
             UniformPair<EventBean[]> results = resultSetProcessor.processViewResult(rows, null, true);
             if (results != null && results.getFirst() != null && results.getFirst().length > 0) {
                 events.add(results.getFirst());

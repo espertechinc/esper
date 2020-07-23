@@ -44,7 +44,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 Object mk = newDataMultiKey[count];
                 repsPerGroup.put(mk, eventsPerStream);
                 lastSeenKeys.add(mk);
-                processor.getAggregationService().applyEnter(eventsPerStream, mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(eventsPerStream, mk, processor.getExprEvaluatorContext());
                 count++;
             }
         }
@@ -56,7 +56,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 lastSeenKeys.add(mk);
                 keysSeenRemoved.add(mk);
                 eventsPerStreamOneStream[0] = anOldData;
-                processor.getAggregationService().applyLeave(eventsPerStreamOneStream, oldDataMultiKey[count], processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(eventsPerStreamOneStream, oldDataMultiKey[count], processor.getExprEvaluatorContext());
                 count++;
             }
         }
@@ -86,7 +86,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 Object mk = newDataMultiKey[count];
                 repsPerGroup.put(mk, aNewData.getArray());
                 lastSeenKeys.add(mk);
-                processor.getAggregationService().applyEnter(aNewData.getArray(), mk, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(aNewData.getArray(), mk, processor.getExprEvaluatorContext());
                 count++;
             }
         }
@@ -97,7 +97,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 Object mk = oldDataMultiKey[count];
                 lastSeenKeys.add(mk);
                 keysSeenRemoved.add(mk);
-                processor.getAggregationService().applyLeave(anOldData.getArray(), oldDataMultiKey[count], processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(anOldData.getArray(), oldDataMultiKey[count], processor.getExprEvaluatorContext());
                 count++;
             }
         }

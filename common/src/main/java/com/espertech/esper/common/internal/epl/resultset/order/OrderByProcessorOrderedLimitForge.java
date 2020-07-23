@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.exprDotMethod;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCodegenNames.CLASSNAME_ORDERBYPROCESSOR;
 
 public class OrderByProcessorOrderedLimitForge implements OrderByProcessorFactoryForge {
@@ -39,7 +39,7 @@ public class OrderByProcessorOrderedLimitForge implements OrderByProcessorFactor
 
     public void instantiateCodegen(CodegenMethod method, CodegenClassScope classScope) {
         CodegenExpressionField rowLimitFactory = classScope.addFieldUnshared(true, RowLimitProcessorFactory.EPTYPE, rowLimitProcessorFactoryForge.make(classScope.getPackageScope().getInitMethod(), classScope));
-        method.getBlock().declareVar(RowLimitProcessor.EPTYPE, REF_ROWLIMITPROCESSOR.getRef(), exprDotMethod(rowLimitFactory, "instantiate", MEMBER_AGENTINSTANCECONTEXT))
+        method.getBlock().declareVar(RowLimitProcessor.EPTYPE, REF_ROWLIMITPROCESSOR.getRef(), exprDotMethod(rowLimitFactory, "instantiate", MEMBER_EXPREVALCONTEXT))
                 .methodReturn(CodegenExpressionBuilder.newInstance(CLASSNAME_ORDERBYPROCESSOR, ref("o"), REF_ROWLIMITPROCESSOR));
     }
 

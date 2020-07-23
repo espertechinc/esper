@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCodegenNames.*;
 
 public class OrderByProcessorCompiler {
@@ -48,7 +48,7 @@ public class OrderByProcessorCompiler {
     }
 
     private static void makeFactory(OrderByProcessorFactoryForge forge, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, String providerClassName) {
-        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.EPTYPE, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceContext.EPTYPE, MEMBER_AGENTINSTANCECONTEXT.getRef());
+        CodegenMethod instantiateMethod = CodegenMethod.makeParentNode(OrderByProcessor.EPTYPE, OrderByProcessorCompiler.class, CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(AgentInstanceContext.EPTYPE, MEMBER_EXPREVALCONTEXT.getRef());
         forge.instantiateCodegen(instantiateMethod, classScope);
 
         List<CodegenTypedParam> ctorParams = Collections.singletonList(new CodegenTypedParam(providerClassName, "o"));

@@ -25,8 +25,8 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_CHILD;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 
 public class OutputStrategyPostProcessForge {
     private final boolean isRouted;

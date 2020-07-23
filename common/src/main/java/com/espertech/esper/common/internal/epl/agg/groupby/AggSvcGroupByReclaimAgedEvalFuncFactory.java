@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggSvcGroupByReclaimAgedEvalFunc;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface AggSvcGroupByReclaimAgedEvalFuncFactory {
-    AggSvcGroupByReclaimAgedEvalFunc make(AgentInstanceContext agentInstanceContext);
+    AggSvcGroupByReclaimAgedEvalFunc make(ExprEvaluatorContext exprEvaluatorContext);
 }

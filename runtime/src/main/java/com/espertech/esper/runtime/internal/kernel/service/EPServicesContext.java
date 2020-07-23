@@ -322,7 +322,8 @@ public class EPServicesContext implements EPServicesEvaluation, EPServicesPath {
 
     public StageRuntimeServices getStageRuntimeServices() {
         if (stageRuntimeServices == null) {
-            stageRuntimeServices = new StageRuntimeServices(dispatchService,
+            stageRuntimeServices = new StageRuntimeServices(classpathImportServiceRuntime,
+                dispatchService,
                 eventBeanService,
                 eventBeanTypedEventFactory,
                 eventTypeRepositoryBus,

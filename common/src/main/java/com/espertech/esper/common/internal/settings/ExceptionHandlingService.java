@@ -18,6 +18,7 @@ import com.espertech.esper.common.client.hook.exception.*;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,10 @@ public class ExceptionHandlingService {
     public void handleCondition(BaseCondition condition, StatementContext statement) {
         String optionalEPL = (String) statement.getStatementInformationals().getProperties().get(StatementProperty.EPL);
         handleCondition(condition, statement.getDeploymentId(), statement.getStatementName(), optionalEPL);
+    }
+
+    public void handleCondition(BaseCondition condition, ExprEvaluatorContext exprEvaluatorContext) {
+        handleCondition(condition, exprEvaluatorContext.getDeploymentId(), exprEvaluatorContext.getStatementName(), exprEvaluatorContext.getEPLWhenAvailable());
     }
 
     public void handleCondition(BaseCondition condition, String deplomentId, String statementName, String optionalEPL) {

@@ -12,6 +12,7 @@ package com.espertech.esper.common.client.hook.expr;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import org.w3c.dom.Node;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * Services for obtaining {@link EventType} information and constructing {@link EventBean} events.
  */
-public interface EventBeanService {
+public interface EventBeanService extends EventBeanTypedEventFactory {
     /**
      * Construct an event bean for a given Map using the event type name to look up the Map event type
      *
@@ -47,15 +48,6 @@ public interface EventBeanService {
     EventBean adapterForBean(Object theEvent, String eventTypeName);
 
     /**
-     * Construct an event bean for a given bean (Object, POJO) and given the Bean-event-type
-     *
-     * @param bean      event underlying
-     * @param eventType event type (Bean only)
-     * @return event bean
-     */
-    EventBean adapterForTypedBean(Object bean, EventType eventType);
-
-    /**
      * Construct an event bean for a given Avro GenericData.Record using the event type name to look up the Avro event type
      *
      * @param avroGenericDataDotRecord event underlying
@@ -63,24 +55,6 @@ public interface EventBeanService {
      * @return event bean
      */
     EventBean adapterForAvro(Object avroGenericDataDotRecord, String eventTypeName);
-
-    /**
-     * Construct an event bean for a given Avro GenericData.Record and given the Avro-event-type
-     *
-     * @param avroGenericDataDotRecord event underlying
-     * @param eventType                event type (Avro only)
-     * @return event bean
-     */
-    EventBean adapterForTypedAvro(Object avroGenericDataDotRecord, EventType eventType);
-
-    /**
-     * Construct an event bean for a given Map and given the Map-event-type
-     *
-     * @param properties event underlying
-     * @param eventType  event type (Map only)
-     * @return event bean
-     */
-    EventBean adapterForTypedMap(Map<String, Object> properties, EventType eventType);
 
     /**
      * Construct an event bean for a given Object-Array using the event type name to look up the Object-Array event type
@@ -92,15 +66,6 @@ public interface EventBeanService {
     EventBean adapterForObjectArray(Object[] theEvent, String eventTypeName);
 
     /**
-     * Construct an event bean for a given Object-Array and given the Object-Array-event-type
-     *
-     * @param props     event underlying
-     * @param eventType event type (Object-array only)
-     * @return event bean
-     */
-    EventBean adapterForTypedObjectArray(Object[] props, EventType eventType);
-
-    /**
      * Construct an event bean for a given XML-DOM using the node root node name to look up the XML-DOM event type
      *
      * @param node          event underlying
@@ -108,13 +73,4 @@ public interface EventBeanService {
      * @return event bean
      */
     EventBean adapterForDOM(Node node, String eventTypeName);
-
-    /**
-     * Construct an event bean for a given Node and given the XML-event-type
-     *
-     * @param node      event underlying
-     * @param eventType event type (XML only)
-     * @return event bean
-     */
-    EventBean adapterForTypedDOM(Node node, EventType eventType);
 }

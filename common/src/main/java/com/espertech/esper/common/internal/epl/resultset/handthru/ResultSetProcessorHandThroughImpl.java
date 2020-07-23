@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.TransformEventIterator;
 import com.espertech.esper.common.internal.collection.UniformPair;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputHelperVisitor;
 import com.espertech.esper.common.internal.view.core.Viewable;
@@ -28,11 +28,11 @@ import java.util.Set;
 
 public class ResultSetProcessorHandThroughImpl implements ResultSetProcessor {
     final ResultSetProcessorHandThroughFactory factory;
-    AgentInstanceContext agentInstanceContext;
+    ExprEvaluatorContext exprEvaluatorContext;
 
-    public ResultSetProcessorHandThroughImpl(ResultSetProcessorHandThroughFactory factory, AgentInstanceContext agentInstanceContext) {
+    public ResultSetProcessorHandThroughImpl(ResultSetProcessorHandThroughFactory factory, ExprEvaluatorContext exprEvaluatorContext) {
         this.factory = factory;
-        this.agentInstanceContext = agentInstanceContext;
+        this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
     public EventType getResultEventType() {
@@ -42,18 +42,18 @@ public class ResultSetProcessorHandThroughImpl implements ResultSetProcessor {
     public UniformPair<EventBean[]> processViewResult(EventBean[] newData, EventBean[] oldData, boolean isSynthesize) {
         EventBean[] selectOldEvents = null;
         if (factory.isRstream()) {
-            selectOldEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruView(factory.getSelectExprProcessor(), oldData, false, isSynthesize, agentInstanceContext);
+            selectOldEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruView(factory.getSelectExprProcessor(), oldData, false, isSynthesize, exprEvaluatorContext);
         }
-        EventBean[] selectNewEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruView(factory.getSelectExprProcessor(), newData, true, isSynthesize, agentInstanceContext);
+        EventBean[] selectNewEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruView(factory.getSelectExprProcessor(), newData, true, isSynthesize, exprEvaluatorContext);
         return new UniformPair<>(selectNewEvents, selectOldEvents);
     }
 
     public UniformPair<EventBean[]> processJoinResult(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents, boolean isSynthesize) {
         EventBean[] selectOldEvents = null;
         if (factory.isRstream()) {
-            selectOldEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruJoin(factory.getSelectExprProcessor(), oldEvents, false, isSynthesize, agentInstanceContext);
+            selectOldEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruJoin(factory.getSelectExprProcessor(), oldEvents, false, isSynthesize, exprEvaluatorContext);
         }
-        EventBean[] selectNewEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruJoin(factory.getSelectExprProcessor(), newEvents, true, isSynthesize, agentInstanceContext);
+        EventBean[] selectNewEvents = ResultSetProcessorHandThroughUtil.getSelectEventsNoHavingHandThruJoin(factory.getSelectExprProcessor(), newEvents, true, isSynthesize, exprEvaluatorContext);
         return new UniformPair<>(selectNewEvents, selectOldEvents);
     }
 
@@ -80,8 +80,8 @@ public class ResultSetProcessorHandThroughImpl implements ResultSetProcessor {
         throw new UnsupportedOperationException();
     }
 
-    public void setAgentInstanceContext(AgentInstanceContext context) {
-        agentInstanceContext = context;
+    public void setExprEvaluatorContext(ExprEvaluatorContext context) {
+        exprEvaluatorContext = context;
     }
 
     public void applyViewResult(EventBean[] newData, EventBean[] oldData) {

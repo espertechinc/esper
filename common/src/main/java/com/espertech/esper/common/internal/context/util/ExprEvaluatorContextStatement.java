@@ -15,14 +15,19 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.script.core.AgentInstanceScriptContext;
 import com.espertech.esper.common.internal.epl.table.core.TableExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.variable.core.VariableManagementService;
+import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.metrics.audit.AuditProvider;
 import com.espertech.esper.common.internal.metrics.audit.AuditProviderDefault;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommonDefault;
 import com.espertech.esper.common.internal.schedule.TimeProvider;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
+
+import java.util.TimeZone;
 
 public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
     protected final StatementContext statementContext;
@@ -110,4 +115,31 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
         return statementContext.getExceptionHandlingService();
     }
 
+    public String getContextName() {
+        return statementContext.getContextName();
+    }
+
+    public String getEPLWhenAvailable() {
+        return statementContext.getEPLWhenAvailable();
+    }
+
+    public TimeZone getTimeZone() {
+        return statementContext.getTimeZone();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return statementContext.getTimeAbacus();
+    }
+
+    public VariableManagementService getVariableManagementService() {
+        return statementContext.getVariableManagementService();
+    }
+
+    public EventBeanTypedEventFactory getEventBeanTypedEventFactory() {
+        return statementContext.getEventBeanTypedEventFactory();
+    }
+
+    public String getModuleName() {
+        return statementContext.getModuleName();
+    }
 }

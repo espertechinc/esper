@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.grouped;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolled;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolledFactory;
 
@@ -24,10 +24,10 @@ public class ResultSetProcessorGroupedOutputFirstHelperImpl implements ResultSet
         outputState.remove(key);
     }
 
-    public OutputConditionPolled getOrAllocate(Object mk, AgentInstanceContext agentInstanceContext, OutputConditionPolledFactory factory) {
+    public OutputConditionPolled getOrAllocate(Object mk, ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledFactory factory) {
         OutputConditionPolled outputStateGroup = outputState.get(mk);
         if (outputStateGroup == null) {
-            outputStateGroup = factory.makeNew(agentInstanceContext);
+            outputStateGroup = factory.makeNew(exprEvaluatorContext);
             outputState.put(mk, outputStateGroup);
         }
         return outputStateGroup;

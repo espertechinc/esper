@@ -19,6 +19,8 @@ public class OutputProcessViewCodegenNames {
     public final static String NAME_STATEMENTRESULTSVC = "statementResultService";
     public final static String NAME_PARENTVIEW = "parentView";
     public final static String NAME_JOINEXECSTRATEGY = "joinExecutionStrategy";
+    public final static String NAME_AGENTINSTANCECONTEXT = "agentInstanceContext";
     public final static CodegenExpressionMember MEMBER_CHILD = member("child");
     public final static CodegenExpressionMember MEMBER_RESULTSETPROCESSOR = member(NAME_RESULTSETPROCESSOR);
+    public final static CodegenExpressionMember MEMBER_AGENTINSTANCECONTEXT = member(NAME_AGENTINSTANCECONTEXT);
 }

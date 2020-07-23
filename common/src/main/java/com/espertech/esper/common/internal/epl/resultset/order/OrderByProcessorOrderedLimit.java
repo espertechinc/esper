@@ -20,7 +20,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorOrderedLimitForge.REF_ROWLIMITPROCESSOR;
@@ -49,7 +49,7 @@ public class OrderByProcessorOrderedLimit {
     public static void sortRollupCodegen(OrderByProcessorOrderedLimitForge forge, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         CodegenMethod sortRollup = method.makeChild(EventBean.EPTYPEARRAY, OrderByProcessorOrderedLimit.class, classScope).addParam(SORTROLLUP_PARAMS);
         OrderByProcessorImpl.sortRollupCodegen(forge.getOrderByProcessorForge(), sortRollup, classScope, namedMethods);
-        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "sorted", localMethod(sortRollup, REF_OUTGOINGEVENTS, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, MEMBER_AGENTINSTANCECONTEXT, MEMBER_AGGREGATIONSVC))
+        method.getBlock().declareVar(EventBean.EPTYPEARRAY, "sorted", localMethod(sortRollup, REF_OUTGOINGEVENTS, REF_ORDERCURRENTGENERATORS, REF_ISNEWDATA, MEMBER_EXPREVALCONTEXT, MEMBER_AGGREGATIONSVC))
                 .methodReturn(exprDotMethod(REF_ROWLIMITPROCESSOR, "determineLimitAndApply", ref("sorted")));
     }
 

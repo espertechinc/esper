@@ -32,6 +32,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
+import com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 
 import java.util.ArrayList;
@@ -44,14 +45,13 @@ import java.util.function.Consumer;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.NAME_GROUPID;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 public class AggregationServiceFactoryCompiler {
 
     private final static List<CodegenNamedParam> UPDPARAMS = CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
     private final static List<CodegenNamedParam> GETPARAMS = CodegenNamedParam.from(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_COLUMN, EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
-    private final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT, ClasspathImportServiceRuntime.EPTYPE, AggregationServiceCodegenNames.NAME_ENGINEIMPORTSVC, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_ISSUBQUERY, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), NAME_GROUPID);
+    private final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT, ClasspathImportServiceRuntime.EPTYPE, AggregationServiceCodegenNames.NAME_ENGINEIMPORTSVC, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_ISSUBQUERY, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), NAME_GROUPID);
 
     public static AggregationServiceFactoryMakeResult makeInnerClassesAndInit(boolean join, AggregationServiceFactoryForge forge, CodegenMethodScope parent, CodegenClassScope classScope, String providerClassName, AggregationClassNames classNames) {
 

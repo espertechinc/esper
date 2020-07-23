@@ -10,14 +10,14 @@
  */
 package com.espertech.esper.common.internal.epl.output.polled;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public final class OutputConditionPolledTime implements OutputConditionPolled {
     private final OutputConditionPolledTimeFactory factory;
-    private final AgentInstanceContext context;
+    private final ExprEvaluatorContext context;
     private final OutputConditionPolledTimeState state;
 
-    public OutputConditionPolledTime(OutputConditionPolledTimeFactory factory, AgentInstanceContext context, OutputConditionPolledTimeState state) {
+    public OutputConditionPolledTime(OutputConditionPolledTimeFactory factory, ExprEvaluatorContext context, OutputConditionPolledTimeState state) {
         this.factory = factory;
         this.context = context;
         this.state = state;

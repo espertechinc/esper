@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggSvcGroupByReclaimAgedEvalFunc;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public class AggSvcGroupByReclaimAgedEvalFuncFactoryConst implements AggSvcGroupByReclaimAgedEvalFuncFactory, AggSvcGroupByReclaimAgedEvalFunc {
     public final static EPTypeClass EPTYPE = new EPTypeClass(AggSvcGroupByReclaimAgedEvalFuncFactoryConst.class);
@@ -23,7 +23,7 @@ public class AggSvcGroupByReclaimAgedEvalFuncFactoryConst implements AggSvcGroup
         this.valueDouble = valueDouble;
     }
 
-    public AggSvcGroupByReclaimAgedEvalFunc make(AgentInstanceContext agentInstanceContext) {
+    public AggSvcGroupByReclaimAgedEvalFunc make(ExprEvaluatorContext exprEvaluatorContext) {
         return this;
     }
 

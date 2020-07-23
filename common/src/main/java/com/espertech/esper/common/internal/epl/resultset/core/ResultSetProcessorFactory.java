@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.resultset.core;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessor;
 
 /**
@@ -21,5 +21,5 @@ import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessor;
  */
 public interface ResultSetProcessorFactory {
     EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorFactory.class);
-    ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext);
+    ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext);
 }

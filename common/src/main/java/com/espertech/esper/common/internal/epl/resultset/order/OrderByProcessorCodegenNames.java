@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
@@ -23,8 +22,8 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGENTINSTANCECONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 
 public class OrderByProcessorCodegenNames {
     final static String CLASSNAME_ORDERBYPROCESSORFACTORY = "OrderProcFactory";
@@ -60,7 +59,7 @@ public class OrderByProcessorCodegenNames {
         EventBean.EPTYPEARRAY, REF_OUTGOINGEVENTS.getRef(),
         EPTypePremade.LIST.getEPType(), REF_ORDERCURRENTGENERATORS.getRef(),
         EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(),
-        AgentInstanceContext.EPTYPE, MEMBER_AGENTINSTANCECONTEXT.getRef(),
+        ExprEvaluatorContext.EPTYPE, MEMBER_EXPREVALCONTEXT.getRef(),
         AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef());
 
     final static List<CodegenNamedParam> SORTTWOKEYS_PARAMS = CodegenNamedParam.from(

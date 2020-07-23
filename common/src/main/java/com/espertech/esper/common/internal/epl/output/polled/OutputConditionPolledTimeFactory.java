@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 
 public final class OutputConditionPolledTimeFactory implements OutputConditionPolledFactory {
@@ -23,12 +23,12 @@ public final class OutputConditionPolledTimeFactory implements OutputConditionPo
         this.timePeriodCompute = timePeriodCompute;
     }
 
-    public OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext) {
-        return new OutputConditionPolledTime(this, agentInstanceContext, new OutputConditionPolledTimeState(null));
+    public OutputConditionPolled makeNew(ExprEvaluatorContext exprEvaluatorContext) {
+        return new OutputConditionPolledTime(this, exprEvaluatorContext, new OutputConditionPolledTimeState(null));
     }
 
-    public OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state) {
+    public OutputConditionPolled makeFromState(ExprEvaluatorContext exprEvaluatorContext, OutputConditionPolledState state) {
         OutputConditionPolledTimeState timeState = (OutputConditionPolledTimeState) state;
-        return new OutputConditionPolledTime(this, agentInstanceContext, timeState);
+        return new OutputConditionPolledTime(this, exprEvaluatorContext, timeState);
     }
 }

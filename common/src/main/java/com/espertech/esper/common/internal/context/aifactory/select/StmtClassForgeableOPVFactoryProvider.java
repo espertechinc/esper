@@ -38,13 +38,15 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFact
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
-import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.NAME_RESULTSETPROCESSOR;
-import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.MEMBER_RESULTSETPROCESSOR;
-import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_NEWDATA;
+import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.NAME_OLDDATA;
 
 public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable {
     private final static String MEMBERNAME_OPVFACTORY = "opvFactory";
@@ -90,7 +92,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
             if (spec.isCodeGenerated()) {
                 // make factory and view both, assign to member
                 providerExplicitMembers.add(new CodegenTypedParam(StatementResultService.EPTYPE, MEMBERNAME_STATEMENTRESULTSVC));
-                makeOPVFactory(classScope, innerClasses, providerExplicitMembers, providerCtor, className);
+                makeOPVFactory(classScope, innerClasses, providerCtor, className);
                 makeOPV(classScope, innerClasses, Collections.emptyList(), providerCtor, className, spec, numStreams);
             } else {
                 // build factory from existing classes
@@ -123,7 +125,7 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
         return StmtClassForgeableType.OPVPROVIDER;
     }
 
-    private static void makeOPVFactory(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, List<CodegenTypedParam> providerExplicitMembers, CodegenCtor providerCtor, String providerClassName) {
+    private static void makeOPVFactory(CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, CodegenCtor providerCtor, String providerClassName) {
         CodegenMethod makeViewMethod = CodegenMethod.makeParentNode(OutputProcessView.EPTYPE, StmtClassForgeableOPVFactoryProvider.class, CodegenSymbolProviderEmpty.INSTANCE, classScope)
                 .addParam(ResultSetProcessor.EPTYPE, NAME_RESULTSETPROCESSOR)
                 .addParam(AgentInstanceContext.EPTYPE, NAME_AGENTINSTANCECONTEXT);

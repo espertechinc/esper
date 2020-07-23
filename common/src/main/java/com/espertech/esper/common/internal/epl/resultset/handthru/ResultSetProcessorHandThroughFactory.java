@@ -12,8 +12,8 @@ package com.espertech.esper.common.internal.epl.resultset.handthru;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactory;
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessor;
@@ -32,8 +32,8 @@ public class ResultSetProcessorHandThroughFactory implements ResultSetProcessorF
         this.rstream = rstream;
     }
 
-    public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, AgentInstanceContext agentInstanceContext) {
-        return new ResultSetProcessorHandThroughImpl(this, agentInstanceContext);
+    public ResultSetProcessor instantiate(OrderByProcessor orderByProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
+        return new ResultSetProcessorHandThroughImpl(this, exprEvaluatorContext);
     }
 
     public EventType getResultEventType() {

@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.module.RuntimeExtensionServic
 import com.espertech.esper.common.internal.epl.dataflow.filtersvcadapter.DataFlowFilterServiceAdapter;
 import com.espertech.esper.common.internal.epl.enummethod.cache.ExpressionResultCacheService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigServiceRuntime;
 import com.espertech.esper.common.internal.epl.historical.datacache.HistoricalDataCacheFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableIndexService;
@@ -54,6 +55,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.TimeZone;
 
 public class AgentInstanceContext implements ExprEvaluatorContext {
     public final static EPTypeClass EPTYPE = new EPTypeClass(AgentInstanceContext.class);
@@ -345,4 +347,19 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
         return statementContext.getModuleName();
     }
 
+    public String getContextName() {
+        return statementContext.getContextName();
+    }
+
+    public String getEPLWhenAvailable() {
+        return statementContext.getEPLWhenAvailable();
+    }
+
+    public TimeZone getTimeZone() {
+        return statementContext.getTimeZone();
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return statementContext.getTimeAbacus();
+    }
 }

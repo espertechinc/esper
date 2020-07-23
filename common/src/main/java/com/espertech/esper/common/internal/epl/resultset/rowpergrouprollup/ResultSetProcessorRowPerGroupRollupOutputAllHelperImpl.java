@@ -61,7 +61,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                         }
                     }
                 }
-                processor.getAggregationService().applyEnter(eventsPerStream, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(eventsPerStream, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
         if (oldData != null) {
@@ -77,7 +77,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                         }
                     }
                 }
-                processor.getAggregationService().applyLeave(eventsPerStream, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(eventsPerStream, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
     }
@@ -100,7 +100,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                         }
                     }
                 }
-                processor.getAggregationService().applyEnter(aNewData, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyEnter(aNewData, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
         if (oldEvents != null) {
@@ -116,7 +116,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
                         }
                     }
                 }
-                processor.getAggregationService().applyLeave(aOldData, groupKeysPerLevel, processor.getAgentInstanceContext());
+                processor.getAggregationService().applyLeave(aOldData, groupKeysPerLevel, processor.getExprEvaluatorContext());
             }
         }
     }

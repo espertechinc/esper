@@ -35,7 +35,7 @@ public interface ResultSetProcessorAggregateGrouped extends ResultSetProcessor, 
 
     AggregationService getAggregationService();
 
-    ExprEvaluatorContext getAgentInstanceContext();
+    ExprEvaluatorContext getExprEvaluatorContext();
 
     boolean isSelectRStream();
 

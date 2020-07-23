@@ -69,16 +69,24 @@ public class EventBeanServiceImpl implements EventBeanService {
         return typedEventFactory.adapterForTypedAvro(avroGenericDataDotRecord, eventType);
     }
 
-    public EventBean adapterForTypedMap(Map<String, Object> properties, EventType eventType) {
+    public MappedEventBean adapterForTypedMap(Map<String, Object> properties, EventType eventType) {
         return typedEventFactory.adapterForTypedMap(properties, eventType);
     }
 
-    public EventBean adapterForTypedObjectArray(Object[] props, EventType eventType) {
+    public ObjectArrayBackedEventBean adapterForTypedObjectArray(Object[] props, EventType eventType) {
         return typedEventFactory.adapterForTypedObjectArray(props, eventType);
     }
 
     public EventBean adapterForTypedDOM(Node node, EventType eventType) {
         return typedEventFactory.adapterForTypedDOM(node, eventType);
+    }
+
+    public EventBean adapterForTypedWrapper(EventBean decoratedUnderlying, Map<String, Object> map, EventType wrapperEventType) {
+        return typedEventFactory.adapterForTypedWrapper(decoratedUnderlying, map, wrapperEventType);
+    }
+
+    public EventBean adapterForTypedJson(Object underlying, EventType eventType) {
+        return typedEventFactory.adapterForTypedJson(underlying, eventType);
     }
 
     private EventType findType(String eventTypeName) {
