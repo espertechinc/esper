@@ -76,9 +76,9 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
                 .exprDotMethod(select, "setJoinSetComposerPrototype", desc.getJoins() == null ? constantNull() : desc.getJoins().make(method, symbols, classScope))
                 .exprDotMethod(select, "setConsumerFilters", ExprNodeUtilityCodegen.codegenEvaluators(desc.getConsumerFilters(), method, this.getClass(), classScope))
                 .exprDotMethod(select, "setContextName", constant(desc.getContextName()))
+                .exprDotMethod(select, "setContextModuleName", constant(desc.getContextModuleName()))
                 .exprDotMethod(select, "setTableAccesses", ExprTableEvalStrategyUtil.codegenInitMap(desc.getTableAccessForges(), this.getClass(), method, symbols, classScope))
                 .exprDotMethod(select, "setHasTableAccess", constant(desc.isHasTableAccess()))
-                .exprDotMethod(select, "setDistinct", constant(desc.isDistinct()))
                 .exprDotMethod(select, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(desc.isDistinct(), desc.getResultSetProcessor().getResultEventType(), desc.getDistinctMultiKey(), method, classScope))
                 .exprDotMethod(select, "setSubselects", SubSelectFactoryForge.codegenInitMap(desc.getSubselectForges(), this.getClass(), method, symbols, classScope))
                 .methodReturn(select);

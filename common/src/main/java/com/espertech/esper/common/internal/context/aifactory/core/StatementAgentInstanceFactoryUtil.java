@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.context.aifactory.core;
 
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;

@@ -104,6 +104,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
 
             // start table-access
             tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContext);
+
         } catch (RuntimeException ex) {
             AgentInstanceMgmtCallback stopCallback = AgentInstanceUtil.finalizeSafeStopCallbacks(stopCallbacks);
             AgentInstanceUtil.stopSafe(stopCallback, agentInstanceContext);

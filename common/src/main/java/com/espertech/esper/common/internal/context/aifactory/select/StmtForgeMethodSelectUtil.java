@@ -96,12 +96,9 @@ public class StmtForgeMethodSelectUtil {
 
         String[] streamNames = determineStreamNames(statementSpec.getStreamSpecs());
         int numStreams = streamNames.length;
-        if (numStreams == 0) {
-            throw new ExprValidationException("The from-clause is required but has not been specified");
-        }
 
         // first we create streams for subselects, if there are any
-        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 

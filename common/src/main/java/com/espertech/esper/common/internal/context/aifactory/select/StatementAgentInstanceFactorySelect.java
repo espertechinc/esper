@@ -185,7 +185,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         }
 
         // determine match-recognize "previous"-node strategy (none if not present, or one handling and number of nodes)
-        RowRecogNFAViewService matchRecognize = RowRecogHelper.recursiveFindRegexService(topViews[0]);
+        RowRecogNFAViewService matchRecognize = topViews.length == 0 ? null : RowRecogHelper.recursiveFindRegexService(topViews[0]);
         if (matchRecognize != null) {
             rowRecogPreviousStrategy = matchRecognize.getPreviousEvaluationStrategy();
             stopCallbacks.add(matchRecognize);
@@ -205,7 +205,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         JoinSetComposer joinSetComposer;
         JoinPreloadMethod joinPreloadMethod;
         OutputProcessView outputProcessView;
-        if (streamViews.length == 1) {
+        if (streamViews.length <= 1) {
             outputProcessView = handleSimpleSelect(streamViews, processorPair.getFirst(), evalRootMatchRemover, suppressSameEventMatches, discardPartialsOnMatch, agentInstanceContext);
             joinSetComposer = null;
             joinPreloadMethod = null;
@@ -240,15 +240,24 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
             topViews = eventStreamParentViewable;
         }
 
+        // handle optional from-clause
+        Runnable postContextMergeRunnable = null;
+        if (streamViews.length == 0) {
+            outputProcessView.setParent(ViewNullEvent.INSTANCE);
+            postContextMergeRunnable = () -> outputProcessView.update(new EventBean[] {null}, CollectionUtil.EVENTBEANARRAY_EMPTY);
+        }
+
         // finally process startup events: handle any pattern-match-event that was produced during startup, relevant for "timer:interval(0)" in conjunction with contexts
-        Runnable postContextMergeRunnable = () -> {
-            for (int stream = 0; stream < numStreams; stream++) {
-                ViewableActivationResult activationResult = activationResults[stream];
-                if (activationResult.getOptPostContextMergeRunnable() != null) {
-                    activationResult.getOptPostContextMergeRunnable().run();
+        if (postContextMergeRunnable == null) {
+            postContextMergeRunnable = () -> {
+                for (int stream = 0; stream < numStreams; stream++) {
+                    ViewableActivationResult activationResult = activationResults[stream];
+                    if (activationResult.getOptPostContextMergeRunnable() != null) {
+                        activationResult.getOptPostContextMergeRunnable().run();
+                    }
                 }
-            }
-        };
+            };
+        }
 
         return new StatementAgentInstanceFactorySelectResult(outputProcessView, stopCallback, agentInstanceContext, processorPair.getSecond(),
                 subselectActivations, priorEvalStrategies, previousGetterStrategies, rowRecogPreviousStrategy, tableAccessEvals, preloadList, postContextMergeRunnable, patternRoots,
@@ -290,10 +299,12 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
         AIRegistryRequirementSubquery[] subqueries = AIRegistryRequirements.getSubqueryRequirements(subselects);
 
         boolean hasRowRecogWithPrevious = false;
-        for (ViewFactory viewFactory : viewFactories[0]) {
-            if (viewFactory instanceof RowRecogNFAViewFactory) {
-                RowRecogNFAViewFactory recog = (RowRecogNFAViewFactory) viewFactory;
-                hasRowRecogWithPrevious = recog.getDesc().getPreviousRandomAccessIndexes() != null;
+        if (viewFactories.length > 0) {
+            for (ViewFactory viewFactory : viewFactories[0]) {
+                if (viewFactory instanceof RowRecogNFAViewFactory) {
+                    RowRecogNFAViewFactory recog = (RowRecogNFAViewFactory) viewFactory;
+                    hasRowRecogWithPrevious = recog.getDesc().getPreviousRandomAccessIndexes() != null;
+                }
             }
         }
 
@@ -301,6 +312,10 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
     }
 
     private OutputProcessView handleSimpleSelect(Viewable[] streamViews, ResultSetProcessor resultSetProcessor, EvalRootMatchRemover evalRootMatchRemover, boolean suppressSameEventMatches, boolean discardPartialsOnMatch, AgentInstanceContext agentInstanceContext) {
+        if (streamViews.length == 0) {
+            return outputProcessViewFactoryProvider.getOutputProcessViewFactory().makeView(resultSetProcessor, agentInstanceContext);
+        }
+
         Deque<EPStatementDispatch> dispatches = null;
         Viewable finalView = streamViews[0];
 

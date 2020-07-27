@@ -12,7 +12,10 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
+import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 
 public interface FAFQueryMethodSelectExec {
     EPPreparedQueryResult execute(FAFQueryMethodSelect select, ContextPartitionSelector[] contextPartitionSelectors, FAFQueryMethodAssignerSetter assignerSetter, ContextManagementService contextManagementService);
+
+    void releaseTableLocks(FireAndForgetProcessor[] processors);
 }

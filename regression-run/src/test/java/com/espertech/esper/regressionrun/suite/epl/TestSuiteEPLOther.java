@@ -149,17 +149,21 @@ public class TestSuiteEPLOther extends TestCase {
         RegressionRunner.run(session, EPLOtherNestedClass.executions());
     }
 
+    public void testEPLOtherFromClauseOptional() {
+        RegressionRunner.run(session, EPLOtherFromClauseOptional.executions());
+    }
+
     private static void configure(Configuration configuration) {
         configuration.getCommon().addEventType("ObjectEvent", Object.class);
 
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,
-            SupportBean_S2.class, SupportBeanSourceEvent.class, OrderBean.class,
-            SupportBeanReadOnly.class, SupportBeanErrorTestingOne.class, OrderBean.class,
-            SupportCollection.class, SupportBean_A.class, SupportBean_B.class, SupportBean_N.class,
-            SupportChainTop.class, SupportTemperatureBean.class, SupportBeanKeywords.class,
-            SupportBeanSimple.class, SupportBeanStaticOuter.class, SupportMarketDataBean.class,
-            SupportBeanComplexProps.class, SupportBeanCombinedProps.class, SupportEventWithIntArray.class,
-            SupportEventWithManyArray.class}) {
+                SupportBean_S2.class, SupportBeanSourceEvent.class, OrderBean.class,
+                SupportBeanReadOnly.class, SupportBeanErrorTestingOne.class, OrderBean.class,
+                SupportCollection.class, SupportBean_A.class, SupportBean_B.class, SupportBean_N.class,
+                SupportChainTop.class, SupportTemperatureBean.class, SupportBeanKeywords.class,
+                SupportBeanSimple.class, SupportBeanStaticOuter.class, SupportMarketDataBean.class,
+                SupportBeanComplexProps.class, SupportBeanCombinedProps.class, SupportEventWithIntArray.class,
+                SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
 

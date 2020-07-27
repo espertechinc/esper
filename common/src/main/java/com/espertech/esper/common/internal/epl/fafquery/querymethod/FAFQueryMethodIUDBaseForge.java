@@ -107,7 +107,7 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         // activate subselect activations
         StatementBaseInfo base = new StatementBaseInfo(compilable, spec, null, statementRawInfo, null);
         List<NamedWindowConsumerStreamSpec> subqueryNamedWindowConsumers = new ArrayList<>();
-        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 

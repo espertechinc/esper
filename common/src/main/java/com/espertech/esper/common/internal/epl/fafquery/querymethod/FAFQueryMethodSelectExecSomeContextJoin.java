@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
 import com.espertech.esper.common.client.context.ContextPartitionSelector;
 import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
+import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 
 public class FAFQueryMethodSelectExecSomeContextJoin implements FAFQueryMethodSelectExec {
     public static final FAFQueryMethodSelectExec INSTANCE = new FAFQueryMethodSelectExecSomeContextJoin();
@@ -20,6 +21,14 @@ public class FAFQueryMethodSelectExecSomeContextJoin implements FAFQueryMethodSe
     }
 
     public EPPreparedQueryResult execute(FAFQueryMethodSelect select, ContextPartitionSelector[] contextPartitionSelectors, FAFQueryMethodAssignerSetter assignerSetter, ContextManagementService contextManagementService) {
-        throw new UnsupportedOperationException("Context with join is not supported");
+        throw notImplemented();
+    }
+
+    public void releaseTableLocks(FireAndForgetProcessor[] processors) {
+        throw notImplemented();
+    }
+
+    private UnsupportedOperationException notImplemented() {
+        return new UnsupportedOperationException("Context with join is not supported");
     }
 }

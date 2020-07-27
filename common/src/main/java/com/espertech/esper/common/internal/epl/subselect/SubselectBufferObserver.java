@@ -11,8 +11,6 @@
 package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
-import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.event.core.FlushedEventBuffer;

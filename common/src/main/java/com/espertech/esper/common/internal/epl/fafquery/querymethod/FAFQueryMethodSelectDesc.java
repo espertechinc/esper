@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.select.StreamJoinAnalysisResultCompileTime;
+import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -70,6 +71,7 @@ public class FAFQueryMethodSelectDesc {
     private final JoinSetComposerPrototypeForge joins;
     private final Annotation[] annotations;
     private final String contextName;
+    private final String contextModuleName;
     private boolean hasTableAccess;
     private final boolean isDistinct;
     private final MultiKeyClassRef distinctMultiKey;
@@ -84,6 +86,16 @@ public class FAFQueryMethodSelectDesc {
             throws ExprValidationException {
         this.annotations = statementSpec.getAnnotations();
         this.contextName = statementSpec.getRaw().getOptionalContextName();
+
+        if (this.contextName != null) {
+            ContextMetaData contextMetaData = services.getContextCompileTimeResolver().getContextInfo(contextName);
+            if (contextMetaData == null) {
+                throw new ExprValidationException("Failed to find context '" + contextName + "'");
+            }
+            this.contextModuleName = contextMetaData.getContextModuleName();
+        } else {
+            this.contextModuleName = null;
+        }
 
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
         if (queryPlanLogging) {
@@ -162,7 +174,7 @@ public class FAFQueryMethodSelectDesc {
         // first we create streams for subselects, if there are any
         StatementBaseInfo base = new StatementBaseInfo(compilable, statementSpec, null, statementRawInfo, null);
         List<NamedWindowConsumerStreamSpec> subqueryNamedWindowConsumers = new ArrayList<>();
-        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(true, Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 
@@ -201,6 +213,11 @@ public class FAFQueryMethodSelectDesc {
             joins = desc.getForge();
         } else {
             joins = null;
+        }
+
+        // no-from-clause with context does not currently allow order-by
+        if (processors.length == 0 && contextName != null && resultSetProcessor.getOrderByProcessorFactoryForge() != null) {
+            throw new ExprValidationException("Fire-and-forget queries without a from-clause and with context do not allow order-by");
         }
 
         MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultSetProcessor.getResultEventType(), statementRawInfo, SerdeCompileTimeResolverNonHA.INSTANCE);
@@ -262,5 +279,9 @@ public class FAFQueryMethodSelectDesc {
 
     public Map<ExprSubselectNode, SubSelectFactoryForge> getSubselectForges() {
         return subselectForges;
+    }
+
+    public String getContextModuleName() {
+        return contextModuleName;
     }
 }

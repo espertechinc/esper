@@ -153,6 +153,10 @@ public class FromClause implements Serializable {
      * @param formatter   for newline-whitespace formatting
      */
     public void toEPLOptions(StringWriter writer, EPStatementFormatter formatter, boolean includeFrom) {
+        if (streams.isEmpty()) {
+            return;
+        }
+
         String delimiter = "";
         if (includeFrom) {
             formatter.beginFrom(writer);

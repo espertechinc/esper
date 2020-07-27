@@ -82,7 +82,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         // create subselect information
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
-        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
 

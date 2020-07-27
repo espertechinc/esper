@@ -251,7 +251,7 @@ public class OutputProcessViewConditionDefault extends OutputProcessViewBaseWAft
     private OutputCallback getCallbackToLocal(int streamCount) {
         // single stream means no join
         // multiple streams means a join
-        if (streamCount == 1) {
+        if (streamCount <= 1) {
             return new OutputCallback() {
                 public void continueOutputProcessing(boolean doOutput, boolean forceUpdate) {
                     OutputProcessViewConditionDefault.this.continueOutputProcessingView(doOutput, forceUpdate);

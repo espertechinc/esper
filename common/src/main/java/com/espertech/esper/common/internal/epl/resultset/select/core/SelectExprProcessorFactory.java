@@ -135,6 +135,9 @@ public class SelectExprProcessorFactory {
 
         // Determine wildcard processor (select *)
         if (isWildcardsOnly(args.getSelectionList())) {
+            if (args.getTypeService().getEventTypes().length == 0) {
+                throw new ExprValidationException("Wildcard cannot be used when the from-clause is not provided");
+            }
             // For joins
             if (args.getTypeService().getStreamNames().length > 1 && (!(insertIntoTarget instanceof VariantEventType))) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");

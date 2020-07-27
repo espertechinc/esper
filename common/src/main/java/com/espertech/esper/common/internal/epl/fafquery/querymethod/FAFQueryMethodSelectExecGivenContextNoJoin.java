@@ -69,6 +69,10 @@ public class FAFQueryMethodSelectExecGivenContextNoJoin implements FAFQueryMetho
         return new EPPreparedQueryResult(select.getEventType(), distinct);
     }
 
+    public void releaseTableLocks(FireAndForgetProcessor[] processors) {
+        FAFQueryMethodSelectExecUtil.releaseTableLocks(processors);
+    }
+
     private static class ContextPartitionResult {
         private final Collection<EventBean> events;
         private final AgentInstanceContext context;

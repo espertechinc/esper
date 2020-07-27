@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.output.polled;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface OutputConditionPolledFactory {

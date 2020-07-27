@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.namedwindow.core;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;

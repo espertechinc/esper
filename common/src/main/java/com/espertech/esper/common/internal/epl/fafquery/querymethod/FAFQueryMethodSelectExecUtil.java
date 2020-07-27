@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetInstance;
+import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
@@ -53,7 +54,7 @@ public class FAFQueryMethodSelectExecUtil {
 
     static ResultSetProcessor processorWithAssign(ResultSetProcessorFactoryProvider processorProvider, ExprEvaluatorContext exprEvaluatorContext, AgentInstanceContext agentInstanceContextOpt, FAFQueryMethodAssignerSetter assignerSetter, Map<Integer, ExprTableEvalStrategyFactory> tableAccesses, Map<Integer, SubSelectFactory> subselects) {
         // start table-access
-        Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, agentInstanceContextOpt);
+        Map<Integer, ExprTableEvalStrategy> tableAccessEvals = ExprTableEvalHelperStart.startTableAccess(tableAccesses, exprEvaluatorContext);
 
         // get RSP
         Pair<ResultSetProcessor, AggregationService> pair = StatementAgentInstanceFactoryUtil.startResultSetAndAggregation(processorProvider, exprEvaluatorContext, false, null);
@@ -76,6 +77,10 @@ public class FAFQueryMethodSelectExecUtil {
 
     static EPPreparedQueryResult processedNonJoin(ResultSetProcessor resultSetProcessor, Collection<EventBean> events, EventPropertyValueGetter distinctKeyGetter) {
         EventBean[] rows = events.toArray(new EventBean[events.size()]);
+        return processedNonJoin(resultSetProcessor, rows, distinctKeyGetter);
+    }
+
+    static EPPreparedQueryResult processedNonJoin(ResultSetProcessor resultSetProcessor, EventBean[] rows, EventPropertyValueGetter distinctKeyGetter) {
         UniformPair<EventBean[]> results = resultSetProcessor.processViewResult(rows, null, true);
 
         EventBean[] distinct;
@@ -86,5 +91,11 @@ public class FAFQueryMethodSelectExecUtil {
         }
 
         return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), distinct);
+    }
+
+    static void releaseTableLocks(FireAndForgetProcessor[] processors) {
+        for (FireAndForgetProcessor processor : processors) {
+            processor.getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
+        }
     }
 }

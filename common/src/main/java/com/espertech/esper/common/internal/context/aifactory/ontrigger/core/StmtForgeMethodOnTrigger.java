@@ -70,7 +70,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
 
         // create subselect information
-        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(filterSpecCompileds, namedWindowConsumers, base, services);
+        SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 

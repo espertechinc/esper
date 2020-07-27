@@ -72,8 +72,6 @@ public class EPLOtherInvalid {
 
     private static class EPLOtherDifferentJoins implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select *", "The from-clause is required but has not been specified");
-
             String streamDef = "select * from " +
                 "SupportBean#length(3) as sa," +
                 "SupportBean#length(3) as sb" +

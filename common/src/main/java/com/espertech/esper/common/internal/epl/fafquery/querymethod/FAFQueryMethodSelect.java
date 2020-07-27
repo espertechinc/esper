@@ -35,9 +35,10 @@ import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQu
  */
 public class FAFQueryMethodSelect implements FAFQueryMethod {
     public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodSelect.class);
-    
+
     private Annotation[] annotations;
     private String contextName;
+    private String contextModuleName;
     private ExprEvaluator whereClause;
     private ExprEvaluator[] consumerFilters;
     private ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider;
@@ -46,7 +47,6 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
     private QueryGraph queryGraph;
     private Map<Integer, ExprTableEvalStrategyFactory> tableAccesses;
     private boolean hasTableAccess;
-    private boolean isDistinct;
     private EventPropertyValueGetter distinctKeyGetter;
     private Map<Integer, SubSelectFactory> subselects;
 
@@ -92,10 +92,6 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         this.hasTableAccess = hasTableAccess;
     }
 
-    public void setDistinct(boolean distinct) {
-        isDistinct = distinct;
-    }
-
     public void setDistinctKeyGetter(EventPropertyValueGetter distinctKeyGetter) {
         this.distinctKeyGetter = distinctKeyGetter;
     }
@@ -116,7 +112,9 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         }
 
         if (contextName == null) {
-            if (processors.length == 1) {
+            if (processors.length == 0) {
+                selectExec = new FAFQueryMethodSelectExecNoContextNoFromClause(svc);
+            } else if (processors.length == 1) {
                 if (!hasContext) {
                     selectExec = FAFQueryMethodSelectExecNoContextNoJoin.INSTANCE;
                 } else {
@@ -130,13 +128,17 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
                 }
             }
         } else {
-            if (processors.length != 1) {
-                throw new UnsupportedOperationException("Context name is not supported in a join");
+            if (processors.length == 0) {
+                selectExec = new FAFQueryMethodSelectExecGivenContextNoFromClause(svc);
+            } else {
+                if (processors.length != 1) {
+                    throw new UnsupportedOperationException("Context name is not supported in a join");
+                }
+                if (!hasContext) {
+                    throw new UnsupportedOperationException("Query target is unpartitioned");
+                }
+                selectExec = FAFQueryMethodSelectExecGivenContextNoJoin.INSTANCE;
             }
-            if (!hasContext) {
-                throw new UnsupportedOperationException("Query target is unpartitioned");
-            }
-            selectExec = FAFQueryMethodSelectExecGivenContextNoJoin.INSTANCE;
         }
 
         if (!subselects.isEmpty()) {
@@ -148,7 +150,7 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         if (!serviceStatusProvider.get()) {
             throw FAFQueryMethodUtil.runtimeDestroyed();
         }
-        if (contextPartitionSelectors != null && contextPartitionSelectors.length != processors.length) {
+        if (processors.length > 0 && contextPartitionSelectors != null && contextPartitionSelectors.length != processors.length) {
             throw new IllegalArgumentException("The number of context partition selectors does not match the number of named windows or tables in the from-clause");
         }
 
@@ -156,7 +158,7 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
             return selectExec.execute(this, contextPartitionSelectors, assignerSetter, contextManagementService);
         } finally {
             if (hasTableAccess) {
-                processors[0].getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
+                selectExec.releaseTableLocks(processors);
             }
         }
     }
@@ -215,5 +217,13 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
 
     public void setSubselects(Map<Integer, SubSelectFactory> subselects) {
         this.subselects = subselects;
+    }
+
+    public String getContextModuleName() {
+        return contextModuleName;
+    }
+
+    public void setContextModuleName(String contextModuleName) {
+        this.contextModuleName = contextModuleName;
     }
 }

@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.resultset.order;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
 
@@ -42,15 +42,15 @@ public class RowLimitProcessorFactory {
         this.currentOffset = currentOffset;
     }
 
-    public RowLimitProcessor instantiate(AgentInstanceContext agentInstanceContext) {
+    public RowLimitProcessor instantiate(ExprEvaluatorContext exprEvaluatorContext) {
         VariableReader numRowsVariableReader = null;
         if (numRowsVariable != null) {
-            numRowsVariableReader = agentInstanceContext.getVariableManagementService().getReader(numRowsVariable.getDeploymentId(), numRowsVariable.getMetaData().getVariableName(), agentInstanceContext.getAgentInstanceId());
+            numRowsVariableReader = exprEvaluatorContext.getVariableManagementService().getReader(numRowsVariable.getDeploymentId(), numRowsVariable.getMetaData().getVariableName(), exprEvaluatorContext.getAgentInstanceId());
         }
 
         VariableReader offsetVariableReader = null;
         if (offsetVariable != null) {
-            offsetVariableReader = agentInstanceContext.getStatementContext().getVariableManagementService().getReader(offsetVariable.getDeploymentId(), offsetVariable.getMetaData().getVariableName(), agentInstanceContext.getAgentInstanceId());
+            offsetVariableReader = exprEvaluatorContext.getVariableManagementService().getReader(offsetVariable.getDeploymentId(), offsetVariable.getMetaData().getVariableName(), exprEvaluatorContext.getAgentInstanceId());
         }
 
         return new RowLimitProcessor(numRowsVariableReader, offsetVariableReader, currentRowLimit, currentOffset);

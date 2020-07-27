@@ -74,4 +74,8 @@ public class FAFQueryMethodSelectExecNoContextJoin implements FAFQueryMethodSele
 
         return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), distinct);
     }
+
+    public void releaseTableLocks(FireAndForgetProcessor[] processors) {
+        FAFQueryMethodSelectExecUtil.releaseTableLocks(processors);
+    }
 }

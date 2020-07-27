@@ -42,6 +42,7 @@ import com.espertech.esper.common.internal.filterspec.FilterBooleanExpressionFac
 import com.espertech.esper.common.internal.filterspec.FilterSharedBoolExprRepository;
 import com.espertech.esper.common.internal.filterspec.FilterSharedLookupableRepository;
 import com.espertech.esper.common.internal.metrics.stmtmetrics.MetricReportingService;
+import com.espertech.esper.common.internal.schedule.SchedulingService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ExceptionHandlingService;
 import com.espertech.esper.common.internal.settings.RuntimeSettingsService;
@@ -53,6 +54,7 @@ import javax.naming.Context;
 
 public class StatementContextRuntimeServices {
     private final ContextManagementService contextManagementService;
+    private final PathRegistry<String, ContextMetaData> contextPathRegistry;
     private final ContextServiceFactory contextServiceFactory;
     private final DatabaseConfigServiceRuntime databaseConfigService;
     private final DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter;
@@ -87,6 +89,7 @@ public class StatementContextRuntimeServices {
     private final PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry;
     private final RowRecogStateRepoFactory rowRecogStateRepoFactory;
     private final ResultSetProcessorHelperFactory resultSetProcessorHelperFactory;
+    private final SchedulingService schedulingService;
     private final StatementAgentInstanceLockFactory statementAgentInstanceLockFactory;
     private final StatementResourceHolderBuilder statementResourceHolderBuilder;
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
@@ -95,8 +98,9 @@ public class StatementContextRuntimeServices {
     private final ViewFactoryService viewFactoryService;
     private final ViewServicePreviousFactory viewServicePreviousFactory;
 
-    public StatementContextRuntimeServices(ContextManagementService contextManagementService, ContextServiceFactory contextServiceFactory, DatabaseConfigServiceRuntime databaseConfigService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, EPDataFlowServiceImpl dataflowService, String runtimeURI, Context runtimeEnvContext, ClasspathImportServiceRuntime classpathImportServiceRuntime, RuntimeSettingsService runtimeSettingsService, RuntimeExtensionServices runtimeExtensionServices, Object epRuntime, EPRenderEventService epRuntimeRenderEvent, EventServiceSendEventCommon eventServiceSendEventInternal, EPRuntimeEventProcessWrapped epRuntimeEventProcessWrapped, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouter internalEventRouter, MetricReportingService metricReportingService, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, ContextMetaData> pathContextRegistry, PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry, RowRecogStateRepoFactory rowRecogStateRepoFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, VariableManagementService variableManagementService, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory) {
+    public StatementContextRuntimeServices(ContextManagementService contextManagementService, PathRegistry<String, ContextMetaData> contextPathRegistry, ContextServiceFactory contextServiceFactory, DatabaseConfigServiceRuntime databaseConfigService, DataFlowFilterServiceAdapter dataFlowFilterServiceAdapter, EPDataFlowServiceImpl dataflowService, String runtimeURI, Context runtimeEnvContext, ClasspathImportServiceRuntime classpathImportServiceRuntime, RuntimeSettingsService runtimeSettingsService, RuntimeExtensionServices runtimeExtensionServices, Object epRuntime, EPRenderEventService epRuntimeRenderEvent, EventServiceSendEventCommon eventServiceSendEventInternal, EPRuntimeEventProcessWrapped epRuntimeEventProcessWrapped, EventBeanService eventBeanService, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTableIndexService eventTableIndexService, EventTypeAvroHandler eventTypeAvroHandler, PathRegistry<String, EventType> eventTypePathRegistry, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, EventTypeResolvingBeanFactory eventTypeResolvingBeanFactory, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, FilterBooleanExpressionFactory filterBooleanExpressionFactory, FilterSharedBoolExprRepository filterSharedBoolExprRepository, FilterSharedLookupableRepository filterSharedLookupableRepository, HistoricalDataCacheFactory historicalDataCacheFactory, InternalEventRouter internalEventRouter, MetricReportingService metricReportingService, NamedWindowConsumerManagementService namedWindowConsumerManagementService, NamedWindowManagementService namedWindowManagementService, PathRegistry<String, ContextMetaData> pathContextRegistry, PathRegistry<String, NamedWindowMetaData> pathNamedWindowRegistry, RowRecogStateRepoFactory rowRecogStateRepoFactory, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, SchedulingService schedulingService, StatementAgentInstanceLockFactory statementAgentInstanceLockFactory, StatementResourceHolderBuilder statementResourceHolderBuilder, TableExprEvaluatorContext tableExprEvaluatorContext, TableManagementService tableManagementService, VariableManagementService variableManagementService, ViewFactoryService viewFactoryService, ViewServicePreviousFactory viewServicePreviousFactory) {
         this.contextManagementService = contextManagementService;
+        this.contextPathRegistry = contextPathRegistry;
         this.contextServiceFactory = contextServiceFactory;
         this.databaseConfigService = databaseConfigService;
         this.dataFlowFilterServiceAdapter = dataFlowFilterServiceAdapter;
@@ -131,6 +135,7 @@ public class StatementContextRuntimeServices {
         this.pathNamedWindowRegistry = pathNamedWindowRegistry;
         this.rowRecogStateRepoFactory = rowRecogStateRepoFactory;
         this.resultSetProcessorHelperFactory = resultSetProcessorHelperFactory;
+        this.schedulingService = schedulingService;
         this.statementAgentInstanceLockFactory = statementAgentInstanceLockFactory;
         this.statementResourceHolderBuilder = statementResourceHolderBuilder;
         this.tableExprEvaluatorContext = tableExprEvaluatorContext;
@@ -142,6 +147,7 @@ public class StatementContextRuntimeServices {
 
     public StatementContextRuntimeServices() {
         this.contextManagementService = null;
+        this.contextPathRegistry = null;
         this.contextServiceFactory = null;
         this.databaseConfigService = null;
         this.dataFlowFilterServiceAdapter = null;
@@ -176,6 +182,7 @@ public class StatementContextRuntimeServices {
         this.pathNamedWindowRegistry = null;
         this.rowRecogStateRepoFactory = null;
         this.resultSetProcessorHelperFactory = null;
+        this.schedulingService = null;
         this.statementAgentInstanceLockFactory = null;
         this.statementResourceHolderBuilder = null;
         this.tableExprEvaluatorContext = null;
@@ -355,5 +362,13 @@ public class StatementContextRuntimeServices {
 
     public Context getRuntimeEnvContext() {
         return runtimeEnvContext;
+    }
+
+    public SchedulingService getSchedulingService() {
+        return schedulingService;
+    }
+
+    public PathRegistry<String, ContextMetaData> getContextPathRegistry() {
+        return contextPathRegistry;
     }
 }

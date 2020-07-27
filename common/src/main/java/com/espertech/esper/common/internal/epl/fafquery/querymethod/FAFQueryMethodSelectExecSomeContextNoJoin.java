@@ -56,4 +56,8 @@ public class FAFQueryMethodSelectExecSomeContextNoJoin implements FAFQueryMethod
 
         return processedNonJoin(resultSetProcessor, events, select.getDistinctKeyGetter());
     }
+
+    public void releaseTableLocks(FireAndForgetProcessor[] processors) {
+        processors[0].getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
+    }
 }
