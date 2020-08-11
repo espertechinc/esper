@@ -16,7 +16,10 @@ import com.espertech.esper.common.internal.context.controller.condition.*;
 import com.espertech.esper.common.internal.context.mgr.ContextManagerRealization;
 import com.espertech.esper.common.internal.context.util.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermUtil.determineCurrentlyRunning;
 
@@ -45,10 +48,10 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
         }
     }
 
-    public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval) {
+    public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval, Map<String, Object> terminationProperties) {
         boolean endConditionNotification = originCondition.getDescriptor() != factory.getInitTermSpec().getStartCondition();
         if (endConditionNotification) {
-            rangeNotificationEnd(conditionPath, originCondition, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern);
+            rangeNotificationEnd(conditionPath, originCondition, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern, terminationProperties);
         } else {
             this.lastTriggerEvent = optionalTriggeringEvent;
             rangeNotificationStart(conditionPath, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern, optionalPatternForInclusiveEval);
@@ -68,7 +71,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
         installFilterFaultHandler(agentInstances, controllerPath);
     }
 
-    private void rangeNotificationEnd(IntSeqKey conditionPath, ContextControllerConditionNonHA endCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern) {
+    private void rangeNotificationEnd(IntSeqKey conditionPath, ContextControllerConditionNonHA endCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> terminationProperties) {
         if (endCondition.isRunning()) {
             endCondition.deactivate();
         }
@@ -86,7 +89,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
             agentInstancesLocksHeld = new ArrayList<>(2);
         }
 
-        realization.contextPartitionTerminate(conditionPath.removeFromEnd(), instance.getSubpathIdOrCPId(), this, optionalTriggeringPattern, startNow, agentInstancesLocksHeld);
+        realization.contextPartitionTerminate(conditionPath.removeFromEnd(), instance.getSubpathIdOrCPId(), this, terminationProperties, startNow, agentInstancesLocksHeld);
 
         try {
             IntSeqKey controllerPath = conditionPath.removeFromEnd();

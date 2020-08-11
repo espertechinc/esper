@@ -21,5 +21,5 @@ public interface ContextControllerConditionCallback {
                            EventBean optionalTriggeringEvent,
                            Map<String, Object> optionalTriggeringPattern,
                            EventBean optionalTriggeringEventPattern,
-                           Map<String, Object> optionalPatternForInclusiveEval);
+                           Map<String, Object> optionalPatternForInclusiveEval, Map<String, Object> terminationProperties);
 }

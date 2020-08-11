@@ -126,7 +126,7 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
 
     private ContextControllerConditionNonHA activateTermination(EventBean triggeringEvent, Object[] parentPartitionKeys, Object partitionKey, IntSeqKey conditionPath, String optionalInitCondAsName) {
         ContextControllerConditionCallback callback = new ContextControllerConditionCallback() {
-            public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originEndpoint, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval) {
+            public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originEndpoint, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval, Map<String, Object> terminationProperties) {
                 IntSeqKey parentPath = conditionPath.removeFromEnd();
                 Object getterKey = factory.getGetterKey(partitionKey);
                 ContextControllerKeyedSvcEntry removed = keyedSvc.keyRemove(parentPath, getterKey);
@@ -135,7 +135,7 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
                 }
                 // remember the terminating event, we don't want it to initiate a new partition
                 ContextControllerKeyedImpl.this.lastTerminatingEvent = optionalTriggeringEvent != null ? optionalTriggeringEvent : optionalTriggeringEventPattern;
-                realization.contextPartitionTerminate(conditionPath.removeFromEnd(), removed.getSubpathOrCPId(), ContextControllerKeyedImpl.this, optionalTriggeringPattern, false, null);
+                realization.contextPartitionTerminate(conditionPath.removeFromEnd(), removed.getSubpathOrCPId(), ContextControllerKeyedImpl.this, terminationProperties, false, null);
                 removed.getTerminationCondition().deactivate();
             }
         };

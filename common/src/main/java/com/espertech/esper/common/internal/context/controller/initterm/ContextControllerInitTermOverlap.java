@@ -76,10 +76,10 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
         }
     }
 
-    public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval) {
+    public void rangeNotification(IntSeqKey conditionPath, ContextControllerConditionNonHA originCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> optionalPatternForInclusiveEval, Map<String, Object> terminationProperties) {
         boolean endConditionNotification = originCondition.getDescriptor() != factory.getInitTermSpec().getStartCondition();
         if (endConditionNotification) {
-            rangeNotificationEnd(conditionPath, originCondition, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern);
+            rangeNotificationEnd(conditionPath, originCondition, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern, terminationProperties);
         } else {
             rangeNotificationStart(conditionPath, originCondition, optionalTriggeringEvent, optionalTriggeringPattern, optionalTriggeringEventPattern);
         }
@@ -106,7 +106,7 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
         installFilterFaultHandler(agentInstances, controllerPath);
     }
 
-    private void rangeNotificationEnd(IntSeqKey conditionPath, ContextControllerConditionNonHA endCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern) {
+    private void rangeNotificationEnd(IntSeqKey conditionPath, ContextControllerConditionNonHA endCondition, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, EventBean optionalTriggeringEventPattern, Map<String, Object> terminationProperties) {
         if (endCondition.isRunning()) {
             endCondition.deactivate();
         }
@@ -118,7 +118,7 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
         if (distinctSvc != null) {
             removeDistinctKey(conditionPath.removeFromEnd(), instance);
         }
-        realization.contextPartitionTerminate(conditionPath.removeFromEnd(), instance.getSubpathIdOrCPId(), this, optionalTriggeringPattern, false, null);
+        realization.contextPartitionTerminate(conditionPath.removeFromEnd(), instance.getSubpathIdOrCPId(), this, terminationProperties, false, null);
     }
 
     private boolean addDistinctKey(IntSeqKey controllerPath, EventBean optionalTriggeringEvent) {

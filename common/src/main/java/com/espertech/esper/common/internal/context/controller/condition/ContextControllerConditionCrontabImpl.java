@@ -52,7 +52,7 @@ public class ContextControllerConditionCrontabImpl implements ContextControllerC
 
                 scheduleHandle = null;  // terminates automatically unless scheduled again
                 agentInstanceContext.getAuditProvider().scheduleFire(agentInstanceContext, ScheduleObjectType.context, NAME_AUDITPROVIDER_SCHEDULE);
-                callback.rangeNotification(conditionPath, ContextControllerConditionCrontabImpl.this, null, null, null, null);
+                callback.rangeNotification(conditionPath, ContextControllerConditionCrontabImpl.this, null, null, null, null, null);
 
                 agentInstanceContext.getInstrumentationProvider().aContextScheduledEval();
             }

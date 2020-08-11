@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.filterspec.FilterValueSetParam;
 import com.espertech.esper.common.internal.filtersvc.FilterHandleCallback;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public class ContextControllerConditionFilter implements ContextControllerConditionNonHA {
@@ -125,6 +126,10 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
             }
             lastEvent = theEvent;
         }
-        callback.rangeNotification(conditionPath, this, theEvent, null, null, null);
+        Map<String, Object> terminationProperties = null;
+        if (filter.getOptionalFilterAsName() != null) {
+            terminationProperties = Collections.singletonMap(filter.getOptionalFilterAsName(), theEvent);
+        }
+        callback.rangeNotification(conditionPath, this, theEvent, null, null, null, terminationProperties);
     }
 }

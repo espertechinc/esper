@@ -117,7 +117,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
             matchEvent = data;
         }
 
-        callback.rangeNotification(conditionPath, this, null, matchEvent, optionalTriggeringEvent, matchEventInclusive);
+        callback.rangeNotification(conditionPath, this, null, matchEvent, optionalTriggeringEvent, matchEventInclusive, matchEvent);
     }
 
     public boolean isImmediate() {

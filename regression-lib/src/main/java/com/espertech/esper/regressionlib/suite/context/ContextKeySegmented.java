@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -64,7 +65,37 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedWInitTermEndEvent());
         execs.add(new ContextKeySegmentedWPatternFireWhenAllocated());
         execs.add(new ContextKeySegmentedWInitTermPatternAsName());
+        execs.add(new ContextKeySegmentedTermEventSelect());
         return execs;
+    }
+
+    private static class ContextKeySegmentedTermEventSelect implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema UserEvent(userId string, alert string);\n" +
+                    "create context UserSessionContext partition by userId from UserEvent\n" +
+                    "  initiated by UserEvent(alert = 'A')\n" +
+                    "  terminated by UserEvent(alert = 'B') as termEvent;\n" +
+                    "@name('s0') context UserSessionContext select *, context.termEvent as term from UserEvent#firstevent\n" +
+                    "  output snapshot when terminated;";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendUser(env, "U1", "A");
+            sendUser(env, "U1", null);
+            sendUser(env, "U1", null);
+            assertFalse(env.listener("s0").isInvoked());
+            env.milestone(0);
+
+            Map<String, Object> term = sendUser(env, "U1", "B");
+            assertSame(term, env.listener("s0").assertOneGetNewAndReset().get("term"));
+
+            env.undeployAll();
+        }
+
+        private Map<String, Object> sendUser(RegressionEnvironment env, String user, String alert) {
+            Map<String, Object> data = CollectionUtil.buildMap("userId", user, "alert", alert);
+            env.sendEventMap(data, "UserEvent");
+            return data;
+        }
     }
 
     private static class ContextKeySegmentedWInitTermPatternAsName implements RegressionExecution {

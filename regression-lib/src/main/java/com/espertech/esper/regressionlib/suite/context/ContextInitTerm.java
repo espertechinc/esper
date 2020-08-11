@@ -77,7 +77,43 @@ public class ContextInitTerm {
         execs.add(new ContextStartEndFilterWithPatternCorrelatedWithAsName(true));
         execs.add(new ContextStartEndPatternWithPatternCorrelatedWithAsName());
         execs.add(new ContextStartEndPatternWithFilterCorrelatedWithAsName());
+        execs.add(new ContextInitTermWithTermEvent(false));
+        execs.add(new ContextInitTermWithTermEvent(true));
         return execs;
+    }
+
+    private static class ContextInitTermWithTermEvent implements RegressionExecution {
+        private final boolean overlapping;
+
+        public ContextInitTermWithTermEvent(boolean overlapping) {
+            this.overlapping = overlapping;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema UserEvent(userId string, alert string);\n" +
+                    "create context UserSessionContext " + (overlapping ? "initiated" : "start") + " UserEvent(alert = 'A')\n" +
+                    "  " + (overlapping ? "terminated" : "end") + " UserEvent(alert = 'B') as termEvent;\n" +
+                    "@name('s0') context UserSessionContext select *, context.termEvent as term from UserEvent#firstevent\n" +
+                    "  output snapshot when terminated;";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendUser(env, "U1", "A");
+            sendUser(env, "U1", null);
+            sendUser(env, "U1", null);
+            assertFalse(env.listener("s0").isInvoked());
+            env.milestone(0);
+
+            Map<String, Object> term = sendUser(env, "U1", "B");
+            assertSame(term, env.listener("s0").assertOneGetNewAndReset().get("term"));
+
+            env.undeployAll();
+        }
+
+        private Map<String, Object> sendUser(RegressionEnvironment env, String user, String alert) {
+            Map<String, Object> data = CollectionUtil.buildMap("userId", user, "alert", alert);
+            env.sendEventMap(data, "UserEvent");
+            return data;
+        }
     }
 
     private static class ContextStartEndPatternWithFilterCorrelatedWithAsName implements RegressionExecution {

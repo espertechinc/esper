@@ -48,7 +48,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
 
                 scheduleHandle = null;  // terminates automatically unless scheduled again
                 agentInstanceContext.getAuditProvider().scheduleFire(agentInstanceContext, ScheduleObjectType.context, NAME_AUDITPROVIDER_SCHEDULE);
-                callback.rangeNotification(conditionPath, ContextControllerConditionTimePeriod.this, null, null, null, null);
+                callback.rangeNotification(conditionPath, ContextControllerConditionTimePeriod.this, null, null, null, null, null);
 
                 agentInstanceContext.getInstrumentationProvider().aContextScheduledEval();
             }
