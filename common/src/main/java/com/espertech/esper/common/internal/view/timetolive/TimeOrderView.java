@@ -96,6 +96,9 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, AgentI
                 EventBean oldDataItem = oldData[i];
                 Object sortValues = getTimestamp(oldDataItem);
                 boolean result = CollectionUtil.removeEventByKeyLazyListMap(sortValues, oldDataItem, sortedEvents);
+                if (!result) {
+                    result = CollectionUtil.removeEventUnkeyedLazyListMap(oldDataItem, sortedEvents);
+                }
                 if (result) {
                     eventCount--;
                     if (postOldEventsArray == null) {

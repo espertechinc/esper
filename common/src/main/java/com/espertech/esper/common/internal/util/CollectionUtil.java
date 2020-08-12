@@ -455,6 +455,27 @@ public class CollectionUtil {
         return false;
     }
 
+    public static boolean removeEventUnkeyedLazyListMap(EventBean bean, Map<Object, Object> eventMap) {
+        Iterator<Map.Entry<Object, Object>> it = eventMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Object, Object> entry = it.next();
+            if (entry.getValue() instanceof List) {
+                List<EventBean> events = (List<EventBean>) entry.getValue();
+                boolean result = events.remove(bean);
+                if (result) {
+                    if (events.isEmpty()) {
+                        eventMap.remove(entry.getKey());
+                    }
+                    return true;
+                }
+            } else if (entry.getValue() != null && entry.getValue().equals(bean)) {
+                eventMap.remove(entry.getKey());
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void addEventByKeyLazyListMapBack(Object sortKey, EventBean eventBean, Map<Object, Object> eventMap) {
         Object existing = eventMap.get(sortKey);
         if (existing == null) {
@@ -727,6 +748,7 @@ public class CollectionUtil {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param pairs of key-value
      * @return map
      */

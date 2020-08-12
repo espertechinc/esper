@@ -32,6 +32,7 @@ import org.apache.avro.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.*;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -103,7 +104,56 @@ public class InfraNamedWindowViews {
         execs.add(new InfraSelectStreamDotStarInsert());
         execs.add(new InfraSelectGroupedViewLateStartVariableIterate());
         execs.add(new InfraOnInsertPremptiveTwoWindow());
+        execs.add(new InfraNamedWindowTimeToLiveDelete());
         return execs;
+    }
+
+    private static class InfraNamedWindowTimeToLiveDelete implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('win') create window MyWindow#timetolive(current_timestamp() + longPrimitive) as SupportBean;\n" +
+                    "on SupportBean merge MyWindow insert select *;\n" +
+                    "on SupportBean_S0 delete from MyWindow where theString = p00;\n";
+            env.advanceTime(0);
+            env.compileDeploy(epl);
+
+            sendSupportBean(env, "E1", 2000);
+            sendSupportBean(env, "E2", 3000);
+            sendSupportBean(env, "E3", 1000);
+            sendSupportBean(env, "E4", 2000);
+            assertIterate(env, "E1", "E2", "E3", "E4");
+
+            env.advanceTime(500);
+
+            sendS0(env, "E2");
+            assertIterate(env, "E1", "E3", "E4");
+
+            env.milestone(0);
+
+            sendS0(env, "E1");
+            assertIterate(env, "E3", "E4");
+
+            env.milestone(1);
+
+            env.advanceTime(1000);
+            assertIterate(env, "E4");
+
+            env.milestone(1);
+
+            env.advanceTime(2000);
+            assertIterate(env);
+
+            env.undeployAll();
+        }
+
+        private void sendS0(RegressionEnvironment env, String p00) {
+            env.sendEventBean(new SupportBean_S0(0, p00));
+        }
+
+        private void assertIterate(RegressionEnvironment env, String... values) {
+            List<String> strings = new ArrayList<>();
+            env.iterator("win").forEachRemaining(event -> strings.add(event.get("theString").toString()));
+            EPAssertionUtil.assertEqualsAnyOrder(values, strings.toArray());
+        }
     }
 
     public static class InfraKeepAllSimple implements RegressionExecution {
@@ -270,8 +320,8 @@ public class InfraNamedWindowViews {
     private static class InfraIntersection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("create window MyWindowINT#length(2)#unique(intPrimitive) as SupportBean;\n" +
-                "insert into MyWindowINT select * from SupportBean;\n" +
-                "@name('s0') select irstream * from MyWindowINT");
+                    "insert into MyWindowINT select * from SupportBean;\n" +
+                    "@name('s0') select irstream * from MyWindowINT");
 
             String[] fields = "theString".split(",");
             env.addListener("s0");
@@ -295,8 +345,8 @@ public class InfraNamedWindowViews {
 
             // Test create from schema
             String epl = "create schema ABC as " + SupportBean.class.getName() + ";\n" +
-                "create window MyWindowBSB#keepall as ABC;\n" +
-                "insert into MyWindowBSB select * from SupportBean;\n";
+                    "create window MyWindowBSB#keepall as ABC;\n" +
+                    "insert into MyWindowBSB select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 
             env.sendEventBean(new SupportBean());
@@ -314,7 +364,7 @@ public class InfraNamedWindowViews {
     private static class InfraDeepSupertypeInsert implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('create') create window MyWindowDSI#keepall as select * from SupportOverrideBase;\n" +
-                "insert into MyWindowDSI select * from SupportOverrideOneA;\n";
+                    "insert into MyWindowDSI select * from SupportOverrideOneA;\n";
             env.compileDeploy(epl);
             env.sendEventBean(new SupportOverrideOneA("1a", "1", "base"));
             assertEquals("1a", env.iterator("create").next().get("val"));
@@ -357,28 +407,28 @@ public class InfraNamedWindowViews {
     private static class InfraWithDeleteUseAs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryCreateWindow(env, "create window MyWindow#keepall as MySimpleKeyValueMap",
-                "on SupportMarketDataBean as s0 delete from MyWindow as s1 where s0.symbol = s1.key");
+                    "on SupportMarketDataBean as s0 delete from MyWindow as s1 where s0.symbol = s1.key");
         }
     }
 
     private static class InfraWithDeleteFirstAs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryCreateWindow(env, "create window MyWindow#keepall as select key, value from MySimpleKeyValueMap",
-                "on SupportMarketDataBean delete from MyWindow as s1 where symbol = s1.key");
+                    "on SupportMarketDataBean delete from MyWindow as s1 where symbol = s1.key");
         }
     }
 
     private static class InfraWithDeleteSecondAs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryCreateWindow(env, "create window MyWindow#keepall as MySimpleKeyValueMap",
-                "on SupportMarketDataBean as s0 delete from MyWindow where s0.symbol = key");
+                    "on SupportMarketDataBean as s0 delete from MyWindow where s0.symbol = key");
         }
     }
 
     private static class InfraWithDeleteNoAs implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryCreateWindow(env, "create window MyWindow#keepall as select key as key, value as value from MySimpleKeyValueMap",
-                "on SupportMarketDataBean delete from MyWindow where symbol = key");
+                    "on SupportMarketDataBean delete from MyWindow where symbol = key");
         }
     }
 
@@ -600,9 +650,9 @@ public class InfraNamedWindowViews {
             sendTimer(env, 1000);
 
             String epl = "@name('create') create window MyWindowTFW#firsttime(10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTFW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowTFW;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTFW as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowTFW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowTFW;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTFW as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("delete");
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
 
@@ -654,9 +704,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowETW#ext_timed(value, 10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowETW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowETW;\n" +
-                "@name('delete') on SupportMarketDataBean delete from MyWindowETW where symbol = key";
+                    "insert into MyWindowETW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowETW;\n" +
+                    "@name('delete') on SupportMarketDataBean delete from MyWindowETW where symbol = key";
             env.compileDeploy(epl).addListener("s0").addListener("create").addListener("delete");
 
             sendSupportBean(env, "E1", 1000L);
@@ -867,9 +917,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowTOW#time_order(value, 10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTOW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowTOW;\n" +
-                "@name('delete') on SupportMarketDataBean delete from MyWindowTOW where symbol = key;\n";
+                    "insert into MyWindowTOW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowTOW;\n" +
+                    "@name('delete') on SupportMarketDataBean delete from MyWindowTOW where symbol = key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendTimer(env, 5000);
@@ -1041,9 +1091,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowLW#length(3) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowLW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowLW;\n" +
-                "@name('delete') on SupportMarketDataBean delete from MyWindowLW where symbol = key";
+                    "insert into MyWindowLW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowLW;\n" +
+                    "@name('delete') on SupportMarketDataBean delete from MyWindowLW where symbol = key";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -1217,9 +1267,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowLFW#firstlength(2) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowLFW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowLFW;\n" +
-                "@name('delete') on SupportMarketDataBean delete from MyWindowLFW where symbol = key";
+                    "insert into MyWindowLFW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowLFW;\n" +
+                    "@name('delete') on SupportMarketDataBean delete from MyWindowLFW where symbol = key";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -1260,9 +1310,9 @@ public class InfraNamedWindowViews {
 
             // create window
             String epl = "@name('create') create window MyWindowTA#time_accum(10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTA select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowTA;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTA as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowTA select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowTA;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTA as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendTimer(env, 1000);
@@ -1542,9 +1592,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowTB#time_batch(10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTB select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowTB;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTB as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowTB select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowTB;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTB as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendTimer(env, 1000);
@@ -1737,7 +1787,7 @@ public class InfraNamedWindowViews {
             sendTimer(env, 0);
 
             String epl = "@name('create') create window MyWindowTBLC#time_batch(10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTBLC select theString as key, longBoxed as value from SupportBean;\n";
+                    "insert into MyWindowTBLC select theString as key, longBoxed as value from SupportBean;\n";
             env.compileDeploy(epl, path);
 
             sendTimer(env, 0);
@@ -1769,9 +1819,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowLB#length_batch(3) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowLB select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowLB;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowLB as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowLB select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowLB;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowLB as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -2032,9 +2082,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowSW#sort(3, value asc) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowSW select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowSW;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowSW as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowSW select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowSW;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowSW as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("create").addListener("s0");
 
             sendSupportBean(env, "E1", 10L);
@@ -2185,9 +2235,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowTLB#time_length_batch(10 sec, 3) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTLB select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowTLB;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTLB as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowTLB select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowTLB;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowTLB as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("s0").addListener("delete").addListener("create");
 
             sendTimer(env, 1000);
@@ -2443,9 +2493,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowWPG#groupwin(value)#length(2) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowWPG select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowWPG;\n" +
-                "@name('delete') on SupportMarketDataBean delete from MyWindowWPG where symbol = key;\n";
+                    "insert into MyWindowWPG select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowWPG;\n" +
+                    "@name('delete') on SupportMarketDataBean delete from MyWindowWPG where symbol = key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -2510,8 +2560,8 @@ public class InfraNamedWindowViews {
 
             sendTimer(env, 0);
             String epl = "@name('create') create window MyWindowTBPG#groupwin(value)#time_batch(10 sec) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowTBPG select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowTBPG;\n";
+                    "insert into MyWindowTBPG select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowTBPG;\n";
             env.compileDeploy(epl).addListener("s0").addListener("create");
 
             sendTimer(env, 1000);
@@ -2543,9 +2593,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowDISM#keepall as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowDISM select theString as key, longBoxed+1 as value from SupportBean;\n" +
-                "insert into MyWindowDISM select theString as key, longBoxed+2 as value from SupportBean;\n" +
-                "@name('s0') select key, value as value from MyWindowDISM";
+                    "insert into MyWindowDISM select theString as key, longBoxed+1 as value from SupportBean;\n" +
+                    "insert into MyWindowDISM select theString as key, longBoxed+2 as value from SupportBean;\n" +
+                    "@name('s0') select key, value as value from MyWindowDISM";
             env.compileDeploy(epl).addListener("create").addListener("s0");
 
             sendSupportBean(env, "E1", 10L);
@@ -2565,9 +2615,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowLE#lastevent as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowLE select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowLE;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowLE as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowLE select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowLE;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowLE as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -2681,9 +2731,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowFE#firstevent as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowFE select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowFE;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFE as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowFE select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowFE;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFE as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "E1", 1L);
@@ -2735,9 +2785,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowUN#unique(key) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowUN select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowUN;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowUN as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowUN select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowUN;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowUN as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("s0").addListener("create");
 
             sendSupportBean(env, "G1", 1L);
@@ -2871,9 +2921,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowFU#firstunique(key) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowFU select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowFU;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFU as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowFU select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowFU;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFU as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("delete");
 
             sendSupportBean(env, "G1", 1L);
@@ -2914,9 +2964,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowFC#unique(key) as select theString as key, intPrimitive as value from SupportBean;\n" +
-                "insert into MyWindowFC select theString as key, intPrimitive as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowFC(value > 0, value < 10);\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFC as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowFC select theString as key, intPrimitive as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowFC(value > 0, value < 10);\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowFC as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("delete");
 
             sendSupportBeanInt(env, "G1", 5);
@@ -2968,7 +3018,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             String epl = "@name('create') create window MyWindowSGVS#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive from SupportBean;\n" +
-                "@name('insert') insert into MyWindowSGVS select theString, intPrimitive from SupportBean;\n";
+                    "@name('insert') insert into MyWindowSGVS select theString, intPrimitive from SupportBean;\n";
             env.compileDeploy(epl, path);
 
             // fill window
@@ -2991,18 +3041,18 @@ public class InfraNamedWindowViews {
             assertEquals(10, received.length);
 
             EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive,count(*)".split(","),
-                new Object[][]{
-                    {"c0", 0, 1L},
-                    {"c0", 1, 2L},
-                    {"c0", 2, 1L},
-                    {"c1", 0, 1L},
-                    {"c1", 1, 1L},
-                    {"c1", 2, 2L},
-                    {"c2", 0, 1L},
-                    {"c2", 1, 1L},
-                    {"c2", 2, 1L},
-                    {"c3", 3, 1L},
-                });
+                    new Object[][]{
+                            {"c0", 0, 1L},
+                            {"c0", 1, 2L},
+                            {"c0", 2, 1L},
+                            {"c1", 0, 1L},
+                            {"c1", 1, 1L},
+                            {"c1", 2, 2L},
+                            {"c2", 0, 1L},
+                            {"c2", 1, 1L},
+                            {"c2", 2, 1L},
+                            {"c3", 3, 1L},
+                    });
 
             env.undeployModuleContaining("s0");
             env.undeployModuleContaining("create");
@@ -3045,7 +3095,7 @@ public class InfraNamedWindowViews {
 
             // create select stmt
             String stmtTextSelect = "@name('s0') select theString, intPrimitive, avg(longPrimitive) as avgLong, count(boolPrimitive) as cntBool" +
-                " from MyWindowSGVLS group by theString, intPrimitive having theString = var_1_1_1 order by theString, intPrimitive";
+                    " from MyWindowSGVLS group by theString, intPrimitive having theString = var_1_1_1 order by theString, intPrimitive";
             env.compileDeploy(stmtTextSelect, path);
 
             // set variable to C0
@@ -3055,11 +3105,11 @@ public class InfraNamedWindowViews {
             received = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
             assertEquals(3, received.length);
             EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive,avgLong,cntBool".split(","),
-                new Object[][]{
-                    {"c0", 0, 0.0, 1L},
-                    {"c0", 1, 1.0, 1L},
-                    {"c0", 2, 2.0, 1L},
-                });
+                    new Object[][]{
+                            {"c0", 0, 0.0, 1L},
+                            {"c0", 1, 1.0, 1L},
+                            {"c0", 2, 2.0, 1L},
+                    });
 
             // set variable to C1
             env.sendEventBean(new SupportVariableSetEvent("var_1_1_1", "c1"));
@@ -3067,11 +3117,11 @@ public class InfraNamedWindowViews {
             received = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
             assertEquals(3, received.length);
             EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive,avgLong,cntBool".split(","),
-                new Object[][]{
-                    {"c1", 0, 0.0, 1L},
-                    {"c1", 1, 5.5, 2L},
-                    {"c1", 2, 2.0, 1L},
-                });
+                    new Object[][]{
+                            {"c1", 0, 0.0, 1L},
+                            {"c1", 1, 5.5, 2L},
+                            {"c1", 2, 2.0, 1L},
+                    });
 
             env.undeployAll();
         }
@@ -3083,7 +3133,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             String epl = "@name('create') create window MyWindowFCLS#keepall as select theString as key, intPrimitive as value from SupportBean;\n" +
-                "insert into MyWindowFCLS select theString as key, intPrimitive as value from SupportBean;\n";
+                    "insert into MyWindowFCLS select theString as key, intPrimitive as value from SupportBean;\n";
             env.compileDeploy(epl, path);
 
             sendSupportBeanInt(env, "G1", 5);
@@ -3134,24 +3184,24 @@ public class InfraNamedWindowViews {
     private static class InfraInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryInvalidCompile(env, "create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap",
-                "Named windows require one or more child views that are data window views [create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap]");
+                    "Named windows require one or more child views that are data window views [create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap]");
 
             tryInvalidCompile(env, "create window MyWindowI2 as MySimpleKeyValueMap",
-                "Named windows require one or more child views that are data window views [create window MyWindowI2 as MySimpleKeyValueMap]");
+                    "Named windows require one or more child views that are data window views [create window MyWindowI2 as MySimpleKeyValueMap]");
 
             tryInvalidCompile(env, "on MySimpleKeyValueMap delete from dummy",
-                "A named window or table 'dummy' has not been declared [on MySimpleKeyValueMap delete from dummy]");
+                    "A named window or table 'dummy' has not been declared [on MySimpleKeyValueMap delete from dummy]");
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window SomeWindow#keepall as (a int)", path);
             tryInvalidCompile(env, path, "update SomeWindow set a = 'a' where a = 'b'",
-                "Provided EPL expression is an on-demand query expression (not a continuous query)");
+                    "Provided EPL expression is an on-demand query expression (not a continuous query)");
             tryInvalidFAFCompile(env, path, "update istream SomeWindow set a = 'a' where a = 'b'",
-                "Provided EPL expression is a continuous query expression (not an on-demand query)");
+                    "Provided EPL expression is a continuous query expression (not an on-demand query)");
 
             // test model-after with no field
             tryInvalidCompile(env, "create window MyWindowI3#keepall as select innermap.abc from OuterMap",
-                "Failed to validate select-clause expression 'innermap.abc': Failed to resolve property 'innermap.abc' to a stream or nested property in a stream");
+                    "Failed to validate select-clause expression 'innermap.abc': Failed to resolve property 'innermap.abc' to a stream or nested property in a stream");
 
             env.undeployAll();
         }
@@ -3171,7 +3221,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window MyWindowCDW#keepall as MySimpleKeyValueMap", path);
             tryInvalidCompile(env, path, "select key, value as value from MyWindowCDW#time(10 sec)",
-                "Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindowCDW#time(10 sec)]");
+                    "Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindowCDW#time(10 sec)]");
             env.undeployAll();
         }
     }
@@ -3182,9 +3232,9 @@ public class InfraNamedWindowViews {
             String[] fieldsStat = new String[]{"average"};
 
             String epl = "@name('create') create window MyWindowPS#keepall as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowPS select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select prior(1, key) as priorKeyOne, prior(2, key) as priorKeyTwo from MyWindowPS;\n" +
-                "@name('s3') select average from MyWindowPS#uni(value);\n";
+                    "insert into MyWindowPS select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select prior(1, key) as priorKeyOne, prior(2, key) as priorKeyTwo from MyWindowPS;\n" +
+                    "@name('s3') select average from MyWindowPS#uni(value);\n";
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("s3");
 
             assertEquals(String.class, env.statement("create").getEventType().getPropertyType("key"));
@@ -3292,8 +3342,8 @@ public class InfraNamedWindowViews {
 
             // This replays into MyWindow
             String stmtTextSelectTwo = "@name('s2') select key, value, symbol from MyWindowLCJ as s0" +
-                " left outer join SupportMarketDataBean#keepall as s1" +
-                " on s0.value = s1.volume";
+                    " left outer join SupportMarketDataBean#keepall as s1" +
+                    " on s0.value = s1.volume";
             env.compileDeploy(stmtTextSelectTwo, path).addListener("s2");
             assertFalse(env.listener("s2").isInvoked());
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s2"), fieldsJoin, new Object[][]{{"E1", 1L, null}, {"E2", 1L, null}});
@@ -3327,8 +3377,8 @@ public class InfraNamedWindowViews {
         public void run(RegressionEnvironment env) {
             String[] fields = new String[]{"key", "value"};
             String epl = "@name('create') create window MyWindowPAT#keepall as MySimpleKeyValueMap;\n" +
-                "@name('s0') select a.key as key, a.value as value from pattern [every a=MyWindowPAT(key='S1') or a=MyWindowPAT(key='S2')];\n" +
-                "insert into MyWindowPAT select theString as key, longBoxed as value from SupportBean;\n";
+                    "@name('s0') select a.key as key, a.value as value from pattern [every a=MyWindowPAT(key='S1') or a=MyWindowPAT(key='S2')];\n" +
+                    "insert into MyWindowPAT select theString as key, longBoxed as value from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
             sendSupportBean(env, "E1", 1L);
@@ -3355,9 +3405,9 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"key", "value"};
 
             String epl = "@name('create') create window MyWindowETB#ext_timed_batch(value, 10 sec, 0L) as MySimpleKeyValueMap;\n" +
-                "insert into MyWindowETB select theString as key, longBoxed as value from SupportBean;\n" +
-                "@name('s0') select irstream key, value as value from MyWindowETB;\n" +
-                "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowETB as s1 where s0.symbol = s1.key;\n";
+                    "insert into MyWindowETB select theString as key, longBoxed as value from SupportBean;\n" +
+                    "@name('s0') select irstream key, value as value from MyWindowETB;\n" +
+                    "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowETB as s1 where s0.symbol = s1.key;\n";
             env.compileDeploy(epl).addListener("delete").addListener("create").addListener("s0");
 
             env.milestone(0);
@@ -3382,9 +3432,9 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E4", 10000L);
             EPAssertionUtil.assertPropsPerRow(env.listener("create").assertInvokedAndReset(), fields,
-                new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
+                    new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
-                new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
+                    new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E4", 10000L}});
 
             env.milestone(4);
@@ -3405,7 +3455,7 @@ public class InfraNamedWindowViews {
             sendSupportBean(env, "E6", 21000L);
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E6", 21000L}});
             EPAssertionUtil.assertPropsPerRow(env.listener("create").assertInvokedAndReset(), fields,
-                new Object[][]{{"E5", 14000L}}, new Object[][]{{"E1", 1000L}, {"E3", 9999L}});
+                    new Object[][]{{"E5", 14000L}}, new Object[][]{{"E1", 1000L}, {"E3", 9999L}});
 
             env.undeployAll();
         }
@@ -3426,6 +3476,14 @@ public class InfraNamedWindowViews {
     private static SupportBean sendSupportBean(RegressionEnvironment env, String theString) {
         SupportBean bean = new SupportBean();
         bean.setTheString(theString);
+        env.sendEventBean(bean);
+        return bean;
+    }
+
+    private static SupportBean sendSupportBean(RegressionEnvironment env, String theString, long longPrimitive) {
+        SupportBean bean = new SupportBean();
+        bean.setTheString(theString);
+        bean.setLongPrimitive(longPrimitive);
         env.sendEventBean(bean);
         return bean;
     }
@@ -3460,10 +3518,10 @@ public class InfraNamedWindowViews {
         RegressionPath path = new RegressionPath();
 
         String epl = "@name('create') " + createWindowStatement + ";\n" +
-            "@name('insert') insert into MyWindow select theString as key, longBoxed as value from SupportBean;\n" +
-            "@name('s0') select irstream key, value*2 as value from MyWindow;\n" +
-            "@name('s2') select irstream key, sum(value) as value from MyWindow group by key;\n" +
-            "@name('s3') select irstream key, value from MyWindow where value >= 10;\n";
+                "@name('insert') insert into MyWindow select theString as key, longBoxed as value from SupportBean;\n" +
+                "@name('s0') select irstream key, value*2 as value from MyWindow;\n" +
+                "@name('s2') select irstream key, sum(value) as value from MyWindow group by key;\n" +
+                "@name('s3') select irstream key, value from MyWindow where value >= 10;\n";
         env.compileDeploy(epl, path).addListener("create").addListener("s0").addListener("s2").addListener("s3");
 
         assertEquals(String.class, env.statement("create").getEventType().getPropertyType("key"));
