@@ -43,11 +43,42 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
         executions.add(new ExprFilterOptLkupInSetOfValue());
         executions.add(new ExprFilterOptLkupInRangeWCoercion());
         executions.add(new ExprFilterOptLkupDisqualify());
-        executions.add(new ExprFilterOptLkupCurrentTimestamp());
+        executions.add(new ExprFilterOptLkupCurrentTimestampWEquals());
+        executions.add(new ExprFilterOptLkupCurrentTimestampCompare());
         return executions;
     }
+
+    private static class ExprFilterOptLkupCurrentTimestampCompare implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(current_timestamp().getSecondOfMinute()%2=0);\n";
+            env.advanceTime(0);
+            env.compileDeploy(epl).addListener("s0");
+
+            sendSBAssert(env, true);
+            env.advanceTime(999);
+            sendSBAssert(env, true);
+
+            env.advanceTime(1000);
+            sendSBAssert(env, false);
+            env.advanceTime(1999);
+            sendSBAssert(env, false);
+
+            env.advanceTime(2000);
+            sendSBAssert(env, true);
+
+            env.advanceTime(3000);
+            sendSBAssert(env, false);
+
+            env.undeployAll();
+        }
+
+        private void sendSBAssert(RegressionEnvironment env, boolean received) {
+            env.sendEventBean(new SupportBean());
+            assertEquals(received, env.listener("s0").getAndClearIsInvoked());
+        }
+    }
     
-    private static class ExprFilterOptLkupCurrentTimestamp implements RegressionExecution {
+    private static class ExprFilterOptLkupCurrentTimestampWEquals implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[a=SupportBean -> SupportBean(a.longPrimitive = current_timestamp() + longPrimitive)];\n";
             env.compileDeploy(epl).addListener("s0");
@@ -96,6 +127,8 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
                 hook + "select * from SupportBeanArrayCollMap(id || setOfString.where(v => v=id).firstOf() = 'ax')");
             assertDisqualified(env, path, "SupportBean",
                 hook + "select * from pattern[s0=SupportBean_S0 -> SupportBean(MyJavaScript(theString)='x')]");
+            assertDisqualified(env, path, "SupportBean",
+                    hook + "select * from SupportBean(current_timestamp()=1)");
 
             // local inlined class
             String eplWithLocalHelper = hook + "inlined_class \"\"\"\n" +

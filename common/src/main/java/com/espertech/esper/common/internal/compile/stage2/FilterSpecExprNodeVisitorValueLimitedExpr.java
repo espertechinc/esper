@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.declared.compiletime.E
 import com.espertech.esper.common.internal.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimestampNode;
 import com.espertech.esper.common.internal.epl.expression.variable.ExprVariableNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
@@ -51,17 +52,19 @@ public class FilterSpecExprNodeVisitorValueLimitedExpr implements ExprNodeVisito
                 limited = false;
             }
         } else if (exprNode instanceof ExprTableAccessNode ||
-            exprNode instanceof ExprSubselectNode ||
-            exprNode instanceof ExprLambdaGoesNode ||
-            exprNode instanceof ExprWildcard ||
-            exprNode instanceof ExprNodeScript ||
-            exprNode instanceof ExprDeclaredNode) {
+                exprNode instanceof ExprSubselectNode ||
+                exprNode instanceof ExprLambdaGoesNode ||
+                exprNode instanceof ExprWildcard ||
+                exprNode instanceof ExprNodeScript ||
+                exprNode instanceof ExprDeclaredNode) {
             limited = false;
         } else if (exprNode instanceof ExprPlugInSingleRowNode) {
             ExprPlugInSingleRowNode plugIn = (ExprPlugInSingleRowNode) exprNode;
             if (plugIn.getConfig() != null && plugIn.getConfig().getFilterOptimizable() == ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.DISABLED) {
                 limited = false;
             }
+        } else if (exprNode instanceof ExprTimestampNode) {
+            limited = false;
         }
     }
 
