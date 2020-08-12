@@ -197,4 +197,8 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
     public IntersectViewFactory getViewFactory() {
         return factory;
     }
+
+    public View[] getRelatedViews() {
+        return views;
+    }
 }

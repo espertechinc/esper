@@ -32,7 +32,7 @@ import java.util.List;
  * The view is parameterized by two or more data windows. From an external viewpoint, the
  * view retains all events that is in any of the data windows (a union).
  */
-public class UnionView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer {
+public class UnionView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer, RelatedView {
     protected final AgentInstanceContext agentInstanceContext;
     private final UnionViewFactory unionViewFactory;
     protected final View[] views;
@@ -228,5 +228,9 @@ public class UnionView extends ViewSupport implements LastPostObserver, AgentIns
 
     public UnionViewFactory getViewFactory() {
         return unionViewFactory;
+    }
+
+    public View[] getRelatedViews() {
+        return views;
     }
 }

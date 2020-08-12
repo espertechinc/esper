@@ -51,7 +51,71 @@ public class ViewIntersect {
         execs.add(new ViewIntersectFirstUniqueAndLengthOnDelete());
         execs.add(new ViewIntersectTimeWinNamedWindow());
         execs.add(new ViewIntersectTimeWinNamedWindowDelete());
+        execs.add(new ViewIntersectGroupTimeLength());
         return execs;
+    }
+
+    private static class ViewIntersectGroupTimeLength implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select sum(intPrimitive) as c0 from SupportBean#groupwin(theString)#time(1 second)#length(2)";
+            env.advanceTime(0);
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "G1", 10, 10);
+
+            env.advanceTime(250);
+            sendAssert(env, "G2", 100, 110);
+
+            env.milestone(0);
+
+            env.advanceTime(500);
+            sendAssert(env, "G1", 11, 10 + 100 + 11);
+
+            env.advanceTime(750);
+            sendAssert(env, "G2", 101, 10 + 100 + 11 + 101);
+
+            env.milestone(1);
+
+            env.advanceTime(800);
+            sendAssert(env, "G3", 1000, 10 + 100 + 11 + 101 + 1000);
+
+            env.advanceTime(1000); // expires: {"G1", 10}
+            assertReceived(env, 100 + 11 + 101 + 1000);
+
+            env.milestone(2);
+
+            sendAssert(env, "G2", 102, 11 + 101 + 1000 + 102); // expires: {"G2", 100}
+
+            env.advanceTime(1499); // expires: {"G1", 10}
+            assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(3);
+
+            env.advanceTime(1500); // expires: {"G1", 11}
+            assertReceived(env, 101 + 1000 + 102);
+
+            env.advanceTime(1750); // expires: {"G2", 101}
+            assertReceived(env, 1000 + 102);
+
+            env.milestone(4);
+
+            env.advanceTime(1800); // expires: {"G3", 1000}
+            assertReceived(env, 102);
+
+            env.advanceTime(2000); // expires: {"G2", 102}
+            assertReceived(env, null);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, String theString, int intPrimitive, Object expected) {
+            env.sendEventBean(new SupportBean(theString, intPrimitive));
+            assertReceived(env, expected);
+        }
+
+        private void assertReceived(RegressionEnvironment env, Object expected) {
+            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        }
     }
 
     private static class ViewIntersectUniqueAndFirstLength implements RegressionExecution {
@@ -95,9 +159,9 @@ public class ViewIntersect {
     private static class ViewIntersectFirstUniqueAndLengthOnDelete implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "create window MyWindowOne#firstunique(theString)#firstlength(3) as SupportBean;\n" +
-                "insert into MyWindowOne select * from SupportBean;\n" +
-                "on SupportBean_S0 delete from MyWindowOne where theString = p00;\n" +
-                "@name('s0') select irstream * from MyWindowOne";
+                    "insert into MyWindowOne select * from SupportBean;\n" +
+                    "on SupportBean_S0 delete from MyWindowOne where theString = p00;\n" +
+                    "@name('s0') select irstream * from MyWindowOne";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             String[] fields = new String[]{"theString", "intPrimitive"};
@@ -190,7 +254,7 @@ public class ViewIntersect {
             env.undeployAll();
 
             SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#time_batch(1)#length_batch(10)",
-                "Failed to validate data window declaration: Cannot combined multiple batch data windows into an intersection [");
+                    "Failed to validate data window declaration: Cannot combined multiple batch data windows into an intersection [");
         }
     }
 
@@ -583,8 +647,8 @@ public class ViewIntersect {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             String epl = "@name('s0') create window MyWindowTwo#time(10 sec)#unique(intPrimitive) retain-intersection as select * from SupportBean;\n" +
-                "insert into MyWindowTwo select * from SupportBean;\n" +
-                "on SupportBean_S0 delete from MyWindowTwo where intBoxed = id;\n";
+                    "insert into MyWindowTwo select * from SupportBean;\n" +
+                    "on SupportBean_S0 delete from MyWindowTwo where intBoxed = id;\n";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             tryAssertionTimeWinUnique(env);
@@ -597,8 +661,8 @@ public class ViewIntersect {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             String epl = "@name('s0') create window MyWindowThree#time(10 sec)#unique(intPrimitive) retain-intersection as select * from SupportBean;\n" +
-                "insert into MyWindowThree select * from SupportBean\n;" +
-                "on SupportBean_S0 delete from MyWindowThree where intBoxed = id;\n";
+                    "insert into MyWindowThree select * from SupportBean\n;" +
+                    "on SupportBean_S0 delete from MyWindowThree where intBoxed = id;\n";
             env.compileDeploy(epl).addListener("s0");
 
             String[] fields = new String[]{"theString"};
@@ -689,7 +753,7 @@ public class ViewIntersect {
 
             env.sendEventBean(makeMarketDataEvent("S1", 5));
             env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "S1"}, {"price", 5.0}},
-                new Object[][]{{"symbol", "S1"}, {"price", 100.0}});
+                    new Object[][]{{"symbol", "S1"}, {"price", 100.0}});
 
             env.undeployAll();
         }

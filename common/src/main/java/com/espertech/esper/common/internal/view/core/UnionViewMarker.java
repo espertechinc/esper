@@ -10,5 +10,5 @@
  */
 package com.espertech.esper.common.internal.view.core;
 
-public interface IntersectViewMarker extends RelatedView {
+public interface UnionViewMarker extends RelatedView {
 }

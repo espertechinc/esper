@@ -217,4 +217,8 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
     public ViewFactory getViewFactory() {
         return factory;
     }
+
+    public View[] getRelatedViews() {
+        return views;
+    }
 }

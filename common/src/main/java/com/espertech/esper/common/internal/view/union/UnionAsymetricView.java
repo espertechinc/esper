@@ -21,8 +21,6 @@ import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.intersect.IntersectDefaultView;
 import com.espertech.esper.common.internal.view.intersect.LastPostObserver;
 import com.espertech.esper.common.internal.view.intersect.LastPostObserverView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -36,9 +34,7 @@ import java.util.List;
  * The view is parameterized by two or more data windows. From an external viewpoint, the
  * view retains all events that is in any of the data windows (a union).
  */
-public class UnionAsymetricView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer {
-    private static final Logger log = LoggerFactory.getLogger(UnionAsymetricView.class);
-
+public class UnionAsymetricView extends ViewSupport implements LastPostObserver, AgentInstanceMgmtCallback, DataWindowView, ViewDataVisitableContainer, RelatedView {
     protected final AgentInstanceContext agentInstanceContext;
     private final UnionViewFactory unionViewFactory;
     protected final View[] views;
@@ -301,5 +297,9 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
 
     public UnionViewFactory getViewFactory() {
         return unionViewFactory;
+    }
+
+    public View[] getRelatedViews() {
+        return views;
     }
 }

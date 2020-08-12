@@ -252,4 +252,8 @@ public class IntersectAsymetricView extends ViewSupport implements LastPostObser
     public IntersectViewFactory getViewFactory() {
         return factory;
     }
+
+    public View[] getRelatedViews() {
+        return views;
+    }
 }
