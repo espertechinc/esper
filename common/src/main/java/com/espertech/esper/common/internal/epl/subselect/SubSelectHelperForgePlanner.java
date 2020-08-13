@@ -470,6 +470,7 @@ public class SubSelectHelperForgePlanner {
         //
 
         // handle named window index share first
+        SubSelectFactoryForge forge = null;
         if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
             if (namedSpec.getFilterExpressions().isEmpty()) {
@@ -490,16 +491,13 @@ public class SubSelectHelperForgePlanner {
                     SubSelectStrategyFactoryIndexShareForge strategyForge = new SubSelectStrategyFactoryIndexShareForge(subqueryNum, subselectActivation, outerEventTypesSelect, namedWindow, null,
                         fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
                     additionalForgeables.addAll(strategyForge.getAdditionalForgeables());
-                    SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
-                    return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
+                    forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
                 }
             } else if (services.isFireAndForget()) {
                 throw new ExprValidationException("Subqueries in fire-and-forget queries do not allow filter expressions");
             }
-        }
-
-        // handle table-subselect
-        if (filterStreamSpec instanceof TableQueryStreamSpec) {
+        } else if (filterStreamSpec instanceof TableQueryStreamSpec) {
+            // handle table-subselect
             TableQueryStreamSpec tableSpec = (TableQueryStreamSpec) filterStreamSpec;
             validateContextAssociation(statement.getStatementRawInfo().getContextName(), tableSpec.getTable().getOptionalContextName(), "table '" + tableSpec.getTable().getTableName() + "'");
             boolean fullTableScan = HintEnum.SET_NOINDEX.getHint(annotations) != null;
@@ -508,36 +506,39 @@ public class SubSelectHelperForgePlanner {
             SubSelectStrategyFactoryIndexShareForge strategyForge = new SubSelectStrategyFactoryIndexShareForge(subqueryNum, subselectActivation, outerEventTypesSelect, null, tableSpec.getTable(),
                 fullTableScan, indexHint, joinedPropPlan, filterExprEval, groupByNodes, aggregationServiceForgeDesc, statement, services);
             additionalForgeables.addAll(strategyForge.getAdditionalForgeables());
-            SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
-            return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
+            forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         }
 
-        // determine unique keys, if any
-        Set<String> optionalUniqueProps = StreamJoinAnalysisResultCompileTime.getUniqueCandidateProperties(viewForges, annotations);
-        NamedWindowMetaData namedWindow = null;
-        ExprNode namedWindowFilterExpr = null;
-        QueryGraphForge namedWindowFilterQueryGraph = null;
-        if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
-            NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
-            namedWindow = namedSpec.getNamedWindow();
-            optionalUniqueProps = namedWindow.getUniquenessAsSet();
-            if (namedSpec.getFilterExpressions() != null && !namedSpec.getFilterExpressions().isEmpty()) {
-                StreamTypeServiceImpl types = new StreamTypeServiceImpl(namedWindow.getEventType(), namedWindow.getEventType().getName(), false);
-                namedWindowFilterExpr = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions());
-                namedWindowFilterQueryGraph = EPLValidationUtil.validateFilterGetQueryGraphSafe(namedWindowFilterExpr, types, statement.getStatementRawInfo(), services);
+        if (forge == null) {
+            // determine unique keys, if any
+            Set<String> optionalUniqueProps = StreamJoinAnalysisResultCompileTime.getUniqueCandidateProperties(viewForges, annotations);
+            NamedWindowMetaData namedWindow = null;
+            ExprNode namedWindowFilterExpr = null;
+            QueryGraphForge namedWindowFilterQueryGraph = null;
+            if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
+                NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) filterStreamSpec;
+                namedWindow = namedSpec.getNamedWindow();
+                optionalUniqueProps = namedWindow.getUniquenessAsSet();
+                if (namedSpec.getFilterExpressions() != null && !namedSpec.getFilterExpressions().isEmpty()) {
+                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(namedWindow.getEventType(), namedWindow.getEventType().getName(), false);
+                    namedWindowFilterExpr = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions());
+                    namedWindowFilterQueryGraph = EPLValidationUtil.validateFilterGetQueryGraphSafe(namedWindowFilterExpr, types, statement.getStatementRawInfo(), services);
+                }
             }
+
+            // handle local stream + named-window-stream
+            boolean fullTableScan = HintEnum.SET_NOINDEX.getHint(annotations) != null;
+            SubqueryIndexForgeDesc indexDesc = determineSubqueryIndexFactory(filterExpr, eventType,
+                outerEventTypes, subselectTypeService, fullTableScan, queryPlanLogging, optionalUniqueProps, statement, subselect, services);
+            additionalForgeables.addAll(indexDesc.getAdditionalForgeables());
+            Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> indexPair = new Pair<>(indexDesc.getTableForge(), indexDesc.getLookupForge());
+
+            SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
+                filterExpr, correlatedSubquery, aggregationServiceForgeDesc, subqueryNum, groupByNodes, namedWindow,
+                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
+
+            forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         }
-
-        // handle local stream + named-window-stream
-        boolean fullTableScan = HintEnum.SET_NOINDEX.getHint(annotations) != null;
-        SubqueryIndexForgeDesc indexDesc = determineSubqueryIndexFactory(filterExpr, eventType,
-            outerEventTypes, subselectTypeService, fullTableScan, queryPlanLogging, optionalUniqueProps, statement, subselect, services);
-        additionalForgeables.addAll(indexDesc.getAdditionalForgeables());
-        Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> indexPair = new Pair<>(indexDesc.getTableForge(), indexDesc.getLookupForge());
-
-        SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
-            filterExpr, correlatedSubquery, aggregationServiceForgeDesc, subqueryNum, groupByNodes, namedWindow,
-            namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
 
         // For subselect in filters, we must validate-subquery again as the first validate was not including the information compiled herein.
         // This is because filters are validated first so their information is available to stream-type-service and this validation.
@@ -546,7 +547,6 @@ public class SubSelectHelperForgePlanner {
             subselect.validateSubquery(subselect.getFilterStreamExprValidationContext());
         }
 
-        SubSelectFactoryForge forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         return new SubSelectFactoryForgeDesc(forge, additionalForgeables);
     }
 
