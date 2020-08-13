@@ -26,7 +26,7 @@ public class FilterSpecPlanComputeConditionalTriplets extends FilterSpecPlanComp
     protected FilterValueSetParam[][] compute(EventBean[] eventsPerStream, FilterSpecPlan plan, MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
         if (plan.filterNegate != null) {
             Boolean controlResult = (Boolean) plan.filterNegate.evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (controlResult != null && !controlResult) {
+            if (controlResult == null || !controlResult) {
                 return null;
             }
         }
@@ -46,7 +46,7 @@ public class FilterSpecPlanComputeConditionalTriplets extends FilterSpecPlanComp
             boolean pass = true;
             if (path.getPathNegate() != null) {
                 Boolean controlResult = (Boolean) path.getPathNegate().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                if (controlResult != null && !controlResult) {
+                if (controlResult == null || !controlResult) {
                     pass = false;
                 }
             }
@@ -64,7 +64,6 @@ public class FilterSpecPlanComputeConditionalTriplets extends FilterSpecPlanComp
     private FilterValueSetParam[] computeTriplets(List<FilterValueSetParam[]> pathList, FilterSpecPlanPath path, EventBean[] eventsPerStream, MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
         FilterSpecPlanPathTriplet[] triplets = path.getTriplets();
         List<FilterValueSetParam> valueList = new ArrayList<>(triplets.length);
-        int count = 0;
         for (FilterSpecPlanPathTriplet triplet : triplets) {
             if (triplet.getTripletConfirm() != null) {
                 Boolean controlResult = (Boolean) triplet.getTripletConfirm().evaluate(eventsPerStream, true, exprEvaluatorContext);
@@ -74,7 +73,6 @@ public class FilterSpecPlanComputeConditionalTriplets extends FilterSpecPlanComp
             }
             FilterValueSetParam valueParam = triplet.getParam().getFilterValue(matchedEvents, exprEvaluatorContext, filterEvalEnv);
             valueList.add(valueParam);
-            count++;
         }
         return valueList.toArray(new FilterValueSetParam[0]);
     }
