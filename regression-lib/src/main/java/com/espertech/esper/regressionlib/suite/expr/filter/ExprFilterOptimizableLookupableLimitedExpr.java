@@ -32,6 +32,7 @@ import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ExprFilterOptimizableLookupableLimitedExpr {
     public static Collection<RegressionExecution> executions() {
@@ -45,7 +46,20 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
         executions.add(new ExprFilterOptLkupDisqualify());
         executions.add(new ExprFilterOptLkupCurrentTimestampWEquals());
         executions.add(new ExprFilterOptLkupCurrentTimestampCompare());
+        executions.add(new ExprFilterOptLkupConstantEqualsNull());
         return executions;
+    }
+
+    private static class ExprFilterOptLkupConstantEqualsNull implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(null = 'a');\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("E1", 1));
+            assertFalse(env.listener("s0").isInvoked());
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprFilterOptLkupCurrentTimestampCompare implements RegressionExecution {

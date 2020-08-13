@@ -25,7 +25,7 @@ public class FilterSpecPlanComputeConditionalTopOnly extends FilterSpecPlanCompu
     protected FilterValueSetParam[][] compute(EventBean[] eventsPerStream, FilterSpecPlan plan, MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext, StatementContextFilterEvalEnv filterEvalEnv) {
         if (plan.filterNegate != null) {
             Boolean controlResult = (Boolean) plan.filterNegate.evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (controlResult != null && !controlResult) {
+            if (controlResult == null || !controlResult) {
                 return null;
             }
         }
