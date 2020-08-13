@@ -24,7 +24,7 @@ public class DIOMultiKeyArrayObjectSerde implements DataInputOutputSerde<MultiKe
     public final static DIOMultiKeyArrayObjectSerde INSTANCE = new DIOMultiKeyArrayObjectSerde();
 
     public void write(MultiKeyArrayObject mk, DataOutput output, byte[] unitKey, EventBeanCollatedWriter writer) throws IOException {
-        writeInternal(mk.getKeys(), output);
+        writeInternal(mk == null ? null : mk.getKeys(), output);
     }
 
     public MultiKeyArrayObject read(DataInput input, byte[] unitKey) throws IOException {
