@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static com.espertech.esper.common.internal.util.JavaClassHelper.isFragmentableType;
+
 public class VariableUtil {
     private static final Logger log = LoggerFactory.getLogger(VariableUtil.class);
 
@@ -131,7 +133,8 @@ public class VariableUtil {
                 variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array type and cannot receive type parameters as it is an event type", exTypeResolution);
         }
 
-        if ((variableEventType == null) && (!JavaClassHelper.isJavaBuiltinDataType(variableClass)) && (variableClass.getType() != Object.class) && !variableClass.getType().isArray() && !variableClass.getType().isEnum()) {
+        if ((variableEventType == null) && (!JavaClassHelper.isJavaBuiltinDataType(variableClass)) && (variableClass.getType() != Object.class) && !variableClass.getType().isArray() && !variableClass.getType().isEnum()
+                && isFragmentableType(variableClass)) {
             if (variableTypeWArray.getArrayDimensions() > 0) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
                     variableTypeWArray.getClassIdentifier() + "' cannot be declared as an array, only scalar types can be array");

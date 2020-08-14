@@ -463,7 +463,7 @@ public class JavaClassHelper {
      * @throws CoercionException if types don't allow coercion
      */
     public static EPTypeClass getArithmaticCoercionType(EPTypeClass typeOne, EPTypeClass typeTwo)
-            throws CoercionException {
+        throws CoercionException {
         EPTypeClass boxedOneType = getBoxedType(typeOne);
         EPTypeClass boxedTwoType = getBoxedType(typeTwo);
         Class<?> boxedOne = boxedOneType.getType();
@@ -479,7 +479,7 @@ public class JavaClassHelper {
             return BIGDECIMAL.getEPType();
         }
         if (((boxedOne == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedTwo)) ||
-                ((boxedTwo == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedOne))) {
+            ((boxedTwo == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedOne))) {
             return BIGDECIMAL.getEPType();
         }
         if ((boxedOne == BigInteger.class) || (boxedTwo == BigInteger.class)) {
@@ -510,7 +510,7 @@ public class JavaClassHelper {
      * @throws CoercionException if types don't allow coercion
      */
     public static Class<?> getArithmaticCoercionType(Class<?> typeOne, Class<?> typeTwo)
-            throws CoercionException {
+        throws CoercionException {
         Class<?> boxedOne = getBoxedType(typeOne);
         Class<?> boxedTwo = getBoxedType(typeTwo);
 
@@ -524,7 +524,7 @@ public class JavaClassHelper {
             return BigDecimal.class;
         }
         if (((boxedOne == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedTwo)) ||
-                ((boxedTwo == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedOne))) {
+            ((boxedTwo == BigInteger.class) && JavaClassHelper.isFloatingPointClass(boxedOne))) {
             return BigDecimal.class;
         }
         if ((boxedOne == BigInteger.class) || (boxedTwo == BigInteger.class)) {
@@ -696,9 +696,9 @@ public class JavaClassHelper {
      */
     public static boolean isFloatingPointClass(Class<?> clazz) {
         return (clazz == Float.class) ||
-                (clazz == Double.class) ||
-                (clazz == float.class) ||
-                (clazz == double.class);
+            (clazz == Double.class) ||
+            (clazz == float.class) ||
+            (clazz == double.class);
     }
 
     /**
@@ -730,7 +730,7 @@ public class JavaClassHelper {
             return STRING.getEPType();
         }
         if (((classOne == boolean.class) || ((classOne == Boolean.class))) &&
-                ((classTwo == boolean.class) || ((classTwo == Boolean.class)))) {
+            ((classTwo == boolean.class) || ((classTwo == Boolean.class)))) {
             return BOOLEANBOXED.getEPType();
         }
         if (!isJavaBuiltinDataType(classOne) && (!isJavaBuiltinDataType(classTwo))) {
@@ -786,43 +786,43 @@ public class JavaClassHelper {
 
         if (boxedTo == Float.class) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class) ||
-                    (boxedFrom == Long.class) ||
-                    (boxedFrom == Float.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class) ||
+                (boxedFrom == Long.class) ||
+                (boxedFrom == Float.class);
         } else if (boxedTo == Double.class) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class) ||
-                    (boxedFrom == Long.class) ||
-                    (boxedFrom == Float.class) ||
-                    (boxedFrom == Double.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class) ||
+                (boxedFrom == Long.class) ||
+                (boxedFrom == Float.class) ||
+                (boxedFrom == Double.class);
         } else if (boxedTo == BigDecimal.class) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class) ||
-                    (boxedFrom == Long.class) ||
-                    (boxedFrom == Float.class) ||
-                    (boxedFrom == Double.class) ||
-                    (boxedFrom == BigInteger.class) ||
-                    (boxedFrom == BigDecimal.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class) ||
+                (boxedFrom == Long.class) ||
+                (boxedFrom == Float.class) ||
+                (boxedFrom == Double.class) ||
+                (boxedFrom == BigInteger.class) ||
+                (boxedFrom == BigDecimal.class);
         } else if (boxedTo == BigInteger.class) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class) ||
-                    (boxedFrom == Long.class) ||
-                    (boxedFrom == BigInteger.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class) ||
+                (boxedFrom == Long.class) ||
+                (boxedFrom == BigInteger.class);
         } else if (boxedTo == Long.class) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class) ||
-                    (boxedFrom == Long.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class) ||
+                (boxedFrom == Long.class);
         } else if ((boxedTo == Integer.class) ||
-                (boxedTo == Short.class) ||
-                (boxedTo == Byte.class)) {
+            (boxedTo == Short.class) ||
+            (boxedTo == Byte.class)) {
             return (boxedFrom == Byte.class) ||
-                    (boxedFrom == Short.class) ||
-                    (boxedFrom == Integer.class);
+                (boxedFrom == Short.class) ||
+                (boxedFrom == Integer.class);
         } else {
             throw new IllegalArgumentException("Class '" + numberClassToCoerceTo + "' is not a numeric type'");
         }
@@ -903,7 +903,7 @@ public class JavaClassHelper {
             return true;
         }
         if ((clazzBoxed.equals(char.class)) ||
-                (clazzBoxed.equals(Character.class))) {
+            (clazzBoxed.equals(Character.class))) {
             return true;
         }
         return clazzBoxed.equals(void.class);
@@ -928,7 +928,7 @@ public class JavaClassHelper {
      * @throws CoercionException when no coercion type could be determined
      */
     public static EPType getCommonCoercionType(EPType[] types)
-            throws CoercionException {
+        throws CoercionException {
         if (types.length < 1) {
             throw new IllegalArgumentException("Unexpected zero length array");
         }
@@ -1109,13 +1109,13 @@ public class JavaClassHelper {
      */
     public static Class<?> getClassForSimpleName(String className, ClassForNameProvider classForNameProvider) {
         if (("string".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
-                ("varchar".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
-                ("varchar2".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
+            ("varchar".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
+            ("varchar2".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
             return String.class;
         }
 
         if (("integer".equals(className.toLowerCase(Locale.ENGLISH).trim())) ||
-                ("int".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
+            ("int".equals(className.toLowerCase(Locale.ENGLISH).trim()))) {
             return Integer.class;
         }
 
@@ -1356,7 +1356,7 @@ public class JavaClassHelper {
         }
         if (extendedOrImplemented.isInterface()) {
             return recursiveIsImplementsInterface(extendorOrImplementor, extendedOrImplemented) ||
-                    recursiveSuperclassImplementsInterface(extendorOrImplementor, extendedOrImplemented);
+                recursiveSuperclassImplementsInterface(extendorOrImplementor, extendedOrImplemented);
         }
         return recursiveIsSuperClass(extendorOrImplementor, extendedOrImplemented);
     }
@@ -1524,43 +1524,22 @@ public class JavaClassHelper {
         if (JavaClassHelper.isImplementsInterface(propertyType, Map.class)) {
             return false;
         }
-        if (propertyType == Number.class) {
+        if (JavaClassHelper.isImplementsInterface(propertyType, Collection.class)) {
             return false;
         }
-        if (propertyType == Node.class) {
-            return false;
-        }
-        if (propertyType == NodeList.class) {
-            return false;
-        }
-        if (propertyType == Object.class) {
-            return false;
-        }
-        if (propertyType == Calendar.class) {
-            return false;
-        }
-        if (propertyType == Date.class) {
-            return false;
-        }
-        if (propertyType == LocalDateTime.class) {
-            return false;
-        }
-        if (propertyType == ZonedDateTime.class) {
-            return false;
-        }
-        if (propertyType == LocalDate.class) {
-            return false;
-        }
-        if (propertyType == LocalTime.class) {
-            return false;
-        }
-        if (propertyType == java.sql.Date.class) {
-            return false;
-        }
-        if (propertyType == java.sql.Time.class) {
-            return false;
-        }
-        if (propertyType == java.sql.Timestamp.class) {
+        if (propertyType == Number.class ||
+            propertyType == Node.class ||
+            propertyType == NodeList.class ||
+            propertyType == Object.class ||
+            propertyType == Calendar.class ||
+            propertyType == Date.class ||
+            propertyType == LocalDateTime.class ||
+            propertyType == ZonedDateTime.class ||
+            propertyType == LocalDate.class ||
+            propertyType == LocalTime.class ||
+            propertyType == java.sql.Date.class ||
+            propertyType == java.sql.Time.class ||
+            propertyType == Optional.class) {
             return false;
         }
         if (propertyType.getName().equals(APACHE_AVRO_GENERIC_RECORD_CLASSNAME)) {
@@ -1751,19 +1730,19 @@ public class JavaClassHelper {
             for (int i = 0; i < methodParameters.length; i++) {
                 if (methodParameters[i].isPrimitive() && args[i] == null) {
                     return "NullPointerException invoking method '" + methodName +
-                            "' of class '" + classOrPropertyName +
-                            "' in parameter " + i +
-                            " passing parameters " + parameters +
-                            " for statement '" + statementName + "': The method expects a primitive " + methodParameters[i].getSimpleName() +
-                            " value but received a null value";
+                        "' of class '" + classOrPropertyName +
+                        "' in parameter " + i +
+                        " passing parameters " + parameters +
+                        " for statement '" + statementName + "': The method expects a primitive " + methodParameters[i].getSimpleName() +
+                        " value but received a null value";
                 }
             }
         }
 
         return "Invocation exception when invoking method '" + methodName +
-                "' of class '" + classOrPropertyName +
-                "' passing parameters " + parameters +
-                " for statement '" + statementName + "': " + targetException.getClass().getSimpleName() + " : " + targetException.getMessage();
+            "' of class '" + classOrPropertyName +
+            "' passing parameters " + parameters +
+            " for statement '" + statementName + "': " + targetException.getClass().getSimpleName() + " : " + targetException.getMessage();
     }
 
     public static boolean isDatetimeClass(EPType inputType) {
@@ -1778,10 +1757,10 @@ public class JavaClassHelper {
             return false;
         }
         if ((!JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) &&
-                (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) &&
-                (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) &&
-                (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) &&
-                (JavaClassHelper.getBoxedType(inputType) != Long.class)) {
+            (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) &&
+            (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) &&
+            (!JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) &&
+            (JavaClassHelper.getBoxedType(inputType) != Long.class)) {
             return false;
         }
         return true;

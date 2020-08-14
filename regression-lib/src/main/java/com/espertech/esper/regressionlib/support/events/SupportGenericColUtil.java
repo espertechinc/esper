@@ -24,7 +24,7 @@ import static com.espertech.esper.common.client.type.EPTypeClassParameterized.fr
 import static org.junit.Assert.assertEquals;
 
 public class SupportGenericColUtil {
-    public final static PairOfNameAndType[] NAMESANDTYPES = new PairOfNameAndType[] {
+    public final static PairOfNameAndType[] NAMESANDTYPES = new PairOfNameAndType[]{
         fromPair("listOfString", "java.util.List<String>", from(List.class, String.class)),
         fromPair("listOfOptionalInteger", "java.util.List<Optional<Integer>>", from(List.class, from(Optional.class, Integer.class))),
         fromPair("mapOfStringAndInteger", "java.util.Map<String, Integer>", from(Map.class, String.class, Integer.class)),
@@ -58,11 +58,11 @@ public class SupportGenericColUtil {
     public static void assertPropertyEPTypes(EventType type) {
         SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
             new SupportEventPropDesc("listOfString", EPTypeClassParameterized.from(List.class, String.class)),
-            new SupportEventPropDesc("listOfOptionalInteger", from(List.class, EPTypeClassParameterized.from(Optional.class, Integer.class))).fragment(),
+            new SupportEventPropDesc("listOfOptionalInteger", from(List.class, EPTypeClassParameterized.from(Optional.class, Integer.class))),
             new SupportEventPropDesc("mapOfStringAndInteger", EPTypeClassParameterized.from(Map.class, String.class, Integer.class)),
-            new SupportEventPropDesc("listArrayOfString", EPTypeClassParameterized.from(List[].class, String.class)).fragment(),
+            new SupportEventPropDesc("listArrayOfString", EPTypeClassParameterized.from(List[].class, String.class)),
             new SupportEventPropDesc("listOfStringArray", EPTypeClassParameterized.from(List.class, String[].class)),
-            new SupportEventPropDesc("listArray2DimOfString", EPTypeClassParameterized.from(List[][].class, String.class)).fragment(),
+            new SupportEventPropDesc("listArray2DimOfString", EPTypeClassParameterized.from(List[][].class, String.class)),
             new SupportEventPropDesc("listOfStringArray2Dim", EPTypeClassParameterized.from(List.class, String[][].class)),
             new SupportEventPropDesc("listOfT", EPTypeClassParameterized.from(List.class, Object.class))
         );
@@ -105,22 +105,22 @@ public class SupportGenericColUtil {
     }
 
     private static List<String>[] makeListArrayOfString() {
-        return new List[] {Arrays.asList("b")};
+        return new List[]{Arrays.asList("b")};
     }
 
     private static List<String[]> makeListOfStringArray() {
         List<String[]> list = new ArrayList<>();
-        list.add(new String[] {"c"});
+        list.add(new String[]{"c"});
         return list;
     }
 
     private static List<String>[][] makeListArray2DimOfString() {
-        return new List[][] {{Arrays.asList("b")}};
+        return new List[][]{{Arrays.asList("b")}};
     }
 
     private static List<String[][]> makeListOfStringArray2Dim() {
         List<String[][]> list = new ArrayList<>();
-        list.add(new String[][] {{"c"}});
+        list.add(new String[][]{{"c"}});
         return list;
     }
 
