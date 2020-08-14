@@ -116,10 +116,10 @@ public class InfraNamedWindowViews {
             env.advanceTime(0);
             env.compileDeploy(epl);
 
-            sendSupportBean(env, "E1", 2000);
-            sendSupportBean(env, "E2", 3000);
-            sendSupportBean(env, "E3", 1000);
-            sendSupportBean(env, "E4", 2000);
+            sendSupportBeanLongPrim(env, "E1", 2000);
+            sendSupportBeanLongPrim(env, "E2", 3000);
+            sendSupportBeanLongPrim(env, "E3", 1000);
+            sendSupportBeanLongPrim(env, "E4", 2000);
             assertIterate(env, "E1", "E2", "E3", "E4");
 
             env.advanceTime(500);
@@ -3480,7 +3480,7 @@ public class InfraNamedWindowViews {
         return bean;
     }
 
-    private static SupportBean sendSupportBean(RegressionEnvironment env, String theString, long longPrimitive) {
+    private static SupportBean sendSupportBeanLongPrim(RegressionEnvironment env, String theString, long longPrimitive) {
         SupportBean bean = new SupportBean();
         bean.setTheString(theString);
         bean.setLongPrimitive(longPrimitive);
