@@ -43,7 +43,7 @@ public class SerdeCompileTimeResolverUtil {
                 SerdeProvision componentSerde = determineSerdeFromProviders(componentType, serdeProviders, additionalInfo);
                 if (componentSerde != null) {
                     return new SerdeProvisionParameterized(DIONullableObjectArraySerde.class,
-                        vars -> constant(componentType),
+                        vars -> constant(componentType.getType()),
                         vars -> componentSerde.toForge().codegen(vars.getMethod(), vars.getScope(), vars.getOptionalEventTypeResolver()));
                 }
             }
