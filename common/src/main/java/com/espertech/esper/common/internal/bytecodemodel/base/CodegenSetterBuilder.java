@@ -67,14 +67,30 @@ public class CodegenSetterBuilder {
         return setValue(name, value == null ? constantNull() : CodegenExpressionBuilder.constant(value));
     }
 
-    public CodegenSetterBuilder constantDefaultChecked(String name, Object value) {
-        if (value instanceof CodegenExpression) {
-            throw new IllegalArgumentException("Expected a non-expression value, received " + value);
-        }
-        if (value == null || value == Boolean.FALSE) {
+    public CodegenSetterBuilder constantDefaultChecked(String name, boolean value) {
+        if (!value) {
             return this;
         }
-        if (value instanceof Number && ((Number) value).doubleValue() == 0d) {
+        return setValue(name, CodegenExpressionBuilder.constant(value));
+    }
+
+    public CodegenSetterBuilder constantDefaultChecked(String name, int value) {
+        if (value == 0) {
+            return this;
+        }
+        return setValue(name, CodegenExpressionBuilder.constant(value));
+    }
+
+    public CodegenSetterBuilder constantDefaultChecked(String name, Boolean value) {
+        return constantDefaultCheckedObj(name, value);
+    }
+
+    public CodegenSetterBuilder constantDefaultChecked(String name, Integer value) {
+        return constantDefaultCheckedObj(name, value);
+    }
+
+    public CodegenSetterBuilder constantDefaultCheckedObj(String name, Object value) {
+        if (value == null) {
             return this;
         }
         return setValue(name, CodegenExpressionBuilder.constant(value));
