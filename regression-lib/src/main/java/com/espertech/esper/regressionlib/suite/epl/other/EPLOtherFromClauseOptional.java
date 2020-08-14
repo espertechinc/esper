@@ -63,28 +63,28 @@ public class EPLOtherFromClauseOptional {
 
             SupportBean_S0 s0A = new SupportBean_S0(10, "A");
             env.sendEventBean(s0A);
-            assertSame(s0A, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
+            assertEquals(s0A, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
             assertEquals(s0A, env.iterator("s0").next().get("ctxs0"));
 
             env.milestone(0);
 
             SupportBean_S0 s0B = new SupportBean_S0(20, "B");
             env.sendEventBean(s0B);
-            assertSame(s0B, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
+            assertEquals(s0B, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
             assertIterator(env, "s0", s0A, s0B);
             assertIterator(env, "s1", s0A, s0B);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(10, "A"));
-            assertSame(s0A, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
+            assertEquals(s0A, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
             assertIterator(env, "s0", s0B);
             assertIterator(env, "s1", s0B);
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S1(20, "A"));
-            assertSame(s0B, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
+            assertEquals(s0B, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
             assertIterator(env, "s0");
             assertIterator(env, "s1");
 
