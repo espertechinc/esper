@@ -129,7 +129,7 @@ public class CodegenClassGenerator {
                 break;
             }
         }
-        if (optionalCtor.getBlock().isEmpty() && !hasAssignments) {
+        if (optionalCtor.getBlock().isEmpty() && !hasAssignments && optionalCtor.getCtorParams().isEmpty()) {
             return;
         }
 
