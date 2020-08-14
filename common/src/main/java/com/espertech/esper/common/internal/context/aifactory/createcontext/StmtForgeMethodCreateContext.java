@@ -488,7 +488,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             throws ExprValidationException {
         PatternStreamSpecRaw raw = new PatternStreamSpecRaw(pattern.getPatternRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT, false, false);
         int streamNumber = getStreamNumberForNestingLevel(nestingLevel, isStartCondition);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         StreamSpecCompiledDesc compiledDesc = StreamSpecCompiler.compilePatternWTags(raw, priorMatches, priorAllTags, false, true, false, streamNumber, validationEnv.getStatementRawInfo(), validationEnv.getServices());
+        additionalForgeables.addAll(compiledDesc.getAdditionalForgeables());
         PatternStreamSpecCompiled compiled = (PatternStreamSpecCompiled) compiledDesc.getStreamSpecCompiled();
         pattern.setPatternCompiled(compiled);
 
@@ -510,6 +512,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
 
             int streamNameForNaming = getStreamNumberForNestingLevel(nestingLevel, isStartCondition);
             MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(validationEnv.getStatementRawInfo().getModuleName(), streamNameForNaming, patternTags, pattern.getPatternCompiled(), validationEnv.getServices());
+            List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(patternType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
+            additionalForgeables.addAll(forgeables);
+
             pattern.setAsNameEventType(patternType);
 
             matchEventSpec = new MatchEventSpec();
@@ -517,7 +522,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             allTags = new LinkedHashSet<>();
             allTags.add(pattern.getAsName());
         }
-        return new PatternValidatedDesc(matchEventSpec, allTags, compiledDesc.getAdditionalForgeables());
+        return new PatternValidatedDesc(matchEventSpec, allTags, additionalForgeables);
     }
 
     private static class ContextDetailMatchPair {
