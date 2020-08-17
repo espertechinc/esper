@@ -3,6 +3,8 @@ Esper Changelog
 
 Changes in version 8.6.0
 ------------------------
+  - The following dependent jar files are upgraded:
+    - SLF4J is now 1.7.30 (slf4j-api-1.7.30.jar, optionally use with Log4J by adding slf4j-log4j12-1.7.30.jar, previously at slf4j-api-1.7.28.jar)
   - Support for parameterized types
   - There are minor changes to some of the extension APIs due to support for parameterized types. 
     Extension APIs now use EPType (in replacement of java.lang.Class) and EPChainableType (in replacement of EPType). Please review the extension SPI interfaces and examples. 
