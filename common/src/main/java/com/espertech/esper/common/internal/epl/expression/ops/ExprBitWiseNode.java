@@ -70,7 +70,7 @@ public class ExprBitWiseNode extends ExprNodeBase {
         if ((JavaClassHelper.isFloatingPointClass(lhsTypeClass)) || (JavaClassHelper.isFloatingPointClass(rhsTypeClass))) {
             throw new ExprValidationException("Invalid type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
         }
-        if (lhsTypeClass != rhsTypeClass) {
+        if (!lhsTypeClass.equals(rhsTypeClass)) {
             throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
         }
         BitWiseOpEnum.Computer computer = bitWiseOpEnum.getComputer(lhsTypeClass.getType());
