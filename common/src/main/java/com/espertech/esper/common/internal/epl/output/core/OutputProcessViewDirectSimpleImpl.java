@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.util.StatementResultService;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCondition;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
+import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCommon;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -38,6 +39,9 @@ public class OutputProcessViewDirectSimpleImpl extends OutputProcessView {
     }
 
     public void update(EventBean[] newData, EventBean[] oldData) {
+        InstrumentationCommon instrumentationCommon = agentInstanceContext.getInstrumentationProvider();
+        instrumentationCommon.qOutputProcessNonBuffered(newData, oldData);
+
         StatementResultService statementResultService = agentInstanceContext.getStatementResultService();
         boolean isGenerateSynthetic = statementResultService.isMakeSynthetic();
         boolean isGenerateNatural = statementResultService.isMakeNatural();
@@ -58,9 +62,14 @@ public class OutputProcessViewDirectSimpleImpl extends OutputProcessView {
                 }
             }
         }
+
+        instrumentationCommon.aOutputProcessNonBuffered();
     }
 
     public void process(Set<MultiKeyArrayOfKeys<EventBean>> newData, Set<MultiKeyArrayOfKeys<EventBean>> oldData, ExprEvaluatorContext exprEvaluatorContext) {
+        InstrumentationCommon instrumentationCommon = agentInstanceContext.getInstrumentationProvider();
+        instrumentationCommon.qOutputProcessNonBufferedJoin(newData, oldData);
+
         StatementResultService statementResultService = agentInstanceContext.getStatementResultService();
         boolean isGenerateSynthetic = statementResultService.isMakeSynthetic();
         boolean isGenerateNatural = statementResultService.isMakeNatural();
@@ -76,6 +85,8 @@ public class OutputProcessViewDirectSimpleImpl extends OutputProcessView {
         } else if (newData == null && oldData == null) {
             child.newResult(newOldEvents);
         }
+
+        instrumentationCommon.aOutputProcessNonBufferedJoin();
     }
 
     public Iterator iterator() {

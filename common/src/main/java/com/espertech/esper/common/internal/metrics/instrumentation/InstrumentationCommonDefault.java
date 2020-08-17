@@ -934,4 +934,20 @@ public class InstrumentationCommonDefault implements InstrumentationCommon {
     public void aHistoricalScheduledEval() {
 
     }
+
+    public void qOutputProcessNonBuffered(EventBean[] newData, EventBean[] oldData) {
+
+    }
+
+    public void aOutputProcessNonBuffered() {
+
+    }
+
+    public void qOutputProcessNonBufferedJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents) {
+
+    }
+
+    public void aOutputProcessNonBufferedJoin() {
+
+    }
 }

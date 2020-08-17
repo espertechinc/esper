@@ -12,7 +12,6 @@ package com.espertech.esper.runtime.internal.metrics.instrumentation;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.common.internal.context.util.EPStatementHandle;
@@ -61,14 +60,6 @@ public interface Instrumentation extends InstrumentationCommon {
     void qExprEquals(String text);
 
     void aExprEquals(Boolean result);
-
-    void qOutputProcessNonBuffered(EventBean[] newData, EventBean[] oldData);
-
-    void aOutputProcessNonBuffered();
-
-    void qOutputProcessNonBufferedJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
-
-    void aOutputProcessNonBufferedJoin();
 
     void qSelectClause(EventBean[] eventsPerStream, boolean newData, boolean synthesize, ExprEvaluatorContext exprEvaluatorContext);
 

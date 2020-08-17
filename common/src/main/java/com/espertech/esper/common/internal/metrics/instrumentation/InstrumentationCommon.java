@@ -492,5 +492,13 @@ public interface InstrumentationCommon {
     void qJoinCompositionHistorical();
 
     void aJoinCompositionHistorical(Set<MultiKeyArrayOfKeys<EventBean>> newResults, Set<MultiKeyArrayOfKeys<EventBean>> oldResults);
+
+    void qOutputProcessNonBuffered(EventBean[] newData, EventBean[] oldData);
+
+    void aOutputProcessNonBuffered();
+
+    void qOutputProcessNonBufferedJoin(Set<MultiKeyArrayOfKeys<EventBean>> newEvents, Set<MultiKeyArrayOfKeys<EventBean>> oldEvents);
+
+    void aOutputProcessNonBufferedJoin();
 }
 
