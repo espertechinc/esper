@@ -60,7 +60,28 @@ public class ExprEnumDataSources {
         execs.add(new ExprEnumPropertyGenericComponentType());
         execs.add(new ExprEnumUDFStaticMethodGeneric());
         execs.add(new ExprEnumSubqueryGenericComponentType());
+        execs.add(new ExprEnumBeanWithMap());
         return execs;
+    }
+
+    private static class ExprEnumBeanWithMap implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEvent as " + SupportEventWithMapOfCollOfString.class.getName() + ";\n" +
+                    "@name('s0') select * from MyEvent(mymap('a').anyOf(x -> x = 'x'));\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "a", Collections.emptyList(), false);
+            sendAssert(env, "a", Arrays.asList("a", "b"), false);
+            sendAssert(env, "a", Arrays.asList("a", "x"), true);
+            sendAssert(env, "b", Arrays.asList("a", "x"), false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, String mapKey, List<String> values, boolean received) {
+            env.sendEventBean(new SupportEventWithMapOfCollOfString(mapKey, values), "MyEvent");
+            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        }
     }
 
     private static class ExprEnumSubqueryGenericComponentType implements RegressionExecution {
@@ -875,6 +896,18 @@ public class ExprEnumDataSources {
 
         public Collection getSomeCollection() {
             return someCollection;
+        }
+    }
+
+    public static class SupportEventWithMapOfCollOfString {
+        private final Map<String, Collection<String>> mymap;
+
+        public SupportEventWithMapOfCollOfString(String mapkey, Collection<String> mymap) {
+            this.mymap = Collections.singletonMap(mapkey, mymap);
+        }
+
+        public Map<String, Collection<String>> getMymap() {
+            return mymap;
         }
     }
 }
