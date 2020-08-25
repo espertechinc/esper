@@ -13,8 +13,6 @@ package com.espertech.esper.common.internal.event.property;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.event.propertyparser.PropertyParserNoDep;
 
-import java.io.StringWriter;
-
 public class PropertyParser {
     public static Property parseAndWalkLaxToSimple(String propertyName) {
         try {
@@ -28,19 +26,6 @@ public class PropertyParser {
         if (unescapedPropertyName.startsWith("`") && unescapedPropertyName.endsWith("`")) {
             return unescapedPropertyName.substring(1, unescapedPropertyName.length() - 1);
         }
-
-        if (!unescapedPropertyName.contains("`")) {
-            return unescapedPropertyName;
-        }
-
-        // parse and render
-        Property property = PropertyParser.parseAndWalkLaxToSimple(unescapedPropertyName);
-        if (property instanceof NestedProperty) {
-            StringWriter writer = new StringWriter();
-            property.toPropertyEPL(writer);
-            return writer.toString();
-        }
-
         return unescapedPropertyName;
     }
 

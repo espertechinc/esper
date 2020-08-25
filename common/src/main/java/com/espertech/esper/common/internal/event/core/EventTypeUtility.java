@@ -897,7 +897,7 @@ public class EventTypeUtility {
             Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
 
             if (property instanceof SimpleProperty) {
-                PropertySetDescriptorItem propitem = simplePropertyTypes.get(propertyName);
+                PropertySetDescriptorItem propitem = simplePropertyTypes.get(property.getPropertyNameAtomic());
                 if (propitem != null) {
                     return propitem.getPropertyDescriptor().getPropertyEPType();
                 }
@@ -947,7 +947,7 @@ public class EventTypeUtility {
         // The property getters therefore act on
 
         // Take apart the nested property into a map key and a nested value class property name
-        String propertyMap = StringValue.unescapeDot(propertyName.substring(0, index));
+        String propertyMap = PropertyParser.unescapeBacktickForProperty(StringValue.unescapeDot(propertyName.substring(0, index)));
         String propertyNested = propertyName.substring(index + 1, propertyName.length());
         boolean isRootedDynamic = false;
 
@@ -1060,7 +1060,15 @@ public class EventTypeUtility {
         int index = StringValue.unescapedIndexOfDot(propertyName);
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
-            if (prop instanceof DynamicProperty) {
+            if (prop instanceof SimpleProperty) { // perhaps escaped
+                item = propertyGetters.get(prop.getPropertyNameAtomic());
+                if (item != null) {
+                    EventPropertyGetterSPI getter = item.getPropertyGetter();
+                    propertyGetterCache.put(propertyName, getter);
+                    return getter;
+                }
+                return null;
+            } else if (prop instanceof DynamicProperty) {
                 DynamicProperty dynamicProperty = (DynamicProperty) prop;
                 EventPropertyGetterSPI getterDyn = factory.getPropertyDynamicGetter(nestableTypes, propertyName, dynamicProperty, eventBeanTypedEventFactory, beanEventTypeFactory);
                 propertyGetterCache.put(propertyName, getterDyn);
@@ -1120,7 +1128,7 @@ public class EventTypeUtility {
         }
 
         // Take apart the nested property into a map key and a nested value class property name
-        String propertyMap = StringValue.unescapeDot(propertyName.substring(0, index));
+        String propertyMap = PropertyParser.unescapeBacktickForProperty(StringValue.unescapeDot(propertyName.substring(0, index)));
         String propertyNested = propertyName.substring(index + 1, propertyName.length());
         boolean isRootedDynamic = false;
 

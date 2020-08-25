@@ -17,10 +17,7 @@ import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
-import com.espertech.esper.common.internal.event.property.IndexedProperty;
-import com.espertech.esper.common.internal.event.property.MappedProperty;
-import com.espertech.esper.common.internal.event.property.Property;
-import com.espertech.esper.common.internal.event.property.PropertyParser;
+import com.espertech.esper.common.internal.event.property.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.StringValue;
 
@@ -275,6 +272,15 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
 
             // parse, can be an indexed property
             Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
+            if (property instanceof SimpleProperty) {
+                item = propertyItems.get(property.getPropertyNameAtomic());
+                if (item != null) {
+                    // may contain null values
+                    return item.getFragmentEventType();
+                }
+                return null;
+            }
+
             if (property instanceof IndexedProperty) {
                 IndexedProperty indexedProp = (IndexedProperty) property;
                 Object type = nestableTypes.get(indexedProp.getPropertyNameAtomic());
@@ -314,7 +320,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         // The property getters therefore act on
 
         // Take apart the nested property into a map key and a nested value class property name
-        String propertyMap = StringValue.unescapeDot(propertyName.substring(0, index));
+        String propertyMap = PropertyParser.unescapeBacktickForProperty(StringValue.unescapeDot(propertyName.substring(0, index)));
         String propertyNested = propertyName.substring(index + 1, propertyName.length());
 
         // If the property is dynamic, it cannot be a fragment

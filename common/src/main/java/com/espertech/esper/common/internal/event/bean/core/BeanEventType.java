@@ -98,15 +98,15 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
     }
 
     public final EPType getPropertyEPType(String propertyName) {
-        PropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
-        if ((simpleProp != null) && (simpleProp.getClazz() != null)) {
-            return simpleProp.getClazz();
+        EPTypeClass type = simplePropertyType(propertyName);
+        if (type != null) {
+            return type;
         }
 
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (prop instanceof SimpleProperty) {
-            // there is no such property since it wasn't in simplePropertyTypes
-            return null;
+            // unescaped lookup
+            return simplePropertyType(prop.getPropertyNameAtomic());
         }
         return prop.getPropertyType(this, beanEventTypeFactory);
     }
@@ -141,22 +141,19 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             return cachedGetter;
         }
 
-        PropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
-        if ((simpleProp != null) && (simpleProp.getGetterFactory() != null)) {
-            EventPropertyGetterSPI getter = simpleProp.getGetterFactory().make(beanEventTypeFactory.getEventBeanTypedEventFactory(), beanEventTypeFactory);
-            propertyGetterCache.put(propertyName, getter);
+        EventPropertyGetterSPI getter = simplePropertyGetter(propertyName);
+        if (getter != null) {
             return getter;
         }
 
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
         if (prop instanceof SimpleProperty) {
-            // there is no such property since it wasn't in simplePropertyGetters
-            return null;
+            // unescpaped lookup
+            return simplePropertyGetter(prop.getPropertyNameAtomic());
         }
 
-        EventPropertyGetterSPI getter = prop.getGetter(this, beanEventTypeFactory.getEventBeanTypedEventFactory(), beanEventTypeFactory);
+        getter = prop.getGetter(this, beanEventTypeFactory.getEventBeanTypedEventFactory(), beanEventTypeFactory);
         propertyGetterCache.put(propertyName, getter);
-
         return getter;
     }
 
@@ -328,16 +325,15 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
     }
 
     public FragmentEventType getFragmentType(String propertyExpression) {
-        PropertyInfo simpleProp = getSimplePropertyInfo(propertyExpression);
-        if ((simpleProp != null) && (simpleProp.getClazz() != null)) {
-            EPTypeClass type = simpleProp.getDescriptor().getReturnType(stem.getClazz());
-            return EventBeanUtility.createNativeFragmentType(type, beanEventTypeFactory, stem.isPublicFields());
+        FragmentEventType fragmentEventType = simplePropertyFragmentType(propertyExpression);
+        if (fragmentEventType != null) {
+            return fragmentEventType;
         }
 
         Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
         if (prop instanceof SimpleProperty) {
-            // there is no such property since it wasn't in simplePropertyTypes
-            return null;
+            // unescaped lookup
+            return simplePropertyFragmentType(prop.getPropertyNameAtomic());
         }
 
         EPType type = prop.getPropertyType(this, beanEventTypeFactory);
@@ -351,12 +347,18 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         if (writeablePropertyDescriptors == null) {
             initializeWriters();
         }
-        Pair<EventPropertyDescriptor, BeanEventPropertyWriter> pair = writerMap.get(propertyName);
-        if (pair != null) {
-            return pair.getSecond();
+
+        BeanEventPropertyWriter writer = simplePropertyWriter(propertyName);
+        if (writer != null) {
+            return writer;
         }
 
         Property property = PropertyParser.parseAndWalkLaxToSimple(propertyName);
+        if (property instanceof SimpleProperty) {
+            // unescaped lookup
+            return simplePropertyWriter(property.getPropertyNameAtomic());
+        }
+
         if (property instanceof MappedProperty) {
             MappedProperty mapProp = (MappedProperty) property;
             String methodName = PropertyHelper.getSetterMethodName(mapProp.getPropertyNameAtomic());
@@ -365,9 +367,6 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
                 setterMethod = MethodResolver.resolveMethod(stem.getClazz().getType(), methodName, new EPTypeClass[]{EPTypePremade.STRING.getEPType(), EPTypePremade.OBJECT.getEPType()}, true, new boolean[2], new boolean[2]);
             } catch (MethodResolverNoSuchMethodException e) {
                 log.info("Failed to find mapped property setter method '" + methodName + "' for writing to property '" + propertyName + "' taking {String, Object} as parameters");
-                return null;
-            }
-            if (setterMethod == null) {
                 return null;
             }
             return new BeanEventPropertyWriterMapProp(stem.getClazz().getType(), setterMethod, mapProp.getKey());
@@ -381,9 +380,6 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
                 setterMethod = MethodResolver.resolveMethod(stem.getClazz().getType(), methodName, new EPTypeClass[]{EPTypePremade.INTEGERPRIMITIVE.getEPType(), EPTypePremade.OBJECT.getEPType()}, true, new boolean[2], new boolean[2]);
             } catch (MethodResolverNoSuchMethodException e) {
                 log.info("Failed to find indexed property setter method '" + methodName + "' for writing to property '" + propertyName + "' taking {int, Object} as parameters");
-                return null;
-            }
-            if (setterMethod == null) {
                 return null;
             }
             return new BeanEventPropertyWriterIndexedProp(stem.getClazz().getType(), setterMethod, indexedProp.getIndex());
@@ -499,6 +495,41 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
 
         writerMap = writers;
         writeablePropertyDescriptors = desc;
+    }
+
+    private EPTypeClass simplePropertyType(String propertyName) {
+        PropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
+        if ((simpleProp != null) && (simpleProp.getClazz() != null)) {
+            return simpleProp.getClazz();
+        }
+        return null;
+    }
+
+    private EventPropertyGetterSPI simplePropertyGetter(String propertyName) {
+        PropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
+        if ((simpleProp != null) && (simpleProp.getGetterFactory() != null)) {
+            EventPropertyGetterSPI getter = simpleProp.getGetterFactory().make(beanEventTypeFactory.getEventBeanTypedEventFactory(), beanEventTypeFactory);
+            propertyGetterCache.put(propertyName, getter);
+            return getter;
+        }
+        return null;
+    }
+
+    private FragmentEventType simplePropertyFragmentType(String propertyName) {
+        PropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
+        if ((simpleProp != null) && (simpleProp.getClazz() != null)) {
+            EPTypeClass type = simpleProp.getDescriptor().getReturnType(stem.getClazz());
+            return EventBeanUtility.createNativeFragmentType(type, beanEventTypeFactory, stem.isPublicFields());
+        }
+        return null;
+    }
+
+    private BeanEventPropertyWriter simplePropertyWriter(String propertyName) {
+        Pair<EventPropertyDescriptor, BeanEventPropertyWriter> pair = writerMap.get(propertyName);
+        if (pair != null) {
+            return pair.getSecond();
+        }
+        return null;
     }
 
     private static final Logger log = LoggerFactory.getLogger(BeanEventType.class);

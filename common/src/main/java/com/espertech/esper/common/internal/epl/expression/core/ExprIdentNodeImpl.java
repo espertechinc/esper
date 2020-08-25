@@ -31,7 +31,6 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
-import com.espertech.esper.common.internal.event.property.PropertyParser;
 import com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationBuilderExpr;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -198,8 +197,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             }
         }
 
-        String unescapedPropertyName = PropertyParser.unescapeBacktickForProperty(unresolvedPropertyName);
-        Pair<PropertyResolutionDescriptor, String> propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(validationContext.getStreamTypeService(), unescapedPropertyName, streamOrPropertyName, false, validationContext.getTableCompileTimeResolver());
+        Pair<PropertyResolutionDescriptor, String> propertyInfoPair = ExprIdentNodeUtil.getTypeFromStream(validationContext.getStreamTypeService(), unresolvedPropertyName, streamOrPropertyName, false, validationContext.getTableCompileTimeResolver());
         resolvedStreamName = propertyInfoPair.getSecond();
         int streamNum = propertyInfoPair.getFirst().getStreamNum();
         resolvedPropertyName = propertyInfoPair.getFirst().getPropertyName();

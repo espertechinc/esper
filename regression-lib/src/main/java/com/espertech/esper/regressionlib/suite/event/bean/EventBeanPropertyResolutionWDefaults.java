@@ -83,8 +83,8 @@ public class EventBeanPropertyResolutionWDefaults {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","), new Object[]{"Enders Game", "book", 100, 50, "abc"});
             env.undeployAll();
 
-            tryInvalidCompile(env, "select `select` from SupportBean", "Failed to validate select-clause expression 'select': Property named 'select' is not valid in any stream [");
-            tryInvalidCompile(env, "select `ab cd` from SupportBean", "Failed to validate select-clause expression 'ab cd': Property named 'ab cd' is not valid in any stream [");
+            tryInvalidCompile(env, "select `select` from SupportBean", "Failed to validate select-clause expression 'select': Property named '`select`' is not valid in any stream [");
+            tryInvalidCompile(env, "select `ab cd` from SupportBean", "Failed to validate select-clause expression 'ab cd': Property named '`ab cd`' is not valid in any stream [");
 
             // test resolution as nested property
             RegressionPath path = new RegressionPath();

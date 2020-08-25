@@ -191,6 +191,10 @@ public class TestSuiteEventInfra extends TestCase {
         RegressionRunner.run(session, new EventInfraPropertyMappedRuntimeKey());
     }
 
+    public void testEventInfraPropertyNestedNestedEscaped() {
+        RegressionRunner.run(session, new EventInfraPropertyNestedNestedEscaped());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportMarkerInterface.class, SupportBeanSimple.class,
             SupportBeanComplexProps.class, SupportBeanDynRoot.class, SupportBeanCombinedProps.class,
