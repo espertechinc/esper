@@ -20,7 +20,13 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import java.io.IOException;
 import java.io.StringWriter;
 
+/**
+ * JSON event renderer
+ */
 public class JSONEventRendererJsonEventType implements JSONEventRenderer {
+    /**
+     * JSON event renderer instance
+     */
     public final static JSONEventRendererJsonEventType INSTANCE = new JSONEventRendererJsonEventType();
 
     private JSONEventRendererJsonEventType() {

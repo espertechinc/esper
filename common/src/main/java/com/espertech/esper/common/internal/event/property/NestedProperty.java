@@ -86,12 +86,11 @@ public class NestedProperty implements Property {
             }
 
             if (it.hasNext()) {
-                EPType type = property.getPropertyType(eventType, beanEventTypeFactory);
-                if (type == null || type == EPTypeNull.INSTANCE) {
+                EPTypeClass typeClass = property.getPropertyType(eventType, beanEventTypeFactory);
+                if (typeClass == null) {
                     // if the property is not valid, return null
                     return null;
                 }
-                EPTypeClass typeClass = (EPTypeClass) type;
                 // Map cannot be used to further nest as the type cannot be determined
                 if (typeClass.getType() == Map.class) {
                     return null;
@@ -124,17 +123,13 @@ public class NestedProperty implements Property {
 
             if (it.hasNext()) {
                 // Map cannot be used to further nest as the type cannot be determined
-                if (!(result instanceof EPTypeClass)) {
-                    return null;
-                }
-                EPTypeClass type = result;
-                Class typeClass = type.getType();
+                Class typeClass = result.getType();
                 if (typeClass == Map.class || typeClass.isArray() || typeClass.isPrimitive() || JavaClassHelper.isJavaBuiltinDataType(typeClass)) {
                     return null;
                 }
 
                 boolean publicFields = eventType.getStem().isPublicFields();
-                eventType = beanEventTypeFactory.getCreateBeanType(type, publicFields);
+                eventType = beanEventTypeFactory.getCreateBeanType(result, publicFields);
             }
         }
 

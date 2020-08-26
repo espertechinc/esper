@@ -18,6 +18,7 @@ import java.util.List;
  * Dot-expresson item representing an array operation.
  */
 public class DotExpressionItemArray extends DotExpressionItem implements Serializable {
+    private static final long serialVersionUID = -726861337832827167L;
     private List<Expression> indexes;
 
     /**

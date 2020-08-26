@@ -26,6 +26,8 @@ import java.util.List;
  */
 public abstract class DotExpressionItem implements Serializable {
 
+    private static final long serialVersionUID = -1710117870920314996L;
+
     /**
      * Render to EPL.
      * @param writer    writer to output to

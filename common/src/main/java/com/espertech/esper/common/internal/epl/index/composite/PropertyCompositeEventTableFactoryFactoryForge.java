@@ -61,7 +61,7 @@ public class PropertyCompositeEventTableFactoryFactoryForge implements EventTabl
     public String toQueryPlan() {
         return this.getClass().getName() +
             " streamNum=" + indexedStreamNum +
-            " keys=" + optKeyProps == null ? "none" : Arrays.toString(optKeyProps) +
+            " keys=" + (optKeyProps == null ? "none" : Arrays.toString(optKeyProps)) +
             " ranges=" + Arrays.toString(rangeProps);
     }
 

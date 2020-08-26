@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class DotExpressionItemCall extends DotExpressionItem implements Serializable {
 
+    private static final long serialVersionUID = 5994050578228368746L;
     private String name;
     private List<Expression> parameters;
 

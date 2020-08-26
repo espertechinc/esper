@@ -18,8 +18,17 @@ import com.espertech.esper.common.client.type.EPTypeClass;
  * event property values and the underlying event object.
  */
 public interface EventBean {
+    /**
+     * Type class of EventBean.class
+     */
     EPTypeClass EPTYPE = new EPTypeClass(EventBean.class);
+    /**
+     * Type class of EventBean[].class
+     */
     EPTypeClass EPTYPEARRAY = new EPTypeClass(EventBean[].class);
+    /**
+     * Type class of EventBean[][].class
+     */
     EPTypeClass EPTYPEARRAYARRAY = new EPTypeClass(EventBean[][].class);
 
     /**

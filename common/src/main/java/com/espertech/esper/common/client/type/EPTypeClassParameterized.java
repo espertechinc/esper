@@ -36,6 +36,7 @@ public class EPTypeClassParameterized extends EPTypeClass {
      * Type information
      */
     public final static EPTypeClass EPTYPE = new EPTypeClass(EPTypeClassParameterized.class);
+    private static final long serialVersionUID = 5048002060526813933L;
 
     private final EPTypeClass[] parameters;
 

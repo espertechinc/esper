@@ -25,5 +25,9 @@ public @interface JsonSchema {
      */
     boolean dynamic() default false;
 
+    /**
+     * Returns the class name when applicable.
+     * @return class name
+     */
     String className() default "";
 }

@@ -39,11 +39,18 @@ package com.espertech.esper.common.client.json.minimaljson;
 import java.io.IOException;
 
 @SuppressWarnings("serial")
-    // use default serial UID
+// use default serial UID
+/**
+ * Json string value
+ */
 public class JsonString extends JsonValue {
 
     private final String string;
 
+    /**
+     * Ctor.
+     * @param string value (non-null)
+     */
     public JsonString(String string) {
         if (string == null) {
             throw new NullPointerException("string is null");

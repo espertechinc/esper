@@ -103,6 +103,10 @@ public class ConfigurationCompilerPlugInAggregationMultiFunction implements Seri
         this.additionalConfiguredProperties = additionalConfiguredProperties;
     }
 
+    /**
+     * Returns the code expression of the settings
+     * @return code expression
+     */
     public CodegenExpression toExpression() {
         return newInstance(ConfigurationCompilerPlugInAggregationMultiFunction.EPTYPE,
                 constant(functionNames), constant(multiFunctionForgeClassName),

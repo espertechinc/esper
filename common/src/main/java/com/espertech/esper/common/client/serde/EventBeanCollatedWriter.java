@@ -20,6 +20,9 @@ import java.io.IOException;
  * Collated writer for events, intented for passing along as a parameter and not intended to be implemented by an application
  */
 public interface EventBeanCollatedWriter {
+    /**
+     * Type class of EventBeanCollatedWriter.class
+     */
     EPTypeClass EPTYPE = new EPTypeClass(EventBeanCollatedWriter.class);
 
     /**

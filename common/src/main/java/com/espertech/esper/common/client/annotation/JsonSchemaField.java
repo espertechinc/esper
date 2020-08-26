@@ -18,6 +18,15 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonSchemaField {
+    /**
+     * Returns the field name
+     * @return field name
+     */
     String name();
+
+    /**
+     * Returns the adapter class name
+     * @return adapter class name
+     */
     String adapter();
 }

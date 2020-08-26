@@ -79,7 +79,7 @@ public class VariantPropResolutionStrategyDefault implements VariantPropResoluti
                     JavaClassHelper.getSuper(typeClass.getType(), supersForType);
                     supersForType.remove(Object.class);
 
-                    if (supersForType.contains(commonType)) {
+                    if (supersForType.contains(typeClass.getType())) {
                         continue;   // type implements or extends common type
                     }
                     if (JavaClassHelper.isSubclassOrImplementsInterface(commonTypeClass, typeClass.getType())) {

@@ -654,6 +654,11 @@ public enum EPTypePremade {
         this.epType = new EPTypeClass(clazz);
     }
 
+    /**
+     * Returns the pre-allocated EPTypeClass for a given class, or allocates a new EPTypeClass when there is no pre-allocated EPTypeClass for this class
+     * @param clazz class
+     * @return type class
+     */
     public static EPTypeClass getOrCreate(Class<?> clazz) {
         if (clazz == null) {
             throw new IllegalArgumentException("Not available for null clazz");
@@ -665,10 +670,22 @@ public enum EPTypePremade {
         return new EPTypeClass(clazz);
     }
 
+    /**
+     * Returns the pre-allocated holder for a given class, or null if there is no pre-allocated holder for this class
+     * @param clazz class
+     * @return type class or null
+     */
     public static EPTypePremade getExisting(Class<?> clazz) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Not available for null clazz");
+        }
         return classToPremade.get(clazz);
     }
 
+    /**
+     * Returns the type class.
+     * @return type class
+     */
     public EPTypeClass getEPType() {
         return epType;
     }

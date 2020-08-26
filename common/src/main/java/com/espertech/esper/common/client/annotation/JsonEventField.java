@@ -18,5 +18,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JsonEventField {
+    /**
+     * Returns the adapter class
+     * @return adapter class
+     */
     Class adapter();
 }

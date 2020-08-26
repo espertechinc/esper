@@ -18,7 +18,13 @@ import com.espertech.esper.common.client.type.EPTypeClass;
  * be used to access {@link EventBean} instances of a different type.
  */
 public interface EventPropertyValueGetter {
+    /**
+     * Type class of EventPropertyValueGetter.class
+     */
     EPTypeClass EPTYPE = new EPTypeClass(EventPropertyValueGetter.class);
+    /**
+     * Type class of EventPropertyValueGetter[].class
+     */
     EPTypeClass EPTYPEARRAY = new EPTypeClass(EventPropertyValueGetter[].class);
 
     /**

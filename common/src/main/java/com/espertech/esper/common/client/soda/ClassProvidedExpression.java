@@ -18,6 +18,7 @@ import java.util.List;
  * Script-expression is external scripting language expression such as JavaScript, Groovy or MVEL, for example.
  */
 public class ClassProvidedExpression implements Serializable {
+    private static final long serialVersionUID = 6617568880253045414L;
     private String classText;
 
     /**

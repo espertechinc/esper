@@ -46,7 +46,13 @@ import java.util.Set;
  * When the underlying class is bean the order of property names is depends on the order of the methods returned by reflection.
  */
 public interface EventType {
+    /**
+     * Type class of EventType.class
+     */
     EPTypeClass EPTYPE = new EPTypeClass(EventType.class);
+    /**
+     * Type class of EventType[].class
+     */
     EPTypeClass EPTYPEARRAY = new EPTypeClass(EventType[].class);
 
     /**

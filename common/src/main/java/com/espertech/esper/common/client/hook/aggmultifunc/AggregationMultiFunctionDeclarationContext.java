@@ -26,7 +26,7 @@ public class AggregationMultiFunctionDeclarationContext {
 
     private final String functionName;
     private final boolean distinct;
-    private ConfigurationCompilerPlugInAggregationMultiFunction configuration;
+    private final ConfigurationCompilerPlugInAggregationMultiFunction configuration;
 
     /**
      * Ctor.

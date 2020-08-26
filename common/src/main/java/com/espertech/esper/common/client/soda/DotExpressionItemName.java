@@ -18,6 +18,7 @@ import java.io.StringWriter;
  */
 public class DotExpressionItemName extends DotExpressionItem implements Serializable {
 
+    private static final long serialVersionUID = 7090706540657160089L;
     private String name;
 
     /**

@@ -28,6 +28,7 @@ public class EPTypeNull implements EPType {
      * Instance.
      */
     public final static EPTypeNull INSTANCE = new EPTypeNull();
+    private static final long serialVersionUID = 5282701786732766396L;
 
     private EPTypeNull() {
     }

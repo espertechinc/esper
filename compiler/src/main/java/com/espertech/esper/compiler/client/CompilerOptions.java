@@ -293,10 +293,18 @@ public class CompilerOptions {
         this.inlinedClassInspection = inlinedClassInspection;
     }
 
+    /**
+     * For internal-use-only and subject-to-change-between-versions, state-management settings
+     * @return settings option
+     */
     public StateMgmtSettingOption getStateMgmtSetting() {
         return stateMgmtSetting;
     }
 
+    /**
+     * For internal-use-only and subject-to-change-between-versions, state-management settings
+     * @param  stateMgmtSetting settings option
+     */
     public void setStateMgmtSetting(StateMgmtSettingOption stateMgmtSetting) {
         this.stateMgmtSetting = stateMgmtSetting;
     }

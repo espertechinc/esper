@@ -303,6 +303,11 @@ public class Configuration implements Serializable {
         runtime = new ConfigurationRuntime();
     }
 
+    /**
+     * For internal use only: returns statement settings provider
+     * @param proxy proxy
+     * @return provider
+     */
     public StateMgmtSettingsProvider internalUseGetStmtMgmtProvider(StateMgmtSettingsProxy proxy) {
         return StateMgmtSettingsProviderDefault.INSTANCE;
     }

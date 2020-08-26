@@ -16,5 +16,8 @@ import com.espertech.esper.common.client.type.EPTypeClass;
  * Context for use with a virtual data window factory factory {@link VirtualDataWindowFactoryFactory}.
  */
 public class VirtualDataWindowFactoryFactoryContext {
+    /**
+     * Type class of VirtualDataWindowFactoryFactoryContext.class
+     */
     public final static EPTypeClass EPTYPE = new EPTypeClass(VirtualDataWindowFactoryFactoryContext.class);
 }

@@ -33,6 +33,7 @@ public class EPTypeClass implements EPType {
      * Type information
      */
     public final static EPTypeClass EPTYPE = new EPTypeClass(EPTypeClass.class);
+    private static final long serialVersionUID = 1801760751392971863L;
 
     protected final Class<?> typeClass;
 

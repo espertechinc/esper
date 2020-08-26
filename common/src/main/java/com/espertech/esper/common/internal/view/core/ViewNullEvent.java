@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ViewNullEvent implements View {
 
@@ -54,6 +55,9 @@ public class ViewNullEvent implements View {
         }
 
         public EventBean next() {
+            if (!next) {
+                throw new NoSuchElementException();
+            }
             next = false;
             return null;
         }

@@ -17,6 +17,7 @@ import java.io.StringWriter;
  * Clause for creating an application-provided class for use across one or more statements.
  */
 public class CreateClassClause implements Serializable {
+    private static final long serialVersionUID = 8678623873564968062L;
     private ClassProvidedExpression classProvidedExpression;
 
     /**

@@ -364,6 +364,10 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         namespacePrefixes.putAll(prefixNamespaceMap);
     }
 
+    /**
+     * Sets namespace prefixes
+     * @param namespacePrefixes prefixes
+     */
     public void setNamespacePrefixes(Map<String, String> namespacePrefixes) {
         this.namespacePrefixes = namespacePrefixes;
     }
@@ -433,6 +437,10 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         this.xPathVariableResolver = xPathVariableResolver;
     }
 
+    /**
+     * Sets xpath properties
+     * @param xPathProperties properties
+     */
     public void setXPathProperties(Map<String, XPathPropertyDesc> xPathProperties) {
         this.xPathProperties = xPathProperties;
     }
@@ -453,6 +461,9 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         private String optionaleventTypeName;
         private static final long serialVersionUID = -4141721949296588319L;
 
+        /**
+         * Ctor.
+         */
         public XPathPropertyDesc() {
         }
 
@@ -544,30 +555,60 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
             return optionaleventTypeName;
         }
 
+        /**
+         * Sets the event property name
+         * @param name property name
+         */
         public void setName(String name) {
             this.name = name;
         }
 
+        /**
+         * Sets the xpath
+         * @param xpath xpath
+         */
         public void setXpath(String xpath) {
             this.xpath = xpath;
         }
 
+        /**
+         * Sets the return type
+         * @param type type
+         */
         public void setType(QName type) {
             this.type = type;
         }
 
+        /**
+         * Sets the cast-to type
+         * @param optionalCastToType type
+         */
         public void setOptionalCastToType(EPTypeClass optionalCastToType) {
             this.optionalCastToType = optionalCastToType;
         }
 
+        /**
+         * Sets the event type name
+         * @param optionaleventTypeName event type name
+         */
         public void setOptionaleventTypeName(String optionaleventTypeName) {
             this.optionaleventTypeName = optionaleventTypeName;
         }
 
+        /**
+         * Sets the event type name
+         * @param optionaleventTypeName event type name
+         */
         public void setOptionalEventTypeName(String optionaleventTypeName) {
             this.optionaleventTypeName = optionaleventTypeName;
         }
 
+        /**
+         * Returns the code expression of the xpath settings
+         * @param parent method parent
+         * @param scope scope
+         * @return code expression
+         */
         public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
             return new CodegenSetterBuilder(XPathPropertyDesc.EPTYPE, XPathPropertyDesc.class, "desc", parent, scope)
                 .constantExplicit("name", name)
@@ -639,6 +680,12 @@ public class ConfigurationCommonEventTypeXMLDOM implements Serializable {
         return rootElementName.hashCode();
     }
 
+    /**
+     * Returns the code expression of the config settings
+     * @param parent method parent
+     * @param scope scope
+     * @return code expression
+     */
     public CodegenExpression toExpression(CodegenMethodScope parent, CodegenClassScope scope) {
         CodegenSetterBuilderItemConsumer<XPathPropertyDesc> xPathBuild = (o, parentXPath, scopeXPath) -> o.toExpression(parentXPath, scopeXPath);
         return new CodegenSetterBuilder(ConfigurationCommonEventTypeXMLDOM.EPTYPE, ConfigurationCommonEventTypeXMLDOM.class, "xmlconfig", parent, scope)
