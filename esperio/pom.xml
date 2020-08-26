@@ -17,6 +17,7 @@
 		<kafka.clients.version>2.6.0</kafka.clients.version>
 		<kafka.lz4.version>1.7.1</kafka.lz4.version>
 		<kafka.snappy.version>1.1.7.3</kafka.snappy.version>
+		<kafka.jackson-databind.version>2.10.2</kafka.jackson-databind.version>
 		<spring.version>5.1.9.RELEASE</spring.version>
 	</properties>
 	<name>EsperIO</name>

@@ -55,6 +55,11 @@
 			<version>${kafka.clients.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${kafka.jackson-databind.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j-api.version}</version>
@@ -69,7 +74,6 @@
 			<artifactId>esper-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>com.espertech</groupId>
@@ -115,7 +119,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+				<version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -124,7 +128,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
+				<version>${maven.surefire.plugin.version}</version>
 				<configuration>
 					<argLine>-Xms256m -Xmx256m</argLine>
 					<includes>
@@ -141,7 +145,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.plugin.version}</version>
+				<version>${maven.jar.plugin.version}</version>
 				<configuration>
 					<archive>
 						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
@@ -219,14 +223,14 @@
 							<artifactId>lz4-java</artifactId>
 							<version>${kafka.lz4.version}</version>
 						</artifactItem>
-					    	<artifactItem>
+						<artifactItem>
 							<groupId>org.xerial.snappy</groupId>
-						    	<artifactId>snappy-java</artifactId>
+							<artifactId>snappy-java</artifactId>
 							<version>${kafka.snappy.version}</version>
 						</artifactItem>
 					</artifactItems>
 				</configuration>
-			</plugin>		
+			</plugin>
 		</plugins>
 		<testResources>
 			<testResource>
