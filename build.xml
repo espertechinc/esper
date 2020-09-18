@@ -5,7 +5,7 @@
 	<property name="documentation.home" value="${env.ESPER_DOCHOME}"/>
 	
 	<property name="name" value="esper"/>
-	<property name="version" value="8.6.0"/>
+	<property name="version" value="8.7.0"/>
 	<property name="patchlevel" value=""/>
 	<property name="dist.dir" value="target"/>
 	<property name="fullversion" value="${version}${patchlevel}"/>

@@ -9,7 +9,7 @@ Bundle-Name: EsperIO-HTTP
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-http
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.6.0
+Bundle-Version: 8.7.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esperio.http;uses:="com.espertech.esper.co
@@ -18,11 +18,11 @@ Export-Package: com.espertech.esperio.http;uses:="com.espertech.esper.co
  ertech.esper.runtime.client.plugin,com.espertech.esper.runtime.internal
  .kernel.service,com.espertech.esperio.http.config,javax.naming,org.apac
  he.http,org.apache.http.nio,org.apache.http.nio.protocol,org.apache.htt
- p.protocol";version="8.6.0",com.espertech.esperio.http.config;uses:="or
- g.w3c.dom";version="8.6.0",com.espertech.esperio.http.core;uses:="com.e
+ p.protocol";version="8.7.0",com.espertech.esperio.http.config;uses:="or
+ g.w3c.dom";version="8.7.0",com.espertech.esperio.http.core;uses:="com.e
  spertech.esper.runtime.internal.kernel.service,com.espertech.esperio.ht
  tp.config,org.apache.http,org.apache.http.nio.reactor,org.apache.http.p
- arams,org.apache.http.protocol";version="8.6.0"
+ arams,org.apache.http.protocol";version="8.7.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.configuration,com.espertech.esper.common.client.util,com.es
  pertech.esper.common.internal.event.avro,com.espertech.esper.common.int
