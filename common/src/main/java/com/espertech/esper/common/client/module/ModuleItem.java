@@ -28,6 +28,9 @@ public class ModuleItem implements Serializable {
     private int lineNumber;
     private int charPosStart;
     private int charPosEnd;
+    private int lineNumberEnd;
+    private int lineNumberContent;
+    private int lineNumberContentEnd;
 
     /**
      * Ctor.
@@ -37,13 +40,19 @@ public class ModuleItem implements Serializable {
      * @param lineNumber   line number
      * @param charPosStart character position of start of segment
      * @param charPosEnd   character position of end of segment
+     * @param lineNumberEnd line number of the line that ends the statement
+     * @param lineNumberContent line number of the line that starts the statement excluding comments, or -1 if comments-only
+     * @param lineNumberContentEnd line number of the line that ends the statement excluding comments, or -1 if comments-only
      */
-    public ModuleItem(String expression, boolean commentOnly, int lineNumber, int charPosStart, int charPosEnd) {
+    public ModuleItem(String expression, boolean commentOnly, int lineNumber, int charPosStart, int charPosEnd, int lineNumberEnd, int lineNumberContent, int lineNumberContentEnd) {
         this.expression = expression;
         this.commentOnly = commentOnly;
         this.lineNumber = lineNumber;
         this.charPosStart = charPosStart;
         this.charPosEnd = charPosEnd;
+        this.lineNumberEnd = lineNumberEnd;
+        this.lineNumberContent = lineNumberContent;
+        this.lineNumberContentEnd = lineNumberContentEnd;
     }
 
     /**
@@ -119,6 +128,24 @@ public class ModuleItem implements Serializable {
     }
 
     /**
+     * Returns the line number of item that ends the item.
+     *
+     * @return item line num end
+     */
+    public int getLineNumberEnd() {
+        return lineNumberEnd;
+    }
+
+    /**
+     * Sets item line num end
+     *
+     * @param lineNumberEnd to set
+     */
+    public void setLineNumberEnd(int lineNumberEnd) {
+        this.lineNumberEnd = lineNumberEnd;
+    }
+
+    /**
      * Returns item char position in line.
      *
      * @return char position
@@ -161,5 +188,41 @@ public class ModuleItem implements Serializable {
      */
     public EPStatementObjectModel getModel() {
         return model;
+    }
+
+    /**
+     * Returns the line number of item content excluding comments, or -1 if comments-only
+     *
+     * @return item line num content start
+     */
+    public int getLineNumberContent() {
+        return lineNumberContent;
+    }
+
+    /**
+     * Sets the line number of item content excluding comments, or -1 if comments-only
+     *
+     * @param  lineNumberContent item line num content start
+     */
+    public void setLineNumberContent(int lineNumberContent) {
+        this.lineNumberContent = lineNumberContent;
+    }
+
+    /**
+     * Returns the line number of item content end excluding comments, or -1 if comments-only
+     *
+     * @return item line num content end
+     */
+    public int getLineNumberContentEnd() {
+        return lineNumberContentEnd;
+    }
+
+    /**
+     * Sets the line number of item content end excluding comments, or -1 if comments-only
+     *
+     * @param lineNumberContentEnd item line num content end
+     */
+    public void setLineNumberContentEnd(int lineNumberContentEnd) {
+        this.lineNumberContentEnd = lineNumberContentEnd;
     }
 }

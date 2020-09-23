@@ -16,36 +16,35 @@ import java.util.List;
 
 public class TestEPLModuleUtil extends TestCase {
     public void testParse() throws Exception {
+        String epl;
 
-        Object[][] testdata = new Object[][]{
-                {"/* Comment One */ select * from A;\n" +
-                        "/* Comment Two */  select   *  from  B ;\n",
-                        new EPLModuleParseItem[]{
-                                new EPLModuleParseItem("/* Comment One */ select * from A", 1, 0, 33),
-                                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 2, 34, 73)},
-                },
+        epl = "/* Comment One */\n" +
+                "select * from A;";
+        runAssertion(epl, new EPLModuleParseItem(epl.replace(";", ""), 1, 0, 33, 2, 2, 2));
 
-                {"select /* Comment One\n\r; */ *, ';', \";\" from A order by x;; ;\n\n \n;\n" +
-                        "/* Comment Two */  select   *  from  B ;\n",
-                        new EPLModuleParseItem[]{
-                                new EPLModuleParseItem("select /* Comment One\n\r; */ *, ';', \";\" from A order by x", 1, 0, 57),
-                                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 6, 63, 102)},
-                }
-        };
+        epl = "/* Comment One */ select * from A;\n" +
+                "/* Comment Two */  select   *  from  B ;\n";
+        runAssertion(epl, new EPLModuleParseItem("/* Comment One */ select * from A", 1, 0, 33, 1, 1, 1),
+                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 2, 34, 73, 2, 2, 2));
 
-        for (int i = 0; i < testdata.length; i++) {
-            String input = (String) testdata[i][0];
-            EPLModuleParseItem[] expected = (EPLModuleParseItem[]) testdata[i][1];
-            List<EPLModuleParseItem> result = EPLModuleUtil.parse(input);
-
-            assertEquals(expected.length, result.size());
-            for (int j = 0; j < expected.length; j++) {
-                String message = "failed at item " + i + " and segment " + j;
-                assertEquals(message, expected[j].getExpression(), result.get(j).getExpression());
-                assertEquals(message, expected[j].getLineNum(), result.get(j).getLineNum());
-                assertEquals(message, expected[j].getStartChar(), result.get(j).getStartChar());
-                assertEquals(message, expected[j].getEndChar(), result.get(j).getEndChar());
-            }
+        epl = "select /* Comment One\n\r; */ *, ';', \";\" from A order by x;; ;\n\n \n;\n" +
+                "/* Comment Two */  select   *  from  B ;\n";
+        runAssertion(epl, new EPLModuleParseItem("select /* Comment One\n\r; */ *, ';', \";\" from A order by x", 1, 0, 57, 2, 1, 2),
+                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 6, 63, 102, 6, 6, 6));
+    }
+    
+    private void runAssertion(String epl, EPLModuleParseItem ... expecteds) throws Exception {
+        List<EPLModuleParseItem> result = EPLModuleUtil.parse(epl);
+        assertEquals(result.size(), expecteds.length);
+        for (int i = 0; i < expecteds.length; i++) {
+            String message = "failed at epl:\n-----\n" + epl + "-----\nfailed at module item #" + i;
+            assertEquals(message, expecteds[i].getExpression(), result.get(i).getExpression());
+            assertEquals(message, expecteds[i].getLineNum(), result.get(i).getLineNum());
+            assertEquals(message, expecteds[i].getStartChar(), result.get(i).getStartChar());
+            assertEquals(message, expecteds[i].getEndChar(), result.get(i).getEndChar());
+            assertEquals(message, expecteds[i].getLineNumEnd(), result.get(i).getLineNumEnd());
+            assertEquals(message, expecteds[i].getLineNumContent(), result.get(i).getLineNumContent());
+            assertEquals(message, expecteds[i].getLineNumContentEnd(), result.get(i).getLineNumContentEnd());
         }
     }
 }

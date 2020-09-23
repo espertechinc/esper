@@ -100,7 +100,7 @@ public class EPLModuleUtil {
         for (ParseNode node : nodes) {
             if ((node instanceof ParseNodeComment) || (node instanceof ParseNodeExpression)) {
                 boolean isComments = node instanceof ParseNodeComment;
-                items.add(new ModuleItem(node.getItem().getExpression(), isComments, node.getItem().getLineNum(), node.getItem().getStartChar(), node.getItem().getEndChar()));
+                items.add(new ModuleItem(node.getItem().getExpression(), isComments, node.getItem().getLineNum(), node.getItem().getStartChar(), node.getItem().getEndChar(), node.getItem().getLineNumEnd(), isComments ? -1 : node.getItem().getLineNumContent(), isComments ? -1 : node.getItem().getLineNumContentEnd()));
             }
         }
 
@@ -235,27 +235,37 @@ public class EPLModuleUtil {
 
         List<EPLModuleParseItem> statements = new ArrayList<EPLModuleParseItem>();
         StringWriter current = new StringWriter();
-        Integer lineNum = null;
+        Integer startLineNum = null;
+        Integer startLineNumContent = null;
         int charPosStart = 0;
         int charPos = 0;
         List<Token> tokenList = tokens.getTokens();
         Set<Integer> skippedSemicolonIndexes = getSkippedSemicolons(tokenList);
         int index = -1;
-        // Call getTokens first before invoking tokens.size! ANTLR problem
+        int lastLineNum = -1;
+        int lastLineNumContent = -1;
         for (Object token : tokenList) {
             index++;
             Token t = (Token) token;
+            lastLineNum = t.getLine();
+            if (t.getChannel() == Token.DEFAULT_CHANNEL) {
+                lastLineNumContent = t.getLine();
+            }
             boolean semi = t.getType() == EsperEPL2GrammarLexer.SEMI && !skippedSemicolonIndexes.contains(index);
             if (semi) {
                 if (current.toString().trim().length() > 0) {
-                    statements.add(new EPLModuleParseItem(current.toString().trim(), lineNum == null ? 0 : lineNum, charPosStart, charPos));
-                    lineNum = null;
+                    statements.add(new EPLModuleParseItem(current.toString().trim(), startLineNum == null ? 0 : startLineNum, charPosStart, charPos, t.getLine(), startLineNumContent == null ? 0 : startLineNumContent, lastLineNumContent));
+                    startLineNum = null;
+                    startLineNumContent = null;
                 }
                 current = new StringWriter();
             } else {
-                if ((lineNum == null) && (t.getType() != EsperEPL2GrammarParser.WS)) {
-                    lineNum = t.getLine();
+                if (startLineNum == null && t.getType() != EsperEPL2GrammarParser.WS) {
+                    startLineNum = t.getLine();
                     charPosStart = charPos;
+                }
+                if (startLineNumContent == null && t.getType() != EsperEPL2GrammarParser.WS && t.getChannel() == Token.DEFAULT_CHANNEL) {
+                    startLineNumContent = t.getLine();
                 }
                 if (t.getType() != EsperEPL2GrammarLexer.EOF) {
                     current.append(t.getText());
@@ -265,7 +275,7 @@ public class EPLModuleUtil {
         }
 
         if (current.toString().trim().length() > 0) {
-            statements.add(new EPLModuleParseItem(current.toString().trim(), lineNum == null ? 0 : lineNum, 0, 0));
+            statements.add(new EPLModuleParseItem(current.toString().trim(), startLineNum == null ? 0 : startLineNum, 0, 0, lastLineNum, startLineNumContent == null ? 0 : startLineNumContent, lastLineNumContent));
         }
         return statements;
     }

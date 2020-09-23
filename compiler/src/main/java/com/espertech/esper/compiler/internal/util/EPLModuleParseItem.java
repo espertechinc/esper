@@ -14,10 +14,13 @@ package com.espertech.esper.compiler.internal.util;
  * Item parsing an EPL module file.
  */
 public class EPLModuleParseItem {
-    private String expression;
-    private int lineNum;
-    private int startChar;
-    private int endChar;
+    private final String expression;
+    private final int lineNum;
+    private final int startChar;
+    private final int endChar;
+    private final int lineNumEnd;
+    private final int lineNumContent;
+    private final int lineNumContentEnd;
 
     /**
      * Ctor.
@@ -27,11 +30,14 @@ public class EPLModuleParseItem {
      * @param startChar  start character number total file
      * @param endChar    end character number
      */
-    public EPLModuleParseItem(String expression, int lineNum, int startChar, int endChar) {
+    public EPLModuleParseItem(String expression, int lineNum, int startChar, int endChar, int lineNumEnd, int lineNumContent, int lineNumContentEnd) {
         this.expression = expression;
         this.lineNum = lineNum;
         this.startChar = startChar;
         this.endChar = endChar;
+        this.lineNumEnd = lineNumEnd;
+        this.lineNumContent = lineNumContent;
+        this.lineNumContentEnd = lineNumContentEnd;
     }
 
     /**
@@ -68,5 +74,22 @@ public class EPLModuleParseItem {
      */
     public int getEndChar() {
         return endChar;
+    }
+
+    /**
+     * Returns line number where the expression ends.
+     *
+     * @return line number end
+     */
+    public int getLineNumEnd() {
+        return lineNumEnd;
+    }
+
+    public int getLineNumContent() {
+        return lineNumContent;
+    }
+
+    public int getLineNumContentEnd() {
+        return lineNumContentEnd;
     }
 }

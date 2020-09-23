@@ -140,7 +140,9 @@ public class ClientCompileModule {
             Module module = env.parseModule(moduleText);
             assertEquals(2, module.getItems().size());
             assertEquals(3, module.getItems().get(0).getLineNumber());
+            assertEquals(3, module.getItems().get(0).getLineNumberEnd());
             assertEquals(4, module.getItems().get(1).getLineNumber());
+            assertEquals(4, module.getItems().get(1).getLineNumberEnd());
 
             module = env.parseModule("/* abc */");
             EPCompiled compiled = env.compile(module);
@@ -193,17 +195,15 @@ public class ClientCompileModule {
     private static class ClientCompileModuleParse implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             Module module = env.readModule("regression/test_module_4.epl");
-            assertModule(module, null, "abd", null, new String[]{
+            assertModuleNoLines(module, null, "abd", null, new String[]{
                 "select * from ABC",
                 "/* Final comment */"
-                }, new boolean[]{false, true},
-                new int[]{3, 8},
-                new int[]{12, 0},
-                new int[]{37, 0}
-            );
+                });
+            assertModuleLinesOnly(module, new ModuleItem(null, false, 3, -1, -1, 7, 3, 3),
+                    new ModuleItem(null, true, 8, -1, -1, 9, -1, -1));
 
             module = env.readModule("regression/test_module_1.epl");
-            assertModule(module, "abc", "def,jlk", null, new String[]{
+            assertModuleNoLines(module, "abc", "def,jlk", null, new String[]{
                 "select * from A",
                 "select * from B" + NEWLINE + "where C=d",
                 "/* Test ; Comment */" + NEWLINE + "update ';' where B=C",
@@ -212,7 +212,7 @@ public class ClientCompileModule {
             );
 
             module = env.readModule("regression/test_module_2.epl");
-            assertModule(module, "abc.def.hij", "def.hik,jlk.aja", null, new String[]{
+            assertModuleNoLines(module, "abc.def.hij", "def.hik,jlk.aja", null, new String[]{
                 "// Note 4 white spaces after * and before from" + NEWLINE + "select * from A",
                 "select * from B",
                 "select *    " + NEWLINE + "    from C",
@@ -220,34 +220,34 @@ public class ClientCompileModule {
             );
 
             module = env.readModule("regression/test_module_3.epl");
-            assertModule(module, null, null, null, new String[]{
+            assertModuleNoLines(module, null, null, null, new String[]{
                 "create window ABC",
                 "select * from ABC"
                 }
             );
 
             module = env.readModule("regression/test_module_5.epl");
-            assertModule(module, "abd.def", null, null, new String[0]);
+            assertModuleNoLines(module, "abd.def", null, null, new String[0]);
 
             module = env.readModule("regression/test_module_6.epl");
-            assertModule(module, null, null, null, new String[0]);
+            assertModuleNoLines(module, null, null, null, new String[0]);
 
             module = env.readModule("regression/test_module_7.epl");
-            assertModule(module, null, null, null, new String[0]);
+            assertModuleNoLines(module, null, null, null, new String[0]);
 
             module = env.readModule("regression/test_module_8.epl");
-            assertModule(module, "def.jfk", null, null, new String[0]);
+            assertModuleNoLines(module, "def.jfk", null, null, new String[0]);
 
             module = env.parseModule("module mymodule; uses mymodule2; import abc; select * from MyEvent;");
-            assertModule(module, "mymodule", "mymodule2", "abc", new String[]{
+            assertModuleNoLines(module, "mymodule", "mymodule2", "abc", new String[]{
                 "select * from MyEvent"
             });
 
             module = env.readModule("regression/test_module_11.epl");
-            assertModule(module, null, null, "com.mycompany.pck1", new String[0]);
+            assertModuleNoLines(module, null, null, "com.mycompany.pck1", new String[0]);
 
             module = env.readModule("regression/test_module_10.epl");
-            assertModule(module, "abd.def", "one.use,two.use", "com.mycompany.pck1,com.mycompany.*", new String[]{
+            assertModuleNoLines(module, "abd.def", "one.use,two.use", "com.mycompany.pck1,com.mycompany.*", new String[]{
                 "select * from A",
                 }
             );
@@ -333,15 +333,7 @@ public class ClientCompileModule {
         }
     }
 
-    private static void assertModule(Module module, String name, String usesCSV, String importsCSV, String[] statements) {
-        assertModule(module, name, usesCSV, importsCSV, statements, new boolean[statements.length], new int[statements.length], new int[statements.length], new int[statements.length]);
-    }
-
-    private static void assertModule(Module module, String name, String usesCSV, String importsCSV, String[] statementsExpected,
-                                     boolean[] commentsExpected,
-                                     int[] lineNumsExpected,
-                                     int[] charStartsExpected,
-                                     int[] charEndsExpected) {
+    private static void assertModuleNoLines(Module module, String name, String usesCSV, String importsCSV, String[] statements) {
         assertEquals(name, module.getName());
 
         String[] expectedUses = usesCSV == null ? new String[0] : usesCSV.split(",");
@@ -351,33 +343,23 @@ public class ClientCompileModule {
         EPAssertionUtil.assertEqualsExactOrder(expectedImports, module.getImports().toArray());
 
         String[] stmtsFound = new String[module.getItems().size()];
-        boolean[] comments = new boolean[module.getItems().size()];
-        int[] lineNumsFound = new int[module.getItems().size()];
-        int[] charStartsFound = new int[module.getItems().size()];
-        int[] charEndsFound = new int[module.getItems().size()];
-
         for (int i = 0; i < module.getItems().size(); i++) {
             stmtsFound[i] = module.getItems().get(i).getExpression();
-            comments[i] = module.getItems().get(i).isCommentOnly();
-            lineNumsFound[i] = module.getItems().get(i).getLineNumber();
-            charStartsFound[i] = module.getItems().get(i).getCharPosStart();
-            charEndsFound[i] = module.getItems().get(i).getCharPosEnd();
         }
+        EPAssertionUtil.assertEqualsExactOrder(statements, stmtsFound);
+    }
 
-        EPAssertionUtil.assertEqualsExactOrder(statementsExpected, stmtsFound);
-        EPAssertionUtil.assertEqualsExactOrder(commentsExpected, comments);
-
-        boolean isCompareLineNums = false;
-        for (int l : lineNumsExpected) {
-            if (l > 0) {
-                isCompareLineNums = true;
-            }
-        }
-        if (isCompareLineNums) {
-            EPAssertionUtil.assertEqualsExactOrder(lineNumsExpected, lineNumsFound);
-            // Start and end character position can be platform-dependent
-            // commented-out: EPAssertionUtil.assertEqualsExactOrder(charStartsExpected, charStartsFound);
-            // commented-out: EPAssertionUtil.assertEqualsExactOrder(charEndsExpected, charEndsFound);
+    private static void assertModuleLinesOnly(Module module, ModuleItem...expecteds) {
+        assertEquals(expecteds.length, module.getItems().size());
+        for (int i = 0; i < expecteds.length; i++) {
+            ModuleItem expected = expecteds[i];
+            ModuleItem actual = module.getItems().get(i);
+            String message = "Failed to item#" + i;
+            assertEquals(message, expected.isCommentOnly(), actual.isCommentOnly());
+            assertEquals(message, expected.getLineNumber(), actual.getLineNumber());
+            assertEquals(message, expected.getLineNumberEnd(), actual.getLineNumberEnd());
+            assertEquals(message, expected.getLineNumberContent(), actual.getLineNumberContent());
+            assertEquals(message, expected.getLineNumberContentEnd(), actual.getLineNumberContent());
         }
     }
 
@@ -392,7 +374,7 @@ public class ClientCompileModule {
     private static Module makeModule(String name, String... statements) {
         ModuleItem[] items = new ModuleItem[statements.length];
         for (int i = 0; i < statements.length; i++) {
-            items[i] = new ModuleItem(statements[i], false, 0, 0, 0);
+            items[i] = new ModuleItem(statements[i], false, 0, 0, 0, 0, 0, 0);
         }
         return new Module(name, null, new HashSet<>(), new HashSet<>(), Arrays.asList(items), null);
     }
