@@ -707,6 +707,14 @@ public class InstrumentationDefault extends InstrumentationCommonDefault impleme
 
     }
 
+    public void qRuntimeManagementDeploy(String runtimeURI, String deploymentId, int size) {
+
+    }
+
+    public void aRuntimeManagementDeploy(String runtimeURI) {
+
+    }
+
     public void qaRuntimeManagementStmtStarted(String runtimeURI, String deploymentId, int statementId, String statementName, String epl, long runtimeTime) {
 
     }

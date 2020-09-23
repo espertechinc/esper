@@ -40,30 +40,40 @@ public class DeployerHelperStatement {
     private final static Logger log = LoggerFactory.getLogger(DeployerHelperStatement.class);
 
     static EPStatement[] deployStatements(int rolloutItemNumber, List<StatementLightweight> lightweights, boolean recovery, DeployerModulePaths modulePaths, ModuleProviderCLPair provider, String deploymentId, EPRuntimeSPI epRuntime) throws EPDeployException {
-        EPStatement[] statements = new EPStatement[lightweights.size()];
-        int count = 0;
-        for (StatementLightweight lightweight : lightweights) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qRuntimeManagementDeploy(epRuntime.getURI(), deploymentId, lightweights.size());
+        }
 
-            EPStatementSPI stmt;
-            try {
-                stmt = DeployerHelperStatement.deployStatement(recovery, lightweight, epRuntime);
-            } catch (Throwable t) {
+        try {
+            EPStatement[] statements = new EPStatement[lightweights.size()];
+            int count = 0;
+            for (StatementLightweight lightweight : lightweights) {
+
+                EPStatementSPI stmt;
                 try {
-                    reverseDeployment(deploymentId, modulePaths.getDeploymentTypes(), lightweights, statements, provider, epRuntime.getServicesContext());
-                } catch (Throwable udex) {
-                    log.warn(udex.getMessage(), udex);
+                    stmt = DeployerHelperStatement.deployStatement(recovery, lightweight, epRuntime);
+                } catch (Throwable t) {
+                    try {
+                        reverseDeployment(deploymentId, modulePaths.getDeploymentTypes(), lightweights, statements, provider, epRuntime.getServicesContext());
+                    } catch (Throwable udex) {
+                        log.warn(udex.getMessage(), udex);
+                    }
+                    throw new EPDeployException("Failed to deploy: " + t.getMessage(), t, rolloutItemNumber);
                 }
-                throw new EPDeployException("Failed to deploy: " + t.getMessage(), t, rolloutItemNumber);
+
+                statements[count++] = stmt;
+
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qaRuntimeManagementStmtStarted(epRuntime.getURI(), deploymentId, lightweight.getStatementContext().getStatementId(), stmt.getName(),
+                            (String) stmt.getProperty(StatementProperty.EPL), epRuntime.getEventService().getCurrentTime());
+                }
             }
-
-            statements[count++] = stmt;
-
+            return statements;
+        } finally {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qaRuntimeManagementStmtStarted(epRuntime.getURI(), deploymentId, lightweight.getStatementContext().getStatementId(), stmt.getName(),
-                    (String) stmt.getProperty(StatementProperty.EPL), epRuntime.getEventService().getCurrentTime());
+                InstrumentationHelper.get().aRuntimeManagementDeploy(epRuntime.getURI());
             }
         }
-        return statements;
     }
 
     private static EPStatementSPI deployStatement(boolean recovery, StatementLightweight lightweight, EPRuntimeSPI epRuntime) {
