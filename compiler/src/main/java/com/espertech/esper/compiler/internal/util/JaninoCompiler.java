@@ -72,7 +72,10 @@ public class JaninoCompiler {
                     }
                 }
 
-                file.deleteOnExit();
+                boolean keep = Boolean.parseBoolean(System.getProperty(Scanner.SYSTEM_PROPERTY_SOURCE_DEBUGGING_KEEP));
+                if (!keep) {
+                    file.deleteOnExit();
+                }
                 optionalFileName = file.getAbsolutePath();
             }
 
