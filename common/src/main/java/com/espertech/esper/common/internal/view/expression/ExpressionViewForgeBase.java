@@ -67,12 +67,14 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
     protected int scheduleCallbackId = -1;
     protected AggregationServiceForgeDesc aggregationServiceForgeDesc;
     protected int streamNumber;
+    private boolean isTargetHA;
 
     protected abstract void makeSetters(CodegenExpressionRef factory, CodegenBlock block);
 
     public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
         this.eventType = parentEventType;
         this.streamNumber = streamNumber;
+        this.isTargetHA = viewForgeEnv.getSerdeResolver().isTargetHA();
 
         // define built-in fields
         LinkedHashMap<String, Object> builtinTypeDef = ExpressionViewOAFieldEnum.asMapOfTypes(eventType);
@@ -131,7 +133,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
             .declareVar(evalClass.getClassName(), "eval", CodegenExpressionBuilder.newInstance(evalClass.getClassName()))
             .exprDotMethod(factory, "setBuiltinMapType", EventTypeUtility.resolveTypeCodegen(builtinType, EPStatementInitServices.REF))
             .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
-            .exprDotMethod(factory, "setAggregationServiceFactory", makeAggregationService(classScope, method, symbols))
+            .exprDotMethod(factory, "setAggregationServiceFactory", makeAggregationService(classScope, method, symbols, isTargetHA))
             .exprDotMethod(factory, "setAggregationResultFutureAssignable", ref("eval"))
             .exprDotMethod(factory, "setExpiryEval", ref("eval"));
         if (variableNames != null && !variableNames.isEmpty()) {
@@ -144,13 +146,13 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         this.scheduleCallbackId = id;
     }
 
-    private CodegenExpression makeAggregationService(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
+    private CodegenExpression makeAggregationService(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, boolean isTargetHA) {
         if (aggregationServiceForgeDesc == null) {
             return constantNull();
         }
 
         AggregationClassNames aggregationClassNames = new AggregationClassNames(CodegenPackageScopeNames.classPostfixAggregationForView(streamNumber));
-        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames);
+        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
         classScope.addInnerClasses(aggResult.getInnerClasses());
         return localMethod(aggResult.getInitMethod(), symbols.getAddInitSvc(parent));
     }

@@ -8,51 +8,45 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.epl.resultset.select.eval;
+package com.espertech.esper.common.internal.epl.resultset.select.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveLengthBuilder;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMayVoid;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprForgeContext;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorCodegenSymbol;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
-import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.event.core.EventBeanManufacturer;
+import com.espertech.esper.common.internal.event.core.EventBeanManufacturerForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class SelectEvalNoWildcardMap implements SelectExprProcessorForge {
+public class SelectExprInsertNativeNoWiden extends SelectExprInsertNativeBase {
 
-    private final SelectExprForgeContext selectContext;
-    private final EventType resultEventType;
-
-    public SelectEvalNoWildcardMap(SelectExprForgeContext selectContext, EventType resultEventType) {
-        this.selectContext = selectContext;
-        this.resultEventType = resultEventType;
+    public SelectExprInsertNativeNoWiden(EventType eventType, EventBeanManufacturerForge eventManufacturer, ExprForge[] exprForges) {
+        super(eventType, eventManufacturer, exprForges);
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
-        methodNode.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "props", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(selectContext.getColumnNames().length))));
-
-        new CodegenRepetitiveLengthBuilder(selectContext.getColumnNames().length, methodNode, codegenClassScope, this.getClass())
-                .addParam(EPTypePremade.MAP.getEPType(), "props")
-                .setConsumer((index, leafMethod) -> {
-                    CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), selectContext.getExprForges()[index], leafMethod, exprSymbol, codegenClassScope);
-                    leafMethod.getBlock().expression(exprDotMethod(ref("props"), "put", constant(selectContext.getColumnNames()[index]), expression));
+        CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, eventManufacturer.make(codegenMethodScope, codegenClassScope));
+        CodegenBlock block = methodNode.getBlock()
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(exprForges.length)));
+        new CodegenRepetitiveLengthBuilder(exprForges.length, methodNode, codegenClassScope, this.getClass())
+                .addParam(EPTypePremade.OBJECTARRAY.getEPType(), "values")
+                .setConsumer((index, leaf) -> {
+                    CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), exprForges[index], leaf, exprSymbol, codegenClassScope);
+                    leaf.getBlock().assignArrayElement("values", constant(index), expression);
                 }).build();
 
-        methodNode.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedMap", ref("props"), resultEventType));
+        block.methodReturn(exprDotMethod(manufacturer, "make", ref("values")));
         return methodNode;
-    }
-
-    public EventType getResultEventType() {
-        return resultEventType;
     }
 }

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerByteCode;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -28,6 +29,7 @@ public class CodegenPackageScope {
     private final String packageName;
     private final String fieldsClassNameOptional;
     private final boolean instrumented;
+    private final ConfigurationCompilerByteCode config;
     private final CodegenMethod initMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), CodegenPackageScope.class, new CodegenClassScope(true, this, null)).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef()).setStatic(true);
 
     private int currentMemberNumber;
@@ -46,10 +48,11 @@ public class CodegenPackageScope {
     private List<CodegenSubstitutionParamEntry> substitutionParamsByNumber = new ArrayList<>();
     private LinkedHashMap<String, CodegenSubstitutionParamEntry> substitutionParamsByName = new LinkedHashMap<>();
 
-    public CodegenPackageScope(String packageName, String fieldsClassNameOptional, boolean instrumented) {
+    public CodegenPackageScope(String packageName, String fieldsClassNameOptional, boolean instrumented, ConfigurationCompilerByteCode config) {
         this.packageName = packageName;
         this.fieldsClassNameOptional = fieldsClassNameOptional;
         this.instrumented = instrumented;
+        this.config = config;
     }
 
     public CodegenExpressionField addFieldUnshared(boolean isFinal, EPTypeClass clazz, CodegenExpression initCtorScoped) {
@@ -169,5 +172,9 @@ public class CodegenPackageScope {
 
     public boolean isHasSubstitution() {
         return !substitutionParamsByNumber.isEmpty() || !substitutionParamsByName.isEmpty();
+    }
+
+    public ConfigurationCompilerByteCode getConfig() {
+        return config;
     }
 }

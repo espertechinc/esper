@@ -70,12 +70,14 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
     private final ResultSetProcessorDesc spec;
     private final CodegenPackageScope packageScope;
     private final StatementRawInfo statementRawInfo;
+    private final boolean isTargetHA;
 
-    public StmtClassForgeableRSPFactoryProvider(String className, ResultSetProcessorDesc spec, CodegenPackageScope packageScope, StatementRawInfo statementRawInfo) {
+    public StmtClassForgeableRSPFactoryProvider(String className, ResultSetProcessorDesc spec, CodegenPackageScope packageScope, StatementRawInfo statementRawInfo, boolean isTargetHA) {
         this.className = className;
         this.spec = spec;
         this.packageScope = packageScope;
         this.statementRawInfo = statementRawInfo;
+        this.isTargetHA = isTargetHA;
     }
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
@@ -117,7 +119,7 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             if (!aggregationNull) {
                 providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.EPTYPE, MEMBERNAME_AGGREGATIONSVCFACTORY));
                 AggregationClassNames aggregationClassNames = new AggregationClassNames();
-                AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), aggregationForge, providerCtor, classScope, className, aggregationClassNames);
+                AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), aggregationForge, providerCtor, classScope, className, aggregationClassNames, isTargetHA);
                 providerCtor.getBlock().assignMember(MEMBERNAME_AGGREGATIONSVCFACTORY, localMethod(aggResult.getInitMethod(), EPStatementInitServices.REF));
                 innerClasses.addAll(aggResult.getInnerClasses());
             }

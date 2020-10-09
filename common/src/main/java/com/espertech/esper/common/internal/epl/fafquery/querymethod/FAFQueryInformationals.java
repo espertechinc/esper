@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenSubstitutionParamEntry;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveValueBuilder;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class FAFQueryInformationals {
         this.substitutionParamsNames = substitutionParamsNames;
     }
 
-    public static FAFQueryInformationals from(List<CodegenSubstitutionParamEntry> paramsByNumber, LinkedHashMap<String, CodegenSubstitutionParamEntry> paramsByName) throws ExprValidationException {
+    public static FAFQueryInformationals from(List<CodegenSubstitutionParamEntry> paramsByNumber, LinkedHashMap<String, CodegenSubstitutionParamEntry> paramsByName) {
         Class[] types;
         Map<String, Integer> names;
         if (!paramsByNumber.isEmpty()) {
@@ -81,9 +81,13 @@ public class FAFQueryInformationals {
         }
         CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), this.getClass(), classScope);
         method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "names", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(substitutionParamsNames.size()))));
-        for (Map.Entry<String, Integer> entry : substitutionParamsNames.entrySet()) {
-            method.getBlock().exprDotMethod(ref("names"), "put", constant(entry.getKey()), constant(entry.getValue()));
-        }
+
+        new CodegenRepetitiveValueBuilder<>(substitutionParamsNames.entrySet(), method, classScope, this.getClass())
+                .addParam(EPTypePremade.MAP.getEPType(), "names")
+                .setConsumer((entry, index, leaf)  -> {
+                    leaf.getBlock().exprDotMethod(ref("names"), "put", constant(entry.getKey()), constant(entry.getValue()));
+                })
+                .build();
         method.getBlock().methodReturn(ref("names"));
         return localMethod(method);
     }

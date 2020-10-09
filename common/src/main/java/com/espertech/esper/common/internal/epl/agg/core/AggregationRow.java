@@ -23,25 +23,25 @@ public interface AggregationRow {
 
     void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
-    void enterAgg(int column, Object value);
+    void enterAgg(int scol, Object value);
 
-    void leaveAgg(int column, Object value);
+    void leaveAgg(int scol, Object value);
 
-    void enterAccess(int column, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
+    void enterAccess(int scol, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
-    void leaveAccess(int column, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
+    void leaveAccess(int scol, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
-    Object getAccessState(int column);
+    Object getAccessState(int scol);
 
     void clear();
 
-    Object getValue(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+    Object getValue(int vcol, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
-    Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    Collection<EventBean> getCollectionOfEvents(int vcol, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
-    EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    EventBean getEventBean(int vcol, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
-    Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    Collection<Object> getCollectionScalar(int vcol, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     void increaseRefcount();
 

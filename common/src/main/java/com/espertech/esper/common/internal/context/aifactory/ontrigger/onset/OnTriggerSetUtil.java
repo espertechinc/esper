@@ -100,7 +100,7 @@ public class OnTriggerSetUtil {
 
         StatementAgentInstanceFactoryOnTriggerSetForge forge = new StatementAgentInstanceFactoryOnTriggerSetForge(activatorResult.getActivator(), eventType, subselectForges, tableAccessForges, variableReadWritePackageForge, classNameRSP);
         List<StmtClassForgeable> forgeables = new ArrayList<>();
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
 
         StmtClassForgeableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgeableAIFactoryProviderOnTrigger(className, packageScope, forge);
         return new OnTriggerSetPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables());

@@ -64,4 +64,8 @@ public class CodegenInnerClass {
             "className='" + className + '\'' +
             '}';
     }
+
+    public void addInterfaceImplemented(EPTypeClass eptype) {
+        supers.addInterfaceImplemented(eptype);
+    }
 }

@@ -142,13 +142,13 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         for (StmtClassForgeableFactory additional : additionalForgeables) {
             forgeables.add(additional.make(packageScope, classPostfix));
         }
 
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StmtClassForgeableAIFactoryProviderCreateNW aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateNW(aiFactoryProviderClassName, packageScope, forge, createWindowDesc.getWindowName());
@@ -159,7 +159,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createWindowDesc.getWindowName());
 
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 1));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList());
     }

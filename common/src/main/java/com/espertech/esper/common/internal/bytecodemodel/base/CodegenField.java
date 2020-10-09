@@ -11,14 +11,18 @@
 package com.espertech.esper.common.internal.bytecodemodel.base;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 
 import java.util.Set;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class CodegenField {
     private final String clazz;
     private final String name;
     private final EPTypeClass type;
     private final boolean isFinal;
+    private String assignmentMemberName;
 
     public CodegenField(String clazz, String name, EPTypeClass type, boolean isFinal) {
         this.clazz = clazz;
@@ -61,6 +65,21 @@ public class CodegenField {
     }
 
     public void render(StringBuilder builder) {
-        builder.append(clazz).append('.').append(name);
+        builder.append(clazz).append('.');
+        if (assignmentMemberName != null) {
+            builder.append(assignmentMemberName).append(".");
+        }
+        builder.append(name);
+    }
+
+    public void setAssignmentMemberName(String assignmentMemberName) {
+        this.assignmentMemberName = assignmentMemberName;
+    }
+
+    public CodegenExpressionRef getNameWithMember() {
+        if (assignmentMemberName == null) {
+            return ref(name);
+        }
+        return ref(assignmentMemberName + "." + name);
     }
 }

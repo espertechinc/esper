@@ -40,7 +40,9 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private EventTypeBusModifier busModifierEventType = EventTypeBusModifier.NONBUS;
     private int threadPoolCompilerNumThreads = 8;
     private Integer threadPoolCompilerCapacity = null;
-    private int maxMethodsPerClass = 16 * 1024; // constant pool is 64k, the default is a quarter of the constant pool
+    private int maxMethodsPerClass = 1024; // JVM constant pool is 64k
+    private int internalUseOnlyMaxMembersPerClass = 2 * 1024;
+    private int internalUseOnlyMaxMethodComplexity = 1024; // JVM max method size is 64k, the default is a 1k complexity
 
     /**
      * Set all access modifiers to public.
@@ -386,7 +388,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
     }
 
     /**
-     * Returns the maximum number of methods per class, which defaults to 16k. The lower limit for this number is 1000.
+     * Returns the maximum number of methods per class, which defaults to 1k. The lower limit for this number is 1000.
      *
      * @return max number methods per class
      */
@@ -395,12 +397,50 @@ public class ConfigurationCompilerByteCode implements Serializable {
     }
 
     /**
-     * Sets the maximum number of methods per class, which defaults to 16k. The lower limit for this number is 1000.
+     * Sets the maximum number of methods per class, which defaults to 1k.
      *
      * @param maxMethodsPerClass max number methods per class
      */
     public void setMaxMethodsPerClass(int maxMethodsPerClass) {
         this.maxMethodsPerClass = maxMethodsPerClass;
+    }
+
+    /**
+     * (Internal-use-only) Returns the maximum number of members per class, which defaults to 2k. The lower limit for this number is 1.
+     *
+     * @return max number of members per class
+     */
+    public int getInternalUseOnlyMaxMembersPerClass() {
+        return internalUseOnlyMaxMembersPerClass;
+    }
+
+    /**
+     * (Internal-use-only) Sets the maximum number of members per class, which defaults to 2k. The lower limit for this number is 1.
+     *
+     * @param internalUseOnlyMaxMembersPerClass max number of members per class
+     */
+    public void setInternalUseOnlyMaxMembersPerClass(int internalUseOnlyMaxMembersPerClass) {
+        this.internalUseOnlyMaxMembersPerClass = internalUseOnlyMaxMembersPerClass;
+    }
+
+    /**
+     * (Internal-use-only) Sets the maximum method complexity, which defaults to 1k. Applicable to methods that repeat operations on elements.
+     * This roughly corresponds to lines of code of a method. The lower limit is not defined.
+     *
+     * @return max method complexity
+     */
+    public int getInternalUseOnlyMaxMethodComplexity() {
+        return internalUseOnlyMaxMethodComplexity;
+    }
+
+    /**
+     * (Internal-use-only) Sets the maximum method complexity, which defaults to 1k. Applicable to methods that repeat operations on elements.
+     * This roughly corresponds to lines of code of a method. The lower limit is not defined.
+     *
+     * @param internalUseOnlyMaxMethodComplexity max method complexity
+     */
+    public void setInternalUseOnlyMaxMethodComplexity(int internalUseOnlyMaxMethodComplexity) {
+        this.internalUseOnlyMaxMethodComplexity = internalUseOnlyMaxMethodComplexity;
     }
 
     /**

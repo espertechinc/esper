@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class CompilerHelperRefactorToStaticMethods {
-    public final static int MAX_METHODS_PER_CLASS_MINIMUM = 1000;
+    public final static int MAX_METHODS_PER_CLASS_MINIMUM = 100;
 
     public static void refactorMethods(List<CodegenClass> classes, int maxMethodsPerClass) {
         for (CodegenClass clazz : classes) {

@@ -29,13 +29,13 @@ public class CompilerHelperFAFQuery {
     public static String compileQuery(FAFQueryMethodForge query, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), statementFieldsClassName, compileTimeServices.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), statementFieldsClassName, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
 
         String queryMethodProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFQueryMethodProvider.class, classPostfix);
         List<StmtClassForgeable> forgeablesQueryMethod = query.makeForgeables(queryMethodProviderClassName, classPostfix, packageScope);
 
         List<StmtClassForgeable> forgeables = new ArrayList<>(forgeablesQueryMethod);
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         // forge with statement-fields last
         List<CodegenClass> classes = new ArrayList<>(forgeables.size());

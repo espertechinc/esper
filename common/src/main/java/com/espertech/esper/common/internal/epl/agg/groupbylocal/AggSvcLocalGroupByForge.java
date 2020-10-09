@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +26,6 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -318,7 +318,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     private void getterCodegen(String methodName, CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         AggregationCodegenRowLevelDesc rowLevelDesc = getRowLevelDesc();
 
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.REF_COLUMN, localGroupByPlan.getColumnsForges().length, true);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(AggregationServiceCodegenNames.REF_VCOL, localGroupByPlan.getColumnsForges().length, true);
         for (int i = 0; i < blocks.length; i++) {
             AggregationLocalGroupByColumnForge col = localGroupByPlan.getColumnsForges()[i];
 

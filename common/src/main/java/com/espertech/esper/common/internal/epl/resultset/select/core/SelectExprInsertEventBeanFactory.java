@@ -13,8 +13,10 @@ package com.espertech.esper.common.internal.epl.resultset.select.core;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.type.*;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -23,7 +25,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.InsertIntoDesc;
-import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMayVoid;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
@@ -350,7 +351,7 @@ public class SelectExprInsertEventBeanFactory {
             return null;
         }
 
-        return new SelectExprInsertNativeWidening(eventType, eventManufacturer, exprForges, wideners);
+        return SelectExprInsertNativeBase.makeInsertNative(eventType, eventManufacturer, exprForges, wideners);
     }
 
     private static SelectExprProcessorForge initializeCtorInjection(BeanEventType beanEventType, ExprForge[] forges, Object[] expressionReturnTypes, ClasspathImportServiceCompileTime classpathImportService)
@@ -413,7 +414,7 @@ public class SelectExprInsertEventBeanFactory {
             throw new ExprValidationException(e.getMessage(), e);
         }
 
-        return new SelectExprInsertNativeWidening(eventType, eventManufacturer, exprForges, wideners);
+        return SelectExprInsertNativeBase.makeInsertNative(eventType, eventManufacturer, exprForges, wideners);
     }
 
     public abstract static class SelectExprInsertNativeExpressionCoerceBase implements SelectExprProcessorForge {
@@ -508,84 +509,6 @@ public class SelectExprInsertEventBeanFactory {
                 .declareVar(EPTypePremade.OBJECT.getEPType(), "result", exprForge.evaluateCodegen(EPTypePremade.OBJECT.getEPType(), methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("result")
                 .methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedBean", ref("result"), resultEventType));
-            return methodNode;
-        }
-    }
-
-    public abstract static class SelectExprInsertNativeBase implements SelectExprProcessorForge {
-
-        private final EventType eventType;
-        protected final EventBeanManufacturerForge eventManufacturer;
-        protected final ExprForge[] exprForges;
-
-        protected SelectExprInsertNativeBase(EventType eventType, EventBeanManufacturerForge eventManufacturer, ExprForge[] exprForges) {
-            this.eventType = eventType;
-            this.eventManufacturer = eventManufacturer;
-            this.exprForges = exprForges;
-        }
-
-        public EventType getResultEventType() {
-            return eventType;
-        }
-    }
-
-    public static class SelectExprInsertNativeWidening extends SelectExprInsertNativeBase {
-
-        private final TypeWidenerSPI[] wideners;
-
-        public SelectExprInsertNativeWidening(EventType eventType, EventBeanManufacturerForge eventManufacturer, ExprForge[] exprForges, TypeWidenerSPI[] wideners) {
-            super(eventType, eventManufacturer, exprForges);
-            this.wideners = wideners;
-        }
-
-        public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
-            CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, eventManufacturer.make(codegenMethodScope, codegenClassScope));
-            CodegenBlock block = methodNode.getBlock()
-                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(exprForges.length)));
-            for (int i = 0; i < exprForges.length; i++) {
-                EPType evalType = exprForges[i].getEvaluationType();
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(evalType, exprForges[i], methodNode, exprSymbol, codegenClassScope);
-                if (wideners[i] == null) {
-                    block.assignArrayElement("values", constant(i), expression);
-                } else {
-                    String refname = "evalResult" + i;
-                    if (evalType == null || evalType == EPTypeNull.INSTANCE) {
-                        // no action
-                    } else {
-                        EPTypeClass evalClass = (EPTypeClass) evalType;
-                        block.declareVar(evalClass, refname, expression);
-                        if (!evalClass.getType().isPrimitive()) {
-                            block.ifRefNotNull(refname)
-                                .assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope))
-                                .blockEnd();
-                        } else {
-                            block.assignArrayElement("values", constant(i), wideners[i].widenCodegen(ref(refname), methodNode, codegenClassScope));
-                        }
-                    }
-                }
-            }
-            block.methodReturn(exprDotMethod(manufacturer, "make", ref("values")));
-            return methodNode;
-        }
-    }
-
-    public static class SelectExprInsertNativeNoWiden extends SelectExprInsertNativeBase {
-
-        public SelectExprInsertNativeNoWiden(EventType eventType, EventBeanManufacturerForge eventManufacturer, ExprForge[] exprForges) {
-            super(eventType, eventManufacturer, exprForges);
-        }
-
-        public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
-            CodegenExpressionField manufacturer = codegenClassScope.addFieldUnshared(true, EventBeanManufacturer.EPTYPE, eventManufacturer.make(codegenMethodScope, codegenClassScope));
-            CodegenBlock block = methodNode.getBlock()
-                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "values", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(exprForges.length)));
-            for (int i = 0; i < exprForges.length; i++) {
-                CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), exprForges[i], methodNode, exprSymbol, codegenClassScope);
-                block.assignArrayElement("values", constant(i), expression);
-            }
-            block.methodReturn(exprDotMethod(manufacturer, "make", ref("values")));
             return methodNode;
         }
     }
@@ -735,7 +658,6 @@ public class SelectExprInsertEventBeanFactory {
         public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             EPTypeClass arrayType = JavaClassHelper.getArrayType(componentReturnType);
             CodegenMethod methodNode = codegenMethodScope.makeChild(arrayType, this.getClass(), codegenClassScope);
-
 
             methodNode.getBlock()
                 .declareVar(EventBean.EPTYPEARRAY, "events", cast(EventBean.EPTYPEARRAY, inner.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))

@@ -68,7 +68,6 @@ public class DTLocalZonedDateTimeOpsIntervalEval extends DTLocalEvaluatorCalOpsI
     public static CodegenExpression codegen(DTLocalZonedDateTimeOpsIntervalForge forge, CodegenExpressionRef start, CodegenExpressionRef end, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.BOOLEANBOXED.getEPType(), DTLocalZonedDateTimeOpsIntervalEval.class, codegenClassScope).addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "start").addParam(EPTypePremade.ZONEDDATETIME.getEPType(), "end");
 
-
         CodegenBlock block = methodNode.getBlock()
                 .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "startMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("start")))
                 .declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "endMs", staticMethod(DatetimeLongCoercerZonedDateTime.class, "coerceZDTToMillis", ref("end")))

@@ -34,6 +34,10 @@ public class CodegenExpressionMemberWCol extends CodegenExpressionMember {
         return ref + col;
     }
 
+    public int getCol() {
+        return col;
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

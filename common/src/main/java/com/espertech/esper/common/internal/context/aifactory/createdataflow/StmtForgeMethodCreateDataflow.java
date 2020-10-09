@@ -89,7 +89,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
 
         DataflowDescForge dataflowForge = buildForge(createDataFlowDesc, codegenEnv, packageName, base, services);
 
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateDataflowForge forge = new StatementAgentInstanceFactoryCreateDataflowForge(eventType, dataflowForge);
         StmtClassForgeableAIFactoryProviderCreateDataflow aiFactoryForgeable = new StmtClassForgeableAIFactoryProviderCreateDataflow(aiFactoryProviderClassName, packageScope, forge);
@@ -106,7 +106,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         // compiled filter spec list
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();

@@ -57,7 +57,7 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         EPLValidationUtil.validateTableExists(services.getTableCompileTimeResolver(), spec.getSchemaName());
         EventTypeForgablesPair eventTypeForgablesPair = handleCreateSchema(spec, services);
 
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateSchemaForge forge = new StatementAgentInstanceFactoryCreateSchemaForge(eventTypeForgablesPair.getEventType());

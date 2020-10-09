@@ -100,7 +100,7 @@ public class CompilerHelperFAFProvider {
         } else if (fafSpec == null) {   // null indicates a select-statement, same as continuous query
             FAFQueryMethodSelectDesc desc = new FAFQueryMethodSelectDesc(specCompiled, compilable, statementRawInfo, compileTimeServices);
             String classNameResultSetProcessor = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
-            query = new FAFQueryMethodSelectForge(desc, classNameResultSetProcessor, statementRawInfo);
+            query = new FAFQueryMethodSelectForge(desc, classNameResultSetProcessor, statementRawInfo, services);
         } else if (fafSpec instanceof FireAndForgetSpecDelete) {
             query = new FAFQueryMethodIUDDeleteForge(specCompiled, compilable, statementRawInfo, compileTimeServices);
         } else if (fafSpec instanceof FireAndForgetSpecUpdate) {
@@ -147,7 +147,7 @@ public class CompilerHelperFAFProvider {
     }
 
     private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
-        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
         String fafProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFProvider.class, classPostfix);
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, fafProviderClassName);
         CodegenClassMethods methods = new CodegenClassMethods();

@@ -356,12 +356,18 @@ public class CodegenBlock {
     }
 
     public CodegenMethod methodThrowUnsupported() {
+        return methodThrowUnsupported(null);
+    }
+
+    public CodegenMethod methodThrowUnsupported(String text) {
         if (parentMethodNode == null) {
             throw new IllegalStateException("No method parent, use 'blockReturn...' instead");
         }
         checkClosed();
         closed = true;
-        statements.add(new CodegenStatementThrow(newInstance(EPTypePremade.UNSUPPORTEDOPERATIONEXCEPTION.getEPType())));
+        CodegenExpression[] params = text == null ? CodegenExpression.EMPTYARRAY : new CodegenExpression[]{constant(text)};
+        CodegenExpression instance = newInstance(EPTypePremade.UNSUPPORTEDOPERATIONEXCEPTION.getEPType(), params);
+        statements.add(new CodegenStatementThrow(instance));
         return parentMethodNode;
     }
 
@@ -405,7 +411,6 @@ public class CodegenBlock {
 
     public CodegenBlock ifElseIf(CodegenExpression condition) {
         checkClosed();
-        closed = true;
         if (parentMethodNode != null) {
             throw new IllegalStateException("If-block-end in method?");
         }
@@ -462,12 +467,16 @@ public class CodegenBlock {
         }
     }
 
-    public CodegenBlock[] switchBlockOfLength(CodegenExpression switchExpression, int length, boolean blocksReturnValues) {
+    public CodegenBlock[] switchBlockOfLength(CodegenExpression switchExpression, int length, boolean blocksReturnValues, int offset) {
         CodegenExpression[] expressions = new CodegenExpression[length];
         for (int i = 0; i < length; i++) {
-            expressions[i] = constant(i);
+            expressions[i] = constant(i + offset);
         }
         return switchBlockExpressions(switchExpression, expressions, blocksReturnValues, true).getBlocks();
+    }
+
+    public CodegenBlock[] switchBlockOfLength(CodegenExpression switchExpression, int length, boolean blocksReturnValues) {
+        return switchBlockOfLength(switchExpression, length, blocksReturnValues, 0);
     }
 
     public CodegenBlock[] switchBlockOptions(CodegenExpression switchExpression, int[] options, boolean blocksReturnValues) {

@@ -53,7 +53,7 @@ public abstract class StmtForgeMethodCreateSimpleBase implements StmtForgeMethod
         EventType statementEventType = BaseNestableEventUtil.makeMapTypeCompileTime(statementTypeMetadata, Collections.emptyMap(), null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         services.getEventTypeCompileTimeRegistry().newType(statementEventType);
 
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StmtClassForgeable aiFactoryForgeable = aiFactoryForgable(aiFactoryProviderClassName, packageScope, statementEventType, objectName);

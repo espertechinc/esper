@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveLengthBuilder;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.common.internal.event.map.MapEventType;
@@ -64,9 +65,11 @@ public class EventBeanManufacturerMapForge implements EventBeanManufacturerForge
 
     private void makeUnderlyingCodegen(CodegenMethod method, CodegenClassScope codegenClassScope) {
         method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "values", newInstance(EPTypePremade.HASHMAP.getEPType()));
-        for (int i = 0; i < writables.length; i++) {
-            method.getBlock().exprDotMethod(ref("values"), "put", constant(writables[i].getPropertyName()), arrayAtIndex(ref("properties"), constant(i)));
-        }
+        new CodegenRepetitiveLengthBuilder(writables.length, method, codegenClassScope, this.getClass())
+                .addParam(EPTypePremade.MAP.getEPType(), "values").addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties")
+                .setConsumer((index, leaf) -> {
+                    leaf.getBlock().exprDotMethod(ref("values"), "put", constant(writables[index].getPropertyName()), arrayAtIndex(ref("properties"), constant(index)));
+                }).build();
         method.getBlock().methodReturn(ref("values"));
     }
 }

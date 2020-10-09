@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public interface CodegenExpression {
+    public final static CodegenExpression[] EMPTYARRAY = new CodegenExpression[0];
+
     void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass);
 
     void mergeClasses(Set<Class> classes);

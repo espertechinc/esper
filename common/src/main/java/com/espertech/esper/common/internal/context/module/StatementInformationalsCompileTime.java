@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveValueBuilder;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -129,39 +130,39 @@ public class StatementInformationalsCompileTime {
         CodegenMethod method = parent.makeChild(StatementInformationalsRuntime.EPTYPE, this.getClass(), classScope);
         CodegenSetterBuilder builder = new CodegenSetterBuilder(StatementInformationalsRuntime.EPTYPE, StatementInformationalsCompileTime.class, "info", classScope, method);
         builder.constantDefaultCheckedObj("statementNameCompileTime", statementNameCompileTime)
-            .constantDefaultChecked("alwaysSynthesizeOutputEvents", alwaysSynthesizeOutputEvents)
-            .constantDefaultCheckedObj("optionalContextName", optionalContextName)
-            .constantDefaultCheckedObj("optionalContextModuleName", optionalContextModuleName)
-            .constantDefaultCheckedObj("optionalContextVisibility", optionalContextVisibility)
-            .constantDefaultChecked("canSelfJoin", canSelfJoin)
-            .constantDefaultChecked("hasSubquery", hasSubquery)
-            .constantDefaultChecked("needDedup", needDedup)
-            .constantDefaultChecked("stateless", stateless)
-            .constantDefaultChecked("numFilterCallbacks", numFilterCallbacks)
-            .constantDefaultChecked("numScheduleCallbacks", numScheduleCallbacks)
-            .constantDefaultChecked("numNamedWindowCallbacks", numNamedWindowCallbacks)
-            .constantDefaultCheckedObj("statementType", statementType)
-            .constantDefaultChecked("priority", priority)
-            .constantDefaultChecked("preemptive", preemptive)
-            .constantDefaultChecked("hasVariables", hasVariables)
-            .constantDefaultChecked("writesToTables", writesToTables)
-            .constantDefaultChecked("hasTableAccess", hasTableAccess)
-            .constantDefaultCheckedObj("selectClauseTypes", selectClauseTypes)
-            .constantDefaultCheckedObj("selectClauseColumnNames", selectClauseColumnNames)
-            .constantDefaultChecked("forClauseDelivery", forClauseDelivery)
-            .constantDefaultChecked("hasMatchRecognize", hasMatchRecognize)
-            .constantDefaultChecked("instrumented", instrumented)
-            .constantDefaultCheckedObj("insertIntoLatchName", insertIntoLatchName)
-            .constantDefaultChecked("allowSubscriber", allowSubscriber)
-            .expressionDefaultChecked("annotations", annotations == null ? constantNull() : makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), annotations, method, classScope))
-            .expressionDefaultChecked("userObjectCompileTime", SerializerUtil.expressionForUserObject(userObjectCompileTime))
-            .expressionDefaultChecked("groupDeliveryEval", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupDelivery, null, groupDeliveryMultiKey, method, classScope))
-            .expressionDefaultChecked("properties", makeProperties(properties, method, classScope))
-            .expressionDefaultChecked("auditProvider", makeAuditProvider(method, classScope))
-            .expressionDefaultChecked("instrumentationProvider", makeInstrumentationProvider(method, classScope))
-            .expressionDefaultChecked("substitutionParamTypes", makeSubstitutionParamTypes())
-            .expressionDefaultChecked("substitutionParamNames", makeSubstitutionParamNames(method, classScope))
-            .expressionDefaultChecked("onScripts", makeOnScripts(onScripts, method, classScope));
+                .constantDefaultChecked("alwaysSynthesizeOutputEvents", alwaysSynthesizeOutputEvents)
+                .constantDefaultCheckedObj("optionalContextName", optionalContextName)
+                .constantDefaultCheckedObj("optionalContextModuleName", optionalContextModuleName)
+                .constantDefaultCheckedObj("optionalContextVisibility", optionalContextVisibility)
+                .constantDefaultChecked("canSelfJoin", canSelfJoin)
+                .constantDefaultChecked("hasSubquery", hasSubquery)
+                .constantDefaultChecked("needDedup", needDedup)
+                .constantDefaultChecked("stateless", stateless)
+                .constantDefaultChecked("numFilterCallbacks", numFilterCallbacks)
+                .constantDefaultChecked("numScheduleCallbacks", numScheduleCallbacks)
+                .constantDefaultChecked("numNamedWindowCallbacks", numNamedWindowCallbacks)
+                .constantDefaultCheckedObj("statementType", statementType)
+                .constantDefaultChecked("priority", priority)
+                .constantDefaultChecked("preemptive", preemptive)
+                .constantDefaultChecked("hasVariables", hasVariables)
+                .constantDefaultChecked("writesToTables", writesToTables)
+                .constantDefaultChecked("hasTableAccess", hasTableAccess)
+                .constantDefaultCheckedObj("selectClauseTypes", selectClauseTypes)
+                .constantDefaultCheckedObj("selectClauseColumnNames", selectClauseColumnNames)
+                .constantDefaultChecked("forClauseDelivery", forClauseDelivery)
+                .constantDefaultChecked("hasMatchRecognize", hasMatchRecognize)
+                .constantDefaultChecked("instrumented", instrumented)
+                .constantDefaultCheckedObj("insertIntoLatchName", insertIntoLatchName)
+                .constantDefaultChecked("allowSubscriber", allowSubscriber)
+                .expressionDefaultChecked("annotations", annotations == null ? constantNull() : makeAnnotations(EPTypePremade.ANNOTATIONARRAY.getEPType(), annotations, method, classScope))
+                .expressionDefaultChecked("userObjectCompileTime", SerializerUtil.expressionForUserObject(userObjectCompileTime))
+                .expressionDefaultChecked("groupDeliveryEval", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(groupDelivery, null, groupDeliveryMultiKey, method, classScope))
+                .expressionDefaultChecked("properties", makeProperties(properties, method, classScope))
+                .expressionDefaultChecked("auditProvider", makeAuditProvider(method, classScope))
+                .expressionDefaultChecked("instrumentationProvider", makeInstrumentationProvider(method, classScope))
+                .expressionDefaultChecked("substitutionParamTypes", makeSubstitutionParamTypes())
+                .expressionDefaultChecked("substitutionParamNames", makeSubstitutionParamNames(method, classScope))
+                .expressionDefaultChecked("onScripts", makeOnScripts(onScripts, method, classScope));
         method.getBlock().methodReturn(builder.getRefName());
         return localMethod(method);
     }
@@ -203,10 +204,11 @@ public class StatementInformationalsCompileTime {
         }
         CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), this.getClass(), classScope);
         method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "names", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(named.size()))));
-        int count = 1;
-        for (Map.Entry<String, CodegenSubstitutionParamEntry> entry : named.entrySet()) {
-            method.getBlock().exprDotMethod(ref("names"), "put", constant(entry.getKey()), constant(count++));
-        }
+        new CodegenRepetitiveValueBuilder<>(named.keySet(), method, classScope, this.getClass())
+                .addParam(EPTypePremade.MAP.getEPType(), "names")
+                .setConsumer((value, index, leafMethod) -> {
+                    leafMethod.getBlock().exprDotMethod(ref("names"), "put", constant(value), constant(index + 1));
+                }).build();
         method.getBlock().methodReturn(ref("names"));
         return localMethod(method);
     }
@@ -366,7 +368,7 @@ public class StatementInformationalsCompileTime {
 
         CodegenMethod method = parent.makeChild(EPTypePremade.MAP.getEPType(), StatementInformationalsCompileTime.class, classScope);
         method.getBlock()
-            .declareVar(EPTypePremade.MAP.getEPType(), "properties", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(properties.size()))));
+                .declareVar(EPTypePremade.MAP.getEPType(), "properties", newInstance(EPTypePremade.HASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(properties.size()))));
         for (Map.Entry<StatementProperty, Object> entry : properties.entrySet()) {
             method.getBlock().exprDotMethod(ref("properties"), "put", field.apply(entry.getKey()), value.apply(entry.getValue()));
         }

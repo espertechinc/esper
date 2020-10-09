@@ -372,7 +372,7 @@ public class RowRecogNFAViewPlanUtil {
                 matchRecognizeSpec.isAllMatches(), matchRecognizeSpec.getSkip().getSkip(),
                 columnForges, columnNames,
                 intervalCompute, previousRandomAccessIndexes, aggregationServices, partitionMgmtStateMgmtSettings,
-                scheduleMgmtStateMgmtSettings
+                scheduleMgmtStateMgmtSettings, services.getSerdeResolver().isTargetHA()
             );
         return new RowRecogPlan(forge, additionalForgeables);
     }

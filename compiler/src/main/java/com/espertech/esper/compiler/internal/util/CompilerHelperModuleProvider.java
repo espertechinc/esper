@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionEPType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveValueBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.util.IdentifierUtil;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
@@ -169,7 +170,7 @@ public class CompilerHelperModuleProvider {
 
     private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
         // write code to create an implementation of StatementResource
-        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
         String moduleClassName = CodeGenerationIDGenerator.generateClassNameSimple(ModuleProvider.class, moduleIdentPostfix);
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, moduleClassName);
         CodegenClassMethods methods = new CodegenClassMethods();
@@ -639,43 +640,60 @@ public class CompilerHelperModuleProvider {
         symbols.getAddInitSvc(method);
 
         method.getBlock().declareVar(EPTypePremade.LINKEDHASHMAP.getEPType(), "props", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
-        for (Map.Entry<String, Object> entry : types.entrySet()) {
-            boolean propertyOfSupertype = isPropertyOfSupertype(deepSuperTypes, entry.getKey());
-            if (propertyOfSupertype) {
-                continue;
-            }
 
-            Object type = entry.getValue();
-            CodegenExpression typeResolver;
-            if (type instanceof EPType) {
-                EPType eptype = (EPType) type;
-                typeResolver = CodegenExpressionEPType.toExpression(eptype);
-            } else if (type instanceof EventType) {
-                EventType innerType = (EventType) type;
-                typeResolver = EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
-            } else if (type instanceof EventType[]) {
-                EventType[] innerType = (EventType[]) type;
-                CodegenExpression typeExpr = EventTypeUtility.resolveTypeCodegen(innerType[0], ModuleEventTypeInitializeSymbol.REF_INITSVC);
-                typeResolver = newArrayWithInit(EventType.EPTYPE, typeExpr);
-            } else if (type == null) {
-                typeResolver = constantNull();
-            } else if (type instanceof TypeBeanOrUnderlying) {
-                EventType innerType = ((TypeBeanOrUnderlying) type).getEventType();
-                CodegenExpression innerTypeExpr = EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
-                typeResolver = newInstance(TypeBeanOrUnderlying.EPTYPE, innerTypeExpr);
-            } else if (type instanceof TypeBeanOrUnderlying[]) {
-                EventType innerType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
-                CodegenExpression innerTypeExpr = EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
-                typeResolver = newArrayWithInit(TypeBeanOrUnderlying.EPTYPE, newInstance(TypeBeanOrUnderlying.EPTYPE, innerTypeExpr));
-            } else if (type instanceof Map) {
-                typeResolver = localMethod(makePropsCodegen((Map<String, Object>) type, parent, symbols, classScope, null));
-            } else {
-                throw new IllegalStateException("Unrecognized type '" + type + "'");
+        Iterator<EventType> deepTypesIterator = deepSuperTypes.get();
+        Collection<Map.Entry<String, Object>> entries;
+        if (!deepTypesIterator.hasNext()) {
+            entries = types.entrySet();
+        } else {
+            entries = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : types.entrySet()) {
+                boolean propertyOfSupertype = isPropertyOfSupertype(deepSuperTypes, entry.getKey());
+                if (!propertyOfSupertype) {
+                    entries.add(entry);
+                }
             }
-            method.getBlock().exprDotMethod(ref("props"), "put", constant(entry.getKey()), typeResolver);
         }
+
+        CodegenRepetitiveValueBuilder.ConsumerByValue<Map.Entry<String, Object>> consumer = (entry, index, leafMethod) -> {
+            Object type = entry.getValue();
+            CodegenExpression typeResolver = makeTypeResolver(type, leafMethod, symbols, classScope);
+            leafMethod.getBlock().exprDotMethod(ref("props"), "put", constant(entry.getKey()), typeResolver);
+        };
+        new CodegenRepetitiveValueBuilder<>(entries, method, classScope, CompilerHelperModuleProvider.class)
+                .addParam(EPTypePremade.LINKEDHASHMAP.getEPType(), "props")
+                .setConsumer(consumer).build();
+
         method.getBlock().methodReturn(ref("props"));
         return method;
+    }
+
+    private static CodegenExpression makeTypeResolver(Object type, CodegenMethodScope parent, ModuleEventTypeInitializeSymbol symbols, CodegenClassScope classScope) {
+        if (type instanceof EPType) {
+            EPType eptype = (EPType) type;
+            return CodegenExpressionEPType.toExpression(eptype);
+        } else if (type instanceof EventType) {
+            EventType innerType = (EventType) type;
+            return EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
+        } else if (type instanceof EventType[]) {
+            EventType[] innerType = (EventType[]) type;
+            CodegenExpression typeExpr = EventTypeUtility.resolveTypeCodegen(innerType[0], ModuleEventTypeInitializeSymbol.REF_INITSVC);
+            return newArrayWithInit(EventType.EPTYPE, typeExpr);
+        } else if (type == null) {
+            return constantNull();
+        } else if (type instanceof TypeBeanOrUnderlying) {
+            EventType innerType = ((TypeBeanOrUnderlying) type).getEventType();
+            CodegenExpression innerTypeExpr = EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
+            return newInstance(TypeBeanOrUnderlying.EPTYPE, innerTypeExpr);
+        } else if (type instanceof TypeBeanOrUnderlying[]) {
+            EventType innerType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
+            CodegenExpression innerTypeExpr = EventTypeUtility.resolveTypeCodegen(innerType, ModuleEventTypeInitializeSymbol.REF_INITSVC);
+            return newArrayWithInit(TypeBeanOrUnderlying.EPTYPE, newInstance(TypeBeanOrUnderlying.EPTYPE, innerTypeExpr));
+        } else if (type instanceof Map) {
+            return localMethod(makePropsCodegen((Map<String, Object>) type, parent, symbols, classScope, null));
+        } else {
+            throw new IllegalStateException("Unrecognized type '" + type + "'");
+        }
     }
 
     private static boolean isPropertyOfSupertype(Supplier<Iterator<EventType>> deepSuperTypes, String key) {

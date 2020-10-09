@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.base;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class CodegenSubstitutionParamEntry {
     }
 
     public static void codegenSetterMethod(CodegenClassScope classScope, CodegenMethod method) {
+        int targetMethodComplexity = Math.max(64, classScope.getPackageScope().getConfig().getInternalUseOnlyMaxMethodComplexity());
         List<CodegenSubstitutionParamEntry> numbered = classScope.getPackageScope().getSubstitutionParamsByNumber();
         LinkedHashMap<String, CodegenSubstitutionParamEntry> named = classScope.getPackageScope().getSubstitutionParamsByName();
         if (!numbered.isEmpty() && !named.isEmpty()) {
@@ -57,8 +59,30 @@ public class CodegenSubstitutionParamEntry {
             fields = new ArrayList<>(named.values());
         }
 
+        if (fields.size() <= targetMethodComplexity) {
+            populateSet(method, fields, 0);
+            return;
+        }
+
+        List<List<CodegenSubstitutionParamEntry>> assignments = CollectionUtil.subdivide(fields, targetMethodComplexity);
+        List<CodegenMethod> leafs = new ArrayList<>(assignments.size());
+        for (int i = 0; i < assignments.size(); i++) {
+            List<CodegenSubstitutionParamEntry> assignment = assignments.get(i);
+            CodegenMethod leaf = method.makeChild(EPTypePremade.VOID.getEPType(), CodegenSubstitutionParamEntry.class, classScope).addParam(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index").addParam(EPTypePremade.OBJECT.getEPType(), "value");
+            populateSet(leaf, assignment, i * targetMethodComplexity);
+            leafs.add(leaf);
+        }
+
+        method.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "lidx", op(op(ref("index"), "-", constant(1)), "/", constant(targetMethodComplexity)));
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("lidx"), assignments.size(), false);
+        for (int i = 0; i < blocks.length; i++) {
+            blocks[i].localMethod(leafs.get(i), ref("index"), ref("value"));
+        }
+    }
+
+    private static void populateSet(CodegenMethod method, List<CodegenSubstitutionParamEntry> fields, int offset) {
         method.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "zidx", op(ref("index"), "-", constant(1)));
-        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("zidx"), fields.size(), false);
+        CodegenBlock[] blocks = method.getBlock().switchBlockOfLength(ref("zidx"), fields.size(), false, offset);
         for (int i = 0; i < blocks.length; i++) {
             CodegenSubstitutionParamEntry param = fields.get(i);
             blocks[i].assignRef(field(param.getField()), cast(JavaClassHelper.getBoxedType(param.getType()), ref("value")));

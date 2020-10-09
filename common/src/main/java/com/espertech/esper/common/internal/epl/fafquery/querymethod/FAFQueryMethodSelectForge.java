@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.compile.faf.StmtClassForgeableQueryMethodProvider;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableRSPFactoryProvider;
@@ -41,11 +42,13 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
     private final FAFQueryMethodSelectDesc desc;
     private final String classNameResultSetProcessor;
     private final StatementRawInfo statementRawInfo;
+    private final ModuleCompileTimeServices services;
 
-    public FAFQueryMethodSelectForge(FAFQueryMethodSelectDesc desc, String classNameResultSetProcessor, StatementRawInfo statementRawInfo) {
+    public FAFQueryMethodSelectForge(FAFQueryMethodSelectDesc desc, String classNameResultSetProcessor, StatementRawInfo statementRawInfo, ModuleCompileTimeServices services) {
         this.desc = desc;
         this.classNameResultSetProcessor = classNameResultSetProcessor;
         this.statementRawInfo = statementRawInfo;
+        this.services = services;
     }
 
     public List<StmtClassForgeable> makeForgeables(String queryMethodProviderClassName, String classPostfix, CodegenPackageScope packageScope) {
@@ -55,7 +58,7 @@ public class FAFQueryMethodSelectForge implements FAFQueryMethodForge {
         }
 
         // generate RSP
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameResultSetProcessor, desc.getResultSetProcessor(), packageScope, statementRawInfo));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameResultSetProcessor, desc.getResultSetProcessor(), packageScope, statementRawInfo, false));
 
         // generate faf-select
         forgeables.add(new StmtClassForgeableQueryMethodProvider(queryMethodProviderClassName, packageScope, this));

@@ -125,7 +125,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         // serde
         DataInputOutputSerdeForge serde = DataInputOutputSerdeForgeNotApplicable.INSTANCE;
@@ -142,10 +142,10 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgeable> forgeables = new ArrayList<>();
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
         return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 }

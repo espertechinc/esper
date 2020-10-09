@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionNewAnonymousClass;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveLengthBuilder;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.*;
@@ -93,9 +94,11 @@ public class EventBeanManufacturerObjectArrayForge implements EventBeanManufactu
         }
 
         method.getBlock().declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "cols", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(eventType.getPropertyNames().length)));
-        for (int i = 0; i < indexPerWritable.length; i++) {
-            method.getBlock().assignArrayElement(ref("cols"), constant(indexPerWritable[i]), arrayAtIndex(ref("properties"), constant(i)));
-        }
+        new CodegenRepetitiveLengthBuilder(indexPerWritable.length, method, codegenClassScope, this.getClass())
+                .addParam(EPTypePremade.OBJECTARRAY.getEPType(), "cols").addParam(EPTypePremade.OBJECTARRAY.getEPType(), "properties")
+                .setConsumer((index, leaf) -> {
+                    leaf.getBlock().assignArrayElement(ref("cols"), constant(indexPerWritable[index]), arrayAtIndex(ref("properties"), constant(index)));
+                }).build();
         method.getBlock().methodReturn(ref("cols"));
     }
 }

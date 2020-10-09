@@ -48,17 +48,19 @@ public class StatementAgentInstanceFactoryCreateTableForge {
     private final String className;
     private final String tableName;
     private final TableAccessAnalysisResult plan;
+    private final boolean isTargetHA;
 
-    public StatementAgentInstanceFactoryCreateTableForge(String className, String tableName, TableAccessAnalysisResult plan) {
+    public StatementAgentInstanceFactoryCreateTableForge(String className, String tableName, TableAccessAnalysisResult plan, boolean isTargetHA) {
         this.className = className;
         this.tableName = tableName;
         this.plan = plan;
+        this.isTargetHA = isTargetHA;
     }
 
     public CodegenMethod initializeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         // add aggregation row+factory+serde as inner classes
         AggregationClassNames aggregationClassNames = new AggregationClassNames();
-        List<CodegenInnerClass> inners = AggregationServiceFactoryCompiler.makeTable(AggregationCodegenRowLevelDesc.fromTopOnly(plan.getAggDesc()), this.getClass(), classScope, aggregationClassNames, className);
+        List<CodegenInnerClass> inners = AggregationServiceFactoryCompiler.makeTable(AggregationCodegenRowLevelDesc.fromTopOnly(plan.getAggDesc()), this.getClass(), classScope, aggregationClassNames, className, isTargetHA);
         classScope.addInnerClasses(inners);
 
         CodegenMethod method = parent.makeChild(StatementAgentInstanceFactoryCreateTable.EPTYPE, this.getClass(), classScope);

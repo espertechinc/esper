@@ -59,6 +59,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
     private final SubordinateQueryPlanDescForge queryPlan;
     private final List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
     private final MultiKeyClassRef groupByMultiKey;
+    private final boolean isTargetHA;
 
     public SubSelectStrategyFactoryIndexShareForge(int subqueryNumber, SubSelectActivationPlan subselectActivation, EventType[] outerEventTypesSelect, NamedWindowMetaData namedWindow, TableMetaData table, boolean fullTableScan, IndexHint indexHint, SubordPropPlan joinedPropPlan, ExprForge filterExprEval, ExprNode[] groupKeys, AggregationServiceForgeDesc aggregationServiceForgeDesc, StatementBaseInfo statement, StatementCompileTimeServices services)
         throws ExprValidationException {
@@ -68,6 +69,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
         this.filterExprEval = filterExprEval;
         this.groupKeys = groupKeys;
         this.aggregationServiceForgeDesc = aggregationServiceForgeDesc;
+        this.isTargetHA = services.getSerdeResolver().isTargetHA();
 
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
 
@@ -124,7 +126,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
             .declareVarNewInstance(SubSelectStrategyFactoryIndexShare.EPTYPE, "s")
             .exprDotMethod(ref("s"), "setTable", table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("s"), "setNamedWindow", namedWindow == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
-            .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
+            .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA))
             .exprDotMethod(ref("s"), "setFilterExprEval", filterExprEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprEval, method, this.getClass(), classScope))
             .exprDotMethod(ref("s"), "setGroupKeyEval", groupKeyEval)
             .exprDotMethod(ref("s"), "setQueryPlan", queryPlan == null ? constantNull() : queryPlan.make(method, symbols, classScope))

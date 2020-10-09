@@ -28,8 +28,12 @@ public class AggregationServiceCodegenNames {
     public final static CodegenExpressionRef REF_CALLBACK = ref(NAME_CALLBACK);
     public final static String NAME_AGGVISITOR = "visitor";
     public final static CodegenExpressionRef REF_AGGVISITOR = ref(NAME_AGGVISITOR);
-    public final static String NAME_COLUMN = "column";
-    public final static CodegenExpressionRef REF_COLUMN = ref(NAME_COLUMN);
+    public final static String NAME_SCOL = "scol";
+    public final static CodegenExpressionRef REF_SCOL = ref(NAME_SCOL);
+    public final static String NAME_VCOL = "vcol";
+    public final static CodegenExpressionRef REF_VCOL = ref(NAME_VCOL);
     public final static String NAME_GROUPID = "groupId";
     public final static CodegenExpressionRef REF_GROUPID = ref(NAME_GROUPID);
+    public final static String NAME_VALUE = "value";
+    public final static CodegenExpressionRef REF_VALUE = ref(NAME_VALUE);
 }

@@ -118,7 +118,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         services.getEventTypeCompileTimeRegistry().newType(statementEventType);
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         List<StmtClassForgeable> forgeables = new ArrayList<>();
         for (StmtClassForgeableFactory additional : additionalForgeables) {
@@ -136,7 +136,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), false, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, context.getContextName());
         forgeables.add(new StmtClassForgeableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, filterBooleanExpressions));
     }

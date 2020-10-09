@@ -100,7 +100,7 @@ public class OnSplitStreamUtil {
         List<StmtClassForgeable> forgeables = new ArrayList<>();
         for (int i = 0; i < items.length; i++) {
             String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix + "_" + i);
-            forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, items[i].getResultSetProcessorDesc(), packageScope, base.getStatementRawInfo()));
+            forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, items[i].getResultSetProcessorDesc(), packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
             items[i].setResultSetProcessorClassName(classNameRSP);
         }
 

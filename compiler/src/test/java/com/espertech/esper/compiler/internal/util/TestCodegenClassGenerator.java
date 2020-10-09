@@ -1,5 +1,6 @@
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerByteCode;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
@@ -16,7 +17,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class TestCodegenClassGenerator extends TestCase {
     public void testImports() {
-        CodegenPackageScope packageScope = new CodegenPackageScope("somepkg", null, false);
+        CodegenPackageScope packageScope = new CodegenPackageScope("somepkg", null, false, new ConfigurationCompilerByteCode());
         CodegenClassScope classScope = new CodegenClassScope(false, packageScope, null);
         CodegenClassMethods methods = new CodegenClassMethods();
         CodegenCtor ctor = new CodegenCtor(this.getClass(), true, Collections.emptyList());

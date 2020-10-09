@@ -63,7 +63,7 @@ public class CodegenLegoMethodExpression {
         CodegenExpression expression = forge.evaluateCodegen((EPTypeClass) evaluationType, exprMethod, exprSymbol, classScope);
         exprSymbol.derivedSymbolsCodegen(parent, exprMethod.getBlock(), classScope);
 
-        if (evaluationType == EPTypeNull.INSTANCE || ((EPTypeClass) evaluationType).getType().isPrimitive()) {
+        if (((EPTypeClass) evaluationType).getType().isPrimitive()) {
             exprMethod.getBlock().methodReturn(expression);
         } else {
             exprMethod.getBlock()

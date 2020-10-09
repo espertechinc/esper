@@ -106,7 +106,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         InternalEventRouterDescForge routerDesc = InternalEventRouterDescFactory.getValidatePreprocessing(streamEventType, updateSpec, base.getStatementRawInfo().getAnnotations());
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryUpdateForge forge = new StatementAgentInstanceFactoryUpdateForge(routerDesc, subselectForges);
@@ -124,7 +124,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 0));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
         return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList());
     }
 }

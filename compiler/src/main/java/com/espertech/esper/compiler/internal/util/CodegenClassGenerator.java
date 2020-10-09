@@ -72,7 +72,7 @@ public class CodegenClassGenerator {
         CodeGenerationUtil.classimplements(builder, clazz.getClassName(), clazz.getSupers(), true, false, imports);
 
         // members
-        generateCodeMembers(builder, clazz.getExplicitMembers(), clazz.getOptionalCtor(), imports, 1);
+        generateCodeMembers(builder, clazz.getExplicitMembers(), clazz.getOptionalCtor(), imports, 1, false);
 
         // ctor
         generateCodeCtor(builder, clazz.getClassName(), false, clazz.getOptionalCtor(), imports, 0);
@@ -86,7 +86,7 @@ public class CodegenClassGenerator {
             INDENT.indent(builder, 1);
             CodeGenerationUtil.classimplements(builder, inner.getClassName(), inner.getSupers(), true, true, imports);
 
-            generateCodeMembers(builder, inner.getExplicitMembers(), inner.getCtor(), imports, 2);
+            generateCodeMembers(builder, inner.getExplicitMembers(), inner.getCtor(), imports, 2, true);
 
             generateCodeCtor(builder, inner.getClassName(), true, inner.getCtor(), imports, 1);
 
@@ -166,7 +166,7 @@ public class CodegenClassGenerator {
         builder.append("\n");
     }
 
-    private static void generateCodeMembers(StringBuilder builder, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, Map<Class, String> imports, int indent) {
+    private static void generateCodeMembers(StringBuilder builder, List<CodegenTypedParam> explicitMembers, CodegenCtor optionalCtor, Map<Class, String> imports, int indent, boolean isInnerClass) {
         if (optionalCtor != null) {
             for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
                 if (param.isMemberWhenCtorParam()) {
@@ -188,8 +188,9 @@ public class CodegenClassGenerator {
             if (param.isStatic()) {
                 builder.append("static ");
             }
-            param.renderType(builder, imports);
+            param.renderType(builder, imports, isInnerClass);
             builder.append(" ").append(param.getName());
+            param.renderInitializer(builder, imports, isInnerClass);
             builder.append(";\n");
         }
         builder.append("\n");

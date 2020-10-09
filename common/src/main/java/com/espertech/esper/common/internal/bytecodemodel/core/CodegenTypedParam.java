@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.bytecodemodel.core;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class CodegenTypedParam {
     private final boolean isPublic;
     private boolean isFinal = true;
     private boolean isStatic = false;
+    private CodegenExpression initializer = null;
 
     public CodegenTypedParam(String typeName, EPTypeClass type, String name, boolean memberWhenCtorParam, boolean isPublic) {
         if (type == null && typeName == null) {
@@ -88,6 +90,9 @@ public class CodegenTypedParam {
         if (type != null) {
             type.traverseClasses(classes::add);
         }
+        if (initializer != null) {
+            initializer.mergeClasses(classes);
+        }
     }
 
     public void renderAsMember(StringBuilder builder, Map<Class, String> imports) {
@@ -97,10 +102,9 @@ public class CodegenTypedParam {
             builder.append(typeName);
         }
         builder.append(" ").append(name);
-
     }
 
-    public void renderType(StringBuilder builder, Map<Class, String> imports) {
+    public void renderType(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         if (type != null) {
             appendClassName(builder, type, imports);
         } else {
@@ -124,12 +128,32 @@ public class CodegenTypedParam {
         return isStatic;
     }
 
+    public CodegenExpression getInitializer() {
+        return initializer;
+    }
+
+    public CodegenTypedParam setInitializer(CodegenExpression initializer) {
+        this.initializer = initializer;
+        return this;
+    }
+
     public String toString() {
         return "CodegenTypedParam{" +
                 "typeName='" + typeName + '\'' +
                 ", type=" + type +
                 ", name='" + name + '\'' +
                 ", memberWhenCtorParam=" + memberWhenCtorParam +
+                ", isPublic=" + isPublic +
+                ", isFinal=" + isFinal +
+                ", isStatic=" + isStatic +
+                ", initializer=" + initializer +
                 '}';
+    }
+
+    public void renderInitializer(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+        if (initializer != null) {
+            builder.append("=");
+            initializer.render(builder, imports, isInnerClass);
+        }
     }
 }

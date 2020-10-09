@@ -101,7 +101,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         }
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
 
         // context-factory creation
@@ -150,7 +150,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, schedules, namedWindowConsumers, true, onTriggerPlan.getSubscriberDescriptor(), packageScope, services);
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 2));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
     }

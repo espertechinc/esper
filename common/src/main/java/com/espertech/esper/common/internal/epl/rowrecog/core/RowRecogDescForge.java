@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -32,7 +33,6 @@ import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCo
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateBase;
 import com.espertech.esper.common.internal.epl.rowrecog.nfa.RowRecogNFAStateForge;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -71,8 +71,9 @@ public class RowRecogDescForge {
     private final AggregationServiceForgeDesc[] aggregationServices;
     private final StateMgmtSetting partitionMgmtStateMgmtSettings;
     private final StateMgmtSetting scheduleMgmtStateMgmtSettings;
+    private final boolean isTargetHA;
 
-    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings) {
+    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings, boolean isTargetHA) {
         this.parentEventType = parentEventType;
         this.rowEventType = rowEventType;
         this.compositeEventType = compositeEventType;
@@ -101,6 +102,7 @@ public class RowRecogDescForge {
         this.aggregationServices = aggregationServices;
         this.partitionMgmtStateMgmtSettings = partitionMgmtStateMgmtSettings;
         this.scheduleMgmtStateMgmtSettings = scheduleMgmtStateMgmtSettings;
+        this.isTargetHA = isTargetHA;
     }
 
     public EventType getRowEventType() {
@@ -125,7 +127,7 @@ public class RowRecogDescForge {
                 if (aggregationServices[i] != null) {
                     AggregationServiceForgeDesc aggSvc = aggregationServices[i];
                     AggregationClassNames aggregationClassNames = new AggregationClassNames("_mra" + i);
-                    AggregationServiceFactoryMakeResult result = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggSvc.getAggregationServiceFactoryForge(), method, classScope, classScope.getOutermostClassName(), aggregationClassNames);
+                    AggregationServiceFactoryMakeResult result = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggSvc.getAggregationServiceFactoryForge(), method, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
                     classScope.addInnerClasses(result.getInnerClasses());
                     initAggsSvcs[i] = localMethod(result.getInitMethod(), symbols.getAddInitSvc(parent));
                 }
@@ -144,7 +146,7 @@ public class RowRecogDescForge {
             .exprDotMethod(desc, "setPartitionEvalMayNull", MultiKeyCodegen.codegenExprEvaluatorMayMultikey(partitionBy, null, partitionByMultiKey, method, classScope))
             .exprDotMethod(desc, "setPartitionEvalTypes", partitionBy == null ? constantNull() : constant(ExprNodeUtilityQuery.getExprResultTypes(partitionBy)))
             .exprDotMethod(desc, "setPartitionEvalSerde", partitionBy == null ? constantNull() : partitionByMultiKey.getExprMKSerde(method, classScope))
-            .exprDotMethod(desc, "setVariableStreams", makeVariableStreams(method, symbols, classScope))
+            .exprDotMethod(desc, "setVariableStreams", makeVariableStreams(method, classScope))
             .exprDotMethod(desc, "setHasInterval", constant(hasInterval))
             .exprDotMethod(desc, "setIterateOnly", constant(iterateOnly))
             .exprDotMethod(desc, "setUnbound", constant(unbound))
@@ -221,7 +223,7 @@ public class RowRecogDescForge {
         return localMethod(method);
     }
 
-    private CodegenExpression makeVariableStreams(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
+    private CodegenExpression makeVariableStreams(CodegenMethodScope parent, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(EPTypePremade.LINKEDHASHMAP.getEPType(), this.getClass(), classScope);
         method.getBlock()
             .declareVar(EPTypePremade.LINKEDHASHMAP.getEPType(), "vars", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(CollectionUtil.capacityHashMap(variableStreams.size()))));

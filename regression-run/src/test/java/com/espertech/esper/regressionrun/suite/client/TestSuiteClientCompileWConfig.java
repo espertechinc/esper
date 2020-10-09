@@ -11,17 +11,23 @@
 package com.espertech.esper.regressionrun.suite.client;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerByteCode;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInAggregationMultiFunction;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.suite.client.compile.ClientCompileLargeWConfig;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunction;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportConcatWCodegenAggregationFunctionForge;
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTForge;
+import com.espertech.esper.regressionrun.runner.RegressionRunner;
+import com.espertech.esper.regressionrun.runner.RegressionSession;
 import com.espertech.esper.regressionrun.runner.SupportConfigFactory;
 import junit.framework.TestCase;
 
@@ -30,6 +36,18 @@ import java.util.function.Consumer;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidConfigurationCompiler;
 
 public class TestSuiteClientCompileWConfig extends TestCase {
+
+    public void testClientCompileLargeWConfig() {
+        RegressionSession session = RegressionRunner.session();
+        // Here the following settings can apply:
+        //
+        // ConfigurationCompilerByteCode config = session.getConfiguration().getCompiler().getByteCode();
+        // config.setMaxMembersPerClass(4);
+        // config.setMaxMethodComplexity(10);
+        addTypes(session.getConfiguration(), SupportBean.class, SupportBean_S0.class, SupportBean_S1.class);
+        RegressionRunner.run(session, ClientCompileLargeWConfig.executions());
+        session.destroy();
+    }
 
     public void testClientCompileClassForNameProvider() {
         Configuration config = SupportConfigFactory.getConfiguration();
@@ -125,6 +143,12 @@ public class TestSuiteClientCompileWConfig extends TestCase {
             fail();
         } catch (EPCompileException ex) {
             SupportMessageAssertUtil.assertMessage(ex.getMessage(), expected);
+        }
+    }
+
+    private void addTypes(Configuration configuration, Class ... classes) {
+        for (Class clazz : classes) {
+            configuration.getCommon().addEventType(clazz);
         }
     }
 }

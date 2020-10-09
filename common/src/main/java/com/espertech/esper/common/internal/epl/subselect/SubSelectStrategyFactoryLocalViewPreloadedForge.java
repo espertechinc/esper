@@ -51,8 +51,9 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
     private final ExprNode namedWindowFilterExpr;
     private final QueryGraphForge namedWindowFilterQueryGraph;
     private final MultiKeyClassRef groupByMultiKeyClasses;
+    private final boolean isTargetHA;
 
-    public SubSelectStrategyFactoryLocalViewPreloadedForge(List<ViewFactoryForge> viewForges, ViewResourceDelegateDesc viewResourceDelegateDesc, Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> lookupStrategy, ExprNode filterExprNode, boolean correlatedSubquery, AggregationServiceForgeDesc aggregationServiceForgeDesc, int subqueryNumber, ExprNode[] groupKeys, NamedWindowMetaData namedWindow, ExprNode namedWindowFilterExpr, QueryGraphForge namedWindowFilterQueryGraph, MultiKeyClassRef groupByMultiKeyClasses) {
+    public SubSelectStrategyFactoryLocalViewPreloadedForge(List<ViewFactoryForge> viewForges, ViewResourceDelegateDesc viewResourceDelegateDesc, Pair<EventTableFactoryFactoryForge, SubordTableLookupStrategyFactoryForge> lookupStrategy, ExprNode filterExprNode, boolean correlatedSubquery, AggregationServiceForgeDesc aggregationServiceForgeDesc, int subqueryNumber, ExprNode[] groupKeys, NamedWindowMetaData namedWindow, ExprNode namedWindowFilterExpr, QueryGraphForge namedWindowFilterQueryGraph, MultiKeyClassRef groupByMultiKeyClasses, boolean isTargetHA) {
         this.viewForges = viewForges;
         this.viewResourceDelegateDesc = viewResourceDelegateDesc;
         this.lookupStrategy = lookupStrategy;
@@ -65,6 +66,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
         this.namedWindowFilterExpr = namedWindowFilterExpr;
         this.namedWindowFilterQueryGraph = namedWindowFilterQueryGraph;
         this.groupByMultiKeyClasses = groupByMultiKeyClasses;
+        this.isTargetHA = isTargetHA;
     }
 
     public List<ViewFactoryForge> getViewForges() {
@@ -83,7 +85,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
             .exprDotMethod(ref("factory"), "setViewResourceDelegate", viewResourceDelegateDesc.toExpression())
             .exprDotMethod(ref("factory"), "setEventTableFactoryFactory", lookupStrategy.getFirst().make(method, symbols, classScope))
             .exprDotMethod(ref("factory"), "setLookupStrategyFactory", lookupStrategy.getSecond().make(method, symbols, classScope))
-            .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols))
+            .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA))
             .exprDotMethod(ref("factory"), "setCorrelatedSubquery", constant(correlatedSubquery))
             .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
             .exprDotMethod(ref("factory"), "setFilterExprEval", filterExprNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprNode.getForge(), method, this.getClass(), classScope));
@@ -111,13 +113,13 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
         return viewResourceDelegateDesc.isHasPrevious();
     }
 
-    protected static CodegenExpression makeAggregationService(int subqueryNumber, AggregationServiceForgeDesc aggregationServiceForgeDesc, CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
+    protected static CodegenExpression makeAggregationService(int subqueryNumber, AggregationServiceForgeDesc aggregationServiceForgeDesc, CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, boolean isTargetHA) {
         if (aggregationServiceForgeDesc == null) {
             return constantNull();
         }
 
         AggregationClassNames aggregationClassNames = new AggregationClassNames(CodegenPackageScopeNames.classPostfixAggregationForSubquery(subqueryNumber));
-        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames);
+        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
         classScope.addInnerClasses(aggResult.getInnerClasses());
         return localMethod(aggResult.getInitMethod(), symbols.getAddInitSvc(parent));
     }

@@ -44,7 +44,6 @@ public class DTLocalCalOpsCalEval extends DTLocalEvaluatorCalOpsCalBase implemen
     public static CodegenExpression codegen(DTLocalCalOpsCalForge forge, CodegenExpression inner, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.CALENDAR.getEPType(), DTLocalCalOpsCalEval.class, codegenClassScope).addParam(EPTypePremade.CALENDAR.getEPType(), "target");
 
-
         CodegenBlock block = methodNode.getBlock().declareVar(EPTypePremade.CALENDAR.getEPType(), "cal", cast(EPTypePremade.CALENDAR.getEPType(), exprDotMethod(ref("target"), "clone")));
         evaluateCalOpsCalendarCodegen(block, forge.calendarForges, ref("cal"), methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(ref("cal"));

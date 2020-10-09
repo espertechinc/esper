@@ -214,7 +214,7 @@ public class CompilerHelperStatementProvider {
 
             // add forgeables from filter-related processing i.e. multikeys
             for (StmtClassForgeableFactory additional : compiledDesc.getAdditionalForgeables()) {
-                CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, false);
+                CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, false, compileTimeServices.getConfiguration().getCompiler().getByteCode());
                 forgeables.add(additional.make(packageScope, classPostfix));
             }
 

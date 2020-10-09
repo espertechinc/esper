@@ -111,7 +111,7 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
         }
         explicitIndexDesc.setRangeSerdes(rangeSerdes);
 
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
         StatementAgentInstanceFactoryCreateIndexForge forge = new StatementAgentInstanceFactoryCreateIndexForge(indexedEventType, spec.getIndexName(), base.getModuleName(), explicitIndexDesc, imk, namedWindow, table);

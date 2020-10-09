@@ -113,7 +113,6 @@ public class InstanceManufacturerUtil {
         public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
             CodegenMethod methodNode = codegenMethodScope.makeChild(returnType, InstanceManufacturerForgeNonArray.class, codegenClassScope);
 
-
             methodNode.getBlock()
                     .declareVar(EventBean.EPTYPE, "event", cast(EventBean.EPTYPE, innerForge.evaluateCodegen(requiredType, methodNode, exprSymbol, codegenClassScope)))
                     .ifRefNullReturnNull("event")

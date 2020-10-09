@@ -13,11 +13,11 @@ package com.espertech.esper.common.internal.epl.resultset.select.eval;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveLengthBuilder;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMayVoid;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprForgeContext;
@@ -37,15 +37,17 @@ public class SelectEvalNoWildcardObjectArray implements SelectExprProcessorForge
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
-        CodegenBlock block = methodNode.getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
+        method.getBlock()
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "props", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(this.context.getExprForges().length)));
-        for (int i = 0; i < this.context.getExprForges().length; i++) {
-            CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
-            block.assignArrayElement("props", constant(i), expression);
-        }
-        block.methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("props"), resultEventType));
-        return methodNode;
+        new CodegenRepetitiveLengthBuilder(this.context.getExprForges().length, method, codegenClassScope, this.getClass())
+                .addParam(EPTypePremade.OBJECTARRAY.getEPType(), "props")
+                .setConsumer((index, leaf) -> {
+                    CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), this.context.getExprForges()[index], leaf, exprSymbol, codegenClassScope);
+                    leaf.getBlock().assignArrayElement("props", constant(index), expression);
+                }).build();
+        method.getBlock().methodReturn(exprDotMethod(eventBeanFactory, "adapterForTypedObjectArray", ref("props"), resultEventType));
+        return method;
     }
 
     public EventType getResultEventType() {

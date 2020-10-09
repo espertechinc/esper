@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.annotation.IterableUnbound;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowConversion;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
@@ -70,12 +71,11 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.map.MapEventType;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.*;
@@ -339,15 +339,15 @@ public class StmtForgeMethodSelectUtil {
 
         StatementAgentInstanceFactorySelectForge forge = new StatementAgentInstanceFactorySelectForge(typeService.getStreamNames(), viewableActivatorForges, resultSetProcessorProviderClassName, viewForges, viewResourceDelegateDesc, whereClauseForge, joinForge, outputProcessViewProviderClassName, subselectForges, tableAccessForges, orderByWithoutOutputLimit, joinAnalysisResult.isUnidirectional());
 
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
         List<StmtClassForgeable> forgeables = new ArrayList<>();
         for (StmtClassForgeableFactory additional : additionalForgeables) {
             forgeables.add(additional.make(packageScope, classPostfix));
         }
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
         forgeables.add(new StmtClassForgeableOPVFactoryProvider(outputProcessViewProviderClassName, outputProcessViewFactoryForge, packageScope, numStreams, base.getStatementRawInfo()));
         forgeables.add(new StmtClassForgeableAIFactoryProviderSelect(statementAIFactoryProviderClassName, packageScope, forge));
-        forgeables.add(new StmtClassForgeableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope, numStreams));
+        forgeables.add(new StmtClassForgeableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope));
 
         if (!dataflowOperator) {
             StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, true, resultSetProcessorDesc.getSelectSubscriberDescriptor(), packageScope, services);

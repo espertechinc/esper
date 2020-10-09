@@ -59,7 +59,7 @@ public class CompilerServicesImpl implements CompilerServices {
 
     public Class compileStandInClass(CodegenClassType classType, String classNameSimple, ModuleCompileTimeServices services) {
         Map<String, byte[]> classes = new HashMap<>();
-        CodegenPackageScope packageScope = new CodegenPackageScope(services.getPackageName(), null, false);
+        CodegenPackageScope packageScope = new CodegenPackageScope(services.getPackageName(), null, false, services.getConfiguration().getCompiler().getByteCode());
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, null);
         CodegenClass clazz = new CodegenClass(classType, null, classNameSimple, classScope,
             Collections.emptyList(), null, new CodegenClassMethods(), Collections.emptyList());

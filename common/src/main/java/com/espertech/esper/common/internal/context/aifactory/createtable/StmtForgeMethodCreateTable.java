@@ -22,6 +22,7 @@ import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
@@ -52,8 +53,6 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyDesc;
@@ -64,6 +63,7 @@ import com.espertech.esper.common.internal.settings.ClasspathExtensionClass;
 import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.type.ClassDescriptor;
 import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.common.internal.util.IntArrayUtil;
@@ -140,10 +140,10 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
 
-        StatementAgentInstanceFactoryCreateTableForge forge = new StatementAgentInstanceFactoryCreateTableForge(aiFactoryProviderClassName, tableMetaData.getTableName(), plan);
+        StatementAgentInstanceFactoryCreateTableForge forge = new StatementAgentInstanceFactoryCreateTableForge(aiFactoryProviderClassName, tableMetaData.getTableName(), plan, services.getSerdeResolver().isTargetHA());
 
         // build forge list
-        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented());
+        CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
         for (StmtClassForgeableFactory additional : additionalForgeables) {
             forgeables.add(additional.make(packageScope, classPostfix));
@@ -156,7 +156,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createDesc.getTableName());
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
-        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope, 1));
+        forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }

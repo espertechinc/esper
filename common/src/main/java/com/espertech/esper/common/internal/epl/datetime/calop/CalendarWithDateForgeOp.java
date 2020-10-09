@@ -70,7 +70,6 @@ public class CalendarWithDateForgeOp implements CalendarOp {
     public static CodegenExpression codegenLDT(CalendarWithDateForge forge, CodegenExpression ldt, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(EPTypePremade.LOCALDATETIME.getEPType(), CalendarWithDateForgeOp.class, codegenClassScope).addParam(EPTypePremade.LOCALDATETIME.getEPType(), "value");
 
-
         CodegenBlock block = methodNode.getBlock();
         codegenDeclareInts(block, forge, methodNode, exprSymbol, codegenClassScope);
         block.methodReturn(staticMethod(CalendarWithDateForgeOp.class, "actionSetYMDLocalDateTime", ref("value"), ref("year"), ref("month"), ref("day")));

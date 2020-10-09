@@ -155,7 +155,7 @@ public class OnTriggerWindowUtil {
                 throw new IllegalStateException("Unrecognized trigger type " + onTriggerType);
             }
         }
-        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo()));
+        forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
 
         boolean queryPlanLogging = services.getConfiguration().getCommon().getLogging().isEnableQueryPlan();
         SubordinateQueryPlannerUtil.queryPlanLogOnExpr(queryPlanLogging, QUERY_PLAN_LOG,

@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldNameSubqueryAgg;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -66,10 +67,9 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
@@ -535,7 +535,7 @@ public class SubSelectHelperForgePlanner {
 
             SubSelectStrategyFactoryForge strategyForge = new SubSelectStrategyFactoryLocalViewPreloadedForge(viewForges, viewResourceDelegateDesc, indexPair,
                 filterExpr, correlatedSubquery, aggregationServiceForgeDesc, subqueryNum, groupByNodes, namedWindow,
-                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef());
+                namedWindowFilterExpr, namedWindowFilterQueryGraph, groupByMultikeyPlan == null ? null : groupByMultikeyPlan.getClassRef(), services.getSerdeResolver().isTargetHA());
 
             forge = new SubSelectFactoryForge(subqueryNum, subselectActivation.getActivator(), strategyForge);
         }

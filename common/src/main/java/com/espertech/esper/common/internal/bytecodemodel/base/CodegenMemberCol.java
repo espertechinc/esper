@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMemberWCol;
 
-import java.util.LinkedHashMap;
+import java.util.*;
 
 public class CodegenMemberCol {
     private final LinkedHashMap<CodegenExpressionMemberWCol, EPTypeClass> members = new LinkedHashMap<>();
@@ -28,7 +28,25 @@ public class CodegenMemberCol {
         return ref;
     }
 
+    public void put(CodegenExpressionMemberWCol member, EPTypeClass type) {
+        members.put(member, type);
+    }
+
     public LinkedHashMap<CodegenExpressionMemberWCol, EPTypeClass> getMembers() {
         return members;
+    }
+
+    public TreeMap<Integer, List<CodegenExpressionMemberWCol>> getMembersPerColumn() {
+        TreeMap<Integer, List<CodegenExpressionMemberWCol>> columns = new TreeMap<>();
+        for (Map.Entry<CodegenExpressionMemberWCol, EPTypeClass> entry : members.entrySet()) {
+            int col = entry.getKey().getCol();
+            List<CodegenExpressionMemberWCol> members = columns.computeIfAbsent(col, k -> new ArrayList<>(2));
+            members.add(entry.getKey());
+        }
+        return columns;
+    }
+
+    public EPTypeClass get(CodegenExpressionMemberWCol member) {
+        return members.get(member);
     }
 }
