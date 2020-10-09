@@ -3,6 +3,7 @@ Esper Changelog
 
 Changes in version 8.6.0
 ------------------------
+  - Visual Studio Code Extension for EPL can be download from the Visual Studio Code Marketplace at https://marketplace.visualstudio.com/items?itemName=EsperTech.esperepl
   - The following dependent jar files are upgraded:
     - SLF4J is now 1.7.30 (slf4j-api-1.7.30.jar, optionally use with Log4J by adding slf4j-log4j12-1.7.30.jar, previously at slf4j-api-1.7.28.jar)
   - Support for parameterized types (aka. generic types). Due to Java type erasure previous releases had limited support for parameterized types. This release tracks type parameters more comprehensively.
