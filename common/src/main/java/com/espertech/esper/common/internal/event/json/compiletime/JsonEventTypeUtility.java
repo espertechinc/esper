@@ -416,15 +416,15 @@ public class JsonEventTypeUtility {
 
     public static void addJsonUnderlyingClass(Map<String, EventType> moduleTypes, ParentClassLoader classLoaderParent, String optionalDeploymentId) {
         for (Map.Entry<String, EventType> eventType : moduleTypes.entrySet()) {
-            addJsonUnderlyingClassInternal(eventType.getValue(), classLoaderParent, optionalDeploymentId);
+            addJsonUnderlyingClass(eventType.getValue(), classLoaderParent, optionalDeploymentId);
         }
     }
 
     public static void addJsonUnderlyingClass(PathRegistry<String, EventType> pathEventTypes, ParentClassLoader classLoaderParent) {
-        pathEventTypes.traverse(type -> addJsonUnderlyingClassInternal(type, classLoaderParent, null));
+        pathEventTypes.traverse(type -> addJsonUnderlyingClass(type, classLoaderParent, null));
     }
 
-    private static void addJsonUnderlyingClassInternal(EventType eventType, ParentClassLoader classLoaderParent, String optionalDeploymentId) {
+    public static void addJsonUnderlyingClass(EventType eventType, ParentClassLoader classLoaderParent, String optionalDeploymentId) {
         if (!(eventType instanceof JsonEventType)) {
             return;
         }

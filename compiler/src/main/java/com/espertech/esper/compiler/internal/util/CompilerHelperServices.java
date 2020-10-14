@@ -84,11 +84,9 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactoryImpl;
 import com.espertech.esper.common.internal.event.eventtyperepo.*;
-import com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistryImpl;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
@@ -98,6 +96,7 @@ import com.espertech.esper.common.internal.serde.runtime.event.EventSerdeFactory
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTimeImpl;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.TransientConfigurationResolver;
 import com.espertech.esper.common.internal.view.core.ViewEnumHelper;
@@ -109,6 +108,8 @@ import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
 
 import java.util.*;
+
+import static com.espertech.esper.common.internal.event.json.compiletime.JsonEventTypeUtility.addJsonUnderlyingClass;
 
 public class CompilerHelperServices {
     protected static ModuleCompileTimeServices getCompileTimeServices(CompilerArguments arguments, String moduleName, Set<String> moduleUses, boolean isFireAndForget) throws EPCompileException {
@@ -165,7 +166,7 @@ public class CompilerHelperServices {
                 eventTypeRepositoryPreconfigured.mergeFrom(impl.getEventTypePreconfigured());
                 variableRepositoryPreconfigured.mergeFrom(impl.getVariablePreconfigured());
 
-                JsonEventTypeUtility.addJsonUnderlyingClass(pathEventTypes, classLoaderParent);
+                addJsonUnderlyingClass(pathEventTypes, classLoaderParent);
             }
         }
 
@@ -183,9 +184,28 @@ public class CompilerHelperServices {
         VariableUtil.configureVariables(variableRepositoryPreconfigured, configuration.getCommon().getVariables(), classpathImportServiceCompileTime, EventBeanTypedEventFactoryCompileTime.INSTANCE, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate);
 
         int deploymentNumber = -1;
-
         for (EPCompiled unit : path.getCompileds()) {
             deploymentNumber++;
+
+            EPCompilerPathableImpl cachePathable = options.getPathCache() == null ? null : ((CompilerPathCacheImpl) options.getPathCache()).get(unit);
+            if (cachePathable != null) {
+                try {
+                    pathVariables.mergeFromCheckDuplicate(cachePathable.getVariablePathRegistry(), cachePathable.getOptionalModuleName());
+                    pathEventTypes.mergeFromCheckDuplicate(cachePathable.getEventTypePathRegistry(), cachePathable.getOptionalModuleName());
+                    pathExprDeclared.mergeFromCheckDuplicate(cachePathable.getExprDeclaredPathRegistry(), cachePathable.getOptionalModuleName());
+                    pathNamedWindows.mergeFromCheckDuplicate(cachePathable.getNamedWindowPathRegistry(), cachePathable.getOptionalModuleName());
+                    pathTables.mergeFromCheckDuplicate(cachePathable.getTablePathRegistry(), cachePathable.getOptionalModuleName());
+                    pathContexts.mergeFromCheckDuplicate(cachePathable.getContextPathRegistry(), cachePathable.getOptionalModuleName());
+                    pathScript.mergeFromCheckDuplicate(cachePathable.getScriptPathRegistry(), cachePathable.getOptionalModuleName());
+                    pathClassProvided.mergeFromCheckDuplicate(cachePathable.getClassProvidedPathRegistry(), cachePathable.getOptionalModuleName());
+                } catch (PathException ex) {
+                    throw new EPCompileException("Invalid path: " + ex.getMessage(), ex, Collections.emptyList());
+                }
+
+                cachePathable.getEventTypePathRegistry().traverse(type -> addJsonUnderlyingClass(type, classLoaderParent, null));
+                continue;
+            }
+
             ModuleProviderCLPair provider = ModuleProviderUtil.analyze(unit, classLoaderParent, pathClassProvided);
             String unitModuleName = provider.getModuleProvider().getModuleName();
 
@@ -198,7 +218,7 @@ public class CompilerHelperServices {
             } catch (Throwable e) {
                 throw new EPException(e);
             }
-            JsonEventTypeUtility.addJsonUnderlyingClass(moduleTypes, classLoaderParent, null);
+            addJsonUnderlyingClass(moduleTypes, classLoaderParent, null);
 
             // initialize named windows
             Map<String, NamedWindowMetaData> moduleNamedWindows = new HashMap<>();
@@ -273,49 +293,80 @@ public class CompilerHelperServices {
 
             // save path-visibility event types and named windows to the path
             String deploymentId = "D" + deploymentNumber;
+            if (options.getPathCache() != null) {
+                cachePathable = new EPCompilerPathableImpl(moduleName);
+            }
             try {
                 for (Map.Entry<String, EventType> type : moduleTypes.entrySet()) {
                     if (type.getValue().getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
                         pathEventTypes.add(type.getKey(), unitModuleName, type.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getEventTypePathRegistry().add(type.getKey(), unitModuleName, type.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, NamedWindowMetaData> entry : moduleNamedWindows.entrySet()) {
                     if (entry.getValue().getEventType().getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
                         pathNamedWindows.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getNamedWindowPathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, TableMetaData> entry : moduleTables.entrySet()) {
                     if (entry.getValue().getTableVisibility().isNonPrivateNonTransient()) {
                         pathTables.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getTablePathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, ContextMetaData> entry : moduleContexts.entrySet()) {
                     if (entry.getValue().getContextVisibility().isNonPrivateNonTransient()) {
                         pathContexts.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getContextPathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, VariableMetaData> entry : moduleVariables.entrySet()) {
                     if (entry.getValue().getVariableVisibility().isNonPrivateNonTransient()) {
                         pathVariables.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getVariablePathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, ExpressionDeclItem> entry : moduleExprDeclareds.entrySet()) {
                     if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
                         pathExprDeclared.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getExprDeclaredPathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> entry : moduleScripts.entrySet()) {
                     if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
                         pathScript.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getScriptPathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
                 for (Map.Entry<String, ClassProvided> entry : moduleClassProvideds.entrySet()) {
                     if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
                         pathClassProvided.add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        if (cachePathable != null) {
+                            cachePathable.getClassProvidedPathRegistry().add(entry.getKey(), unitModuleName, entry.getValue(), deploymentId);
+                        }
                     }
                 }
             } catch (PathException ex) {
                 throw new EPCompileException("Invalid path: " + ex.getMessage(), ex, Collections.emptyList());
+            }
+
+            if (cachePathable != null) {
+                ((CompilerPathCacheImpl) options.getPathCache()).put(unit, cachePathable);
             }
         }
 

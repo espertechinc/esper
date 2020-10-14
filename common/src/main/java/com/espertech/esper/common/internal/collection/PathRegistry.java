@@ -157,10 +157,24 @@ public class PathRegistry<K, E> {
             throw new IllegalArgumentException("Invalid object type " + other.objectType + " expected " + this.objectType);
         }
         for (Map.Entry<K, PathModuleEntry<E>> entry : other.entities.entrySet()) {
-            if (entities.containsKey(entry.getKey())) {
-                continue;
+            entities.computeIfAbsent(entry.getKey(), k -> entry.getValue());
+        }
+    }
+
+    public void mergeFromCheckDuplicate(PathRegistry<K, E> other, String moduleName) throws PathExceptionAlreadyRegistered {
+        if (other.objectType != this.objectType) {
+            throw new IllegalArgumentException("Invalid object type " + other.objectType + " expected " + this.objectType);
+        }
+        for (Map.Entry<K, PathModuleEntry<E>> entry : other.entities.entrySet()) {
+            PathModuleEntry<E> existing = entities.get(entry.getKey());
+            if (existing == null) {
+                entities.put(entry.getKey(), entry.getValue());
+            } else {
+                String existingDeploymentId = existing.getDeploymentId(moduleName);
+                if (existingDeploymentId != null) {
+                    throw new PathExceptionAlreadyRegistered(entry.getKey().toString(), objectType, moduleName);
+                }
             }
-            entities.put(entry.getKey(), entry.getValue());
         }
     }
 

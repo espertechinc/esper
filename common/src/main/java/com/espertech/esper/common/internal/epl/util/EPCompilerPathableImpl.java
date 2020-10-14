@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.util;
 import com.espertech.esper.common.client.EPCompilerPathable;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.PathRegistry;
+import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -35,6 +36,21 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
     private final PathRegistry<String, ClassProvided> classProvidedPathRegistry;
     private final EventTypeRepositoryImpl eventTypePreconfigured;
     private final VariableRepositoryPreconfigured variablePreconfigured;
+    private final String optionalModuleName;
+
+    public EPCompilerPathableImpl(String optionalModuleName) {
+        variablePathRegistry = new PathRegistry<>(PathRegistryObjectType.VARIABLE);
+        eventTypePathRegistry = new PathRegistry<>(PathRegistryObjectType.EVENTTYPE);
+        exprDeclaredPathRegistry = new PathRegistry<>(PathRegistryObjectType.EXPRDECL);
+        namedWindowPathRegistry = new PathRegistry<>(PathRegistryObjectType.NAMEDWINDOW);
+        tablePathRegistry = new PathRegistry<>(PathRegistryObjectType.TABLE);
+        contextPathRegistry = new PathRegistry<>(PathRegistryObjectType.CONTEXT);
+        scriptPathRegistry = new PathRegistry<>(PathRegistryObjectType.SCRIPT);
+        classProvidedPathRegistry = new PathRegistry<>(PathRegistryObjectType.CLASSPROVIDED);
+        eventTypePreconfigured = new EventTypeRepositoryImpl(true);
+        variablePreconfigured = new VariableRepositoryPreconfigured();
+        this.optionalModuleName = optionalModuleName;
+    }
 
     public EPCompilerPathableImpl(PathRegistry<String, VariableMetaData> variablePathRegistry, PathRegistry<String, EventType> eventTypePathRegistry, PathRegistry<String, ExpressionDeclItem> exprDeclaredPathRegistry, PathRegistry<String, NamedWindowMetaData> namedWindowPathRegistry, PathRegistry<String, TableMetaData> tablePathRegistry, PathRegistry<String, ContextMetaData> contextPathRegistry, PathRegistry<NameAndParamNum, ExpressionScriptProvided> scriptPathRegistry, PathRegistry<String, ClassProvided> classProvidedPathRegistry, EventTypeRepositoryImpl eventTypePreconfigured, VariableRepositoryPreconfigured variablePreconfigured) {
         this.variablePathRegistry = variablePathRegistry;
@@ -47,6 +63,7 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
         this.classProvidedPathRegistry = classProvidedPathRegistry;
         this.eventTypePreconfigured = eventTypePreconfigured;
         this.variablePreconfigured = variablePreconfigured;
+        this.optionalModuleName = null;
     }
 
     public PathRegistry<String, VariableMetaData> getVariablePathRegistry() {
@@ -87,5 +104,9 @@ public class EPCompilerPathableImpl implements EPCompilerPathable {
 
     public VariableRepositoryPreconfigured getVariablePreconfigured() {
         return variablePreconfigured;
+    }
+
+    public String getOptionalModuleName() {
+        return optionalModuleName;
     }
 }

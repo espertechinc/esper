@@ -26,9 +26,12 @@ public class EPLModuleParseItem {
      * Ctor.
      *
      * @param expression EPL
-     * @param lineNum    line number
+     * @param lineNum    line number starting the EPL including comments
      * @param startChar  start character number total file
      * @param endChar    end character number
+     * @param lineNumEnd line number ending the EPL including comments
+     * @param lineNumContent line number starting the EPL excluding comments
+     * @param lineNumContentEnd line number ending the EPL excluding comments
      */
     public EPLModuleParseItem(String expression, int lineNum, int startChar, int endChar, int lineNumEnd, int lineNumContent, int lineNumContentEnd) {
         this.expression = expression;

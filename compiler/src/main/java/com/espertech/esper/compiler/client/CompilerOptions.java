@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.compiler.client;
 
+import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.compiler.client.option.*;
 
 /**
@@ -32,6 +33,7 @@ public class CompilerOptions {
     private ModuleUsesOption moduleUses;
     private InlinedClassInspectionOption inlinedClassInspection;
     private StateMgmtSettingOption stateMgmtSetting;
+    private CompilerPathCache pathCache;
 
     /**
      * Returns the callback that determines the access modifier of a given event type
@@ -307,5 +309,21 @@ public class CompilerOptions {
      */
     public void setStateMgmtSetting(StateMgmtSettingOption stateMgmtSetting) {
         this.stateMgmtSetting = stateMgmtSetting;
+    }
+
+    /**
+     * Returns a cache, or null if not using a cache, that retains for each {@link EPCompiled} the EPL objects that the {@link EPCompiled} provides.
+     * @return cache or null if not using a cache
+     */
+    public CompilerPathCache getPathCache() {
+        return pathCache;
+    }
+
+    /**
+     * Sets the cache, or null if not using a cache, that retains for each {@link EPCompiled} the EPL objects that the {@link EPCompiled} provides.
+     * @param pathCache or null if not using a cache
+     */
+    public void setPathCache(CompilerPathCache pathCache) {
+        this.pathCache = pathCache;
     }
 }

@@ -52,5 +52,10 @@ public enum HookType {
     /**
      * For internal use, statement spec compiled reporting.
      */
-    INTERNAL_COMPILE;
+    INTERNAL_COMPILE,
+
+    /**
+     * For internal use, EPCompiled loading
+     */
+    INTERNAL_COMPILEDLOAD;
 }

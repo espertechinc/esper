@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenRepetitiveValueBuilder;
 import com.espertech.esper.common.internal.bytecodemodel.util.CodegenStackGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.util.IdentifierUtil;
+import com.espertech.esper.common.internal.collection.PathException;
 import com.espertech.esper.common.internal.compile.stage1.Compilable;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -46,6 +47,7 @@ import com.espertech.esper.common.internal.epl.index.compile.IndexDetailForge;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
+import com.espertech.esper.common.internal.epl.util.EPCompilerPathableImpl;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
@@ -89,7 +91,16 @@ public class CompilerHelperModuleProvider {
         } catch (Throwable t) {
             throw new EPCompileException("Unexpected exception compiling module: " + t.getMessage(), t, Collections.emptyList());
         }
-        return new EPCompiled(moduleBytes, manifest);
+
+        EPCompiled compiled = new EPCompiled(moduleBytes, manifest);
+        if (compilerOptions.getPathCache() != null) {
+            try {
+                ((CompilerPathCacheImpl) compilerOptions.getPathCache()).put(compiled, toPathable(optionalModuleName, compileTimeServices, "cached-entry"));
+            } catch (PathException ex) {
+                throw new EPCompileException("Failed to add compiled to path cache: " + ex.getMessage(), ex);
+            }
+        }
+        return compiled;
     }
 
     private static EPCompiledManifest compileToBytes(ConcurrentHashMap<String, byte[]> moduleBytes, List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException, IOException {
@@ -708,5 +719,50 @@ public class CompilerHelperModuleProvider {
             }
         }
         return false;
+    }
+
+    private static EPCompilerPathableImpl toPathable(String moduleName, ModuleCompileTimeServices svc, String pathDeployId) throws PathException {
+        EPCompilerPathableImpl pathable = new EPCompilerPathableImpl(moduleName);
+        for (EventType type : svc.getEventTypeCompileTimeRegistry().getNewTypesAdded()) {
+            if (type.getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
+                pathable.getEventTypePathRegistry().add(type.getName(), moduleName, type, pathDeployId);
+            }
+        }
+        for (Map.Entry<String, VariableMetaData> entry : svc.getVariableCompileTimeRegistry().getVariables().entrySet()) {
+            if (entry.getValue().getVariableVisibility().isNonPrivateNonTransient()) {
+                pathable.getVariablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<String, ExpressionDeclItem> entry : svc.getExprDeclaredCompileTimeRegistry().getExpressions().entrySet()) {
+            if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                pathable.getExprDeclaredPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<NameAndParamNum, ExpressionScriptProvided> entry : svc.getScriptCompileTimeRegistry().getScripts().entrySet()) {
+            if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                pathable.getScriptPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<String, ClassProvided> entry : svc.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
+            if (entry.getValue().getVisibility().isNonPrivateNonTransient()) {
+                pathable.getClassProvidedPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<String, NamedWindowMetaData> entry : svc.getNamedWindowCompileTimeRegistry().getNamedWindows().entrySet()) {
+            if (entry.getValue().getEventType().getMetadata().getAccessModifier().isNonPrivateNonTransient()) {
+                pathable.getNamedWindowPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<String, TableMetaData> entry : svc.getTableCompileTimeRegistry().getTables().entrySet()) {
+            if (entry.getValue().getTableVisibility().isNonPrivateNonTransient()) {
+                pathable.getTablePathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        for (Map.Entry<String, ContextMetaData> entry : svc.getContextCompileTimeRegistry().getContexts().entrySet()) {
+            if (entry.getValue().getContextVisibility().isNonPrivateNonTransient()) {
+                pathable.getContextPathRegistry().add(entry.getKey(), moduleName, entry.getValue(), pathDeployId);
+            }
+        }
+        return pathable;
     }
 }
