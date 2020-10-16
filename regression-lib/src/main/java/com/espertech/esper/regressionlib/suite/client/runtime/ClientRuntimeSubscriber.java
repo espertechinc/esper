@@ -58,7 +58,6 @@ public class ClientRuntimeSubscriber {
 
     private static class ClientRuntimeSubscriberBindings implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            /* TODO
             // just wildcard
             EPStatement stmtJustWildcard = env.compileDeploy("@name('s0') select * from SupportBean(theString='E2')").statement("s0");
             tryAssertionJustWildcard(env, stmtJustWildcard, new SupportSubscriberRowByRowSpecificNStmt());
@@ -112,14 +111,12 @@ public class ClientRuntimeSubscriber {
             // bind wildcard join
             tryAssertionBindWildcardJoin(env, new SupportSubscriberRowByRowSpecificNStmt());
             tryAssertionBindWildcardJoin(env, new SupportSubscriberRowByRowSpecificWStmt());
-             */
 
             // output limit
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 tryAssertionOutputLimitNoJoin(env, rep, new SupportSubscriberRowByRowSpecificNStmt());
             }
 
-            /* TODO
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 tryAssertionOutputLimitNoJoin(env, rep, new SupportSubscriberRowByRowSpecificWStmt());
             }
@@ -183,7 +180,6 @@ public class ClientRuntimeSubscriber {
 
             // prefer the EPStatement-footprint over the non-EPStatement footprint
             tryAssertionPreferEPStatement(env);
-             */
 
             env.undeployAll();
         }
