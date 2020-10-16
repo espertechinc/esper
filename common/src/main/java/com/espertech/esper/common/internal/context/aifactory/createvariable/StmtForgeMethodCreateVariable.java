@@ -146,6 +146,6 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
     }
 }

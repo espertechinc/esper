@@ -125,6 +125,6 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList(), packageScope);
     }
 }

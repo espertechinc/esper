@@ -152,7 +152,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()));
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()), packageScope);
     }
 
     private OnTriggerActivatorDesc activatorNamedWindow(NamedWindowConsumerStreamSpec namedSpec, StatementCompileTimeServices services) {

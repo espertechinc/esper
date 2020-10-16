@@ -46,6 +46,10 @@ public class OutputProcessViewDirectDistinctOrAfterFactoryForge implements Outpu
         this.resultEventType = resultEventType;
     }
 
+    public boolean isDirectAndSimple() {
+        return false;
+    }
+
     public boolean isCodeGenerated() {
         return false;
     }

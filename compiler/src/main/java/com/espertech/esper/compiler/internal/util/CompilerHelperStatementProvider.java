@@ -263,13 +263,19 @@ public class CompilerHelperStatementProvider {
             List<CodegenClass> classes = new ArrayList<>(forgeables.size());
             for (StmtClassForgeable forgeable : forgeables) {
                 CodegenClass clazz = forgeable.forge(true, false);
+                if (clazz == null) {
+                    continue;
+                }
                 classes.add(clazz);
             }
 
-            // Stage 5 - refactor methods to make sure the constant pool does not grow too large for any given class
+            // Stage 5 - remove statement field initialization when unused
+            result.getPackageScope().rewriteStatementFieldUse(classes);
+
+            // Stage 6 - refactor methods to make sure the constant pool does not grow too large for any given class
             CompilerHelperRefactorToStaticMethods.refactorMethods(classes, compileTimeServices.getConfiguration().getCompiler().getByteCode().getMaxMethodsPerClass());
 
-            // Stage 6 - sort to make the "fields" class first and all the rest later
+            // Stage 7 - sort to make the "fields" class first and all the rest later
             classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
 
             // We are making sure JsonEventType receives the underlying class itself

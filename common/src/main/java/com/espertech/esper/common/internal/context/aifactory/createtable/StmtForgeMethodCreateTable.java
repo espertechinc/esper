@@ -158,7 +158,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
     }
 
     private void validateKeyTypes(List<CreateTableColumn> columns, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension)

@@ -63,7 +63,7 @@ public abstract class StmtClassForgeableAIFactoryProviderBase implements StmtCla
 
         CodegenMethod assignMethod = null;
         CodegenMethod unassignMethod = null;
-        if (packageScope.getFieldsClassNameOptional() != null && packageScope.hasStatementFields()) {
+        if (packageScope.getFieldsClassNameOptional() != null && packageScope.hasAssignableStatementFields()) {
             assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments");
             assignMethod.getBlock().staticMethod(packageScope.getFieldsClassNameOptional(), "assign", ref("assignments"));
 

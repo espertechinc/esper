@@ -550,6 +550,10 @@ public class CodegenBlock {
         return statements.isEmpty();
     }
 
+    public List<CodegenStatement> getStatements() {
+        return statements;
+    }
+
     private final static class InstanceAccessConsumer implements Consumer<CodegenExpression> {
         private final Function<CodegenMethod, Boolean> permittedMethod;
         private boolean hasInstanceAccess = false;

@@ -35,6 +35,10 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
         this.postProcess = postProcess;
     }
 
+    public boolean isDirectAndSimple() {
+        return postProcess == null;
+    }
+
     public boolean isCodeGenerated() {
         return postProcess != null;
     }

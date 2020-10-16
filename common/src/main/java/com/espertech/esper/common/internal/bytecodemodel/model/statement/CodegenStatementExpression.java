@@ -34,4 +34,8 @@ public class CodegenStatementExpression extends CodegenStatementBase {
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {
         consumer.accept(expression);
     }
+
+    public CodegenExpression getExpression() {
+        return expression;
+    }
 }

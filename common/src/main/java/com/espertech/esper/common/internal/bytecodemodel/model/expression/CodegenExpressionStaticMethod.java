@@ -59,4 +59,8 @@ public class CodegenExpressionStaticMethod implements CodegenExpression {
     public void traverseExpressions(Consumer<CodegenExpression> consumer) {
         traverseMultiple(params, consumer);
     }
+
+    public String getTargetClassName() {
+        return targetClassName;
+    }
 }

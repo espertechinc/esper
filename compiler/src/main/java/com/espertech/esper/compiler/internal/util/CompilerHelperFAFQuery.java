@@ -41,11 +41,17 @@ public class CompilerHelperFAFQuery {
         List<CodegenClass> classes = new ArrayList<>(forgeables.size());
         for (StmtClassForgeable forgeable : forgeables) {
             CodegenClass clazz = forgeable.forge(true, true);
+            if (clazz == null) {
+                continue;
+            }
             classes.add(clazz);
         }
 
         // compile with statement-field first
         classes.sort((o1, o2) -> Integer.compare(o1.getClassType().getSortCode(), o2.getClassType().getSortCode()));
+
+        // remove statement field initialization when unused
+        packageScope.rewriteStatementFieldUse(classes);
 
         // add class-provided create-class to classpath
         compileTimeServices.getClassProvidedCompileTimeResolver().addTo(moduleBytes);

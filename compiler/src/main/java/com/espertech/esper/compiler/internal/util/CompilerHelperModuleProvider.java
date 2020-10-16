@@ -652,7 +652,7 @@ public class CompilerHelperModuleProvider {
 
         method.getBlock().declareVar(EPTypePremade.LINKEDHASHMAP.getEPType(), "props", newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));
 
-        Iterator<EventType> deepTypesIterator = deepSuperTypes.get();
+        Iterator<EventType> deepTypesIterator = deepSuperTypes == null ? Collections.emptyIterator() : deepSuperTypes.get();
         Collection<Map.Entry<String, Object>> entries;
         if (!deepTypesIterator.hasNext()) {
             entries = types.entrySet();

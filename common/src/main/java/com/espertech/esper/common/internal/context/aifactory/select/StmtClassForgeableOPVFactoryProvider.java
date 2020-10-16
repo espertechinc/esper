@@ -69,6 +69,10 @@ public class StmtClassForgeableOPVFactoryProvider implements StmtClassForgeable 
     }
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
+        if (spec.isDirectAndSimple()) {
+            return null;
+        }
+
         Supplier<String> debugInformationProvider = new Supplier<String>() {
             public String get() {
                 StringWriter writer = new StringWriter();

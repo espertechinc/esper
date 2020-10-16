@@ -75,7 +75,7 @@ public class StmtForgeMethodCreateSchema implements StmtForgeMethod {
         }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
     }
 
     private EventTypeForgablesPair handleCreateSchema(CreateSchemaDesc spec, StatementCompileTimeServices services)

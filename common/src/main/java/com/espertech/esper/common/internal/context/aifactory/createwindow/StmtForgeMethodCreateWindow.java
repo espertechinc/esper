@@ -161,7 +161,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList(), packageScope);
     }
 
     private static boolean determineBatchingDataWindow(List<ViewFactoryForge> forges) {

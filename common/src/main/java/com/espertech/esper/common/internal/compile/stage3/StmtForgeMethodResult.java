@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.compile.stage3;
 
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
@@ -24,13 +25,15 @@ public class StmtForgeMethodResult {
     private final List<ScheduleHandleCallbackProvider> scheduleds;
     private final List<NamedWindowConsumerStreamSpec> namedWindowConsumers;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
+    private final CodegenPackageScope packageScope;
 
-    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
+    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions, CodegenPackageScope packageScope) {
         this.forgeables = forgeables;
         this.filtereds = filtereds;
         this.scheduleds = scheduleds;
         this.namedWindowConsumers = namedWindowConsumers;
         this.filterBooleanExpressions = filterBooleanExpressions;
+        this.packageScope = packageScope;
     }
 
     public List<StmtClassForgeable> getForgeables() {
@@ -51,5 +54,9 @@ public class StmtForgeMethodResult {
 
     public List<FilterSpecParamExprNodeForge> getFilterBooleanExpressions() {
         return filterBooleanExpressions;
+    }
+
+    public CodegenPackageScope getPackageScope() {
+        return packageScope;
     }
 }

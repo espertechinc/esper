@@ -74,9 +74,11 @@ public class AggregationServiceFactoryCompilerRow {
         LinkedHashMap<Integer, AggregationClassAssignment> assignments = new LinkedHashMap<>();
         Map<Integer, AggregationClassAssignment> slotToAssignment = new HashMap<>();
         int maxMembersPerClass = classScope.getPackageScope().getConfig().getInternalUseOnlyMaxMembersPerClass();
+        int methodFactoryCount = 0;
 
         // determine number of fields and field-to-class assignment
         if (detail.getStateDesc().getMethodFactories() != null) {
+            methodFactoryCount = detail.getStateDesc().getMethodFactories().length;
             for (int methodIndex = 0; methodIndex < detail.getStateDesc().getMethodFactories().length; methodIndex++) {
                 if (currentAssignment.getMemberSize() != 0 && currentAssignment.getMemberSize() >= maxMembersPerClass) {
                     assignments.put(indexAssignment++, currentAssignment);
@@ -110,7 +112,8 @@ public class AggregationServiceFactoryCompilerRow {
                 AggregationAccessorSlotPairForge slotPair = detail.getAccessAccessors()[i];
                 int slot = slotPair.getSlot();
                 AggregationClassAssignment assignment = slotToAssignment.get(slot);
-                assignment.addAccess(new AggregationVColAccess(countVcols, slotPair.getAccessorForge(), slot, detail.getStateDesc().getAccessStateForges()[slot]));
+                int stateNumber = methodFactoryCount + slot;
+                assignment.addAccess(new AggregationVColAccess(countVcols, slotPair.getAccessorForge(), stateNumber, detail.getStateDesc().getAccessStateForges()[slot]));
                 countVcols++;
             }
         }

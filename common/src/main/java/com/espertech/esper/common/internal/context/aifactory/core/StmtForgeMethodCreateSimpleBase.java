@@ -67,6 +67,6 @@ public abstract class StmtForgeMethodCreateSimpleBase implements StmtForgeMethod
         List<StmtClassForgeable> forgeables = new ArrayList<>();
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
     }
 }

@@ -39,6 +39,9 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
     }
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
+        if (!packageScope.hasAnyFields()) {
+            return null;
+        }
         List<MemberFieldPair> memberFields = getMembers();
         int maxMembersPerClass = Math.max(1, packageScope.getConfig().getInternalUseOnlyMaxMembersPerClass());
 
@@ -69,7 +72,7 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
         CodegenStackGenerator.recursiveBuildStack(initMethod, "init", methods);
 
         // assignment methods
-        if (packageScope.hasStatementFields()) {
+        if (packageScope.hasAssignableStatementFields()) {
             CodegenMethod assignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).addParam(StatementAIFactoryAssignments.EPTYPE, "assignments").setStatic(true);
             CodegenMethod unassignMethod = CodegenMethod.makeParentNode(EPTypePremade.VOID.getEPType(), this.getClass(), CodegenSymbolProviderEmpty.INSTANCE, classScope).setStatic(true);
             generateAssignAndUnassign(assignMethod, unassignMethod, packageScope.getFieldsNamed());

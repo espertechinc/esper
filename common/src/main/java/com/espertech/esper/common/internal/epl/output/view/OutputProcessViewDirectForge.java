@@ -20,13 +20,18 @@ import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvid
 
 import java.util.List;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class OutputProcessViewDirectForge implements OutputProcessViewFactoryForge {
     private OutputStrategyPostProcessForge outputStrategyPostProcessForge;
 
     public OutputProcessViewDirectForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge) {
         this.outputStrategyPostProcessForge = outputStrategyPostProcessForge;
+    }
+
+    public boolean isDirectAndSimple() {
+        return false;
     }
 
     public boolean isCodeGenerated() {

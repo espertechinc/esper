@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPr
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForge;
+import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewDirectSimpleFactoryProvider;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyUtil;
@@ -41,7 +42,6 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 
 public class StatementAgentInstanceFactorySelectForge implements StatementAgentInstanceFactoryForge {
     private final static String RSPFACTORYPROVIDER = "rspFactoryProvider";
-    private final static String OPVFACTORYPROVIDER = "opvFactoryProvider";
 
     private final String[] streamNames;
     private final ViewableActivatorForge[] viewableActivatorForges;
@@ -51,12 +51,13 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
     private final ExprForge whereClauseForge;
     private final JoinSetComposerPrototypeForge joinSetComposerPrototypeForge;
     private final String outputProcessViewProviderClassName;
+    private final boolean outputProcessViewDirectSimple;
     private final Map<ExprSubselectNode, SubSelectFactoryForge> subselects;
     private final Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses;
     private final boolean orderByWithoutOutputRateLimit;
     private final boolean unidirectionalJoin;
 
-    public StatementAgentInstanceFactorySelectForge(String[] streamNames, ViewableActivatorForge[] viewableActivatorForges, String resultSetProcessorProviderClassName, List<ViewFactoryForge>[] views, ViewResourceDelegateDesc[] viewResourceDelegates, ExprForge whereClauseForge, JoinSetComposerPrototypeForge joinSetComposerPrototypeForge, String outputProcessViewProviderClassName, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, boolean orderByWithoutOutputRateLimit, boolean unidirectionalJoin) {
+    public StatementAgentInstanceFactorySelectForge(String[] streamNames, ViewableActivatorForge[] viewableActivatorForges, String resultSetProcessorProviderClassName, List<ViewFactoryForge>[] views, ViewResourceDelegateDesc[] viewResourceDelegates, ExprForge whereClauseForge, JoinSetComposerPrototypeForge joinSetComposerPrototypeForge, String outputProcessViewProviderClassName, boolean outputProcessViewDirectSimple, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, boolean orderByWithoutOutputRateLimit, boolean unidirectionalJoin) {
         this.streamNames = streamNames;
         this.viewableActivatorForges = viewableActivatorForges;
         this.resultSetProcessorProviderClassName = resultSetProcessorProviderClassName;
@@ -65,6 +66,7 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
         this.whereClauseForge = whereClauseForge;
         this.joinSetComposerPrototypeForge = joinSetComposerPrototypeForge;
         this.outputProcessViewProviderClassName = outputProcessViewProviderClassName;
+        this.outputProcessViewDirectSimple = outputProcessViewDirectSimple;
         this.subselects = subselects;
         this.tableAccesses = tableAccesses;
         this.orderByWithoutOutputRateLimit = orderByWithoutOutputRateLimit;
@@ -122,8 +124,13 @@ public class StatementAgentInstanceFactorySelectForge implements StatementAgentI
         }
 
         // output process view
-        method.getBlock().declareVar(outputProcessViewProviderClassName, OPVFACTORYPROVIDER, CodegenExpressionBuilder.newInstance(outputProcessViewProviderClassName, symbols.getAddInitSvc(method)))
-                .exprDotMethod(ref("saiff"), "setOutputProcessViewFactoryProvider", ref(OPVFACTORYPROVIDER));
+        CodegenExpression opv;
+        if (outputProcessViewDirectSimple) {
+            opv = publicConstValue(OutputProcessViewDirectSimpleFactoryProvider.EPTYPE, "INSTANCE");
+        } else {
+            opv = CodegenExpressionBuilder.newInstance(outputProcessViewProviderClassName, symbols.getAddInitSvc(method));
+        }
+        method.getBlock().exprDotMethod(ref("saiff"), "setOutputProcessViewFactoryProvider", opv);
 
         // subselects
         if (!subselects.isEmpty()) {

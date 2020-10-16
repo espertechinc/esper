@@ -13,13 +13,19 @@ package com.espertech.esper.common.internal.bytecodemodel.base;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerByteCode;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClassType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
+import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionStaticMethod;
+import com.espertech.esper.common.internal.bytecodemodel.model.statement.CodegenStatement;
+import com.espertech.esper.common.internal.bytecodemodel.model.statement.CodegenStatementExpression;
 import com.espertech.esper.common.internal.bytecodemodel.name.CodegenFieldName;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -53,6 +59,13 @@ public class CodegenPackageScope {
         this.fieldsClassNameOptional = fieldsClassNameOptional;
         this.instrumented = instrumented;
         this.config = config;
+    }
+
+    public boolean hasAnyFields() {
+        return !getFieldsNamed().isEmpty() ||
+                !getFieldsUnshared().isEmpty() ||
+                !getSubstitutionParamsByNumber().isEmpty() ||
+                !getSubstitutionParamsByName().isEmpty();
     }
 
     public CodegenExpressionField addFieldUnshared(boolean isFinal, EPTypeClass clazz, CodegenExpression initCtorScoped) {
@@ -97,7 +110,7 @@ public class CodegenPackageScope {
         return fieldsNamed;
     }
 
-    public boolean hasStatementFields() {
+    public boolean hasAssignableStatementFields() {
         return !fieldsNamed.isEmpty();
     }
 
@@ -176,5 +189,35 @@ public class CodegenPackageScope {
 
     public ConfigurationCompilerByteCode getConfig() {
         return config;
+    }
+
+    public void rewriteStatementFieldUse(List<CodegenClass> classes) {
+        if (getFieldsClassNameOptional() != null && !hasAnyFields()) {
+            rewriteProviderNoFieldInit(classes, getFieldsClassNameOptional());
+        }
+    }
+
+    private static void rewriteProviderNoFieldInit(List<CodegenClass> classes, String fieldClassName) {
+        // Rewrite the constructor of providers to remove calls to field initialization, for when there is no fields-class.
+        // Field initialization cannot be predicted as forging adds fields.
+        // The forge order puts the forging of the fields-class last so that fields can be added during forging.
+        // Since the fields-class is forged last the provider classes cannot predict whether fields are required or not.
+        for (CodegenClass clazz : classes) {
+            if (clazz.getClassType() == CodegenClassType.FAFQUERYMETHODPROVIDER || clazz.getClassType() == CodegenClassType.STATEMENTAIFACTORYPROVIDER) {
+                Iterator<CodegenStatement> it = clazz.getOptionalCtor().getBlock().getStatements().iterator();
+                while (it.hasNext()) {
+                    CodegenStatement statement = it.next();
+                    if (statement instanceof CodegenStatementExpression) {
+                        CodegenStatementExpression expression = (CodegenStatementExpression) statement;
+                        if (expression.getExpression() instanceof CodegenExpressionStaticMethod) {
+                            CodegenExpressionStaticMethod staticMethod = (CodegenExpressionStaticMethod) expression.getExpression();
+                            if (staticMethod.getTargetClassName() != null && staticMethod.getTargetClassName().equals(fieldClassName)) {
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

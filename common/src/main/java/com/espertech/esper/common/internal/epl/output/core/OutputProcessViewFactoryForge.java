@@ -18,6 +18,8 @@ import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvid
 import java.util.List;
 
 public interface OutputProcessViewFactoryForge {
+    boolean isDirectAndSimple();
+
     boolean isCodeGenerated();
 
     void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);

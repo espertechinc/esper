@@ -67,6 +67,10 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
         this.changeSetStateMgmtSettings = changeSetStateMgmtSettings;
     }
 
+    public boolean isDirectAndSimple() {
+        return false;
+    }
+
     public boolean isCodeGenerated() {
         return false;
     }
