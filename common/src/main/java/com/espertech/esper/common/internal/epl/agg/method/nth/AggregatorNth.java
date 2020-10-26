@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.nth;
 
+import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
@@ -26,10 +28,8 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
-import com.espertech.esper.common.client.serde.EventBeanCollatedWriter;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -44,14 +44,17 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
 public class AggregatorNth extends AggregatorMethodWDistinctWFilterWValueBase {
 
     private final AggregationForgeFactoryNth factory;
-    private final CodegenExpressionMember circularBuffer;
-    private final CodegenExpressionMember currentBufferElementPointer;
-    private final CodegenExpressionMember numDataPoints;
-    private final CodegenExpressionField serdeValue;
+    private CodegenExpressionMember circularBuffer;
+    private CodegenExpressionMember currentBufferElementPointer;
+    private CodegenExpressionMember numDataPoints;
+    private CodegenExpressionField serdeValue;
 
-    public AggregatorNth(AggregationForgeFactoryNth factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorNth(AggregationForgeFactoryNth factory, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         this.circularBuffer = membersColumnized.addMember(col, EPTypePremade.OBJECTARRAY.getEPType(), "buf");
         this.currentBufferElementPointer = membersColumnized.addMember(col, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "cbep");
         this.numDataPoints = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");

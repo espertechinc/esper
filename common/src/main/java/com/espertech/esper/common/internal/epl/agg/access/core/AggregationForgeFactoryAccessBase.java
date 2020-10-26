@@ -11,9 +11,6 @@
 package com.espertech.esper.common.internal.epl.agg.access.core;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -29,10 +26,6 @@ public abstract class AggregationForgeFactoryAccessBase implements AggregationFo
     }
 
     public final ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
-        throw new IllegalStateException("Not applicable for access-aggregations");
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         throw new IllegalStateException("Not applicable for access-aggregations");
     }
 }

@@ -10,36 +10,16 @@
  */
 package com.espertech.esper.common.internal.epl.agg.method.core;
 
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
+import com.espertech.esper.common.internal.epl.agg.method.plugin.AggregationForgeFactoryPlugin;
 
 public class AggregatorMethodFactoryContext {
-    private final int col;
-    private final CodegenCtor rowCtor;
-    private final CodegenMemberCol membersColumnized;
-    private final CodegenClassScope classScope;
+    private final AggregationForgeFactoryPlugin factory;
 
-    public AggregatorMethodFactoryContext(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        this.col = col;
-        this.rowCtor = rowCtor;
-        this.membersColumnized = membersColumnized;
-        this.classScope = classScope;
+    public AggregatorMethodFactoryContext(AggregationForgeFactoryPlugin factory) {
+        this.factory = factory;
     }
 
-    public int getCol() {
-        return col;
-    }
-
-    public CodegenCtor getRowCtor() {
-        return rowCtor;
-    }
-
-    public CodegenMemberCol getMembersColumnized() {
-        return membersColumnized;
-    }
-
-    public CodegenClassScope getClassScope() {
-        return classScope;
+    public AggregationForgeFactoryPlugin getFactory() {
+        return factory;
     }
 }

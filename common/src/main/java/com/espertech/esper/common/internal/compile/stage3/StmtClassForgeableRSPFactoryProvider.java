@@ -119,7 +119,7 @@ public class StmtClassForgeableRSPFactoryProvider implements StmtClassForgeable 
             if (!aggregationNull) {
                 providerExplicitMembers.add(new CodegenTypedParam(AggregationServiceFactory.EPTYPE, MEMBERNAME_AGGREGATIONSVCFACTORY));
                 AggregationClassNames aggregationClassNames = new AggregationClassNames();
-                AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(spec.isJoin(), aggregationForge, providerCtor, classScope, className, aggregationClassNames, isTargetHA);
+                AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(aggregationForge, providerCtor, classScope, className, aggregationClassNames, isTargetHA);
                 providerCtor.getBlock().assignMember(MEMBERNAME_AGGREGATIONSVCFACTORY, localMethod(aggResult.getInitMethod(), EPStatementInitServices.REF));
                 innerClasses.addAll(aggResult.getInnerClasses());
             }

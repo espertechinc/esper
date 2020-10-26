@@ -14,9 +14,6 @@ package com.espertech.esper.common.internal.epl.agg.method.firstlastever;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -31,24 +28,22 @@ public class AggregationForgeFactoryFirstLastEver extends AggregationForgeFactor
     protected final ExprFirstLastEverNode parent;
     protected final EPTypeClass childType;
     protected final DataInputOutputSerdeForge serde;
-    private AggregatorMethod aggregator;
+    private final AggregatorMethod aggregator;
 
     public AggregationForgeFactoryFirstLastEver(ExprFirstLastEverNode parent, EPTypeClass childType, DataInputOutputSerdeForge serde) {
         this.parent = parent;
         this.childType = childType;
         this.serde = serde;
+
+        if (parent.isFirst()) {
+            aggregator = new AggregatorFirstEver(null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
+        } else {
+            aggregator = new AggregatorLastEver(null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
+        }
     }
 
     public EPType getResultType() {
         return childType;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        if (parent.isFirst()) {
-            aggregator = new AggregatorFirstEver(this, col, rowCtor, membersColumnized, classScope, null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
-        } else {
-            aggregator = new AggregatorLastEver(this, col, rowCtor, membersColumnized, classScope, null, null, parent.hasFilter(), parent.getOptionalFilter(), childType, serde);
-        }
     }
 
     public AggregatorMethod getAggregator() {

@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.minmax;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -32,7 +29,7 @@ public class AggregationForgeFactoryMinMax extends AggregationForgeFactoryBase {
     protected final boolean hasDataWindows;
     protected final DataInputOutputSerdeForge serde;
     protected final DataInputOutputSerdeForge distinctSerde;
-    private AggregatorMethod aggregator;
+    private final AggregatorMethod aggregator;
 
     public AggregationForgeFactoryMinMax(ExprMinMaxAggrNode parent, EPTypeClass type, boolean hasDataWindows, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
@@ -40,6 +37,13 @@ public class AggregationForgeFactoryMinMax extends AggregationForgeFactoryBase {
         this.hasDataWindows = hasDataWindows;
         this.serde = serde;
         this.distinctSerde = distinctSerde;
+
+        EPTypeClass distinctType = !parent.isDistinct() ? null : type;
+        if (!hasDataWindows) {
+            aggregator = new AggregatorMinMaxEver(this, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), serde);
+        } else {
+            aggregator = new AggregatorMinMax(this, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
+        }
     }
 
     public EPType getResultType() {
@@ -48,15 +52,6 @@ public class AggregationForgeFactoryMinMax extends AggregationForgeFactoryBase {
 
     public ExprAggregateNodeBase getAggregationExpression() {
         return parent;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        EPTypeClass distinctType = !parent.isDistinct() ? null : type;
-        if (!hasDataWindows) {
-            aggregator = new AggregatorMinMaxEver(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), serde);
-        } else {
-            aggregator = new AggregatorMinMax(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
-        }
     }
 
     public AggregatorMethod getAggregator() {

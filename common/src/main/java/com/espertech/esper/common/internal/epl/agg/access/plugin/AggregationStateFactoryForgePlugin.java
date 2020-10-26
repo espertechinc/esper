@@ -12,9 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.access.plugin;
 
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateModeManaged;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
@@ -28,10 +26,7 @@ public class AggregationStateFactoryForgePlugin implements AggregationStateFacto
     public AggregationStateFactoryForgePlugin(AggregationForgeFactoryAccessPlugin forgeFactory, AggregationMultiFunctionStateModeManaged mode) {
         this.forgeFactory = forgeFactory;
         this.mode = mode;
-    }
-
-    public void initAccessForge(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        access = new AggregatorAccessPlugin(col, join, ctor, membersColumnized, classScope, forgeFactory.getAggregationExpression().getOptionalFilter(), mode);
+        this.access = new AggregatorAccessPlugin(forgeFactory.getAggregationExpression().getOptionalFilter(), mode);
     }
 
     public AggregatorAccess getAggregator() {

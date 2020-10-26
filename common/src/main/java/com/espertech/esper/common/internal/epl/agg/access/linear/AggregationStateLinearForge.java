@@ -12,9 +12,7 @@ package com.espertech.esper.common.internal.epl.agg.access.linear;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
@@ -29,19 +27,17 @@ public class AggregationStateLinearForge implements AggregationStateFactoryForge
     protected final ExprAggMultiFunctionLinearAccessNode expr;
     protected final int streamNum;
     protected final ExprForge optionalFilter;
-    private AggregatorAccessLinear aggregator;
+    private final AggregatorAccessLinear aggregator;
 
-    public AggregationStateLinearForge(ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprForge optionalFilter) {
+    public AggregationStateLinearForge(ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprForge optionalFilter, boolean join) {
         this.expr = expr;
         this.streamNum = streamNum;
         this.optionalFilter = optionalFilter;
-    }
 
-    public void initAccessForge(int col, boolean join, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         if (!join) {
-            aggregator = new AggregatorAccessLinearNonJoin(this, col, rowCtor, membersColumnized, classScope, expr.getOptionalFilter());
+            aggregator = new AggregatorAccessLinearNonJoin(this, expr.getOptionalFilter());
         } else {
-            aggregator = new AggregatorAccessLinearJoin(this, col, rowCtor, membersColumnized, classScope, expr.getOptionalFilter());
+            aggregator = new AggregatorAccessLinearJoin(this, expr.getOptionalFilter());
         }
     }
 

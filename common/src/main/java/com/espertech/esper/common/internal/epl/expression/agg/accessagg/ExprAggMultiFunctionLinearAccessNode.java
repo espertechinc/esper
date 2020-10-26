@@ -222,7 +222,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, ExprNodeUtilityQuery.EMPTY_EXPR_ARRAY, optionalFilter);
 
         ExprForge optionalFilterForge = optionalFilter == null ? null : optionalFilter.getForge();
-        AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, streamNum, optionalFilterForge);
+        boolean join = validationContext.getStreamTypeService().getEventTypes().length > 1;
+        AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, streamNum, optionalFilterForge, join);
 
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, accessorResultType,
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE, containedType);
@@ -248,7 +249,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[0];
         EPTypeClass componentType = containedType.getUnderlyingEPType();
         AggregationAccessorForge accessor = new AggregationAccessorWindowNoEvalForge(componentType);
-        AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, 0, null);
+        AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, 0, null, false);
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, stateFactory, null, containedType);
 
         List<StmtClassForgeableFactory> additionalForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());

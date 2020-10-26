@@ -38,11 +38,14 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  */
 public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase implements AggregatorAccessLinear {
     private final AggregationStateLinearForge forge;
-    private final CodegenExpressionMember events;
+    private CodegenExpressionMember events;
 
-    public AggregatorAccessLinearNonJoin(AggregationStateLinearForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
+    public AggregatorAccessLinearNonJoin(AggregationStateLinearForge forge, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         events = membersColumnized.addMember(col, EPTypePremade.LIST.getEPType(), "events");
         rowCtor.getBlock().assignRef(events, newInstance(EPTypePremade.ARRAYLIST.getEPType()));
     }

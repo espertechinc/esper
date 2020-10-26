@@ -152,7 +152,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         }
 
         AggregationClassNames aggregationClassNames = new AggregationClassNames(CodegenPackageScopeNames.classPostfixAggregationForView(streamNumber));
-        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
+        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
         classScope.addInnerClasses(aggResult.getInnerClasses());
         return localMethod(aggResult.getInitMethod(), symbols.getAddInitSvc(parent));
     }

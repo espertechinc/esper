@@ -18,6 +18,7 @@ import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.IntoTableSpec;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
@@ -44,12 +45,11 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.lang.annotation.Annotation;
@@ -192,7 +192,7 @@ public class AggregationServiceFactoryFactory {
         }
 
         // handle access aggregations
-        AggregationMultiFunctionAnalysisResult multiFunctionAggPlan = AggregationMultiFunctionAnalysisHelper.analyzeAccessAggregations(aggregations, classpathImportService, isFireAndForget, raw.getStatementName(), groupByNodes);
+        AggregationMultiFunctionAnalysisResult multiFunctionAggPlan = AggregationMultiFunctionAnalysisHelper.analyzeAccessAggregations(aggregations, groupByNodes, typesPerStream.length > 1);
         AggregationAccessorSlotPairForge[] accessorPairsForge = multiFunctionAggPlan.getAccessorPairsForge();
         AggregationStateFactoryForge[] accessFactories = multiFunctionAggPlan.getStateFactoryForges();
         boolean hasAccessAgg = accessorPairsForge.length > 0;

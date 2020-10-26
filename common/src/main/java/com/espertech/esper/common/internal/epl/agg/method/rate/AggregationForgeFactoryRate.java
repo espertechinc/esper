@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.rate;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -31,25 +28,23 @@ public class AggregationForgeFactoryRate extends AggregationForgeFactoryBase {
     protected final boolean isEver;
     protected final long intervalTime;
     protected final TimeAbacus timeAbacus;
-    protected AggregatorMethod aggregator;
+    protected final AggregatorMethod aggregator;
 
     public AggregationForgeFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalTime, TimeAbacus timeAbacus) {
         this.parent = parent;
         this.isEver = isEver;
         this.intervalTime = intervalTime;
         this.timeAbacus = timeAbacus;
+
+        if (isEver) {
+            aggregator = new AggregatorRateEver(this, null, null, false, parent.getOptionalFilter());
+        } else {
+            aggregator = new AggregatorRate(this, null, null, false, parent.getOptionalFilter());
+        }
     }
 
     public EPType getResultType() {
         return EPTypePremade.DOUBLEBOXED.getEPType();
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        if (isEver) {
-            aggregator = new AggregatorRateEver(this, col, rowCtor, membersColumnized, classScope, null, null, false, parent.getOptionalFilter());
-        } else {
-            aggregator = new AggregatorRate(this, col, rowCtor, membersColumnized, classScope, null, null, false, parent.getOptionalFilter());
-        }
     }
 
     public AggregatorMethod getAggregator() {

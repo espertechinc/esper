@@ -36,10 +36,12 @@ public class AggregatorPlugInManaged extends AggregatorMethodWDistinctWFilterWVa
     protected CodegenExpressionMember plugin;
     private final AggregationFunctionModeManaged mode;
 
-    public AggregatorPlugInManaged(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPType optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorPlugInManaged(EPType optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationFunctionModeManaged mode) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.mode = mode;
+    }
 
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationFunctionFactory();
         CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
 

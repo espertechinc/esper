@@ -11,9 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
@@ -22,14 +20,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 public class AggregationStateSortedForge implements AggregationStateFactoryForge {
 
     protected final AggregationForgeFactoryAccessSorted factory;
-    private AggregatorAccessSorted aggregatorAccess;
+    private final AggregatorAccessSorted aggregatorAccess;
 
-    public AggregationStateSortedForge(AggregationForgeFactoryAccessSorted factory) {
+    public AggregationStateSortedForge(AggregationForgeFactoryAccessSorted factory, boolean join) {
         this.factory = factory;
-    }
-
-    public void initAccessForge(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        aggregatorAccess = new AggregatorAccessSortedImpl(join, this, col, ctor, membersColumnized, classScope, factory.getParent().getOptionalFilter());
+        this.aggregatorAccess = new AggregatorAccessSortedImpl(join, this, factory.getParent().getOptionalFilter());
     }
 
     public AggregatorAccess getAggregator() {

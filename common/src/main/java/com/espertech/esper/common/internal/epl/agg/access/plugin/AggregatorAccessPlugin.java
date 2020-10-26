@@ -32,17 +32,20 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 
 public class AggregatorAccessPlugin extends AggregatorAccessWFilterBase {
 
-    private final CodegenExpressionMember state;
-    private final AggregationMultiFunctionStateModeManaged mode;
+    private CodegenExpressionMember state;
+    private AggregationMultiFunctionStateModeManaged mode;
 
-    public AggregatorAccessPlugin(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter, AggregationMultiFunctionStateModeManaged mode) {
+    public AggregatorAccessPlugin(ExprNode optionalFilter, AggregationMultiFunctionStateModeManaged mode) {
         super(optionalFilter);
-        state = membersColumnized.addMember(col, AggregationMultiFunctionState.EPTYPE, "state");
         this.mode = mode;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
+        state = membersColumnized.addMember(col, AggregationMultiFunctionState.EPTYPE, "state");
 
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationStateFactory();
         CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationMultiFunctionStateFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
-        ctor.getBlock().assignRef(state, exprDotMethod(factoryField, "newState", constantNull()));
+        rowCtor.getBlock().assignRef(state, exprDotMethod(factoryField, "newState", constantNull()));
     }
 
     protected void applyEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

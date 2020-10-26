@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.nth;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -32,7 +29,7 @@ public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
     protected final DataInputOutputSerdeForge serde;
     protected final DataInputOutputSerdeForge distinctSerde;
     protected final int size;
-    protected AggregatorNth aggregator;
+    protected final AggregatorNth aggregator;
 
     public AggregationForgeFactoryNth(ExprNthAggNode parent, EPTypeClass childType, DataInputOutputSerdeForge serde, DataInputOutputSerdeForge distinctSerde, int size) {
         this.parent = parent;
@@ -40,15 +37,13 @@ public class AggregationForgeFactoryNth extends AggregationForgeFactoryBase {
         this.serde = serde;
         this.distinctSerde = distinctSerde;
         this.size = size;
+
+        EPTypeClass distinctValueType = !parent.isDistinct() ? null : childType;
+        aggregator = new AggregatorNth(this, distinctValueType, distinctSerde, false, parent.getOptionalFilter());
     }
 
     public EPType getResultType() {
         return childType;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        EPTypeClass distinctValueType = !parent.isDistinct() ? null : childType;
-        aggregator = new AggregatorNth(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, false, parent.getOptionalFilter());
     }
 
     public AggregatorMethod getAggregator() {

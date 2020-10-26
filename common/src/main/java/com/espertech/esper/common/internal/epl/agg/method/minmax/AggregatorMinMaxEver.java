@@ -41,16 +41,18 @@ import static com.espertech.esper.common.internal.epl.expression.core.MinMaxType
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
  */
 public class AggregatorMinMaxEver extends AggregatorMethodWDistinctWFilterWValueBase {
-
     private final AggregationForgeFactoryMinMax factory;
-    private final CodegenExpressionMember currentMinMax;
-    private final CodegenExpressionField serde;
+    private CodegenExpressionMember currentMinMax;
+    private CodegenExpressionField serdeField;
 
-    public AggregatorMinMaxEver(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, DataInputOutputSerdeForge serde) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorMinMaxEver(AggregationForgeFactoryMinMax factory, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, DataInputOutputSerdeForge serde) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         currentMinMax = membersColumnized.addMember(col, EPTypePremade.COMPARABLE.getEPType(), "currentMinMax");
-        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE, factory.type, serde, classScope));
+        this.serdeField = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(CodegenSharableSerdeClassTyped.CodegenSharableSerdeName.VALUE_NULLABLE, factory.type, factory.serde, classScope));
     }
 
     protected void applyEvalEnterNonNull(CodegenExpressionRef value, EPType valueType, CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {
@@ -88,11 +90,11 @@ public class AggregatorMinMaxEver extends AggregatorMethodWDistinctWFilterWValue
     }
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().expression(writeNullable(rowDotMember(row, currentMinMax), serde, output, unitKey, writer, classScope));
+        method.getBlock().expression(writeNullable(rowDotMember(row, currentMinMax), serdeField, output, unitKey, writer, classScope));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotMember(row, currentMinMax), cast(EPTypePremade.COMPARABLE.getEPType(), readNullable(serde, input, unitKey, classScope)));
+        method.getBlock().assignRef(rowDotMember(row, currentMinMax), cast(EPTypePremade.COMPARABLE.getEPType(), readNullable(serdeField, input, unitKey, classScope)));
     }
 
     private Consumer<CodegenBlock> enterConsumer(CodegenExpression valueComparableTyped) {

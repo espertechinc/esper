@@ -41,9 +41,12 @@ public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
     protected CodegenExpressionMember oldest;
     protected CodegenExpressionMember isSet;
 
-    public AggregatorRate(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorRate(AggregationForgeFactoryRate factory, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         accumulator = membersColumnized.addMember(col, EPTypePremade.DOUBLEPRIMITIVE.getEPType(), "accumulator");
         latest = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "latest");
         oldest = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "oldest");

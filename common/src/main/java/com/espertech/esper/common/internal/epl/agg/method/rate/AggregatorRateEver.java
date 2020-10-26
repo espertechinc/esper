@@ -42,12 +42,15 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
 
     protected final AggregationForgeFactoryRate factory;
-    protected final CodegenExpressionMember points;
-    protected final CodegenExpressionMember hasLeave;
+    protected CodegenExpressionMember points;
+    protected CodegenExpressionMember hasLeave;
 
-    public AggregatorRateEver(AggregationForgeFactoryRate factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorRateEver(AggregationForgeFactoryRate factory, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         points = membersColumnized.addMember(col, EPTypePremade.DEQUE.getEPType(), "points");
         hasLeave = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "hasLeave");
         rowCtor.getBlock().assignRef(points, newInstance(EPTypePremade.ARRAYDEQUE.getEPType()));

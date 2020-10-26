@@ -49,12 +49,15 @@ public class AggregatorAvgBig extends AggregatorMethodWDistinctWFilterWValueBase
     private static final Logger log = LoggerFactory.getLogger(AggregatorAvgBig.class);
 
     private final AggregationForgeFactoryAvg factory;
-    private final CodegenExpressionMember sum;
-    private final CodegenExpressionMember cnt;
+    private CodegenExpressionMember sum;
+    private CodegenExpressionMember cnt;
 
-    public AggregatorAvgBig(AggregationForgeFactoryAvg factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorAvgBig(EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, AggregationForgeFactoryAvg factory) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         sum = membersColumnized.addMember(col, EPTypePremade.BIGDECIMAL.getEPType(), "sum");
         cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
         rowCtor.getBlock().assignRef(sum, newInstance(EPTypePremade.BIGDECIMAL.getEPType(), constant(0d)));

@@ -20,7 +20,6 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -35,9 +34,9 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 
 public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilterWValueBase {
 
-    protected final CodegenExpressionMember cnt;
-    protected final CodegenExpressionMember sum;
-    protected final EPTypeClass sumType;
+    protected CodegenExpressionMember cnt;
+    protected CodegenExpressionMember sum;
+    protected EPTypeClass sumType;
 
     protected abstract CodegenExpression initOfSum();
 
@@ -53,11 +52,14 @@ public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilter
 
     protected abstract void readSum(CodegenExpressionRef row, CodegenExpressionRef input, CodegenMethod method, CodegenClassScope classScope);
 
-    public AggregatorSumBase(AggregationForgeFactory factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass sumType) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorSumBase(EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass sumType) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+        this.sumType = sumType;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         this.cnt = membersColumnized.addMember(col, EPTypePremade.LONGPRIMITIVE.getEPType(), "cnt");
         this.sum = membersColumnized.addMember(col, JavaClassHelper.getPrimitiveType(sumType), "sum");
-        this.sumType = sumType;
         rowCtor.getBlock().assignRef(sum, initOfSum());
     }
 

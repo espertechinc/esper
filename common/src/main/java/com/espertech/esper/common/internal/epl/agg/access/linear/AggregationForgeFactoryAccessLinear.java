@@ -51,7 +51,7 @@ public class AggregationForgeFactoryAccessLinear extends AggregationForgeFactory
         return optionalStateKey;
     }
 
-    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join) {
         return optionalStateFactory;
     }
 

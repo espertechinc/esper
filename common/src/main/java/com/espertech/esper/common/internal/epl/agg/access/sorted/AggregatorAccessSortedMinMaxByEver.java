@@ -50,15 +50,18 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  */
 public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterBase implements AggregatorAccessSorted {
     private final AggregationStateMinMaxByEverForge forge;
-    private final CodegenExpressionMember currentMinMaxBean;
-    private final CodegenExpressionField currentMinMaxBeanSerde;
-    private final CodegenExpressionMember currentMinMax;
-    private final CodegenExpressionField currentMinMaxSerde;
-    private final CodegenExpressionField comparator;
+    private CodegenExpressionMember currentMinMaxBean;
+    private CodegenExpressionField currentMinMaxBeanSerde;
+    private CodegenExpressionMember currentMinMax;
+    private CodegenExpressionField currentMinMaxSerde;
+    private CodegenExpressionField comparator;
 
-    public AggregatorAccessSortedMinMaxByEver(AggregationStateMinMaxByEverForge forge, int col, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
+    public AggregatorAccessSortedMinMaxByEver(AggregationStateMinMaxByEverForge forge, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         currentMinMaxBean = membersColumnized.addMember(col, EventBean.EPTYPE, "currentMinMaxBean");
         currentMinMaxBeanSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(NULLABLEEVENTMAYCOLLATE, forge.getSpec().getStreamEventType()));
         currentMinMax = membersColumnized.addMember(col, EPTypePremade.OBJECT.getEPType(), "currentMinMax");

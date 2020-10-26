@@ -41,7 +41,7 @@ public class AggregationForgeFactoryAccessPlugin extends AggregationForgeFactory
         return handler.getAggregationStateUniqueKey();
     }
 
-    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join) {
         AggregationMultiFunctionStateMode stateMode = handler.getStateMode();
         if (stateMode instanceof AggregationMultiFunctionStateModeManaged) {
             AggregationMultiFunctionStateModeManaged managed = (AggregationMultiFunctionStateModeManaged) stateMode;

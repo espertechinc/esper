@@ -11,9 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.sorted;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationStateFactoryForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
@@ -22,14 +20,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 public class AggregationStateMinMaxByEverForge implements AggregationStateFactoryForge {
 
     protected final AggregationForgeFactoryAccessSorted factory;
-    private AggregatorAccessSortedMinMaxByEver aggregator;
+    private final AggregatorAccessSortedMinMaxByEver aggregator;
 
     public AggregationStateMinMaxByEverForge(AggregationForgeFactoryAccessSorted factory) {
         this.factory = factory;
-    }
-
-    public void initAccessForge(int col, boolean join, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        aggregator = new AggregatorAccessSortedMinMaxByEver(this, col, ctor, membersColumnized, classScope, factory.getParent().getOptionalFilter());
+        aggregator = new AggregatorAccessSortedMinMaxByEver(this, factory.getParent().getOptionalFilter());
     }
 
     public AggregatorAccess getAggregator() {

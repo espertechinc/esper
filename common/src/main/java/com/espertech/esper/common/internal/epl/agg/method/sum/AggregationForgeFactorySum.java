@@ -14,9 +14,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -47,6 +44,13 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
         this.inputValueType = inputValueType;
         this.distinctSerde = distinctSerde;
         this.resultType = getSumAggregatorType(inputValueType);
+
+        EPTypeClass distinctValueType = !parent.isDistinct() ? null : inputValueType;
+        if (resultType.getType() == BigInteger.class || resultType.getType() == BigDecimal.class) {
+            aggregator = new AggregatorSumBig(distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
+        } else {
+            aggregator = new AggregatorSumNonBig(distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
+        }
     }
 
     public EPType getResultType() {
@@ -55,15 +59,6 @@ public class AggregationForgeFactorySum extends AggregationForgeFactoryBase {
 
     public ExprAggregateNodeBase getAggregationExpression() {
         return parent;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        EPTypeClass distinctValueType = !parent.isDistinct() ? null : inputValueType;
-        if (resultType.getType() == BigInteger.class || resultType.getType() == BigDecimal.class) {
-            aggregator = new AggregatorSumBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
-        } else {
-            aggregator = new AggregatorSumNonBig(this, col, rowCtor, membersColumnized, classScope, distinctValueType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter(), resultType);
-        }
     }
 
     public AggregatorMethod getAggregator() {

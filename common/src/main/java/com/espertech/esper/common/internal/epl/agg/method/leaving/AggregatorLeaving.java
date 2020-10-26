@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil;
@@ -29,10 +30,13 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
 
 public class AggregatorLeaving implements AggregatorMethod {
     private final AggregationForgeFactoryLeaving factory;
-    private final CodegenExpressionMember leaving;
+    private CodegenExpressionMember leaving;
 
-    public AggregatorLeaving(AggregationForgeFactoryLeaving factory, int col, CodegenMemberCol membersColumnized) {
+    public AggregatorLeaving(AggregationForgeFactoryLeaving factory) {
         this.factory = factory;
+    }
+
+    public void initForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         this.leaving = membersColumnized.addMember(col, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "leaving");
     }
 

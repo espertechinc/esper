@@ -37,14 +37,17 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
  */
 public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase {
     private final AggregationForgeFactoryMinMax factory;
-    private final CodegenExpressionMember refSet;
-    private final CodegenExpressionField serde;
+    private CodegenExpressionMember refSet;
+    private CodegenExpressionField serdeField;
 
-    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
-        super(factory, col, rowCtor, membersColumnized, classScope, optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
+    public AggregatorMinMax(AggregationForgeFactoryMinMax factory, EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter) {
+        super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
         this.factory = factory;
+    }
+
+    public void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         this.refSet = membersColumnized.addMember(col, SortedRefCountedSet.EPTYPE, "refSet");
-        this.serde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(SORTEDREFCOUNTEDSET, factory.type, factory.serde, classScope));
+        this.serdeField = classScope.addOrGetFieldSharable(new CodegenSharableSerdeClassTyped(SORTEDREFCOUNTEDSET, factory.type, factory.serde, classScope));
         rowCtor.getBlock().assignRef(refSet, newInstance(SortedRefCountedSet.EPTYPE));
     }
 
@@ -73,10 +76,10 @@ public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase
     }
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().exprDotMethod(serde, "write", rowDotMember(row, refSet), output, unitKey, writer);
+        method.getBlock().exprDotMethod(serdeField, "write", rowDotMember(row, refSet), output, unitKey, writer);
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
-        method.getBlock().assignRef(rowDotMember(row, refSet), cast(SortedRefCountedSet.EPTYPE, exprDotMethod(serde, "read", input, unitKey)));
+        method.getBlock().assignRef(rowDotMember(row, refSet), cast(SortedRefCountedSet.EPTYPE, exprDotMethod(serdeField, "read", input, unitKey)));
     }
 }

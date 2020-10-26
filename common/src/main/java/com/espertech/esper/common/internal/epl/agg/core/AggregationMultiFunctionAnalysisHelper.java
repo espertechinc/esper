@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregate
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
-import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import java.util.List;
 
 public class AggregationMultiFunctionAnalysisHelper {
     // handle accessor aggregation (direct data window by-group access to properties)
-    public static AggregationMultiFunctionAnalysisResult analyzeAccessAggregations(List<AggregationServiceAggExpressionDesc> aggregations, ClasspathImportServiceCompileTime classpathImportService, boolean isFireAndForget, String statementName, ExprNode[] groupByNodes) {
+    public static AggregationMultiFunctionAnalysisResult analyzeAccessAggregations(List<AggregationServiceAggExpressionDesc> aggregations, ExprNode[] groupByNodes, boolean join) {
         int currentSlot = 0;
         Deque<AggregationMFIdentifier> accessProviderSlots = new ArrayDeque<AggregationMFIdentifier>();
         List<AggregationAccessorSlotPairForge> accessorPairsForges = new ArrayList<>();
@@ -43,7 +42,7 @@ public class AggregationMultiFunctionAnalysisHelper {
             if (existing == null) {
                 accessProviderSlots.add(new AggregationMFIdentifier(providerKey, aggregateNode.getOptionalLocalGroupBy(), currentSlot));
                 slot = currentSlot++;
-                AggregationStateFactoryForge providerForge = aggregateNode.getFactory().getAggregationStateFactory(false);
+                AggregationStateFactoryForge providerForge = aggregateNode.getFactory().getAggregationStateFactory(false, join);
                 stateFactoryForges.add(providerForge);
             } else {
                 slot = existing.getSlot();

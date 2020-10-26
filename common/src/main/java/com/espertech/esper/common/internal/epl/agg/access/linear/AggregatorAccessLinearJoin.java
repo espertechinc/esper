@@ -48,12 +48,15 @@ import static com.espertech.esper.common.internal.util.CollectionUtil.METHOD_TOA
 public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase implements AggregatorAccessLinear {
 
     private final AggregationStateLinearForge forge;
-    private final CodegenExpressionMember refSet;
-    private final CodegenExpressionMember array;
+    private CodegenExpressionMember refSet;
+    private CodegenExpressionMember array;
 
-    public AggregatorAccessLinearJoin(AggregationStateLinearForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
+    public AggregatorAccessLinearJoin(AggregationStateLinearForge forge, ExprNode optionalFilter) {
         super(optionalFilter);
         this.forge = forge;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         refSet = membersColumnized.addMember(col, EPTypePremade.LINKEDHASHMAP.getEPType(), "refSet");
         array = membersColumnized.addMember(col, EventBean.EPTYPEARRAY, "array");
         rowCtor.getBlock().assignRef(refSet, newInstance(EPTypePremade.LINKEDHASHMAP.getEPType()));

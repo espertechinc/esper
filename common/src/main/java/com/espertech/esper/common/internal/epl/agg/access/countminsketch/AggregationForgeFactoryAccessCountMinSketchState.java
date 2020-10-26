@@ -38,7 +38,7 @@ public class AggregationForgeFactoryAccessCountMinSketchState extends Aggregatio
         throw new UnsupportedOperationException("State key not available as always used with tables");
     }
 
-    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join) {
         // For match-recognize we don't allow
         if (isMatchRecognize) {
             throw new IllegalStateException("Count-min-sketch is not supported for match-recognize");

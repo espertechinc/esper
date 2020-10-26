@@ -127,7 +127,7 @@ public class RowRecogDescForge {
                 if (aggregationServices[i] != null) {
                     AggregationServiceForgeDesc aggSvc = aggregationServices[i];
                     AggregationClassNames aggregationClassNames = new AggregationClassNames("_mra" + i);
-                    AggregationServiceFactoryMakeResult result = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggSvc.getAggregationServiceFactoryForge(), method, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
+                    AggregationServiceFactoryMakeResult result = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(aggSvc.getAggregationServiceFactoryForge(), method, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
                     classScope.addInnerClasses(result.getInnerClasses());
                     initAggsSvcs[i] = localMethod(result.getInitMethod(), symbols.getAddInitSvc(parent));
                 }

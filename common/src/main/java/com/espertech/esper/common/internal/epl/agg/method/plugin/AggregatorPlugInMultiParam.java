@@ -36,8 +36,11 @@ public class AggregatorPlugInMultiParam implements AggregatorMethod {
     protected CodegenExpressionMember plugin;
     private final AggregationFunctionModeMultiParam mode;
 
-    public AggregatorPlugInMultiParam(AggregationForgeFactoryPlugin factory, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, AggregationFunctionModeMultiParam mode) {
+    public AggregatorPlugInMultiParam(AggregationFunctionModeMultiParam mode) {
         this.mode = mode;
+    }
+
+    public void initForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         InjectionStrategyClassNewInstance injectionStrategy = (InjectionStrategyClassNewInstance) mode.getInjectionStrategyAggregationFunctionFactory();
         CodegenExpressionField factoryField = classScope.addFieldUnshared(true, AggregationFunctionFactory.EPTYPE, injectionStrategy.getInitializationExpression(classScope));
 

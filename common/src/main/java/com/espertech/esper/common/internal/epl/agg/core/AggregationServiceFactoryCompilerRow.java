@@ -46,11 +46,11 @@ import static com.espertech.esper.common.internal.metrics.instrumentation.Instru
 public class AggregationServiceFactoryCompilerRow {
     private final static String NAME_ASSIGNMENT = "ASSIGNMENTS";
 
-    protected static AggregationClassAssignmentPerLevel makeRow(boolean isGenerateTableEnter, boolean isJoin, AggregationCodegenRowLevelDesc rowLevelDesc, Class forgeClass, Consumer<AggregationRowCtorDesc> rowCtorConsumer, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, AggregationClassNames classNames) {
+    protected static AggregationClassAssignmentPerLevel makeRow(boolean isGenerateTableEnter, AggregationCodegenRowLevelDesc rowLevelDesc, Class forgeClass, Consumer<AggregationRowCtorDesc> rowCtorConsumer, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses, AggregationClassNames classNames) {
 
         AggregationClassAssignment[] topAssignments = null;
         if (rowLevelDesc.getOptionalTopRow() != null) {
-            topAssignments = makeRowForLevel(isGenerateTableEnter, isJoin, classNames.getRowTop(), rowLevelDesc.getOptionalTopRow(), forgeClass, rowCtorConsumer, classScope, innerClasses);
+            topAssignments = makeRowForLevel(isGenerateTableEnter, classNames.getRowTop(), rowLevelDesc.getOptionalTopRow(), forgeClass, rowCtorConsumer, classScope, innerClasses);
         }
 
         AggregationClassAssignment[][] leafAssignments = null;
@@ -58,14 +58,14 @@ public class AggregationServiceFactoryCompilerRow {
             leafAssignments = new AggregationClassAssignment[rowLevelDesc.getOptionalAdditionalRows().length][];
             for (int i = 0; i < rowLevelDesc.getOptionalAdditionalRows().length; i++) {
                 String className = classNames.getRowPerLevel(i);
-                leafAssignments[i] = makeRowForLevel(isGenerateTableEnter, isJoin, className, rowLevelDesc.getOptionalAdditionalRows()[i], forgeClass, rowCtorConsumer, classScope, innerClasses);
+                leafAssignments[i] = makeRowForLevel(isGenerateTableEnter, className, rowLevelDesc.getOptionalAdditionalRows()[i], forgeClass, rowCtorConsumer, classScope, innerClasses);
             }
         }
 
         return new AggregationClassAssignmentPerLevel(topAssignments, leafAssignments);
     }
 
-    private static AggregationClassAssignment[] makeRowForLevel(boolean table, boolean isJoin, String className, AggregationCodegenRowDetailDesc detail, Class forgeClass, Consumer<AggregationRowCtorDesc> rowCtorConsumer, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses) {
+    private static AggregationClassAssignment[] makeRowForLevel(boolean table, String className, AggregationCodegenRowDetailDesc detail, Class forgeClass, Consumer<AggregationRowCtorDesc> rowCtorConsumer, CodegenClassScope classScope, List<CodegenInnerClass> innerClasses) {
         // determine column to inner-class assignment to prevent too-many-fields per class
         AggregationClassAssignment currentAssignment = new AggregationClassAssignment(0, forgeClass, classScope);
         int countStates = 0;
@@ -88,7 +88,7 @@ public class AggregationServiceFactoryCompilerRow {
                 AggregationForgeFactory factory = detail.getStateDesc().getMethodFactories()[methodIndex];
                 currentAssignment.add(factory, detail.getStateDesc().getOptionalMethodForges() == null ? new ExprForge[0] : detail.getStateDesc().getOptionalMethodForges()[methodIndex]);
                 currentAssignment.addMethod(new AggregationVColMethod(countVcols, factory));
-                factory.initMethodForge(countStates, currentAssignment.getCtor(), currentAssignment.getMembers(), classScope);
+                factory.getAggregator().initForge(countStates, currentAssignment.getCtor(), currentAssignment.getMembers(), classScope);
                 countStates++;
                 countVcols++;
             }
@@ -102,7 +102,7 @@ public class AggregationServiceFactoryCompilerRow {
 
                 AggregationStateFactoryForge factory = detail.getStateDesc().getAccessStateForges()[accessIndex];
                 currentAssignment.add(factory);
-                factory.initAccessForge(countStates, isJoin, currentAssignment.getCtor(), currentAssignment.getMembers(), classScope);
+                factory.getAggregator().initAccessForge(countStates, currentAssignment.getCtor(), currentAssignment.getMembers(), classScope);
                 countStates++;
                 slotToAssignment.put(accessIndex, currentAssignment);
             }

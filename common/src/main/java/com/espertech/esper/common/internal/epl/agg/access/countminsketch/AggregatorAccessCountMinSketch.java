@@ -33,11 +33,14 @@ import static com.espertech.esper.common.internal.epl.agg.method.core.Aggregator
  */
 public class AggregatorAccessCountMinSketch implements AggregatorAccess {
     private final AggregationStateCountMinSketchForge forge;
-    private final CodegenExpressionMember state;
+    private CodegenExpressionMember state;
     private CodegenExpressionField spec;
 
-    public AggregatorAccessCountMinSketch(AggregationStateCountMinSketchForge forge, int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
+    public AggregatorAccessCountMinSketch(AggregationStateCountMinSketchForge forge) {
         this.forge = forge;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         state = membersColumnized.addMember(col, CountMinSketchAggState.EPTYPE, "state");
         spec = classScope.getPackageScope().addFieldUnshared(true, CountMinSketchSpec.EPTYPE, forge.specification.codegenMake(classScope.getPackageScope().getInitMethod(), classScope));
         rowCtor.getBlock().assignRef(state, exprDotMethod(spec, "makeAggState"));

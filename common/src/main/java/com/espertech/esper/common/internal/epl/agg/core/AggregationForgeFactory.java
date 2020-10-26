@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.core;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggmultifunc.AggregationMultiFunctionStateKey;
 import com.espertech.esper.common.client.type.EPType;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeBase;
@@ -29,15 +26,13 @@ import com.espertech.esper.common.internal.settings.ClasspathImportService;
 public interface AggregationForgeFactory {
     boolean isAccessAggregation();
 
-    void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope);
-
     AggregatorMethod getAggregator();
 
     EPType getResultType();
 
     AggregationMultiFunctionStateKey getAggregationStateKey(boolean isMatchRecognize);
 
-    AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize);
+    AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join);
 
     AggregationAccessorForge getAccessorForge();
 

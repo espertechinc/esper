@@ -44,7 +44,7 @@ public class AggregationServiceFactoryCompiler {
     protected final static List<CodegenNamedParam> UPDPARAMS = CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
     protected final static List<CodegenNamedParam> GETPARAMS = CodegenNamedParam.from(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_VCOL, EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
 
-    public static AggregationServiceFactoryMakeResult makeInnerClassesAndInit(boolean join, AggregationServiceFactoryForge forge, CodegenMethodScope parent, CodegenClassScope classScope, String providerClassName, AggregationClassNames classNames, boolean isTargetHA) {
+    public static AggregationServiceFactoryMakeResult makeInnerClassesAndInit(AggregationServiceFactoryForge forge, CodegenMethodScope parent, CodegenClassScope classScope, String providerClassName, AggregationClassNames classNames, boolean isTargetHA) {
 
         if (forge instanceof AggregationServiceFactoryForgeWMethodGen) {
             CodegenMethod initMethod = parent.makeChild(AggregationServiceFactory.EPTYPE, AggregationServiceFactoryCompiler.class, classScope).addParam(EPStatementInitServices.EPTYPE, EPStatementInitServices.REF.getRef());
@@ -54,7 +54,7 @@ public class AggregationServiceFactoryCompiler {
             List<CodegenInnerClass> innerClasses = new ArrayList<>();
 
             Consumer<AggregationRowCtorDesc> rowCtorDescConsumer = rowCtorDesc -> generator.rowCtorCodegen(rowCtorDesc);
-            AggregationClassAssignmentPerLevel assignments = makeRow(false, join, generator.getRowLevelDesc(), generator.getClass(), rowCtorDescConsumer, classScope, innerClasses, classNames);
+            AggregationClassAssignmentPerLevel assignments = makeRow(false, generator.getRowLevelDesc(), generator.getClass(), rowCtorDescConsumer, classScope, innerClasses, classNames);
 
             makeRowFactory(generator.getRowLevelDesc(), generator.getClass(), classScope, innerClasses, providerClassName, classNames);
 
@@ -78,7 +78,7 @@ public class AggregationServiceFactoryCompiler {
 
     public static List<CodegenInnerClass> makeTable(AggregationCodegenRowLevelDesc rowLevelDesc, Class forgeClass, CodegenClassScope classScope, AggregationClassNames classNames, String providerClassName, boolean isTargetHA) {
         List<CodegenInnerClass> innerClasses = new ArrayList<>();
-        AggregationClassAssignmentPerLevel assignments = makeRow(true, false, rowLevelDesc, forgeClass, rowCtorDesc -> AggregationServiceCodegenUtil.generateIncidentals(false, false, rowCtorDesc), classScope, innerClasses, classNames);
+        AggregationClassAssignmentPerLevel assignments = makeRow(true, rowLevelDesc, forgeClass, rowCtorDesc -> AggregationServiceCodegenUtil.generateIncidentals(false, false, rowCtorDesc), classScope, innerClasses, classNames);
 
         makeRowFactory(rowLevelDesc, forgeClass, classScope, innerClasses, providerClassName, classNames);
 

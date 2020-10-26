@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.plugin;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.hook.aggfunc.*;
 import com.espertech.esper.common.client.type.EPType;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -33,7 +30,7 @@ public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
     private final AggregationFunctionMode mode;
     private final EPType aggregatedValueType;
     private final DataInputOutputSerdeForge distinctSerde;
-    private AggregatorMethod aggregator;
+    private final AggregatorMethod aggregator;
 
     public AggregationForgeFactoryPlugin(ExprPlugInAggNode parent, AggregationFunctionForge aggregationFunctionForge, AggregationFunctionMode mode, EPType aggregatedValueType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
@@ -41,6 +38,23 @@ public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
         this.mode = mode;
         this.aggregatedValueType = aggregatedValueType;
         this.distinctSerde = distinctSerde;
+
+        if (mode instanceof AggregationFunctionModeManaged) {
+            AggregationFunctionModeManaged singleValue = (AggregationFunctionModeManaged) mode;
+            if (parent.getPositionalParams().length == 0) {
+                throw new IllegalArgumentException(AggregationFunctionModeManaged.class.getSimpleName() + " requires at least one positional parameter");
+            }
+            EPType distinctType = !parent.isDistinct() ? null : aggregatedValueType;
+            aggregator = new AggregatorPlugInManaged(distinctType, distinctSerde, parent.getChildNodes().length > 1, parent.getOptionalFilter(), singleValue);
+        } else if (mode instanceof AggregationFunctionModeMultiParam) {
+            AggregationFunctionModeMultiParam multiParam = (AggregationFunctionModeMultiParam) mode;
+            aggregator = new AggregatorPlugInMultiParam(multiParam);
+        } else if (mode instanceof AggregationFunctionModeCodeGenerated) {
+            AggregationFunctionModeCodeGenerated codeGenerated = (AggregationFunctionModeCodeGenerated) mode;
+            aggregator = codeGenerated.getAggregatorMethodFactory().getAggregatorMethod(new AggregatorMethodFactoryContext(this));
+        } else {
+            throw new IllegalStateException("Received an unrecognized value for mode, the value is " + mode);
+        }
     }
 
     public EPType getResultType() {
@@ -49,26 +63,6 @@ public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
 
     public ExprForge[] getMethodAggregationForge(boolean join, EventType[] typesPerStream) throws ExprValidationException {
         return ExprMethodAggUtil.getDefaultForges(parent.getPositionalParams(), join, typesPerStream);
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-
-        if (mode instanceof AggregationFunctionModeManaged) {
-            AggregationFunctionModeManaged singleValue = (AggregationFunctionModeManaged) mode;
-            if (parent.getPositionalParams().length == 0) {
-                throw new IllegalArgumentException(AggregationFunctionModeManaged.class.getSimpleName() + " requires at least one positional parameter");
-            }
-            EPType distinctType = !parent.isDistinct() ? null : aggregatedValueType;
-            aggregator = new AggregatorPlugInManaged(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.getChildNodes().length > 1, parent.getOptionalFilter(), singleValue);
-        } else if (mode instanceof AggregationFunctionModeMultiParam) {
-            AggregationFunctionModeMultiParam multiParam = (AggregationFunctionModeMultiParam) mode;
-            aggregator = new AggregatorPlugInMultiParam(this, col, rowCtor, membersColumnized, classScope, multiParam);
-        } else if (mode instanceof AggregationFunctionModeCodeGenerated) {
-            AggregationFunctionModeCodeGenerated codeGenerated = (AggregationFunctionModeCodeGenerated) mode;
-            aggregator = codeGenerated.getAggregatorMethodFactory().getAggregatorMethod(new AggregatorMethodFactoryContext(col, rowCtor, membersColumnized, classScope));
-        } else {
-            throw new IllegalStateException("Received an unrecognized value for mode, the value is " + mode);
-        }
     }
 
     public AggregatorMethod getAggregator() {
@@ -85,5 +79,21 @@ public class AggregationForgeFactoryPlugin extends AggregationForgeFactoryBase {
 
     public AggregationFunctionForge getAggregationFunctionForge() {
         return aggregationFunctionForge;
+    }
+
+    public ExprPlugInAggNode getParent() {
+        return parent;
+    }
+
+    public AggregationFunctionMode getMode() {
+        return mode;
+    }
+
+    public EPType getAggregatedValueType() {
+        return aggregatedValueType;
+    }
+
+    public DataInputOutputSerdeForge getDistinctSerde() {
+        return distinctSerde;
     }
 }

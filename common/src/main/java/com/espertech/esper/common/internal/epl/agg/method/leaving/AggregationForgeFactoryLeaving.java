@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.leaving;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -27,10 +24,11 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 
 public class AggregationForgeFactoryLeaving extends AggregationForgeFactoryBase {
     protected final ExprLeavingAggNode parent;
-    protected AggregatorLeaving forge;
+    protected final AggregatorLeaving forge;
 
     public AggregationForgeFactoryLeaving(ExprLeavingAggNode parent) {
         this.parent = parent;
+        this.forge = new AggregatorLeaving(this);
     }
 
     public EPType getResultType() {
@@ -39,10 +37,6 @@ public class AggregationForgeFactoryLeaving extends AggregationForgeFactoryBase 
 
     public ExprAggregateNodeBase getAggregationExpression() {
         return parent;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        forge = new AggregatorLeaving(this, col, membersColumnized);
     }
 
     public AggregatorMethod getAggregator() {

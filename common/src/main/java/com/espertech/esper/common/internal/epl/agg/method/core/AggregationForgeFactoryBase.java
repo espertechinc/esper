@@ -22,7 +22,7 @@ public abstract class AggregationForgeFactoryBase implements AggregationForgeFac
         throw new IllegalStateException("Not an access aggregation function");
     }
 
-    public final AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
+    public final AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join) {
         throw new IllegalStateException("Not an access aggregation function");
     }
 

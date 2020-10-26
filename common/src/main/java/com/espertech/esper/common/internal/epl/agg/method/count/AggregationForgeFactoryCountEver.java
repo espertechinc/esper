@@ -13,9 +13,6 @@ package com.espertech.esper.common.internal.epl.agg.method.count;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -31,13 +28,16 @@ public class AggregationForgeFactoryCountEver extends AggregationForgeFactoryBas
     protected final boolean ignoreNulls;
     protected final EPType childType;
     protected final DataInputOutputSerdeForge distinctSerde;
-    private AggregatorCount aggregator;
+    private final AggregatorCount aggregator;
 
     public AggregationForgeFactoryCountEver(ExprCountEverNode parent, boolean ignoreNulls, EPType childType, DataInputOutputSerdeForge distinctSerde) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
         this.childType = childType;
         this.distinctSerde = distinctSerde;
+
+        EPType distinctType = !parent.isDistinct() ? null : childType;
+        aggregator = new AggregatorCount(distinctType, distinctSerde, parent.getOptionalFilter() != null, parent.getOptionalFilter(), true);
     }
 
     public EPType getResultType() {
@@ -46,11 +46,6 @@ public class AggregationForgeFactoryCountEver extends AggregationForgeFactoryBas
 
     public ExprAggregateNodeBase getAggregationExpression() {
         return parent;
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        EPType distinctType = !parent.isDistinct() ? null : childType;
-        aggregator = new AggregatorCount(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.getOptionalFilter() != null, parent.getOptionalFilter(), true);
     }
 
     public AggregatorMethod getAggregator() {

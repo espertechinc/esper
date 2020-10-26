@@ -42,7 +42,7 @@ public class AggregationForgeFactoryAccessCountMinSketchAdd extends AggregationF
         throw new UnsupportedOperationException("State key not available as always used with tables");
     }
 
-    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize) {
+    public AggregationStateFactoryForge getAggregationStateFactory(boolean isMatchRecognize, boolean join) {
         throw new UnsupportedOperationException("State factory not available for 'add' operation");
     }
 

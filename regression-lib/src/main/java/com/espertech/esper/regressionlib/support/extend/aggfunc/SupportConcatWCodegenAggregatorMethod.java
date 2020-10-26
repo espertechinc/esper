@@ -13,7 +13,9 @@ package com.espertech.esper.regressionlib.support.extend.aggfunc;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
+import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -25,11 +27,14 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class SupportConcatWCodegenAggregatorMethod implements AggregatorMethod {
 
-    private final CodegenExpressionMember builder;
+    private CodegenExpressionMember builder;
 
     public SupportConcatWCodegenAggregatorMethod(AggregatorMethodFactoryContext context) {
-        builder = context.getMembersColumnized().addMember(context.getCol(), EPTypePremade.STRINGBUILDER.getEPType(), "buf");
-        context.getRowCtor().getBlock().assignRef(builder, newInstance(EPTypePremade.STRINGBUILDER.getEPType()));
+    }
+
+    public void initForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
+        builder = membersColumnized.addMember(col, EPTypePremade.STRINGBUILDER.getEPType(), "buf");
+        rowCtor.getBlock().assignRef(builder, newInstance(EPTypePremade.STRINGBUILDER.getEPType()));
     }
 
     public void applyEvalEnterCodegen(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {

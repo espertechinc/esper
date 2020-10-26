@@ -53,21 +53,26 @@ import static com.espertech.esper.common.internal.serde.compiletime.sharable.Cod
 public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase implements AggregatorAccessSorted {
 
     protected final AggregationStateSortedForge forge;
-    protected final CodegenExpressionMember sorted;
-    protected final CodegenExpressionField sortedSerde;
-    protected final CodegenExpressionMember size;
-    protected final CodegenExpressionField comparator;
-    protected final CodegenExpressionMember joinRefs;
-    protected final CodegenExpressionField joinRefsSerde;
+    protected final boolean join;
+    protected CodegenExpressionMember sorted;
+    protected CodegenExpressionField sortedSerde;
+    protected CodegenExpressionMember size;
+    protected CodegenExpressionField comparator;
+    protected CodegenExpressionMember joinRefs;
+    protected CodegenExpressionField joinRefsSerde;
 
-    public AggregatorAccessSortedImpl(boolean join, AggregationStateSortedForge forge, int col, CodegenCtor ctor, CodegenMemberCol membersColumnized, CodegenClassScope classScope, ExprNode optionalFilter) {
+    public AggregatorAccessSortedImpl(boolean join, AggregationStateSortedForge forge, ExprNode optionalFilter) {
         super(optionalFilter);
+        this.join = join;
         this.forge = forge;
+    }
+
+    public void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         sorted = membersColumnized.addMember(col, EPTypePremade.TREEMAP.getEPType(), "sorted");
         size = membersColumnized.addMember(col, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "size");
         EPType[] types = ExprNodeUtilityQuery.getExprResultTypes(forge.getSpec().getCriteria());
         comparator = classScope.addOrGetFieldSharable(new CodegenFieldSharableComparator(COMPARATORHASHABLEMULTIKEYS, types, forge.getSpec().isSortUsingCollator(), forge.getSpec().getSortDescending()));
-        ctor.getBlock().assignRef(sorted, newInstance(EPTypePremade.TREEMAP.getEPType(), comparator));
+        rowCtor.getBlock().assignRef(sorted, newInstance(EPTypePremade.TREEMAP.getEPType(), comparator));
 
         sortedSerde = classScope.addOrGetFieldSharable(new CodegenFieldSharable() {
             public EPTypeClass type() {
@@ -83,7 +88,7 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
 
         if (join) {
             joinRefs = membersColumnized.addMember(col, RefCountedSetAtomicInteger.EPTYPE, "refs");
-            ctor.getBlock().assignRef(joinRefs, newInstance(RefCountedSetAtomicInteger.EPTYPE));
+            rowCtor.getBlock().assignRef(joinRefs, newInstance(RefCountedSetAtomicInteger.EPTYPE));
             joinRefsSerde = classScope.addOrGetFieldSharable(new CodegenSharableSerdeEventTyped(REFCOUNTEDSETATOMICINTEGER, forge.getSpec().getStreamEventType()));
         } else {
             joinRefs = null;

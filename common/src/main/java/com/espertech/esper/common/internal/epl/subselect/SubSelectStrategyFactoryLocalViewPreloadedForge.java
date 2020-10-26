@@ -119,7 +119,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
         }
 
         AggregationClassNames aggregationClassNames = new AggregationClassNames(CodegenPackageScopeNames.classPostfixAggregationForSubquery(subqueryNumber));
-        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(false, aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
+        AggregationServiceFactoryMakeResult aggResult = AggregationServiceFactoryCompiler.makeInnerClassesAndInit(aggregationServiceForgeDesc.getAggregationServiceFactoryForge(), parent, classScope, classScope.getOutermostClassName(), aggregationClassNames, isTargetHA);
         classScope.addInnerClasses(aggResult.getInnerClasses());
         return localMethod(aggResult.getInitMethod(), symbols.getAddInitSvc(parent));
     }

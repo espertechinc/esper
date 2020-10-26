@@ -410,7 +410,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         int accessNum = 0;
         for (TableColumnDescAgg column : accessAggColumns) {
             AggregationForgeFactory factory = aggregationFactories.get(column);
-            AggregationStateFactoryForge forge = factory.getAggregationStateFactory(false);
+            AggregationStateFactoryForge forge = factory.getAggregationStateFactory(false, false);
             stateFactories[accessNum] = forge;
             AggregationAccessorForge accessor = factory.getAccessorForge();
             AggregationPortableValidation bindingInfo = factory.getAggregationPortableValidation();

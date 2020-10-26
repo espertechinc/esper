@@ -24,7 +24,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
-import com.espertech.esper.common.internal.epl.agg.core.AggregationForgeFactory;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -36,11 +35,14 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
 
 public abstract class AggregatorMethodWDistinctWFilterBase implements AggregatorMethod {
-    protected final CodegenExpressionMember distinct;
+    protected CodegenExpressionMember distinct;
     protected final EPType optionalDistinctValueType;
+    protected final DataInputOutputSerdeForge optionalDistinctSerde;
     protected final boolean hasFilter; // this flag can be true and "optionalFilter" can still be null when declaring a table column
     protected final ExprNode optionalFilter;
-    private final CodegenExpressionField distinctSerde;
+    private CodegenExpressionField distinctSerde;
+
+    public abstract void initForgeFiltered(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope);
 
     protected abstract void applyEvalEnterFiltered(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope);
 
@@ -56,19 +58,17 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
 
     protected abstract void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope);
 
-    public AggregatorMethodWDistinctWFilterBase(AggregationForgeFactory factory,
-                                                int col,
-                                                CodegenCtor rowCtor,
-                                                CodegenMemberCol membersColumnized,
-                                                CodegenClassScope classScope,
-                                                EPType optionalDistinctValueType,
+    public AggregatorMethodWDistinctWFilterBase(EPType optionalDistinctValueType,
                                                 DataInputOutputSerdeForge optionalDistinctSerde,
                                                 boolean hasFilter,
                                                 ExprNode optionalFilter) {
         this.optionalDistinctValueType = optionalDistinctValueType;
+        this.optionalDistinctSerde = optionalDistinctSerde;
         this.optionalFilter = optionalFilter;
         this.hasFilter = hasFilter;
+    }
 
+    public void initForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
         if (optionalDistinctValueType != null) {
             distinct = membersColumnized.addMember(col, RefCountedSet.EPTYPE, "distinctSet");
             rowCtor.getBlock().assignRef(distinct, newInstance(RefCountedSet.EPTYPE));
@@ -77,6 +77,7 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
             distinct = null;
             distinctSerde = null;
         }
+        initForgeFiltered(col, rowCtor, membersColumnized, classScope);
     }
 
     public final void applyEvalEnterCodegen(CodegenMethod method, ExprForgeCodegenSymbol symbols, ExprForge[] forges, CodegenClassScope classScope) {

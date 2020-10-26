@@ -15,9 +15,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMemberCol;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationPortableValidation;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregationForgeFactoryBase;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
@@ -34,22 +31,20 @@ public class AggregationForgeFactoryAvedev extends AggregationForgeFactoryBase {
     protected final EPTypeClass aggregatedValueType;
     protected final DataInputOutputSerdeForge distinctSerde;
     protected final ExprNode[] positionalParameters;
-    private AggregatorMethod aggregator;
+    private final AggregatorMethod aggregator;
 
     public AggregationForgeFactoryAvedev(ExprAvedevNode parent, EPTypeClass aggregatedValueType, DataInputOutputSerdeForge distinctSerde, ExprNode[] positionalParameters) {
         this.parent = parent;
         this.aggregatedValueType = aggregatedValueType;
         this.distinctSerde = distinctSerde;
         this.positionalParameters = positionalParameters;
+
+        EPTypeClass distinctType = !parent.isDistinct() ? null : aggregatedValueType;
+        aggregator = new AggregatorAvedev(distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
     }
 
     public EPType getResultType() {
         return EPTypePremade.DOUBLEBOXED.getEPType();
-    }
-
-    public void initMethodForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope) {
-        EPTypeClass distinctType = !parent.isDistinct() ? null : aggregatedValueType;
-        aggregator = new AggregatorAvedev(this, col, rowCtor, membersColumnized, classScope, distinctType, distinctSerde, parent.isHasFilter(), parent.getOptionalFilter());
     }
 
     public AggregatorMethod getAggregator() {
