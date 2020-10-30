@@ -94,6 +94,12 @@ public class InfraNamedWindowProcessingOrder {
             EPAssertionUtil.assertProps(env.listener("select").getAndResetLastNewData()[0], fields, new Object[]{"V1", "U1"});
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "eventRepresentationEnum=" + eventRepresentationEnum +
+                '}';
+        }
     }
 
     private static class InfraOrderedDeleteAndSelect implements RegressionExecution {

@@ -147,6 +147,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraExecuteFilter implements RegressionExecution {
@@ -173,6 +179,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             runAssertionFilter(env, path, query);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -227,6 +239,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             tryInvalidFAFCompile(env, path, epl, "Provided EPL expression is a continuous query expression (not an on-demand query)");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -313,6 +331,13 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "eventRepresentationEnum=" + eventRepresentationEnum +
+                ", namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraJoinWhere implements RegressionExecution {
@@ -374,6 +399,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraAggUngroupedRowForEvent implements RegressionExecution {
@@ -400,6 +431,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRowAnyOrder(result.iterator(), fields, new Object[][]{{"E1", 14}, {"E2", 14}, {"E3", 14}, {"E4", 14}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -447,6 +484,13 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "isFirstNW=" + isFirstNW +
+                ", isSecondNW=" + isSecondNW +
+                '}';
+        }
     }
 
     private static class InfraAggUngroupedRowForGroup implements RegressionExecution {
@@ -474,6 +518,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRow(result.iterator(), fields, new Object[][]{{"E1", 6}, {"E2", 9}, {"E3", 3}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -512,6 +562,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.undeployModuleContaining("stmtIdx3");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -559,6 +615,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectCountStar implements RegressionExecution {
@@ -604,6 +666,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectWildcard implements RegressionExecution {
@@ -636,6 +704,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRowAnyOrder(prepared.execute().iterator(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -687,6 +761,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             // destroy all
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
 
         private SupportBean sendBeanInt(RegressionEnvironment env, String string, int intBoxed) {
@@ -771,6 +851,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.undeployAll();
         }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
+
         private EPFireAndForgetQueryResult compileExecuteFAF(RegressionEnvironment env, RegressionPath path, String epl, ContextPartitionSelector[] selectors) {
             EPCompiled compiled = env.compileFAF(epl, path);
             return env.runtime().getFireAndForgetService().executeQuery(compiled, selectors);
@@ -852,6 +938,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             }
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -954,6 +1046,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraInsert implements RegressionExecution {
@@ -1032,6 +1130,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("InfraThree"), "p0,p1".split(","), new Object[][]{{"b", 2}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

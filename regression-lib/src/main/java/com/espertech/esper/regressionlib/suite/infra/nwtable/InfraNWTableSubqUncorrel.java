@@ -143,6 +143,14 @@ public class InfraNWTableSubqUncorrel {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", enableIndexShareCreate=" + enableIndexShareCreate +
+                ", disableIndexShareConsumer=" + disableIndexShareConsumer +
+                '}';
+        }
     }
 
     private static void sendSupportBean(RegressionEnvironment env, String theString, long longPrimitive, Long longBoxed) {

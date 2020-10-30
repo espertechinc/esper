@@ -61,6 +61,12 @@ public class InfraNWTableFAFResolve implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static EPCompiled compileRuntimePath(RegressionEnvironment env, String moduleName, String query) {

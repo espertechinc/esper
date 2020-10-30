@@ -35,8 +35,6 @@ public class ContextInitTermWithDistinct {
         execs.add(new ContextInitTermWithDistinctNullKeyMultiKey());
         execs.add(new ContextInitTermWithDistinctOverlappingSingleKey());
         execs.add(new ContextInitTermWithDistinctOverlappingMultiKey());
-        execs.add(new ContextInitTermWithDistinctNullSingleKey());
-        execs.add(new ContextInitTermWithDistinctNullKeyMultiKey());
         execs.add(new ContextInitTermWithDistinctMultikeyWArray());
         return execs;
     }

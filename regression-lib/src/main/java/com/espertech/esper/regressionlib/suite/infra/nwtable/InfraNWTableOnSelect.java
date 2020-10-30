@@ -95,7 +95,6 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
         }
 
         public void run(RegressionEnvironment env) {
-            String[] fields = new String[]{"a", "b"};
             RegressionPath path = new RegressionPath();
 
             String stmtTextCreate = namedWindow ?
@@ -123,6 +122,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "thesum".split(","), new Object[][] {{42}, {22}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -158,6 +163,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             EPAssertionUtil.assertProps(env.listener("out").assertOneGetNewAndReset(), "value".split(","), new Object[]{"E2"});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -219,6 +230,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectCorrelationDelete implements RegressionExecution {
@@ -276,6 +293,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
 
             env.undeployModuleContaining("select");
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -355,6 +378,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectAggregationCorrelated implements RegressionExecution {
@@ -405,6 +434,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             assertEquals(Integer.class, resultType.getPropertyType("sumb"));
 
             env.undeployModuleContaining("create");
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -468,6 +503,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectJoinColumnsLimit implements RegressionExecution {
@@ -520,6 +561,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[0], fields, new Object[]{"A1", "E1", 1});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -584,6 +631,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.undeployModuleContaining("insert");
             env.undeployModuleContaining("create");
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraInvalid implements RegressionExecution {
@@ -610,6 +663,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 "Failed to validate select-clause expression 'prev(1,theString)': Previous function cannot be used in this context [");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -655,6 +714,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectAggregationHavingStreamWildcard implements RegressionExecution {
@@ -695,6 +760,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             assertEquals("E1", events[1].get("mwcwin.a"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -759,6 +830,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             assertReceived(env, namedWindow, beans, null, null, null, null);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -884,6 +961,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                     new IndexAssertion(null, "i1 < 11", null, namedWindow ? backingBtreeI1 : null, relOpAssertion),
                     new IndexAssertion(null, "11 > i1", null, namedWindow ? backingBtreeI1 : null, relOpAssertion),
                 });
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

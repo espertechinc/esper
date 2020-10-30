@@ -122,6 +122,12 @@ public class ResultSetAggregateFirstEverLastEver {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static void makeSendBean(RegressionEnvironment env, String theString, int intPrimitive, Integer intBoxed, boolean boolPrimitive) {

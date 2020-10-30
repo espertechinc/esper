@@ -366,9 +366,16 @@ public class ViewLengthBatch {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "runType=" + runType +
+                ", optionalDatawindow='" + optionalDatawindow + '\'' +
+                '}';
+        }
     }
 
-    public static enum ViewLengthBatchNormalRunType {
+    public enum ViewLengthBatchNormalRunType {
         VIEW,
         GROUPWIN,
         NAMEDWINDOW

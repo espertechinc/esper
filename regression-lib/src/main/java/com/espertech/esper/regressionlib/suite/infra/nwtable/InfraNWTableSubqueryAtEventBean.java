@@ -70,6 +70,12 @@ public class InfraNWTableSubqueryAtEventBean {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static void assertReceived(SupportListener listener, Object[][] values) {

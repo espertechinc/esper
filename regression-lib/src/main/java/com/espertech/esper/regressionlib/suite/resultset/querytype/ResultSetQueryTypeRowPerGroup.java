@@ -135,6 +135,13 @@ public class ResultSetQueryTypeRowPerGroup {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                ", unbound=" + unbound +
+                '}';
+        }
     }
 
     public static class ResultSetQueryTypeRowPerGroupSimple implements RegressionExecution {

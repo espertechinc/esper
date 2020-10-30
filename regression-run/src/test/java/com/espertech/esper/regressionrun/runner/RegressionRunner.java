@@ -20,6 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.fail;
 
 public class RegressionRunner {
     private static final Logger log = LoggerFactory.getLogger(RegressionRunner.class);
@@ -36,6 +40,15 @@ public class RegressionRunner {
     }
 
     public static void run(RegressionSession session, Collection<? extends RegressionExecution> executions) {
+        Set<String> names = new HashSet<>();
+        for (RegressionExecution execution : executions) {
+            String executionName = execution.name();
+            if (names.contains(executionName)) {
+                fail("Execution name '" + executionName + "' found twice (the name() method is not implemented?)");
+            }
+            names.add(executionName);
+        }
+
         Collection<? extends RegressionExecution> filtered = RegressionFilter.filterBySystemProperty(executions);
         for (RegressionExecution execution : filtered) {
             run(session, execution);

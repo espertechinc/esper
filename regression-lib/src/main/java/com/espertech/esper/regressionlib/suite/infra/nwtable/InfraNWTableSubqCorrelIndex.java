@@ -116,6 +116,12 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
         private void insert(RegressionEnvironment env, RegressionPath path, String k, int v) {
             env.compileExecuteFAF("insert into MyInfra(k,v) values (" + k + "," + v + ")", path);
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraNWTableSubqIndexShareMultikeyWArrayTwoArray implements RegressionExecution {
@@ -151,6 +157,12 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             sendAssertManyArray(env, "a,b", "d,c", null);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
 
         private void sendAssertManyArray(RegressionEnvironment env, String stringOne, String stringTwo, Integer expected) {
@@ -209,6 +221,12 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                         new IndexAssertion(null, "l1 = ssb2.l2 and s1 = ssb2.s2 and d1 = ssb2.d2", null, BACKING_MULTI_UNIQUE, eventSendAssertion),
                     });
             }
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -320,6 +338,12 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraNWTableSubqCorrelIndexMultipleIndexHints implements RegressionExecution {
@@ -356,6 +380,12 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             SupportQueryPlanIndexHook.assertSubquery(subqueries.get(1), 0, "I2", "unique hash={i1(int)} btree={} advanced={}");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -473,6 +503,16 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                 env.undeployModuleContaining("index");
             }
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", enableIndexShareCreate=" + enableIndexShareCreate +
+                ", disableIndexShareConsumer=" + disableIndexShareConsumer +
+                ", createExplicitIndex=" + createExplicitIndex +
+                ", setNoindex=" + setNoindex +
+                '}';
         }
     }
 }

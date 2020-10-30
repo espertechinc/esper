@@ -333,6 +333,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetAggregateAccessAggLinearWIndex implements RegressionExecution {
@@ -420,6 +426,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetAggregateAccessAggSortedMulticriteria implements RegressionExecution {
@@ -485,6 +497,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetAggregateAccessAggLinearBound implements RegressionExecution {
@@ -531,6 +549,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetAggregateAccessAggLinearUnbound implements RegressionExecution {
@@ -570,6 +594,12 @@ public class ResultSetAggregateFilterNamedParameter {
             sendEventAssert(env, "X4", 4, fields, new Object[]{1, 1, 3, 3, 2L});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 
@@ -687,6 +717,12 @@ public class ResultSetAggregateFilterNamedParameter {
             sendEventAssert(env, "E7", -1, fields, new Object[]{null, null});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

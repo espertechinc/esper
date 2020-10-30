@@ -121,6 +121,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ContextKeySegmentedInitWCorrelatedTermFilter implements RegressionExecution {
@@ -251,6 +257,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ContextKeySegmentedInitTermWithTwoInit implements RegressionExecution {
@@ -299,6 +311,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             assertFilterSvcCount(env, 0, "ctx");
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -910,6 +928,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendAssertNone(env, new SupportBean("C", -1));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

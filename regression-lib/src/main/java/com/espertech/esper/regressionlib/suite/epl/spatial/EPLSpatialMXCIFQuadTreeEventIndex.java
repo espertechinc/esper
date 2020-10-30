@@ -301,6 +301,12 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
 
@@ -449,6 +455,12 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             removeAllRectangles(env, path, rectangles);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "straddle=" + straddle +
+                '}';
         }
 
         private void removeEverySecondRectangle(RegressionEnvironment env, RegressionPath path, List<SupportSpatialEventRectangle> rectangles) {

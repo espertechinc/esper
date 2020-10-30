@@ -114,6 +114,12 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "representation=" + representation +
+                '}';
+        }
     }
 
     private static class EPLInsertIntoInvalid implements RegressionExecution {

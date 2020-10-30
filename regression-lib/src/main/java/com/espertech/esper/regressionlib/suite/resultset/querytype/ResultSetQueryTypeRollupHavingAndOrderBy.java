@@ -72,6 +72,12 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetQueryTypeUnidirectional implements RegressionExecution {
@@ -193,6 +199,12 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetQueryTypeOrderByTwoCriteriaAsc implements RegressionExecution {
@@ -270,6 +282,12 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
                 });
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 

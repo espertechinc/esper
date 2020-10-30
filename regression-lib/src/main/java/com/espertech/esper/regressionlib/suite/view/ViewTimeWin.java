@@ -526,6 +526,14 @@ public class ViewTimeWin {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "startTime=" + startTime +
+                ", size='" + size + '\'' +
+                ", flipTime=" + flipTime +
+                '}';
+        }
     }
 
     private static void tryTimeWindow(RegressionEnvironment env, String intervalSpec) {

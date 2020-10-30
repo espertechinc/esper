@@ -60,6 +60,12 @@ public class ClientMultitenancyProtected {
             env.undeploy(idTwo);
             assertNull(env.runtime().getDeploymentService().getStatement(idTwo, "create"));
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class ClientMultitenancyProtectedVariable implements RegressionExecution {

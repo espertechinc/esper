@@ -126,6 +126,12 @@ public class ExprCoreArrayAtElement {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExprCoreAAEVariableRootedChained implements RegressionExecution {
@@ -173,6 +179,12 @@ public class ExprCoreArrayAtElement {
             assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -287,6 +299,12 @@ public class ExprCoreArrayAtElement {
                 "Failed to validate select-clause expression 'me.lvl1.lvl2.intarr[id]': Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'id' returns 'String' for operation on type Integer[]");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -404,6 +422,12 @@ public class ExprCoreArrayAtElement {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExprCoreAAEPropRootedTopLevelProp implements RegressionExecution {
@@ -456,6 +480,12 @@ public class ExprCoreArrayAtElement {
                 "Failed to validate select-clause expression 'me.indexNumber[indexNumber]': Invalid array operation for property 'indexNumber'");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

@@ -70,6 +70,12 @@ public class ExprCoreCurrentEvaluationContext {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static void sendTimer(RegressionEnvironment env, long timeInMSec) {

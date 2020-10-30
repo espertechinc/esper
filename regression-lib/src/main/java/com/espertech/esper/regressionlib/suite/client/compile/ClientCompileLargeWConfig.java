@@ -103,8 +103,10 @@ public class ClientCompileLargeWConfig {
 
         public String name() {
             return this.getClass().getSimpleName() + "{" +
-                    "representation=" + representation +
-                    '}';
+                "representation=" + representation +
+                ", numColumns=" + numColumns +
+                ", widening=" + widening +
+                '}';
         }
     }
 

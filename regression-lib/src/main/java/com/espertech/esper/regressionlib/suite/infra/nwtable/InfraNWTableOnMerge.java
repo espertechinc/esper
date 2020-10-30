@@ -105,7 +105,7 @@ public class InfraNWTableOnMerge {
         execs.add(new InfraPropertyEvalUpdate(false));
 
         execs.add(new InfraPropertyEvalInsertNoMatch(true));
-        execs.add(new InfraPropertyEvalUpdate(false));
+        execs.add(new InfraPropertyEvalInsertNoMatch(false));
 
         execs.add(new InfraSetArrayElementWithIndex(false, false));
         execs.add(new InfraSetArrayElementWithIndex(true, true));
@@ -149,6 +149,13 @@ public class InfraNWTableOnMerge {
             EPAssertionUtil.assertProps(event, "cnt,thearray".split(","), new Object[] {cntExpected, thearrayExpected});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                ", namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -251,6 +258,12 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     public static class InfraPropertyEvalUpdate implements RegressionExecution {
@@ -281,8 +294,13 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
-    }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
+    }
 
     public static class InfraDeleteThenUpdate implements RegressionExecution {
         private final boolean namedWindow;
@@ -324,8 +342,13 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
-    }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
+    }
 
     public static class InfraOnMergeSimpleInsert implements RegressionExecution {
         private final boolean namedWindow;
@@ -363,6 +386,12 @@ public class InfraNWTableOnMerge {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -427,6 +456,12 @@ public class InfraNWTableOnMerge {
 
             env.milestone(4);
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraInsertOnly implements RegressionExecution {
@@ -478,6 +513,15 @@ public class InfraNWTableOnMerge {
             assertEquals("E2", env.listener("on").assertOneGetNewAndReset().get("p0"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", useEquivalent=" + useEquivalent +
+                ", soda=" + soda +
+                ", useColumnNames=" + useColumnNames +
+                '}';
         }
     }
 
@@ -548,6 +592,12 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(epl);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -699,6 +749,12 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraNoWhereClause implements RegressionExecution {
@@ -761,6 +817,12 @@ public class InfraNWTableOnMerge {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"Z", -1}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -838,6 +900,12 @@ public class InfraNWTableOnMerge {
                 "Failed to validate assignment expression 'c=me.so': Invalid assignment to property 'c' event type 'Composite' from event type 'SomeOther' [on MyEvent as me update AInfra set c = me.so]");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -922,6 +990,13 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", eventRepresentationEnum=" + eventRepresentationEnum +
+                '}';
+        }
     }
 
     private static class InfraPatternMultimatch implements RegressionExecution {
@@ -965,6 +1040,12 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraOnMergeInsertStream implements RegressionExecution {
@@ -1005,6 +1086,12 @@ public class InfraNWTableOnMerge {
             EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), "v1,v2".split(","), new Object[][]{{"K1", 1}, {"K2", 2}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -1069,6 +1156,12 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSubqueryNotMatched implements RegressionExecution {
@@ -1109,6 +1202,12 @@ public class InfraNWTableOnMerge {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraUpdateOrderOfFields implements RegressionExecution {
@@ -1144,6 +1243,12 @@ public class InfraNWTableOnMerge {
             EPAssertionUtil.assertProps(env.listener("Merge").getAndResetLastNewData()[0], fields, new Object[]{7, 7, 5.0});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -1189,6 +1294,13 @@ public class InfraNWTableOnMerge {
             env.undeployAll();
         }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", eventRepresentationEnum=" + eventRepresentationEnum +
+                '}';
+        }
+
         private static void makeSendNameValueEvent(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String typeName, String name, double value) {
             if (eventRepresentationEnum.isObjectArrayEvent()) {
                 env.sendEventObjectArray(new Object[]{name, value}, typeName);
@@ -1220,6 +1332,12 @@ public class InfraNWTableOnMerge {
         public void run(RegressionEnvironment env) {
             runUpdateNestedEvent(env, namedWindow, "map");
             runUpdateNestedEvent(env, namedWindow, "objectarray");
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

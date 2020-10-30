@@ -37,7 +37,6 @@ public class ExprClassStaticMethod {
         executions.add(new ExprClassStaticMethodCreate(true));
         executions.add(new ExprClassStaticMethodCreateCompileVsRuntime());
         executions.add(new ExprClassStaticMethodLocalFAFQuery());
-        executions.add(new ExprClassStaticMethodLocalFAFQuery());
         executions.add(new ExprClassStaticMethodCreateFAFQuery());
         executions.add(new ExprClassStaticMethodLocalWithPackageName());
         executions.add(new ExprClassStaticMethodCreateClassWithPackageName());
@@ -309,6 +308,12 @@ public class ExprClassStaticMethod {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExprClassStaticMethodLocal implements RegressionExecution {
@@ -336,6 +341,12 @@ public class ExprClassStaticMethod {
             sendSBAssert(env, "E2", 0, "|E2|");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

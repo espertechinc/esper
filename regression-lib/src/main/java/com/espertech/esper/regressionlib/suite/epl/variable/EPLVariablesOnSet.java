@@ -214,6 +214,12 @@ public class EPLVariablesOnSet {
             assertArrayEquals(doubleExpected, doubleArray, 0.0);
             assertArrayEquals(stringExpected, stringArray);
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class EPLVariableOnSetSubqueryMultikeyWArray implements RegressionExecution {

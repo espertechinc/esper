@@ -410,6 +410,12 @@ public class ContextCategory {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "isAlias=" + isAlias +
+                '}';
+        }
     }
 
     private static void sendAssertBooleanExprFilter(RegressionEnvironment env, String theString, String groupExpected, long countExpected) {

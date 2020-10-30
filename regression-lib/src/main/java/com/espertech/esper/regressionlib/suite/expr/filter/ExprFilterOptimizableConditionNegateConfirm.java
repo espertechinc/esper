@@ -69,7 +69,6 @@ public class ExprFilterOptimizableConditionNegateConfirm {
         executions.add(new ExprFilterThreePathOrWithAndLVAndLVAndLV());
         executions.add(new ExprFilterFourPathAndWithOrLLOrLL());
         executions.add(new ExprFilterFourPathAndWithOrLLOrLLWithV());
-        executions.add(new ExprFilterFourPathAndWithOrLLOrLLWithV());
         executions.add(new ExprFilterFourPathAndWithOrLLOrLLOrVV());
         executions.add(new ExprFilterTwoPathAndLeftOrLVVRightLL());
         executions.add(new ExprFilterSixPathAndLeftOrLLVRightOrLL());

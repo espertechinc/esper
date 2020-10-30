@@ -86,6 +86,12 @@ public class InfraNWTableOnUpdate {
             env.sendEventBean(new SupportBean());
             assertEquals(expected, env.iterator("create").next().get("value"));
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     public static class InfraNWTableOnUpdateSceneOne implements RegressionExecution {
@@ -152,6 +158,12 @@ public class InfraNWTableOnUpdate {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraUpdateOrderOfFields implements RegressionExecution {
@@ -191,6 +203,12 @@ public class InfraNWTableOnUpdate {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSubquerySelf implements RegressionExecution {
@@ -228,6 +246,12 @@ public class InfraNWTableOnUpdate {
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 3}, {"E2", 7}});
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

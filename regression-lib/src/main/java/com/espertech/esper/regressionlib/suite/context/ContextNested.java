@@ -1671,6 +1671,12 @@ public class ContextNested {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     public static class ContextNestedInitTermWCategoryWHash implements RegressionExecution {
@@ -1828,6 +1834,12 @@ public class ContextNested {
                 new Object[0][]);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "preallocate=" + preallocate +
+                '}';
         }
     }
 

@@ -99,6 +99,12 @@ public class ExprCoreNewInstance {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExecCoreNewInstanceArrayInitOneDim implements RegressionExecution {
@@ -149,6 +155,12 @@ public class ExprCoreNewInstance {
 
             builder.run(env, soda);
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -202,6 +214,12 @@ public class ExprCoreNewInstance {
             builder.run(env, soda);
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExecCoreNewInstanceArraySized implements RegressionExecution {
@@ -233,6 +251,12 @@ public class ExprCoreNewInstance {
 
             builder.run(env, soda);
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -352,6 +376,12 @@ public class ExprCoreNewInstance {
             assertEquals("ABC", event.get("c3"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
 
         private void assertSupportBean(Object bean, Object[] objects) {

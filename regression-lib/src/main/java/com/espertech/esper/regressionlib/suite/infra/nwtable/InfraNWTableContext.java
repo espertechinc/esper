@@ -74,6 +74,12 @@ public class InfraNWTableContext {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static void register(RegressionEnvironment env, RegressionPath path, int num, String epl) {

@@ -116,6 +116,12 @@ public class ClientCompileSubstitutionParams {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ClientCompileSODAInvalidConstantUseSubsParamsInstead implements RegressionExecution {
@@ -197,6 +203,12 @@ public class ClientCompileSubstitutionParams {
             EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{5, 6}}, (Object[][]) event.get("c4"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 
@@ -318,6 +330,10 @@ public class ClientCompileSubstitutionParams {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "soda_" + soda;
+        }
     }
 
     private static class ClientCompileSubstParamUnnamedParameterWType implements RegressionExecution {
@@ -341,6 +357,12 @@ public class ClientCompileSubstitutionParams {
             assertTrue(env.listener("s0").isInvoked());
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

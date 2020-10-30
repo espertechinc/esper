@@ -65,6 +65,12 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetQueryTypeSumOneView implements RegressionExecution {

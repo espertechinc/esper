@@ -550,6 +550,12 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     public static class ResultSetLocalUngroupedAggAdditionalAndPlugin implements RegressionExecution {

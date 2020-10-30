@@ -93,5 +93,12 @@ public class InfraNWTableOnMergePerf {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", outputType=" + outputType +
+                '}';
+        }
     }
 }

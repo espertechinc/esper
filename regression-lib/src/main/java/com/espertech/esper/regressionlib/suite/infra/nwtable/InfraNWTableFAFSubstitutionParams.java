@@ -230,6 +230,12 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static RegressionPath setupInfra(RegressionEnvironment env, boolean namedWindow) {

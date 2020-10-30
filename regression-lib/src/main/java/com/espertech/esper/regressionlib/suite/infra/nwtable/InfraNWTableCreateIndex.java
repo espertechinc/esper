@@ -148,6 +148,12 @@ public class InfraNWTableCreateIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraOnSelectReUse implements RegressionExecution {
@@ -195,6 +201,12 @@ public class InfraNWTableCreateIndex {
             assertEquals(1, SupportInfraUtil.getIndexCountNoContext(env, true, "cw", "MyInfraFour"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -248,6 +260,12 @@ public class InfraNWTableCreateIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraMultipleColumnMultipleIndex implements RegressionExecution {
@@ -293,6 +311,12 @@ public class InfraNWTableCreateIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     public static class InfraLateCreate implements RegressionExecution {
@@ -335,6 +359,12 @@ public class InfraNWTableCreateIndex {
 
             env.milestone(1);
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraLateCreateSceneTwo implements RegressionExecution {
@@ -369,6 +399,12 @@ public class InfraNWTableCreateIndex {
                 {"E1", -4, ">E1<", "?E1?"}, {"E1", -3, ">E1<", "?E1?"}, {"E1", -2, ">E1<", "?E1?"}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -407,6 +443,12 @@ public class InfraNWTableCreateIndex {
             path.clear();
             path.add(compiledWindow);
             env.eplToModelCompileDeploy("create index MyInfraCIIndexTwo on MyInfraCI(f2, f3, f1)", path).undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -447,6 +489,12 @@ public class InfraNWTableCreateIndex {
             EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{(short) 2, "E1"}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -500,6 +548,12 @@ public class InfraNWTableCreateIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraMultiRangeAndKey implements RegressionExecution {
@@ -545,6 +599,12 @@ public class InfraNWTableCreateIndex {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     public static class InfraMultikeyIndexFAF implements RegressionExecution {
@@ -582,6 +642,12 @@ public class InfraNWTableCreateIndex {
             EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"E1", -2, ">E1<", "?E1?"}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "isNamedWindow=" + isNamedWindow +
+                '}';
         }
     }
 

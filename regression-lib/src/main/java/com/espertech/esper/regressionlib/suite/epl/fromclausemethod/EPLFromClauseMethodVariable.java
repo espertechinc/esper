@@ -159,6 +159,12 @@ public class EPLFromClauseMethodVariable {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String expected) {

@@ -128,6 +128,12 @@ public class InfraNWTableOnDelete {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraDeletePattern implements RegressionExecution {
@@ -192,6 +198,12 @@ public class InfraNWTableOnDelete {
             assertEquals(0, getCount(env, path, "MyInfra"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -262,6 +274,12 @@ public class InfraNWTableOnDelete {
             assertEquals(1, getCount(env, path, "MyInfra"));
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

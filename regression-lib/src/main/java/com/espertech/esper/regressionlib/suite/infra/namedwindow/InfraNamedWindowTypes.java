@@ -96,6 +96,12 @@ public class InfraNamedWindowTypes {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "eventRepresentationEnum=" + eventRepresentationEnum +
+                '}';
+        }
     }
 
     private static class InfraMapTranspose implements RegressionExecution {

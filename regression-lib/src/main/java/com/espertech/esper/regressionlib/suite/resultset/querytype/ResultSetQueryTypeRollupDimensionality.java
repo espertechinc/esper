@@ -129,6 +129,13 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.undeployAll();
         }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                ", unbound=" + unbound +
+                '}';
+        }
+
         private void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, long expectedTotal, long expectedByArray, long expectedByArrayAndValue) {
             final String[] fields = new String[] {"array", "value", "cnt"};
             env.sendEventBean(new SupportEventWithIntArray(id, array, value));

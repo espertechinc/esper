@@ -94,6 +94,12 @@ public class InfraNWTableSubquery {
             EPAssertionUtil.assertProps(env.listener("Subq").assertOneGetNewAndReset(),
                 "c0".split(","), new Object[]{expected});
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraUncorrelatedSubqueryAggregation implements RegressionExecution {
@@ -145,6 +151,12 @@ public class InfraNWTableSubquery {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraInvalidSubquery implements RegressionExecution {
@@ -173,6 +185,12 @@ public class InfraNWTableSubquery {
             }
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -226,6 +244,12 @@ public class InfraNWTableSubquery {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E2", 2}, {"E1", 3}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -299,6 +323,12 @@ public class InfraNWTableSubquery {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E3", 4}, {"E2", 5}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

@@ -143,6 +143,13 @@ public class EPLSubselectNamedWindowPerformance {
             // destroy all
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "indexShare=" + indexShare +
+                ", buildIndex=" + buildIndex +
+                '}';
+        }
     }
 
     private static class EPLSubselectKeyAndRange implements RegressionExecution {
@@ -192,6 +199,13 @@ public class EPLSubselectNamedWindowPerformance {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "indexShare=" + indexShare +
+                ", buildIndex=" + buildIndex +
+                '}';
+        }
     }
 
     private static class EPLSubselectRange implements RegressionExecution {
@@ -240,6 +254,13 @@ public class EPLSubselectNamedWindowPerformance {
             assertTrue("delta=" + delta, delta < 500);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "indexShare=" + indexShare +
+                ", buildIndex=" + buildIndex +
+                '}';
         }
     }
 

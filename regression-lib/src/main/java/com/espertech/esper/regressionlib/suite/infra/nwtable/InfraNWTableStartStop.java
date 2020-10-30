@@ -92,6 +92,12 @@ public class InfraNWTableStartStop {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraStartStopConsumer implements RegressionExecution {
@@ -159,6 +165,12 @@ public class InfraNWTableStartStop {
             assertFalse(selectListenerTemp.isInvoked());
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

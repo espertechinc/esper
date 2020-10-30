@@ -100,6 +100,13 @@ public class InfraTableAccessAggregationState {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "grouped=" + grouped +
+                ", soda=" + soda +
+                '}';
+        }
     }
 
     private static class InfraAccessAggShare implements RegressionExecution {

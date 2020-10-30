@@ -224,6 +224,12 @@ public class ClientExtendUDFInlinedClass {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static void sendAssertIntMultiply(RegressionEnvironment env, int intPrimitive, int expected) {

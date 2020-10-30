@@ -85,6 +85,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
         private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, String[] arrayTwo, int value) {
             env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withStringTwo(arrayTwo).withValue(value));
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectIndexMultikeyWArrayCompositeArray implements RegressionExecution {
@@ -121,6 +127,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
         private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, int value) {
             env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withValue(value));
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraSelectIndexMultikeyWArrayTwoField implements RegressionExecution {
@@ -154,6 +166,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
 
         private void sendManyArray(RegressionEnvironment env, String id, String[] arrayOne, String[] arrayTwo) {
             env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(arrayOne).withStringTwo(arrayTwo));
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -189,6 +207,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
 
         private void sendManyArray(RegressionEnvironment env, String id, String[] strings) {
             env.sendEventBean(new SupportEventWithManyArray(id).withStringOne(strings));
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -257,6 +281,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                 String[] mixedIndexMulti = new String[]{"create index W1I1 on W1(s1)", "create unique index W1I2 on W2(s2, l2)"};
                 assertIndexChoiceJoin(env, namedWindow, mixedIndexMulti, preloadedEventsOne, "std:unique(s1, l1)", "win:keepall()", assertionsMultiProp);
             }
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
 
         private static void assertIndexChoiceJoin(RegressionEnvironment env, boolean namedWindow, String[] indexes, Object[] preloadedEvents, String datawindowOne, String datawindowTwo,
@@ -380,6 +410,12 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                     new IndexAssertion(null, "d1 between 21 and 22", "Two", BACKING_SORTED, fafAssertion),
                     new IndexAssertion("@Hint('index(One, bust)')", "d1 between 21 and 22"), // busted
                 });
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

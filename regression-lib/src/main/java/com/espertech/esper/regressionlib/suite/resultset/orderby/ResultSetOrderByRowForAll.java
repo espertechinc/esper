@@ -58,6 +58,12 @@ public class ResultSetOrderByRowForAll {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetNoOutputRateJoin implements RegressionExecution {

@@ -83,5 +83,14 @@ public class InfraNWTableComparative {
              */
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "caseName='" + caseName + '\'' +
+                ", numEvents=" + numEvents +
+                ", epl='" + epl + '\'' +
+                ", numSets=" + numSets +
+                '}';
+        }
     }
 }

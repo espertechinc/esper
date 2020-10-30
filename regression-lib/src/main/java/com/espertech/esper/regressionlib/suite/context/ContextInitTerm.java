@@ -114,6 +114,12 @@ public class ContextInitTerm {
             env.sendEventMap(data, "UserEvent");
             return data;
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "overlapping=" + overlapping +
+                '}';
+        }
     }
 
     private static class ContextStartEndPatternWithFilterCorrelatedWithAsName implements RegressionExecution {
@@ -229,6 +235,12 @@ public class ContextInitTerm {
             String eplInvalidTagProvidedByPatternNamed = "create context MyContext as start pattern[s1=SupportBean_S1(id=0)] as starter " +
                 "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
             SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByPatternNamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
         }
     }
 

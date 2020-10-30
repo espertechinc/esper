@@ -119,6 +119,15 @@ public class InfraNWTableSubqCorrelCoerce {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", enableIndexShareCreate=" + enableIndexShareCreate +
+                ", disableIndexShareConsumer=" + disableIndexShareConsumer +
+                ", createExplicitIndex=" + createExplicitIndex +
+                '}';
+        }
     }
 
     private static void sendWindow(RegressionEnvironment env, String col0, long col1, String col2) {

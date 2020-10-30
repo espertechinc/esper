@@ -143,6 +143,12 @@ public class EventVariantStream {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "variantStreamName='" + variantStreamName + '\'' +
+                '}';
+        }
     }
 
     private static class EventVariantDynamicMapType implements RegressionExecution {

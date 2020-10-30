@@ -299,6 +299,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
             execution.execute(false);
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetOutputFirstHaving implements RegressionExecution {
@@ -374,6 +380,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                 new Object[][]{{"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 
@@ -483,6 +495,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetOutputFirstSorted implements RegressionExecution {
@@ -574,6 +592,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetOutputDefault implements RegressionExecution {
@@ -663,6 +687,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                     {"E1", 1, 300L}, {"E1", null, 300L}, {null, null, 300L}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 
@@ -759,6 +789,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetOutputAll implements RegressionExecution {
@@ -772,6 +808,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
                 runAssertionOutputAll(env, join, outputLimitOpt);
             }
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 
@@ -890,6 +932,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
+        }
     }
 
     private static class ResultSetOutputLast implements RegressionExecution {
@@ -904,6 +952,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
                 runAssertionOutputLast(env, join, outputLimitOpt, milestone);
             }
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 
@@ -1033,6 +1087,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}});
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "join=" + join +
+                '}';
         }
     }
 

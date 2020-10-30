@@ -115,6 +115,12 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraFAFSubquerySelectIndexPerfWSubstitution implements RegressionExecution {
@@ -158,6 +164,12 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertTrue("delta is " + delta, delta < 1000);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -471,6 +483,12 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraFAFSubquerySimpleJoin implements RegressionExecution {
@@ -540,6 +558,12 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQuerySingle(env, path, query, "b");
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

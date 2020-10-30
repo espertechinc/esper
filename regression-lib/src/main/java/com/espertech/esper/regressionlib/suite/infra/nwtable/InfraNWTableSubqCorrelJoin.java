@@ -83,5 +83,12 @@ public class InfraNWTableSubqCorrelJoin {
             env.undeployModuleContaining("s0");
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                ", enableIndexShareCreate=" + enableIndexShareCreate +
+                '}';
+        }
     }
 }

@@ -96,6 +96,12 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraFAFKeyAndRangePerformance implements RegressionExecution {
@@ -151,6 +157,12 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraFAFRangePerformance implements RegressionExecution {
@@ -204,6 +216,12 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             assertEquals(0, result.getArray().length);
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 
@@ -281,6 +299,12 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
     }
 
     private static class InfraFAFInKeywordSingleIndex implements RegressionExecution {
@@ -310,6 +334,12 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             assertEquals(0, InvocationCounter.getCount());
 
             env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
         }
     }
 

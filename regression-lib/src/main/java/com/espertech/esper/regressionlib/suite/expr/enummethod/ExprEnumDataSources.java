@@ -252,6 +252,12 @@ public class ExprEnumDataSources {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "select=" + select +
+                '}';
+        }
     }
 
     private static class ExprEnumSubstitutionParameter implements RegressionExecution {

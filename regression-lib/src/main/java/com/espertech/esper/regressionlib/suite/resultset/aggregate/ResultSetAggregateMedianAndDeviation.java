@@ -37,7 +37,6 @@ public class ResultSetAggregateMedianAndDeviation {
         execs.add(new ResultSetAggregateStmt());
         execs.add(new ResultSetAggregateStmtJoinOM());
         execs.add(new ResultSetAggregateStmtJoin());
-        execs.add(new ResultSetAggregateStmt());
         return execs;
     }
 

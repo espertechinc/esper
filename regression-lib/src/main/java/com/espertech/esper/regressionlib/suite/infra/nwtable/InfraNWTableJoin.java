@@ -71,6 +71,12 @@ public class InfraNWTableJoin {
             env.undeployAll();
         }
 
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "namedWindow=" + namedWindow +
+                '}';
+        }
+
         private void sendMyEvent(RegressionEnvironment env, String c1) {
             env.sendEventMap(Collections.singletonMap("cid", c1), "MyEvent");
         }

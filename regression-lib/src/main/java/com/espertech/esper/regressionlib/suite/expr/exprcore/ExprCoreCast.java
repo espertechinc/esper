@@ -163,6 +163,12 @@ public class ExprCoreCast {
 
             env.undeployAll();
         }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                "soda=" + soda +
+                '}';
+        }
     }
 
     private static class ExprCoreCastWStaticType implements RegressionExecution {
