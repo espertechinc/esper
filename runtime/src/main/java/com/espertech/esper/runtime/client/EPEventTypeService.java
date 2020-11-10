@@ -14,6 +14,9 @@ import com.espertech.esper.common.client.EventType;
 
 /**
  * Service for managing event types.
+ * <p>
+ *     Each statement provides its associated event type, see {@link EPStatement#getEventType()}.
+ * </p>
  */
 public interface EPEventTypeService {
     /**
@@ -26,6 +29,11 @@ public interface EPEventTypeService {
 
     /**
      * Returns the event type as defined by a given deployment.
+     * <p>
+     *     Returns only event types that have public or protected access modifier.
+     *     Does not return event types with private access modifier.
+     *     Use {@link EPStatement#getEventType()} instead.
+     * </p>
      *
      * @param deploymentId  deployment id of the deployment
      * @param eventTypeName event type name of a preconfigured event type

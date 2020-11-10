@@ -22,6 +22,9 @@ import java.lang.annotation.Annotation;
 public interface EPStatement extends EPListenable, EPIterable {
     /**
      * Returns the type of events the statement pushes to listeners or returns for iterator.
+     * <p>
+     *     For create-schema returns the created event type.
+     * </p>
      *
      * @return event type of events the iterator returns and that listeners receive
      */
