@@ -374,8 +374,8 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(ThreadingProfile.LARGE, common.getExecution().getThreadingProfile());
 
         assertEquals(2, common.getEventTypeAutoNamePackages().size());
-        assertEquals("com.mycompany.eventsone", common.getEventTypeAutoNamePackages().toArray()[0]);
-        assertEquals("com.mycompany.eventstwo", common.getEventTypeAutoNamePackages().toArray()[1]);
+        assertTrue(common.getEventTypeAutoNamePackages().contains("com.mycompany.eventsone"));
+        assertTrue(common.getEventTypeAutoNamePackages().contains("com.mycompany.eventstwo")); 
 
         /*
          * COMPILER
