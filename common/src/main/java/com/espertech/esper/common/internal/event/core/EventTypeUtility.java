@@ -102,6 +102,9 @@ public class EventTypeUtility {
         if (eventType instanceof JsonEventType) {
             return new JsonEventBean(null, eventType);
         }
+        if (eventType instanceof WrapperEventType) {
+            return new WrapperEventBean(null, null, eventType);
+        }
         throw new EventAdapterException("Event type '" + eventType.getName() + "' is not an runtime-native event type");
     }
 

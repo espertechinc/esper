@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.collection.Pair;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -26,9 +27,9 @@ import java.util.Map;
  * The event type of such events is always {@link WrapperEventType}. Additional properties are stored in a
  * Map.
  */
-public class WrapperEventBean implements EventBean, DecoratingEventBean {
+public class WrapperEventBean implements EventBeanSPI, DecoratingEventBean {
     private final EventBean theEvent;
-    private final Map<String, Object> map;
+    private Map<String, Object> map;
     private final EventType eventType;
 
     /**
@@ -39,6 +40,12 @@ public class WrapperEventBean implements EventBean, DecoratingEventBean {
      * @param eventType  is the {@link WrapperEventType}.
      */
     public WrapperEventBean(EventBean theEvent, Map<String, Object> properties, EventType eventType) {
+        if (properties == null) {
+            properties = Collections.emptyMap();
+        }
+        if (theEvent == null) {
+            theEvent = EventTypeUtility.getShellForType(((WrapperEventType) eventType).getUnderlyingEventType());
+        }
         this.theEvent = theEvent;
         this.map = properties;
         this.eventType = eventType;
@@ -62,6 +69,18 @@ public class WrapperEventBean implements EventBean, DecoratingEventBean {
             return theEvent.getUnderlying();
         } else {
             return new Pair<Object, Map>(theEvent.getUnderlying(), map);
+        }
+    }
+
+    public void setUnderlying(Object underlying) {
+        EventBeanSPI event = (EventBeanSPI) theEvent;
+        if (underlying instanceof Pair) {
+            Pair<Object, Map> pair = (Pair<Object, Map>) underlying;
+            event.setUnderlying(pair.getFirst());
+            map = pair.getSecond();
+        } else {
+            event.setUnderlying(underlying);
+            map = Collections.emptyMap();
         }
     }
 
