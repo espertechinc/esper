@@ -37,11 +37,11 @@ public class TestSuiteMultithreadWConfig extends TestCase {
     }
 
     public void testMultithreadContextMultiStmtStartEnd() {
-        new MultithreadContextMultiStmtStartEnd().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadContextMultiStmtStartEnd(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadContextNestedNonOverlapAtNow() {
-        new MultithreadContextNestedNonOverlapAtNow().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadContextNestedNonOverlapAtNow(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadContextTerminated() {
@@ -49,15 +49,15 @@ public class TestSuiteMultithreadWConfig extends TestCase {
     }
 
     public void testMultithreadDeterminismInsertIntoLockConfig() {
-        new MultithreadDeterminismInsertIntoLockConfig().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadDeterminismInsertIntoLockConfig(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadDeterminismListener() {
-        new MultithreadDeterminismListener().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadDeterminismListener(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadInsertIntoTimerConcurrency() {
-        new MultithreadInsertIntoTimerConcurrency().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadInsertIntoTimerConcurrency(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadStmtListenerAddRemove() {
@@ -69,15 +69,15 @@ public class TestSuiteMultithreadWConfig extends TestCase {
     }
 
     public void testMultithreadStmtPatternFollowedBy() {
-        new MultithreadStmtPatternFollowedBy().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadStmtPatternFollowedBy(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadStmtNamedWindowUniqueTwoWJoinConsumer() {
-        new MultithreadStmtNamedWindowUniqueTwoWJoinConsumer().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadStmtNamedWindowUniqueTwoWJoinConsumer(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadContextOverlapDistinct() {
-        new MultithreadContextOverlapDistinct().run(SupportConfigFactory.getConfiguration());
+        RegressionRunner.runPreConfigured(new MultithreadContextOverlapDistinct(SupportConfigFactory.getConfiguration()));
     }
 
     public void testMultithreadContextPartitionedWTerm() {

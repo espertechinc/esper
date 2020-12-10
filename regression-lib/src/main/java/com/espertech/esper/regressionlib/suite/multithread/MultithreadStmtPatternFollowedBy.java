@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.FilterServiceProfile;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.*;
@@ -21,9 +22,15 @@ import com.espertech.esper.runtime.client.*;
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.threadJoin;
 import static org.junit.Assert.assertEquals;
 
-public class MultithreadStmtPatternFollowedBy {
+public class MultithreadStmtPatternFollowedBy implements RegressionExecutionPreConfigured {
 
-    public void run(Configuration configuration) {
+    private final Configuration configuration;
+
+    public MultithreadStmtPatternFollowedBy(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         runAssertionPatternFollowedBy(FilterServiceProfile.READMOSTLY, configuration);
         runAssertionPatternFollowedBy(FilterServiceProfile.READWRITE, configuration);
     }

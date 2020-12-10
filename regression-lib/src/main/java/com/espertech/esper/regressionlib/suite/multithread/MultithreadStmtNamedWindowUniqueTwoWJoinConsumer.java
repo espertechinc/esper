@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.Locking;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.EPDeployment;
@@ -26,11 +27,16 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MultithreadStmtNamedWindowUniqueTwoWJoinConsumer {
+public class MultithreadStmtNamedWindowUniqueTwoWJoinConsumer implements RegressionExecutionPreConfigured {
+    private final Configuration configuration;
 
     private int count;
 
-    public void run(Configuration configuration) {
+    public MultithreadStmtNamedWindowUniqueTwoWJoinConsumer(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         configuration.getCommon().addEventType(EventOne.class);
         configuration.getCommon().addEventType(EventTwo.class);
 

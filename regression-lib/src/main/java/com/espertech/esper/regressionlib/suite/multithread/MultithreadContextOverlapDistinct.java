@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -23,9 +24,15 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MultithreadContextOverlapDistinct {
+public class MultithreadContextOverlapDistinct implements RegressionExecutionPreConfigured {
 
-    public void run(Configuration configuration) {
+    private final Configuration configuration;
+
+    public MultithreadContextOverlapDistinct(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         // Test uses system time
         //
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);

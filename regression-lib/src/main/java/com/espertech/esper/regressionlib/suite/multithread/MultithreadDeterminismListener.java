@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.Locking;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.GeneratorIterator;
 import com.espertech.esper.regressionlib.support.multithread.SendEventCallable;
@@ -33,8 +34,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for multithread-safety and deterministic behavior when using insert-into.
  */
-public class MultithreadDeterminismListener {
-    public void run(Configuration configuration) {
+public class MultithreadDeterminismListener implements RegressionExecutionPreConfigured {
+    private final Configuration configuration;
+
+    public MultithreadDeterminismListener(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         trySend(4, 10000, true, Locking.SUSPEND, configuration);
         trySend(4, 10000, true, Locking.SPIN, configuration);
     }

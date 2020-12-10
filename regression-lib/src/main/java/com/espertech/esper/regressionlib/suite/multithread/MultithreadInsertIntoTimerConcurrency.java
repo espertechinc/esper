@@ -13,8 +13,9 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.Locking;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.util.NoActionUpdateListener;
 import com.espertech.esper.runtime.client.EPEventService;
@@ -26,14 +27,21 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MultithreadInsertIntoTimerConcurrency {
+public class MultithreadInsertIntoTimerConcurrency implements RegressionExecutionPreConfigured {
     private static final Logger log = LoggerFactory.getLogger(MultithreadInsertIntoTimerConcurrency.class);
+
+    private final Configuration configuration;
+
     private AtomicLong idCounter;
     private ExecutorService executorService;
     private EPEventService epRuntime;
     private NoActionUpdateListener noActionUpdateListener;
 
-    public void run(Configuration configuration) {
+    public MultithreadInsertIntoTimerConcurrency(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         idCounter = new AtomicLong(0);
         executorService = Executors.newCachedThreadPool();
         noActionUpdateListener = new NoActionUpdateListener();

@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.regressionrun.runner;
 
+import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
 import com.espertech.esper.regressionlib.framework.RegressionFilter;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -79,5 +81,9 @@ public class RegressionRunner {
         if (InstrumentationHelper.ENABLED && !execution.excludeWhenInstrumented()) {
             InstrumentationHelper.endTest();
         }
+    }
+
+    public static void runPreConfigured(RegressionExecutionPreConfigured preConfigured) {
+        preConfigured.run();
     }
 }

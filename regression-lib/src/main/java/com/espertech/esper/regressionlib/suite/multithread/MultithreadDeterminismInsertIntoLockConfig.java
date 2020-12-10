@@ -14,8 +14,9 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.Locking;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.multithread.GeneratorIterator;
 import com.espertech.esper.regressionlib.support.multithread.SendEventRWLockCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
@@ -36,10 +37,16 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 /**
  * Test for multithread-safety and deterministic behavior when using insert-into.
  */
-public class MultithreadDeterminismInsertIntoLockConfig {
+public class MultithreadDeterminismInsertIntoLockConfig implements RegressionExecutionPreConfigured {
     private static final Logger log = LoggerFactory.getLogger(MultithreadDeterminismInsertIntoLockConfig.class);
 
-    public void run(Configuration configuration) {
+    private final Configuration configuration;
+
+    public MultithreadDeterminismInsertIntoLockConfig(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void run() {
         trySendCountFollowedBy(4, 100, Locking.SUSPEND, configuration);
         trySendCountFollowedBy(4, 100, Locking.SPIN, configuration);
     }

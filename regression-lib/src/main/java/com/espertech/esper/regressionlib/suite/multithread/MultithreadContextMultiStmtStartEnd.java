@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.FilterServiceProfile;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPRuntime;
@@ -23,10 +24,16 @@ import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import static org.junit.Assert.fail;
 
-public class MultithreadContextMultiStmtStartEnd {
+public class MultithreadContextMultiStmtStartEnd implements RegressionExecutionPreConfigured {
 
-    public void run(Configuration configuration) {
+    private final Configuration configuration;
+
+    public MultithreadContextMultiStmtStartEnd(Configuration configuration) {
+        this.configuration = configuration;
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);
+    }
+
+    public void run() {
         runAssertion(FilterServiceProfile.READMOSTLY, configuration);
         runAssertion(FilterServiceProfile.READWRITE, configuration);
     }

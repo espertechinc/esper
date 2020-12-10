@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
@@ -22,12 +23,17 @@ import static com.espertech.esper.regressionlib.support.client.SupportCompileDep
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MultithreadContextNestedNonOverlapAtNow {
+public class MultithreadContextNestedNonOverlapAtNow implements RegressionExecutionPreConfigured {
 
-    public void run(Configuration configuration) {
+    private final Configuration configuration;
+
+    public MultithreadContextNestedNonOverlapAtNow(Configuration configuration) {
+        this.configuration = configuration;
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);
         configuration.getCommon().addEventType(TestEvent.class);
+    }
 
+    public void run() {
         EPRuntime runtime = EPRuntimeProvider.getRuntime(this.getClass().getSimpleName(), configuration);
         runtime.initialize();
         threadSleep(100); // allow time for start up
