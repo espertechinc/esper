@@ -1049,7 +1049,7 @@ public class ResultSetQueryTypeRollupDimensionality {
 
     private static void tryAssertionOutputWhenTerminated(RegressionEnvironment env, String outputLimit, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String epl = "@name('ctx') create context MyContext start SupportBean_S0(id=1) end SupportBean_S0(id=0);\n" +
-            "@name('s0') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
+            opt.getHint() + " @name('s0') context MyContext select theString as c0, sum(intPrimitive) as c1 " +
             "from SupportBean group by rollup(theString) output " + outputLimit + " when terminated";
         env.compileDeploy(epl).addListener("s0");
 

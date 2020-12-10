@@ -848,6 +848,8 @@ public class PatternOperatorEveryDistinct {
             env.sendEventBean(new SupportBean("E1", 3));
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
 
             env.sendEventBean(new SupportBean("E1", 4));

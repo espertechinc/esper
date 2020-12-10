@@ -15,21 +15,24 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class RowRecogClausePresence implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        runAssertionMeasurePresence(env, 0, "B.size()", 1);
-        runAssertionMeasurePresence(env, 0, "100+B.size()", 101);
-        runAssertionMeasurePresence(env, 1000000, "B.anyOf(v=>theString='E2')", true);
+        AtomicInteger milestone = new AtomicInteger();
+        runAssertionMeasurePresence(env, 0, "B.size()", 1, milestone);
+        runAssertionMeasurePresence(env, 0, "100+B.size()", 101, milestone);
+        runAssertionMeasurePresence(env, 1000000, "B.anyOf(v=>theString='E2')", true, milestone);
 
-        runAssertionDefineNotPresent(env, true);
-        runAssertionDefineNotPresent(env, false);
+        runAssertionDefineNotPresent(env, true, milestone);
+        runAssertionDefineNotPresent(env, false, milestone);
     }
 
-    private void runAssertionDefineNotPresent(RegressionEnvironment env, boolean soda) {
+    private void runAssertionDefineNotPresent(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
 
         String epl = "@name('s0') select * from SupportBean " +
             "match_recognize (" +
@@ -49,6 +52,8 @@ public class RowRecogClausePresence implements RegressionExecution {
         env.sendEventBean(beans[1]);
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beans[0], beans[1]});
 
+        env.milestoneInc(milestone);
+
         env.sendEventBean(beans[2]);
         assertFalse(env.listener("s0").isInvoked());
         env.sendEventBean(beans[3]);
@@ -57,7 +62,7 @@ public class RowRecogClausePresence implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runAssertionMeasurePresence(RegressionEnvironment env, long baseTime, String select, Object value) {
+    private void runAssertionMeasurePresence(RegressionEnvironment env, long baseTime, String select, Object value, AtomicInteger milestone) {
 
         env.advanceTime(baseTime);
         String epl = "@name('s0') select * from SupportBean  " +
@@ -72,6 +77,8 @@ public class RowRecogClausePresence implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E2", 2));
+
+        env.milestoneInc(milestone);
 
         env.advanceTimeSpan(baseTime + 60 * 1000 * 2);
         assertEquals(value, env.listener("s0").getNewDataListFlattened()[0].get("val"));

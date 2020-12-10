@@ -244,16 +244,23 @@ public class PatternOperatorEvery {
             sendTimer(env, 7999);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             sendTimer(env, 8000);
             Assert.assertEquals("No event within 6 seconds", env.listener("s0").assertOneGetNewAndReset().get("alert"));
 
             sendTimer(env, 12000);
             env.sendEventBean(new SupportBean());
+
+            env.milestone(1);
+
             sendTimer(env, 13000);
             env.sendEventBean(new SupportBean());
 
             sendTimer(env, 18999);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(2);
 
             sendTimer(env, 19000);
             Assert.assertEquals("No event within 6 seconds", env.listener("s0").assertOneGetNewAndReset().get("alert"));

@@ -66,6 +66,7 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));
             env.sendEventBean(new SupportBean_B("B1"));
+
             env.sendEventBean(new SupportBean_A("A3"));
             env.sendEventBean(new SupportBean_A("A4"));
             assertTrue(handler.getContexts().isEmpty());

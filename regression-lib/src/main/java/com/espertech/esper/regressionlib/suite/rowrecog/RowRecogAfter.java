@@ -196,11 +196,16 @@ public class RowRecogAfter {
             env.sendEventBean(new SupportRecogBean("E1", 3));
             env.sendEventBean(new SupportRecogBean("E2", 1));
             env.sendEventBean(new SupportRecogBean("E3", 2));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportRecogBean("E4", 5));
             env.sendEventBean(new SupportRecogBean("E5", 1));
             env.sendEventBean(new SupportRecogBean("E6", 2));
             assertFalse(env.listener("s0").isInvoked());
             assertFalse(env.statement("s0").iterator().hasNext());
+
+            env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E7", 1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
@@ -209,6 +214,9 @@ public class RowRecogAfter {
                 new Object[][]{{"E5", "E6", "E7"}});
 
             env.sendEventBean(new SupportRecogBean("E8", 2));
+
+            env.milestone(2);
+
             env.sendEventBean(new SupportRecogBean("E9", 1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
                 new Object[][]{{"E7", "E8", "E9"}});

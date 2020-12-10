@@ -327,6 +327,8 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
 
+            env.milestone(0);
+
             env.sendEventBean(makeEvent("E1", 1, 10L));
             env.sendEventBean(makeEvent("E1", 2, 20L));
             env.sendEventBean(makeEvent("E1", 1, 30L));

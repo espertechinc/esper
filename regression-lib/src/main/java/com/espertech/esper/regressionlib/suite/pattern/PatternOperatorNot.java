@@ -244,12 +244,16 @@ public class PatternOperatorNot {
             sendTimer(10000, env);
             env.sendEventBean(new SupportBean("E2", 123));
 
+            env.milestone(0);
+
             sendTimer(20000, env);
             env.sendEventBean(new SupportMarketDataBean("E1", 0, 123L, ""));
 
             sendTimer(30000, env);
             env.sendEventBean(new SupportBean("E3", 123));
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(1);
 
             sendTimer(40000, env);
             String[] fields = new String[]{"theString"};
@@ -271,6 +275,9 @@ public class PatternOperatorNot {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 0));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportMarketDataBean("E5", "M1", 1d));
             assertTrue(env.listener("s0").isInvoked());

@@ -82,6 +82,7 @@ public class PatternOperatorAnd {
             env.compileDeploy(pattern).addListener("s0");
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
+
             env.sendEventBean(new SupportBean_C("C1"));
             assertTrue(env.listener("s0").isInvoked());
 
@@ -101,6 +102,8 @@ public class PatternOperatorAnd {
             for (int i = 0; i < 10; i++) {
                 env.sendEventBean(new SupportBean_B("B" + i));
             }
+
+            env.milestone(0);
 
             env.addListener("s0");
             env.sendEventBean(new SupportBean_B("B_last"));

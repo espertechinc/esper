@@ -13,11 +13,11 @@ package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
@@ -75,14 +75,14 @@ public class ResultSetAggregateCountSum {
             String epl = "@name('s0') select count(distinct intOne) as c0, count(distinct {intOne, intTwo}) as c1 from SupportEventWithManyArray#length(3)";
             env.compileDeploy(epl).addListener("s0");
 
-            sendManyArrayAssert(env, new int[] {1, 2}, new int[] {1}, 1, 1);
-            sendManyArrayAssert(env, new int[] {1, 2}, new int[] {1}, 1, 1);
-            sendManyArrayAssert(env, new int[] {1, 3}, new int[] {1}, 2, 2);
+            sendManyArrayAssert(env, new int[]{1, 2}, new int[]{1}, 1, 1);
+            sendManyArrayAssert(env, new int[]{1, 2}, new int[]{1}, 1, 1);
+            sendManyArrayAssert(env, new int[]{1, 3}, new int[]{1}, 2, 2);
 
             env.milestone(0);
 
-            sendManyArrayAssert(env, new int[] {1, 4}, new int[] {1}, 3, 3);
-            sendManyArrayAssert(env, new int[] {1, 3}, new int[] {2}, 2, 3);
+            sendManyArrayAssert(env, new int[]{1, 4}, new int[]{1}, 3, 3);
+            sendManyArrayAssert(env, new int[]{1, 3}, new int[]{2}, 2, 3);
 
             env.undeployAll();
         }
@@ -105,6 +105,8 @@ public class ResultSetAggregateCountSum {
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
             assertEquals("S1", env.listener("s0").getLastNewData()[0].get("symbol"));
+
+            env.milestone(0);
 
             sendEvent(env, "S2", 1L);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
@@ -131,6 +133,8 @@ public class ResultSetAggregateCountSum {
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
 
+            env.milestone(0);
+
             sendEvent(env, "DELL", 1L);
             assertTrue(env.listener("s0").getAndClearIsInvoked());
             assertEquals(1, env.listener("s0").getLastNewData().length);
@@ -153,6 +157,9 @@ public class ResultSetAggregateCountSum {
             assertFalse(env.listener("s0").getAndClearIsInvoked());
             sendEvent(env);
             assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+
+            env.milestone(0);
+
             sendEvent(env);
             assertEquals(2, env.listener("s0").assertOneGetOldAndReset().get("mysum"));
 
@@ -169,6 +176,9 @@ public class ResultSetAggregateCountSum {
             assertFalse(env.listener("s0").getAndClearIsInvoked());
             sendEvent(env);
             assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+
+            env.milestone(0);
+
             sendEvent(env);
             assertEquals(2L, env.listener("s0").assertOneGetOldAndReset().get("mysum"));
 
@@ -223,6 +233,8 @@ public class ResultSetAggregateCountSum {
             sendEvent(env, SYMBOL_DELL, 51L);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
 
+            env.milestone(0);
+
             sendEvent(env, SYMBOL_DELL, 52L);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
 
@@ -231,6 +243,8 @@ public class ResultSetAggregateCountSum {
             EPAssertionUtil.assertProps(events[0], "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2d});
             EPAssertionUtil.assertProps(events[1], "symbol,cnt,val".split(","), new Object[]{"IBM", 1L, 1d});
             env.listener("s0").reset();
+
+            env.milestone(1);
 
             sendEvent(env, SYMBOL_DELL, 53L);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
@@ -384,6 +398,8 @@ public class ResultSetAggregateCountSum {
             SYMBOL_DELL, 2L, 1L, 1L
         );
 
+        env.milestone(0);
+
         sendEvent(env, SYMBOL_DELL, 25L);
         assertEvents(env, SYMBOL_DELL, 2L, 1L, 1L,
             SYMBOL_DELL, 3L, 2L, 2L
@@ -398,6 +414,8 @@ public class ResultSetAggregateCountSum {
         assertEvents(env, SYMBOL_DELL, 3L, 1L, 2L,
             SYMBOL_DELL, 3L, 1L, 3L
         );
+
+        env.milestone(1);
 
         sendEvent(env, SYMBOL_IBM, 1L);
         sendEvent(env, SYMBOL_IBM, null);
@@ -446,6 +464,6 @@ public class ResultSetAggregateCountSum {
 
     private static void sendManyArrayAssert(RegressionEnvironment env, int[] intOne, int[] intTwo, long expectedC0, long expectedC1) {
         env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(intOne).withIntTwo(intTwo));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {expectedC0, expectedC1});
+        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{expectedC0, expectedC1});
     }
 }

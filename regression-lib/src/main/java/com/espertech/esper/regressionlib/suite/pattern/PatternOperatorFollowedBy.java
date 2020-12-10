@@ -168,6 +168,8 @@ public class PatternOperatorFollowedBy {
             received = env.listener("s0").assertOneGetNewAndReset();
             assertEquals(eventA, received.get("a"));
 
+            env.milestone(0);
+
             // test case where Completed event arrives within the time set
             sendTimer(20000, env);
             sendA("A2", env);
@@ -176,6 +178,8 @@ public class PatternOperatorFollowedBy {
             sendTimer(30000, env);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(1);
+
             // test case where Cancelled event arrives within the time set
             sendTimer(30000, env);
             sendA("A3", env);
@@ -183,6 +187,8 @@ public class PatternOperatorFollowedBy {
             sendC("A3", env);
             sendTimer(40000, env);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(2);
 
             // test case where no matching Completed or Cancel event arrives
             eventA = sendA("A4", env);
@@ -277,6 +283,8 @@ public class PatternOperatorFollowedBy {
             env.sendEventBean(theEvent);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             theEvent = new SupportRFIDEvent("a", "2");
             env.sendEventBean(theEvent);
             assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
@@ -284,6 +292,8 @@ public class PatternOperatorFollowedBy {
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(1);
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
@@ -319,6 +329,8 @@ public class PatternOperatorFollowedBy {
             env.sendEventBean(theEvent);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             theEvent = new SupportRFIDEvent("a", "1");
             env.sendEventBean(theEvent);
             assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
@@ -330,6 +342,8 @@ public class PatternOperatorFollowedBy {
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(1);
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
@@ -351,6 +365,8 @@ public class PatternOperatorFollowedBy {
 
             Object eventOne = new SupportBean();
             env.sendEventBean(eventOne);
+
+            env.milestone(1);
 
             Object eventTwo = new SupportBean();
             env.sendEventBean(eventTwo);
@@ -375,11 +391,15 @@ public class PatternOperatorFollowedBy {
             events[0] = new SupportBean_A("A1");
             env.sendEventBean(events[0]);
 
+            env.milestone(0);
+
             events[1] = new SupportBean_A("A2");
             env.sendEventBean(events[1]);
 
             events[2] = new SupportBean_B("B1");
             env.sendEventBean(events[2]);
+
+            env.milestone(1);
 
             events[3] = new SupportBean_C("C1");
             env.sendEventBean(events[3]);
@@ -403,6 +423,9 @@ public class PatternOperatorFollowedBy {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E2", 11));
             assertFalse(env.listener("s0").isInvoked());
 
@@ -412,6 +435,9 @@ public class PatternOperatorFollowedBy {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
+
+            env.milestone(1);
+
             env.sendEventBean(new SupportBean("E2", 11));
             assertFalse(env.listener("s0").isInvoked());
 
@@ -434,6 +460,8 @@ public class PatternOperatorFollowedBy {
 
             env.advanceTime(10999);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
 
             env.advanceTime(11000);
             TestCase.assertTrue(env.listener("s0").isInvoked());

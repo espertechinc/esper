@@ -57,6 +57,8 @@ public class ResultSetAggregationMethodWindow {
             assertEquals(2, events.size());
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{events.get(0).getUnderlying(), events.get(1).getUnderlying()}, new SupportBean[]{sb1, sb2});
 
+            env.milestone(0);
+
             env.undeployAll();
         }
     }
@@ -76,6 +78,8 @@ public class ResultSetAggregationMethodWindow {
 
             env.sendEventBean(new SupportBean_S0(-1));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","), new Object[]{10, 30, 3});
+
+            env.milestone(0);
 
             env.undeployAll();
         }
@@ -100,6 +104,8 @@ public class ResultSetAggregationMethodWindow {
 
             SupportBean sb3 = makeSendBean(env, "E3", 0);
             sendAssert(env, sb2, sb3);
+
+            env.milestone(0);
 
             env.undeployAll();
         }
@@ -136,6 +142,8 @@ public class ResultSetAggregationMethodWindow {
 
             SupportBean sb6 = makeSendBean(env, "A", 6);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", sb4, sb6});
+
+            env.milestone(0);
 
             env.undeployAll();
         }

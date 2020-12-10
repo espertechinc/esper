@@ -127,9 +127,13 @@ public class ResultSetAggregationMethodSorted {
             env.sendEventBean(new SupportBean("A", 20));
             sendAssertGrouped(env, "A", 10, 20);
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("A", 10));
             env.sendEventBean(new SupportBean("A", 21));
             sendAssertGrouped(env, "A", 10, 21);
+
+            env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 100));
             sendAssertGrouped(env, "A", 10, 21);
@@ -160,6 +164,8 @@ public class ResultSetAggregationMethodSorted {
             assertType(env, HashableMultiKey.EPTYPE, "firstkey,lastkey,lowerkey");
 
             prepareTestData(env, new TreeMap<>()); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
@@ -208,6 +214,8 @@ public class ResultSetAggregationMethodSorted {
                 }
             }
 
+            env.milestone(0);
+
             env.undeployAll();
         }
     }
@@ -225,6 +233,8 @@ public class ResultSetAggregationMethodSorted {
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
@@ -258,6 +268,8 @@ public class ResultSetAggregationMethodSorted {
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
@@ -297,6 +309,8 @@ public class ResultSetAggregationMethodSorted {
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean_S0(-1));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
             assertEquals(firstEventString(treemap.firstEntry()), event.get("feid"));
@@ -332,6 +346,8 @@ public class ResultSetAggregationMethodSorted {
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
             EventBean event = env.listener("s0").assertOneGetNewAndReset();
@@ -373,6 +389,8 @@ public class ResultSetAggregationMethodSorted {
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
@@ -426,6 +444,8 @@ public class ResultSetAggregationMethodSorted {
 
             TreeMap<Integer, List<SupportBean>> treemap = new TreeMap<>();
             prepareTestData(env, treemap); // 1, 1, 4, 6, 6, 8, 9
+
+            env.milestone(0);
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));

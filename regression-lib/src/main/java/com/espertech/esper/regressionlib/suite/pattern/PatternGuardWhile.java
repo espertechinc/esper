@@ -120,12 +120,18 @@ public class PatternGuardWhile {
 
             env.sendEventBean(new SupportBean("A1", 1));
             env.sendEventBean(new SupportBean("A2", 2));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("B1", 100));
             Assert.assertEquals(2, env.listener("s0").getAndResetLastNewData().length);
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myVariable", false);
 
             env.sendEventBean(new SupportBean("A3", 3));
+
+            env.milestone(1);
+
             env.sendEventBean(new SupportBean("A4", 4));
             env.sendEventBean(new SupportBean("B2", 200));
             assertFalse(env.listener("s0").isInvoked());

@@ -333,16 +333,16 @@ public class EventJsonInherits {
 
     private static class EventJsonInheritsFourLevel implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl =
-                "@public @buseventtype create json schema A(a1 double);\n" +
+            RegressionPath path = new RegressionPath();
+            String epl = "@public @buseventtype create json schema A(a1 double);\n" +
                     "@public @buseventtype create json schema B(b1 string, b2 int) inherits A;\n" +
                     "@public @buseventtype create json schema C(c1 string) inherits B;\n" +
-                    "@public @buseventtype create json schema D(d1 double, d2 int) inherits C;\n" +
-                    "@name('sa') select * from A#keepall;\n" +
-                    "@name('sb') select * from B#keepall;\n" +
-                    "@name('sc') select * from C#keepall;\n" +
-                    "@name('sd') select * from D#keepall;\n";
-            env.compileDeploy(epl).addListener("sa").addListener("sb").addListener("sc").addListener("sd");
+                    "@public @buseventtype create json schema D(d1 double, d2 int) inherits C;\n";
+            env.compileDeploy(epl, path);
+            env.compileDeploy("@name('sa') select * from A#keepall", path).addListener("sa");
+            env.compileDeploy("@name('sb') select * from B#keepall", path).addListener("sb");
+            env.compileDeploy("@name('sc') select * from C#keepall", path).addListener("sc");
+            env.compileDeploy("@name('sd') select * from D#keepall", path).addListener("sd");
 
             env.sendEventJson("{\"d2\": 1, \"d1\": 2, \"c1\": \"def\", \"b2\": 3, \"b1\": \"x\", \"a1\": 4}", "D");
             EventBean eventOne = env.listener("sd").assertOneGetNewAndReset();
@@ -350,6 +350,10 @@ public class EventJsonInherits {
             env.listener("sa").assertInvokedAndReset();
             env.listener("sb").assertInvokedAndReset();
             env.listener("sc").assertInvokedAndReset();
+
+            env.undeployModuleContaining("sa");
+            env.undeployModuleContaining("sb");
+            env.undeployModuleContaining("sc");
 
             env.milestone(0);
 

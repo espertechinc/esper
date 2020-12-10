@@ -36,9 +36,10 @@ public class EPLJoinCoercion {
     private static class EPLJoinJoinCoercionRange implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
-
             String[] fields = "sbs,sbi,sbri".split(",");
-            String epl = "@name('s0') select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean#length(10) sb, SupportBeanRange#length(10) sbr " +
+            String epl;
+
+            epl = "@name('s0') select sb.theString as sbs, sb.intPrimitive as sbi, sbr.id as sbri from SupportBean#length(10) sb, SupportBeanRange#length(10) sbr " +
                 "where intPrimitive between rangeStartLong and rangeEndLong";
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 

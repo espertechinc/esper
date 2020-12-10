@@ -70,6 +70,8 @@ public class ClientExtendAggregationMultiFunction {
             env.sendEventBean(e2);
             sendAssertList(env, e1, e2);
 
+            env.milestone(0);
+
             SupportBean e3 = new SupportBean("E3", 3);
             env.sendEventBean(e3);
             sendAssertList(env, e2, e3);
@@ -127,6 +129,8 @@ public class ClientExtendAggregationMultiFunction {
             SupportBean eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSingleEvent, new Object[]{eventOne, true, true, "E1", 1});
+
+            env.milestone(0);
 
             SupportBean eventTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventTwo);
@@ -206,6 +210,8 @@ public class ClientExtendAggregationMultiFunction {
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalar, new Object[]{"E1", 1});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E2", 2));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalar, new Object[]{"E2", 2});
 
@@ -227,6 +233,8 @@ public class ClientExtendAggregationMultiFunction {
             SupportBean e2 = new SupportBean("E2", 2);
             env.sendEventBean(e2);
             assertList(env.listener("s0"), e1, e2);
+
+            env.milestone(0);
 
             SupportBean e3 = new SupportBean("E3", 3);
             env.sendEventBean(e3);

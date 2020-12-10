@@ -151,13 +151,15 @@ public class ResultSetAggregateMaxMinGroupBy {
             sendEvent(env, "DELL", 100L);
             assertFalse(env.listener("s0").isInvoked());
 
-            env.milestone(1);
+            env.milestone(0);
 
             sendEvent(env, "DELL", 131L);
             assertEquals("DELL", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
 
             sendEvent(env, "DELL", 132L);
             assertEquals("DELL", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+
+            env.milestone(1);
 
             sendEvent(env, "DELL", 129L);
             assertFalse(env.listener("s0").isInvoked());

@@ -300,9 +300,13 @@ public class PatternGuardTimerWithin {
             env.sendEventBean(new SupportBean("E2", -1));
             Assert.assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
 
+            env.milestone(0);
+
             sendTimer(2999, env);
             env.sendEventBean(new SupportBean("E3", -1));
             Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("id"));
+
+            env.milestone(1);
 
             sendTimer(3000, env);
             assertFalse(env.listener("s0").isInvoked());
@@ -357,6 +361,8 @@ public class PatternGuardTimerWithin {
         env.sendEventBean(new SupportBean("E2", 0));
         assertTrue(env.listener("s0").getAndClearIsInvoked());
 
+        env.milestone(0);
+
         sendCurrentTime(env, "2002-03-01T09:00:00.000");
         env.sendEventBean(new SupportBean("E3", 0));
         assertFalse(env.listener("s0").getAndClearIsInvoked());
@@ -381,6 +387,8 @@ public class PatternGuardTimerWithin {
         Assert.assertEquals(time - 1, env.eventService().getCurrentTime());
         sendEvent(env);
         env.listener("s0").assertOneGetNewAndReset();
+
+        env.milestone(0);
 
         sendTimer(time, env);
         sendEvent(env);

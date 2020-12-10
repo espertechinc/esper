@@ -98,9 +98,13 @@ public class ResultSetAggregateMinMax {
             env.sendEventBean(new SupportBean("E2", 4));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, 3, null, null});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean("E3", 4));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, 3, 2, 2});
+
+            env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean("E4", 5));

@@ -139,10 +139,14 @@ public class ViewLengthWin {
             assertEquals(eventObject.getMapProperty(), theEvent.get("mapProperty"));
             assertEquals(eventObject.getArrayProperty()[0], theEvent.get("arrayProperty[0]"));
 
+            env.milestone(0);
+
             eventObject.setIndexed(1, Integer.MIN_VALUE);
             assertFalse(env.listener("s0").isInvoked());
             env.sendEventBean(eventObject);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(1);
 
             eventObject.setIndexed(1, 2);
             env.sendEventBean(eventObject);
@@ -166,12 +170,16 @@ public class ViewLengthWin {
             assertEquals("ABC", theEvent.get("symbol"));
             assertEquals(20d, theEvent.get("price"));
 
+            env.milestone(0);
+
             theEvent = events.next();
             assertEquals("DEF", theEvent.get("symbol"));
             assertEquals(100d, theEvent.get("price"));
             assertFalse(events.hasNext());
 
             sendEvent(env, "EFG", 50);
+
+            env.milestone(1);
 
             // check iterator results
             events = env.statement("s0").iterator();

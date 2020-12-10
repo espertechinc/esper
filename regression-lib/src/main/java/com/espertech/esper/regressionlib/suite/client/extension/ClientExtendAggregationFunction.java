@@ -27,6 +27,7 @@ import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportSupportBe
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
@@ -59,6 +60,9 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy(epl, path);
 
             env.sendEventBean(new SupportBean("E1", 0));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E2", 0));
             assertEquals("E1 E2", env.compileExecuteFAF("select col1 from MyTable", path).getArray()[0].get("col1"));
 
@@ -101,6 +105,8 @@ public class ClientExtendAggregationFunction {
             env.sendEventBean(new SupportBean("b", -1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a b"}, new Object[]{"a"});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("c", -1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"b c"}, new Object[]{"a b"});
 
@@ -112,17 +118,18 @@ public class ClientExtendAggregationFunction {
     }
     private static class ClientExtendAggregationManagedGrouped implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String textOne = "@name('s0') select irstream CONCATSTRING(theString) as val from SupportBean#length(10) group by intPrimitive";
-            tryGrouped(env, textOne, null);
+            tryGrouped(env, textOne, null, milestone);
 
             String textTwo = "@name('s0') select irstream concatstring(theString) as val from SupportBean#win:length(10) group by intPrimitive";
-            tryGrouped(env, textTwo, null);
+            tryGrouped(env, textTwo, null, milestone);
 
             String textThree = "@name('s0') select irstream concatstring(theString) as val from SupportBean#length(10) group by intPrimitive";
             EPStatementObjectModel model = env.eplToModel(textThree);
             SerializableObjectCopier.copyMayFail(model);
             assertEquals(textThree, model.toEPL());
-            tryGrouped(env, null, model);
+            tryGrouped(env, null, model, milestone);
 
             String textFour = "select irstream concatstring(theString) as val from SupportBean#length(10) group by intPrimitive";
             EPStatementObjectModel modelTwo = new EPStatementObjectModel();
@@ -133,12 +140,12 @@ public class ClientExtendAggregationFunction {
             assertEquals(textFour, modelTwo.toEPL());
             SerializableObjectCopier.copyMayFail(modelTwo);
             modelTwo.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
-            tryGrouped(env, null, modelTwo);
+            tryGrouped(env, null, modelTwo, milestone);
 
             env.undeployAll();
         }
 
-        private void tryGrouped(RegressionEnvironment env, String text, EPStatementObjectModel model) {
+        private void tryGrouped(RegressionEnvironment env, String text, EPStatementObjectModel model, AtomicInteger milestone) {
             if (model != null) {
                 env.compileDeploy(model);
             } else {
@@ -154,6 +161,8 @@ public class ClientExtendAggregationFunction {
 
             env.sendEventBean(new SupportBean("c", 1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a c"}, new Object[]{"a"});
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("d", 2));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"b d"}, new Object[]{"b"});
@@ -177,6 +186,8 @@ public class ClientExtendAggregationFunction {
             env.sendEventBean(new SupportBean("d", -1));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val".split(","), new Object[]{"SupportBean(d, -1)"});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("e", 2));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val".split(","), new Object[]{"SupportBean(d, -1) SupportBean(e, 2)"});
 
@@ -196,6 +207,8 @@ public class ClientExtendAggregationFunction {
 
             env.sendEventBean(new SupportBean("b", -1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a b"}, new Object[]{"a b"});
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean("c", -1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a b c"}, new Object[]{"a b"});
@@ -226,11 +239,12 @@ public class ClientExtendAggregationFunction {
     }
     private static class ClientExtendAggregationMultiParamMulti implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionMultipleParams(env, false);
-            tryAssertionMultipleParams(env, true);
+            AtomicInteger milestone = new AtomicInteger();
+            tryAssertionMultipleParams(env, false, milestone);
+            tryAssertionMultipleParams(env, true, milestone);
         }
 
-        private void tryAssertionMultipleParams(RegressionEnvironment env, boolean soda) {
+        private void tryAssertionMultipleParams(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
 
             String text = "@name('s0') select irstream countboundary(1,10,intPrimitive,*) as val from SupportBean";
             env.compileDeploy(soda, text).addListener("s0");
@@ -282,6 +296,8 @@ public class ClientExtendAggregationFunction {
 
             env.sendEventBean(new SupportBean());
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a a"}, new Object[]{"a"});
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean());
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "val", new Object[]{"a a a"}, new Object[]{"a a"});

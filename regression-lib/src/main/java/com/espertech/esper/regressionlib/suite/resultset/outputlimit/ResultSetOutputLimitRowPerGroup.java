@@ -41,9 +41,7 @@ public class ResultSetOutputLimitRowPerGroup {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new ResultSetLastNoDataWindow());
         execs.add(new ResultSetOutputFirstWhenThen());
-        execs.add(new ResultSetWildcardRowPerGroup());
         execs.add(new ResultSet1NoneNoHavingNoJoin());
         execs.add(new ResultSet2NoneNoHavingJoin());
         execs.add(new ResultSet3NoneHavingNoJoin());
@@ -204,34 +202,6 @@ public class ResultSetOutputLimitRowPerGroup {
         }
     }
 
-    private static class ResultSetLastNoDataWindow implements RegressionExecution {
-        public void run(RegressionEnvironment env) {
-            env.advanceTime(0);
-            String epl = "@name('s0') select theString, intPrimitive as intp from SupportBean group by theString output last every 1 seconds order by theString asc";
-            env.compileDeploy(epl).addListener("s0");
-
-            env.sendEventBean(new SupportBean("E3", 31));
-            env.sendEventBean(new SupportBean("E1", 1));
-            env.sendEventBean(new SupportBean("E1", 2));
-            env.sendEventBean(new SupportBean("E2", 20));
-            env.sendEventBean(new SupportBean("E2", 22));
-            env.sendEventBean(new SupportBean("E2", 21));
-            env.sendEventBean(new SupportBean("E1", 3));
-            env.advanceTime(1000);
-
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), new String[]{"theString", "intp"}, new Object[][]{{"E1", 3}, {"E2", 21}, {"E3", 31}});
-
-            env.sendEventBean(new SupportBean("E3", 31));
-            env.sendEventBean(new SupportBean("E1", 5));
-            env.sendEventBean(new SupportBean("E3", 33));
-            env.advanceTime(2000);
-
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), new String[]{"theString", "intp"}, new Object[][]{{"E1", 5}, {"E3", 33}});
-
-            env.undeployAll();
-        }
-    }
-
     private static class ResultSetOutputFirstHavingJoinNoJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
@@ -301,6 +271,9 @@ public class ResultSetOutputLimitRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             sendBeanEvent(env, "E1", 10);
+
+            env.milestone(0);
+
             sendBeanEvent(env, "E1", 11);
             assertFalse(env.listener("s0").isInvoked());
 
@@ -308,6 +281,8 @@ public class ResultSetOutputLimitRowPerGroup {
             sendBeanEvent(env, "E1", 12);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 33});
             assertEquals(false, env.runtime().getVariableService().getVariableValue(null, "varoutone"));
+
+            env.milestone(1);
 
             env.runtime().getVariableService().setVariableValue(null, "varoutone", true);
             sendBeanEvent(env, "E2", 20);
@@ -383,46 +358,6 @@ public class ResultSetOutputLimitRowPerGroup {
 
             sendBeanEvent(env, "E1", 1);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 62}});
-
-            env.undeployAll();
-        }
-    }
-
-    private static class ResultSetWildcardRowPerGroup implements RegressionExecution {
-        public void run(RegressionEnvironment env) {
-
-            String epl = "@name('s0') select * from SupportBean group by theString output last every 3 events order by theString asc";
-            env.compileDeploy(epl).addListener("s0");
-
-            env.sendEventBean(new SupportBean("IBM", 10));
-            env.sendEventBean(new SupportBean("ATT", 11));
-            env.sendEventBean(new SupportBean("IBM", 100));
-
-            EventBean[] events = env.listener("s0").getNewDataListFlattened();
-            env.listener("s0").reset();
-            assertEquals(2, events.length);
-            Assert.assertEquals("ATT", events[0].get("theString"));
-            Assert.assertEquals(11, events[0].get("intPrimitive"));
-            Assert.assertEquals("IBM", events[1].get("theString"));
-            Assert.assertEquals(100, events[1].get("intPrimitive"));
-            env.undeployAll();
-
-            // All means each event
-            epl = "@name('s0') select * from SupportBean group by theString output all every 3 events";
-            env.compileDeploy(epl).addListener("s0");
-
-            env.sendEventBean(new SupportBean("IBM", 10));
-            env.sendEventBean(new SupportBean("ATT", 11));
-            env.sendEventBean(new SupportBean("IBM", 100));
-
-            events = env.listener("s0").getNewDataListFlattened();
-            assertEquals(3, events.length);
-            Assert.assertEquals("IBM", events[0].get("theString"));
-            Assert.assertEquals(10, events[0].get("intPrimitive"));
-            Assert.assertEquals("ATT", events[1].get("theString"));
-            Assert.assertEquals(11, events[1].get("intPrimitive"));
-            Assert.assertEquals("IBM", events[2].get("theString"));
-            Assert.assertEquals(100, events[2].get("intPrimitive"));
 
             env.undeployAll();
         }

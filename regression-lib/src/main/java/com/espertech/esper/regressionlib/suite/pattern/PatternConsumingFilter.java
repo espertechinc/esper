@@ -43,11 +43,16 @@ public class PatternConsumingFilter {
             env.sendEventBean(new SupportBean("E2", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2"});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E3", 0));
             env.sendEventBean(new SupportBean("E4", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E4"});
 
             env.sendEventBean(new SupportBean("E5", 0));
+
+            env.milestone(1);
+
             env.sendEventBean(new SupportBean("E6", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", "E6"});
 
@@ -73,6 +78,9 @@ public class PatternConsumingFilter {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E1"});
 
             env.sendEventBean(new SupportBean("E3", 1));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 10));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E5"});
@@ -97,6 +105,8 @@ public class PatternConsumingFilter {
             String[] fields = new String[]{"a", "b"};
             env.sendEventBean(new SupportBean("A", 10));
             assertFalse(env.listener("A").isInvoked());
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportBean("X", 10));
             EPAssertionUtil.assertProps(env.listener("A").assertOneGetNew(), fields, new Object[]{"X", "A"});

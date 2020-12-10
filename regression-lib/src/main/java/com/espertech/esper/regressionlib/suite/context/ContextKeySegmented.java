@@ -1182,13 +1182,23 @@ public class ContextKeySegmented {
 
             sendAssertSB(1, env, "A", 0);
 
+            env.milestone(0);
+
             sendAssertSB(2, env, "A", 0);
             sendAssertNone(env, new SupportBean("A", -1));
             sendAssertSB(1, env, "A", 0);
 
+            env.milestone(1);
+
             sendAssertSB(1, env, "B", 0);
             sendAssertNone(env, new SupportBean("B", -1));
+
+            env.milestone(2);
+
             sendAssertSB(1, env, "B", 0);
+
+            env.milestone(3);
+
             sendAssertSB(2, env, "B", 0);
             sendAssertNone(env, new SupportBean("B", -1));
             sendAssertSB(1, env, "B", 0);

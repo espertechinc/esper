@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -92,27 +93,29 @@ public class PatternObserverTimerSchedule {
 
     private static class PatternObserverTimerScheduleMultiform implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
+
             // just-date: "<date>" : non-recurring, typically a future start time, no period
-            runAssertionJustFutureDate(env);
-            runAssertionJustPastDate(env);
+            runAssertionJustFutureDate(env, milestone);
+            runAssertionJustPastDate(env, milestone);
 
             // just-period: "P<...>" : non-recurring
-            runAssertionJustPeriod(env);
+            runAssertionJustPeriod(env, milestone);
 
             // partial-form-2: "<date>/P<period>": non-recurring, no start date (starts from current date), with period
-            tryAssertionDateWithPeriod(env);
+            tryAssertionDateWithPeriod(env, milestone);
 
             // partial-form-1: "R<?>/P<period>": recurring, no start date (starts from current date), with period
-            runAssertionRecurringLimitedWithPeriod(env);
-            runAssertionRecurringUnlimitedWithPeriod(env);
-            runAssertionRecurringAnchoring(env);
+            runAssertionRecurringLimitedWithPeriod(env, milestone);
+            runAssertionRecurringUnlimitedWithPeriod(env, milestone);
+            runAssertionRecurringAnchoring(env, milestone);
 
             // full form: "R<?>/<date>/P<period>" : recurring, start time, with period
-            runAssertionFullFormLimitedFutureDated(env);
-            runAssertionFullFormLimitedPastDated(env);
-            runAssertionFullFormUnlimitedFutureDated(env);
-            runAssertionFullFormUnlimitedPastDated(env);
-            runAssertionFullFormUnlimitedPastDatedAnchoring(env);
+            runAssertionFullFormLimitedFutureDated(env, milestone);
+            runAssertionFullFormLimitedPastDated(env, milestone);
+            runAssertionFullFormUnlimitedFutureDated(env, milestone);
+            runAssertionFullFormUnlimitedPastDated(env, milestone);
+            runAssertionFullFormUnlimitedPastDatedAnchoring(env, milestone);
 
             // equivalent formulations
             runAssertionEquivalent(env);
@@ -121,8 +124,8 @@ public class PatternObserverTimerSchedule {
             runAssertionInvalid(env);
 
             // followed-by
-            runAssertionFollowedBy(env);
-            runAssertionFollowedByDynamicallyComputed(env);
+            runAssertionFollowedBy(env, milestone);
+            runAssertionFollowedByDynamicallyComputed(env, milestone);
 
             // named parameters
             runAssertionNameParameters(env);
@@ -130,13 +133,13 @@ public class PatternObserverTimerSchedule {
             /**
              * For Testing, could also use this:
              */
-        /*
-        env.advanceTimeStage(DateTime.parseDefaultMSecWZone("2001-10-01T05:51:00.000GMT-0:00")));
-        runtime.getDeploymentService().createEPL("select * from pattern[timer:schedule('2008-03-01T13:00:00Z/P1Y2M10DT2H30M')]").addListener(listener);
+            /*
+            env.advanceTimeStage(DateTime.parseDefaultMSecWZone("2001-10-01T05:51:00.000GMT-0:00")));
+            runtime.getDeploymentService().createEPL("select * from pattern[timer:schedule('2008-03-01T13:00:00Z/P1Y2M10DT2H30M')]").addListener(listener);
 
-        long next = runtime.getRuntime().getNextScheduledTime();
-        System.out.println(DateTime.print(next));
-        */
+            long next = runtime.getRuntime().getNextScheduledTime();
+            System.out.println(DateTime.print(next));
+            */
         }
     }
 
@@ -303,7 +306,7 @@ public class PatternObserverTimerSchedule {
         }
     }
 
-    private static void runAssertionFollowedByDynamicallyComputed(RegressionEnvironment env) {
+    private static void runAssertionFollowedByDynamicallyComputed(RegressionEnvironment env, AtomicInteger milestone) {
 
         sendCurrentTime(env, "2012-10-01T05:51:07.000GMT-0:00");
 
@@ -315,13 +318,15 @@ public class PatternObserverTimerSchedule {
         sendCurrentTime(env, "2012-10-01T05:51:9.999GMT-0:00");
         assertFalse(env.listener("s0").getIsInvokedAndReset());
 
+        env.milestoneInc(milestone);
+
         sendCurrentTime(env, "2012-10-01T05:51:10.000GMT-0:00");
         Assert.assertEquals(b1, env.listener("s0").assertOneGetNewAndReset().get("sb"));
 
         env.undeployAll();
     }
 
-    private static void runAssertionFollowedBy(RegressionEnvironment env) {
+    private static void runAssertionFollowedBy(RegressionEnvironment env, AtomicInteger milestone) {
         sendCurrentTime(env, "2012-10-01T05:51:07.000GMT-0:00");
 
         String epl = "@name('s0') select * from pattern[every sb=SupportBean -> timer:schedule(iso: 'R/1980-01-01T00:00:00Z/PT15S')]";
@@ -332,11 +337,15 @@ public class PatternObserverTimerSchedule {
         sendCurrentTime(env, "2012-10-01T05:51:14.999GMT-0:00");
         assertFalse(env.listener("s0").getIsInvokedAndReset());
 
+        env.milestoneInc(milestone);
+
         sendCurrentTime(env, "2012-10-01T05:51:15.000GMT-0:00");
         Assert.assertEquals(b1, env.listener("s0").assertOneGetNewAndReset().get("sb"));
 
         sendCurrentTime(env, "2012-10-01T05:51:16.000GMT-0:00");
         SupportBean b2 = makeSendEvent(env, "E2");
+
+        env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-10-01T05:51:18.000GMT-0:00");
         SupportBean b3 = makeSendEvent(env, "E3");
@@ -398,18 +407,19 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void tryAssertionDateWithPeriod(RegressionEnvironment env) {
-        tryAssertionDateWithPeriod(env, "iso: '2012-10-01T05:52:00Z/PT2S'");
-        tryAssertionDateWithPeriod(env, "date: '2012-10-01T05:52:00Z', period: 2 seconds");
+    private static void tryAssertionDateWithPeriod(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionDateWithPeriod(env, "iso: '2012-10-01T05:52:00Z/PT2S'", milestone);
+        tryAssertionDateWithPeriod(env, "date: '2012-10-01T05:52:00Z', period: 2 seconds", milestone);
     }
 
-    private static void tryAssertionDateWithPeriod(RegressionEnvironment env, String parameters) {
+    private static void tryAssertionDateWithPeriod(RegressionEnvironment env, String parameters, AtomicInteger milestone) {
         sendCurrentTime(env, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Repeat 3 times, starting "2012-10-01T05:52:00Z" (UTC), period of 2 seconds
         String epl = "@name('s0') select * from pattern[timer:schedule(" + parameters + ")]";
-
         env.compileDeploy(epl).addListener("s0");
+
+        env.milestoneInc(milestone);
 
         assertReceivedAtTime(env, "2012-10-01T05:52:02.000GMT-0:00");
         assertSendNoMoreCallback(env, "2012-10-01T05:52:04.000GMT-0:00");
@@ -417,13 +427,13 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionFullFormLimitedFutureDated(RegressionEnvironment env) {
-        tryAssertionFullFormLimitedFutureDated(env, true, "iso: 'R3/2012-10-01T05:52:00Z/PT2S'");
-        tryAssertionFullFormLimitedFutureDated(env, false, "iso: 'R3/2012-10-01T05:52:00Z/PT2S'");
-        tryAssertionFullFormLimitedFutureDated(env, false, "repetitions: 3L, date:'2012-10-01T05:52:00Z', period: 2 seconds");
+    private static void runAssertionFullFormLimitedFutureDated(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionFullFormLimitedFutureDated(env, true, "iso: 'R3/2012-10-01T05:52:00Z/PT2S'", milestone);
+        tryAssertionFullFormLimitedFutureDated(env, false, "iso: 'R3/2012-10-01T05:52:00Z/PT2S'", milestone);
+        tryAssertionFullFormLimitedFutureDated(env, false, "repetitions: 3L, date:'2012-10-01T05:52:00Z', period: 2 seconds", milestone);
     }
 
-    private static void tryAssertionFullFormLimitedFutureDated(RegressionEnvironment env, boolean audit, String parameters) {
+    private static void tryAssertionFullFormLimitedFutureDated(RegressionEnvironment env, boolean audit, String parameters, AtomicInteger milestone) {
 
         sendCurrentTime(env, "2012-10-01T05:51:00.000GMT-0:00");
 
@@ -433,24 +443,29 @@ public class PatternObserverTimerSchedule {
 
         assertReceivedAtTime(env, "2012-10-01T05:52:00.000GMT-0:00");
         assertReceivedAtTime(env, "2012-10-01T05:52:02.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertReceivedAtTime(env, "2012-10-01T05:52:04.000GMT-0:00");
         assertSendNoMoreCallback(env, "2012-10-01T05:52:06.000GMT-0:00");
 
         env.undeployAll();
     }
 
-    private static void runAssertionJustFutureDate(RegressionEnvironment env) {
-        tryAssertionJustFutureDate(env, true, "iso: '2012-10-01T05:52:00Z'");
-        tryAssertionJustFutureDate(env, false, "iso: '2012-10-01T05:52:00Z'");
-        tryAssertionJustFutureDate(env, false, "date: '2012-10-01T05:52:00Z'");
+    private static void runAssertionJustFutureDate(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionJustFutureDate(env, true, "iso: '2012-10-01T05:52:00Z'", milestone);
+        tryAssertionJustFutureDate(env, false, "iso: '2012-10-01T05:52:00Z'", milestone);
+        tryAssertionJustFutureDate(env, false, "date: '2012-10-01T05:52:00Z'", milestone);
     }
 
-    private static void tryAssertionJustFutureDate(RegressionEnvironment env, boolean hasEvery, String parameters) {
+    private static void tryAssertionJustFutureDate(RegressionEnvironment env, boolean hasEvery, String parameters, AtomicInteger milestone) {
         sendCurrentTime(env, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once at "2012-10-01T05:52:00Z" (UTC)
         String epl = "@name('s0') select * from pattern[" + (hasEvery ? "every " : "") + "timer:schedule(" + parameters + ")]";
         env.compileDeploy(epl).addListener("s0");
+
+        env.milestoneInc(milestone);
 
         assertReceivedAtTime(env, "2012-10-01T05:52:00.000GMT-0:00");
         assertSendNoMoreCallback(env, "2012-10-01T05:53:00.000GMT-0:00");
@@ -458,29 +473,31 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionJustPastDate(RegressionEnvironment env) {
-        tryAssertionJustPastDate(env, true);
-        tryAssertionJustPastDate(env, false);
+    private static void runAssertionJustPastDate(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionJustPastDate(env, true, milestone);
+        tryAssertionJustPastDate(env, false, milestone);
     }
 
-    private static void tryAssertionJustPastDate(RegressionEnvironment env, boolean hasEvery) {
+    private static void tryAssertionJustPastDate(RegressionEnvironment env, boolean hasEvery, AtomicInteger milestone) {
         sendCurrentTime(env, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once at "2012-10-01T05:52:00Z" (UTC)
         String epl = "@name('s0') select * from pattern[" + (hasEvery ? "every " : "") + "timer:schedule(iso: '2010-10-01T05:52:00Z')]";
         env.compileDeploy(epl).addListener("s0");
 
+        env.milestoneInc(milestone);
+
         assertSendNoMoreCallback(env, "2012-10-01T05:53:00.000GMT-0:00");
 
         env.undeployAll();
     }
 
-    private static void runAssertionJustPeriod(RegressionEnvironment env) {
-        tryAssertionJustPeriod(env, "iso:'P1DT2H'");
-        tryAssertionJustPeriod(env, "period: 1 day 2 hours");
+    private static void runAssertionJustPeriod(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionJustPeriod(env, "iso:'P1DT2H'", milestone);
+        tryAssertionJustPeriod(env, "period: 1 day 2 hours", milestone);
     }
 
-    private static void tryAssertionJustPeriod(RegressionEnvironment env, String parameters) {
+    private static void tryAssertionJustPeriod(RegressionEnvironment env, String parameters, AtomicInteger milestone) {
         sendCurrentTime(env, "2012-10-01T05:51:00.000GMT-0:00");
 
         // Fire once after 1 day and 2 hours
@@ -488,17 +505,20 @@ public class PatternObserverTimerSchedule {
         env.compileDeploy(epl).addListener("s0");
 
         assertReceivedAtTime(env, "2012-10-02T07:51:00.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertSendNoMoreCallback(env, "2012-10-03T09:51:00.000GMT-0:00");
 
         env.undeployAll();
     }
 
-    private static void runAssertionRecurringLimitedWithPeriod(RegressionEnvironment env) {
-        tryAssertionRecurringLimitedWithPeriod(env, "iso:'R3/PT2S'");
-        tryAssertionRecurringLimitedWithPeriod(env, "repetitions:3L, period: 2 seconds");
+    private static void runAssertionRecurringLimitedWithPeriod(RegressionEnvironment env, AtomicInteger milestone) {
+        tryAssertionRecurringLimitedWithPeriod(env, "iso:'R3/PT2S'", milestone);
+        tryAssertionRecurringLimitedWithPeriod(env, "repetitions:3L, period: 2 seconds", milestone);
     }
 
-    private static void tryAssertionRecurringLimitedWithPeriod(RegressionEnvironment env, String parameters) {
+    private static void tryAssertionRecurringLimitedWithPeriod(RegressionEnvironment env, String parameters, AtomicInteger milestone) {
 
         // Fire 3 times after 2 seconds from current time
         sendCurrentTime(env, "2012-10-01T05:52:00.000GMT-0:00");
@@ -507,13 +527,16 @@ public class PatternObserverTimerSchedule {
 
         assertReceivedAtTime(env, "2012-10-01T05:52:02.000GMT-0:00");
         assertReceivedAtTime(env, "2012-10-01T05:52:04.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertReceivedAtTime(env, "2012-10-01T05:52:06.000GMT-0:00");
         assertSendNoMoreCallback(env, "2012-10-01T05:52:08.000GMT-0:00");
 
         env.undeployAll();
     }
 
-    private static void runAssertionRecurringUnlimitedWithPeriod(RegressionEnvironment env) {
+    private static void runAssertionRecurringUnlimitedWithPeriod(RegressionEnvironment env, AtomicInteger milestone) {
 
         // Fire 3 times after 2 seconds from current time
         sendCurrentTime(env, "2012-10-01T05:52:00.000GMT-0:00");
@@ -523,13 +546,16 @@ public class PatternObserverTimerSchedule {
 
         assertReceivedAtTime(env, "2012-10-01T05:53:10.000GMT-0:00");
         assertReceivedAtTime(env, "2012-10-01T05:54:20.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertReceivedAtTime(env, "2012-10-01T05:55:30.000GMT-0:00");
         assertReceivedAtTime(env, "2012-10-01T05:56:40.000GMT-0:00");
 
         env.undeployAll();
     }
 
-    private static void runAssertionFullFormUnlimitedPastDated(RegressionEnvironment env) {
+    private static void runAssertionFullFormUnlimitedPastDated(RegressionEnvironment env, AtomicInteger milestone) {
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
         sendCurrentTime(env, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "@name('s0') select * from pattern[every timer:schedule(iso:'R/1980-01-01T00:00:00Z/PT1S')]";
@@ -538,6 +564,9 @@ public class PatternObserverTimerSchedule {
 
         assertReceivedAtTime(env, "2012-10-01T05:52:01.000GMT-0:00");
         assertReceivedAtTime(env, "2012-10-01T05:52:02.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertReceivedAtTime(env, "2012-10-01T05:52:03.000GMT-0:00");
 
         env.undeployAll();
@@ -566,18 +595,22 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionFullFormUnlimitedPastDatedAnchoring(RegressionEnvironment env) {
+    private static void runAssertionFullFormUnlimitedPastDatedAnchoring(RegressionEnvironment env, AtomicInteger milestone) {
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
         sendCurrentTime(env, "2012-01-01T00:0:00.000GMT-0:00");
         String epl = "@name('s0') select * from pattern[every timer:schedule(iso:'R/1980-01-01T00:00:00Z/PT10S')]";
         env.compileDeploy(epl).addListener("s0");
 
+        env.milestoneInc(milestone);
+
         sendCurrentTime(env, "2012-01-01T00:0:15.000GMT-0:00");
         assertTrue(env.listener("s0").getIsInvokedAndReset());
 
         sendCurrentTime(env, "2012-01-01T00:0:20.000GMT-0:00");
         assertTrue(env.listener("s0").getIsInvokedAndReset());
+
+        env.milestoneInc(milestone);
 
         assertReceivedAtTime(env, "2012-01-01T00:0:30.000GMT-0:00");
 
@@ -589,7 +622,7 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionRecurringAnchoring(RegressionEnvironment env) {
+    private static void runAssertionRecurringAnchoring(RegressionEnvironment env, AtomicInteger milestone) {
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
         sendCurrentTime(env, "2012-01-01T00:0:00.000GMT-0:00");
 
@@ -599,10 +632,14 @@ public class PatternObserverTimerSchedule {
         sendCurrentTime(env, "2012-01-01T00:0:15.000GMT-0:00");
         assertTrue(env.listener("s0").getIsInvokedAndReset());
 
+        env.milestoneInc(milestone);
+
         sendCurrentTime(env, "2012-01-01T00:0:20.000GMT-0:00");
         assertTrue(env.listener("s0").getIsInvokedAndReset());
 
         assertReceivedAtTime(env, "2012-01-01T00:0:30.000GMT-0:00");
+
+        env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-01-01T00:0:55.000GMT-0:00");
         assertTrue(env.listener("s0").getIsInvokedAndReset());
@@ -612,12 +649,14 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionFullFormLimitedPastDated(RegressionEnvironment env) {
+    private static void runAssertionFullFormLimitedPastDated(RegressionEnvironment env, AtomicInteger milestone) {
 
         // Repeat unlimited number of times, reference-dated to "1980-01-01T00:00:00Z" (UTC), period of 1 second
         sendCurrentTime(env, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "@name('s0') select * from pattern[every timer:schedule(iso: 'R8/2012-10-01T05:51:00Z/PT10S')]";
         env.compileDeploy(epl).addListener("s0");
+
+        env.milestoneInc(milestone);
 
         assertReceivedAtTime(env, "2012-10-01T05:52:10.000GMT-0:00");
         assertSendNoMoreCallback(env, "2012-10-01T05:52:20.000GMT-0:00");
@@ -625,7 +664,7 @@ public class PatternObserverTimerSchedule {
         env.undeployAll();
     }
 
-    private static void runAssertionFullFormUnlimitedFutureDated(RegressionEnvironment env) {
+    private static void runAssertionFullFormUnlimitedFutureDated(RegressionEnvironment env, AtomicInteger milestone) {
         // Repeat unlimited number of times, reference-dated to future date, period of 1 day
         sendCurrentTime(env, "2012-10-01T05:52:00.000GMT-0:00");
         String epl = "@name('s0') select * from pattern[every timer:schedule(iso: 'R/2013-01-01T02:00:05Z/P1D')]";
@@ -633,6 +672,9 @@ public class PatternObserverTimerSchedule {
         env.compileDeploy(epl).addListener("s0");
 
         assertReceivedAtTime(env, "2013-01-01T02:00:05.000GMT-0:00");
+
+        env.milestoneInc(milestone);
+
         assertReceivedAtTime(env, "2013-01-02T02:00:05.000GMT-0:00");
         assertReceivedAtTime(env, "2013-01-03T02:00:05.000GMT-0:00");
         assertReceivedAtTime(env, "2013-01-04T02:00:05.000GMT-0:00");

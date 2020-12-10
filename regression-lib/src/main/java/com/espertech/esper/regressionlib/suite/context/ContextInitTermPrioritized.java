@@ -26,12 +26,12 @@ public class ContextInitTermPrioritized {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new NonOverlappingSubqueryAndInvalid());
-        execs.add(new AtNowWithSelectedEventEnding());
+        execs.add(new ContextInitTermPrioNonOverlappingSubqueryAndInvalid());
+        execs.add(new ContextInitTermPrioAtNowWithSelectedEventEnding());
         return execs;
     }
 
-    public static class NonOverlappingSubqueryAndInvalid implements RegressionExecution {
+    public static class ContextInitTermPrioNonOverlappingSubqueryAndInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T10:00:00.000");
 
@@ -57,7 +57,7 @@ public class ContextInitTermPrioritized {
         }
     }
 
-    public static class AtNowWithSelectedEventEnding implements RegressionExecution {
+    public static class ContextInitTermPrioAtNowWithSelectedEventEnding implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
             String epl = "@Priority(1) create context C1 start @now end SupportBean;\n" +

@@ -222,6 +222,8 @@ public class PatternObserverTimerInterval {
             sendTimer(62 * 1000 - 1, env);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             sendTimer(62 * 1000, env);
             assertTrue(env.listener("s0").isInvoked());
 
@@ -243,6 +245,8 @@ public class PatternObserverTimerInterval {
 
             sendTimer(62 * 1000 - 1, env);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
 
             sendTimer(62 * 1000, env);
             assertTrue(env.listener("s0").isInvoked());
@@ -266,6 +270,8 @@ public class PatternObserverTimerInterval {
             sendTimer(62 * 1000 - 1, env);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             sendTimer(62 * 1000, env);
             assertTrue(env.listener("s0").isInvoked());
 
@@ -288,11 +294,17 @@ public class PatternObserverTimerInterval {
 
             sendTimer(11999, env);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
+
             sendTimer(12000, env);
             Assert.assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
 
             sendTimer(12999, env);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(1);
+
             sendTimer(13000, env);
             Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("id"));
 
@@ -315,6 +327,9 @@ public class PatternObserverTimerInterval {
 
             sendTimer(14999, env);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
+
             sendTimer(15000, env);
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a0id,a1id".split(","), "E1,E2".split(","));
 
@@ -338,6 +353,8 @@ public class PatternObserverTimerInterval {
             sendTimer(62 * 1000 - 1, env);
             assertFalse(env.listener("s0").isInvoked());
 
+            env.milestone(0);
+
             sendTimer(62 * 1000, env);
             assertTrue(env.listener("s0").isInvoked());
 
@@ -353,6 +370,8 @@ public class PatternObserverTimerInterval {
 
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             assertTrue(env.listener("s0").isInvoked());

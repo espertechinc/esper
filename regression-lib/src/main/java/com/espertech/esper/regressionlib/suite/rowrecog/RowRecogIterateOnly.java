@@ -41,7 +41,6 @@ public class RowRecogIterateOnly {
                 "  pattern (A) " +
                 "  define A as SupportStaticMethodLib.sleepReturnTrue(mySleepDuration)" +
                 ")";
-
             env.compileDeploy(text).addListener("s0");
 
             // this should not block
@@ -52,6 +51,8 @@ public class RowRecogIterateOnly {
             long end = System.currentTimeMillis();
             assertTrue((end - start) <= 100);
             assertFalse(env.listener("s0").isInvoked());
+
+            env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E2", 2));
             env.runtime().getVariableService().setVariableValue(null, "mySleepDuration", 0);

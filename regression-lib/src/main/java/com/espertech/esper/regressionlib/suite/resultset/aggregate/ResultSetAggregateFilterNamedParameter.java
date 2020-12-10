@@ -100,11 +100,15 @@ public class ResultSetAggregateFilterNamedParameter {
             sendEvent(env, "hello", 0);
             sendEventAssertCount(env, "hello", 0L);
 
+            env.milestone(0);
+
             sendEvent(env, "name", 1);
             sendEventAssertCount(env, "name", 1L);
 
             sendEvent(env, "name", 0);
             sendEventAssertCount(env, "name", 1L);
+
+            env.milestone(1);
 
             sendEvent(env, "name", 1);
             sendEventAssertCount(env, "name", 2L);

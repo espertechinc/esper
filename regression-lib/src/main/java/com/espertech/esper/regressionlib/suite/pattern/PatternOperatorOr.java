@@ -23,6 +23,7 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -63,8 +64,9 @@ public class PatternOperatorOr {
 
     private static class PatternOrAndNotAndZeroStart implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryOrAndNot(env, "(a=SupportBean_A -> b=SupportBean_B) or (a=SupportBean_A -> not b=SupportBean_B)");
-            tryOrAndNot(env, "a=SupportBean_A -> (b=SupportBean_B or not SupportBean_B)");
+            AtomicInteger milestone = new AtomicInteger();
+            tryOrAndNot(env, "(a=SupportBean_A -> b=SupportBean_B) or (a=SupportBean_A -> not b=SupportBean_B)", milestone);
+            tryOrAndNot(env, "a=SupportBean_A -> (b=SupportBean_B or not SupportBean_B)", milestone);
 
             // try zero-time start
             env.advanceTime(0);
@@ -168,7 +170,7 @@ public class PatternOperatorOr {
         }
     }
 
-    private static void tryOrAndNot(RegressionEnvironment env, String pattern) {
+    private static void tryOrAndNot(RegressionEnvironment env, String pattern, AtomicInteger milestone) {
         String expression = "@name('s0') select * " + "from pattern [" + pattern + "]";
         env.compileDeploy(expression);
         env.addListener("s0");
@@ -178,6 +180,8 @@ public class PatternOperatorOr {
         EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
         Assert.assertEquals(eventA1, theEvent.get("a"));
         assertNull(theEvent.get("b"));
+
+        env.milestoneInc(milestone);
 
         Object eventB1 = new SupportBean_B("B1");
         env.sendEventBean(eventB1);

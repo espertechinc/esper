@@ -41,7 +41,6 @@ public class RowRecogGreedyness {
                 "   A as A.value = 1," +
                 "   B as B.value = 1" +
                 ")";
-
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportRecogBean("E1", 1));
@@ -49,6 +48,8 @@ public class RowRecogGreedyness {
                 new Object[][]{{null, "E1"}});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{null, "E1"}});
+
+            env.milestone(0);
 
             env.undeployAll();
         }

@@ -410,6 +410,8 @@ public class ResultSetAggregateSortedMinMaxBy {
             env.sendEventBean(new SupportBean("E2", 2));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E1", "E2", "E1"});
 
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E3", 0));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E3", "E2", "E3"});
 

@@ -30,7 +30,7 @@ public class EventAvroEventBean implements RegressionExecution {
     public final static Schema INNER_SCHEMA = record("InnerSchema").fields()
         .name("mymap").type().map().values().stringType().noDefault()
         .endRecord();
-    public final static Schema RECORD_SCHEMA = record("InnerSchema").fields()
+    public final static Schema RECORD_SCHEMA = record("RecordSchema").fields()
         .name("i").type(INNER_SCHEMA).noDefault()
         .endRecord();
 

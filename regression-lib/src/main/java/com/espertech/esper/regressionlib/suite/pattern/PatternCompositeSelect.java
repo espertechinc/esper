@@ -76,6 +76,8 @@ public class PatternCompositeSelect {
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
             assertTrue(theEvent.getUnderlying() instanceof Map);
 
+            env.milestone(0);
+
             // test fragment B type and event
             FragmentEventType typeFragB = theEvent.getEventType().getFragmentType("b");
             assertFalse(typeFragB.isIndexed());

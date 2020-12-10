@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportTradeEvent;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
@@ -153,6 +153,8 @@ public class PatternUseResult {
             env.sendEventObjectArray(new Object[]{"GE", 10}, "TypeOne");
             env.sendEventObjectArray(new Object[]{"GE", 10}, "TypeOne");
             assertTrue(env.listener("Out2").getIsInvokedAndReset());
+
+            env.milestone(0);
 
             env.sendEventObjectArray(new Object[]{"GE", "m1", 5}, "TypeTwo");
             env.sendEventObjectArray(new Object[]{"GE", "m2", 5}, "TypeTwo");

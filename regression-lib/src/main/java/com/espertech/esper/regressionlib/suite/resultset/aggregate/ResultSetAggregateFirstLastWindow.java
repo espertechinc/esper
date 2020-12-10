@@ -284,6 +284,9 @@ public class ResultSetAggregateFirstLastWindow {
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{12});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "indexvar", 0);
+
+            env.milestoneInc(milestone);
+
             env.sendEventBean(new SupportBean("E1", 13));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
             env.undeployAll();
@@ -434,6 +437,8 @@ public class ResultSetAggregateFirstLastWindow {
 
     private static class ResultSetAggregateTypeAndColNameAndEquivalency implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
+
             String epl = "@name('s0') select " +
                 "first(sa.doublePrimitive + sa.intPrimitive), " +
                 "first(sa.intPrimitive), " +
@@ -463,7 +468,7 @@ public class ResultSetAggregateFirstLastWindow {
                 "from SupportBean#length(2) as sa";
             env.compileDeploy(epl).addListener("s0");
 
-            tryAssertionType(env, false);
+            tryAssertionType(env, false, milestone);
 
             env.undeployAll();
 
@@ -477,12 +482,12 @@ public class ResultSetAggregateFirstLastWindow {
                 "first(sa.intPrimitive), window(sa.*), last(*)})";
             env.compileDeploy(epl).addListener("s0");
 
-            tryAssertionType(env, true);
+            tryAssertionType(env, true, milestone);
 
             env.undeployAll();
         }
 
-        private void tryAssertionType(RegressionEnvironment env, boolean isCheckStatic) {
+        private void tryAssertionType(RegressionEnvironment env, boolean isCheckStatic, AtomicInteger milestone) {
             String[] fields = "f1,f2,w1,l1".split(",");
             SupportStaticMethodLib.getInvocations().clear();
 
@@ -494,6 +499,8 @@ public class ResultSetAggregateFirstLastWindow {
                 SupportStaticMethodLib.getInvocations().clear();
                 EPAssertionUtil.assertEqualsExactOrder(expected, parameters);
             }
+
+            env.milestoneInc(milestone);
         }
     }
 
@@ -707,6 +714,8 @@ public class ResultSetAggregateFirstLastWindow {
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
 
+            env.milestone(0);
+
             String[] fields = "firststring,windowstring,laststring".split(",");
             epl = "@name('s0') select " +
                 "first(theString) as firststring, " +
@@ -717,6 +726,8 @@ public class ResultSetAggregateFirstLastWindow {
 
             env.sendEventBean(new SupportBean("E3", 30));
             EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", split("E1,E2,E3"), "E3"});
+
+            env.milestone(1);
 
             env.undeployAll();
         }
@@ -787,6 +798,9 @@ public class ResultSetAggregateFirstLastWindow {
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
             env.sendEventBean(new SupportBean("E3", 30));
+
+            env.milestone(0);
+
             env.sendEventBean(new SupportBean("E3", 31));
             env.sendEventBean(new SupportBean("E1", 11));
             env.sendEventBean(new SupportBean("E1", 12));
@@ -799,6 +813,8 @@ public class ResultSetAggregateFirstLastWindow {
             env.sendEventBean(new SupportBean("E1", 13));
             EPAssertionUtil.assertPropsPerRow(q.execute().getArray(), "f,w,l".split(","),
                 new Object[][]{{10, intArray(10, 20, 30, 31, 11, 12, 13), 13}});
+
+            env.milestone(1);
 
             qc = env.compileFAF("select theString as s, first(intPrimitive) as f, window(intPrimitive) as w, last(intPrimitive) as l from MyWindowFour as s group by theString order by theString asc", path);
             q = env.runtime().getFireAndForgetService().prepareQuery(qc);
@@ -1151,21 +1167,21 @@ public class ResultSetAggregateFirstLastWindow {
         Object[] window = new Object[]{beanE1};
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE1, beanE1, window, window, beanE1, beanE1});
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         Object beanE2 = new SupportBean("E2", 20);
         env.sendEventBean(beanE2);
         window = new Object[]{beanE1, beanE2};
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beanE1, beanE1, beanE2, beanE2, window, window, beanE1, beanE2});
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         Object beanE3 = new SupportBean("E3", 30);
         env.sendEventBean(beanE3);
         window = new Object[]{beanE2, beanE3};
         EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beanE2, beanE2, beanE3, beanE3, window, window, beanE1, beanE3});
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
     }
 
     private static void tryAssertionUngrouped(RegressionEnvironment env, AtomicInteger milestone) {
