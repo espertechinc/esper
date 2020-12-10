@@ -24,8 +24,8 @@ public class RegressionFilter {
         }
         List<RegressionExecution> filtered = new ArrayList<>();
         for (RegressionExecution execution : executions) {
-            String simpleName = execution.getClass().getSimpleName();
-            if (simpleName.equals(property)) {
+            String executionName = execution.name();
+            if (executionName.equals(property) || execution.getClass().getSimpleName().equals(property)) {
                 filtered.add(execution);
             }
         }
