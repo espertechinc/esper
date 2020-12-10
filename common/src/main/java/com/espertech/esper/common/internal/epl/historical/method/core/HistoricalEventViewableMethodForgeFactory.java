@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.epl.historical.method.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonCache;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonCacheExpiryTime;
+import com.espertech.esper.common.client.configuration.common.ConfigurationCommonMethodRef;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -35,6 +38,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -52,7 +56,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class HistoricalEventViewableMethodForgeFactory {
-    public static HistoricalEventViewableMethodForge createMethodStatementView(int stream, MethodStreamSpec methodStreamSpec, StatementBaseInfo base, StatementCompileTimeServices services)
+    public static HistoricalEventViewableMethodForgeDesc createMethodStatementView(int stream, MethodStreamSpec methodStreamSpec, StatementBaseInfo base, StatementCompileTimeServices services)
         throws ExprValidationException {
         VariableMetaData variableMetaData = services.getVariableCompileTimeResolver().resolve(methodStreamSpec.getClassName());
         MethodPollingExecStrategyEnum strategy;
@@ -213,7 +217,18 @@ public class HistoricalEventViewableMethodForgeFactory {
 
         // metadata
         MethodPollingViewableMeta meta = new MethodPollingViewableMeta(methodProviderClass, isStaticMethod, mapType, oaType, strategy, isCollection, isIterator, variableMetaData, eventTypeWhenMethodReturnsEventBeans, scriptExpression);
-        return new HistoricalEventViewableMethodForge(stream, eventType, methodStreamSpec, meta);
+
+        // an expiry-time configuration has state
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        String configName = meta.getConfigurationName(methodStreamSpec);
+        ConfigurationCommonMethodRef configCache = services.getConfiguration().getCommon().getMethodInvocationReferences().get(configName);
+        ConfigurationCommonCache dataCacheDesc = configCache != null ? configCache.getDataCacheDesc() : null;
+        if (dataCacheDesc instanceof ConfigurationCommonCacheExpiryTime) {
+            services.getStateMgmtSettingsProvider().historicalExpiryTime(fabricCharge, stream);
+        }
+
+        HistoricalEventViewableMethodForge forge = new HistoricalEventViewableMethodForge(stream, eventType, methodStreamSpec, meta);
+        return new HistoricalEventViewableMethodForgeDesc(forge, fabricCharge);
     }
 
     private static LinkedHashMap<String, Object> toEPType(Map<String, Object> typeMetadata) {

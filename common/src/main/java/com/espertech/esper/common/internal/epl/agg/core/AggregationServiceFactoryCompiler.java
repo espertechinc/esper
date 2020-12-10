@@ -40,7 +40,7 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 
 public class AggregationServiceFactoryCompiler {
 
-    protected final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_ISSUBQUERY, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), NAME_GROUPID);
+    protected final static List<CodegenNamedParam> MAKESERVICEPARAMS = CodegenNamedParam.from(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_STREAMNUM, EPTypePremade.INTEGERBOXED.getEPType(), AggregationServiceCodegenNames.NAME_SUBQUERYNUMBER, EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), NAME_GROUPID);
     protected final static List<CodegenNamedParam> UPDPARAMS = CodegenNamedParam.from(EventBean.EPTYPEARRAY, NAME_EPS, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
     protected final static List<CodegenNamedParam> GETPARAMS = CodegenNamedParam.from(EPTypePremade.INTEGERPRIMITIVE.getEPType(), AggregationServiceCodegenNames.NAME_VCOL, EventBean.EPTYPEARRAY, NAME_EPS, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), ExprForgeCodegenNames.NAME_ISNEWDATA, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
 

@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMa
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeDesc;
@@ -39,7 +40,8 @@ public class SubSelectHelperActivations {
     public static SubSelectActivationDesc createSubSelectActivation(boolean fireAndForget, List<FilterSpecCompiled> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
             throws ExprValidationException {
         Map<ExprSubselectNode, SubSelectActivationPlan> result = new LinkedHashMap<>();
-        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // Process all subselect expression nodes
         for (ExprSubselectNode subselect : statement.getStatementSpec().getSubselectNodes()) {
@@ -49,7 +51,7 @@ public class SubSelectHelperActivations {
             if (subqueryNumber == -1) {
                 throw new IllegalStateException("Unexpected subquery");
             }
-            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, true, subqueryNumber, streamSpec.getOptions(), null, statement.getStatementRawInfo(), services);
+            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, subqueryNumber, streamSpec.getOptions(), null, statement.getStatementRawInfo(), services);
 
             if (streamSpec instanceof FilterStreamSpecCompiled) {
                 if (services.isFireAndForget()) {
@@ -62,6 +64,7 @@ public class SubSelectHelperActivations {
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, filterStreamSpec.getFilterSpecCompiled().getResultEventType());
                 List<ViewFactoryForge> forges = viewForgeDesc.getForges();
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+                fabricCharge.add(viewForgeDesc.getFabricCharge());
                 EventType eventType = forges.isEmpty() ? filterStreamSpec.getFilterSpecCompiled().getResultEventType() : forges.get(forges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
                 filterSpecCompileds.add(filterStreamSpec.getFilterSpecCompiled());
@@ -114,6 +117,6 @@ public class SubSelectHelperActivations {
             }
         }
 
-        return new SubSelectActivationDesc(result, additionalForgeables);
+        return new SubSelectActivationDesc(result, additionalForgeables, fabricCharge);
     }
 }

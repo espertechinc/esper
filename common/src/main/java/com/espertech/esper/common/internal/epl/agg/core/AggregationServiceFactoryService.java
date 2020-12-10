@@ -11,17 +11,18 @@
 package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.epl.agg.groupby.AggSvcGroupByReclaimAgedEvalFuncFactory;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByColumn;
 import com.espertech.esper.common.internal.epl.agg.groupbylocal.AggregationLocalGroupByLevel;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public interface AggregationServiceFactoryService {
     AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory,
                                        AggregationRowFactory rowFactory,
                                        AggregationUseFlags useFlags,
-                                       DataInputOutputSerde<AggregationRow> serde);
+                                       DataInputOutputSerde<AggregationRow> serde,
+                                       StateMgmtSetting stateMgmtSetting);
 
     AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory,
                                       AggregationRowFactory rowFactory,
@@ -30,18 +31,21 @@ public interface AggregationServiceFactoryService {
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq,
                                       TimeAbacus timeAbacus,
-                                      DataInputOutputSerde<Object> groupKeySerde, StateMgmtSetting stateMgmtSettings);
+                                      DataInputOutputSerde<Object> groupKeySerde,
+                                      StateMgmtSetting stateMgmtSettings);
 
     AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory,
                                             AggregationGroupByRollupDesc groupByRollupDesc,
                                             AggregationRowFactory rowFactory,
                                             AggregationUseFlags useFlags,
-                                            DataInputOutputSerde<AggregationRow> serde, StateMgmtSetting stateMgmtSettings);
+                                            DataInputOutputSerde<AggregationRow> serde,
+                                            StateMgmtSetting stateMgmtSettings);
 
     AggregationServiceFactory groupLocalGroupBy(AggregationServiceFactory nonHAFactory,
                                                 AggregationUseFlags useFlags,
                                                 boolean hasGroupBy,
                                                 AggregationLocalGroupByLevel optionalTop,
                                                 AggregationLocalGroupByLevel[] levels,
-                                                AggregationLocalGroupByColumn[] columns, StateMgmtSetting stateMgmtSettings);
+                                                AggregationLocalGroupByColumn[] columns,
+                                                StateMgmtSetting stateMgmtSettings);
 }

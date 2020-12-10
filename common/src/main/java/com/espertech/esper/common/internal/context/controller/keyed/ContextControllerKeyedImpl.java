@@ -141,7 +141,7 @@ public class ContextControllerKeyedImpl extends ContextControllerKeyed {
         };
 
         Object[] partitionKeys = CollectionUtil.addValue(parentPartitionKeys, partitionKey);
-        ContextControllerConditionNonHA terminationCondition = ContextControllerConditionFactory.getEndpoint(conditionPath, partitionKeys, factory.keyedSpec.getOptionalTermination(), callback, this, false);
+        ContextControllerConditionNonHA terminationCondition = ContextControllerConditionFactory.getEndpoint(conditionPath, partitionKeys, factory.keyedSpec.getOptionalTermination(), callback, this);
 
         ContextControllerEndConditionMatchEventProvider endConditionMatchEventProvider = null;
         if (optionalInitCondAsName != null) {

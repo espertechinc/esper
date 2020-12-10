@@ -11,8 +11,8 @@
 package com.espertech.esper.compiler.client.option;
 
 import com.espertech.esper.common.client.annotation.AppliesTo;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingBucket;
 import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProxy;
 
 /**
@@ -25,9 +25,9 @@ public interface StateMgmtSettingOption extends StateMgmtSettingsProxy {
      * @param env information about the state management setting that is being determined
      * @return setting
      */
-    StateMgmtSetting getValue(StateMgmtSettingContext env);
+    StateMgmtSettingBucket getValue(StateMgmtSettingContext env);
 
-    default StateMgmtSetting configure(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSetting setting) {
+    default StateMgmtSettingBucket configure(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSettingBucket setting) {
         return getValue(new StateMgmtSettingContext(raw, appliesTo, setting));
     }
 }

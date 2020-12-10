@@ -19,7 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SupportAggMFEventsAsListState implements AggregationMultiFunctionState {
-    private final List<SupportBean> events = new ArrayList<>();
+    private final List<SupportBean> events;
+
+    public SupportAggMFEventsAsListState() {
+        events = new ArrayList<>();
+    }
+
+    public SupportAggMFEventsAsListState(List<SupportBean> events) {
+        this.events = events;
+    }
 
     public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         events.add((SupportBean) eventsPerStream[0].getUnderlying());

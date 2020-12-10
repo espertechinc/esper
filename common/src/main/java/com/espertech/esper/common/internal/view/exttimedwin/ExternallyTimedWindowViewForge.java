@@ -43,8 +43,8 @@ public class ExternallyTimedWindowViewForge extends ViewFactoryForgeBase impleme
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
         if (viewParameters.size() != 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
@@ -55,7 +55,7 @@ public class ExternallyTimedWindowViewForge extends ViewFactoryForgeBase impleme
         timestampExpression = validated[0];
         ViewForgeSupport.assertReturnsNonConstant(getViewName(), validated[0], 0);
 
-        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv, streamNumber);
+        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv);
         this.eventType = parentEventType;
     }
 
@@ -78,8 +78,12 @@ public class ExternallyTimedWindowViewForge extends ViewFactoryForgeBase impleme
         return "Externally-timed";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_EXTTIMED;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private String getViewParamMessage() {

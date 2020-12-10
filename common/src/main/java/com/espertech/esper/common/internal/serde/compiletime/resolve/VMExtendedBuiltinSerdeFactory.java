@@ -12,147 +12,87 @@ package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.*;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 
 public class VMExtendedBuiltinSerdeFactory {
+    private final static Map<EPTypeClass, DataInputOutputSerde> SERDES = new HashMap<>();
+    private static Map<String, DataInputOutputSerde> byPrettyName = null;
+
+    static {
+        SERDES.put(EPTypePremade.BIGINTEGER.getEPType(), DIOBigIntegerSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BIGDECIMAL.getEPType(), DIOBigDecimalSerde.INSTANCE);
+        SERDES.put(EPTypePremade.DATE.getEPType(), DIODateSerde.INSTANCE);
+        SERDES.put(EPTypePremade.SQLDATE.getEPType(), DIOSqlDateSerde.INSTANCE);
+        SERDES.put(EPTypePremade.CALENDAR.getEPType(), DIOCalendarSerde.INSTANCE);
+
+        SERDES.put(EPTypePremade.INTEGERPRIMITIVEARRAY.getEPType(), DIOPrimitiveIntArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BOOLEANPRIMITIVEARRAY.getEPType(), DIOPrimitiveBooleanArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.CHARPRIMITIVEARRAY.getEPType(), DIOPrimitiveCharArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType(), DIOPrimitiveByteArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.SHORTPRIMITIVEARRAY.getEPType(), DIOPrimitiveShortArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.LONGPRIMITIVEARRAY.getEPType(), DIOPrimitiveLongArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.FLOATPRIMITIVEARRAY.getEPType(), DIOPrimitiveFloatArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.DOUBLEPRIMITIVEARRAY.getEPType(), DIOPrimitiveDoubleArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.STRINGARRAY.getEPType(), DIOStringArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.CHARBOXEDARRAY.getEPType(), DIOBoxedCharacterArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BOOLEANBOXEDARRAY.getEPType(), DIOBoxedBooleanArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BYTEBOXEDARRAY.getEPType(), DIOBoxedByteArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.SHORTBOXEDARRAY.getEPType(), DIOBoxedShortArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.INTEGERBOXEDARRAY.getEPType(), DIOBoxedIntegerArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.LONGBOXEDARRAY.getEPType(), DIOBoxedLongArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.FLOATBOXEDARRAY.getEPType(), DIOBoxedFloatArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.DOUBLEBOXEDARRAY.getEPType(), DIOBoxedDoubleArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BIGDECIMALARRAY.getEPType(), DIOBigDecimalArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.BIGINTEGERARRAY.getEPType(), DIOBigIntegerArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.DATEARRAY.getEPType(), DIODateArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.SQLDATEARRAY.getEPType(), DIOSqlDateArrayNullableSerde.INSTANCE);
+        SERDES.put(EPTypePremade.CALENDARARRAY.getEPType(), DIOCalendarArrayNullableSerde.INSTANCE);
+
+        addArrayList(String.class, DIOArrayListStringNullableSerde.INSTANCE);
+        addArrayList(Character.class, DIOArrayListCharacterNullableSerde.INSTANCE);
+        addArrayList(Boolean.class, DIOArrayListBooleanNullableSerde.INSTANCE);
+        addArrayList(Byte.class, DIOArrayListByteNullableSerde.INSTANCE);
+        addArrayList(Short.class, DIOArrayListShortNullableSerde.INSTANCE);
+        addArrayList(Integer.class, DIOArrayListIntegerNullableSerde.INSTANCE);
+        addArrayList(Long.class, DIOArrayListLongNullableSerde.INSTANCE);
+        addArrayList(Float.class, DIOArrayListFloatNullableSerde.INSTANCE);
+        addArrayList(Double.class, DIOArrayListDoubleNullableSerde.INSTANCE);
+        addArrayList(BigDecimal.class, DIOArrayListBigDecimalNullableSerde.INSTANCE);
+        addArrayList(BigInteger.class, DIOArrayListBigIntegerNullableSerde.INSTANCE);
+        addArrayList(Date.class, DIOArrayListDateNullableSerde.INSTANCE);
+        addArrayList(java.sql.Date.class, DIOArrayListSqlDateNullableSerde.INSTANCE);
+        addArrayList(Calendar.class, DIOArrayListCalendarNullableSerde.INSTANCE);
+    }
+
+    private static void addArrayList(Class component, DataInputOutputSerde serde) {
+        SERDES.put(EPTypeClassParameterized.from(Collection.class, component), serde);
+        SERDES.put(EPTypeClassParameterized.from(List.class, component), serde);
+        SERDES.put(EPTypeClassParameterized.from(ArrayList.class, component), serde);
+    }
+
     public static DataInputOutputSerde getSerde(EPTypeClass typeClass) {
-        Class type = typeClass.getType();
-        if (type == BigInteger.class) {
-            return DIOBigIntegerSerde.INSTANCE;
-        }
-        if (type == BigDecimal.class) {
-            return DIOBigDecimalSerde.INSTANCE;
-        }
-        if (type == Date.class) {
-            return DIODateSerde.INSTANCE;
-        }
-        if (type == java.sql.Date.class) {
-            return DIOSqlDateSerde.INSTANCE;
-        }
-        if (type == Calendar.class) {
-            return DIOCalendarSerde.INSTANCE;
-        }
-        if (type.isArray()) {
-            Class componentType = type.getComponentType();
-            if (componentType == int.class) {
-                return DIOPrimitiveIntArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == boolean.class) {
-                return DIOPrimitiveBooleanArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == char.class) {
-                return DIOPrimitiveCharArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == byte.class) {
-                return DIOPrimitiveByteArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == short.class) {
-                return DIOPrimitiveShortArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == long.class) {
-                return DIOPrimitiveLongArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == float.class) {
-                return DIOPrimitiveFloatArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == double.class) {
-                return DIOPrimitiveDoubleArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == String.class) {
-                return DIOStringArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Character.class) {
-                return DIOBoxedCharacterArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Boolean.class) {
-                return DIOBoxedBooleanArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Byte.class) {
-                return DIOBoxedByteArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Short.class) {
-                return DIOBoxedShortArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Integer.class) {
-                return DIOBoxedIntegerArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Long.class) {
-                return DIOBoxedLongArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Float.class) {
-                return DIOBoxedFloatArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Double.class) {
-                return DIOBoxedDoubleArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == BigDecimal.class) {
-                return DIOBigDecimalArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == BigInteger.class) {
-                return DIOBigIntegerArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Date.class) {
-                return DIODateArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == java.sql.Date.class) {
-                return DIOSqlDateArrayNullableSerde.INSTANCE;
-            }
-            if (componentType == Calendar.class) {
-                return DIOCalendarArrayNullableSerde.INSTANCE;
+        return SERDES.get(typeClass);
+    }
+
+    public synchronized static DataInputOutputSerde getSerde(String classNamePretty) {
+        if (byPrettyName == null) {
+            byPrettyName = new HashMap<>();
+            for (Map.Entry<EPTypeClass, DataInputOutputSerde> serde : SERDES.entrySet()) {
+                EPTypeClass clazz = serde.getKey();
+                String pretty = JavaClassHelper.getClassNameNormalized(clazz);
+                if (byPrettyName.containsKey(pretty)) {
+                    throw new IllegalStateException("Duplicate key '" + pretty + "'");
+                }
+                byPrettyName.put(pretty, serde.getValue());
             }
         }
-        if (JavaClassHelper.isSubclassOrImplementsInterface(typeClass.getType(), Collection.class)) {
-            Class componentType = JavaClassHelper.getBoxedType(JavaClassHelper.getSingleParameterTypeOrObject(typeClass).getType());
-            if (componentType == String.class) {
-                return DIOCollectionStringNullableSerde.INSTANCE;
-            }
-            if (componentType == Character.class) {
-                return DIOCollectionCharacterNullableSerde.INSTANCE;
-            }
-            if (componentType == Boolean.class) {
-                return DIOCollectionBooleanNullableSerde.INSTANCE;
-            }
-            if (componentType == Byte.class) {
-                return DIOCollectionByteNullableSerde.INSTANCE;
-            }
-            if (componentType == Short.class) {
-                return DIOCollectionShortNullableSerde.INSTANCE;
-            }
-            if (componentType == Integer.class) {
-                return DIOCollectionIntegerNullableSerde.INSTANCE;
-            }
-            if (componentType == Long.class) {
-                return DIOCollectionLongNullableSerde.INSTANCE;
-            }
-            if (componentType == Float.class) {
-                return DIOCollectionFloatNullableSerde.INSTANCE;
-            }
-            if (componentType == Double.class) {
-                return DIOCollectionDoubleNullableSerde.INSTANCE;
-            }
-            if (componentType == BigDecimal.class) {
-                return DIOCollectionBigDecimalNullableSerde.INSTANCE;
-            }
-            if (componentType == BigInteger.class) {
-                return DIOCollectionBigIntegerNullableSerde.INSTANCE;
-            }
-            if (componentType == Date.class) {
-                return DIOCollectionDateNullableSerde.INSTANCE;
-            }
-            if (componentType == java.sql.Date.class) {
-                return DIOCollectionSqlDateNullableSerde.INSTANCE;
-            }
-            if (componentType == Calendar.class) {
-                return DIOCollectionCalendarNullableSerde.INSTANCE;
-            }
-        }
-        return null;
+        return byPrettyName.get(classNamePretty);
     }
 }

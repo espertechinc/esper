@@ -40,8 +40,8 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
         viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
 
         if (viewParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
@@ -82,7 +82,11 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
         return getViewName() + " view requires a single expression supplying long-type timestamp values as a parameter";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMETOLIVE;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

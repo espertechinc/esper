@@ -13,11 +13,15 @@ package com.espertech.esper.common.internal.context.aifactory.createclass;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
-import com.espertech.esper.common.internal.compile.stage3.*;
+import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.context.aifactory.core.StmtForgeMethodCreateSimpleBase;
+import com.espertech.esper.common.internal.context.aifactory.core.StmtForgeMethodRegisterResult;
 import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 public class StmtForgeMethodCreateClass extends StmtForgeMethodCreateSimpleBase {
 
@@ -30,7 +34,7 @@ public class StmtForgeMethodCreateClass extends StmtForgeMethodCreateSimpleBase 
         this.className = className;
     }
 
-    protected String register(StatementCompileTimeServices services) throws ExprValidationException {
+    protected StmtForgeMethodRegisterResult register(StatementCompileTimeServices services) throws ExprValidationException {
         if (services.getClassProvidedCompileTimeResolver().resolveClass(className) != null) {
             throw new ExprValidationException("Class '" + className + "' has already been declared");
         }
@@ -40,7 +44,10 @@ public class StmtForgeMethodCreateClass extends StmtForgeMethodCreateSimpleBase 
         classProvided.setVisibility(visibility);
         classProvided.loadClasses(services.getParentClassLoader());
         services.getClassProvidedCompileTimeRegistry().newClass(classProvided);
-        return className;
+
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        services.getStateMgmtSettingsProvider().inlinedClasses(fabricCharge, classProvided);
+        return new StmtForgeMethodRegisterResult(className, fabricCharge);
     }
 
     protected StmtClassForgeable aiFactoryForgable(String className, CodegenPackageScope packageScope, EventType statementEventType, String objectName) {

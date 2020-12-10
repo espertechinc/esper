@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethods;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 public interface AggregatorAccess {
     void initAccessForge(int col, CodegenCtor rowCtor, CodegenMemberCol membersColumnized, CodegenClassScope classScope);
@@ -30,4 +31,6 @@ public interface AggregatorAccess {
     void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef ref, CodegenExpressionRef unitKey, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope);
 
     void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope);
+
+    void collectFabricType(FabricTypeCollector collector);
 }

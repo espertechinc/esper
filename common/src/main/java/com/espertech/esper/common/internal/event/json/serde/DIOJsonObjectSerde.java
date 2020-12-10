@@ -46,15 +46,15 @@ public class DIOJsonObjectSerde implements DataInputOutputSerde<Map<String, Obje
             return;
         }
         output.writeBoolean(true);
-        write(object, output);
+        writeMap(object, output);
     }
 
     public Map<String, Object> read(DataInput input, byte[] unitKey) throws IOException {
         boolean nonNull = input.readBoolean();
-        return nonNull ? read(input) : null;
+        return nonNull ? readMap(input) : null;
     }
 
-    public void write(Map<String, Object> object, DataOutput output) throws IOException {
+    private void writeMap(Map<String, Object> object, DataOutput output) throws IOException {
         output.writeInt(object.size());
         for (Map.Entry<String, Object> entry : object.entrySet()) {
             output.writeUTF(entry.getKey());
@@ -62,7 +62,7 @@ public class DIOJsonObjectSerde implements DataInputOutputSerde<Map<String, Obje
         }
     }
 
-    public Map<String, Object> read(DataInput input) throws IOException {
+    private Map<String, Object> readMap(DataInput input) throws IOException {
         int size = input.readInt();
         LinkedHashMap<String, Object> map = new LinkedHashMap<>(CollectionUtil.capacityHashMap(size));
         for (int i = 0; i < size; i++) {

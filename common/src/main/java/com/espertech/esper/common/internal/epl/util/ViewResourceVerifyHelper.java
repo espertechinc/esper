@@ -10,9 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.util;
 
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.common.internal.epl.expression.prior.ExprPriorNode;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.DataWindowViewForgeWithPrevious;
@@ -22,14 +26,16 @@ import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge
 import java.util.*;
 
 public class ViewResourceVerifyHelper {
-    public static ViewResourceDelegateDesc[] verifyPreviousAndPriorRequirements(List<ViewFactoryForge>[] unmaterializedViewChain, ViewResourceDelegateExpr delegate)
+    public static ViewResourceVerifyResult verifyPreviousAndPriorRequirements(List<ViewFactoryForge>[] unmaterializedViewChain, ViewResourceDelegateExpr delegate, Integer subqueryNumber, StatementRawInfo raw, StatementCompileTimeServices services)
             throws ExprValidationException {
 
         int numStreams = unmaterializedViewChain.length;
         ViewResourceDelegateDesc[] perStream = new ViewResourceDelegateDesc[numStreams];
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // verify "previous"
         boolean[] previousPerStream = new boolean[numStreams];
+        StateMgmtSetting[] previousStateMgmtSettings = new StateMgmtSetting[numStreams];
         for (ExprPreviousNode previousNode : delegate.getPreviousRequests()) {
             int stream = previousNode.getStreamNumber();
             List<ViewFactoryForge> forges = unmaterializedViewChain[stream];
@@ -45,6 +51,7 @@ public class ViewResourceVerifyHelper {
             }
 
             previousPerStream[stream] = true;
+            previousStateMgmtSettings[stream] = services.getStateMgmtSettingsProvider().previous(fabricCharge, raw, stream, subqueryNumber, forges.get(forges.size() - 1).getEventType());
         }
 
         // determine 'prior' indexes
@@ -83,10 +90,10 @@ public class ViewResourceVerifyHelper {
             if (priorPerStream[i] == null) {
                 priorPerStream[i] = new TreeMap<>();
             }
-            perStream[i] = new ViewResourceDelegateDesc(previousPerStream[i], new TreeSet<>(priorPerStream[i].keySet()));
+            perStream[i] = new ViewResourceDelegateDesc(previousPerStream[i], previousStateMgmtSettings[i], new TreeSet<>(priorPerStream[i].keySet()));
         }
 
-        return perStream;
+        return new ViewResourceVerifyResult(perStream, fabricCharge);
     }
 
     private static boolean findDataWindow(List<ViewFactoryForge> forges) {

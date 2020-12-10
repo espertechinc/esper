@@ -42,8 +42,8 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
         viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
 
         if (viewParameters.size() != 2) {
             throw new ViewParameterException(getViewParamMessage());
@@ -53,7 +53,7 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
             throw new ViewParameterException(getViewParamMessage());
         }
         timestampExpression = validated[0];
-        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv, streamNumber);
+        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv);
         eventType = parentEventType;
     }
 
@@ -84,8 +84,12 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
         this.scheduleCallbackId = id;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMEORDER;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private String getViewParamMessage() {

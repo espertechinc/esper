@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupbylocal;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
@@ -26,6 +27,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +50,24 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     protected final boolean hasGroupBy;
     protected final AggregationLocalGroupByPlanForge localGroupByPlan;
     protected final AggregationUseFlags useFlags;
-    private final StateMgmtSetting stateMgmtSettings;
+    private StateMgmtSetting stateMgmtSetting;
 
-    public AggSvcLocalGroupByForge(boolean hasGroupBy, AggregationLocalGroupByPlanForge localGroupByPlan, AggregationUseFlags useFlags, StateMgmtSetting stateMgmtSettings) {
+    public AggSvcLocalGroupByForge(boolean hasGroupBy, AggregationLocalGroupByPlanForge localGroupByPlan, AggregationUseFlags useFlags) {
         this.hasGroupBy = hasGroupBy;
         this.localGroupByPlan = localGroupByPlan;
         this.useFlags = useFlags;
-        this.stateMgmtSettings = stateMgmtSettings;
+    }
+
+    public AggregationLocalGroupByPlanForge getLocalGroupByPlan() {
+        return localGroupByPlan;
+    }
+
+    public AppliesTo appliesTo() {
+        return AppliesTo.AGGREGATION_LOCAL;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 
     public AggregationCodegenRowLevelDesc getRowLevelDesc() {
@@ -115,7 +128,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
                 .declareVar(AggregationServiceFactory.EPTYPE, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
                 .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add("groupLocalGroupBy",
                         ref("svcFactory"), useFlags.toExpression(), constant(hasGroupBy),
-                        ref("optionalTop"), ref("levels"), ref("columns"), stateMgmtSettings.toExpression()));
+                        ref("optionalTop"), ref("levels"), ref("columns"), stateMgmtSetting.toExpression()));
     }
 
     public void makeServiceCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
@@ -186,6 +199,10 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
         }
     }
 
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
+        throw new IllegalStateException("Not supported for row-specific grouping");
+    }
+
     public void setCurrentAccessCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
         if (!hasGroupBy) {
             // not applicable
@@ -242,6 +259,10 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         method.getBlock().methodThrowUnsupported();
+    }
+
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private CodegenExpression getNumGroupsCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {

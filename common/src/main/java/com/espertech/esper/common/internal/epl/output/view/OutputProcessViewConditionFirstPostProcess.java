@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
@@ -24,8 +25,8 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 public class OutputProcessViewConditionFirstPostProcess extends OutputProcessViewConditionFirst {
     private final OutputStrategyPostProcess postProcessor;
 
-    public OutputProcessViewConditionFirstPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
-        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext);
+    public OutputProcessViewConditionFirstPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, StateMgmtSetting stateMgmtSetting) {
+        super(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied, parent, agentInstanceContext, stateMgmtSetting);
         this.postProcessor = postProcessor;
     }
 

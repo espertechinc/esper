@@ -24,7 +24,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
     private AggregationServiceFactoryServiceImpl() {
     }
 
-    public AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde) {
+    public AggregationServiceFactory groupAll(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, StateMgmtSetting stateMgmtSetting) {
         return nonHAFactory;
     }
 

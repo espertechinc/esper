@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -118,6 +119,10 @@ public class AggregatorAccessLinearNonJoin extends AggregatorAccessWFilterBase i
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock().assignRef(rowDotMember(row, events), cast(EPTypePremade.LIST.getEPType(), exprDotMethod(getSerde(classScope), "read", input, unitKey)));
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        collector.listEvents(forge.getEventType());
     }
 
     private CodegenExpressionField getSerde(CodegenClassScope classScope) {

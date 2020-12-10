@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.context.controller.keyed;
 
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -21,13 +21,14 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecKeyedI
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryEnv;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerForgeBase;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.ContextPropertyEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 
 import java.util.LinkedHashMap;
@@ -47,7 +48,7 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
         this.detail = detail;
     }
 
-    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, int controllerLevel, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         EPType[] propertyTypes = ContextControllerKeyedUtil.validateContextDesc(contextName, detail);
 
         for (int i = 0; i < detail.getItems().get(0).getPropertyNames().size(); i++) {
@@ -70,10 +71,14 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
 
         if (detail.getOptionalTermination() != null) {
             ContextPropertyEventType.addEndpointTypes(detail.getOptionalTermination(), props, allTags);
-            terminationStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_KEYED_TERM);
         }
+    }
 
-        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_KEYED);
+    public void planStateSettings(ContextMetaData detail, FabricCharge fabricCharge, int controllerLevel, String nestedContextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        if (this.detail.getOptionalTermination() != null) {
+            terminationStateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextKeyedTerm(fabricCharge, detail, this, statementRawInfo, controllerLevel);
+        }
+        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextKeyed(fabricCharge, detail, this, statementRawInfo, controllerLevel);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
@@ -92,5 +97,9 @@ public class ContextControllerKeyedFactoryForge extends ContextControllerForgeBa
             items[i] = new ContextControllerKeyedValidationItem(props.getFilterSpecCompiled().getFilterForEventType(), props.getPropertyNames().toArray(new String[props.getPropertyNames().size()]));
         }
         return new ContextControllerKeyedValidation(items);
+    }
+
+    public ContextSpecKeyed getDetail() {
+        return detail;
     }
 }

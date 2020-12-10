@@ -193,6 +193,14 @@ public enum EPTypePremade {
      **/
     CALENDAR(Calendar.class),
     /**
+     * Date array
+     **/
+    DATEARRAY(Date[].class),
+    /**
+     * Calendar array
+     **/
+    CALENDARARRAY(Calendar[].class),
+    /**
      * Collection
      **/
     COLLECTION(Collection.class),
@@ -560,6 +568,10 @@ public enum EPTypePremade {
      * java.sql.Date
      **/
     SQLDATE(java.sql.Date.class),
+    /**
+     * java.sql.Date array
+     **/
+    SQLDATEARRAY(java.sql.Date[].class),
     /**
      * java.sql.Time
      **/

@@ -11,12 +11,11 @@
 package com.espertech.esper.common.internal.compile.multikey;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.serde.DataInputOutputSerde;
-import com.espertech.esper.common.client.type.*;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.collection.*;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
-import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -24,7 +23,8 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQu
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
-import com.espertech.esper.common.internal.serde.serdeset.multikey.*;
+import com.espertech.esper.common.internal.serde.serdeset.multikey.DIOMultiKeyArraySerde;
+import com.espertech.esper.common.internal.serde.serdeset.multikey.DIOMultiKeyArraySerdeFactory;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Arrays;
@@ -78,26 +78,12 @@ public class MultiKeyPlanner {
         return MultiKeyArrayObject.EPTYPE;
     }
 
-    public static DataInputOutputSerde getMKSerdeClassForComponentType(EPTypeClass componentType) {
+    public static DIOMultiKeyArraySerde getMKSerdeClassForComponentType(EPTypeClass componentType) {
         Class componentClass = componentType.getType();
-        if (componentClass == boolean.class) {
-            return DIOMultiKeyArrayBooleanSerde.INSTANCE;
-        } else if (componentClass == byte.class) {
-            return DIOMultiKeyArrayByteSerde.INSTANCE;
-        } else if (componentClass == char.class) {
-            return DIOMultiKeyArrayCharSerde.INSTANCE;
-        } else if (componentClass == short.class) {
-            return DIOMultiKeyArrayShortSerde.INSTANCE;
-        } else if (componentClass == int.class) {
-            return DIOMultiKeyArrayIntSerde.INSTANCE;
-        } else if (componentClass == long.class) {
-            return DIOMultiKeyArrayLongSerde.INSTANCE;
-        } else if (componentClass == float.class) {
-            return DIOMultiKeyArrayFloatSerde.INSTANCE;
-        } else if (componentClass == double.class) {
-            return DIOMultiKeyArrayDoubleSerde.INSTANCE;
+        if (componentClass.isPrimitive()) {
+            return DIOMultiKeyArraySerdeFactory.getSerde(componentClass);
         }
-        return DIOMultiKeyArrayObjectSerde.INSTANCE;
+        return DIOMultiKeyArraySerdeFactory.getSerde(Object.class);
     }
 
     public static MultiKeyPlan planMultiKey(EPType[] types, boolean lenientEquals, StatementRawInfo raw, SerdeCompileTimeResolver serdeResolver) {
@@ -113,29 +99,19 @@ public class MultiKeyPlanner {
             }
             EPTypeClass componentType = JavaClassHelper.getArrayComponentType((EPTypeClass) paramType);
             EPTypeClass mkClass = getMKClassForComponentType(componentType);
-            DataInputOutputSerde mkSerde = getMKSerdeClassForComponentType(componentType);
-            return new MultiKeyPlan(Collections.emptyList(), new MultiKeyClassRefPredetermined(mkClass, types, new DataInputOutputSerdeForgeSingleton(mkSerde.getClass())));
+            DIOMultiKeyArraySerde mkSerde = getMKSerdeClassForComponentType(componentType);
+            return new MultiKeyPlan(Collections.emptyList(), new MultiKeyClassRefPredetermined(mkClass, types, new DataInputOutputSerdeForgeSingleton(mkSerde.getClass()), mkSerde));
         }
 
         EPType[] boxed = new EPType[types.length];
         for (int i = 0; i < boxed.length; i++) {
             boxed[i] = JavaClassHelper.getBoxedType(types[i]);
         }
-        MultiKeyClassRefUUIDBased classNames = new MultiKeyClassRefUUIDBased(boxed);
-        StmtClassForgeableFactory factoryMK = new StmtClassForgeableFactory() {
-
-            public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
-                return new StmtClassForgeableMultiKey(classNames.getClassNameMK(classPostfix), packageScope, types, lenientEquals);
-            }
-        };
-
         DataInputOutputSerdeForge[] forges = serdeResolver.serdeForMultiKey(boxed, raw);
-        StmtClassForgeableFactory factoryMKSerde = new StmtClassForgeableFactory() {
 
-            public StmtClassForgeable make(CodegenPackageScope packageScope, String classPostfix) {
-                return new StmtClassForgeableMultiKeySerde(classNames.getClassNameMKSerde(classPostfix), packageScope, types, classNames.getClassNameMK(classPostfix), forges);
-            }
-        };
+        MultiKeyClassRefUUIDBased classNames = new MultiKeyClassRefUUIDBased(boxed, forges);
+        StmtClassForgeableFactory factoryMK = (packageScope, classPostfix) -> new StmtClassForgeableMultiKey(classNames.getClassNameMK(classPostfix), packageScope, types, lenientEquals);
+        StmtClassForgeableFactory factoryMKSerde = (packageScope, classPostfix) -> new StmtClassForgeableMultiKeySerde(classNames.getClassNameMKSerde(classPostfix), packageScope, types, classNames.getClassNameMK(classPostfix), forges);
 
         List<StmtClassForgeableFactory> forgeables = Arrays.asList(factoryMK, factoryMKSerde);
         return new MultiKeyPlan(forgeables, classNames);

@@ -30,10 +30,7 @@ import com.espertech.esper.common.internal.epl.join.hint.IndexHint;
 import com.espertech.esper.common.internal.epl.lookupplansubord.*;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.ontrigger.InfraOnMergeHelperForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
@@ -42,6 +39,7 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrat
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForge;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForgeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +68,12 @@ public class OnTriggerWindowUtil {
         NameAccessModifier infraVisibility = namedWindow != null ? namedWindow.getEventType().getMetadata().getAccessModifier() : table.getTableVisibility();
         validateOnExpressionContext(planDesc.getContextName(), infraContextName, infraTitle);
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // validate expressions and plan subselects
         OnTriggerPlanValidationResult validationResult = OnTriggerPlanValidator.validateOnTriggerPlan(infraEventType, planDesc.getOnTriggerDesc(), planDesc.getStreamSpec(), planDesc.getActivatorResult(), planDesc.getSubselectActivation(), base, services);
         additionalForgeables.addAll(validationResult.getAdditionalForgeables());
+        fabricCharge.add(validationResult.getFabricCharge());
 
         ExprNode validatedJoin = validationResult.getValidatedJoin();
         EventType activatorResultEventType = planDesc.getActivatorResult().getActivatorResultEventType();
@@ -94,6 +94,7 @@ public class OnTriggerWindowUtil {
             indexMetadata, infraEventType, optionalUniqueKeySet, onlyUseExistingIndexes, base.getStatementRawInfo(), services);
         SubordinateWMatchExprQueryPlanForge queryPlan = planResult.getForge();
         additionalForgeables.addAll(planResult.getAdditionalForgeables());
+        fabricCharge.add(planResult.getFabricCharge());
 
         // indicate index dependencies
         if (queryPlan.getIndexes() != null && infraVisibility == NameAccessModifier.PUBLIC) {
@@ -137,7 +138,7 @@ public class OnTriggerWindowUtil {
             defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
             defaultSelectAllSpec.getRaw().setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
             StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{resultEventType}, new String[]{infraName}, new boolean[]{false}, false, false);
-            resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(defaultSelectAllSpec),
+            resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(defaultSelectAllSpec),
                     typeService, null, new boolean[1], false, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
 
             if (onTriggerType == OnTriggerType.ON_DELETE) {
@@ -162,7 +163,7 @@ public class OnTriggerWindowUtil {
                 queryPlan, base.getStatementSpec().getAnnotations(), services.getClasspathImportServiceCompileTime());
 
         StmtClassForgeableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgeableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), additionalForgeables);
+        return new OnTriggerPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), additionalForgeables, fabricCharge);
     }
 
     protected static void validateOnExpressionContext(String onExprContextName, String desiredContextName, String title)

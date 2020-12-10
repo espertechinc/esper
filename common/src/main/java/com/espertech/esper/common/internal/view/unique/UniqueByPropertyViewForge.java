@@ -16,15 +16,15 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.view.util.ViewMultiKeyHelper;
 
 import java.util.List;
@@ -42,8 +42,8 @@ public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements D
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv);
 
         if (criteriaExpressions.length == 0) {
             String errorMessage = getViewName() + " view requires a one or more expressions providing unique values as parameters";
@@ -84,7 +84,15 @@ public class UniqueByPropertyViewForge extends ViewFactoryForgeBase implements D
         return criteriaExpressions;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_UNIQUE;
+    }
+
+    public MultiKeyClassRef getMultiKeyClassNames() {
+        return multiKeyClassNames;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

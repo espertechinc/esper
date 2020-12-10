@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.collection.MultiKeyArrayOfKeys;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
@@ -22,7 +23,7 @@ import com.espertech.esper.common.internal.epl.output.condition.OutputCallback;
 import com.espertech.esper.common.internal.epl.output.condition.OutputCondition;
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyUtil;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
-import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputFirstHelper;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorStraightOutputFirstHelper;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
@@ -45,17 +46,17 @@ public class OutputProcessViewConditionFirst extends OutputProcessViewBaseWAfter
     // Using ArrayList as random access is a requirement.
     private List<UniformPair<EventBean[]>> viewEventsList = new ArrayList<UniformPair<EventBean[]>>();
     private List<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>> joinEventsSet = new ArrayList<UniformPair<Set<MultiKeyArrayOfKeys<EventBean>>>>();
-    private ResultSetProcessorSimpleOutputFirstHelper witnessedFirstHelper;
+    private ResultSetProcessorStraightOutputFirstHelper witnessedFirstHelper;
 
     private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionFirst.class);
 
-    public OutputProcessViewConditionFirst(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
+    public OutputProcessViewConditionFirst(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, StateMgmtSetting stateMgmtSetting) {
         super(agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
         this.parent = parent;
 
         OutputCallback outputCallback = getCallbackToLocal(parent.getStreamCount());
         this.outputCondition = parent.getOutputConditionFactory().instantiateOutputCondition(agentInstanceContext, outputCallback);
-        witnessedFirstHelper = agentInstanceContext.getResultSetProcessorHelperFactory().makeRSSimpleOutputFirst(agentInstanceContext);
+        witnessedFirstHelper = agentInstanceContext.getResultSetProcessorHelperFactory().makeRSStraightOutputFirst(agentInstanceContext, stateMgmtSetting);
     }
 
     public int getNumChangesetRows() {

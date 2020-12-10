@@ -34,8 +34,8 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.*;
 
-import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 import static com.espertech.esper.common.internal.avro.core.AvroFragmentTypeUtil.getFragmentEventTypeForField;
+import static com.espertech.esper.common.internal.event.core.EventTypeUtility.getPropertyTypeAsClass;
 
 public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
     public final static EPTypeClass EPTYPE = new EPTypeClass(AvroEventType.class);
@@ -321,6 +321,10 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
 
     public Object getSchema() {
         return avroSchema;
+    }
+
+    public String getSchemaString() {
+        return avroSchema.toString();
     }
 
     public Schema getSchemaAvro() {

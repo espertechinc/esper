@@ -36,7 +36,7 @@ public interface EPEventTypeService {
      * </p>
      *
      * @param deploymentId  deployment id of the deployment
-     * @param eventTypeName event type name of a preconfigured event type
+     * @param eventTypeName event type name of an event type created by the respective deployment
      * @return event type or null if not found
      */
     EventType getEventType(String deploymentId, String eventTypeName);

@@ -69,11 +69,11 @@ public class RowRecogDescForge {
     private final TimePeriodComputeForge intervalCompute;
     private final int[] previousRandomAccessIndexes;
     private final AggregationServiceForgeDesc[] aggregationServices;
-    private final StateMgmtSetting partitionMgmtStateMgmtSettings;
-    private final StateMgmtSetting scheduleMgmtStateMgmtSettings;
     private final boolean isTargetHA;
+    private StateMgmtSetting partitionMgmtStateMgmtSettings;
+    private StateMgmtSetting scheduleMgmtStateMgmtSettings;
 
-    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices, StateMgmtSetting partitionMgmtStateMgmtSettings, StateMgmtSetting scheduleMgmtStateMgmtSettings, boolean isTargetHA) {
+    public RowRecogDescForge(EventType parentEventType, EventType rowEventType, EventType compositeEventType, EventType multimatchEventType, int[] multimatchStreamNumToVariable, int[] multimatchVariableToStreamNum, ExprNode[] partitionBy, MultiKeyClassRef partitionByMultiKey, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, boolean hasInterval, boolean iterateOnly, boolean unbound, boolean orTerminated, boolean collectMultimatches, boolean defineAsksMultimatches, int numEventsEventsPerStreamDefine, String[] multimatchVariablesArray, RowRecogNFAStateForge[] startStates, RowRecogNFAStateForge[] allStates, boolean allMatches, MatchRecognizeSkipEnum skip, ExprNode[] columnEvaluators, String[] columnNames, TimePeriodComputeForge intervalCompute, int[] previousRandomAccessIndexes, AggregationServiceForgeDesc[] aggregationServices, boolean isTargetHA) {
         this.parentEventType = parentEventType;
         this.rowEventType = rowEventType;
         this.compositeEventType = compositeEventType;
@@ -100,13 +100,19 @@ public class RowRecogDescForge {
         this.intervalCompute = intervalCompute;
         this.previousRandomAccessIndexes = previousRandomAccessIndexes;
         this.aggregationServices = aggregationServices;
-        this.partitionMgmtStateMgmtSettings = partitionMgmtStateMgmtSettings;
-        this.scheduleMgmtStateMgmtSettings = scheduleMgmtStateMgmtSettings;
         this.isTargetHA = isTargetHA;
     }
 
     public EventType getRowEventType() {
         return rowEventType;
+    }
+
+    public void setPartitionMgmtStateMgmtSettings(StateMgmtSetting partitionMgmtStateMgmtSettings) {
+        this.partitionMgmtStateMgmtSettings = partitionMgmtStateMgmtSettings;
+    }
+
+    public void setScheduleMgmtStateMgmtSettings(StateMgmtSetting scheduleMgmtStateMgmtSettings) {
+        this.scheduleMgmtStateMgmtSettings = scheduleMgmtStateMgmtSettings;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -170,6 +176,118 @@ public class RowRecogDescForge {
             .exprDotMethod(desc, "setScheduleMgmtStateMgmtSettings", scheduleMgmtStateMgmtSettings.toExpression())
             .methodReturn(desc);
         return localMethod(method);
+    }
+
+    public EventType getParentEventType() {
+        return parentEventType;
+    }
+
+    public EventType getCompositeEventType() {
+        return compositeEventType;
+    }
+
+    public EventType getMultimatchEventType() {
+        return multimatchEventType;
+    }
+
+    public int[] getMultimatchStreamNumToVariable() {
+        return multimatchStreamNumToVariable;
+    }
+
+    public int[] getMultimatchVariableToStreamNum() {
+        return multimatchVariableToStreamNum;
+    }
+
+    public ExprNode[] getPartitionBy() {
+        return partitionBy;
+    }
+
+    public MultiKeyClassRef getPartitionByMultiKey() {
+        return partitionByMultiKey;
+    }
+
+    public LinkedHashMap<String, Pair<Integer, Boolean>> getVariableStreams() {
+        return variableStreams;
+    }
+
+    public boolean isHasInterval() {
+        return hasInterval;
+    }
+
+    public boolean isIterateOnly() {
+        return iterateOnly;
+    }
+
+    public boolean isUnbound() {
+        return unbound;
+    }
+
+    public boolean isOrTerminated() {
+        return orTerminated;
+    }
+
+    public boolean isCollectMultimatches() {
+        return collectMultimatches;
+    }
+
+    public boolean isDefineAsksMultimatches() {
+        return defineAsksMultimatches;
+    }
+
+    public int getNumEventsEventsPerStreamDefine() {
+        return numEventsEventsPerStreamDefine;
+    }
+
+    public String[] getMultimatchVariablesArray() {
+        return multimatchVariablesArray;
+    }
+
+    public RowRecogNFAStateForge[] getStartStates() {
+        return startStates;
+    }
+
+    public RowRecogNFAStateForge[] getAllStates() {
+        return allStates;
+    }
+
+    public boolean isAllMatches() {
+        return allMatches;
+    }
+
+    public MatchRecognizeSkipEnum getSkip() {
+        return skip;
+    }
+
+    public ExprNode[] getColumnEvaluators() {
+        return columnEvaluators;
+    }
+
+    public String[] getColumnNames() {
+        return columnNames;
+    }
+
+    public TimePeriodComputeForge getIntervalCompute() {
+        return intervalCompute;
+    }
+
+    public int[] getPreviousRandomAccessIndexes() {
+        return previousRandomAccessIndexes;
+    }
+
+    public AggregationServiceForgeDesc[] getAggregationServices() {
+        return aggregationServices;
+    }
+
+    public boolean isTargetHA() {
+        return isTargetHA;
+    }
+
+    public StateMgmtSetting getPartitionMgmtStateMgmtSettings() {
+        return partitionMgmtStateMgmtSettings;
+    }
+
+    public StateMgmtSetting getScheduleMgmtStateMgmtSettings() {
+        return scheduleMgmtStateMgmtSettings;
     }
 
     private CodegenExpression makeAggAssignables(CodegenMethodScope parent, CodegenClassScope classScope) {

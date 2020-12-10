@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.context.compile;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
+
+import java.util.function.Consumer;
 
 public class ContextCompileTimeDescriptor {
     private final String contextName;
@@ -47,5 +50,11 @@ public class ContextCompileTimeDescriptor {
 
     public ContextControllerPortableInfo[] getValidationInfos() {
         return validationInfos;
+    }
+
+    public void visitFilterAddendumEventTypes(Consumer<EventType> consumer) {
+        for (ContextControllerPortableInfo controller : validationInfos) {
+            controller.visitFilterAddendumEventTypes(consumer);
+        }
     }
 }

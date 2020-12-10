@@ -39,6 +39,6 @@ public class PropertySortedFactoryFactory extends EventTableFactoryFactoryBase {
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
         return eventTableFactoryContext.getEventTableIndexService().createSorted(indexedStreamNum, eventType, indexProp, indexType,
-                valueGetter, indexSerde, null, isFireAndForget, eventTableFactoryContext, stateMgmtSettings);
+                valueGetter, indexSerde, null, isFireAndForget, stateMgmtSettings);
     }
 }

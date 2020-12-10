@@ -31,6 +31,8 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
     protected int scheduleCallbackId;
     protected AggregationServiceFactory aggregationServiceFactory;
     protected AggregationResultFutureAssignableWEval aggregationResultFutureAssignable;
+    protected Integer subqueryNumber;
+    protected int streamNumber;
 
     public void init(ViewFactoryContext viewFactoryContext, EPStatementInitServices services) {
     }
@@ -89,5 +91,21 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
 
     public Variable[] getVariables() {
         return variables;
+    }
+
+    public Integer getSubqueryNumber() {
+        return subqueryNumber;
+    }
+
+    public void setSubqueryNumber(Integer subqueryNumber) {
+        this.subqueryNumber = subqueryNumber;
+    }
+
+    public int getStreamNumber() {
+        return streamNumber;
+    }
+
+    public void setStreamNumber(int streamNumber) {
+        this.streamNumber = streamNumber;
     }
 }

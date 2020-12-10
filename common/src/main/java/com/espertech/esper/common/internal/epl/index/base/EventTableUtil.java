@@ -54,7 +54,7 @@ public class EventTableUtil {
             }
         } else {
             if ((rangeProps.length == 1) && (indexProps == null || indexProps.length == 0)) {
-                EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], rangeTypes[0], rangeGetters[0], rangeKeySerdes[0], optionalValueSerde, isFireAndForget, agentInstanceContext.getStatementContext().getEventTableFactoryContext(), item.getStateMgmtSettings());
+                EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], rangeTypes[0], rangeGetters[0], rangeKeySerdes[0], optionalValueSerde, isFireAndForget, item.getStateMgmtSettings());
                 table = factory.makeEventTables(agentInstanceContext, null)[0];
             } else {
                 EventTableFactory factory = eventTableIndexService.createComposite(indexedStreamNum, eventType, indexProps, indexTypes, indexGetter, item.getTransformFireAndForget(), item.getHashKeySerde(), rangeProps, rangeTypes, rangeGetters, rangeKeySerdes, optionalValueSerde, isFireAndForget);

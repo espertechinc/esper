@@ -11,16 +11,19 @@
 package com.espertech.esper.common.internal.epl.join.base;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
 public class JoinSetComposerPrototypeDesc {
     private final JoinSetComposerPrototypeForge forge;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public JoinSetComposerPrototypeDesc(JoinSetComposerPrototypeForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
+    public JoinSetComposerPrototypeDesc(JoinSetComposerPrototypeForge forge, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public JoinSetComposerPrototypeForge getForge() {
@@ -29,5 +32,9 @@ public class JoinSetComposerPrototypeDesc {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

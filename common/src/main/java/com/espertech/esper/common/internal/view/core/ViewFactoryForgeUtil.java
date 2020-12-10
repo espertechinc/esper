@@ -20,8 +20,10 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFact
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCompare;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
+import com.espertech.esper.common.internal.util.IntArrayUtil;
 import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge;
 import com.espertech.esper.common.internal.view.groupwin.MergeViewFactoryForge;
 import com.espertech.esper.common.internal.view.intersect.IntersectViewFactoryForge;
@@ -70,7 +72,7 @@ public class ViewFactoryForgeUtil {
             // Determine event type serdes that may be required
             for (ViewFactoryForge forge : forgesChain) {
                 if (forge instanceof DataWindowViewForge) {
-                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(parentEventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(parentEventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
                     additionalForgeables.addAll(serdeForgeables);
                 }
             }
@@ -91,7 +93,7 @@ public class ViewFactoryForgeUtil {
             for (int i = 0; i < forgesGrouped.size(); i++) {
                 ViewFactoryForge factoryToAttach = forgesGrouped.get(i);
                 try {
-                    factoryToAttach.attach(eventType, args.getStreamNum(), viewForgeEnv, false);
+                    factoryToAttach.attach(eventType, viewForgeEnv);
                     eventType = factoryToAttach.getEventType();
                 } catch (ViewParameterException ex) {
                     throw new ViewProcessingException(ex.getMessage(), ex);
@@ -102,7 +104,10 @@ public class ViewFactoryForgeUtil {
             List<StmtClassForgeableFactory> multikeyForges = getMultikeyForges(forgesGrouped, viewForgeEnv);
             additionalForgeables.addAll(multikeyForges);
 
-            return new ViewFactoryForgeDesc(forgesGrouped, additionalForgeables);
+            // get state mgmt settings
+            FabricCharge fabricCharge = getStateMgmtSettings(forgesGrouped, viewForgeEnv);
+
+            return new ViewFactoryForgeDesc(forgesGrouped, additionalForgeables, fabricCharge);
         } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Failed to validate data window declaration: " + ex.getMessage(), ex);
         }
@@ -116,8 +121,37 @@ public class ViewFactoryForgeUtil {
 
     private static void getMultikeyForgesRecursive(List<ViewFactoryForge> forges, List<StmtClassForgeableFactory> multikeyForges, ViewForgeEnv viewForgeEnv) {
         for (ViewFactoryForge forge : forges) {
-            multikeyForges.addAll(forge.initAdditionalForgeables(viewForgeEnv));
+            List<StmtClassForgeableFactory> plan = forge.initAdditionalForgeables(viewForgeEnv);
+            multikeyForges.addAll(plan);
             getMultikeyForgesRecursive(forge.getInnerForges(), multikeyForges, viewForgeEnv);
+        }
+    }
+
+    private static FabricCharge getStateMgmtSettings(List<ViewFactoryForge> forges, ViewForgeEnv viewForgeEnv) throws ViewProcessingException {
+        FabricCharge fabricCharge = viewForgeEnv.getStateMgmtSettingsProvider().newCharge();
+        for (ViewFactoryForge forge : forges) {
+            try {
+                forge.assignStateMgmtSettings(fabricCharge, viewForgeEnv, null);
+            } catch (ViewParameterException e) {
+                throw new ViewProcessingException(e.getMessage(), e);
+            }
+
+            getStateMgmtSettingsGroupedRecursive(forge.getInnerForges(), fabricCharge, viewForgeEnv, null);
+        }
+        return fabricCharge;
+    }
+
+    private static void getStateMgmtSettingsGroupedRecursive(List<ViewFactoryForge> forges, FabricCharge fabricCharge, ViewForgeEnv viewForgeEnv, int[] grouping) {
+        for (int i = 0; i < forges.size(); i++) {
+            int[] groupingChild = grouping == null ? new int[] {i} : IntArrayUtil.append(grouping, i);
+            ViewFactoryForge child = forges.get(i);
+            try {
+                child.assignStateMgmtSettings(fabricCharge, viewForgeEnv, groupingChild);
+            } catch (ViewParameterException e) {
+                throw new ViewProcessingException(e.getMessage(), e);
+            }
+
+            getStateMgmtSettingsGroupedRecursive(child.getInnerForges(), fabricCharge, viewForgeEnv, groupingChild);
         }
     }
 
@@ -152,7 +186,7 @@ public class ViewFactoryForgeUtil {
             groupeds.add(forge);
 
             try {
-                forge.attach(eventType, args.getStreamNum(), viewForgeEnv, true);
+                forge.attach(eventType, viewForgeEnv);
             } catch (ViewParameterException ex) {
                 throw new ViewProcessingException(ex.getMessage(), ex);
             }
@@ -207,7 +241,7 @@ public class ViewFactoryForgeUtil {
                                                          EventType parentEventType) {
         for (ViewFactoryForge forge : dataWindows) {
             try {
-                forge.attach(parentEventType, args.getStreamNum(), viewForgeEnv, false);
+                forge.attach(parentEventType, viewForgeEnv);
             } catch (ViewParameterException ex) {
                 throw new ViewProcessingException(ex.getMessage(), ex);
             }

@@ -24,12 +24,9 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
@@ -72,43 +69,16 @@ public class AggregatorMedian extends AggregatorMethodWDistinctWFilterWValueBase
 
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .staticMethod(this.getClass(), "writePoints", output, rowDotMember(row, vector));
+                .staticMethod(SortedDoubleVector.class, "writePoints", output, rowDotMember(row, vector));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
-                .assignRef(rowDotMember(row, vector), staticMethod(this.getClass(), "readPoints", input));
+                .assignRef(rowDotMember(row, vector), staticMethod(SortedDoubleVector.class, "readPoints", input));
     }
 
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param output out
-     * @param vector points
-     * @throws IOException io error
-     */
-    public static void writePoints(DataOutput output, SortedDoubleVector vector) throws IOException {
-        output.writeInt(vector.getValues().size());
-        for (double num : vector.getValues()) {
-            output.writeDouble(num);
-        }
-    }
-
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param input input
-     * @return points
-     * @throws IOException io error
-     */
-    public static SortedDoubleVector readPoints(DataInput input) throws IOException {
-        SortedDoubleVector points = new SortedDoubleVector();
-        int size = input.readInt();
-        for (int i = 0; i < size; i++) {
-            double d = input.readDouble();
-            points.add(d);
-        }
-        return points;
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.sortedDoubleVector();
     }
 
     /**

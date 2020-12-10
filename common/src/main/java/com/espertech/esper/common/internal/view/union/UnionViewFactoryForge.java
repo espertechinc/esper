@@ -47,7 +47,7 @@ public class UnionViewFactoryForge extends ViewFactoryForgeBase implements DataW
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -80,7 +80,11 @@ public class UnionViewFactoryForge extends ViewFactoryForgeBase implements DataW
         return IntersectViewFactoryForge.getViewNameUnionIntersect(false, unioned);
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_UNION;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

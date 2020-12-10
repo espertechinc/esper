@@ -21,5 +21,5 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
  */
 public interface AggregationServiceFactory {
     EPTypeClass EPTYPE = new EPTypeClass(AggregationServiceFactory.class);
-    AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, boolean isSubquery, Integer subqueryNumber, int[] groupId);
+    AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, Integer streamNum, Integer subqueryNumber, int[] groupId);
 }

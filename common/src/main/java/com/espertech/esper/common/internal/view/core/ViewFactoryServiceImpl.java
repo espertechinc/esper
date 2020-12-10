@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.view.core;
 
-import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewFactory;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewFactory;
 import com.espertech.esper.common.internal.view.derived.*;
 import com.espertech.esper.common.internal.view.expression.ExpressionBatchViewFactory;
 import com.espertech.esper.common.internal.view.expression.ExpressionWindowViewFactory;

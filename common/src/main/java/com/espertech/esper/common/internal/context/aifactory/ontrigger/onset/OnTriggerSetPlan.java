@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableAIFactoryProviderBase;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
@@ -22,12 +23,14 @@ public class OnTriggerSetPlan {
     private final List<StmtClassForgeable> forgeables;
     private final SelectSubscriberDescriptor selectSubscriberDescriptor;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public OnTriggerSetPlan(StmtClassForgeableAIFactoryProviderBase forgeable, List<StmtClassForgeable> forgeables, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables) {
+    public OnTriggerSetPlan(StmtClassForgeableAIFactoryProviderBase forgeable, List<StmtClassForgeable> forgeables, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.forgeable = forgeable;
         this.forgeables = forgeables;
         this.selectSubscriberDescriptor = selectSubscriberDescriptor;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public StmtClassForgeableAIFactoryProviderBase getForgeable() {
@@ -44,6 +47,10 @@ public class OnTriggerSetPlan {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }
 

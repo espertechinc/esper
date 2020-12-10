@@ -77,7 +77,7 @@ public class RegressionLinestView extends BaseBivariateStatisticsView {
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
+    protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env) {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.REGRESSION__SLOPE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         eventTypeMap.put(ViewFieldEnum.REGRESSION__YINTERCEPT.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
@@ -100,6 +100,6 @@ public class RegressionLinestView extends BaseBivariateStatisticsView {
         eventTypeMap.put(ViewFieldEnum.REGRESSION__SUMYSQ.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.REGRESSION__SLOPE, ViewFieldEnum.REGRESSION__YINTERCEPT);
-        return DerivedViewTypeUtil.newType("regview", eventTypeMap, env, streamNum);
+        return DerivedViewTypeUtil.newType("regview", eventTypeMap, env);
     }
 }

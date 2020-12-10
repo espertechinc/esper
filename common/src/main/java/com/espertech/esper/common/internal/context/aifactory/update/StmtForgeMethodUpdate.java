@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubsc
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.*;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[0];
         UpdateDesc updateSpec = statementSpec.getRaw().getUpdateDesc();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
         String triggereventTypeName;
         EventType streamEventType;
 
@@ -84,12 +86,14 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
+        fabricCharge.add(subSelectActivationDesc.getFabricCharge());
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
 
         // handle subselects
         SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, typeService.getStreamNames(), typeService.getEventTypes(), new String[]{triggereventTypeName}, services);
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subSelectForgePlan.getSubselects();
         additionalForgeables.addAll(subSelectForgePlan.getAdditionalForgeables());
+        fabricCharge.add(subSelectForgePlan.getFabricCharge());
 
         ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).build();
 
@@ -125,6 +129,6 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, Collections.emptyList(), namedWindowConsumers, Collections.emptyList(), packageScope, fabricCharge);
     }
 }

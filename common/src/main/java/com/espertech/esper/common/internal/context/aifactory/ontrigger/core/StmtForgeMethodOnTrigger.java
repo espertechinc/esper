@@ -38,6 +38,7 @@ import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselect
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
+import com.espertech.esper.common.internal.epl.pattern.core.PatternAttributionKeyStream;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationDesc;
@@ -46,6 +47,7 @@ import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperActivati
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.ArrayList;
@@ -64,15 +66,17 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         // determine context
         final String contextName = base.getStatementSpec().getRaw().getOptionalContextName();
 
-        List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
-        List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
-        List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
-        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
+        List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>(2);
+        List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>(2);
+        List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>(2);
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // create subselect information
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
+        fabricCharge.add(subSelectActivationDesc.getFabricCharge());
 
         // obtain activator
         final StreamSpecCompiled streamSpec = base.getStatementSpec().getStreamSpecs()[0];
@@ -90,6 +94,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
                 forge.collectSelfFilterAndSchedule(filterSpecCompileds, schedules);
             }
             activatorResult = activatorPattern(patternStreamSpec, services);
+            services.getStateMgmtSettingsProvider().pattern(fabricCharge, new PatternAttributionKeyStream(0), patternStreamSpec, base.getStatementRawInfo());
         } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
             activatorResult = activatorNamedWindow(namedSpec, services);
@@ -129,7 +134,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
             // variable assignments
             OnTriggerSetDesc desc = (OnTriggerSetDesc) onTriggerDesc;
             OnTriggerSetPlan plan = OnTriggerSetUtil.handleSetVariable(aiFactoryProviderClassName, packageScope, classPostfix, activatorResult, streamSpec.getOptionalStreamName(), subselectActivation, desc, base, services);
-            onTriggerPlan = new OnTriggerPlan(plan.getForgeable(), plan.getForgeables(), plan.getSelectSubscriberDescriptor(), plan.getAdditionalForgeables());
+            onTriggerPlan = new OnTriggerPlan(plan.getForgeable(), plan.getForgeables(), plan.getSelectSubscriberDescriptor(), plan.getAdditionalForgeables(), plan.getFabricCharge());
         } else {
             // split-stream use case
             OnTriggerSplitStreamDesc desc = (OnTriggerSplitStreamDesc) onTriggerDesc;
@@ -137,6 +142,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
                     classPostfix, desc, streamSpec, activatorResult, subselectActivation, base, services);
         }
         additionalForgeables.addAll(onTriggerPlan.getAdditionalForgeables());
+        fabricCharge.add(onTriggerPlan.getFabricCharge());
 
         // build forge list
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
@@ -152,7 +158,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()), packageScope);
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, schedules, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()), packageScope, fabricCharge);
     }
 
     private OnTriggerActivatorDesc activatorNamedWindow(NamedWindowConsumerStreamSpec namedSpec, StatementCompileTimeServices services) {

@@ -16,10 +16,7 @@ import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
-import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
-import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
@@ -31,7 +28,9 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeOfForges;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,11 +39,11 @@ import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator.generateClassNameUUID;
 import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator.generateClassNameWithUUID;
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyUtility.forgeForEventProperty;
 
 public class SerdeEventTypeUtility {
-    public static List<StmtClassForgeableFactory> plan(EventType eventType, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver) {
+
+    public static List<StmtClassForgeableFactory> plan(EventType eventType, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         // there is no need to register a serde when not using HA, or when it is already registered, or for table-internal type
         EventTypeTypeClass typeClass = eventType.getMetadata().getTypeClass();
         if (!registry.isTargetHA() || registry.getEventTypes().containsKey(eventType) ||  typeClass == EventTypeTypeClass.TABLE_INTERNAL) {
@@ -57,11 +56,11 @@ public class SerdeEventTypeUtility {
             return Collections.emptyList();
         }
         List<StmtClassForgeableFactory> forgeables = new ArrayList<>(2);
-        planRecursive(forgeables, eventType, raw, registry, resolver);
+        planRecursive(forgeables, eventType, raw, registry, resolver, stateMgmtSettingsProvider);
         return forgeables;
     }
 
-    private static void planRecursive(List<StmtClassForgeableFactory> additionalForgeables, EventType eventType, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver) {
+    private static void planRecursive(List<StmtClassForgeableFactory> additionalForgeables, EventType eventType, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         if (!registry.isTargetHA()) {
             return;
         }
@@ -71,13 +70,13 @@ public class SerdeEventTypeUtility {
 
         SerdeAndForgeables pair;
         if (eventType instanceof BeanEventType) {
-            pair = planBean((BeanEventType) eventType, raw, resolver);
+            pair = planBean((BeanEventType) eventType, raw, resolver, stateMgmtSettingsProvider);
         } else if (eventType instanceof BaseNestableEventType) {
             pair = planBaseNestable((BaseNestableEventType) eventType, raw, resolver);
-            planPropertiesMayRecurse(eventType, additionalForgeables, raw, registry, resolver);
+            planPropertiesMayRecurse(eventType, additionalForgeables, raw, registry, resolver, stateMgmtSettingsProvider);
         } else if (eventType instanceof WrapperEventType) {
             WrapperEventType wrapperEventType = (WrapperEventType) eventType;
-            planRecursive(additionalForgeables, wrapperEventType.getUnderlyingEventType(), raw, registry, resolver);
+            planRecursive(additionalForgeables, wrapperEventType.getUnderlyingEventType(), raw, registry, resolver, stateMgmtSettingsProvider);
             pair = planBaseNestable(wrapperEventType.getUnderlyingMapType(), raw, resolver);
         } else if (eventType instanceof VariantEventType || eventType instanceof AvroSchemaEventType || eventType instanceof BaseXMLEventType) {
             // no serde generation
@@ -92,7 +91,7 @@ public class SerdeEventTypeUtility {
         }
     }
 
-    private static void planPropertiesMayRecurse(EventType eventType, List<StmtClassForgeableFactory> additionalForgeables, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver) {
+    private static void planPropertiesMayRecurse(EventType eventType, List<StmtClassForgeableFactory> additionalForgeables, StatementRawInfo raw, SerdeEventTypeCompileTimeRegistry registry, SerdeCompileTimeResolver resolver, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         for (EventPropertyDescriptor desc : eventType.getPropertyDescriptors()) {
             if (!desc.isFragment()) {
                 continue;
@@ -102,7 +101,7 @@ public class SerdeEventTypeUtility {
                 continue;
             }
 
-            planRecursive(additionalForgeables, fragmentEventType.getFragmentType(), raw, registry, resolver);
+            planRecursive(additionalForgeables, fragmentEventType.getFragmentType(), raw, registry, resolver, stateMgmtSettingsProvider);
         }
     }
 
@@ -112,7 +111,6 @@ public class SerdeEventTypeUtility {
             String classNameFull = ((JsonEventType) eventType).getDetail().getSerdeClassName();
             int lastDotIndex = classNameFull.lastIndexOf('.');
             className = lastDotIndex == -1 ? classNameFull : classNameFull.substring(lastDotIndex + 1);
-
         } else {
             String uuid = generateClassNameUUID();
             className = generateClassNameWithUUID(DataInputOutputSerde.class, eventType.getMetadata().getName(), uuid);
@@ -137,20 +135,11 @@ public class SerdeEventTypeUtility {
             }
         };
 
-        DataInputOutputSerdeForge forge = new DataInputOutputSerdeForge() {
-            public String forgeClassName() {
-                return className;
-            }
-
-            public CodegenExpression codegen(CodegenMethod method, CodegenClassScope classScope, CodegenExpression optionalEventTypeResolver) {
-                return newInstance(className, optionalEventTypeResolver);
-            }
-        };
-
+        DataInputOutputSerdeForgeOfForges forge = new DataInputOutputSerdeForgeOfForges(className, forges);
         return new SerdeAndForgeables(forge, Collections.singletonList(forgeable));
     }
 
-    private static SerdeAndForgeables planBean(BeanEventType eventType, StatementRawInfo raw, SerdeCompileTimeResolver resolver) {
+    private static SerdeAndForgeables planBean(BeanEventType eventType, StatementRawInfo raw, SerdeCompileTimeResolver resolver, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         DataInputOutputSerdeForge forge = resolver.serdeForBeanEventType(raw, eventType.getUnderlyingEPType(), eventType.getName(), eventType.getSuperTypes());
         return new SerdeAndForgeables(forge, Collections.emptyList());
     }

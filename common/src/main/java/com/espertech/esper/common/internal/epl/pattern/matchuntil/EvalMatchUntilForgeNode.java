@@ -184,7 +184,7 @@ public class EvalMatchUntilForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.REPEAT_UNTIL;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_MATCHUNTIL;
     }
 }

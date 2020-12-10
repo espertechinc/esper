@@ -11,7 +11,9 @@
 package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.*;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class VMBasicBuiltinSerdeFactory {
     private static final Map<Class, DataInputOutputSerde> PRIMITIVES = new HashMap<>();
     private static final Map<Class, DataInputOutputSerde> BOXED = new HashMap<>();
+    private static Map<String, DataInputOutputSerde> byPrettyName = null;
 
     static {
         addPrimitive(char.class, DIOCharacterSerde.INSTANCE);
@@ -36,7 +39,7 @@ public class VMBasicBuiltinSerdeFactory {
         addPrimitive(double.class, DIODoubleSerde.INSTANCE);
         addPrimitive(void.class, DIOSkipSerde.INSTANCE);
 
-        addBoxed(String.class, DIOStringSerde.INSTANCE);
+        addBoxed(String.class, DIONullableStringSerde.INSTANCE);
         addBoxed(CharSequence.class, DIOCharSequenceSerde.INSTANCE);
         addBoxed(Character.class, DIONullableCharacterSerde.INSTANCE);
         addBoxed(Boolean.class, DIONullableBooleanSerde.INSTANCE);
@@ -112,5 +115,26 @@ public class VMBasicBuiltinSerdeFactory {
             return PRIMITIVES.get(cls);
         }
         return BOXED.get(cls);
+    }
+
+
+    public synchronized static DataInputOutputSerde getSerde(String classNamePretty) {
+        if (byPrettyName == null) {
+            byPrettyName = new HashMap<>();
+            addPrettyName(PRIMITIVES, byPrettyName);
+            addPrettyName(BOXED, byPrettyName);
+        }
+        return byPrettyName.get(classNamePretty);
+    }
+
+    private static void addPrettyName(Map<Class, DataInputOutputSerde> serdes, Map<String, DataInputOutputSerde> allbyname) {
+        for (Map.Entry<Class, DataInputOutputSerde> serde : serdes.entrySet()) {
+            Class clazz = serde.getKey();
+            String pretty = JavaClassHelper.getClassNameNormalized(EPTypePremade.getOrCreate(clazz));
+            if (allbyname.containsKey(pretty)) {
+                throw new IllegalStateException("Duplicate key '" + pretty + "'");
+            }
+            allbyname.put(pretty, serde.getValue());
+        }
     }
 }

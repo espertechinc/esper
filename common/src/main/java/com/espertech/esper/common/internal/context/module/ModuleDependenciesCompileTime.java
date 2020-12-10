@@ -95,6 +95,14 @@ public class ModuleDependenciesCompileTime {
         pathIndexes.add(new ModuleIndexMeta(namedWindow, infraName, infraModuleName, indexName, indexModuleName));
     }
 
+    public Collection<String> getPublicEventTypes() {
+        return publicEventTypes;
+    }
+
+    public Collection<NameAndModule> getPathEventTypes() {
+        return pathEventTypes;
+    }
+
     public void make(CodegenMethod method, CodegenClassScope classScope) {
         CodegenSetterBuilder builder = new CodegenSetterBuilder(ModuleDependenciesRuntime.EPTYPE, ModuleDependenciesCompileTime.class, "md", classScope, method);
         builder.expressionDefaultChecked("pathEventTypes", NameAndModule.makeArrayNullIfEmpty(pathEventTypes))

@@ -16,16 +16,19 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.serdeset.multikey.DIOMultiKeyArraySerde;
 
 public class MultiKeyClassRefPredetermined implements MultiKeyClassRef {
     private final EPTypeClass clazzMK;
     private final EPType[] mkTypes;
     private final DataInputOutputSerdeForge serdeForge;
+    private final DIOMultiKeyArraySerde mkSerde;
 
-    public MultiKeyClassRefPredetermined(EPTypeClass clazzMK, EPType[] mkTypes, DataInputOutputSerdeForge serdeForge) {
+    public MultiKeyClassRefPredetermined(EPTypeClass clazzMK, EPType[] mkTypes, DataInputOutputSerdeForge serdeForge, DIOMultiKeyArraySerde mkSerde) {
         this.clazzMK = clazzMK;
         this.mkTypes = mkTypes;
         this.serdeForge = serdeForge;
+        this.mkSerde = mkSerde;
     }
 
     public String getClassNameMK() {
@@ -38,5 +41,13 @@ public class MultiKeyClassRefPredetermined implements MultiKeyClassRef {
 
     public EPType[] getMKTypes() {
         return mkTypes;
+    }
+
+    public DIOMultiKeyArraySerde getMkSerde() {
+        return mkSerde;
+    }
+
+    public DataInputOutputSerdeForge[] getSerdeForges() {
+        return new DataInputOutputSerdeForge[] {serdeForge};
     }
 }

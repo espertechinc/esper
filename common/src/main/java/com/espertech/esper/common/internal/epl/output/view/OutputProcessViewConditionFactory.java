@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactory;
@@ -21,7 +22,6 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewCond
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewConditionSnapshot;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
@@ -38,6 +38,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
     private final SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum;
     private final EventType[] eventTypes;
     private final StateMgmtSetting changeSetStateMgmtSettings;
+    private final StateMgmtSetting outputFirstStateMgmtSettings;
 
     public OutputProcessViewConditionFactory(OutputProcessViewConditionSpec spec) {
         super(spec.getPostProcessFactory(), spec.isDistinct(), spec.getDistinctKeyGetter(), spec.getAfterTimePeriod(), spec.getAfterConditionNumberOfEvents());
@@ -50,6 +51,7 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         this.selectClauseStreamSelectorEnum = spec.getSelectClauseStreamSelector();
         this.eventTypes = spec.getEventTypes();
         this.changeSetStateMgmtSettings = spec.getChangeSetStateMgmtSettings();
+        this.outputFirstStateMgmtSettings = spec.getOutputFirstStateMgmtSettings();
     }
 
     @Override
@@ -75,10 +77,10 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
             return new OutputProcessViewConditionSnapshotPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
         } else if (conditionType == ResultSetProcessorOutputConditionType.POLICY_FIRST) {
             if (super.postProcessFactory == null) {
-                return new OutputProcessViewConditionFirst(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
+                return new OutputProcessViewConditionFirst(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, outputFirstStateMgmtSettings);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
-            return new OutputProcessViewConditionFirstPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
+            return new OutputProcessViewConditionFirstPostProcess(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess, outputFirstStateMgmtSettings);
         } else if (conditionType == ResultSetProcessorOutputConditionType.POLICY_LASTALL_UNORDERED) {
             if (super.postProcessFactory == null) {
                 return new OutputProcessViewConditionLastAllUnord(resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);

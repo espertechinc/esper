@@ -37,6 +37,7 @@ import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescHi
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexHook;
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexHookUtil;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
@@ -59,7 +60,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                      boolean hasAggregations,
                                                                      StatementRawInfo statementRawInfo,
                                                                      StatementCompileTimeServices compileTimeServices)
-            throws ExprValidationException {
+        throws ExprValidationException {
 
         EventType[] streamTypes = typeService.getEventTypes();
         String[] streamNames = typeService.getStreamNames();
@@ -84,7 +85,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         OuterJoinDesc[] outerJoinDescs = OuterJoinDesc.toArray(spec.getRaw().getOuterJoinDescList());
         if ((historicalViewableDesc.isHasHistorical()) && (streamTypes.length == 2)) {
             JoinSetComposerPrototypeHistorical2StreamDesc desc = makeComposerHistorical2Stream(outerJoinDescs, whereClause, streamTypes, streamNames, historicalViewableDesc, queryPlanLogging, statementRawInfo, compileTimeServices);
-            return new JoinSetComposerPrototypeDesc(desc.getForge(), desc.getAdditionalForgeables());
+            return new JoinSetComposerPrototypeDesc(desc.getForge(), desc.getAdditionalForgeables(), compileTimeServices.getStateMgmtSettingsProvider().newCharge());
         }
 
         boolean isOuterJoins = !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescs);
@@ -120,8 +121,8 @@ public class JoinSetComposerPrototypeForgeFactory {
         HistoricalStreamIndexListForge[] historicalStreamIndexLists = new HistoricalStreamIndexListForge[streamTypes.length];
 
         QueryPlanForgeDesc queryPlanDesc = QueryPlanBuilder.getPlan(streamTypes, outerJoinDescs, queryGraph, typeService.getStreamNames(),
-                historicalViewableDesc, historicalDependencyGraph, historicalStreamIndexLists,
-                joinAnalysisResult, queryPlanLogging, statementRawInfo, compileTimeServices);
+            historicalViewableDesc, historicalDependencyGraph, historicalStreamIndexLists,
+            joinAnalysisResult, queryPlanLogging, statementRawInfo, compileTimeServices);
         QueryPlanForge queryPlan = queryPlanDesc.getForge();
         additionalForgeables.addAll(queryPlanDesc.getAdditionalForgeables());
 
@@ -152,7 +153,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         additionalForgeables.addAll(multikeyForgeables);
 
         // plan objectsettings
-        planStateMgmtSettings(indexSpecs, statementRawInfo, compileTimeServices);
+        FabricCharge fabricCharge = planStateMgmtSettings(indexSpecs, statementRawInfo, compileTimeServices);
 
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(spec.getAnnotations(), compileTimeServices.getClasspathImportServiceCompileTime());
         if (queryPlanLogging && (QUERY_PLAN_LOG.isInfoEnabled() || hook != null)) {
@@ -173,7 +174,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         JoinSetComposerPrototypeGeneralForge forge = new JoinSetComposerPrototypeGeneralForge(typeService.getEventTypes(), postJoinEvaluator, outerJoinDescs.length > 0, queryPlan, joinAnalysisResult, typeService.getStreamNames(), joinRemoveStream, historicalViewableDesc.isHasHistorical());
-        return new JoinSetComposerPrototypeDesc(forge, additionalForgeables);
+        return new JoinSetComposerPrototypeDesc(forge, additionalForgeables, fabricCharge);
     }
 
     private static List<StmtClassForgeableFactory> planMultikeys(QueryPlanIndexForge[] indexSpecs, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
@@ -199,16 +200,19 @@ public class JoinSetComposerPrototypeForgeFactory {
         return multiKeyForgeables;
     }
 
-    private static void planStateMgmtSettings(QueryPlanIndexForge[] indexSpecs, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
-        for (QueryPlanIndexForge spec : indexSpecs) {
+    private static FabricCharge planStateMgmtSettings(QueryPlanIndexForge[] indexSpecs, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
+        FabricCharge fabricCharge = compileTimeServices.getStateMgmtSettingsProvider().newCharge();
+        for (int streamNum = 0; streamNum < indexSpecs.length; streamNum++) {
+            QueryPlanIndexForge spec = indexSpecs[streamNum];
             if (spec == null) {
                 continue;
             }
             for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItemForge> entry : spec.getItems().entrySet()) {
                 QueryPlanIndexItemForge forge = entry.getValue();
-                forge.planStateMgmtSettings(raw, compileTimeServices);
+                forge.planStateMgmtSettings(fabricCharge, new QueryPlanAttributionKeyStream(streamNum), null, forge, raw, compileTimeServices);
             }
         }
+        return fabricCharge;
     }
 
     private static JoinSetComposerPrototypeHistorical2StreamDesc makeComposerHistorical2Stream(OuterJoinDesc[] outerJoinDescs,
@@ -219,7 +223,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                                                boolean queryPlanLogging,
                                                                                                StatementRawInfo statementRawInfo,
                                                                                                StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         int polledViewNum = 0;
         int streamViewNum = 1;
         if (historicalViewableDesc.getHistorical()[1]) {
@@ -278,11 +282,11 @@ public class JoinSetComposerPrototypeForgeFactory {
                     outerJoinPerStream[0] = true;
                     outerJoinPerStream[1] = true;
                 } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.LEFT)) &&
-                        (streamViewNum == 0)) {
+                    (streamViewNum == 0)) {
                     isOuterJoin = true;
                     outerJoinPerStream[0] = true;
                 } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.RIGHT)) &&
-                        (streamViewNum == 1)) {
+                    (streamViewNum == 1)) {
                     isOuterJoin = true;
                     outerJoinPerStream[1] = true;
                 }
@@ -305,7 +309,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         JoinSetComposerPrototypeHistoricalDesc indexStrategies =
-                determineIndexing(filterForIndexing, streamTypes[polledViewNum], streamTypes[streamViewNum], polledViewNum, streamViewNum, streamNames, statementRawInfo, services);
+            determineIndexing(filterForIndexing, streamTypes[polledViewNum], streamTypes[streamViewNum], polledViewNum, streamViewNum, streamNames, statementRawInfo, services);
 
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(statementRawInfo.getAnnotations(), services.getClasspathImportServiceCompileTime());
         if (queryPlanLogging && (QUERY_PLAN_LOG.isInfoEnabled() || hook != null)) {
@@ -317,7 +321,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         JoinSetComposerPrototypeHistorical2StreamForge forge = new JoinSetComposerPrototypeHistorical2StreamForge(streamTypes, whereClause, isOuterJoin, polledViewNum, streamViewNum, outerJoinEqualsNode,
-                indexStrategies.getLookupForge(), indexStrategies.getIndexingForge(), isAllHistoricalNoSubordinate, outerJoinPerStream);
+            indexStrategies.getLookupForge(), indexStrategies.getIndexingForge(), isAllHistoricalNoSubordinate, outerJoinPerStream);
         return new JoinSetComposerPrototypeHistorical2StreamDesc(forge, indexStrategies.getAdditionalForgeables());
     }
 
@@ -363,7 +367,7 @@ public class JoinSetComposerPrototypeForgeFactory {
                                                                             String[] streamNames,
                                                                             StatementRawInfo rawInfo,
                                                                             StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         // No filter means unindexed event tables
         if (filterForIndexing == null) {
             return new JoinSetComposerPrototypeHistoricalDesc(HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE, Collections.emptyList());
@@ -429,8 +433,8 @@ public class JoinSetComposerPrototypeForgeFactory {
             }
 
             return new JoinSetComposerPrototypeHistoricalDesc(
-                    HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE,
-                    Collections.emptyList());
+                HistoricalIndexLookupStrategyNoIndexForge.INSTANCE, PollResultIndexingStrategyNoIndexForge.INSTANCE,
+                Collections.emptyList());
         }
 
         CoercionDesc keyCoercionTypes = CoercionUtil.getCoercionTypesHash(new EventType[]{streamViewType, polledViewType}, 0, 1, hashKeys, hashIndexes);
@@ -440,7 +444,7 @@ public class JoinSetComposerPrototypeForgeFactory {
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashEvals, false, raw, serdeResolver);
             HistoricalIndexLookupStrategyHashForge lookup = new HistoricalIndexLookupStrategyHashForge(streamViewStreamNum, hashEvals, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
             PollResultIndexingStrategyHashForge indexing = new PollResultIndexingStrategyHashForge(polledViewStreamNum, polledViewType,
-                    hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
+                hashIndexes, keyCoercionTypes.getCoercionTypes(), multiKeyPlan.getClassRef());
             return new JoinSetComposerPrototypeHistoricalDesc(lookup, indexing, multiKeyPlan.getMultiKeyForgeables());
         } else {
             CoercionDesc rangeCoercionTypes = CoercionUtil.getCoercionTypesRange(new EventType[]{streamViewType, polledViewType}, 1, rangeIndexes, rangeKeys);

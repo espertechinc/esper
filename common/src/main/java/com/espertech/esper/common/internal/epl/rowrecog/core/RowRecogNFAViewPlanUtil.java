@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.rowrecog.core;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
@@ -20,6 +19,7 @@ import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
@@ -31,6 +31,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationAttributionKeyRowRecog;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryFactory;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeDesc;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
@@ -52,8 +53,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventType;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.map.MapEventType;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +79,7 @@ public class RowRecogNFAViewPlanUtil {
         Annotation[] annotations = statementRawInfo.getAnnotations();
         boolean iterateOnly = HintEnum.ITERATE_ONLY.getHint(annotations) != null;
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // Expanded pattern already there
         RowRecogExprNode expandedPatternNode = matchRecognizeSpec.getPattern();
@@ -254,7 +255,6 @@ public class RowRecogNFAViewPlanUtil {
         // validate partition-by expressions, if any
         ExprNode[] partitionBy;
         MultiKeyClassRef partitionMultiKey;
-        StateMgmtSetting partitionMgmtStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
         if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
             StreamTypeService typeServicePartition = new StreamTypeServiceImpl(parentEventType, "MATCH_RECOGNIZE_PARTITION", true);
             List<ExprNode> validated = new ArrayList<>();
@@ -267,20 +267,16 @@ public class RowRecogNFAViewPlanUtil {
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(partitionBy, false, base.getStatementRawInfo(), services.getSerdeResolver());
             partitionMultiKey = multiKeyPlan.getClassRef();
             additionalForgeables.addAll(multiKeyPlan.getMultiKeyForgeables());
-            partitionMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_PARTITIONED);
         } else {
-            partitionMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_UNPARTITIONED);
             partitionBy = null;
             partitionMultiKey = null;
         }
 
         // validate interval if present
-        StateMgmtSetting scheduleMgmtStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
         if (matchRecognizeSpec.getInterval() != null) {
             ExprValidationContext validationContext = new ExprValidationContextBuilder(new StreamTypeServiceImpl(false), statementRawInfo, services).withAllowBindingConsumption(true).build();
             ExprTimePeriod validated = (ExprTimePeriod) ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGINTERVAL, matchRecognizeSpec.getInterval().getTimePeriodExpr(), validationContext);
             matchRecognizeSpec.getInterval().setTimePeriodExpr(validated);
-            scheduleMgmtStateMgmtSettings = services.getStateMgmtSettingsProvider().getRowRecog(statementRawInfo, AppliesTo.ROWRECOG_SCHEDULE);
         }
 
         // compile variable definition expressions
@@ -371,10 +367,17 @@ public class RowRecogNFAViewPlanUtil {
                 startStates, allStates,
                 matchRecognizeSpec.isAllMatches(), matchRecognizeSpec.getSkip().getSkip(),
                 columnForges, columnNames,
-                intervalCompute, previousRandomAccessIndexes, aggregationServices, partitionMgmtStateMgmtSettings,
-                scheduleMgmtStateMgmtSettings, services.getSerdeResolver().isTargetHA()
+                intervalCompute, previousRandomAccessIndexes, aggregationServices,
+            services.getSerdeResolver().isTargetHA()
             );
-        return new RowRecogPlan(forge, additionalForgeables);
+
+        StateMgmtSetting partitionMgmtStateMgmtDesc = services.getStateMgmtSettingsProvider().rowRecogPartitionState(fabricCharge, statementRawInfo, forge, matchRecognizeSpec);
+        forge.setPartitionMgmtStateMgmtSettings(partitionMgmtStateMgmtDesc);
+
+        StateMgmtSetting scheduleMgmtStateMgmtDesc = services.getStateMgmtSettingsProvider().rowRecogScheduleState(fabricCharge, statementRawInfo, forge, matchRecognizeSpec);
+        forge.setScheduleMgmtStateMgmtSettings(scheduleMgmtStateMgmtDesc);
+
+        return new RowRecogPlan(forge, additionalForgeables, fabricCharge);
     }
 
     private static AggregationServiceForgeDesc[] planAggregations(List<ExprAggregateNode> measureAggregateExprNodes,
@@ -385,7 +388,7 @@ public class RowRecogNFAViewPlanUtil {
                                                                   StatementBaseInfo base,
                                                                   StatementCompileTimeServices services)
             throws ExprValidationException {
-        Map<Integer, List<ExprAggregateNode>> measureExprAggNodesPerStream = new HashMap<>();
+        Map<Integer, List<ExprAggregateNode>> measureExprAggNodesPerStream = new LinkedHashMap<>();
 
         for (ExprAggregateNode aggregateNode : measureAggregateExprNodes) {
             // validate node and params
@@ -451,10 +454,11 @@ public class RowRecogNFAViewPlanUtil {
         // get aggregation service per variable
         AggregationServiceForgeDesc[] aggServices = new AggregationServiceForgeDesc[allStreamNames.length];
         List<ExprDeclaredNode> declareds = Arrays.asList(base.getStatementSpec().getDeclaredExpressions());
+        int count = 0;
         for (Map.Entry<Integer, List<ExprAggregateNode>> entry : measureExprAggNodesPerStream.entrySet()) {
 
             EventType[] typesPerStream = new EventType[]{allTypes[entry.getKey()]};
-            AggregationServiceForgeDesc desc = AggregationServiceFactoryFactory.getService(
+            AggregationServiceForgeDesc desc = AggregationServiceFactoryFactory.getService(new AggregationAttributionKeyRowRecog(count++),
                     entry.getValue(), Collections.emptyMap(), declareds,
                     new ExprNode[0], null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
                     false, base.getStatementRawInfo().getAnnotations(),

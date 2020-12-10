@@ -22,7 +22,6 @@ import com.espertech.esper.common.internal.event.json.serde.DIOJsonAnyValueSerde
 import com.espertech.esper.common.internal.event.json.serde.DIOJsonArraySerde;
 import com.espertech.esper.common.internal.event.json.serde.DIOJsonObjectSerde;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.*;
-import com.espertech.esper.common.internal.serde.serdeset.additional.DIOMapPropertySerde;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSkipSerde;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
@@ -31,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.context.aifactory.createtable.StmtForgeMethodCreateTable.INTERNAL_RESERVED_PROPERTY;
 import static com.espertech.esper.common.internal.event.core.EventTypeUtility.resolveTypeCodegenGivenResolver;
 
@@ -40,7 +38,7 @@ public class SerdeEventPropertyUtility {
 
         DataInputOutputSerdeForge forge;
         if (propertyType == EPTypeNull.INSTANCE) {
-            return new SerdeEventPropertyDesc(new DataInputOutputSerdeForgeSingleton(DIOSkipSerde.class), Collections.emptySet());
+            return new SerdeEventPropertyDesc(DataInputOutputSerdeForgeSkip.INSTANCE, Collections.emptySet());
         }
         if (propertyType instanceof EPTypeClass) {
             EPTypeClass epType = (EPTypeClass) propertyType;
@@ -73,25 +71,25 @@ public class SerdeEventPropertyUtility {
             EventType eventType = (EventType) propertyType;
             Function<DataInputOutputSerdeForgeParameterizedVars, CodegenExpression> func = vars ->
                 resolveTypeCodegenGivenResolver(eventType, vars.getOptionalEventTypeResolver());
-            forge = new DataInputOutputSerdeForgeEventSerde("nullableEvent", func);
+            forge = new DataInputOutputSerdeForgeEventSerde(DataInputOutputSerdeForgeEventSerdeMethod.NULLABLEEVENT, eventType, func);
             return new SerdeEventPropertyDesc(forge, Collections.singleton(eventType));
         } else if (propertyType instanceof EventType[]) {
             EventType eventType = ((EventType[]) propertyType)[0];
             Function<DataInputOutputSerdeForgeParameterizedVars, CodegenExpression> func = vars ->
                 resolveTypeCodegenGivenResolver(eventType, vars.getOptionalEventTypeResolver());
-            forge = new DataInputOutputSerdeForgeEventSerde("nullableEventArray", func);
+            forge = new DataInputOutputSerdeForgeEventSerde(DataInputOutputSerdeForgeEventSerdeMethod.NULLABLEEVENTARRAY, eventType, func);
             return new SerdeEventPropertyDesc(forge, Collections.singleton(eventType));
         } else if (propertyType instanceof TypeBeanOrUnderlying) {
             EventType eventType = ((TypeBeanOrUnderlying) propertyType).getEventType();
             Function<DataInputOutputSerdeForgeParameterizedVars, CodegenExpression> func = vars ->
                 resolveTypeCodegenGivenResolver(eventType, vars.getOptionalEventTypeResolver());
-            forge = new DataInputOutputSerdeForgeEventSerde("nullableEventOrUnderlying", func);
+            forge = new DataInputOutputSerdeForgeEventSerde(DataInputOutputSerdeForgeEventSerdeMethod.NULLABLEEVENTORUNDERLYING, eventType, func);
             return new SerdeEventPropertyDesc(forge, Collections.singleton(eventType));
         } else if (propertyType instanceof TypeBeanOrUnderlying[]) {
             EventType eventType = ((TypeBeanOrUnderlying[]) propertyType)[0].getEventType();
             Function<DataInputOutputSerdeForgeParameterizedVars, CodegenExpression> func = vars ->
                 resolveTypeCodegenGivenResolver(eventType, vars.getOptionalEventTypeResolver());
-            forge = new DataInputOutputSerdeForgeEventSerde("nullableEventArrayOrUnderlying", func);
+            forge = new DataInputOutputSerdeForgeEventSerde(DataInputOutputSerdeForgeEventSerdeMethod.NULLABLEEVENTARRAYORUNDERLYING, eventType, func);
             return new SerdeEventPropertyDesc(forge, Collections.singleton(eventType));
         } else if (propertyType instanceof Map) {
             Map<String, Object> kv = (Map<String, Object>) propertyType;
@@ -113,10 +111,7 @@ public class SerdeEventPropertyUtility {
                 serdes[index] = desc.getForge();
                 index++;
             }
-            Function<DataInputOutputSerdeForgeParameterizedVars, CodegenExpression>[] functions = new Function[2];
-            functions[0] = vars -> constant(keys);
-            functions[1] = vars -> DataInputOutputSerdeForge.codegenArray(serdes, vars.getMethod(), vars.getScope(), vars.getOptionalEventTypeResolver());
-            forge = new DataInputOutputSerdeForgeParameterized(DIOMapPropertySerde.class.getName(), functions);
+            forge = new DataInputOutputSerdeForgeMap(keys, serdes);
             return new SerdeEventPropertyDesc(forge, nestedTypes);
         } else {
             throw new EPException("Failed to determine serde for unrecognized property value type '" + propertyType + "' for property '" + propertyName + "' of type '" + eventTypeSerde.getName() + "'");

@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.lookupplansubord;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItemForge;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
@@ -20,11 +21,13 @@ public class SubordinateQueryIndexPlan {
     private final QueryPlanIndexItemForge indexItem;
     private final IndexMultiKey indexPropKey;
     private final List<StmtClassForgeableFactory> multiKeyForgeables;
+    private final FabricCharge fabricCharge;
 
-    public SubordinateQueryIndexPlan(QueryPlanIndexItemForge indexItem, IndexMultiKey indexPropKey, List<StmtClassForgeableFactory> multiKeyForgeables) {
+    public SubordinateQueryIndexPlan(QueryPlanIndexItemForge indexItem, IndexMultiKey indexPropKey, List<StmtClassForgeableFactory> multiKeyForgeables, FabricCharge fabricCharge) {
         this.indexItem = indexItem;
         this.indexPropKey = indexPropKey;
         this.multiKeyForgeables = multiKeyForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public QueryPlanIndexItemForge getIndexItem() {
@@ -37,5 +40,9 @@ public class SubordinateQueryIndexPlan {
 
     public List<StmtClassForgeableFactory> getMultiKeyForgeables() {
         return multiKeyForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

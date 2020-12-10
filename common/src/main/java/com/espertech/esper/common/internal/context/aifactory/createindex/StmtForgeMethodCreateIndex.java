@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.index.compile.IndexCompileTimeKey;
 import com.espertech.esper.common.internal.epl.index.compile.IndexDetailForge;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanAttributionKeyStatement;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItemForge;
 import com.espertech.esper.common.internal.epl.lookup.AdvancedIndexIndexMultiKeyPart;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexUtil;
@@ -33,6 +34,7 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaD
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.ArrayList;
@@ -87,7 +89,6 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
 
         // validate index
         QueryPlanIndexItemForge explicitIndexDesc = EventTableIndexUtil.validateCompileExplicitIndex(spec.getIndexName(), spec.isUnique(), spec.getColumns(), indexedEventType, base.getStatementRawInfo(), services);
-        explicitIndexDesc.planStateMgmtSettings(base.getStatementRawInfo(), services);
         AdvancedIndexIndexMultiKeyPart advancedIndexDesc = explicitIndexDesc.getAdvancedIndexProvisionDesc() == null ? null : explicitIndexDesc.getAdvancedIndexProvisionDesc().getIndexDesc().getAdvancedIndexDescRuntime();
         final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), explicitIndexDesc.getHashPropsAsList(), explicitIndexDesc.getBtreePropsAsList(), advancedIndexDesc);
 
@@ -111,6 +112,10 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
         }
         explicitIndexDesc.setRangeSerdes(rangeSerdes);
 
+        // plan state management
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        explicitIndexDesc.planStateMgmtSettings(fabricCharge, QueryPlanAttributionKeyStatement.INSTANCE, spec.getIndexName(), explicitIndexDesc, base.getStatementRawInfo(), services);
+
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, null, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
@@ -129,6 +134,6 @@ public class StmtForgeMethodCreateIndex implements StmtForgeMethod {
         }
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope, fabricCharge);
     }
 }

@@ -14,10 +14,10 @@ import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactory;
 import com.espertech.esper.common.internal.epl.index.base.EventTableFactoryFactoryContext;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFactory {
     public final static EPTypeClass EPTYPE = new EPTypeClass(PropertyHashedArrayFactoryFactory.class);
@@ -43,6 +43,6 @@ public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFacto
     }
 
     public EventTableFactory create(EventType eventType, EventTableFactoryFactoryContext eventTableFactoryContext) {
-        return eventTableFactoryContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, eventTableFactoryContext, stateMgmtSettings);
+        return eventTableFactoryContext.getEventTableIndexService().createInArray(streamNum, eventType, propertyNames, propertyTypes, propertySerdes, unique, propertyGetters, isFireAndForget, stateMgmtSettings);
     }
 }

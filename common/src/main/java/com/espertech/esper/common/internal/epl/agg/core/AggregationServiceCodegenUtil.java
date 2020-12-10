@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,5 +78,14 @@ public class AggregationServiceCodegenUtil {
                 hasLastUpdTime ? method -> method.getBlock().assignRef("lastUpd", ref("time")) : method -> method.getBlock().methodThrowUnsupported());
         namedMethods.addMethod(EPTypePremade.LONGPRIMITIVE.getEPType(), "getLastUpdateTime", Collections.emptyList(), AggregationServiceCodegenUtil.class, classScope,
                 hasLastUpdTime ? method -> method.getBlock().methodReturn(ref("lastUpd")) : method -> method.getBlock().methodThrowUnsupported());
+    }
+
+    public static void appendIncidentals(boolean hasRefcount, boolean hasLastUpdTime, FabricTypeCollector fabricTypeCollector) {
+        if (hasRefcount) {
+            fabricTypeCollector.builtin(int.class);
+        }
+        if (hasLastUpdTime) {
+            fabricTypeCollector.builtin(long.class);
+        }
     }
 }

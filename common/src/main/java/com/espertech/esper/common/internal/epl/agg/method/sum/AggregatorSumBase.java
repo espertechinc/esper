@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -51,6 +52,8 @@ public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilter
     protected abstract void writeSum(CodegenExpressionRef row, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope);
 
     protected abstract void readSum(CodegenExpressionRef row, CodegenExpressionRef input, CodegenMethod method, CodegenClassScope classScope);
+
+    protected abstract void appendSumFormat(FabricTypeCollector collector);
 
     public AggregatorSumBase(EPTypeClass optionalDistinctValueType, DataInputOutputSerdeForge optionalDistinctSerde, boolean hasFilter, ExprNode optionalFilter, EPTypeClass sumType) {
         super(optionalDistinctValueType, optionalDistinctSerde, hasFilter, optionalFilter);
@@ -113,5 +116,10 @@ public abstract class AggregatorSumBase extends AggregatorMethodWDistinctWFilter
     protected final void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(readLong(row, cnt, input));
         readSum(row, input, method, classScope);
+    }
+
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(long.class);
+        appendSumFormat(collector);
     }
 }

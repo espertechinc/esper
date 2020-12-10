@@ -63,7 +63,7 @@ public class RuntimeVersion {
         }
     }
 
-    private static MajorMinorPatch parseVersion(String version) throws NumberFormatException {
+    public static MajorMinorPatch parseVersion(String version) throws NumberFormatException {
         if (version == null || version.trim().length() == 0) {
             throw new NumberFormatException("Null or empty semantic version");
         }
@@ -78,7 +78,7 @@ public class RuntimeVersion {
         }
     }
 
-    private static class MajorMinorPatch {
+    public static class MajorMinorPatch {
         private final int major;
         private final int minor;
         private final int patch;
@@ -89,11 +89,11 @@ public class RuntimeVersion {
             this.patch = patch;
         }
 
-        int getMajor() {
+        public int getMajor() {
             return major;
         }
 
-        int getMinor() {
+        public int getMinor() {
             return minor;
         }
 

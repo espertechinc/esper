@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.context.aifactory.select;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.HookType;
 import com.espertech.esper.common.client.annotation.IterableUnbound;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
@@ -39,6 +38,7 @@ import com.espertech.esper.common.internal.epl.historical.common.HistoricalViewa
 import com.espertech.esper.common.internal.epl.historical.database.core.HistoricalEventViewableDatabaseForge;
 import com.espertech.esper.common.internal.epl.historical.database.core.HistoricalEventViewableDatabaseForgeFactory;
 import com.espertech.esper.common.internal.epl.historical.method.core.HistoricalEventViewableMethodForge;
+import com.espertech.esper.common.internal.epl.historical.method.core.HistoricalEventViewableMethodForgeDesc;
 import com.espertech.esper.common.internal.epl.historical.method.core.HistoricalEventViewableMethodForgeFactory;
 import com.espertech.esper.common.internal.epl.join.analyze.OuterJoinAnalyzer;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeDesc;
@@ -54,11 +54,9 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFact
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryProvider;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewForgeFactory;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
+import com.espertech.esper.common.internal.epl.pattern.core.PatternAttributionKeyStream;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewFactoryForge;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogNFAViewPlanUtil;
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPlan;
@@ -70,12 +68,13 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelpe
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
+import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyResult;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 import com.espertech.esper.common.internal.view.core.*;
@@ -93,6 +92,7 @@ public class StmtForgeMethodSelectUtil {
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         StatementSpecCompiled statementSpec = base.getStatementSpec();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         String[] streamNames = determineStreamNames(statementSpec.getStreamSpecs());
         int numStreams = streamNames.length;
@@ -101,6 +101,7 @@ public class StmtForgeMethodSelectUtil {
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
+        fabricCharge.add(subSelectActivationDesc.getFabricCharge());
 
         // verify for joins that required views are present
         StreamJoinAnalysisResultCompileTime joinAnalysisResult = verifyJoinViews(statementSpec);
@@ -117,7 +118,7 @@ public class StmtForgeMethodSelectUtil {
             boolean isCanIterateUnbound = streamSpec.getViewSpecs().length == 0 &&
                 (services.getConfiguration().getCompiler().getViewResources().isIterableUnbound() ||
                     AnnotationUtil.hasAnnotation(statementSpec.getAnnotations(), IterableUnbound.class));
-            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(stream, false, -1, streamSpec.getOptions(), null, base.getStatementRawInfo(), services);
+            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(stream, null, streamSpec.getOptions(), null, base.getStatementRawInfo(), services);
 
             if (dataflowOperator) {
                 DataFlowActivationResult dfResult = handleDataflowActivation(args, streamSpec);
@@ -133,8 +134,10 @@ public class StmtForgeMethodSelectUtil {
                 eventTypeNames[stream] = filterStreamSpec.getFilterSpecCompiled().getFilterForEventTypeName();
 
                 viewableActivatorForges[stream] = new ViewableActivatorFilterForge(filterSpecCompiled, isCanIterateUnbound, stream, false, -1);
+                services.getStateMgmtSettingsProvider().filterViewable(fabricCharge, stream, isCanIterateUnbound, base.getStatementRawInfo(), filterStreamSpec.getFilterSpecCompiled().getFilterForEventType());
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, streamEventTypes[stream]);
                 viewForges[stream] = viewForgeDesc.getForges();
+                fabricCharge.add(viewForgeDesc.getFabricCharge());
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 filterSpecCompileds.add(filterSpecCompiled);
             } else if (streamSpec instanceof PatternStreamSpecCompiled) {
@@ -145,12 +148,15 @@ public class StmtForgeMethodSelectUtil {
                 }
 
                 MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base.getModuleName(), stream, null, patternStreamSpec, services);
-                PatternContext patternContext = new PatternContext(0, patternStreamSpec.getMatchedEventMapMeta(), false, -1, false);
+                PatternContext patternContext = new PatternContext(stream, patternStreamSpec.getMatchedEventMapMeta(), false, -1, false);
                 viewableActivatorForges[stream] = new ViewableActivatorPatternForge(patternType, patternStreamSpec, patternContext, isCanIterateUnbound);
+                services.getStateMgmtSettingsProvider().filterViewable(fabricCharge, stream, isCanIterateUnbound, base.getStatementRawInfo(), patternType);
                 streamEventTypes[stream] = patternType;
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, patternType);
+                fabricCharge.add(viewForgeDesc.getFabricCharge());
                 viewForges[stream] = viewForgeDesc.getForges();
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+                services.getStateMgmtSettingsProvider().pattern(fabricCharge, new PatternAttributionKeyStream(stream), patternStreamSpec, base.getStatementRawInfo());
             } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
                 NamedWindowMetaData namedWindow = services.getNamedWindowCompileTimeResolver().resolve(namedSpec.getNamedWindow().getEventType().getName());
@@ -210,7 +216,9 @@ public class StmtForgeMethodSelectUtil {
             } else if (streamSpec instanceof MethodStreamSpec) {
                 validateNoViews(streamSpec, "Method data");
                 MethodStreamSpec methodStreamSpec = (MethodStreamSpec) streamSpec;
-                HistoricalEventViewableMethodForge viewable = HistoricalEventViewableMethodForgeFactory.createMethodStatementView(stream, methodStreamSpec, base, services);
+                HistoricalEventViewableMethodForgeDesc desc = HistoricalEventViewableMethodForgeFactory.createMethodStatementView(stream, methodStreamSpec, base, services);
+                HistoricalEventViewableMethodForge viewable = desc.getForge();
+                fabricCharge.add(desc.getFabricCharge());
                 historicalEventViewables[stream] = viewable;
                 streamEventTypes[stream] = viewable.getEventType();
                 viewForges[stream] = Collections.emptyList();
@@ -222,7 +230,7 @@ public class StmtForgeMethodSelectUtil {
 
             // plan serde for iterate-unbound
             if (isCanIterateUnbound) {
-                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
                 additionalForgeables.addAll(serdeForgeables);
             }
         }
@@ -242,8 +250,9 @@ public class StmtForgeMethodSelectUtil {
             additionalForgeables.addAll(plan.getAdditionalForgeables());
             scheduleHandleCallbackProviders.add(forge);
             viewForges[0].add(forge);
-            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
             additionalForgeables.addAll(serdeForgeables);
+            fabricCharge.add(plan.getFabricCharge());
         }
 
         // Obtain event types from view factory chains
@@ -258,6 +267,7 @@ public class StmtForgeMethodSelectUtil {
         SubSelectHelperForgePlan subselectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, streamNames, streamEventTypes, eventTypeNames, services);
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
         additionalForgeables.addAll(subselectForgePlan.getAdditionalForgeables());
+        fabricCharge.add(subselectForgePlan.getFabricCharge());
         determineViewSchedules(subselectForges, scheduleHandleCallbackProviders);
 
         // determine view schedules
@@ -290,19 +300,24 @@ public class StmtForgeMethodSelectUtil {
         ExprForge whereClauseForge = whereClauseValidated == null ? null : whereClauseValidated.getForge();
 
         // Obtain result set processor
-        ResultSetProcessorDesc resultSetProcessorDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(statementSpec), typeService, viewResourceDelegateExpr, joinAnalysisResult.getUnidirectionalInd(), true, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
+        ResultSetProcessorDesc resultSetProcessorDesc = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(statementSpec), typeService, viewResourceDelegateExpr, joinAnalysisResult.getUnidirectionalInd(), true, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
         additionalForgeables.addAll(resultSetProcessorDesc.getAdditionalForgeables());
+        fabricCharge.add(resultSetProcessorDesc.getFabricCharge());
 
         // Handle 'prior' function nodes in terms of view requirements
-        ViewResourceDelegateDesc[] viewResourceDelegateDesc = ViewResourceVerifyHelper.verifyPreviousAndPriorRequirements(viewForges, viewResourceDelegateExpr);
+        ViewResourceVerifyResult viewVerifyResult = ViewResourceVerifyHelper.verifyPreviousAndPriorRequirements(viewForges, viewResourceDelegateExpr, null, base.getStatementRawInfo(), services);
+        ViewResourceDelegateDesc[] viewResourceDelegateDesc = viewVerifyResult.getDescriptors();
+        fabricCharge.add(viewVerifyResult.getFabricCharge());
         boolean hasPrior = ViewResourceDelegateDesc.hasPrior(viewResourceDelegateDesc);
         if (hasPrior) {
             for (int stream = 0; stream < numStreams; stream++) {
-                if (!viewResourceDelegateDesc[stream].getPriorRequests().isEmpty()) {
+                SortedSet<Integer> priorRequesteds = viewResourceDelegateDesc[stream].getPriorRequests();
+                if (!priorRequesteds.isEmpty()) {
                     boolean unbound = viewForges[stream].isEmpty();
-                    StateMgmtSetting stateMgmtSettings = unbound ? StateMgmtSettingDefault.INSTANCE : services.getStateMgmtSettingsProvider().getView(base.getStatementRawInfo(), stream, false, false, AppliesTo.WINDOW_PRIOR);
-                    viewForges[stream].add(new PriorEventViewForge(unbound, streamEventTypes[stream], stateMgmtSettings));
-                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(streamEventTypes[stream], base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                    EventType eventTypePrior = streamEventTypes[stream];
+                    StateMgmtSetting setting = services.getStateMgmtSettingsProvider().prior(fabricCharge, base.getStatementRawInfo(), stream, null, unbound, eventTypePrior, priorRequesteds);
+                    viewForges[stream].add(new PriorEventViewForge(unbound, eventTypePrior, setting));
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventTypePrior, base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
                     additionalForgeables.addAll(serdeForgeables);
                 }
             }
@@ -311,6 +326,7 @@ public class StmtForgeMethodSelectUtil {
         OutputProcessViewFactoryForgeDesc outputProcessDesc = OutputProcessViewForgeFactory.make(typeService.getEventTypes(), resultSetProcessorDesc.getResultEventType(), resultSetProcessorDesc.getResultSetProcessorType(), statementSpec, base.getStatementRawInfo(), services);
         OutputProcessViewFactoryForge outputProcessViewFactoryForge = outputProcessDesc.getForge();
         additionalForgeables.addAll(outputProcessDesc.getAdditionalForgeables());
+        fabricCharge.add(outputProcessDesc.getFabricCharge());
         outputProcessViewFactoryForge.collectSchedules(scheduleHandleCallbackProviders);
 
         JoinSetComposerPrototypeForge joinForge = null;
@@ -319,6 +335,7 @@ public class StmtForgeMethodSelectUtil {
             JoinSetComposerPrototypeDesc desc = JoinSetComposerPrototypeForgeFactory.makeComposerPrototype(statementSpec, joinAnalysisResult, typeService, historicalViewableDesc, false, hasAggregations, base.getStatementRawInfo(), services);
             joinForge = desc.getForge();
             additionalForgeables.addAll(desc.getAdditionalForgeables());
+            fabricCharge.add(desc.getFabricCharge());
             handleIndexDependencies(joinForge.getOptionalQueryPlan(), services);
         }
 
@@ -354,7 +371,7 @@ public class StmtForgeMethodSelectUtil {
             forgeables.add(new StmtClassForgeableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         }
 
-        StmtForgeMethodResult forgeableResult = new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()), packageScope);
+        StmtForgeMethodResult forgeableResult = new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList()), packageScope, fabricCharge);
         return new StmtForgeMethodSelectResult(forgeableResult, resultSetProcessorDesc.getResultEventType(), numStreams);
     }
 

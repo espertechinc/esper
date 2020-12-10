@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.method.core;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.stage1.spec.MethodStreamSpec;
 import com.espertech.esper.common.internal.epl.historical.method.poll.MethodPollingExecStrategyEnum;
 import com.espertech.esper.common.internal.epl.script.core.ExprNodeScript;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
@@ -81,5 +82,9 @@ public class MethodPollingViewableMeta {
 
     public boolean isStaticMethod() {
         return isStaticMethod;
+    }
+
+    public String getConfigurationName(MethodStreamSpec methodStreamSpec) {
+        return getMethodProviderClass() != null ? getMethodProviderClass().getName() : methodStreamSpec.getMethodName();
     }
 }

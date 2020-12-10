@@ -24,16 +24,14 @@ public class ViewFactoryForgeArgs {
     private final StatementRawInfo statementRawInfo;
     private final int streamNum;
     private final StreamSpecOptions options;
-    private final boolean isSubquery;
-    private final int subqueryNumber;
+    private final Integer subqueryNumber;
     private final String optionalCreateNamedWindowName;
     private final StatementCompileTimeServices compileTimeServices;
 
-    public ViewFactoryForgeArgs(int streamNum, boolean isSubquery, int subqueryNumber, StreamSpecOptions options, String optionalCreateNamedWindowName, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
+    public ViewFactoryForgeArgs(int streamNum, Integer subqueryNumber, StreamSpecOptions options, String optionalCreateNamedWindowName, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
         this.statementRawInfo = statementRawInfo;
         this.streamNum = streamNum;
         this.options = options;
-        this.isSubquery = isSubquery;
         this.subqueryNumber = subqueryNumber;
         this.optionalCreateNamedWindowName = optionalCreateNamedWindowName;
         this.compileTimeServices = compileTimeServices;
@@ -47,11 +45,7 @@ public class ViewFactoryForgeArgs {
         return options;
     }
 
-    public boolean isSubquery() {
-        return isSubquery;
-    }
-
-    public int getSubqueryNumber() {
+    public Integer getSubqueryNumber() {
         return subqueryNumber;
     }
 

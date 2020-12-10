@@ -89,6 +89,10 @@ public class ContextSpecKeyedItem {
         return aliasName;
     }
 
+    public DataInputOutputSerdeForge[] getLookupableSerdes() {
+        return lookupableSerdes;
+    }
+
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ContextControllerDetailKeyedItem.EPTYPE, this.getClass(), classScope);
         EPType[] types = EventTypeUtility.getPropertyTypesEPType(filterSpecCompiled.getFilterForEventType(), propertyNames.toArray(new String[0]));

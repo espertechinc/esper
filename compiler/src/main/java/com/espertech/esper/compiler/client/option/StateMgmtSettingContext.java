@@ -11,8 +11,8 @@
 package com.espertech.esper.compiler.client.option;
 
 import com.espertech.esper.common.client.annotation.AppliesTo;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingBucket;
 
 /**
  * For internal-use-only and subject-to-change-between-versions: Provides the environment to {@link StateMgmtSettingOption}.
@@ -20,15 +20,16 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 public class StateMgmtSettingContext extends StatementOptionContextBase {
 
     private final AppliesTo appliesTo;
-    private final StateMgmtSetting configured;
+    private final StateMgmtSettingBucket configured;
 
     /**
      * Ctor.
-     * @param raw statement info
-     * @param appliesTo applies
+     *
+     * @param raw        statement info
+     * @param appliesTo  applies
      * @param configured config
      */
-    public StateMgmtSettingContext(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSetting configured) {
+    public StateMgmtSettingContext(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSettingBucket configured) {
         super(raw);
         this.appliesTo = appliesTo;
         this.configured = configured;
@@ -36,6 +37,7 @@ public class StateMgmtSettingContext extends StatementOptionContextBase {
 
     /**
      * For internal-use-only and subject-to-change-between-versions: Returns applies-to
+     *
      * @return applies-to
      */
     public AppliesTo getAppliesTo() {
@@ -44,9 +46,10 @@ public class StateMgmtSettingContext extends StatementOptionContextBase {
 
     /**
      * For internal-use-only and subject-to-change-between-versions: Returns settings
+     *
      * @return settings
      */
-    public StateMgmtSetting getConfigured() {
+    public StateMgmtSettingBucket getConfigured() {
         return configured;
     }
 }

@@ -64,7 +64,7 @@ public class EvalNotForgeNode extends EvalForgeNodeBase {
     public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_NOT;
     }
 }

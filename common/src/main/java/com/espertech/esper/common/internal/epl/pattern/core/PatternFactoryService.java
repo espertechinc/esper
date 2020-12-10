@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.pattern.core;
 
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.epl.pattern.and.EvalAndFactoryNode;
 import com.espertech.esper.common.internal.epl.pattern.every.EvalEveryFactoryNode;
 import com.espertech.esper.common.internal.epl.pattern.everydistinct.EvalEveryDistinctFactoryNode;
@@ -26,7 +27,6 @@ import com.espertech.esper.common.internal.epl.pattern.observer.TimerAtObserverF
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerIntervalObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.observer.TimerScheduleObserverFactory;
 import com.espertech.esper.common.internal.epl.pattern.or.EvalOrFactoryNode;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 public interface PatternFactoryService {
     EvalRootFactoryNode root(StateMgmtSetting stateMgmtSettings);

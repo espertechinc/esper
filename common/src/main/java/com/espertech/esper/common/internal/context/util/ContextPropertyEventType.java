@@ -60,7 +60,7 @@ public class ContextPropertyEventType {
         }
     }
 
-    public static int getStreamNumberForNestingLevel(int nestingLevel, boolean isStartCondition) {
-        return nestingLevel * 10 + (isStartCondition ? 0 : 1);
+    public static int getStreamNumberForNestingLevel(int nestingLevel, boolean startCondition) {
+        return nestingLevel * 10 + (startCondition ? 0 : 1);
     }
 }

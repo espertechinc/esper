@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
 import com.espertech.esper.common.internal.epl.lookup.SubordTableLookupStrategyFactoryForge;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowDeployTimeResolver;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeUtil;
@@ -85,7 +86,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
             .exprDotMethod(ref("factory"), "setViewResourceDelegate", viewResourceDelegateDesc.toExpression())
             .exprDotMethod(ref("factory"), "setEventTableFactoryFactory", lookupStrategy.getFirst().make(method, symbols, classScope))
             .exprDotMethod(ref("factory"), "setLookupStrategyFactory", lookupStrategy.getSecond().make(method, symbols, classScope))
-            .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA))
+            .exprDotMethod(ref("factory"), "setAggregationServiceFactory", makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA, null))
             .exprDotMethod(ref("factory"), "setCorrelatedSubquery", constant(correlatedSubquery))
             .exprDotMethod(ref("factory"), "setGroupKeyEval", groupKeyEval)
             .exprDotMethod(ref("factory"), "setFilterExprEval", filterExprNode == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprNode.getForge(), method, this.getClass(), classScope));
@@ -113,7 +114,7 @@ public class SubSelectStrategyFactoryLocalViewPreloadedForge implements SubSelec
         return viewResourceDelegateDesc.isHasPrevious();
     }
 
-    protected static CodegenExpression makeAggregationService(int subqueryNumber, AggregationServiceForgeDesc aggregationServiceForgeDesc, CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, boolean isTargetHA) {
+    protected static CodegenExpression makeAggregationService(int subqueryNumber, AggregationServiceForgeDesc aggregationServiceForgeDesc, CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, boolean isTargetHA, StateMgmtSettingsProvider stateMgmtSettingsProvider) {
         if (aggregationServiceForgeDesc == null) {
             return constantNull();
         }

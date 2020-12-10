@@ -29,14 +29,12 @@ import com.espertech.esper.common.internal.context.module.StatementInformational
 import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWViewFactoryForge;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.view.core.*;
 
@@ -68,6 +66,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
     private StmtForgeMethodResult build(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
 
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
         CreateWindowCompileResult compileResult = CreateWindowUtil.handleCreateWindow(base, services);
         additionalForgeables.addAll(compileResult.getAdditionalForgeables());
         EventType namedWindowType = compileResult.getFilterSpecCompiled().getFilterForEventType();
@@ -86,9 +85,10 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         ViewableActivatorFilterForge activator = new ViewableActivatorFilterForge(compileResult.getFilterSpecCompiled(), false, 0, false, -1);
 
         List<ViewSpec> viewSpecs = createWindowDesc.getViewSpecs();
-        ViewFactoryForgeArgs viewArgs = new ViewFactoryForgeArgs(0, false, -1, createWindowDesc.getStreamSpecOptions(), createWindowDesc.getWindowName(), base.getStatementRawInfo(), services);
+        ViewFactoryForgeArgs viewArgs = new ViewFactoryForgeArgs(0, null, createWindowDesc.getStreamSpecOptions(), createWindowDesc.getWindowName(), base.getStatementRawInfo(), services);
         ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(viewSpecs.toArray(new ViewSpec[viewSpecs.size()]), viewArgs, namedWindowType);
         additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+        fabricCharge.add(viewForgeDesc.getFabricCharge());
 
         List<ViewFactoryForge> viewForges = viewForgeDesc.getForges();
         List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
@@ -123,7 +123,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
         defaultSelectAllSpec.getRaw().setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
         StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{namedWindowType}, new String[]{createWindowDesc.getWindowName()}, new boolean[]{true}, false, false);
-        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(defaultSelectAllSpec),
+        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(defaultSelectAllSpec),
                 typeService, null, new boolean[1], false, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
         SelectSubscriberDescriptor selectSubscriberDescriptor = resultSetProcessor.getSelectSubscriberDescriptor();
@@ -137,6 +137,9 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         boolean isEnableIndexShare = virtualDataWindow || HintEnum.ENABLE_WINDOW_SUBQUERY_INDEXSHARE.getHint(base.getStatementSpec().getAnnotations()) != null;
         NamedWindowMetaData metaData = new NamedWindowMetaData(namedWindowType, base.getModuleName(), base.getContextName(), uniqueKeyProArray, isBatchingDataWindow, isEnableIndexShare, compileResult.getAsEventType(), virtualDataWindow);
         services.getNamedWindowCompileTimeRegistry().newNamedWindow(metaData);
+
+        // fabric named window descriptor
+        services.getStateMgmtSettingsProvider().namedWindow(fabricCharge, base.getStatementRawInfo(), metaData, namedWindowType);
 
         // build forge list
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
@@ -161,7 +164,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList(), packageScope, fabricCharge);
     }
 
     private static boolean determineBatchingDataWindow(List<ViewFactoryForge> forges) {

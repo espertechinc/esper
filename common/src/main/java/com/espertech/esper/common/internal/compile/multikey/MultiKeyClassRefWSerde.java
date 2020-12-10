@@ -33,7 +33,15 @@ public class MultiKeyClassRefWSerde implements MultiKeyClassRef {
         return types;
     }
 
+    public DataInputOutputSerdeForge getForge() {
+        return forge;
+    }
+
     public CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope) {
         return forge.codegen(method, classScope, null);
+    }
+
+    public DataInputOutputSerdeForge[] getSerdeForges() {
+        return new DataInputOutputSerdeForge[] {forge};
     }
 }

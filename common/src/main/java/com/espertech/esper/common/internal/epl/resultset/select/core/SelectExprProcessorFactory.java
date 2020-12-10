@@ -55,11 +55,11 @@ public class SelectExprProcessorFactory {
         // plan serdes for variant event types
         if (synthetic.getInsertIntoTargetType() instanceof VariantEventType ||
             synthetic.getInsertIntoTargetType() instanceof WrapperEventType && (((WrapperEventType) synthetic.getInsertIntoTargetType()).getUnderlyingEventType() instanceof VariantEventType)) {
-            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(synthetic.getForge().getResultEventType(), args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver());
+            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(synthetic.getForge().getResultEventType(), args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver(), args.getCompileTimeServices().getStateMgmtSettingsProvider());
             additionalForgeables.addAll(serdeForgeables);
             for (EventType eventType : args.getTypeService().getEventTypes()) {
-                serdeForgeables = SerdeEventTypeUtility.plan(eventType, args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver());
-                additionalForgeables.addAll(serdeForgeables);
+                List<StmtClassForgeableFactory> moreForgeable = SerdeEventTypeUtility.plan(eventType, args.getStatementRawInfo(), args.getCompileTimeServices().getSerdeEventTypeRegistry(), args.getCompileTimeServices().getSerdeResolver(), args.getCompileTimeServices().getStateMgmtSettingsProvider());
+                additionalForgeables.addAll(moreForgeable);
             }
         }
 

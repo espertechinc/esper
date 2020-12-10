@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.view.core.ViewEnum;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
@@ -31,23 +31,21 @@ import java.util.List;
 /**
  * Factory for {@link SizeView} instances.
  */
-public class SizeViewForge extends ViewFactoryForgeBase {
-    private List<ExprNode> viewParameters;
-    protected StatViewAdditionalPropsForge additionalProps;
+public class SizeViewForge extends ViewFactoryForgeBaseDerived {
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
-        additionalProps = StatViewAdditionalPropsForge.make(validated, 0, parentEventType, streamNumber, viewForgeEnv);
-        eventType = SizeView.createEventType(viewForgeEnv, additionalProps, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
+        additionalProps = StatViewAdditionalPropsForge.make(validated, 0, parentEventType, viewForgeEnv);
+        eventType = SizeView.createEventType(viewForgeEnv, additionalProps);
     }
 
     @Override
     public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
-        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
+        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
     }
 
     protected EPTypeClass typeOfFactory() {
@@ -68,7 +66,11 @@ public class SizeViewForge extends ViewFactoryForgeBase {
         return ViewEnum.SIZE.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_SIZE;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

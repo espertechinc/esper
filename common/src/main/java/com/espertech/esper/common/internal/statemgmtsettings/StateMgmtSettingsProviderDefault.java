@@ -10,9 +10,32 @@
  */
 package com.espertech.esper.common.internal.statemgmtsettings;
 
-import com.espertech.esper.common.client.annotation.AppliesTo;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpec;
+import com.espertech.esper.common.internal.compile.stage1.spec.PatternStreamSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
+import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationAttributionKey;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryForge;
+import com.espertech.esper.common.internal.epl.classprovided.compiletime.ClassProvidedPrecompileResult;
+import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
+import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
+import com.espertech.esper.common.internal.epl.pattern.core.PatternAttributionKey;
+import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogDescForge;
+import com.espertech.esper.common.internal.epl.table.compiletime.TableAccessAnalysisResult;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
+import com.espertech.esper.common.internal.fabric.FabricChargeNonHA;
+import com.espertech.esper.common.internal.fabric.FabricStatement;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
+import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
+
+import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvider {
     public final static StateMgmtSettingsProviderDefault INSTANCE = new StateMgmtSettingsProviderDefault();
@@ -20,31 +43,91 @@ public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvid
     private StateMgmtSettingsProviderDefault() {
     }
 
-    public StateMgmtSetting getView(StatementRawInfo raw, int streamNumber, boolean subquery, boolean grouped, AppliesTo appliesTo) {
+    public FabricCharge newCharge() {
+        return FabricChargeNonHA.INSTANCE;
+    }
+
+    public StateMgmtSetting view(FabricCharge fabricCharge, int[] grouping, ViewForgeEnv viewForgeEnv, ViewFactoryForge forge) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getPattern(StatementRawInfo raw, int streamNum, AppliesTo appliesTo) {
+    public StateMgmtSettingsProviderContext context() {
+        return StateMgmtSettingsProviderContextDefault.INSTANCE;
+    }
+
+    public StateMgmtSettingsProviderResultSet resultSet() {
+        return StateMgmtSettingsProviderResultSetDefault.INSTANCE;
+    }
+
+    public StateMgmtSettingsProviderIndex index() {
+        return StateMgmtSettingsProviderIndexDefault.INSTANCE;
+    }
+
+    public StateMgmtSetting aggregation(FabricCharge fabricCharge, AggregationAttributionKey attributionKey, StatementRawInfo raw, AggregationServiceFactoryForge forge) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getResultSet(StatementRawInfo raw, AppliesTo appliesTo) {
+    public StateMgmtSetting previous(FabricCharge fabricCharge, StatementRawInfo raw, int stream, Integer subqueryNumber, EventType eventType) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getContext(StatementRawInfo raw, String contextName, AppliesTo contextCategory) {
+    public StateMgmtSetting prior(FabricCharge fabricCharge, StatementRawInfo raw, int streamNum, Integer subqueryNumber, boolean unbound, EventType eventType, SortedSet<Integer> priorRequesteds) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getAggregation(StatementRawInfo raw, AppliesTo appliesTo) {
+    public StateMgmtSetting rowRecogPartitionState(FabricCharge fabricCharge, StatementRawInfo raw, RowRecogDescForge forge, MatchRecognizeSpec spec) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getIndex(StatementRawInfo raw, AppliesTo appliesTo) {
+    public StateMgmtSetting rowRecogScheduleState(FabricCharge fabricCharge, StatementRawInfo raw, RowRecogDescForge forge, MatchRecognizeSpec spec) {
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public StateMgmtSetting getRowRecog(StatementRawInfo raw, AppliesTo appliesTo) {
+    public StateMgmtSetting tableUnkeyed(FabricCharge fabricCharge, String tableName, TableAccessAnalysisResult tableInternalType, StatementRawInfo statementRawInfo) {
         return StateMgmtSettingDefault.INSTANCE;
+    }
+
+    public void spec(List<FabricStatement> formatStatements, ModuleCompileTimeServices compileTimeServices, ConcurrentHashMap<String, byte[]> moduleBytes) {
+        throw new IllegalStateException("Not implemented for non-HA compile");
+    }
+
+    public FabricStatement statement(int statementNumber, ContextCompileTimeDescriptor context, FabricCharge fabricCharge) {
+        return null;
+    }
+
+    public void filterViewable(FabricCharge fabricCharge, int stream, boolean isCanIterateUnbound, StatementRawInfo statementRawInfo, EventType eventType) {
+        // no action
+    }
+
+    public void filterNonContext(FabricCharge fabricCharge, FilterSpecCompiled spec) {
+        // no action
+    }
+
+    public void namedWindow(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, NamedWindowMetaData metaData, EventType eventType) {
+        // no action
+    }
+
+    public void table(FabricCharge fabricCharge, String tableName, TableAccessAnalysisResult plan, StatementRawInfo statementRawInfo) {
+        // no action
+    }
+
+    public void pattern(FabricCharge fabricCharge, PatternAttributionKey attributionKey, PatternStreamSpecCompiled patternStreamSpec, StatementRawInfo raw) {
+        // no action
+    }
+
+    public void inlinedClassesLocal(FabricCharge fabricCharge, ClassProvidedPrecompileResult classesInlined) {
+        // no action
+    }
+
+    public void inlinedClasses(FabricCharge fabricCharge, ClassProvided classProvided) {
+        // no action
+    }
+
+    public void filterSubtypes(FabricCharge fabricCharge, List<FilterSpecCompiled> provider, ContextCompileTimeDescriptor contextDescriptor, StatementSpecCompiled compiled) {
+        // no action
+    }
+
+    public void historicalExpiryTime(FabricCharge fabricCharge, int streamNum) {
+        // no action
     }
 }

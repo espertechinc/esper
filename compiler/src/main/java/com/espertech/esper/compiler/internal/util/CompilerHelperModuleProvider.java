@@ -61,6 +61,7 @@ import com.espertech.esper.common.internal.event.path.EventTypeResolver;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.xml.BaseXMLEventType;
 import com.espertech.esper.common.internal.event.xml.SchemaXMLEventType;
+import com.espertech.esper.common.internal.fabric.FabricStatement;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.SerializerUtil;
@@ -113,6 +114,8 @@ public class CompilerHelperModuleProvider {
         List<EPCompileExceptionItem> exceptions = new ArrayList<>();
         List<EPCompileExceptionItem> postLatchThrowables = new ArrayList<>();
         CompilerPool compilerPool = new CompilerPool(compilables.size(), compileTimeServices, moduleBytes);
+        boolean targetHA = compileTimeServices.getSerdeEventTypeRegistry().isTargetHA();
+        List<FabricStatement> fabricStatements = targetHA ? new ArrayList<>() : Collections.emptyList();
 
         try {
             int statementNumber = 0;
@@ -123,6 +126,11 @@ public class CompilerHelperModuleProvider {
                 try {
                     CompilableItem compilableItem = compileItem(compilable, optionalModuleName, moduleIdentPostfix, statementNumber, statementNames, compileTimeServices, compilerOptions);
                     className = compilableItem.getProviderClassName();
+
+                    if (targetHA) {
+                        FabricStatement fabricStatement = compileTimeServices.getStateMgmtSettingsProvider().statement(statementNumber, compilableItem.getContextDescriptor(), compilableItem.getFabricCharge());
+                        fabricStatements.add(fabricStatement);
+                    }
 
                     compilerPool.submit(statementNumber, compilableItem);
 
@@ -175,7 +183,12 @@ public class CompilerHelperModuleProvider {
             moduleBytes.putAll(entry.getValue().getBytes());
         }
 
-        // create module XML
+        // add HA-fabric to module bytes
+        if (compileTimeServices.getSerdeEventTypeRegistry().isTargetHA()) {
+            compileTimeServices.getStateMgmtSettingsProvider().spec(fabricStatements, compileTimeServices, moduleBytes);
+        }
+
+        // create manifest
         return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null, compileTimeServices.getSerdeResolver().isTargetHA());
     }
 

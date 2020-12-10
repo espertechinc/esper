@@ -33,7 +33,6 @@ import com.espertech.esper.common.internal.event.property.Property;
 import com.espertech.esper.common.internal.event.property.PropertyParser;
 import com.espertech.esper.common.internal.util.LazyAllocatedMap;
 import com.espertech.esper.common.internal.util.StringValue;
-import com.espertech.esper.common.internal.util.ValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,42 +45,6 @@ public class TableCompileTimeUtil {
 
     public static StreamTypeServiceImpl streamTypeFromTableColumn(EventType containedEventType) {
         return new StreamTypeServiceImpl(containedEventType, containedEventType.getName(), false);
-    }
-
-    public static Pair<ExprTableAccessNode, List<Chainable>> checkTableNameGetLibFunc(
-            TableCompileTimeResolver tableService,
-            LazyAllocatedMap<ConfigurationCompilerPlugInAggregationMultiFunction, AggregationMultiFunctionForge> plugInAggregations,
-            String classIdent,
-            List<Chainable> chain) {
-
-        int index = StringValue.unescapedIndexOfDot(classIdent);
-
-        // handle special case "table.keys()" function
-        if (index == -1) {
-            TableMetaData table = tableService.resolve(classIdent);
-            if (table == null) {
-                return null; // not a table
-            }
-            String funcName = chain.get(1).getRootNameOrEmptyString();
-            if (funcName.toLowerCase(Locale.ENGLISH).equals("keys")) {
-                List<Chainable> subchain = chain.subList(2, chain.size());
-                ExprTableAccessNodeKeys node = new ExprTableAccessNodeKeys(table.getTableName());
-                return new Pair<>(node, subchain);
-            } else {
-                throw new ValidationException("Invalid use of table '" + classIdent + "', unrecognized use of function '" + funcName + "', expected 'keys()'");
-            }
-        }
-
-        // Handle "table.property" (without the variable[...] syntax since this is ungrouped use)
-        String tableName = StringValue.unescapeDot(classIdent.substring(0, index));
-        TableMetaData table = tableService.resolve(tableName);
-        if (table == null) {
-            return null;
-        }
-
-        // this is a table access expression
-        String sub = classIdent.substring(index + 1, classIdent.length());
-        return handleTableAccessNode(plugInAggregations, table.getTableName(), sub, chain);
     }
 
     public static Pair<ExprNode, List<Chainable>> getTableNodeChainable(StreamTypeService streamTypeService,

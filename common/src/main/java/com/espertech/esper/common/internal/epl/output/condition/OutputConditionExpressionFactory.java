@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.output.condition;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -37,6 +38,7 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory,
     private VariableReadWritePackage variableReadWritePackageAfterTerminated;
     private Variable[] variables;
     protected int scheduleCallbackId = -1;
+    protected StateMgmtSetting stateMgmtSetting;
 
     public void setWhenExpressionNodeEval(ExprEvaluator whenExpressionNodeEval) {
         this.whenExpressionNodeEval = whenExpressionNodeEval;
@@ -110,5 +112,13 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory,
 
     public int getScheduleCallbackId() {
         return scheduleCallbackId;
+    }
+
+    public StateMgmtSetting getStateMgmtSetting() {
+        return stateMgmtSetting;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 }

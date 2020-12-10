@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 
@@ -39,7 +40,7 @@ public class PriorEventViewForge extends ViewFactoryForgeBase {
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
     }
 
-    protected void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    protected void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         throw new IllegalStateException("Should not be called for 'prior'");
     }
 
@@ -60,7 +61,11 @@ public class PriorEventViewForge extends ViewFactoryForgeBase {
         return "prior";
     }
 
-    protected AppliesTo appliesTo() {
-        return AppliesTo.WINDOW_PRIOR;
+    public AppliesTo appliesTo() {
+        return AppliesTo.PRIOR;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

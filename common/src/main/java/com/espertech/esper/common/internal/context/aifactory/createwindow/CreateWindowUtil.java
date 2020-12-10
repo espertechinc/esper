@@ -21,7 +21,9 @@ import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.internal.compile.stage1.spec.*;
+import com.espertech.esper.common.internal.compile.stage1.spec.ColumnDesc;
+import com.espertech.esper.common.internal.compile.stage1.spec.CreateSchemaDesc;
+import com.espertech.esper.common.internal.compile.stage1.spec.CreateWindowDesc;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -68,7 +70,6 @@ public class CreateWindowUtil {
         // Create Map or Wrapper event type from the select clause of the window.
         // If no columns selected, simply create a wrapper type
         // Build a list of properties
-        SelectClauseSpecRaw newSelectClauseSpecRaw = new SelectClauseSpecRaw();
         LinkedHashMap<String, Object> properties;
         boolean hasProperties = false;
         if ((columns != null) && (!columns.isEmpty())) {
@@ -90,7 +91,6 @@ public class CreateWindowUtil {
                 }
 
                 // Add any properties to the new select clause for use by consumers to the statement itself
-                newSelectClauseSpecRaw.add(new SelectClauseExprRawSpec(new ExprIdentNodeImpl(selectElement.getAssignedName()), null, false));
                 hasProperties = true;
             }
         }
@@ -161,7 +161,7 @@ public class CreateWindowUtil {
         }
 
         FilterSpecCompiled filter = new FilterSpecCompiled(targetType, typeName, FilterSpecPlanForge.EMPTY, null);
-        return new CreateWindowCompileResult(filter, newSelectClauseSpecRaw, optionalSelectFrom == null ? null : optionalSelectFrom.getEventType(), additionalForgeables);
+        return new CreateWindowCompileResult(filter, optionalSelectFrom == null ? null : optionalSelectFrom.getEventType(), additionalForgeables);
     }
 
     private static List<NamedWindowSelectedProps> compileLimitedSelect(SelectFromInfo selectFromInfo, StatementBaseInfo base, StatementCompileTimeServices compileTimeServices)

@@ -100,5 +100,9 @@ public class ExprFilterSpecLookupableForge {
     public int hashCode() {
         return expression.hashCode();
     }
+
+    public DataInputOutputSerdeForge getValueSerde() {
+        return valueSerde;
+    }
 }
 

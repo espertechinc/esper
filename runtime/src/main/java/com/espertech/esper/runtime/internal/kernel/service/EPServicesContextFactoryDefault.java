@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.context.activator.ViewableActivatorFa
 import com.espertech.esper.common.internal.context.mgr.ContextServiceFactory;
 import com.espertech.esper.common.internal.context.mgr.ContextServiceFactoryDefault;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
+import com.espertech.esper.common.internal.context.util.ParentClassLoader;
 import com.espertech.esper.common.internal.context.util.StatementContextResolver;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryService;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryServiceImpl;
@@ -66,6 +67,7 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryService;
 import com.espertech.esper.common.internal.view.core.ViewFactoryServiceImpl;
 import com.espertech.esper.common.internal.view.previous.ViewServicePreviousFactory;
 import com.espertech.esper.common.internal.view.previous.ViewServicePreviousFactoryImpl;
+import com.espertech.esper.runtime.client.EPRuntimeOptions;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentLifecycleServiceImpl;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentRecoveryServiceImpl;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.ListenerRecoveryServiceImpl;
@@ -92,7 +94,7 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
         return new RuntimeSettingsService(configurationSnapshot.getCommon(), configurationSnapshot.getRuntime());
     }
 
-    protected EPServicesHA initHA(String runtimeURI, Configuration configurationSnapshot, RuntimeEnvContext runtimeEnvContext, ManagedReadWriteLock eventProcessingRWLock, RuntimeSettingsService runtimeSettingsService) {
+    protected EPServicesHA initHA(String runtimeURI, Configuration configurationSnapshot, RuntimeEnvContext runtimeEnvContext, ManagedReadWriteLock eventProcessingRWLock, RuntimeSettingsService runtimeSettingsService, EPRuntimeOptions options, ParentClassLoader classLoaderParent) {
         return new EPServicesHA(RuntimeExtensionServicesNoHA.INSTANCE, DeploymentRecoveryServiceImpl.INSTANCE, ListenerRecoveryServiceImpl.INSTANCE, new StatementIdRecoveryServiceImpl(), null, null);
     }
 

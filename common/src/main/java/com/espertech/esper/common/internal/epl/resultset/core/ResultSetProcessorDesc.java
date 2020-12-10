@@ -16,38 +16,35 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceForgeD
 import com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorFactoryForge;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
 public class ResultSetProcessorDesc {
     private final ResultSetProcessorFactoryForge resultSetProcessorFactoryForge;
+    private final ResultSetProcessorFlags flags;
     private final ResultSetProcessorType resultSetProcessorType;
     private final SelectExprProcessorForge[] selectExprProcessorForges;
-    private final boolean join;
-    private final boolean hasOutputLimit;
-    private final ResultSetProcessorOutputConditionType outputConditionType;
-    private final boolean hasOutputLimitSnapshot;
     private final EventType resultEventType;
     private final boolean rollup;
     private final AggregationServiceForgeDesc aggregationServiceForgeDesc;
     private final OrderByProcessorFactoryForge orderByProcessorFactoryForge;
     private final SelectSubscriberDescriptor selectSubscriberDescriptor;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public ResultSetProcessorDesc(ResultSetProcessorFactoryForge resultSetProcessorFactoryForge, ResultSetProcessorType resultSetProcessorType, SelectExprProcessorForge[] selectExprProcessorForges, boolean join, boolean hasOutputLimit, ResultSetProcessorOutputConditionType outputConditionType, boolean hasOutputLimitSnapshot, EventType resultEventType, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactoryForge orderByProcessorFactoryForge, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables) {
+    public ResultSetProcessorDesc(ResultSetProcessorFactoryForge resultSetProcessorFactoryForge, ResultSetProcessorFlags flags, ResultSetProcessorType resultSetProcessorType, SelectExprProcessorForge[] selectExprProcessorForges, EventType resultEventType, boolean rollup, AggregationServiceForgeDesc aggregationServiceForgeDesc, OrderByProcessorFactoryForge orderByProcessorFactoryForge, SelectSubscriberDescriptor selectSubscriberDescriptor, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.resultSetProcessorFactoryForge = resultSetProcessorFactoryForge;
         this.resultSetProcessorType = resultSetProcessorType;
         this.selectExprProcessorForges = selectExprProcessorForges;
-        this.join = join;
-        this.hasOutputLimit = hasOutputLimit;
-        this.outputConditionType = outputConditionType;
-        this.hasOutputLimitSnapshot = hasOutputLimitSnapshot;
+        this.flags = flags;
         this.resultEventType = resultEventType;
         this.rollup = rollup;
         this.aggregationServiceForgeDesc = aggregationServiceForgeDesc;
         this.orderByProcessorFactoryForge = orderByProcessorFactoryForge;
         this.selectSubscriberDescriptor = selectSubscriberDescriptor;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public ResultSetProcessorFactoryForge getResultSetProcessorFactoryForge() {
@@ -63,19 +60,19 @@ public class ResultSetProcessorDesc {
     }
 
     public boolean isJoin() {
-        return join;
+        return flags.isJoin();
     }
 
     public boolean isHasOutputLimit() {
-        return hasOutputLimit;
+        return flags.isHasOutputLimit();
     }
 
     public ResultSetProcessorOutputConditionType getOutputConditionType() {
-        return outputConditionType;
+        return flags.getOutputConditionType();
     }
 
     public boolean isHasOutputLimitSnapshot() {
-        return hasOutputLimitSnapshot;
+        return flags.isOutputLimitWSnapshot();
     }
 
     public EventType getResultEventType() {
@@ -100,5 +97,9 @@ public class ResultSetProcessorDesc {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

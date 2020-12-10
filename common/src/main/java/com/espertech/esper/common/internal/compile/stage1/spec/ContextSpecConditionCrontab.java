@@ -70,4 +70,8 @@ public class ContextSpecConditionCrontab implements ContextSpecCondition, Schedu
                 .methodReturn(ref("condition"));
         return localMethod(method);
     }
+
+    public <T> T accept(ContextSpecConditionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

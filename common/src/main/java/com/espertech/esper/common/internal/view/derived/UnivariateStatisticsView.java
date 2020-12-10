@@ -141,7 +141,7 @@ public class UnivariateStatisticsView extends ViewSupport implements DerivedValu
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
+    public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env) {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<>();
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), EPTypePremade.LONGBOXED.getEPType());
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
@@ -157,7 +157,7 @@ public class UnivariateStatisticsView extends ViewSupport implements DerivedValu
                 ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE
         );
-        return DerivedViewTypeUtil.newType("statview", eventTypeMap, env, streamNum);
+        return DerivedViewTypeUtil.newType("statview", eventTypeMap, env);
     }
 
     public BaseStatisticsBean getBaseStatisticsBean() {

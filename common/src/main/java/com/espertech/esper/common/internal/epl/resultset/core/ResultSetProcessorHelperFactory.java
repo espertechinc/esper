@@ -45,7 +45,6 @@ import com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup.Resul
 import com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup.ResultSetProcessorRowPerGroupRollupUnboundHelper;
 import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimple;
 import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputAllHelper;
-import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputFirstHelper;
 import com.espertech.esper.common.internal.epl.resultset.simple.ResultSetProcessorSimpleOutputLastHelper;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 
@@ -58,7 +57,7 @@ public interface ResultSetProcessorHelperFactory {
 
     OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(EventType[] eventTypes, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
-    OutputConditionFactory makeOutputConditionTime(boolean hasVariable, TimePeriodCompute timePeriodCompute, boolean isStartConditionOnCreation, int scheduleCallbackId);
+    OutputConditionFactory makeOutputConditionTime(boolean hasVariable, TimePeriodCompute timePeriodCompute, boolean isStartConditionOnCreation, int scheduleCallbackId, StateMgmtSetting stateMgmtSetting);
 
     ResultSetProcessorRowForAllOutputAllHelper makeRSRowForAllOutputAll(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
@@ -66,21 +65,21 @@ public interface ResultSetProcessorHelperFactory {
 
     OutputConditionFactory makeOutputConditionCrontab(ExprEvaluator[] crontabAtSchedule, boolean isStartConditionOnCreation, int scheduleCallbackId);
 
-    OutputConditionFactory makeOutputConditionCount(int rate, Variable variableMetaData);
+    OutputConditionFactory makeOutputConditionCount(int rate, Variable variableMetaData, StateMgmtSetting stateMgmtSetting);
 
     OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes);
+    ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSetting);
 
     ResultSetProcessorSimpleOutputAllHelper makeRSSimpleOutputAll(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorSimpleOutputFirstHelper makeRSSimpleOutputFirst(ExprEvaluatorContext exprEvaluatorContext);
+    ResultSetProcessorStraightOutputFirstHelper makeRSStraightOutputFirst(ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting);
 
-    ResultSetProcessorRowPerEventOutputLastHelper makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext);
+    ResultSetProcessorRowPerEventOutputLastHelper makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting);
 
     ResultSetProcessorRowPerEventOutputAllHelper makeRSRowPerEventOutputAll(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext);
+    ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting);
 
     ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 

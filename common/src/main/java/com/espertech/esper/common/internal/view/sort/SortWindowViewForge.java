@@ -47,14 +47,14 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
         this.useCollatorSort = viewForgeEnv.getConfiguration().getCompiler().getLanguage().isSortUsingCollator();
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         eventType = parentEventType;
         String message = getViewName() + " window requires a numeric size parameter and a list of expressions providing sort keys";
         if (viewParameters.size() < 2) {
             throw new ViewParameterException(message);
         }
 
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName() + " window", parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName() + " window", parentEventType, viewParameters, true, viewForgeEnv);
         for (int i = 1; i < validated.length; i++) {
             ViewForgeSupport.assertReturnsNonConstant(getViewName() + " window", validated[i], i);
         }
@@ -98,7 +98,15 @@ public class SortWindowViewForge extends ViewFactoryForgeBase implements DataWin
         return ViewEnum.SORT_WINDOW.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_SORTED;
+    }
+
+    public DataInputOutputSerdeForge[] getSortSerdes() {
+        return sortSerdes;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

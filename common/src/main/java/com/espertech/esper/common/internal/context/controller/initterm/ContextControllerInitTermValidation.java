@@ -10,12 +10,15 @@
  */
 package com.espertech.esper.common.internal.context.controller.initterm;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.publicConstValue;
 
@@ -30,5 +33,9 @@ public class ContextControllerInitTermValidation implements ContextControllerPor
     }
 
     public void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
+    }
+
+    public void visitFilterAddendumEventTypes(Consumer<EventType> consumer) {
+        // no filter addendums added by controller
     }
 }

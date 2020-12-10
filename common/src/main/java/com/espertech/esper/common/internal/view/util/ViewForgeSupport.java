@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ViewForgeSupport {
-    public static Object validateAndEvaluate(String viewName, ExprNode expression, ViewForgeEnv viewForgeEnv, int streamNumber)
+    public static Object validateAndEvaluate(String viewName, ExprNode expression, ViewForgeEnv viewForgeEnv)
         throws ViewParameterException {
-        return validateAndEvaluateExpr(viewName, expression, new StreamTypeServiceImpl(false), viewForgeEnv, 0, streamNumber);
+        return validateAndEvaluateExpr(viewName, expression, new StreamTypeServiceImpl(false), viewForgeEnv, 0);
     }
 
     public static Object evaluateAssertNoProperties(String viewName, ExprNode expression, int index) throws ViewParameterException {
@@ -60,9 +60,9 @@ public class ViewForgeSupport {
         }
     }
 
-    public static Object validateAndEvaluateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber, int streamNumber)
+    public static Object validateAndEvaluateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber)
         throws ViewParameterException {
-        ExprNode validated = validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
+        ExprNode validated = validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber);
 
         try {
             return validated.getForge().getExprEvaluator().evaluate(null, true, null);
@@ -113,18 +113,17 @@ public class ViewForgeSupport {
      * @param allowConstantResult true to indicate whether expressions that return a constant
      *                            result should be allowed; false to indicate that if an expression is known to return a constant result
      *                            the expression is considered invalid
-     * @param streamNumber        stream number
      * @param viewForgeEnv        view forge env
      * @return object result value of parameter expressions
      * @throws ViewParameterException if the expressions fail to validate
      */
-    public static ExprNode[] validate(String viewName, EventType eventType, List<ExprNode> expressions, boolean allowConstantResult, ViewForgeEnv viewForgeEnv, int streamNumber)
+    public static ExprNode[] validate(String viewName, EventType eventType, List<ExprNode> expressions, boolean allowConstantResult, ViewForgeEnv viewForgeEnv)
         throws ViewParameterException {
         List<ExprNode> results = new ArrayList<ExprNode>();
         int expressionNumber = 0;
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventType, null, false);
         for (ExprNode expr : expressions) {
-            ExprNode validated = validateExpr(viewName, expr, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
+            ExprNode validated = validateExpr(viewName, expr, streamTypeService, viewForgeEnv, expressionNumber);
             results.add(validated);
 
             if ((!allowConstantResult) && (validated.getForge().getForgeConstantType().isCompileTimeConstant())) {
@@ -143,17 +142,17 @@ public class ViewForgeSupport {
         int expressionNumber = 0;
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(false);
         for (ExprNode expr : expressions) {
-            results[expressionNumber] = validateExpr(viewName, expr, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
+            results[expressionNumber] = validateExpr(viewName, expr, streamTypeService, viewForgeEnv, expressionNumber);
             expressionNumber++;
         }
         return results;
     }
 
-    public static ExprNode validateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber, int streamNumber)
+    public static ExprNode validateExpr(String viewName, ExprNode expression, StreamTypeService streamTypeService, ViewForgeEnv viewForgeEnv, int expressionNumber)
         throws ViewParameterException {
         ExprNode validated;
         try {
-            ExprValidationMemberNameQualifiedView names = new ExprValidationMemberNameQualifiedView(streamNumber);
+            ExprValidationMemberNameQualifiedView names = new ExprValidationMemberNameQualifiedView(viewForgeEnv.getStreamNumber());
             ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getStatementCompileTimeServices())
                 .withMemberName(names).build();
             validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.VIEWPARAMETER, expression, validationContext);

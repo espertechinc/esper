@@ -1423,15 +1423,15 @@ public class JavaClassHelper {
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
      */
-    public static Object instantiate(Class<?> implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException {
-        Class<?> clazz;
+    public static <T> T instantiate(Class<T> implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException {
+        Class<T> clazz;
         try {
             clazz = classForNameProvider.classForName(className);
         } catch (ClassNotFoundException ex) {
             throw new ClassInstantiationException("Unable to load class '" + className + "', class not found", ex);
         }
 
-        return instantiate(implementedOrExtendedClass, clazz);
+        return (T) instantiate(implementedOrExtendedClass, clazz);
     }
 
     /**
@@ -2077,6 +2077,40 @@ public class JavaClassHelper {
             return new EPTypeClassParameterized(inner, parameterized.getParameters());
         }
         return EPTypePremade.getOrCreate(inner);
+    }
+
+    public static String getClassNameNormalized(EPTypeClass clazz) {
+        if (!clazz.getType().isArray()) {
+            if (!(clazz instanceof EPTypeClassParameterized)) {
+                return getClassNameSimpleNameDateException(clazz.getType());
+            }
+            EPTypeClassParameterized parameterized = (EPTypeClassParameterized) clazz;
+            StringWriter writer = new StringWriter();
+            writer.append(getClassNameSimpleNameDateException(clazz.getType()));
+            writer.append("<");
+            String delimiter = "";
+            for (EPTypeClass param : parameterized.getParameters()) {
+                writer.append(delimiter).append(getClassNameNormalized(param));
+                delimiter = ",";
+            }
+            writer.append(">");
+            return writer.toString();
+        }
+        EPTypeClass component = JavaClassHelper.getArrayComponentTypeInnermost(clazz);
+        int dimensions = JavaClassHelper.getArrayDimensions(clazz.getType());
+        StringWriter writer = new StringWriter();
+        writer.append(getClassNameNormalized(component));
+        for (int i = 0; i < dimensions; i++) {
+            writer.append("[]");
+        }
+        return writer.toString();
+    }
+
+    private static String getClassNameSimpleNameDateException(Class clazz) {
+        if (clazz == java.sql.Date.class) {
+            return java.sql.Date.class.getName();
+        }
+        return clazz.getSimpleName();
     }
 
     public interface AnnotationConsumer {

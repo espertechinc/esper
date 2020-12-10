@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
@@ -81,6 +82,12 @@ public class AggregatorPlugInMultiParam implements AggregatorMethod {
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
             method.getBlock().assignRef(rowDotMember(row, plugin), staticMethod(mode.getSerde(), "read", input));
+        }
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        if (mode.isHasHA()) {
+            collector.plugInAggregation(mode.getSerde());
         }
     }
 

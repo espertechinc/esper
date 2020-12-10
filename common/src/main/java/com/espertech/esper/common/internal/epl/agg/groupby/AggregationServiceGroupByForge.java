@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupby;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
@@ -28,6 +29,7 @@ import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus;
 import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacusField;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.util.List;
 
@@ -50,15 +52,26 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     protected final AggGroupByDesc aggGroupByDesc;
     protected final TimeAbacus timeAbacus;
-    private final StateMgmtSetting stateMgmtSettings;
+    private StateMgmtSetting stateMgmtSetting;
 
     protected CodegenExpression reclaimAge;
     protected CodegenExpression reclaimFreq;
 
-    public AggregationServiceGroupByForge(AggGroupByDesc aggGroupByDesc, TimeAbacus timeAbacus, StateMgmtSetting stateMgmtSettings) {
+    public AggregationServiceGroupByForge(AggGroupByDesc aggGroupByDesc, TimeAbacus timeAbacus) {
         this.aggGroupByDesc = aggGroupByDesc;
         this.timeAbacus = timeAbacus;
-        this.stateMgmtSettings = stateMgmtSettings;
+    }
+
+    public AppliesTo appliesTo() {
+        return AppliesTo.AGGREGATION_GROUPBY;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
+    }
+
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
+        AggregationServiceCodegenUtil.appendIncidentals(hasRefCounting(), aggGroupByDesc.isReclaimAged(), fabricTypeCollector);
     }
 
     public void providerCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
@@ -79,7 +92,7 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
                 .declareVar(DataInputOutputSerde.EPTYPE, "serde", aggGroupByDesc.getGroupByMultiKey().getExprMKSerde(method, classScope))
                 .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add(
                         "groupBy", ref("svcFactory"), ref("rowFactory"), aggGroupByDesc.getRowStateForgeDescs().getUseFlags().toExpression(),
-                        ref("rowSerde"), reclaimAge, reclaimFreq, timeAbacus, ref("serde"), stateMgmtSettings.toExpression()));
+                        ref("rowSerde"), reclaimAge, reclaimFreq, timeAbacus, ref("serde"), stateMgmtSetting.toExpression()));
     }
 
     public void rowCtorCodegen(AggregationRowCtorDesc rowCtorDesc) {
@@ -245,6 +258,10 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
         method.getBlock().methodReturn(MEMBER_CURRENTROW);
     }
 
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
     private boolean hasRefCounting() {
         return aggGroupByDesc.isRefcounted() || aggGroupByDesc.isReclaimAged();
     }
@@ -257,5 +274,9 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
                 .blockEnd()
                 .exprDotMethod(MEMBER_REMOVEDKEYS, "clear");
         return method;
+    }
+
+    public AggGroupByDesc getAggGroupByDesc() {
+        return aggGroupByDesc;
     }
 }

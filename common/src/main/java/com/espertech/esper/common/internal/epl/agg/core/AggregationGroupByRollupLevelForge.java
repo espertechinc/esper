@@ -99,4 +99,16 @@ public class AggregationGroupByRollupLevelForge {
     public int[] getRollupKeys() {
         return rollupKeys;
     }
+
+    public int getLevelNumber() {
+        return levelNumber;
+    }
+
+    public MultiKeyClassRef getAllKeysMultikey() {
+        return allKeysMultikey;
+    }
+
+    public MultiKeyClassRef getSubKeyMultikey() {
+        return subKeyMultikey;
+    }
 }

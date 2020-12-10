@@ -10,5 +10,13 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
+
 public interface AggregationServiceFactoryForge {
+    void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting);
+    AppliesTo appliesTo();
+    void appendRowFabricType(FabricTypeCollector fabricTypeCollector);
+    <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor);
 }

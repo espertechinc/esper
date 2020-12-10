@@ -52,7 +52,7 @@ public class ContextControllerInitTermOverlap extends ContextControllerInitTermB
     public void activate(IntSeqKey path, Object[] parentPartitionKeys, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern) {
         initTermSvc.mgmtCreate(path, parentPartitionKeys);
 
-        ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(path, parentPartitionKeys, factory.initTermSpec.getStartCondition(), this, this, true);
+        ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(path, parentPartitionKeys, factory.initTermSpec.getStartCondition(), this, this);
         boolean isTriggeringEventMatchesFilter = startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
         initTermSvc.mgmtUpdSetStartCondition(path, startCondition);
 

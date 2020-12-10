@@ -11,6 +11,7 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.runtime.client.EPRuntimeOptions;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,9 +24,10 @@ public interface EPServicesContextFactory {
      *
      * @param epRuntime             is the runtime instance
      * @param configurationSnapshot is a snapshot of configs at the time of runtime creation
+     * @param options
      * @return services context
      */
-    EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configurationSnapshot);
+    EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configurationSnapshot, EPRuntimeOptions options);
 
     EPEventServiceImpl createEPRuntime(EPServicesContext services, AtomicBoolean serviceStatusProvider);
 }

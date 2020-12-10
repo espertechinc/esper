@@ -30,7 +30,11 @@ public class SupportAggMFEventsAsListHandler implements AggregationMultiFunction
     }
 
     public AggregationMultiFunctionStateMode getStateMode() {
-        return new AggregationMultiFunctionStateModeManaged().setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListStateFactory.EPTYPE));
+        AggregationMultiFunctionStateModeManaged mode = new AggregationMultiFunctionStateModeManaged();
+        mode.setHasHA(true);
+        mode.setSerde(SupportAggMFEventsAsListStateSerde.class);
+        mode.setInjectionStrategyAggregationStateFactory(new InjectionStrategyClassNewInstance(SupportAggMFEventsAsListStateFactory.EPTYPE));
+        return mode;
     }
 
     public AggregationMultiFunctionAccessorMode getAccessorMode() {

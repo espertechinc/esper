@@ -96,6 +96,14 @@ public class ViewForgeEnv {
     }
 
     public boolean isSubquery() {
-        return args.isSubquery();
+        return args.getSubqueryNumber() != null;
+    }
+
+    public int getStreamNumber() {
+        return args.getStreamNum();
+    }
+
+    public Integer getSubqueryNumber() {
+        return args.getSubqueryNumber();
     }
 }

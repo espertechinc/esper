@@ -31,10 +31,7 @@ import com.espertech.esper.common.internal.context.module.StatementFields;
 import com.espertech.esper.common.internal.context.module.StatementInformationalsCompileTime;
 import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
@@ -44,7 +41,7 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeNotApplicable;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSkip;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +98,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         // Compile metadata
         boolean compileTimeConstant = createDesc.isConstant() && initialValueExpr != null && initialValueExpr.getForgeConstantType().isCompileTimeConstant();
         VariableMetaData metaData = VariableUtil.compileVariable(createDesc.getVariableName(), base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, createDesc.getVariableType(),
-                createDesc.isConstant(), compileTimeConstant, initialValue, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate());
+            createDesc.isConstant(), compileTimeConstant, initialValue, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate());
 
         // Register variable
         services.getVariableCompileTimeRegistry().newVariable(metaData);
@@ -118,8 +115,8 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
         defaultSelectAllSpec.getRaw().setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{outputEventType}, new String[]{"trigger_stream"}, new boolean[]{true}, false, false);
-        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(defaultSelectAllSpec),
-                streamTypeService, null, new boolean[1], false, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
+        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(defaultSelectAllSpec),
+            streamTypeService, null, new boolean[1], false, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
 
         // Code generation
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
@@ -128,7 +125,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         CodegenPackageScope packageScope = new CodegenPackageScope(packageName, statementFieldsClassName, services.isInstrumented(), services.getConfiguration().getCompiler().getByteCode());
 
         // serde
-        DataInputOutputSerdeForge serde = DataInputOutputSerdeForgeNotApplicable.INSTANCE;
+        DataInputOutputSerdeForge serde = DataInputOutputSerdeForgeSkip.INSTANCE;
         if (metaData.getEventType() == null) {
             serde = services.getSerdeResolver().serdeForVariable(metaData.getType(), metaData.getVariableName(), base.getStatementRawInfo());
         }
@@ -146,6 +143,6 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope, services.getStateMgmtSettingsProvider().newCharge());
     }
 }

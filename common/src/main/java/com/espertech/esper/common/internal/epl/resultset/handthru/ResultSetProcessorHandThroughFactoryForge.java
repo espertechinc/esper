@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.resultset.handthru;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -17,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForgeBase;
 
 import java.util.List;
 
@@ -25,11 +26,12 @@ import java.util.List;
  * Result set processor prototype for the hand-through case:
  * no aggregation functions used in the select clause, and no group-by, no having and ordering.
  */
-public class ResultSetProcessorHandThroughFactoryForge implements ResultSetProcessorFactoryForge {
+public class ResultSetProcessorHandThroughFactoryForge extends ResultSetProcessorFactoryForgeBase {
     private final boolean isSelectRStream;
 
-    public ResultSetProcessorHandThroughFactoryForge(boolean selectRStream) {
-        this.isSelectRStream = selectRStream;
+    public ResultSetProcessorHandThroughFactoryForge(EventType resultEventType, EventType[] typesPerStream, boolean isSelectRStream) {
+        super(resultEventType, typesPerStream);
+        this.isSelectRStream = isSelectRStream;
     }
 
     public boolean isSelectRStream() {

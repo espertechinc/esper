@@ -100,6 +100,7 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.ManagedReadWriteLock;
 import com.espertech.esper.common.internal.view.core.ViewFactoryService;
 import com.espertech.esper.common.internal.view.previous.ViewServicePreviousFactory;
+import com.espertech.esper.runtime.client.EPRuntimeOptions;
 import com.espertech.esper.runtime.internal.deploymentlifesvc.DeploymentLifecycleServiceImpl;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterServiceSPI;
 import com.espertech.esper.runtime.internal.kernel.stage.StageRecoveryService;
@@ -122,7 +123,7 @@ import static com.espertech.esper.common.internal.context.util.StatementCPCacheS
 public abstract class EPServicesContextFactoryBase implements EPServicesContextFactory {
     private static final Logger log = LoggerFactory.getLogger(EPServicesContextFactoryDefault.class);
 
-    protected abstract EPServicesHA initHA(String runtimeURI, Configuration configurationSnapshot, RuntimeEnvContext runtimeEnvContext, ManagedReadWriteLock eventProcessingRWLock, RuntimeSettingsService runtimeSettingsService);
+    protected abstract EPServicesHA initHA(String runtimeURI, Configuration configurationSnapshot, RuntimeEnvContext runtimeEnvContext, ManagedReadWriteLock eventProcessingRWLock, RuntimeSettingsService runtimeSettingsService, EPRuntimeOptions options, ParentClassLoader classLoaderParent);
 
     protected abstract ViewableActivatorFactory initViewableActivatorFactory();
 
@@ -190,7 +191,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract StageRecoveryService makeStageRecoveryService(EPServicesHA epServicesHA);
 
-    public EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configs) {
+    public EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configs, EPRuntimeOptions options) {
 
         RuntimeEnvContext runtimeEnvContext = new RuntimeEnvContext();
         ManagedReadWriteLock eventProcessingRWLock = new ManagedReadWriteLock("EventProcLock", configs.getRuntime().getThreading().isRuntimeFairlock());
@@ -202,8 +203,9 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         TimeZone timeZone = configs.getRuntime().getExpression().getTimeZone() == null ? TimeZone.getDefault() : configs.getRuntime().getExpression().getTimeZone();
         ClasspathImportServiceRuntime classpathImportServiceRuntime = new ClasspathImportServiceRuntime(configs.getCommon().getTransientConfiguration(), timeAbacus, configs.getCommon().getEventTypeAutoNamePackages(), timeZone, configs.getCommon().getMethodInvocationReferences(),
                 configs.getCommon().getImports(), configs.getCommon().getAnnotationImports());
+        ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceRuntime.getClassLoader());
 
-        EPServicesHA epServicesHA = initHA(epRuntime.getURI(), configs, runtimeEnvContext, eventProcessingRWLock, runtimeSettingsService);
+        EPServicesHA epServicesHA = initHA(epRuntime.getURI(), configs, runtimeEnvContext, eventProcessingRWLock, runtimeSettingsService, options, classLoaderParent);
 
         EventTypeAvroHandler eventTypeAvroHandler = makeEventTypeAvroHandler(classpathImportServiceRuntime, configs.getCommon().getEventMeta().getAvroSettings(), epServicesHA.getRuntimeExtensionServices());
         Map<String, EPTypeClass> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configs.getCommon().getEventTypeNames(), classpathImportServiceRuntime);
@@ -331,7 +333,6 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EPRenderEventServiceImpl eventRenderer = new EPRenderEventServiceImpl();
         EventSerdeFactory eventSerdeFactory = makeEventSerdeFactory(epServicesHA.getRuntimeExtensionServices());
         EventTypeSerdeRepository eventTypeSerdeRepository = makeEventTypeSerdeRepository(eventTypeRepositoryPreconfigured, eventTypePathRegistry);
-        ParentClassLoader classLoaderParent = new ParentClassLoader(classpathImportServiceRuntime.getClassLoader());
 
         StageRecoveryService stageRecoveryService = makeStageRecoveryService(epServicesHA);
 

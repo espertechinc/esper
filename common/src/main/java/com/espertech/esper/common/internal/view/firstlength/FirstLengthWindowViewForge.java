@@ -20,10 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.view.core.AsymetricDataWindowViewForge;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
-import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
-import com.espertech.esper.common.internal.view.core.ViewParameterException;
+import com.espertech.esper.common.internal.view.core.*;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
 
 import java.util.List;
@@ -40,7 +37,7 @@ public class FirstLengthWindowViewForge extends ViewFactoryForgeBase implements 
         sizeForge = ViewForgeSupport.validateSizeSingleParam(getViewName(), parameters, viewForgeEnv, streamNumber);
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -61,7 +58,11 @@ public class FirstLengthWindowViewForge extends ViewFactoryForgeBase implements 
         return "First-Length";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_FIRSTLENGTH;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

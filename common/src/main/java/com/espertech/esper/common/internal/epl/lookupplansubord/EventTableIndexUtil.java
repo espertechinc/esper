@@ -71,9 +71,7 @@ public class EventTableIndexUtil {
         if ((!btreeProps.isEmpty() || !hashProps.isEmpty()) && advancedIndexProvisionDesc != null) {
             throw new ExprValidationException("Combination of hash/btree columns an advanced-type indexes is not supported");
         }
-        QueryPlanIndexItemForge indexItemForge = new QueryPlanIndexItemForge(hashProps, btreeProps, unique, advancedIndexProvisionDesc, eventType);
-        indexItemForge.planStateMgmtSettings(statementRawInfo, services);
-        return indexItemForge;
+        return new QueryPlanIndexItemForge(hashProps, btreeProps, unique, advancedIndexProvisionDesc, eventType);
     }
 
     private static EventAdvancedIndexProvisionCompileTime validateAdvanced(String indexName, String indexType, CreateIndexItem columnDesc,

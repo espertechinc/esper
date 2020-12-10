@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -161,5 +164,42 @@ public class RefCountedSet<K> {
 
     public void setNumValues(int numValues) {
         this.numValues = numValues;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param output   output
+     * @param valueSet values
+     * @throws IOException io error
+     */
+    public static void writePointsDouble(DataOutput output, RefCountedSet<Double> valueSet) throws IOException {
+        Map<Double, Integer> refSet = valueSet.getRefSet();
+        output.writeInt(refSet.size());
+        output.writeInt(valueSet.getNumValues());
+        for (Map.Entry<Double, Integer> entry : valueSet.getRefSet().entrySet()) {
+            output.writeDouble(entry.getKey());
+            output.writeInt(entry.getValue());
+        }
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param input input
+     * @return values
+     * @throws IOException io error
+     */
+    public static RefCountedSet<Double> readPointsDouble(DataInput input) throws IOException {
+        RefCountedSet<Double> valueSet = new RefCountedSet<>();
+        Map<Double, Integer> und = valueSet.getRefSet();
+        int size = input.readInt();
+        valueSet.setNumValues(input.readInt());
+        for (int i = 0; i < size; i++) {
+            Double key = input.readDouble();
+            Integer val = input.readInt();
+            und.put(key, val);
+        }
+        return valueSet;
     }
 }

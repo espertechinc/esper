@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.condition;
 
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -44,14 +45,17 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
     private final VariableReadWritePackageForge variableReadWritePackageAfterTerminated;
     private final Map<String, VariableMetaData> variableNames;
     protected final boolean isStartConditionOnCreation;
+    private final StateMgmtSetting stateMgmtSetting;
     private final boolean isUsingBuiltinProperties;
     private int scheduleCallbackId = -1;
 
-    public OutputConditionExpressionForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
+
+    public OutputConditionExpressionForge(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation, StateMgmtSetting stateMgmtSetting, StatementRawInfo statementRawInfo, StatementCompileTimeServices services)
         throws ExprValidationException {
         this.whenExpressionNodeEval = whenExpressionNode;
         this.andWhenTerminatedExpressionNodeEval = andWhenTerminatedExpr;
         this.isStartConditionOnCreation = isStartConditionOnCreation;
+        this.stateMgmtSetting = stateMgmtSetting;
 
         // determine if using variables
         ExprNodeVariableVisitor variableVisitor = new ExprNodeVariableVisitor(services.getVariableCompileTimeResolver());
@@ -107,6 +111,7 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
             .exprDotMethod(ref("factory"), "setVariableReadWritePackageAfterTerminated", variableReadWritePackageAfterTerminated == null ? constantNull() : variableReadWritePackageAfterTerminated.make(method, symbols, classScope))
             .exprDotMethod(ref("factory"), "setVariables", variableNames == null ? constantNull() : VariableDeployTimeResolver.makeResolveVariables(variableNames.values(), symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("factory"), "setScheduleCallbackId", constant(scheduleCallbackId))
+            .exprDotMethod(ref("factory"), "setStateMgmtSetting", stateMgmtSetting.toExpression())
             .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add("addReadyCallback", ref("factory")))
             .methodReturn(ref("factory"));
         return localMethod(method);

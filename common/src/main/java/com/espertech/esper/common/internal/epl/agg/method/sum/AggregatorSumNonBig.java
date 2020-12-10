@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -83,6 +84,10 @@ public class AggregatorSumNonBig extends AggregatorSumBase {
         } else {
             throw new IllegalStateException("Unrecognized sum type " + sumType);
         }
+    }
+
+    protected void appendSumFormat(FabricTypeCollector collector) {
+        collector.builtin(JavaClassHelper.getPrimitiveType(sumType.getType()).getType());
     }
 
     private void applyAgg(boolean enter, CodegenExpressionRef value, EPType valueType, CodegenMethod method) {

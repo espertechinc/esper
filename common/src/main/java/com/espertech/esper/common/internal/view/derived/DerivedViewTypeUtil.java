@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DerivedViewTypeUtil {
-    public static EventType newType(String name, LinkedHashMap<String, Object> schemaMap, ViewForgeEnv env, int streamNum) {
-        String outputEventTypeName = env.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewDerived(name, streamNum);
+    public static EventType newType(String name, LinkedHashMap<String, Object> schemaMap, ViewForgeEnv env) {
+        String outputEventTypeName = env.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewDerived(name, env.getStreamNumber());
         EventTypeMetadata metadata = new EventTypeMetadata(outputEventTypeName, env.getModuleName(), EventTypeTypeClass.VIEWDERIVED, EventTypeApplicationType.MAP, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(schemaMap);
         EventType resultEventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata, propertyTypes, null, null, null, null, env.getBeanEventTypeFactoryProtected(), env.getEventTypeCompileTimeResolver());

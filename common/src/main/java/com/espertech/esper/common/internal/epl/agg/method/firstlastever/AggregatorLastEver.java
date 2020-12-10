@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionField;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodWDistinctWFilterWValueBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
@@ -89,4 +90,7 @@ public class AggregatorLastEver extends AggregatorMethodWDistinctWFilterWValueBa
         method.getBlock().assignRef(rowDotMember(row, lastValue), readNullable(serdeField, input, unitKey, classScope));
     }
 
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.serde(serde);
+    }
 }

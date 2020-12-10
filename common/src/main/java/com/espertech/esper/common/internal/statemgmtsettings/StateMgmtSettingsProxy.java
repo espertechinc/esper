@@ -11,9 +11,8 @@
 package com.espertech.esper.common.internal.statemgmtsettings;
 
 import com.espertech.esper.common.client.annotation.AppliesTo;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 
 public interface StateMgmtSettingsProxy {
-    StateMgmtSetting configure(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSetting setting);
+    StateMgmtSettingBucket configure(StatementRawInfo raw, AppliesTo appliesTo, StateMgmtSettingBucket setting);
 }

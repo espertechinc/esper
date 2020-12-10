@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.common.internal.context.controller.initterm;
 
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -19,13 +19,14 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecInitia
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryEnv;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerForgeBase;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.context.util.ContextPropertyEventType;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 
 import java.util.LinkedHashMap;
@@ -45,20 +46,21 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
         this.detail = detail;
     }
 
-    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-
+    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, int controllerLevel, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         props.put(ContextPropertyEventType.PROP_CTX_STARTTIME, EPTypePremade.LONGBOXED.getEPType());
         props.put(ContextPropertyEventType.PROP_CTX_ENDTIME, EPTypePremade.LONGBOXED.getEPType());
 
         LinkedHashSet<String> allTags = new LinkedHashSet<String>();
         ContextPropertyEventType.addEndpointTypes(detail.getStartCondition(), props, allTags);
         ContextPropertyEventType.addEndpointTypes(detail.getEndCondition(), props, allTags);
+    }
 
+    public void planStateSettings(ContextMetaData detail, FabricCharge fabricCharge, int controllerLevel, String nestedContextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
         distinctStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
-        if (detail.getDistinctExpressions() != null && detail.getDistinctExpressions().length > 0) {
-            distinctStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_INITTERM_DISTINCT);
+        if (this.detail.getDistinctExpressions() != null && this.detail.getDistinctExpressions().length > 0) {
+            distinctStateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextInitTermDistinct(fabricCharge, detail, this, statementRawInfo, controllerLevel);
         }
-        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_INITTERM);
+        ctxStateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextInitTerm(fabricCharge, detail, this, statementRawInfo, controllerLevel);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
@@ -72,5 +74,9 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
 
     public ContextControllerPortableInfo getValidationInfo() {
         return ContextControllerInitTermValidation.INSTANCE;
+    }
+
+    public ContextSpecInitiatedTerminated getDetail() {
+        return detail;
     }
 }

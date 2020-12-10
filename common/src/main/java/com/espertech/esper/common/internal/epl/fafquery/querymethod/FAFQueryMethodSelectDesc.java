@@ -39,6 +39,7 @@ import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototyp
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototypeForgeFactory;
 import com.espertech.esper.common.internal.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorAttributionKeyStatement;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
@@ -83,7 +84,7 @@ public class FAFQueryMethodSelectDesc {
                                     Compilable compilable,
                                     StatementRawInfo statementRawInfo,
                                     StatementCompileTimeServices services)
-            throws ExprValidationException {
+        throws ExprValidationException {
         this.annotations = statementSpec.getAnnotations();
         this.contextName = statementSpec.getRaw().getOptionalContextName();
 
@@ -161,7 +162,7 @@ public class FAFQueryMethodSelectDesc {
             for (int i = 0; i < numStreams; i++) {
                 try {
                     ExprValidationContext validationContext = new ExprValidationContextBuilder(types, statementRawInfo, services)
-                            .withAllowBindingConsumption(true).withIsFilterExpression(true).build();
+                        .withAllowBindingConsumption(true).withIsFilterExpression(true).build();
                     ExprNode validated = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FILTER, statementSpec.getRaw().getWhereClause(), validationContext);
                     FilterExprAnalyzer.analyze(validated, queryGraph, false);
                 } catch (Exception ex) {
@@ -189,9 +190,9 @@ public class FAFQueryMethodSelectDesc {
         whereClause = EPStatementStartMethodHelperValidate.validateNodes(statementSpec.getRaw(), typeService, null, statementRawInfo, services);
 
         ResultSetSpec resultSetSpec = new ResultSetSpec(statementSpec);
-        resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(resultSetSpec,
-                typeService, null, new boolean[0], true, null,
-                true, false, statementRawInfo, services);
+        resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, resultSetSpec,
+            typeService, null, new boolean[0], true, null,
+            true, false, statementRawInfo, services);
         additionalForgeables.addAll(resultSetProcessor.getAdditionalForgeables());
 
         // plan table access

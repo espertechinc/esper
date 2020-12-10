@@ -22,7 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewEnum;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
@@ -35,17 +35,15 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 /**
  * Factory for {@link UnivariateStatisticsView} instances.
  */
-public class UnivariateStatisticsViewForge extends ViewFactoryForgeBase {
-    private List<ExprNode> viewParameters;
+public class UnivariateStatisticsViewForge extends ViewFactoryForgeBaseDerived {
     protected ExprNode fieldExpression;
-    protected StatViewAdditionalPropsForge additionalProps;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
         if (validated.length < 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
@@ -54,13 +52,13 @@ public class UnivariateStatisticsViewForge extends ViewFactoryForgeBase {
         }
         fieldExpression = validated[0];
 
-        additionalProps = StatViewAdditionalPropsForge.make(validated, 1, parentEventType, streamNumber, viewForgeEnv);
-        eventType = UnivariateStatisticsView.createEventType(additionalProps, viewForgeEnv, streamNumber);
+        additionalProps = StatViewAdditionalPropsForge.make(validated, 1, parentEventType, viewForgeEnv);
+        eventType = UnivariateStatisticsView.createEventType(additionalProps, viewForgeEnv);
     }
 
     @Override
     public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
-        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
+        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
     }
 
     public EPTypeClass typeOfFactory() {
@@ -82,11 +80,15 @@ public class UnivariateStatisticsViewForge extends ViewFactoryForgeBase {
         return ViewEnum.UNIVARIATE_STATISTICS.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_UNIVARIATESTAT;
     }
 
     private String getViewParamMessage() {
         return getViewName() + " view require a single expression returning a numeric value as a parameter";
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

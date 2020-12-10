@@ -28,7 +28,7 @@ public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWin
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -47,7 +47,11 @@ public class FirstEventViewForge extends ViewFactoryForgeBase implements DataWin
         return ViewEnum.FIRST_EVENT.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_FIRSTEVENT;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

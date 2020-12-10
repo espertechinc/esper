@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
@@ -20,10 +21,12 @@ import java.util.List;
 public class OutputProcessViewFactoryForgeDesc {
     private final OutputProcessViewFactoryForge forge;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public OutputProcessViewFactoryForgeDesc(OutputProcessViewFactoryForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
+    public OutputProcessViewFactoryForgeDesc(OutputProcessViewFactoryForge forge, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public OutputProcessViewFactoryForge getForge() {
@@ -32,5 +35,9 @@ public class OutputProcessViewFactoryForgeDesc {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

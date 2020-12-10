@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.bean.introspect.BeanEventTypeStem;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
@@ -44,11 +45,11 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv env, boolean grouped) throws ViewParameterException {
+    public void attach(EventType parentEventType, ViewForgeEnv env) throws ViewParameterException {
         if (viewParameters.size() != 2) {
             throw new ViewParameterException("View requires a two parameters: the expression returning timestamps and the expression supplying OHLC data points");
         }
-        ExprNode[] validatedNodes = ViewForgeSupport.validate("OHLC view", parentEventType, viewParameters, false, env, streamNumber);
+        ExprNode[] validatedNodes = ViewForgeSupport.validate("OHLC view", parentEventType, viewParameters, false, env);
 
         timestampExpression = validatedNodes[0];
         valueExpression = validatedNodes[1];
@@ -64,7 +65,7 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
          * Allocate a custom event type for this example. This event type will be a Bean event type.
          */
         // make event type name
-        String outputEventTypeName = env.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewDerived(getViewName(), streamNumber);
+        String outputEventTypeName = env.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewDerived(getViewName(), env.getStreamNumber());
 
         // make event type metadata
         EventTypeMetadata metadata = new EventTypeMetadata(outputEventTypeName, env.getModuleName(), EventTypeTypeClass.VIEWDERIVED, EventTypeApplicationType.CLASS, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
@@ -92,5 +93,9 @@ public class OHLCBarPlugInViewForge implements ViewFactoryForge {
             .exprnode("timestampExpression", timestampExpression)
             .exprnode("valueExpression", valueExpression)
             .build();
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visitExtension(this);
     }
 }

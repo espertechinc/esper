@@ -83,7 +83,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(EventTypeBusModifier.NONBUS, byteCode.getBusModifierEventType());
         assertEquals(8, byteCode.getThreadPoolCompilerNumThreads());
         assertNull(byteCode.getThreadPoolCompilerCapacity());
-        assertEquals(16*1024, byteCode.getMaxMethodsPerClass());
+        assertEquals(1024, byteCode.getMaxMethodsPerClass());
         assertTrue(byteCode.isAllowInlinedClass());
         assertEquals(StreamSelector.ISTREAM_ONLY, compiler.getStreamSelection().getDefaultStreamSelector());
         assertFalse(compiler.getLanguage().isSortUsingCollator());

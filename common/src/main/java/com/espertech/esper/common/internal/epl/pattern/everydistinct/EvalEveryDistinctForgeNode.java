@@ -140,7 +140,11 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.UNARY;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_EVERYDISTINCT;
+    }
+
+    public MultiKeyClassRef getDistinctMultiKey() {
+        return distinctMultiKey;
     }
 }

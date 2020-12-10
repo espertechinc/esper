@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -22,23 +23,29 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
-import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolledFactoryForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForgeBase;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFlags;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType.POLICY_LASTALL_UNORDERED;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.generateGroupKeyArrayViewCodegen;
 
 /**
@@ -46,8 +53,7 @@ import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSe
  * there is a group-by and one or more non-aggregation event properties in the select clause are not listed in the group by,
  * and there are aggregation functions.
  */
-public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcessorFactoryForge {
-    private final EventType resultEventType;
+public class ResultSetProcessorAggregateGroupedForge extends ResultSetProcessorFactoryForgeBase {
     private final ExprNode[] groupKeyNodeExpressions;
     private final ExprForge optionalHavingNode;
     private final boolean isSorting;
@@ -56,20 +62,20 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
     private final OutputLimitSpec outputLimitSpec;
     private final boolean isHistoricalOnly;
     private final ResultSetProcessorOutputConditionType outputConditionType;
-    private final EventType[] eventTypes;
     private final OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory;
     private final EPType[] groupKeyTypes;
     private final MultiKeyClassRef multiKeyClassRef;
-    private final Supplier<StateMgmtSetting> outputFirstHelperSettings;
-    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
-    private final Supplier<StateMgmtSetting> outputAllOptSettings;
-    private final Supplier<StateMgmtSetting> outputLastOptSettings;
+    private StateMgmtSetting outputFirstHelperSettings;
+    private StateMgmtSetting outputAllHelperSettings;
+    private StateMgmtSetting outputAllOptSettings;
+    private StateMgmtSetting outputLastOptSettings;
 
     private CodegenMethod generateGroupKeySingle;
     private CodegenMethod generateGroupKeyArrayView;
     private CodegenMethod generateGroupKeyArrayJoin;
 
     public ResultSetProcessorAggregateGroupedForge(EventType resultEventType,
+                                                   EventType[] typesPerStream,
                                                    ExprNode[] groupKeyNodeExpressions,
                                                    ExprForge optionalHavingNode,
                                                    boolean isSelectRStream,
@@ -79,13 +85,8 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
                                                    boolean isHistoricalOnly,
                                                    ResultSetProcessorOutputConditionType outputConditionType,
                                                    OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
-                                                   EventType[] eventTypes,
-                                                   MultiKeyClassRef multiKeyClassRef,
-                                                   Supplier<StateMgmtSetting> outputFirstHelperSettings,
-                                                   Supplier<StateMgmtSetting> outputAllHelperSettings,
-                                                   Supplier<StateMgmtSetting> outputAllOptSettings,
-                                                   Supplier<StateMgmtSetting> outputLastOptSettings) {
-        this.resultEventType = resultEventType;
+                                                   MultiKeyClassRef multiKeyClassRef) {
+        super(resultEventType, typesPerStream);
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.optionalHavingNode = optionalHavingNode;
         this.isSorting = isSorting;
@@ -95,17 +96,9 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputConditionType = outputConditionType;
         this.optionalOutputFirstConditionFactory = optionalOutputFirstConditionFactory;
-        this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
-        this.outputFirstHelperSettings = outputFirstHelperSettings;
-        this.outputAllHelperSettings = outputAllHelperSettings;
-        this.outputAllOptSettings = outputAllOptSettings;
         this.outputLastOptSettings = outputLastOptSettings;
-    }
-
-    public EventType getResultEventType() {
-        return resultEventType;
     }
 
     public ExprForge getOptionalHavingNode() {
@@ -148,16 +141,16 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL;
     }
 
+    public boolean isOutputFirst() {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST;
+    }
+
     public ResultSetProcessorOutputConditionType getOutputConditionType() {
         return outputConditionType;
     }
 
     public int getNumStreams() {
-        return eventTypes.length;
-    }
-
-    public EventType[] getEventTypes() {
-        return eventTypes;
+        return typesPerStream.length;
     }
 
     public EPType[] getGroupKeyTypes() {
@@ -268,19 +261,35 @@ public class ResultSetProcessorAggregateGroupedForge implements ResultSetProcess
         return multiKeyClassRef;
     }
 
-    public Supplier<StateMgmtSetting> getOutputFirstHelperSettings() {
+    public StateMgmtSetting getOutputFirstHelperSettings() {
         return outputFirstHelperSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+    public StateMgmtSetting getOutputAllHelperSettings() {
         return outputAllHelperSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputAllOptSettings() {
+    public StateMgmtSetting getOutputAllOptSettings() {
         return outputAllOptSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputLastOptSettings() {
+    public StateMgmtSetting getOutputLastOptSettings() {
         return outputLastOptSettings;
+    }
+
+    public void planStateSettings(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, ResultSetProcessorFlags flags, StatementCompileTimeServices services) {
+        if (isOutputFirst()) {
+            this.outputFirstHelperSettings = services.getStateMgmtSettingsProvider().resultSet().aggGroupedOutputFirst(fabricCharge, statementRawInfo, this);
+        } else if (isOutputAll()) {
+            if (flags.getOutputConditionType() == POLICY_LASTALL_UNORDERED) {
+                this.outputAllOptSettings = services.getStateMgmtSettingsProvider().resultSet().aggGroupedOutputAllOpt(fabricCharge, statementRawInfo, this);
+            } else {
+                this.outputAllHelperSettings = services.getStateMgmtSettingsProvider().resultSet().aggGroupedOutputAll(fabricCharge, statementRawInfo, this);
+            }
+        } else if (isOutputLast()) {
+            if (flags.getOutputConditionType() == POLICY_LASTALL_UNORDERED) {
+                this.outputLastOptSettings = services.getStateMgmtSettingsProvider().resultSet().aggGroupedOutputLast(fabricCharge, statementRawInfo, this);
+            }
+        }
     }
 }

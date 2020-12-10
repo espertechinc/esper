@@ -46,6 +46,7 @@ import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMeta
 import com.espertech.esper.common.internal.epl.variable.core.VariableDeployTimeResolver;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.view.core.*;
@@ -66,14 +67,16 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
     protected EventType builtinType;
     protected int scheduleCallbackId = -1;
     protected AggregationServiceForgeDesc aggregationServiceForgeDesc;
+    protected Integer subqueryNumber;
     protected int streamNumber;
     private boolean isTargetHA;
 
     protected abstract void makeSetters(CodegenExpressionRef factory, CodegenBlock block);
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
         this.streamNumber = streamNumber;
+        this.subqueryNumber = viewForgeEnv.getSubqueryNumber();
         this.isTargetHA = viewForgeEnv.getSerdeResolver().isTargetHA();
 
         // define built-in fields
@@ -87,7 +90,7 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType, builtinType}, new String[2], new boolean[2], false, false);
 
         // validate expression
-        expiryExpression = ViewForgeSupport.validateExpr(getViewName(), expiryExpression, streamTypeService, viewForgeEnv, 0, streamNumber);
+        expiryExpression = ViewForgeSupport.validateExpr(getViewName(), expiryExpression, streamTypeService, viewForgeEnv, 0);
 
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
         expiryExpression.accept(summaryVisitor);
@@ -104,21 +107,6 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor(viewForgeEnv.getStatementCompileTimeServices().getVariableCompileTimeResolver());
         expiryExpression.accept(visitor);
         variableNames = visitor.getVariableNames();
-
-        // determine aggregation nodes, if any
-        List<ExprAggregateNode> aggregateNodes = new ArrayList<ExprAggregateNode>();
-        ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
-        if (!aggregateNodes.isEmpty()) {
-            try {
-                aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(Collections.emptyList(), Collections.emptyMap(),
-                    Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
-                    viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
-                    streamTypeService.getEventTypes(), null, viewForgeEnv.getContextName(), null, null, false, false, false,
-                    viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
-            } catch (ExprValidationException ex) {
-                throw new ViewParameterException(ex.getMessage(), ex);
-            }
-        }
     }
 
     public void assign(CodegenMethod method, CodegenExpressionRef factory, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -135,15 +123,45 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
             .exprDotMethod(factory, "setScheduleCallbackId", constant(scheduleCallbackId))
             .exprDotMethod(factory, "setAggregationServiceFactory", makeAggregationService(classScope, method, symbols, isTargetHA))
             .exprDotMethod(factory, "setAggregationResultFutureAssignable", ref("eval"))
-            .exprDotMethod(factory, "setExpiryEval", ref("eval"));
+            .exprDotMethod(factory, "setExpiryEval", ref("eval"))
+            .exprDotMethod(factory, "setSubqueryNumber", constant(subqueryNumber))
+            .exprDotMethod(factory, "setStreamNumber", constant(streamNumber));
         if (variableNames != null && !variableNames.isEmpty()) {
             method.getBlock().exprDotMethod(factory, "setVariables", VariableDeployTimeResolver.makeResolveVariables(variableNames.values(), symbols.getAddInitSvc(method)));
         }
         makeSetters(factory, method.getBlock());
     }
 
+    @Override
+    public void assignStateMgmtSettings(FabricCharge fabricCharge, ViewForgeEnv viewForgeEnv, int[] grouping) throws ViewParameterException {
+        // determine aggregation nodes, if any
+        List<ExprAggregateNode> aggregateNodes = new ArrayList<ExprAggregateNode>();
+        ExprAggregateNodeUtil.getAggregatesBottomUp(expiryExpression, aggregateNodes);
+        if (!aggregateNodes.isEmpty()) {
+            try {
+                AggregationAttributionKeyView attributionKey = new AggregationAttributionKeyView(viewForgeEnv.getStreamNumber(), viewForgeEnv.getSubqueryNumber(), grouping);
+                aggregationServiceForgeDesc = AggregationServiceFactoryFactory.getService(attributionKey, Collections.emptyList(), Collections.emptyMap(),
+                        Collections.emptyList(), null, null, aggregateNodes, Collections.emptyList(), Collections.emptyList(), false,
+                        viewForgeEnv.getAnnotations(), viewForgeEnv.getVariableCompileTimeResolver(), false, null, null,
+                        new EventType[]{eventType, builtinType}, null, viewForgeEnv.getContextName(), null, null, false, false, false,
+                        viewForgeEnv.getClasspathImportServiceCompileTime(), viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
+            } catch (ExprValidationException ex) {
+                throw new ViewParameterException(ex.getMessage(), ex);
+            }
+        }
+
+        super.assignStateMgmtSettings(fabricCharge, viewForgeEnv, grouping);
+        if (aggregationServiceForgeDesc != null) {
+            fabricCharge.add(aggregationServiceForgeDesc.getFabricCharge());
+        }
+    }
+
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
+    }
+
+    public AggregationServiceForgeDesc getAggregationServiceForgeDesc() {
+        return aggregationServiceForgeDesc;
     }
 
     private CodegenExpression makeAggregationService(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols, boolean isTargetHA) {

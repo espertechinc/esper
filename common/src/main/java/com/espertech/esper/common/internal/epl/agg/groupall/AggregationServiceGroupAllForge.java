@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.common.internal.epl.agg.groupall;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -20,6 +22,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionMember;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.util.List;
 
@@ -37,9 +40,25 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
     private final static CodegenExpressionMember MEMBER_ROW = member("row");
 
     protected final AggregationRowStateForgeDesc rowStateDesc;
+    private StateMgmtSetting stateMgmtSetting;
 
     public AggregationServiceGroupAllForge(AggregationRowStateForgeDesc rowStateDesc) {
         this.rowStateDesc = rowStateDesc;
+    }
+
+    public AggregationRowStateForgeDesc getRowStateDesc() {
+        return rowStateDesc;
+    }
+
+    public AppliesTo appliesTo() {
+        return AppliesTo.AGGREGATION_UNGROUPED;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
+    }
+
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
     }
 
     public AggregationCodegenRowLevelDesc getRowLevelDesc() {
@@ -51,7 +70,7 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
                 .declareVar(AggregationRowFactory.EPTYPE, "rowFactory", CodegenExpressionBuilder.newInstance(classNames.getRowFactoryTop(), ref("this")))
                 .declareVar(DataInputOutputSerde.EPTYPE, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
                 .declareVar(AggregationServiceFactory.EPTYPE, "svcFactory", CodegenExpressionBuilder.newInstance(classNames.getServiceFactory(), ref("this")))
-                .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add("groupAll", ref("svcFactory"), ref("rowFactory"), rowStateDesc.getUseFlags().toExpression(), ref("rowSerde")));
+                .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add("groupAll", ref("svcFactory"), ref("rowFactory"), rowStateDesc.getUseFlags().toExpression(), ref("rowSerde"), stateMgmtSetting.toExpression()));
     }
 
     public void makeServiceCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
@@ -141,5 +160,9 @@ public class AggregationServiceGroupAllForge implements AggregationServiceFactor
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         method.getBlock().methodReturn(MEMBER_ROW);
+    }
+
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

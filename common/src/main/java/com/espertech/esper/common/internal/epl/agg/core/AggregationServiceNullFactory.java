@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.core;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -17,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenNamedMethod
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.util.List;
 
@@ -33,7 +36,18 @@ public class AggregationServiceNullFactory implements AggregationServiceFactory,
     private AggregationServiceNullFactory() {
     }
 
-    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        // not applicable
+    }
+
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
+    }
+
+    public AppliesTo appliesTo() {
+        throw new IllegalStateException();
+    }
+
+    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, Integer streamNum, Integer subqueryNumber, int[] groupId) {
         return AggregationServiceNull.INSTANCE;
     }
 
@@ -115,5 +129,9 @@ public class AggregationServiceNullFactory implements AggregationServiceFactory,
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         method.getBlock().methodThrowUnsupported();
+    }
+
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

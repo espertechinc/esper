@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.view;
 
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -25,7 +26,6 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFact
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyPostProcessForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.List;
@@ -48,8 +48,9 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
     private final EventType[] eventTypes;
     private final EventType resultEventType;
     private final StateMgmtSetting changeSetStateMgmtSettings;
+    private final StateMgmtSetting outputFirstStateMgmtSettings;
 
-    public OutputProcessViewConditionForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, MultiKeyClassRef distinctMultiKey, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, OutputConditionFactoryForge outputConditionFactoryForge, int streamCount, ResultSetProcessorOutputConditionType conditionType, boolean terminable, boolean hasAfter, boolean unaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelector, EventType[] eventTypes, EventType resultEventType, StateMgmtSetting changeSetStateMgmtSettings) {
+    public OutputProcessViewConditionForge(OutputStrategyPostProcessForge outputStrategyPostProcessForge, boolean isDistinct, MultiKeyClassRef distinctMultiKey, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, OutputConditionFactoryForge outputConditionFactoryForge, int streamCount, ResultSetProcessorOutputConditionType conditionType, boolean terminable, boolean hasAfter, boolean unaggregatedUngrouped, SelectClauseStreamSelectorEnum selectClauseStreamSelector, EventType[] eventTypes, EventType resultEventType, StateMgmtSetting changeSetStateMgmtSettings, StateMgmtSetting outputFirstStateMgmtSettings) {
         this.outputStrategyPostProcessForge = outputStrategyPostProcessForge;
         this.isDistinct = isDistinct;
         this.distinctMultiKey = distinctMultiKey;
@@ -65,6 +66,7 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
         this.eventTypes = eventTypes;
         this.resultEventType = resultEventType;
         this.changeSetStateMgmtSettings = changeSetStateMgmtSettings;
+        this.outputFirstStateMgmtSettings = outputFirstStateMgmtSettings;
     }
 
     public boolean isDirectAndSimple() {
@@ -94,6 +96,7 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
                 .exprDotMethod(spec, "setUnaggregatedUngrouped", constant(unaggregatedUngrouped))
                 .exprDotMethod(spec, "setEventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, EPStatementInitServices.REF))
                 .exprDotMethod(spec, "setChangeSetStateMgmtSettings", changeSetStateMgmtSettings.toExpression())
+                .exprDotMethod(spec, "setOutputFirstStateMgmtSettings", outputFirstStateMgmtSettings.toExpression())
                 .methodReturn(newInstance(OutputProcessViewConditionFactory.EPTYPE, spec));
     }
 

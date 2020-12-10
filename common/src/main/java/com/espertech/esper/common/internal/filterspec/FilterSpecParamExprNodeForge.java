@@ -36,7 +36,8 @@ import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_EXPREVALCONTEXT;
-import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.*;
+import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_MATCHEDEVENTMAP;
+import static com.espertech.esper.common.internal.filterspec.FilterSpecParam.REF_STMTCTXFILTEREVALENV;
 
 /**
  * This class represents an arbitrary expression node returning a boolean value as a filter parameter in an {@link FilterSpecActivatable} filter specification.
@@ -203,21 +204,11 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
                 .exprDotMethod(ref("node"), "setFilterBooleanExpressionFactory", exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERBOOLEANEXPRESSIONFACTORY))
                 .exprDotMethod(ref("node"), "setUseLargeThreadingProfile", constant(compileTimeServices.getConfiguration().getCommon().getExecution().getThreadingProfile() == ThreadingProfile.LARGE));
 
-        if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
-            int size = (taggedEventTypes != null) ? taggedEventTypes.size() : 0;
-            size += (arrayEventTypes != null) ? arrayEventTypes.size() : 0;
-            method.getBlock().declareVar(EventType.EPTYPEARRAY, "providedTypes", newArrayByLength(EventType.EPTYPE, constant(size + 1)));
-            for (int i = 1; i < streamTypeService.getStreamNames().length; i++) {
-                String tag = streamTypeService.getStreamNames()[i];
-                EventType eventType = findMayNull(tag, taggedEventTypes);
-                if (eventType == null) {
-                    eventType = findMayNull(tag, arrayEventTypes);
-                }
-                if (eventType == null) {
-                    throw new IllegalStateException("Failed to find event type for tag '" + tag + "'");
-                }
-                method.getBlock().assignArrayElement("providedTypes", constant(i), EventTypeUtility.resolveTypeCodegen(eventType, EPStatementInitServices.REF));
-                // note: we leave index zero at null as that is the current event itself
+        EventType[] providedTypes = providedTypesStartingStreamOne();
+        if (providedTypes != null) {
+            method.getBlock().declareVar(EventType.EPTYPEARRAY, "providedTypes", newArrayByLength(EventType.EPTYPE, constant(providedTypes.length)));
+            for (int i = 1; i < providedTypes.length; i++) {
+                method.getBlock().assignArrayElement("providedTypes", constant(i), EventTypeUtility.resolveTypeCodegen(providedTypes[i], EPStatementInitServices.REF));
             }
             method.getBlock().exprDotMethod(ref("node"), "setEventTypesProvidedBy", ref("providedTypes"));
         }
@@ -227,6 +218,28 @@ public final class FilterSpecParamExprNodeForge extends FilterSpecParamForge {
 
         method.getBlock().methodReturn(ref("node"));
         return localMethod(method);
+    }
+
+    public EventType[] providedTypesStartingStreamOne() {
+        if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
+            int size = (taggedEventTypes != null) ? taggedEventTypes.size() : 0;
+            size += (arrayEventTypes != null) ? arrayEventTypes.size() : 0;
+            EventType[] providedTypes = new EventType[size + 1];
+            for (int i = 1; i < streamTypeService.getStreamNames().length; i++) {
+                String tag = streamTypeService.getStreamNames()[i];
+                EventType eventType = findMayNull(tag, taggedEventTypes);
+                if (eventType == null) {
+                    eventType = findMayNull(tag, arrayEventTypes);
+                }
+                if (eventType == null) {
+                    throw new IllegalStateException("Failed to find event type for tag '" + tag + "'");
+                }
+                providedTypes[i] = eventType;
+                // note: we leave index zero at null as that is the current event itself
+            }
+            return providedTypes;
+        }
+        return null;
     }
 
     public void valueExprToString(StringBuilder out, int i) {

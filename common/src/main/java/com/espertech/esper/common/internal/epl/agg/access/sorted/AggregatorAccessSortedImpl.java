@@ -33,6 +33,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorCont
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 import com.espertech.esper.common.internal.serde.serdeset.additional.DIOSerdeTreeMapEventsMayDeque;
@@ -184,6 +185,14 @@ public class AggregatorAccessSortedImpl extends AggregatorAccessWFilterBase impl
             .exprDotMethod(sortedSerde, "read", rowDotMember(row, sorted), input, unitKey);
         if (joinRefs != null) {
             method.getBlock().assignRef(rowDotMember(row, joinRefs), cast(RefCountedSetAtomicInteger.EPTYPE, exprDotMethod(joinRefsSerde, "read", input, unitKey)));
+        }
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        collector.builtin(int.class);
+        collector.treeMapEventsMayDeque(forge.getSpec().getCriteriaSerdes(), forge.getSpec().getStreamEventType());
+        if (join) {
+            collector.refCountedSetAtomicInteger(forge.getSpec().getStreamEventType());
         }
     }
 

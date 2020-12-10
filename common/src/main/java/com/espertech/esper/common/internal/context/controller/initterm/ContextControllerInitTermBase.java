@@ -64,7 +64,7 @@ public abstract class ContextControllerInitTermBase extends ContextControllerIni
 
         IntSeqKey endConditionPath = controllerPath.addToEnd(subpathId);
         Object[] partitionKeys = initTermSvc.mgmtGetParentPartitionKeys(controllerPath);
-        ContextControllerConditionNonHA endCondition = ContextControllerConditionFactory.getEndpoint(endConditionPath, partitionKeys, factory.initTermSpec.getEndCondition(), this, this, false);
+        ContextControllerConditionNonHA endCondition = ContextControllerConditionFactory.getEndpoint(endConditionPath, partitionKeys, factory.initTermSpec.getEndCondition(), this, this);
         endCondition.activate(optionalTriggeringEvent, this, optionalTriggeringPattern);
 
         ContextControllerInitTermPartitionKey partitionKey = ContextControllerInitTermUtil.buildPartitionKey(optionalTriggeringEvent, optionalTriggeringPattern, endCondition, this);

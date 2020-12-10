@@ -39,4 +39,5 @@ public class DataInputOutputSerdeForgeParameterized implements DataInputOutputSe
         }
         return newInstance(dioClassName, params);
     }
+
 }

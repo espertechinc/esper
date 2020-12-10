@@ -112,7 +112,7 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
     }
 
     public void codegenSetter(CodegenExpressionRef ref, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        String configName = metadata.getMethodProviderClass() != null ? metadata.getMethodProviderClass().getName() : methodStreamSpec.getMethodName();
+        String configName = metadata.getConfigurationName(methodStreamSpec);
         method.getBlock()
                 .exprDotMethod(ref, "setConfigurationName", constant(configName))
                 .exprDotMethod(ref, "setTargetStrategy", target.make(method, symbols, classScope))

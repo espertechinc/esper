@@ -47,7 +47,7 @@ public class AggregationServiceFactoryTable implements AggregationServiceFactory
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
-    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, boolean isSubquery, Integer subqueryNumber, int[] groupId) {
+    public AggregationService makeService(ExprEvaluatorContext exprEvaluatorContext, Integer streamNum, Integer subqueryNumber, int[] groupId) {
         TableInstance tableInstance = table.getTableInstance(exprEvaluatorContext.getAgentInstanceId());
         if (!table.getMetaData().isKeyed()) {
             TableInstanceUngrouped tableInstanceUngrouped = (TableInstanceUngrouped) tableInstance;

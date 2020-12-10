@@ -30,17 +30,17 @@ public class PatternContext {
     private MatchedEventMapMeta matchedEventMapMeta;
     private boolean isContextDeclaration;
     private int nestingLevel;
-    private boolean isStartCondition;
+    private boolean startCondition;
 
     public PatternContext() {
     }
 
-    public PatternContext(int streamNumber, MatchedEventMapMeta matchedEventMapMeta, boolean isContextDeclaration, int nestingLevel, boolean isStartCondition) {
+    public PatternContext(int streamNumber, MatchedEventMapMeta matchedEventMapMeta, boolean isContextDeclaration, int nestingLevel, boolean startCondition) {
         this.streamNumber = streamNumber;
         this.matchedEventMapMeta = matchedEventMapMeta;
         this.isContextDeclaration = isContextDeclaration;
         this.nestingLevel = nestingLevel;
-        this.isStartCondition = isStartCondition;
+        this.startCondition = startCondition;
     }
 
     public void setStreamNumber(int streamNumber) {
@@ -76,11 +76,11 @@ public class PatternContext {
     }
 
     public boolean isStartCondition() {
-        return isStartCondition;
+        return startCondition;
     }
 
     public void setStartCondition(boolean startCondition) {
-        isStartCondition = startCondition;
+        this.startCondition = startCondition;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -95,7 +95,7 @@ public class PatternContext {
             method.getBlock()
                     .exprDotMethod(ref("ctx"), "setContextDeclaration", constant(isContextDeclaration))
                     .exprDotMethod(ref("ctx"), "setNestingLevel", constant(nestingLevel))
-                    .exprDotMethod(ref("ctx"), "setStartCondition", constant(isStartCondition));
+                    .exprDotMethod(ref("ctx"), "setStartCondition", constant(startCondition));
         }
         method.getBlock().methodReturn(ref("ctx"));
         return localMethod(method);

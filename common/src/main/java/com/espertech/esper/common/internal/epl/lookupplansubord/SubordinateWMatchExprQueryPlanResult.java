@@ -11,16 +11,19 @@
 package com.espertech.esper.common.internal.epl.lookupplansubord;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
 public class SubordinateWMatchExprQueryPlanResult {
     private final SubordinateWMatchExprQueryPlanForge forge;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public SubordinateWMatchExprQueryPlanResult(SubordinateWMatchExprQueryPlanForge forge, List<StmtClassForgeableFactory> additionalForgeables) {
+    public SubordinateWMatchExprQueryPlanResult(SubordinateWMatchExprQueryPlanForge forge, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.forge = forge;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public SubordinateWMatchExprQueryPlanForge getForge() {
@@ -29,5 +32,9 @@ public class SubordinateWMatchExprQueryPlanResult {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

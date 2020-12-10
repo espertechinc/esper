@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.MinMaxTypeEnum;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
@@ -81,5 +82,9 @@ public class AggregatorMinMax extends AggregatorMethodWDistinctWFilterWValueBase
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().assignRef(rowDotMember(row, refSet), cast(SortedRefCountedSet.EPTYPE, exprDotMethod(serdeField, "read", input, unitKey)));
+    }
+
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.sortedRefCountedSet(factory.serde);
     }
 }

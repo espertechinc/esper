@@ -36,7 +36,7 @@ public abstract class StmtForgeMethodCreateSimpleBase implements StmtForgeMethod
 
     protected final StatementBaseInfo base;
 
-    protected abstract String register(StatementCompileTimeServices services) throws ExprValidationException;
+    protected abstract StmtForgeMethodRegisterResult register(StatementCompileTimeServices services) throws ExprValidationException;
 
     protected abstract StmtClassForgeable aiFactoryForgable(String className, CodegenPackageScope packageScope, EventType statementEventType, String objectName);
 
@@ -45,7 +45,8 @@ public abstract class StmtForgeMethodCreateSimpleBase implements StmtForgeMethod
     }
 
     public final StmtForgeMethodResult make(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
-        String objectName = register(services);
+        StmtForgeMethodRegisterResult registerResult = register(services);
+        String objectName = registerResult.getObjectName();
 
         // define output event type
         String statementEventTypeName = services.getEventTypeNameGeneratorStatement().getAnonymousTypeName();
@@ -67,6 +68,6 @@ public abstract class StmtForgeMethodCreateSimpleBase implements StmtForgeMethod
         List<StmtClassForgeable> forgeables = new ArrayList<>();
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope, registerResult.getFabricCharge());
     }
 }

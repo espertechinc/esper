@@ -31,4 +31,5 @@ public class DataInputOutputSerdeForgeEmptyCtor implements DataInputOutputSerdeF
     public String forgeClassName() {
         return serdeClass.getName();
     }
+
 }

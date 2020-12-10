@@ -12,13 +12,13 @@ package com.espertech.esper.common.internal.epl.output.condition;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionDefault;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionFactory;
 import com.espertech.esper.common.internal.epl.output.view.OutputStrategyPostProcess;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 
 /**
  * A view that prepares output events, batching incoming

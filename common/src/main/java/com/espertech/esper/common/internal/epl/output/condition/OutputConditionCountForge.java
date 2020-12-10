@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.condition;
 
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -27,13 +28,15 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class OutputConditionCountForge implements OutputConditionFactoryForge {
     protected final int eventRate;
     protected final VariableMetaData variableMetaData;
+    protected final StateMgmtSetting stateMgmtSetting;
 
-    public OutputConditionCountForge(int eventRate, VariableMetaData variableMetaData) {
+    public OutputConditionCountForge(int eventRate, VariableMetaData variableMetaData, StateMgmtSetting stateMgmtSetting) {
         if ((eventRate < 1) && (variableMetaData == null)) {
             throw new IllegalArgumentException("Limiting output by event count requires an event count of at least 1 or a variable name");
         }
         this.eventRate = eventRate;
         this.variableMetaData = variableMetaData;
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -46,7 +49,7 @@ public class OutputConditionCountForge implements OutputConditionFactoryForge {
         CodegenMethod method = parent.makeChild(OutputConditionFactory.EPTYPE, this.getClass(), classScope);
         method.getBlock()
                 .methodReturn(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY)
-                        .add("makeOutputConditionCount", constant(eventRate), variableExpression));
+                        .add("makeOutputConditionCount", constant(eventRate), variableExpression, stateMgmtSetting.toExpression()));
         return localMethod(method);
     }
 

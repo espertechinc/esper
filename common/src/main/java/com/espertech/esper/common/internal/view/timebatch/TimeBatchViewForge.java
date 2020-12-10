@@ -53,10 +53,10 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         }
         Object[] viewParamValues = new Object[parameters.size()];
         for (int i = 1; i < viewParamValues.length; i++) {
-            viewParamValues[i] = ViewForgeSupport.validateAndEvaluate(getViewName(), parameters.get(i), viewForgeEnv, streamNumber);
+            viewParamValues[i] = ViewForgeSupport.validateAndEvaluate(getViewName(), parameters.get(i), viewForgeEnv);
         }
 
-        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv, streamNumber);
+        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv);
 
         TimeBatchFlags timeBatchFlags = new TimeBatchFlags(false, false);
         if ((viewParamValues.length == 2) && (viewParamValues[1] instanceof String)) {
@@ -77,7 +77,7 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         this.isStartEager = timeBatchFlags.isStartEager();
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -114,7 +114,11 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         this.scheduleCallbackId = scheduleCallbackId;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMEBATCH;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

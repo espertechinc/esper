@@ -29,6 +29,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMet
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassArrayTyped;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
@@ -100,6 +101,15 @@ public class AggregatorAccessSortedMinMaxByEver extends AggregatorAccessWFilterB
         method.getBlock()
             .assignRef(rowDotMember(row, currentMinMax), cast(EPTypePremade.OBJECT.getEPType(), exprDotMethod(currentMinMaxSerde, "read", input, unitKey)))
             .assignRef(rowDotMember(row, currentMinMaxBean), cast(EventBean.EPTYPE, exprDotMethod(currentMinMaxBeanSerde, "read", input, unitKey)));
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        if (forge.getSpec().getCriteria().length == 1) {
+            collector.serde(forge.getSpec().getCriteriaSerdes()[0]);
+        } else {
+            collector.serdeObjectArrayMayNullNull(forge.getSpec().getCriteriaSerdes());
+        }
+        collector.serdeNullableEvent(forge.getSpec().getStreamEventType());
     }
 
     public CodegenExpression getFirstValueCodegen(CodegenClassScope classScope, CodegenMethod method) {

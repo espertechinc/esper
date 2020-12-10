@@ -13,7 +13,6 @@ package com.espertech.esper.common.internal.epl.resultset.rowpergroup;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -468,18 +467,16 @@ public class ResultSetProcessorRowPerGroupImpl {
 
     private static void processOutputLimitedLastAllNonBufferedCodegen(ResultSetProcessorRowPerGroupForge forge, String methodName, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
-        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
+        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getTypesPerStream(), EPStatementInitServices.REF));
         CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
 
         if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowPerGroupOutputAllHelper.EPTYPE);
-            StateMgmtSetting stateMgmtSettings = forge.getOutputAllOptHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupOutputAllOpt", MEMBER_EXPREVALCONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowPerGroupOutputAllOpt", MEMBER_EXPREVALCONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, forge.getOutputAllOptHelperSettings().toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowPerGroupOutputLastHelper.EPTYPE);
-            StateMgmtSetting stateMgmtSettings = forge.getOutputLastOptHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupOutputLastOpt", MEMBER_EXPREVALCONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowPerGroupOutputLastOpt", MEMBER_EXPREVALCONTEXT, ref("this"), constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, forge.getOutputLastOptHelperSettings().toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }
@@ -597,8 +594,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
         CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         instance.addMember(NAME_OUTPUTFIRSTHELPER, ResultSetProcessorGroupedOutputFirstHelper.EPTYPE);
-        StateMgmtSetting outputHelperSettings = forge.getOutputFirstSettings().get();
-        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", MEMBER_EXPREVALCONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde, outputHelperSettings.toExpression()));
+        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", MEMBER_EXPREVALCONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde, forge.getOutputFirstHelperSettings().toExpression()));
 
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());
 
@@ -707,15 +703,18 @@ public class ResultSetProcessorRowPerGroupImpl {
     }
 
     private static void processOutputLimitedJoinAllCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        if (forge.getOutputAllHelperSettings() == null) {
+            method.getBlock().methodThrowUnsupported();
+            return;
+        }
         CodegenMethod generateOutputBatchedArrFromIterator = generateOutputBatchedArrFromIteratorCodegen(forge, classScope, instance);
         CodegenMethod generateOutputBatchedRowAddToList = generateOutputBatchedRowAddToListCodegen(forge, classScope, instance);
 
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
         CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
-        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
+        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getTypesPerStream(), EPStatementInitServices.REF));
         instance.addMember(NAME_OUTPUTALLGROUPREPS, ResultSetProcessorGroupedOutputAllGroupReps.EPTYPE);
-        StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", MEMBER_EXPREVALCONTEXT, constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, stateMgmtSettings.toExpression()));
+        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", MEMBER_EXPREVALCONTEXT, constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, forge.getOutputAllHelperSettings().toExpression()));
 
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());
 
@@ -853,8 +852,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         CodegenExpression groupKeyTypes = constant(forge.getGroupKeyTypes());
         CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         instance.addMember(NAME_OUTPUTFIRSTHELPER, ResultSetProcessorGroupedOutputFirstHelper.EPTYPE);
-        StateMgmtSetting outputHelperSettings = forge.getOutputFirstSettings().get();
-        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", MEMBER_EXPREVALCONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde, outputHelperSettings.toExpression()));
+        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTFIRSTHELPER, exprDotMethod(helperFactory, "makeRSGroupedOutputFirst", MEMBER_EXPREVALCONTEXT, groupKeyTypes, outputFactory, constantNull(), constant(-1), groupKeyMKSerde, forge.getOutputFirstHelperSettings().toExpression()));
 
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());
 
@@ -959,16 +957,19 @@ public class ResultSetProcessorRowPerGroupImpl {
     }
 
     private static void processOutputLimitedViewAllCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
+        if (forge.getOutputAllHelperSettings() == null) {
+            method.getBlock().methodThrowUnsupported();
+            return;
+        }
 
         CodegenMethod generateOutputBatchedArrFromIterator = generateOutputBatchedArrFromIteratorCodegen(forge, classScope, instance);
         CodegenMethod generateOutputBatchedRowAddToList = generateOutputBatchedRowAddToListCodegen(forge, classScope, instance);
 
         CodegenExpressionField helperFactory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
-        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getEventTypes(), EPStatementInitServices.REF));
+        CodegenExpression eventTypes = classScope.addFieldUnshared(true, EventType.EPTYPEARRAY, EventTypeUtility.resolveTypeArrayCodegen(forge.getTypesPerStream(), EPStatementInitServices.REF));
         CodegenExpression groupKeyMKSerde = forge.getMultiKeyClassRef().getExprMKSerde(method, classScope);
         instance.addMember(NAME_OUTPUTALLGROUPREPS, ResultSetProcessorGroupedOutputAllGroupReps.EPTYPE);
-        StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", MEMBER_EXPREVALCONTEXT, constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, stateMgmtSettings.toExpression()));
+        instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLGROUPREPS, exprDotMethod(helperFactory, "makeRSGroupedOutputAllNoOpt", MEMBER_EXPREVALCONTEXT, constant(forge.getGroupKeyTypes()), groupKeyMKSerde, eventTypes, forge.getOutputAllHelperSettings().toExpression()));
 
         method.getBlock().declareVar(EventBean.EPTYPEARRAY, "eventsPerStream", newArrayByLength(EventBean.EPTYPE, constant(1)));
         ResultSetProcessorUtil.prefixCodegenNewOldEvents(method.getBlock(), forge.isSorting(), forge.isSelectRStream());

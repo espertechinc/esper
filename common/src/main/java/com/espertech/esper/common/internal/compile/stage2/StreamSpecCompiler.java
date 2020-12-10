@@ -171,7 +171,7 @@ public class StreamSpecCompiler {
 
         // construct root : assigns factory node ids
         EvalForgeNode top = streamSpecRaw.getEvalForgeNode();
-        EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo, streamNum, services.getStateMgmtSettingsProvider());
+        EvalRootForgeNode root = new EvalRootForgeNode(services.isAttachPatternText(), top, statementRawInfo.getAnnotations());
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>();
         recursiveCompile(top, tags, allowDuplicateTags, nodeStack, allTagNamesOrdered, streamNum, additionalForgeables, statementRawInfo, services);
 
@@ -251,8 +251,8 @@ public class StreamSpecCompiler {
                     newTaggedEventTypes.put(optionalTag, pair);
                 }
 
-                List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(pair.getFirst(), statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
-                additionalForgeables.addAll(forgeables);
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(pair.getFirst(), statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
+                additionalForgeables.addAll(serdeForgeables);
             }
 
             // For this filter, filter types are all known tags at this time,
@@ -295,8 +295,8 @@ public class StreamSpecCompiler {
                         arrayCompositeEventTypes.put(tag, pair);
                     }
 
-                    List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(mapEventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
-                    additionalForgeables.addAll(forgeables);
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(mapEventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
+                    additionalForgeables.addAll(serdeForgeables);
                 }
             }
 

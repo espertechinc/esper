@@ -167,7 +167,7 @@ public class EvalFilterForgeNode extends EvalForgeNodeBase {
         filters.add(filterSpec);
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_FILTER;
     }
 }

@@ -40,6 +40,7 @@ public class OutputProcessViewConditionSpec {
     private Integer afterConditionNumberOfEvents;
     private EventType[] eventTypes;
     private StateMgmtSetting changeSetStateMgmtSettings;
+    private StateMgmtSetting outputFirstStateMgmtSettings;
 
     public OutputConditionFactory getOutputConditionFactory() {
         return outputConditionFactory;
@@ -159,5 +160,13 @@ public class OutputProcessViewConditionSpec {
 
     public StateMgmtSetting getChangeSetStateMgmtSettings() {
         return changeSetStateMgmtSettings;
+    }
+
+    public StateMgmtSetting getOutputFirstStateMgmtSettings() {
+        return outputFirstStateMgmtSettings;
+    }
+
+    public void setOutputFirstStateMgmtSettings(StateMgmtSetting outputFirstStateMgmtSettings) {
+        this.outputFirstStateMgmtSettings = outputFirstStateMgmtSettings;
     }
 }

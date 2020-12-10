@@ -25,12 +25,10 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -79,50 +77,18 @@ public class AggregatorAvedev extends AggregatorMethodWDistinctWFilterWValueBase
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(writeDouble(output, row, sum))
-                .staticMethod(this.getClass(), "writePoints", output, rowDotMember(row, valueSet));
+                .staticMethod(RefCountedSet.class, "writePointsDouble", output, rowDotMember(row, valueSet));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(readDouble(row, sum, input))
-                .assignRef(rowDotMember(row, valueSet), staticMethod(this.getClass(), "readPoints", input));
+                .assignRef(rowDotMember(row, valueSet), staticMethod(RefCountedSet.class, "readPointsDouble", input));
     }
 
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param output   output
-     * @param valueSet values
-     * @throws IOException io error
-     */
-    public static void writePoints(DataOutput output, RefCountedSet<Double> valueSet) throws IOException {
-        Map<Double, Integer> refSet = valueSet.getRefSet();
-        output.writeInt(refSet.size());
-        output.writeInt(valueSet.getNumValues());
-        for (Map.Entry<Double, Integer> entry : valueSet.getRefSet().entrySet()) {
-            output.writeDouble(entry.getKey());
-            output.writeInt(entry.getValue());
-        }
-    }
-
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param input input
-     * @return values
-     * @throws IOException io error
-     */
-    public static RefCountedSet<Double> readPoints(DataInput input) throws IOException {
-        RefCountedSet<Double> valueSet = new RefCountedSet<>();
-        Map<Double, Integer> und = valueSet.getRefSet();
-        int size = input.readInt();
-        valueSet.setNumValues(input.readInt());
-        for (int i = 0; i < size; i++) {
-            Double key = input.readDouble();
-            Integer val = input.readInt();
-            und.put(key, val);
-        }
-        return valueSet;
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(double.class);
+        collector.refCountedSetOfDouble();
     }
 
     /**

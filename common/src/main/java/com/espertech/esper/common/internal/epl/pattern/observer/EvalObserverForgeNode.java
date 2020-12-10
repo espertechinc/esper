@@ -103,7 +103,7 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.ATOM;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_OBSERVER;
     }
 }

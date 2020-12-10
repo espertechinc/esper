@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamValueLimitedExprForge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamValueNullForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSkip;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -58,7 +59,7 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
         // there is no value expression, i.e. "select * from SupportBean(theString = intPrimitive)"
         if (desc instanceof RewriteDescriptorNoValueExpr) {
             String reboolExpression = ExprNodeUtilityPrint.toExpressionStringMinPrecedence(constituent, new ExprNodeRenderableFlags(false));
-            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(reboolExpression, null, constituent.getForge(), null, true, null);
+            ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(reboolExpression, null, constituent.getForge(), null, true, DataInputOutputSerdeForgeSkip.INSTANCE);
             return new FilterSpecParamValueNullForge(lookupable, FilterOperator.REBOOL);
         }
 

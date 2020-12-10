@@ -37,10 +37,10 @@ public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWin
         if (parameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv, streamNumber);
+        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), getViewParamMessage(), 0, viewForgeEnv);
     }
 
-    protected void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    protected void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -74,7 +74,11 @@ public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWin
         return getViewName() + " view requires a single numeric or time period parameter";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIME;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

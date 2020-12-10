@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.serde.compiletime.resolve;
 
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -23,6 +24,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
  * Byte code production produces the equivalent {@link com.espertech.esper.common.client.serde.DataInputOutputSerde}.
  */
 public interface DataInputOutputSerdeForge {
+    /**
+     * Type information
+     */
+    EPTypeClass EPTYPE = new EPTypeClass(DataInputOutputSerdeForge.class);
+
     static CodegenExpression codegenArray(DataInputOutputSerdeForge[] serdes, CodegenMethod method, CodegenClassScope classScope, CodegenExpression optionalEventTypeResolver) {
         if (serdes == null) {
             return constantNull();

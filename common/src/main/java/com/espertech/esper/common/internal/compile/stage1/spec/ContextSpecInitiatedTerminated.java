@@ -66,6 +66,10 @@ public class ContextSpecInitiatedTerminated implements ContextSpec {
         this.distinctMultiKey = distinctMultiKey;
     }
 
+    public MultiKeyClassRef getDistinctMultiKey() {
+        return distinctMultiKey;
+    }
+
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ContextControllerDetailInitiatedTerminated.EPTYPE, this.getClass(), classScope);
 

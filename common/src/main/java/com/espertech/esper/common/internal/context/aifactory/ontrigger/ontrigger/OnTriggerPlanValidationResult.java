@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessN
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectFactoryForge;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 import java.util.Map;
@@ -28,14 +29,16 @@ public class OnTriggerPlanValidationResult {
     private final ExprNode validatedJoin;
     private final String zeroStreamAliasName;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName, List<StmtClassForgeableFactory> additionalForgeables) {
+    public OnTriggerPlanValidationResult(Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges, ResultSetProcessorDesc resultSetProcessorPrototype, ExprNode validatedJoin, String zeroStreamAliasName, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.subselectForges = subselectForges;
         this.tableAccessForges = tableAccessForges;
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
         this.validatedJoin = validatedJoin;
         this.zeroStreamAliasName = zeroStreamAliasName;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public Map<ExprSubselectNode, SubSelectFactoryForge> getSubselectForges() {
@@ -60,5 +63,9 @@ public class OnTriggerPlanValidationResult {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

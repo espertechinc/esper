@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.core;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -17,10 +18,14 @@ import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
+import java.util.function.Consumer;
+
 public interface ContextControllerPortableInfo {
     EPTypeClass EPTYPE = new EPTypeClass(ContextControllerPortableInfo.class);
 
     CodegenExpression make(CodegenExpressionRef addInitSvc);
 
     void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException;
+
+    void visitFilterAddendumEventTypes(Consumer<EventType> consumer);
 }

@@ -63,4 +63,5 @@ public class FirstUniqueByPropertyViewFactory implements ViewFactory {
     public String getViewName() {
         return ViewEnum.UNIQUE_FIRST_BY_PROPERTY.getName();
     }
+
 }

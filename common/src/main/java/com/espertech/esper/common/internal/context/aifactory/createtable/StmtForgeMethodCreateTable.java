@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.context.aifactory.createtable;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -20,10 +19,7 @@ import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.client.util.EventTypeBusModifier;
-import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
-import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.client.util.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -44,6 +40,7 @@ import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.annotation.AnnotationUtil;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanAttributionKeyStatement;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.table.compiletime.*;
@@ -53,6 +50,7 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeNameUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventPropertyDesc;
@@ -96,6 +94,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         CreateTableDesc createDesc = base.getStatementSpec().getRaw().getCreateTableDesc();
         String tableName = createDesc.getTableName();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // determine whether already declared as table or variable
         EPLValidationUtil.validateAlreadyExistsTableOrVariable(tableName, services.getVariableCompileTimeResolver(), services.getTableCompileTimeResolver(), services.getEventTypeCompileTimeResolver());
@@ -126,14 +125,24 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
             contextModuleName = contextDetail.getContextModuleName();
         }
 
-        // Primary key objectsettings
-        StateMgmtSetting primaryKeyStateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
+        // primary key state settings
+        StateMgmtSetting stateMgmtSettingsPrimaryKey = StateMgmtSettingDefault.INSTANCE;
         if (plan.getPrimaryKeyTypes() != null && plan.getPrimaryKeyTypes().length > 0) {
-            primaryKeyStateMgmtSettings = services.getStateMgmtSettingsProvider().getIndex(base.getStatementRawInfo(), AppliesTo.INDEX_HASH);
+            StateMgmtIndexDescHash hash = new StateMgmtIndexDescHash(plan.getPrimaryKeyColumns(), plan.getPrimaryKeyMultikeyClasses(), true);
+            stateMgmtSettingsPrimaryKey = services.getStateMgmtSettingsProvider().index().indexHash(fabricCharge, QueryPlanAttributionKeyStatement.INSTANCE, tableName, plan.getInternalEventType(), hash, base.getStatementRawInfo());
         }
 
+        // unkeyed state settings
+        StateMgmtSetting stateMgmtSettingsUnkeyed = StateMgmtSettingDefault.INSTANCE;
+        if (plan.getPrimaryKeyTypes() == null || plan.getPrimaryKeyTypes().length == 0) {
+            stateMgmtSettingsUnkeyed = services.getStateMgmtSettingsProvider().tableUnkeyed(fabricCharge, tableName, plan, base.getStatementRawInfo());
+        }
+
+        // fabric table descriptor
+        services.getStateMgmtSettingsProvider().table(fabricCharge, tableName, plan, base.getStatementRawInfo());
+
         // add table
-        TableMetaData tableMetaData = new TableMetaData(tableName, base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, plan.getInternalEventType(), plan.getPublicEventType(), plan.getPrimaryKeyColumns(), plan.getPrimaryKeyTypes(), plan.getPrimaryKeyColNums(), plan.getTableColumns(), plan.getColsAggMethod().length, primaryKeyStateMgmtSettings);
+        TableMetaData tableMetaData = new TableMetaData(tableName, base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, plan.getInternalEventType(), plan.getPublicEventType(), plan.getPrimaryKeyColumns(), plan.getPrimaryKeyTypes(), plan.getPrimaryKeyColNums(), plan.getTableColumns(), plan.getColsAggMethod().length, stateMgmtSettingsPrimaryKey, stateMgmtSettingsUnkeyed);
         services.getTableCompileTimeRegistry().newTable(tableMetaData);
 
         String aiFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
@@ -158,7 +167,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope);
+        return new StmtForgeMethodResult(forgeables, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), packageScope, fabricCharge);
     }
 
     private void validateKeyTypes(List<CreateTableColumn> columns, ClasspathImportServiceCompileTime classpathImportService, ClasspathExtensionClass classpathExtension)
@@ -469,7 +478,7 @@ public class StmtForgeMethodCreateTable implements StmtForgeMethod {
 
             // plan serdes for nested types
             for (EventType eventType : desc.getNestedTypes()) {
-                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
                 additionalForgeables.addAll(serdeForgeables);
             }
         }

@@ -69,11 +69,11 @@ public class CorrelationView extends BaseBivariateStatisticsView {
         return eventType;
     }
 
-    protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv viewForgeEnv, int streamNum) {
+    protected static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv viewForgeEnv) {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.CORRELATION__CORRELATION.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.CORRELATION__CORRELATION);
-        return DerivedViewTypeUtil.newType("correlview", eventTypeMap, viewForgeEnv, streamNum);
+        return DerivedViewTypeUtil.newType("correlview", eventTypeMap, viewForgeEnv);
     }
 }

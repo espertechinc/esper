@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegen
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantFalse;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantTrue;
@@ -71,5 +72,9 @@ public class AggregatorLeaving implements AggregatorMethod {
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(readBoolean(row, leaving, input));
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        collector.builtin(boolean.class);
     }
 }

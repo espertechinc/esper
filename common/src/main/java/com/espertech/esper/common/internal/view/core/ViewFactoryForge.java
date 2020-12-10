@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.util.CodegenMakeable;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
 public interface ViewFactoryForge extends CodegenMakeable<SAIFFInitializeSymbol> {
     void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException;
 
-    void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException;
+    void attach(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException;
 
     default List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
         return Collections.emptyList();
@@ -39,4 +40,8 @@ public interface ViewFactoryForge extends CodegenMakeable<SAIFFInitializeSymbol>
     default void accept(ViewForgeVisitor visitor) {
         visitor.visit(this);
     }
+
+    default void assignStateMgmtSettings(FabricCharge fabricCharge, ViewForgeEnv viewForgeEnv, int[] grouping) throws ViewParameterException {};
+
+    <T> T accept(ViewFactoryForgeVisitor<T> visitor);
 }

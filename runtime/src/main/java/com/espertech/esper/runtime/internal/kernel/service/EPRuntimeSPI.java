@@ -18,6 +18,7 @@ import com.espertech.esper.runtime.internal.kernel.thread.ThreadingService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public interface EPRuntimeSPI extends EPRuntime {
 
@@ -26,6 +27,8 @@ public interface EPRuntimeSPI extends EPRuntime {
     void postInitialize();
 
     void initialize(Long currentTime);
+
+    void initialize(Consumer<EPRuntimeSPIRunAfterDestroyCtx> runAfterDestroy);
 
     EPServicesContext getServicesContext();
 

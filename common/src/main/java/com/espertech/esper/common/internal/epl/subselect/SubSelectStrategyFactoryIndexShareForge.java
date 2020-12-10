@@ -126,7 +126,7 @@ public class SubSelectStrategyFactoryIndexShareForge implements SubSelectStrateg
             .declareVarNewInstance(SubSelectStrategyFactoryIndexShare.EPTYPE, "s")
             .exprDotMethod(ref("s"), "setTable", table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method)))
             .exprDotMethod(ref("s"), "setNamedWindow", namedWindow == null ? constantNull() : NamedWindowDeployTimeResolver.makeResolveNamedWindow(namedWindow, symbols.getAddInitSvc(method)))
-            .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA))
+            .exprDotMethod(ref("s"), "setAggregationServiceFactory", SubSelectStrategyFactoryLocalViewPreloadedForge.makeAggregationService(subqueryNumber, aggregationServiceForgeDesc, classScope, method, symbols, isTargetHA, null))
             .exprDotMethod(ref("s"), "setFilterExprEval", filterExprEval == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluatorNoCoerce(filterExprEval, method, this.getClass(), classScope))
             .exprDotMethod(ref("s"), "setGroupKeyEval", groupKeyEval)
             .exprDotMethod(ref("s"), "setQueryPlan", queryPlan == null ? constantNull() : queryPlan.make(method, symbols, classScope))

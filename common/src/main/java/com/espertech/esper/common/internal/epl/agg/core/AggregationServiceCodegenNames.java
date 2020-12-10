@@ -15,8 +15,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
 public class AggregationServiceCodegenNames {
-    public final static String NAME_ISSUBQUERY = "isSubquery";
-    public final static CodegenExpressionRef REF_ISSUBQUERY = ref(NAME_ISSUBQUERY);
+    public final static String NAME_STREAMNUM = "streamNum";
+    public final static CodegenExpressionRef REF_STREAMNUM = ref(NAME_STREAMNUM);
     public final static String NAME_SUBQUERYNUMBER = "subqueryNumber";
     public final static CodegenExpressionRef REF_SUBQUERYNUMBER = ref(NAME_SUBQUERYNUMBER);
     public final static String NAME_GROUPKEY = "groupKey";

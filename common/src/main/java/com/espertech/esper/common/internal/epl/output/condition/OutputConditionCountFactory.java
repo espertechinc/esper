@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.output.condition;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.variable.core.Variable;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReader;
@@ -19,6 +20,7 @@ public class OutputConditionCountFactory implements OutputConditionFactory {
     public final static EPTypeClass EPTYPE = new EPTypeClass(OutputConditionCountFactory.class);
     protected final long eventRate;
     protected final Variable variable;
+    protected final StateMgmtSetting stateMgmtSetting;
 
     /**
      * Constructor.
@@ -27,12 +29,13 @@ public class OutputConditionCountFactory implements OutputConditionFactory {
      *                  must arrive in order for the condition to be satisfied
      * @param variable  varianle
      */
-    public OutputConditionCountFactory(int eventRate, Variable variable) {
+    public OutputConditionCountFactory(int eventRate, Variable variable, StateMgmtSetting stateMgmtSetting) {
         if ((eventRate < 1) && (variable == null)) {
             throw new IllegalArgumentException("Limiting output by event count requires an event count of at least 1 or a variable name");
         }
         this.eventRate = eventRate;
         this.variable = variable;
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 
     public OutputCondition instantiateOutputCondition(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {

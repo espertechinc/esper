@@ -19,6 +19,7 @@ import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventType;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOSkipSerde;
+import com.espertech.esper.common.internal.serde.serdeset.multikey.DIOMultiKeyArraySerde;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.math.BigDecimal;
@@ -120,8 +121,8 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
     private DataInputOutputSerdeForge serdeMayArray(EPType type, SerdeProviderAdditionalInfo info) {
         if (type != EPTypeNull.INSTANCE && ((EPTypeClass) type).getType().isArray()) {
             EPTypeClass component = JavaClassHelper.getArrayComponentType((EPTypeClass) type);
-            DataInputOutputSerde mkSerde = getMKSerdeClassForComponentType(component);
-            return new DataInputOutputSerdeForgeSingleton(mkSerde.getClass());
+            DIOMultiKeyArraySerde mkSerde = getMKSerdeClassForComponentType(component);
+            return new DataInputOutputSerdeForgeSingletonMKArray(mkSerde.getClass(), mkSerde.componentType().getSimpleName());
         }
         return serdeForClass(type, info);
     }
@@ -136,7 +137,7 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
 
     private DataInputOutputSerdeForge serdeForClass(EPType type, SerdeProviderAdditionalInfo additionalInfo) {
         if (type == EPTypeNull.INSTANCE) {
-            return DataInputOutputSerdeForgeNotApplicable.INSTANCE;
+            return DataInputOutputSerdeForgeSkip.INSTANCE;
         }
         EPTypeClass typeClass = (EPTypeClass) type;
         if (isJVMBasicBuiltin(typeClass.getType())) {
@@ -144,13 +145,13 @@ public class SerdeCompileTimeResolverImpl implements SerdeCompileTimeResolver {
             if (serde == null) {
                 throw new DataInputOutputSerdeException("Failed to find built-in serde for class " + typeClass.getType().getName());
             }
-            return new DataInputOutputSerdeForgeSingleton(serde.getClass());
+            return new DataInputOutputSerdeForgeSingletonBasicBuiltin(serde.getClass(), typeClass);
         }
 
         if (allowExtendedJVM) {
             DataInputOutputSerde serde = VMExtendedBuiltinSerdeFactory.getSerde(typeClass);
             if (serde != null) {
-                return new DataInputOutputSerdeForgeSingleton(serde.getClass());
+                return new DataInputOutputSerdeForgeSingletonExtendedBuiltin(serde.getClass(), typeClass);
             }
         }
 

@@ -27,4 +27,8 @@ public class ContextSpecConditionNever implements ContextSpecCondition {
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         return publicConstValue(ContextConditionDescriptorNever.class, "INSTANCE");
     }
+
+    public <T> T accept(ContextSpecConditionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

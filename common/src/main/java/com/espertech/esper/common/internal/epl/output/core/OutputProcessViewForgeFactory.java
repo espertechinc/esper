@@ -11,8 +11,8 @@
 package com.espertech.esper.common.internal.epl.output.core;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.AuditEnum;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFact
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryFactory;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryForge;
+import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryForgeResult;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewConditionForge;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewDirectDistinctOrAfterFactoryForge;
 import com.espertech.esper.common.internal.epl.output.view.OutputProcessViewDirectForge;
@@ -31,9 +32,10 @@ import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorType;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolverNonHA;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,7 @@ public class OutputProcessViewForgeFactory {
         boolean isDistinct = statementSpec.getRaw().getSelectClauseSpec().isDistinct();
         boolean isGrouped = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByNodes().length > 0;
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // determine routing
         boolean isRouted = false;
@@ -97,9 +100,10 @@ public class OutputProcessViewForgeFactory {
             outputProcessViewFactoryForge = new OutputProcessViewDirectDistinctOrAfterFactoryForge(outputStrategyPostProcessForge, isDistinct, distinctMultiKey, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
         } else {
             try {
-                boolean isWithHavingClause = statementSpec.getRaw().getHavingClause() != null;
                 boolean isStartConditionOnCreation = hasOnlyTables(statementSpec.getStreamSpecs());
-                OutputConditionFactoryForge outputConditionFactoryForge = OutputConditionFactoryFactory.createCondition(outputLimitSpec, isGrouped, isWithHavingClause, isStartConditionOnCreation, statementRawInfo, services);
+                OutputConditionFactoryForgeResult ocForgeResult = OutputConditionFactoryFactory.createCondition(outputLimitSpec, isGrouped, isStartConditionOnCreation, statementRawInfo, services);
+                OutputConditionFactoryForge outputConditionFactoryForge = ocForgeResult.getForge();
+                fabricCharge.add(ocForgeResult.getFabricCharge());
                 boolean hasOrderBy = statementSpec.getRaw().getOrderByList() != null && statementSpec.getRaw().getOrderByList().size() > 0;
                 boolean hasAfter = outputLimitSpec.getAfterNumberOfEvents() != null || outputLimitSpec.getAfterTimePeriodExpr() != null;
 
@@ -109,20 +113,28 @@ public class OutputProcessViewForgeFactory {
 
                 // plan serdes
                 for (EventType eventType : typesPerStream) {
-                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver());
+                    List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, statementRawInfo, services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
                     additionalForgeables.addAll(serdeForgeables);
                 }
 
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
 
-                StateMgmtSetting changeSetStateMgmtSettings = services.getStateMgmtSettingsProvider().getResultSet(statementRawInfo, AppliesTo.RESULTSET_OUTPUTLIMIT);
-                outputProcessViewFactoryForge = new OutputProcessViewConditionForge(outputStrategyPostProcessForge, isDistinct, distinctMultiKey, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputConditionFactoryForge, streamCount, conditionType, terminable, hasAfter, resultSetProcessorType.isUnaggregatedUngrouped(), selectStreamSelector, typesPerStream, resultEventType, changeSetStateMgmtSettings);
+                StateMgmtSetting changeSetStateDesc = services.getStateMgmtSettingsProvider().resultSet().outputLimited(fabricCharge, statementRawInfo, typesPerStream, resultEventType);
+                StateMgmtSetting outputFirstStateDesc = StateMgmtSettingDefault.INSTANCE;
+                if (conditionType == ResultSetProcessorOutputConditionType.POLICY_FIRST) {
+                    outputFirstStateDesc = services.getStateMgmtSettingsProvider().resultSet().outputFirst(fabricCharge, resultSetProcessorType, typesPerStream);
+                }
+                outputProcessViewFactoryForge = new OutputProcessViewConditionForge(outputStrategyPostProcessForge, isDistinct, distinctMultiKey, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputConditionFactoryForge, streamCount, conditionType, terminable, hasAfter, resultSetProcessorType.isUnaggregatedUngrouped(), selectStreamSelector, typesPerStream, resultEventType, changeSetStateDesc, outputFirstStateDesc);
             } catch (Exception ex) {
                 throw new ExprValidationException("Failed to validate the output rate limiting clause: " + ex.getMessage(), ex);
             }
         }
 
-        return new OutputProcessViewFactoryForgeDesc(outputProcessViewFactoryForge, additionalForgeables);
+        if (outputLimitSpec != null && (outputLimitSpec.getAfterTimePeriodExpr() != null || outputLimitSpec.getAfterNumberOfEvents() != null)) {
+            services.getStateMgmtSettingsProvider().resultSet().outputAfter(fabricCharge);
+        }
+
+        return new OutputProcessViewFactoryForgeDesc(outputProcessViewFactoryForge, additionalForgeables, fabricCharge);
     }
 
     public static OutputProcessViewFactoryForge make() {

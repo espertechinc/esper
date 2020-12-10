@@ -28,7 +28,7 @@ public class KeepAllViewForge extends ViewFactoryForgeBase implements DataWindow
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -47,7 +47,11 @@ public class KeepAllViewForge extends ViewFactoryForgeBase implements DataWindow
         return "Keep-All";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_KEEPALL;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

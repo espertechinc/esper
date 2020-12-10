@@ -131,7 +131,7 @@ public class EvalGuardForgeNode extends EvalForgeNodeBase {
         return PatternExpressionPrecedenceEnum.GUARD_POSTFIX;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.PATTERN_GUARD;
     }
 }

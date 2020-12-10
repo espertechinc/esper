@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.collection.RefCountedSet;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -57,6 +58,8 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
     protected abstract void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope);
 
     protected abstract void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope);
+
+    protected abstract void appendFormatWODistinct(FabricTypeCollector collector);
 
     public AggregatorMethodWDistinctWFilterBase(EPType optionalDistinctValueType,
                                                 DataInputOutputSerdeForge optionalDistinctSerde,
@@ -139,6 +142,13 @@ public abstract class AggregatorMethodWDistinctWFilterBase implements Aggregator
             method.getBlock().assignRef(rowDotMember(row, distinct), cast(RefCountedSet.EPTYPE, exprDotMethod(distinctSerde, "read", input, unitKey)));
         }
         readWODistinct(row, col, input, unitKey, method, classScope);
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        if (optionalDistinctSerde != null) {
+            collector.refCountedSet(optionalDistinctSerde);
+        }
+        appendFormatWODistinct(collector);
     }
 
     protected CodegenExpression toDistinctValueKey(CodegenExpression distinctValue) {

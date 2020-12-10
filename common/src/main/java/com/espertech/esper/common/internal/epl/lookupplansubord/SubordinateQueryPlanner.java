@@ -33,6 +33,8 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEn
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryCustomOperationForge;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryHashKeyedForgeExpr;
 import com.espertech.esper.common.internal.epl.join.queryplan.CoercionDesc;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanAttributionKeyStatement;
+import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanAttributionKeySubselect;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItemForge;
 import com.espertech.esper.common.internal.epl.join.queryplanbuild.QueryPlanIndexBuilder;
 import com.espertech.esper.common.internal.epl.lookup.AdvancedIndexIndexMultiKeyPart;
@@ -43,6 +45,7 @@ import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLook
 import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLookupStrategyIndexedFilteredForge;
 import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLookupStrategyIndexedUnfilteredForge;
 import com.espertech.esper.common.internal.epl.virtualdw.SubordTableLookupStrategyFactoryForgeVDW;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.type.NameAndModule;
 
@@ -70,11 +73,12 @@ public class SubordinateQueryPlanner {
         EventType[] allStreamsZeroIndexed = new EventType[]{eventTypeIndexed, filterEventType};
         EventType[] outerStreams = new EventType[]{filterEventType};
         SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(joinExpr, 1, allStreamsZeroIndexed, excludePlanHint);
+        FabricCharge fabricCharge = compileTimeServices.getStateMgmtSettingsProvider().newCharge();
 
         // No join expression means all
         if (joinExpr == null && !isVirtualDataWindow) {
             SubordinateWMatchExprQueryPlanForge forge = new SubordinateWMatchExprQueryPlanForge(new SubordWMatchExprLookupStrategyAllUnfilteredForge(), null);
-            return new SubordinateWMatchExprQueryPlanResult(forge, Collections.emptyList());
+            return new SubordinateWMatchExprQueryPlanResult(forge, Collections.emptyList(), fabricCharge);
         }
 
         SubordinateQueryPlan queryPlan = planSubquery(outerStreams, joinedPropPlan, true, false, optionalIndexHint, isIndexShare, subqueryNumber,
@@ -82,7 +86,7 @@ public class SubordinateQueryPlanner {
 
         if (queryPlan == null) {
             SubordinateWMatchExprQueryPlanForge forge = new SubordinateWMatchExprQueryPlanForge(new SubordWMatchExprLookupStrategyAllFilteredForge(joinExpr), null);
-            return new SubordinateWMatchExprQueryPlanResult(forge, Collections.emptyList());
+            return new SubordinateWMatchExprQueryPlanResult(forge, Collections.emptyList(), fabricCharge);
         }
 
         SubordinateQueryPlanDescForge queryPlanDesc = queryPlan.getForge();
@@ -94,7 +98,8 @@ public class SubordinateQueryPlanner {
             SubordWMatchExprLookupStrategyIndexedFilteredForge filteredForge = new SubordWMatchExprLookupStrategyIndexedFilteredForge(joinExpr.getForge(), queryPlanDesc.getLookupStrategyFactory());
             forge = new SubordinateWMatchExprQueryPlanForge(filteredForge, queryPlanDesc.getIndexDescs());
         }
-        return new SubordinateWMatchExprQueryPlanResult(forge, queryPlan.getAdditionalForgeables());
+        fabricCharge.add(queryPlan.getFabricCharge());
+        return new SubordinateWMatchExprQueryPlanResult(forge, queryPlan.getAdditionalForgeables(), fabricCharge);
     }
 
     public static SubordinateQueryPlan planSubquery(EventType[] outerStreams,
@@ -112,6 +117,7 @@ public class SubordinateQueryPlanner {
                                                     StatementRawInfo statementRawInfo,
                                                     StatementCompileTimeServices services)
             throws ExprValidationException {
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
         if (isVirtualDataWindow) {
             SubordinateQueryPlannerIndexPropDesc indexProps = getIndexPropDesc(joinDesc.getHashProps(), joinDesc.getRangeProps());
             SubordTableLookupStrategyFactoryForgeVDW lookupStrategyFactory = new SubordTableLookupStrategyFactoryForgeVDW(statementRawInfo.getStatementName(), statementRawInfo.getAnnotations(),
@@ -123,7 +129,7 @@ public class SubordinateQueryPlanner {
                     isNWOnTrigger,
                     joinDesc, forceTableScan, indexProps.getListPair());
             SubordinateQueryPlanDescForge forge = new SubordinateQueryPlanDescForge(lookupStrategyFactory, null);
-            return new SubordinateQueryPlan(forge, Collections.emptyList());
+            return new SubordinateQueryPlan(forge, Collections.emptyList(), fabricCharge);
         }
 
         if (joinDesc.getCustomIndexOps() != null && !joinDesc.getCustomIndexOps().isEmpty()) {
@@ -134,10 +140,10 @@ public class SubordinateQueryPlanner {
                         SubordTableLookupStrategyFactoryQuadTreeForge lookupStrategyFactory = provisionDesc.getFactory().getForge().getSubordinateLookupStrategy(op.getKey().getOperationName(), op.getValue().getPositionalExpressions(), isNWOnTrigger, outerStreams.length);
                         EventAdvancedIndexProvisionCompileTime provisionCompileTime = provisionDesc.toCompileTime(eventTypeIndexed, statementRawInfo, services);
                         QueryPlanIndexItemForge indexItemForge = new QueryPlanIndexItemForge(new String[0], new EPTypeClass[0], new String[0], new EPTypeClass[0], false, provisionCompileTime, eventTypeIndexed);
-                        indexItemForge.planStateMgmtSettings(statementRawInfo, services);
+                        indexItemForge.planStateMgmtSettings(fabricCharge, new QueryPlanAttributionKeySubselect(subqueryNumber), index.getValue().getOptionalIndexName(), indexItemForge, statementRawInfo, services);
                         SubordinateQueryIndexDescForge indexDesc = new SubordinateQueryIndexDescForge(null, index.getValue().getOptionalIndexName(), index.getValue().getOptionalIndexModuleName(), index.getKey(), indexItemForge);
                         SubordinateQueryPlanDescForge forge = new SubordinateQueryPlanDescForge(lookupStrategyFactory, new SubordinateQueryIndexDescForge[]{indexDesc});
-                        return new SubordinateQueryPlan(forge, Collections.emptyList());
+                        return new SubordinateQueryPlan(forge, Collections.emptyList(), fabricCharge);
                     }
                 }
             }
@@ -169,6 +175,7 @@ public class SubordinateQueryPlanner {
             indexDescs = new SubordinateQueryIndexDescForge[]{desc};
             inKeywordSingleIdxKeys = single.getExpressions();
             additionalForgeables.addAll(index.getMultiKeyForgeables());
+            fabricCharge.add(index.getFabricCharge());
         } else if (joinDesc.getInKeywordMultiIndex() != null) {
             SubordPropInKeywordMultiIndex multi = joinDesc.getInKeywordMultiIndex();
 
@@ -181,6 +188,7 @@ public class SubordinateQueryPlanner {
                         indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes, eventTypeIndexed, statementRawInfo, services);
                 SubordinateQueryIndexDescForge indexDesc = index.getForge();
                 additionalForgeables.addAll(index.getMultiKeyForgeables());
+                fabricCharge.add(index.getFabricCharge());
                 if (indexDesc == null) {
                     return null;
                 }
@@ -203,6 +211,7 @@ public class SubordinateQueryPlanner {
             rangeKeyCoercionTypes = indexKeyInfo.getOrderedRangeCoercionTypes();
             SubordinateQueryIndexDescForge desc = new SubordinateQueryIndexDescForge(indexDesc.getOptionalIndexKeyInfo(), indexDesc.getIndexName(), indexDesc.getIndexModuleName(), indexDesc.getIndexMultiKey(), indexDesc.getOptionalQueryPlanIndexItem());
             indexDescs = new SubordinateQueryIndexDescForge[]{desc};
+            fabricCharge.add(index.getFabricCharge());
 
             if (indexDesc.getOptionalQueryPlanIndexItem() == null) {
                 MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(hashKeyCoercionTypes.getCoercionTypes(), true, statementRawInfo, services.getSerdeResolver());
@@ -220,7 +229,7 @@ public class SubordinateQueryPlanner {
         SubordTableLookupStrategyFactoryForge lookupStrategyFactory = SubordinateTableLookupStrategyUtil.getLookupStrategy(outerStreams,
                 hashKeys, hashKeyCoercionTypes, multiKeyClasses, rangeKeys, rangeKeyCoercionTypes, inKeywordSingleIdxKeys, inKeywordMultiIdxKey, isNWOnTrigger);
         SubordinateQueryPlanDescForge forge = new SubordinateQueryPlanDescForge(lookupStrategyFactory, indexDescs);
-        return new SubordinateQueryPlan(forge, additionalForgeables);
+        return new SubordinateQueryPlan(forge, additionalForgeables, fabricCharge);
     }
 
     private static boolean isCustomIndexMatch(Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> index, Map.Entry<QueryGraphValueEntryCustomKeyForge, QueryGraphValueEntryCustomOperationForge> op) {
@@ -326,6 +335,7 @@ public class SubordinateQueryPlanner {
         }
         // handle existing
         List<StmtClassForgeableFactory> multiKeyForgeables;
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
         if (existing != null) {
             indexKeyInfo = SubordinateQueryPlannerUtil.compileIndexKeyInfo(existing.getFirst(),
                     indexProps.getHashIndexPropsProvided(), indexProps.getHashJoinedProps(),
@@ -342,10 +352,11 @@ public class SubordinateQueryPlanner {
             indexMultiKey = planned.getIndexPropKey();
             planIndexItem = planned.getIndexItem();
             multiKeyForgeables = planned.getMultiKeyForgeables();
+            fabricCharge.add(planned.getFabricCharge());
         }
 
         SubordinateQueryIndexDescForge forge = new SubordinateQueryIndexDescForge(indexKeyInfo, indexName, indexModuleName, indexMultiKey, planIndexItem);
-        return new SubordinateQueryIndexSuggest(forge, multiKeyForgeables);
+        return new SubordinateQueryIndexSuggest(forge, multiKeyForgeables, fabricCharge);
     }
 
     private static SubordinateQueryPlannerIndexPropDesc getIndexPropDesc(Map<String, SubordPropHashKeyForge> hashProps, Map<String, SubordPropRangeKeyForge> rangeProps) {
@@ -399,17 +410,22 @@ public class SubordinateQueryPlanner {
         EPTypeClass[] rangeCoercionTypes = IndexedPropDesc.getCoercionTypes(rangePropDescs);
 
         QueryPlanIndexItemForge indexItem = new QueryPlanIndexItemForge(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, unique, null, eventTypeIndexed);
-        indexItem.planStateMgmtSettings(raw, services);
 
+        // plan multikey
         MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(indexCoercionTypes, true, raw, services.getSerdeResolver());
         indexItem.setHashMultiKeyClasses(multiKeyPlan.getClassRef());
 
+        // plan serdes
         DataInputOutputSerdeForge[] rangeSerdes = new DataInputOutputSerdeForge[rangeCoercionTypes.length];
         for (int i = 0; i < rangeCoercionTypes.length; i++) {
             rangeSerdes[i] = services.getSerdeResolver().serdeForIndexBtree(rangeCoercionTypes[i], raw);
         }
         indexItem.setRangeSerdes(rangeSerdes);
 
-        return new SubordinateQueryIndexPlan(indexItem, indexPropKey, multiKeyPlan.getMultiKeyForgeables());
+        // plan state settings
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        indexItem.planStateMgmtSettings(fabricCharge, QueryPlanAttributionKeyStatement.INSTANCE, null, indexItem, raw, services);
+
+        return new SubordinateQueryIndexPlan(indexItem, indexPropKey, multiKeyPlan.getMultiKeyForgeables(), fabricCharge);
     }
 }

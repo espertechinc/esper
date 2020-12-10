@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.epl.agg.table;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -18,10 +20,12 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentForge;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregationAgentUtil;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
+import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryForgeVisitor;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationServiceFactoryForgeWProviderGen;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableColumnMethodPairForge;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -40,6 +44,18 @@ public class AggregationServiceFactoryForgeTable implements AggregationServiceFa
         this.groupByRollupDesc = groupByRollupDesc;
     }
 
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        // not needed
+    }
+
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
+        throw new IllegalStateException("Not implemented for table aggregation");
+    }
+
+    public AppliesTo appliesTo() {
+        return null;
+    }
+
     public CodegenExpression makeProvider(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(AggregationServiceFactoryTable.EPTYPE, this.getClass(), classScope);
         method.getBlock()
@@ -51,5 +67,9 @@ public class AggregationServiceFactoryForgeTable implements AggregationServiceFa
             .exprDotMethod(ref("factory"), "setGroupByRollupDesc", groupByRollupDesc == null ? constantNull() : groupByRollupDesc.codegen(method, classScope))
             .methodReturn(ref("factory"));
         return localMethod(method);
+    }
+
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

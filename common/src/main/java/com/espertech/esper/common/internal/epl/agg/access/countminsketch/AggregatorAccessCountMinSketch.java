@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.epl.agg.core.AggregatorAccess;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchAggState;
 import com.espertech.esper.common.internal.epl.approx.countminsketch.CountMinSketchSpec;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
@@ -64,6 +65,10 @@ public class AggregatorAccessCountMinSketch implements AggregatorAccess {
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock().assignRef(rowDotMember(row, state), staticMethod(AggregationStateSerdeCountMinSketch.class, "readCountMinSketch", input, spec));
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        AggregationStateSerdeCountMinSketch.appendFormat(collector, forge.specification);
     }
 
     public static CodegenExpression codegenGetAccessTableState(int column, CodegenMethodScope parent, CodegenClassScope classScope) {

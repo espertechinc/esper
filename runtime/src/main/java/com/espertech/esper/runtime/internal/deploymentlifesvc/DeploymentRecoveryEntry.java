@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class DeploymentRecoveryEntry {
     private final int statementIdFirstStatement;
-    private final EPCompiled compiled;
+    private EPCompiled compiled;
     private final Map<Integer, Object> userObjectsRuntime;
     private final Map<Integer, String> statementNamesWhenProvidedByAPI;
     private final Map<Integer, Map<Integer, Object>> substitutionParameters;
@@ -47,5 +47,9 @@ public class DeploymentRecoveryEntry {
 
     public Map<Integer, Map<Integer, Object>> getSubstitutionParameters() {
         return substitutionParameters;
+    }
+
+    public void setCompiled(EPCompiled compiled) {
+        this.compiled = compiled;
     }
 }

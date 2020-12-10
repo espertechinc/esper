@@ -60,6 +60,7 @@ import com.espertech.esper.common.internal.epl.script.core.ScriptValidationPreco
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubselectAndDeclaredDot;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
+import com.espertech.esper.common.internal.fabric.*;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.compiler.client.CompilerOptions;
@@ -85,6 +86,7 @@ public class CompilerHelperStatementProvider {
         throws StatementSpecCompileException {
 
         StatementCompileTimeServices compileTimeServices = new StatementCompileTimeServices(statementNumber, moduleCompileTimeServices);
+        FabricCharge fabricCharge = compileTimeServices.getStateMgmtSettingsProvider().newCharge();
 
         // Stage 1 - parse and compile-inline-classes and walk statement
         CompilerHelperSingleResult walked = parseCompileInlinedClassesWalk(compilable, compilerOptions.getInlinedClassInspection(), compileTimeServices);
@@ -92,6 +94,8 @@ public class CompilerHelperStatementProvider {
         String classNameCreateClass = null;
         if (raw.getCreateClassProvided() != null) {
             classNameCreateClass = determineClassNameCreateClass(walked.getClassesInlined());
+        } else {
+            compileTimeServices.getStateMgmtSettingsProvider().inlinedClassesLocal(fabricCharge, walked.getClassesInlined());
         }
 
         try {
@@ -222,8 +226,10 @@ public class CompilerHelperStatementProvider {
             List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
+
             StmtForgeMethodResult result = forgeMethod.make(compileTimeServices.getPackageName(), classPostfix, compileTimeServices);
             forgeables.addAll(result.getForgeables());
+            fabricCharge.add(result.getFabricCharge());
             verifyForgeables(forgeables);
 
             filterSpecCompileds.addAll(result.getFiltereds());
@@ -256,8 +262,16 @@ public class CompilerHelperStatementProvider {
                 expr.setFilterBoolExprId(filterBooleanExprNum++);
             }
 
-            // Stage 3(f) - verify substitution parameters
+            // Stage 3(g) - verify substitution parameters
             verifySubstitutionParams(raw.getSubstitutionParameters());
+
+            // Stage 3(h) - fabric filter
+            for (FilterSpecCompiled provider : filterSpecCompileds) {
+                compileTimeServices.getStateMgmtSettingsProvider().filterNonContext(fabricCharge, provider);
+            }
+            if (contextDescriptor != null) {
+                compileTimeServices.getStateMgmtSettingsProvider().filterSubtypes(fabricCharge, filterSpecCompileds, contextDescriptor, compiledDesc.getCompiled());
+            }
 
             // Stage 4 - forge-to-class (forge with statement-fields last)
             List<CodegenClass> classes = new ArrayList<>(forgeables.size());
@@ -293,7 +307,7 @@ public class CompilerHelperStatementProvider {
             compileTimeServices.getClassProvidedCompileTimeResolver().addTo(additionalClasses);
             compileTimeServices.getClassProvidedCompileTimeRegistry().addTo(additionalClasses);
 
-            return new CompilableItem(statementProviderClassName, classes, postCompile, additionalClasses);
+            return new CompilableItem(statementProviderClassName, classes, postCompile, additionalClasses, contextDescriptor, fabricCharge);
         } catch (StatementSpecCompileException ex) {
             throw ex;
         } catch (ExprValidationException ex) {
@@ -307,7 +321,6 @@ public class CompilerHelperStatementProvider {
     }
 
     private static String determineClassNameCreateClass(ClassProvidedPrecompileResult classesInlined) {
-        String className = null;
         for (int i = classesInlined.getClasses().size() - 1; i >= 0; i--) {
             Class clazz = classesInlined.getClasses().get(i);
             if (clazz.getName().contains("$")) {

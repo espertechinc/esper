@@ -135,7 +135,7 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
             View rootView = namedWindowInstance.getRootViewInstance();
 
             // Materialize views
-            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null);
+            AgentInstanceViewFactoryChainContext viewFactoryChainContext = new AgentInstanceViewFactoryChainContext(agentInstanceContext, true, null, null, null);
             ViewablePair viewables = ViewFactoryUtil.materialize(viewFactories, eventStreamParentViewable, viewFactoryChainContext, stopCallbacks);
 
             eventStreamParentViewable.setChild(rootView);

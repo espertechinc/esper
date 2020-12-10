@@ -14,10 +14,10 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.publicConstValue;
 
 public class DataInputOutputSerdeForgeSingleton implements DataInputOutputSerdeForge {
-    private final Class serdeClass;
+    protected final Class serdeClass;
 
     public DataInputOutputSerdeForgeSingleton(Class serdeClass) {
         this.serdeClass = serdeClass;
@@ -30,4 +30,5 @@ public class DataInputOutputSerdeForgeSingleton implements DataInputOutputSerdeF
     public String forgeClassName() {
         return serdeClass.getName();
     }
+
 }

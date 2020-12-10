@@ -40,6 +40,10 @@ public class SupportConcatWManagedAggregationFunctionForge implements Aggregatio
     }
 
     public AggregationFunctionMode getAggregationFunctionMode() {
-        return new AggregationFunctionModeManaged().setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportConcatWManagedAggregationFunctionFactory.class.getName()));
+        AggregationFunctionModeManaged mode = new AggregationFunctionModeManaged();
+        mode.setHasHA(true);
+        mode.setSerde(SupportConcatWManagedAggregationFunctionSerde.class);
+        mode.setInjectionStrategyAggregationFunctionFactory(new InjectionStrategyClassNewInstance(SupportConcatWManagedAggregationFunctionFactory.class.getName()));
+        return mode;
     }
 }

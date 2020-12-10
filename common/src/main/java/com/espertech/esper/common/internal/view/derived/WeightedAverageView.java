@@ -158,11 +158,11 @@ public class WeightedAverageView extends ViewSupport implements DerivedValueView
         return new SingleEventIterator(agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedMap(newDataMap, viewFactory.eventType));
     }
 
-    public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env, int streamNum) {
+    public static EventType createEventType(StatViewAdditionalPropsForge additionalProps, ViewForgeEnv env) {
         LinkedHashMap<String, Object> schemaMap = new LinkedHashMap<String, Object>();
         schemaMap.put(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName(), EPTypePremade.DOUBLEBOXED.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE);
-        return DerivedViewTypeUtil.newType("wavgview", schemaMap, env, streamNum);
+        return DerivedViewTypeUtil.newType("wavgview", schemaMap, env);
     }
 
     public double getSumXtimesW() {

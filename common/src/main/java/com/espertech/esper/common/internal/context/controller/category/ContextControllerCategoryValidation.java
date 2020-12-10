@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.epl.util.StatementSpecCompiledAnalyze
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
@@ -34,10 +35,6 @@ public class ContextControllerCategoryValidation implements ContextControllerPor
 
     public ContextControllerCategoryValidation(EventType categoryEventType) {
         this.categoryEventType = categoryEventType;
-    }
-
-    public EventType getCategoryEventType() {
-        return categoryEventType;
     }
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
@@ -78,5 +75,9 @@ public class ContextControllerCategoryValidation implements ContextControllerPor
             }
             throw new ExprValidationException(message);
         }
+    }
+
+    public void visitFilterAddendumEventTypes(Consumer<EventType> consumer) {
+        consumer.accept(categoryEventType);
     }
 }

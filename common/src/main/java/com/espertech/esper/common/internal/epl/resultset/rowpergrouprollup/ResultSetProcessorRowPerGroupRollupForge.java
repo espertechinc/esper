@@ -25,6 +25,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDesc;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationGroupByRollupDescForge;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
@@ -36,13 +38,14 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityQuery;
 import com.espertech.esper.common.internal.epl.output.polled.OutputConditionPolledFactoryForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForgeBase;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFlags;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.epl.resultset.rowforall.ResultSetProcessorRowForAll;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
@@ -54,8 +57,7 @@ import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSe
  * there is a group-by and all non-aggregation event properties in the select clause are listed in the group by,
  * and there are aggregation functions.
  */
-public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProcessorFactoryForge {
-    private final EventType resultEventType;
+public class ResultSetProcessorRowPerGroupRollupForge extends ResultSetProcessorFactoryForgeBase {
     private final GroupByRollupPerLevelForge perLevelForges;
     private final ExprNode[] groupKeyNodeExpressions;
     private final boolean isSorting;
@@ -71,14 +73,15 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
     private final EPType[] groupKeyTypes;
     private final boolean unbounded;
     private final MultiKeyClassRef multiKeyClassRef;
-    private final Supplier<StateMgmtSetting> outputFirstSettings;
-    private final Supplier<StateMgmtSetting> outputAllSettings;
-    private final Supplier<StateMgmtSetting> outputLastSettings;
-    private final Supplier<StateMgmtSetting> outputSnapshotSettings;
+    private StateMgmtSetting outputFirstSettings;
+    private StateMgmtSetting outputAllSettings;
+    private StateMgmtSetting outputLastSettings;
+    private StateMgmtSetting outputSnapshotSettings;
 
     private CodegenMethod generateGroupKeySingle;
 
     public ResultSetProcessorRowPerGroupRollupForge(EventType resultEventType,
+                                                    EventType[] typesPerStream,
                                                     GroupByRollupPerLevelForge perLevelForges,
                                                     ExprNode[] groupKeyNodeExpressions,
                                                     boolean isSelectRStream,
@@ -93,12 +96,8 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
                                                     ResultSetProcessorOutputConditionType outputConditionType,
                                                     OutputConditionPolledFactoryForge optionalOutputFirstConditionFactory,
                                                     EventType[] eventTypes,
-                                                    MultiKeyClassRef multiKeyClassRef,
-                                                    Supplier<StateMgmtSetting> outputFirstSettings,
-                                                    Supplier<StateMgmtSetting> outputAllSettings,
-                                                    Supplier<StateMgmtSetting> outputLastSettings,
-                                                    Supplier<StateMgmtSetting> outputSnapshotSettings) {
-        this.resultEventType = resultEventType;
+                                                    MultiKeyClassRef multiKeyClassRef) {
+        super(resultEventType, typesPerStream);
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelForges = perLevelForges;
         this.isSorting = isSorting;
@@ -115,14 +114,6 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         this.eventTypes = eventTypes;
         this.groupKeyTypes = ExprNodeUtilityQuery.getExprResultTypes(groupKeyNodeExpressions);
         this.multiKeyClassRef = multiKeyClassRef;
-        this.outputFirstSettings = outputFirstSettings;
-        this.outputAllSettings = outputAllSettings;
-        this.outputLastSettings = outputLastSettings;
-        this.outputSnapshotSettings = outputSnapshotSettings;
-    }
-
-    public EventType getResultEventType() {
-        return resultEventType;
     }
 
     public boolean isSorting() {
@@ -135,10 +126,6 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
 
     public boolean isUnidirectional() {
         return isUnidirectional;
-    }
-
-    public OutputLimitSpec getOutputLimitSpec() {
-        return outputLimitSpec;
     }
 
     public ExprNode[] getGroupKeyNodeExpressions() {
@@ -179,6 +166,10 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
 
     public OutputConditionPolledFactoryForge getOptionalOutputFirstConditionFactory() {
         return optionalOutputFirstConditionFactory;
+    }
+
+    public MultiKeyClassRef getMultiKeyClassRef() {
+        return multiKeyClassRef;
     }
 
     public void instanceCodegen(CodegenInstanceAux instance, CodegenClassScope classScope, CodegenCtor factoryCtor, List<CodegenTypedParam> factoryMembers) {
@@ -297,19 +288,55 @@ public class ResultSetProcessorRowPerGroupRollupForge implements ResultSetProces
         return generateGroupKeySingle;
     }
 
-    public Supplier<StateMgmtSetting> getOutputFirstSettings() {
+    public StateMgmtSetting getOutputFirstSettings() {
         return outputFirstSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputAllSettings() {
+    public StateMgmtSetting getOutputAllSettings() {
         return outputAllSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputLastSettings() {
+    public StateMgmtSetting getOutputLastSettings() {
         return outputLastSettings;
     }
 
-    public Supplier<StateMgmtSetting> getOutputSnapshotSettings() {
+    public StateMgmtSetting getOutputSnapshotSettings() {
         return outputSnapshotSettings;
+    }
+
+    public void planStateSettings(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, ResultSetProcessorFlags flags, StatementCompileTimeServices services) {
+        if (isOutputLast()) {
+            this.outputLastSettings = services.getStateMgmtSettingsProvider().resultSet().rollupOutputLast(fabricCharge, statementRawInfo, this);
+        } else if (isOutputAll()) {
+            this.outputAllSettings = services.getStateMgmtSettingsProvider().resultSet().rollupOutputAll(fabricCharge, statementRawInfo, this);
+        } else if (isOutputSnapshot()) {
+            this.outputSnapshotSettings = services.getStateMgmtSettingsProvider().resultSet().rollupOutputSnapshot(fabricCharge, statementRawInfo, this);
+        } else if (isOutputFirst()) {
+            this.outputFirstSettings = services.getStateMgmtSettingsProvider().resultSet().rollupOutputFirst(fabricCharge, statementRawInfo, this);
+        }
+    }
+
+    public boolean isOutputFirst() {
+        return isOutputLimit(OutputLimitLimitType.FIRST);
+    }
+
+    public boolean isOutputLast() {
+        return isOutputLimit(OutputLimitLimitType.LAST);
+    }
+
+    public boolean isOutputAll() {
+        return isOutputLimit(OutputLimitLimitType.ALL);
+    }
+
+    public boolean isOutputSnapshot() {
+        return isOutputLimit(OutputLimitLimitType.SNAPSHOT);
+    }
+
+    private boolean isOutputLimit(OutputLimitLimitType type) {
+        return outputLimitSpec != null && outputLimitSpec.getDisplayLimit() == type;
+    }
+
+    public boolean isOutputDefault() {
+        return isOutputLimit(OutputLimitLimitType.DEFAULT);
     }
 }

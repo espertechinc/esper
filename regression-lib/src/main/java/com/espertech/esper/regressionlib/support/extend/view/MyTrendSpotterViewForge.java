@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 import com.espertech.esper.common.internal.view.derived.DerivedViewTypeUtil;
@@ -39,8 +40,8 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
         this.viewParameters = parameters;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate("Trend spotter view", parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
+    public void attach(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate("Trend spotter view", parentEventType, viewParameters, false, viewForgeEnv);
         String message = "Trend spotter view accepts a single integer or double value";
         if (validated.length != 1) {
             throw new ViewParameterException(message);
@@ -54,7 +55,7 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
         LinkedHashMap<String, Object> eventTypeMap = new LinkedHashMap<>();
         eventTypeMap.put("trendcount", EPTypePremade.LONGBOXED.getEPType());
 
-        eventType = DerivedViewTypeUtil.newType("trendview", eventTypeMap, viewForgeEnv, streamNumber);
+        eventType = DerivedViewTypeUtil.newType("trendview", eventTypeMap, viewForgeEnv);
     }
 
     public EventType getEventType() {
@@ -70,5 +71,9 @@ public class MyTrendSpotterViewForge implements ViewFactoryForge {
             .eventtype("eventType", eventType)
             .exprnode("parameter", parameter)
             .build();
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visitExtension(this);
     }
 }

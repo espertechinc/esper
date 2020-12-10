@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeable;
 import com.espertech.esper.common.internal.context.aifactory.core.StmtForgeMethodCreateSimpleBase;
+import com.espertech.esper.common.internal.context.aifactory.core.StmtForgeMethodRegisterResult;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 public class StmtForgeMethodCreateExpression extends StmtForgeMethodCreateSimpleBase {
@@ -28,7 +29,7 @@ public class StmtForgeMethodCreateExpression extends StmtForgeMethodCreateSimple
         super(base);
     }
 
-    protected String register(StatementCompileTimeServices services) throws ExprValidationException {
+    protected StmtForgeMethodRegisterResult register(StatementCompileTimeServices services) throws ExprValidationException {
         CreateExpressionDesc spec = base.getStatementSpec().getRaw().getCreateExpressionDesc();
 
         String expressionName;
@@ -52,7 +53,7 @@ public class StmtForgeMethodCreateExpression extends StmtForgeMethodCreateSimple
             item.setVisibility(visibility);
             services.getScriptCompileTimeRegistry().newScript(item);
         }
-        return expressionName;
+        return new StmtForgeMethodRegisterResult(expressionName, services.getStateMgmtSettingsProvider().newCharge());
     }
 
     protected StmtClassForgeable aiFactoryForgable(String className, CodegenPackageScope packageScope, EventType statementEventType, String objectName) {

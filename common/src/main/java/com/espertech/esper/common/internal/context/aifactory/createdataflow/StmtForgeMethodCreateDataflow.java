@@ -126,7 +126,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
             scheduleds.addAll(additional.getScheduleds());
         }
 
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleds, namedWindowConsumers, filterBooleanExpr, packageScope);
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleds, namedWindowConsumers, filterBooleanExpr, packageScope, services.getStateMgmtSettingsProvider().newCharge());
     }
 
     private static DataflowDescForge buildForge(CreateDataFlowDesc desc, DataFlowOpForgeCodegenEnv codegenEnv, String packageName, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {

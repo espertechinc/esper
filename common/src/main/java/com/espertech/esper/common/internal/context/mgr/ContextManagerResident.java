@@ -277,9 +277,13 @@ public class ContextManagerResident implements ContextManager, ContextIteratorHa
     }
 
     public DataInputOutputSerde[] getContextPartitionKeySerdeSubset(int nestingLevel) {
+        return getContextPartitionKeySerdeSubset(nestingLevel, contextPartitionKeySerdes);
+    }
+
+    public static DataInputOutputSerde[] getContextPartitionKeySerdeSubset(int nestingLevel, DataInputOutputSerde[] allSerdes) {
         DataInputOutputSerde[] serdes = new DataInputOutputSerde[nestingLevel - 1];
         for (int i = 0; i < nestingLevel - 1; i++) {
-            serdes[i] = contextPartitionKeySerdes[i];
+            serdes[i] = allSerdes[i];
         }
         return serdes;
     }

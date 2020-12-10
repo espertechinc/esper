@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.aifactory.createcontext;
 
+import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -21,14 +22,16 @@ import java.util.List;
 public class CreateContextValidationEnv {
 
     private final String contextName;
+    private final NameAccessModifier contextVisibility;
     private final StatementRawInfo statementRawInfo;
     private final StatementCompileTimeServices services;
     private final List<FilterSpecCompiled> filterSpecCompileds;
     private final List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
 
-    public CreateContextValidationEnv(String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services, List<FilterSpecCompiled> filterSpecCompileds, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
+    public CreateContextValidationEnv(String contextName, NameAccessModifier contextVisibility, StatementRawInfo statementRawInfo, StatementCompileTimeServices services, List<FilterSpecCompiled> filterSpecCompileds, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
         this.contextName = contextName;
+        this.contextVisibility = contextVisibility;
         this.statementRawInfo = statementRawInfo;
         this.services = services;
         this.filterSpecCompileds = filterSpecCompileds;
@@ -38,6 +41,10 @@ public class CreateContextValidationEnv {
 
     public String getContextName() {
         return contextName;
+    }
+
+    public NameAccessModifier getContextVisibility() {
+        return contextVisibility;
     }
 
     public StatementRawInfo getStatementRawInfo() {

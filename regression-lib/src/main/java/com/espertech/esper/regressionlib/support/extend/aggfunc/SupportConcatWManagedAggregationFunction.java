@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.support.extend.aggfunc;
 import com.espertech.esper.common.client.hook.aggfunc.AggregationFunction;
 
 public class SupportConcatWManagedAggregationFunction implements AggregationFunction {
-    private final static char DELIMITER = ' ';
+    protected final static char DELIMITER = ' ';
     private StringBuilder builder;
     private String delimiter;
 
@@ -21,6 +21,11 @@ public class SupportConcatWManagedAggregationFunction implements AggregationFunc
         super();
         builder = new StringBuilder();
         delimiter = "";
+    }
+
+    public SupportConcatWManagedAggregationFunction(StringBuilder builder) {
+        this.builder = builder;
+        this.delimiter = String.valueOf(DELIMITER);
     }
 
     public void enter(Object value) {
@@ -37,7 +42,7 @@ public class SupportConcatWManagedAggregationFunction implements AggregationFunc
         }
     }
 
-    public Object getValue() {
+    public String getValue() {
         return builder.toString();
     }
 

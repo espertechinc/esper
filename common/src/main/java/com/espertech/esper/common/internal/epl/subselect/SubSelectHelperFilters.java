@@ -57,7 +57,7 @@ public class SubSelectHelperFilters {
         // construct view factory chain
         EventType eventType;
         try {
-            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, true, subselect.getSubselectNumber(), StreamSpecOptions.DEFAULT, null, statementRawInfo, services);
+            ViewFactoryForgeArgs args = new ViewFactoryForgeArgs(-1, subselect.getSubselectNumber(), StreamSpecOptions.DEFAULT, null, statementRawInfo, services);
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[0];
 
             if (streamSpec instanceof FilterStreamSpecCompiled) {

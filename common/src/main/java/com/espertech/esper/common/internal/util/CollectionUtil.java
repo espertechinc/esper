@@ -893,6 +893,18 @@ public class CollectionUtil {
         return result;
     }
 
+    public static <T> T[] appendArray(T[] a, T[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
+    }
+
     public static <T> List<List<T>> subdivide(List<T> items, int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Invalid size " + size);

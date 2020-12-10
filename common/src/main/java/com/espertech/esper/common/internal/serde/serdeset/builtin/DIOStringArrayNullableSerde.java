@@ -49,7 +49,7 @@ public class DIOStringArrayNullableSerde implements DataInputOutputSerde<String[
         }
         output.writeInt(object.length);
         for (String i : object) {
-            DIOStringSerde.INSTANCE.write(i, output);
+            DIONullableStringSerde.INSTANCE.write(i, output);
         }
     }
 
@@ -60,7 +60,7 @@ public class DIOStringArrayNullableSerde implements DataInputOutputSerde<String[
         }
         String[] array = new String[len];
         for (int i = 0; i < len; i++) {
-            array[i] = DIOStringSerde.INSTANCE.read(input);
+            array[i] = DIONullableStringSerde.INSTANCE.read(input);
         }
         return array;
     }

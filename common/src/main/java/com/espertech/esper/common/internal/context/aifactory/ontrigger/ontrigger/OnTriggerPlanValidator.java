@@ -29,6 +29,7 @@ import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.OnTr
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorAttributionKeyStatement;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
@@ -42,6 +43,7 @@ import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePla
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 
@@ -67,6 +69,7 @@ public class OnTriggerPlanValidator {
         }
         String namedWindowTypeName = onTriggerDesc.getWindowName();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         // Materialize sub-select views
         // 0 - named window stream
@@ -78,6 +81,7 @@ public class OnTriggerPlanValidator {
         SubSelectHelperForgePlan subselectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, subselectStreamNames, subselectEventTypes, subselectEventTypeNames, services);
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
         additionalForgeables.addAll(subselectForgePlan.getAdditionalForgeables());
+        fabricCharge.add(subselectForgePlan.getFabricCharge());
 
         StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{namedWindowOrTableType, activatorResult.getActivatorResultEventType()}, new String[]{zeroStreamAliasName, streamName}, new boolean[]{false, true}, true, false);
 
@@ -119,14 +123,14 @@ public class OnTriggerPlanValidator {
             base.getStatementSpec().getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
         }
 
-        ResultSetProcessorDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(base.getStatementSpec()),
+        ResultSetProcessorDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(base.getStatementSpec()),
                 typeService, null, new boolean[0], true, base.getContextPropertyRegistry(), false, true, base.getStatementRawInfo(), services);
         additionalForgeables.addAll(resultSetProcessorPrototype.getAdditionalForgeables());
 
         // plan table access
         Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccessForges = ExprTableEvalHelperPlan.planTableAccess(base.getStatementSpec().getTableAccessNodes());
 
-        return new OnTriggerPlanValidationResult(subselectForges, tableAccessForges, resultSetProcessorPrototype, validatedJoin, zeroStreamAliasName, additionalForgeables);
+        return new OnTriggerPlanValidationResult(subselectForges, tableAccessForges, resultSetProcessorPrototype, validatedJoin, zeroStreamAliasName, additionalForgeables, fabricCharge);
     }
 
     protected static ExprNode validateJoinNamedWindow(ExprNodeOrigin exprNodeOrigin,

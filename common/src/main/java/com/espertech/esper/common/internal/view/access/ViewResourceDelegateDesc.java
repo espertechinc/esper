@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.access;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoRichConstant;
 
@@ -26,13 +27,15 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class ViewResourceDelegateDesc {
     public final static EPTypeClass EPTYPE = new EPTypeClass(ViewResourceDelegateDesc.class);
     public final static EPTypeClass EPTYPEARRAY = new EPTypeClass(ViewResourceDelegateDesc[].class);
-    public final static ViewResourceDelegateDesc[] SINGLE_ELEMENT_ARRAY = new ViewResourceDelegateDesc[] {new ViewResourceDelegateDesc(false, Collections.emptySortedSet())};
+    public final static ViewResourceDelegateDesc[] SINGLE_ELEMENT_ARRAY = new ViewResourceDelegateDesc[] {new ViewResourceDelegateDesc(false, null, Collections.emptySortedSet())};
 
     private final boolean hasPrevious;
+    private final StateMgmtSetting previousStateSettingsOpt;
     private final SortedSet<Integer> priorRequests;
 
-    public ViewResourceDelegateDesc(boolean hasPrevious, SortedSet<Integer> priorRequests) {
+    public ViewResourceDelegateDesc(boolean hasPrevious, StateMgmtSetting previousStateSettingsOpt, SortedSet<Integer> priorRequests) {
         this.hasPrevious = hasPrevious;
+        this.previousStateSettingsOpt = previousStateSettingsOpt;
         this.priorRequests = priorRequests;
     }
 
@@ -55,8 +58,13 @@ public class ViewResourceDelegateDesc {
         return priorRequests;
     }
 
+    public StateMgmtSetting getPreviousStateSettingsOpt() {
+        return previousStateSettingsOpt;
+    }
+
     public CodegenExpression toExpression() {
-        return newInstance(EPTYPE, constant(hasPrevious), CodegenLegoRichConstant.toExpression(priorRequests));
+        return newInstance(EPTYPE, constant(hasPrevious), previousStateSettingsOpt == null ? constantNull() : previousStateSettingsOpt.toExpression(),
+            CodegenLegoRichConstant.toExpression(priorRequests));
     }
 
     public static boolean hasPrior(ViewResourceDelegateDesc[] delegates) {

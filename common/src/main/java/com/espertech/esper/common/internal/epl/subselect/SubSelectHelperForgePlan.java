@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 import java.util.Map;
@@ -19,10 +20,12 @@ import java.util.Map;
 public class SubSelectHelperForgePlan {
     private final Map<ExprSubselectNode, SubSelectFactoryForge> subselects;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final FabricCharge fabricCharge;
 
-    public SubSelectHelperForgePlan(Map<ExprSubselectNode, SubSelectFactoryForge> subselects, List<StmtClassForgeableFactory> additionalForgeables) {
+    public SubSelectHelperForgePlan(Map<ExprSubselectNode, SubSelectFactoryForge> subselects, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
         this.subselects = subselects;
         this.additionalForgeables = additionalForgeables;
+        this.fabricCharge = fabricCharge;
     }
 
     public Map<ExprSubselectNode, SubSelectFactoryForge> getSubselects() {
@@ -31,5 +34,9 @@ public class SubSelectHelperForgePlan {
 
     public List<StmtClassForgeableFactory> getAdditionalForgeables() {
         return additionalForgeables;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

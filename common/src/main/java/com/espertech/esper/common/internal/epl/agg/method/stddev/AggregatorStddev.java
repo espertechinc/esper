@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
@@ -89,6 +90,10 @@ public class AggregatorStddev extends AggregatorMethodWDistinctWFilterWValueBase
         method.getBlock().apply(readDouble(row, mean, input))
                 .apply(readDouble(row, qn, input))
                 .apply(readLong(row, cnt, input));
+    }
+
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(double.class, double.class, long.class);
     }
 
     private void applyEvalEnterNonNull(CodegenMethod method, CodegenExpression doubleExpression) {

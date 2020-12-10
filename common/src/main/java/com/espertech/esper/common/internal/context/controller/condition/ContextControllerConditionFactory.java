@@ -21,8 +21,7 @@ public class ContextControllerConditionFactory {
                                                               Object[] partitionKeys,
                                                               ContextConditionDescriptor endpoint,
                                                               ContextControllerConditionCallback callback,
-                                                              ContextController controller,
-                                                              boolean isStartEndpoint) {
+                                                              ContextController controller) {
         if (endpoint instanceof ContextConditionDescriptorFilter) {
             ContextConditionDescriptorFilter filter = (ContextConditionDescriptorFilter) endpoint;
             return new ContextControllerConditionFilter(conditionPath, partitionKeys, filter, callback, controller);

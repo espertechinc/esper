@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.agg.method.core.AggregatorCodegenUtil.rowDotMember;
@@ -60,15 +61,21 @@ public class AggregatorAccessPlugin extends AggregatorAccessWFilterBase {
         method.getBlock().exprDotMethod(state, "clear");
     }
 
-    public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef ref, CodegenExpressionRef unitKey, CodegenExpressionRef output, CodegenMethod method, CodegenClassScope classScope) {
+    public void writeCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
-            method.getBlock().expression(staticMethod(mode.getSerde(), "write", output, rowDotMember(row, state)));
+            method.getBlock().expression(staticMethod(mode.getSerde(), "write", output, writer, rowDotMember(row, state)));
         }
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         if (mode.isHasHA()) {
             method.getBlock().assignRef(rowDotMember(row, state), staticMethod(mode.getSerde(), "read", input));
+        }
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        if (mode.isHasHA()) {
+            collector.plugInAggregation(mode.getSerde());
         }
     }
 

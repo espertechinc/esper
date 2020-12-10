@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.collection.ViewUpdatedCollection;
 import com.espertech.esper.common.internal.context.module.RuntimeExtensionServices;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
@@ -45,12 +46,14 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
     private final AgentInstanceContext agentInstanceContext;
     private boolean isRemoveStream;
     private final PreviousGetterStrategy previousNodeGetter;
+    private final StateMgmtSetting previousStateSettings;
     private final ViewUpdatedCollection priorViewUpdatedCollection;
 
-    public AgentInstanceViewFactoryChainContext(AgentInstanceContext agentInstanceContext, boolean isRemoveStream, PreviousGetterStrategy previousNodeGetter, ViewUpdatedCollection priorViewUpdatedCollection) {
+    public AgentInstanceViewFactoryChainContext(AgentInstanceContext agentInstanceContext, boolean isRemoveStream, PreviousGetterStrategy previousNodeGetter, StateMgmtSetting previousStateSettings, ViewUpdatedCollection priorViewUpdatedCollection) {
         this.agentInstanceContext = agentInstanceContext;
         this.isRemoveStream = isRemoveStream;
         this.previousNodeGetter = previousNodeGetter;
+        this.previousStateSettings = previousStateSettings;
         this.priorViewUpdatedCollection = priorViewUpdatedCollection;
     }
 
@@ -114,6 +117,10 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
         return agentInstanceContext.getTableExprEvaluatorContext();
     }
 
+    public StateMgmtSetting getPreviousStateSettings() {
+        return previousStateSettings;
+    }
+
     public static AgentInstanceViewFactoryChainContext create(ViewFactory[] viewFactoryChain, AgentInstanceContext agentInstanceContext, ViewResourceDelegateDesc viewResourceDelegate) {
 
         PreviousGetterStrategy previousNodeGetter = null;
@@ -139,7 +146,7 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
             removedStream = countDataWindow > 1;
         }
 
-        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, removedStream, previousNodeGetter, priorViewUpdatedCollection);
+        return new AgentInstanceViewFactoryChainContext(agentInstanceContext, removedStream, previousNodeGetter, viewResourceDelegate.getPreviousStateSettingsOpt(), priorViewUpdatedCollection);
     }
 
     public RuntimeSettingsService getRuntimeSettingsService() {

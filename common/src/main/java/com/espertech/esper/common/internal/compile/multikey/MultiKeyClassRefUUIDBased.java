@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import java.util.Arrays;
 
@@ -25,11 +26,13 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
     private final String uuid;
     private final EPType[] mkTypes;
+    private final DataInputOutputSerdeForge[] serdes;
     private String classPostfix;
 
-    public MultiKeyClassRefUUIDBased(EPType[] mkTypes) {
+    public MultiKeyClassRefUUIDBased(EPType[] mkTypes, DataInputOutputSerdeForge[] serdes) {
         uuid = CodeGenerationIDGenerator.generateClassNameUUID();
         this.mkTypes = mkTypes;
+        this.serdes = serdes;
     }
 
     public String getClassNameMK(String classPostfix) {
@@ -55,12 +58,20 @@ public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
         return mkTypes;
     }
 
+    public DataInputOutputSerdeForge[] getSerdes() {
+        return serdes;
+    }
+
     public String toString() {
         return "MultiKeyClassRefUUIDBased{" +
             "uuid='" + uuid + '\'' +
             ", mkTypes=" + Arrays.toString(mkTypes) +
             ", classPostfix='" + classPostfix + '\'' +
             '}';
+    }
+
+    public DataInputOutputSerdeForge[] getSerdeForges() {
+        return serdes;
     }
 
     private void checkClassPostfix() {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.agg.access.countminsketch;
 
 import com.espertech.esper.common.internal.epl.approx.countminsketch.*;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -19,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class AggregationStateSerdeCountMinSketch {
+    private final static short SERDE_VERSION = 1;
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
@@ -46,6 +48,7 @@ public class AggregationStateSerdeCountMinSketch {
     }
 
     private static void writeState(DataOutput output, CountMinSketchState state) throws IOException {
+        output.writeShort(SERDE_VERSION);
         CountMinSketchStateHashes hashes = state.getHashes();
         output.writeInt(hashes.getDepth());
         output.writeInt(hashes.getWidth());
@@ -90,6 +93,7 @@ public class AggregationStateSerdeCountMinSketch {
     }
 
     private static void readState(DataInput input, CountMinSketchState state) throws IOException {
+        input.readShort(); // version
         int depth = input.readInt();
         int width = input.readInt();
 
@@ -139,6 +143,10 @@ public class AggregationStateSerdeCountMinSketch {
             }
             state.setTopk(new CountMinSketchStateTopk(topkMax, topMap, refMap));
         }
+    }
+
+    public static void appendFormat(FabricTypeCollector collector, CountMinSketchSpecForge spec) {
+        collector.countMinSketch(spec);
     }
 
     private static void writeBytes(DataOutput output, ByteBuffer value) throws IOException {

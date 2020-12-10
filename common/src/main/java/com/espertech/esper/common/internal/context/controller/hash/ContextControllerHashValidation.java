@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
@@ -18,6 +19,8 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerForgeUtil;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
+
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newArrayWithInit;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
@@ -45,5 +48,11 @@ public class ContextControllerHashValidation implements ContextControllerPortabl
 
     public void validateStatement(String contextName, StatementSpecCompiled spec, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
         ContextControllerForgeUtil.validateStatementKeyAndHash(items, contextName, spec, compileTimeServices);
+    }
+
+    public void visitFilterAddendumEventTypes(Consumer<EventType> consumer) {
+        for (ContextControllerHashValidationItem item : items) {
+            item.visitFilterAddendumEventTypes(consumer);
+        }
     }
 }

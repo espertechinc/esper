@@ -33,10 +33,7 @@ import com.espertech.esper.common.internal.context.aifactory.ontrigger.core.Stmt
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.subselect.SubSelectActivationPlan;
@@ -94,7 +91,7 @@ public class OnTriggerSetUtil {
         defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());
         defaultSelectAllSpec.getRaw().setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{"trigger_stream"}, new boolean[]{true}, false, false);
-        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(new ResultSetSpec(defaultSelectAllSpec),
+        ResultSetProcessorDesc resultSetProcessor = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, new ResultSetSpec(defaultSelectAllSpec),
                 streamTypeService, null, new boolean[1], false, base.getContextPropertyRegistry(), false, false, base.getStatementRawInfo(), services);
         String classNameRSP = CodeGenerationIDGenerator.generateClassNameSimple(ResultSetProcessorFactoryProvider.class, classPostfix);
 
@@ -103,6 +100,6 @@ public class OnTriggerSetUtil {
         forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
 
         StmtClassForgeableAIFactoryProviderOnTrigger onTrigger = new StmtClassForgeableAIFactoryProviderOnTrigger(className, packageScope, forge);
-        return new OnTriggerSetPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables());
+        return new OnTriggerSetPlan(onTrigger, forgeables, resultSetProcessor.getSelectSubscriberDescriptor(), subSelectForgePlan.getAdditionalForgeables(), subSelectForgePlan.getFabricCharge());
     }
 }

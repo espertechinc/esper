@@ -36,7 +36,7 @@ public final class EPRuntimeProvider {
      * @return default runtime
      */
     public static EPRuntime getDefaultRuntime() {
-        return getRuntime(EPRuntimeProvider.DEFAULT_RUNTIME_URI, new Configuration());
+        return getRuntime(EPRuntimeProvider.DEFAULT_RUNTIME_URI, new Configuration(), null);
     }
 
     /**
@@ -47,7 +47,7 @@ public final class EPRuntimeProvider {
      * @throws ConfigurationException to indicate a configuration problem
      */
     public static EPRuntime getDefaultRuntime(Configuration configuration) throws ConfigurationException {
-        return getRuntime(EPRuntimeProvider.DEFAULT_RUNTIME_URI, configuration);
+        return getRuntime(EPRuntimeProvider.DEFAULT_RUNTIME_URI, configuration, null);
     }
 
     /**
@@ -59,7 +59,7 @@ public final class EPRuntimeProvider {
      * @return runtime for the given URI.
      */
     public static EPRuntime getRuntime(String uri) {
-        return getRuntime(uri, new Configuration());
+        return getRuntime(uri, new Configuration(), null);
     }
 
     /**
@@ -72,12 +72,26 @@ public final class EPRuntimeProvider {
      * @throws ConfigurationException to indicate a configuration problem
      */
     public static EPRuntime getRuntime(String uri, Configuration configuration) throws ConfigurationException {
+        return getRuntime(uri, configuration, null);
+    }
+
+    /**
+     * Returns a runtime for a given URI.
+     * Use the URI of "default" or null to return the default runtime.
+     *
+     * @param uri           - the runtime URI. If null provided it assumes "default".
+     * @param configuration is the configuration for the runtime
+     * @param options runtime startup options
+     * @return Runtime for the given URI.
+     * @throws ConfigurationException to indicate a configuration problem
+     */
+    public static EPRuntime getRuntime(String uri, Configuration configuration, EPRuntimeOptions options) throws ConfigurationException {
         String runtimeURINonNull = (uri == null) ? EPRuntimeProvider.DEFAULT_RUNTIME_URI : uri;
 
         if (runtimes.containsKey(runtimeURINonNull)) {
             EPRuntimeSPI runtime = runtimes.get(runtimeURINonNull);
             if (runtime.isDestroyed()) {
-                runtime = getRuntimeInternal(configuration, runtimeURINonNull);
+                runtime = getRuntimeInternal(configuration, runtimeURINonNull, options);
                 runtimes.put(runtimeURINonNull, runtime);
             } else {
                 runtime.setConfiguration(configuration);
@@ -86,7 +100,7 @@ public final class EPRuntimeProvider {
         }
 
         // New runtime
-        EPRuntimeSPI runtime = getRuntimeInternal(configuration, runtimeURINonNull);
+        EPRuntimeSPI runtime = getRuntimeInternal(configuration, runtimeURINonNull, options);
         runtimes.put(runtimeURINonNull, runtime);
         runtime.postInitialize();
 
@@ -131,7 +145,7 @@ public final class EPRuntimeProvider {
         return runtimes.containsKey(uri);
     }
 
-    private static EPRuntimeSPI getRuntimeInternal(Configuration configuration, String runtimeURINonNull) {
-        return new EPRuntimeImpl(configuration, runtimeURINonNull, runtimes);
+    private static EPRuntimeSPI getRuntimeInternal(Configuration configuration, String runtimeURINonNull, EPRuntimeOptions options) {
+        return new EPRuntimeImpl(configuration, runtimeURINonNull, runtimes, options);
     }
 }

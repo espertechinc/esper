@@ -22,6 +22,9 @@ public class AggregationFunctionModeManaged implements AggregationFunctionMode {
     private boolean hasHA;
     private Class serde;
 
+    public AggregationFunctionModeManaged() {
+    }
+
     /**
      * Returns the injection strategy for the aggregation function factory
      *

@@ -50,7 +50,7 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
             throw new ViewParameterException(errorMessage);
         }
 
-        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), errorMessage, 0, viewForgeEnv, streamNumber);
+        timePeriodCompute = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), parameters.get(0), errorMessage, 0, viewForgeEnv);
 
         sizeForge = ViewForgeSupport.validateSizeParam(getViewName(), validated[1], 1);
 
@@ -62,7 +62,7 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
         }
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -95,7 +95,11 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
         return "Time-Length-Batch";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMELENGTHBATCH;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

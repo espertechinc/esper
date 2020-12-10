@@ -120,11 +120,11 @@ public class SizeView extends ViewSupport {
         return this.getClass().getName();
     }
 
-    public static EventType createEventType(ViewForgeEnv env, StatViewAdditionalPropsForge additionalProps, int streamNum) {
+    public static EventType createEventType(ViewForgeEnv env, StatViewAdditionalPropsForge additionalProps) {
         LinkedHashMap<String, Object> schemaMap = new LinkedHashMap<>();
         schemaMap.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), EPTypePremade.LONGPRIMITIVE.getEPType());
         StatViewAdditionalPropsForge.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.SIZE_VIEW__SIZE);
-        return DerivedViewTypeUtil.newType("sizeview", schemaMap, env, streamNum);
+        return DerivedViewTypeUtil.newType("sizeview", schemaMap, env);
     }
 
     private void addProperties(Map<String, Object> newDataMap) {

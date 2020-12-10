@@ -37,7 +37,7 @@ public class TestBuiltinSerde extends TestCase {
         assertSerde(DIOIntegerSerde.INSTANCE, 12);
         assertSerde(DIOShortSerde.INSTANCE, (short) 13);
         assertSerde(DIOLongSerde.INSTANCE, 14L);
-        assertSerde(DIOStringSerde.INSTANCE, "def");
+        assertSerde(DIONullableStringSerde.INSTANCE, "def");
 
         assertSerde(DIOPrimitiveByteArraySerde.INSTANCE, new byte[] {1, 2});
         assertSerdeWNull(DIOPrimitiveBooleanArrayNullableSerde.INSTANCE, new boolean[] {true, false});
@@ -66,7 +66,7 @@ public class TestBuiltinSerde extends TestCase {
         assertSerdeWNull(DIONullableIntegerSerde.INSTANCE, 12);
         assertSerdeWNull(DIONullableLongSerde.INSTANCE, 13L);
         assertSerdeWNull(DIONullableShortSerde.INSTANCE, (short) 14);
-        assertSerdeWNull(DIOStringSerde.INSTANCE, "abc");
+        assertSerdeWNull(DIONullableStringSerde.INSTANCE, "abc");
 
         assertSerdeWNull(DIOBigDecimalSerde.INSTANCE, BigDecimal.TEN);
         assertSerdeWNull(DIOBigIntegerSerde.INSTANCE, BigInteger.TEN);
@@ -109,20 +109,20 @@ public class TestBuiltinSerde extends TestCase {
         assertSerdeWNull(new DIONullableObjectArraySerde(SupportBean.class, DIOSerializableObjectSerde.INSTANCE), new SupportBean[] {new SupportBean(), null});
         assertSerde(new DIOSetSerde(DIOIntegerSerde.INSTANCE), new HashSet<>(Arrays.asList(1, 2)));
 
-        assertSerdeWNull(DIOCollectionIntegerNullableSerde.INSTANCE, Arrays.asList(1, 2));
-        assertSerdeWNull(DIOCollectionFloatNullableSerde.INSTANCE, Arrays.asList(1f, 2f));
-        assertSerdeWNull(DIOCollectionDoubleNullableSerde.INSTANCE, Arrays.asList(1d, 2d));
-        assertSerdeWNull(DIOCollectionLongNullableSerde.INSTANCE, Arrays.asList(1L, 2L));
-        assertSerdeWNull(DIOCollectionByteNullableSerde.INSTANCE, Arrays.asList((byte) 1, (byte) 2));
-        assertSerdeWNull(DIOCollectionShortNullableSerde.INSTANCE, Arrays.asList((short) 1, (short) 2));
-        assertSerdeWNull(DIOCollectionCharacterNullableSerde.INSTANCE, Arrays.asList('a', 'b'));
-        assertSerdeWNull(DIOCollectionStringNullableSerde.INSTANCE, Arrays.asList("a", "b"));
-        assertSerdeWNull(DIOCollectionBooleanNullableSerde.INSTANCE, Arrays.asList(true, false));
-        assertSerdeWNull(DIOCollectionBigDecimalNullableSerde.INSTANCE, Arrays.asList(new BigDecimal(10), new BigDecimal(20)));
-        assertSerdeWNull(DIOCollectionBigIntegerNullableSerde.INSTANCE, Arrays.asList(new BigInteger("10"), new BigInteger("20")));
-        assertSerdeWNull(DIOCollectionDateNullableSerde.INSTANCE, Arrays.asList(new Date(), new Date()));
-        assertSerdeWNull(DIOCollectionSqlDateNullableSerde.INSTANCE, Arrays.asList(new java.sql.Date(1), new java.sql.Date(1)));
-        assertSerdeWNull(DIOCollectionCalendarNullableSerde.INSTANCE, Arrays.asList(GregorianCalendar.getInstance(), GregorianCalendar.getInstance()));
+        assertSerdeWNull(DIOArrayListIntegerNullableSerde.INSTANCE, Arrays.asList(1, 2));
+        assertSerdeWNull(DIOArrayListFloatNullableSerde.INSTANCE, Arrays.asList(1f, 2f));
+        assertSerdeWNull(DIOArrayListDoubleNullableSerde.INSTANCE, Arrays.asList(1d, 2d));
+        assertSerdeWNull(DIOArrayListLongNullableSerde.INSTANCE, Arrays.asList(1L, 2L));
+        assertSerdeWNull(DIOArrayListByteNullableSerde.INSTANCE, Arrays.asList((byte) 1, (byte) 2));
+        assertSerdeWNull(DIOArrayListShortNullableSerde.INSTANCE, Arrays.asList((short) 1, (short) 2));
+        assertSerdeWNull(DIOArrayListCharacterNullableSerde.INSTANCE, Arrays.asList('a', 'b'));
+        assertSerdeWNull(DIOArrayListStringNullableSerde.INSTANCE, Arrays.asList("a", "b"));
+        assertSerdeWNull(DIOArrayListBooleanNullableSerde.INSTANCE, Arrays.asList(true, false));
+        assertSerdeWNull(DIOArrayListBigDecimalNullableSerde.INSTANCE, Arrays.asList(new BigDecimal(10), new BigDecimal(20)));
+        assertSerdeWNull(DIOArrayListBigIntegerNullableSerde.INSTANCE, Arrays.asList(new BigInteger("10"), new BigInteger("20")));
+        assertSerdeWNull(DIOArrayListDateNullableSerde.INSTANCE, Arrays.asList(new Date(), new Date()));
+        assertSerdeWNull(DIOArrayListSqlDateNullableSerde.INSTANCE, Arrays.asList(new java.sql.Date(1), new java.sql.Date(1)));
+        assertSerdeWNull(DIOArrayListCalendarNullableSerde.INSTANCE, Arrays.asList(GregorianCalendar.getInstance(), GregorianCalendar.getInstance()));
     }
 
     public static <T> void assertSerdeWNull(DataInputOutputSerde<T> serde, T serialized) throws IOException  {

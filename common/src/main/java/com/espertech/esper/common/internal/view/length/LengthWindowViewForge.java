@@ -35,7 +35,7 @@ public class LengthWindowViewForge extends ViewFactoryForgeBase implements DataW
         sizeForge = ViewForgeSupport.validateSizeSingleParam(getViewName(), parameters, viewForgeEnv, streamNumber);
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -56,7 +56,11 @@ public class LengthWindowViewForge extends ViewFactoryForgeBase implements DataW
         method.getBlock().exprDotMethod(factory, "setSize", sizeEval);
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_LENGTH;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

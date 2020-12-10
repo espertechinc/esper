@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.view.core;
 
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.List;
 
@@ -18,10 +19,12 @@ public class ViewFactoryForgeDesc {
 
     private final List<ViewFactoryForge> forges;
     private final List<StmtClassForgeableFactory> multikeyForges;
+    private final FabricCharge fabricCharge;
 
-    public ViewFactoryForgeDesc(List<ViewFactoryForge> forges, List<StmtClassForgeableFactory> multikeyForges) {
+    public ViewFactoryForgeDesc(List<ViewFactoryForge> forges, List<StmtClassForgeableFactory> multikeyForges, FabricCharge fabricCharge) {
         this.forges = forges;
         this.multikeyForges = multikeyForges;
+        this.fabricCharge = fabricCharge;
     }
 
     public List<ViewFactoryForge> getForges() {
@@ -30,5 +33,9 @@ public class ViewFactoryForgeDesc {
 
     public List<StmtClassForgeableFactory> getMultikeyForges() {
         return multikeyForges;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

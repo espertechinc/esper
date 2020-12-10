@@ -24,13 +24,10 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.schedule.TimeProviderField;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Deque;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -94,51 +91,18 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
     protected void writeWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef output, CodegenExpressionRef unitKey, CodegenExpressionRef writer, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(writeBoolean(output, row, hasLeave))
-                .staticMethod(this.getClass(), "writePoints", output, rowDotMember(row, points));
+                .staticMethod(AggregatorRateEverSerde.class, "writePoints", output, rowDotMember(row, points));
     }
 
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock()
                 .apply(readBoolean(row, hasLeave, input))
-                .assignRef(rowDotMember(row, points), staticMethod(this.getClass(), "readPoints", input));
+                .assignRef(rowDotMember(row, points), staticMethod(AggregatorRateEverSerde.class, "readPoints", input));
     }
 
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param output out
-     * @param points points
-     * @throws IOException io error
-     */
-    public static void writePoints(DataOutput output, Deque<Long> points) throws IOException {
-        output.writeInt(points.size());
-        for (long value : points) {
-            output.writeLong(value);
-        }
-    }
-
-    protected void apply(CodegenMethod method, CodegenClassScope classScope) {
-        CodegenExpression timeProvider = classScope.addOrGetFieldSharable(TimeProviderField.INSTANCE);
-        method.getBlock().declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "timestamp", exprDotMethod(timeProvider, "getTime"))
-                .exprDotMethod(points, "add", ref("timestamp"))
-                .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("timestamp"), constant(factory.getIntervalTime())))
-                .assignCompound(hasLeave, "|", ref("leave"));
-    }
-
-    /**
-     * NOTE: Code-generation-invoked method, method name and parameter order matters
-     *
-     * @param input input
-     * @return points
-     * @throws IOException io error
-     */
-    public static Deque<Long> readPoints(DataInput input) throws IOException {
-        ArrayDeque<Long> points = new ArrayDeque<>();
-        int size = input.readInt();
-        for (int i = 0; i < size; i++) {
-            points.add(input.readLong());
-        }
-        return points;
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(boolean.class);
+        collector.aggregatorRateEver(AggregatorRateEverSerde.SERDE_VERSION);
     }
 
     /**
@@ -167,5 +131,13 @@ public class AggregatorRateEver extends AggregatorMethodWDistinctWFilterBase {
             }
         }
         return hasLeave;
+    }
+
+    protected void apply(CodegenMethod method, CodegenClassScope classScope) {
+        CodegenExpression timeProvider = classScope.addOrGetFieldSharable(TimeProviderField.INSTANCE);
+        method.getBlock().declareVar(EPTypePremade.LONGPRIMITIVE.getEPType(), "timestamp", exprDotMethod(timeProvider, "getTime"))
+            .exprDotMethod(points, "add", ref("timestamp"))
+            .declareVar(EPTypePremade.BOOLEANBOXED.getEPType(), "leave", staticMethod(AggregatorRateEver.class, "removeFromHead", points, ref("timestamp"), constant(factory.getIntervalTime())))
+            .assignCompound(hasLeave, "|", ref("leave"));
     }
 }

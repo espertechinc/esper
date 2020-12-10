@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.epl.agg.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.annotation.Hint;
 import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.client.annotation.HookType;
@@ -45,6 +44,7 @@ import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
@@ -63,7 +63,8 @@ import java.util.*;
  */
 public class AggregationServiceFactoryFactory {
 
-    public static AggregationServiceForgeDesc getService(List<ExprAggregateNode> selectAggregateExprNodes,
+    public static AggregationServiceForgeDesc getService(AggregationAttributionKey attributionKey,
+                                                         List<ExprAggregateNode> selectAggregateExprNodes,
                                                          Map<ExprNode, String> selectClauseNamedNodes,
                                                          List<ExprDeclaredNode> declaredExpressions,
                                                          ExprNode[] groupByNodes,
@@ -91,11 +92,12 @@ public class AggregationServiceFactoryFactory {
                                                          StateMgmtSettingsProvider stateMgmtSettingsProvider)
             throws ExprValidationException {
         // No aggregates used, we do not need this service
+        FabricCharge fabricCharge = stateMgmtSettingsProvider.newCharge();
         if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty())) {
             if (intoTableSpec != null) {
                 throw new ExprValidationException("Into-table requires at least one aggregation function");
             }
-            return new AggregationServiceForgeDesc(AggregationServiceNullFactory.INSTANCE, Collections.<AggregationServiceAggExpressionDesc>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), Collections.emptyList());
+            return new AggregationServiceForgeDesc(AggregationServiceNullFactory.INSTANCE, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), fabricCharge);
         }
 
         // Validate the absence of "prev" function in where-clause:
@@ -163,7 +165,7 @@ public class AggregationServiceFactoryFactory {
 
             // return factory
             AggregationServiceFactoryForge serviceForge = new AggregationServiceFactoryForgeTable(metadata, bindingMatchResult.getMethodPairs(), bindingMatchResult.getTargetStates(), bindingMatchResult.getAgents(), groupByRollupDesc);
-            return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, Collections.emptyList());
+            return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, Collections.emptyList(), fabricCharge);
         }
 
         // Assign a column number to each aggregation node. The regular aggregation goes first followed by access-aggregation.
@@ -197,7 +199,6 @@ public class AggregationServiceFactoryFactory {
         AggregationStateFactoryForge[] accessFactories = multiFunctionAggPlan.getStateFactoryForges();
         boolean hasAccessAgg = accessorPairsForge.length > 0;
         boolean hasMethodAgg = methodAggFactories.length > 0;
-        StateMgmtSetting stateMgmtSettings = stateMgmtSettingsProvider.getAggregation(raw, AppliesTo.AGGREGATION_GROUPBY);
 
         AggregationServiceFactoryForge serviceForge;
         AggregationUseFlags useFlags = new AggregationUseFlags(isUnidirectional, isFireAndForget, isOnSelect);
@@ -219,13 +220,14 @@ public class AggregationServiceFactoryFactory {
             }
         }
 
+
         // Handle without a group-by clause: we group all into the same pot
         AggregationRowStateForgeDesc rowStateDesc = new AggregationRowStateForgeDesc(
                 hasMethodAgg ? methodAggFactories : null, hasMethodAgg ? methodAggForges : null,
                 hasAccessAgg ? accessFactories : null, hasAccessAgg ? accessorPairsForge : null, useFlags);
         if (!hasGroupByClause) {
             if (localGroupByPlan != null) {
-                serviceForge = new AggSvcLocalGroupByForge(false, localGroupByPlan, useFlags, stateMgmtSettings);
+                serviceForge = new AggSvcLocalGroupByForge(false, localGroupByPlan, useFlags);
             } else {
                 serviceForge = new AggregationServiceGroupAllForge(rowStateDesc);
             }
@@ -235,29 +237,32 @@ public class AggregationServiceFactoryFactory {
             Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             if (localGroupByPlan != null) {
-                serviceForge = new AggSvcLocalGroupByForge(true, localGroupByPlan, useFlags, stateMgmtSettings);
+                serviceForge = new AggSvcLocalGroupByForge(true, localGroupByPlan, useFlags);
             } else {
                 if (!isDisallowNoReclaim && hasNoReclaim) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
                 } else if (!isDisallowNoReclaim && reclaimGroupAged != null) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
                     compileReclaim(groupDesc, reclaimGroupAged, reclaimGroupFrequency, variableCompileTimeResolver, optionalContextName);
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
                 } else if (groupByRollupDesc != null) {
-                    serviceForge = new AggSvcGroupByRollupForge(rowStateDesc, groupByRollupDesc, groupByNodes, stateMgmtSettings);
+                    serviceForge = new AggSvcGroupByRollupForge(rowStateDesc, groupByRollupDesc, groupByNodes);
                 } else {
                     groupDesc.setRefcounted(true);
-                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus(), stateMgmtSettings);
+                    serviceForge = new AggregationServiceGroupByForge(groupDesc, classpathImportService.getTimeAbacus());
                 }
             }
         }
 
-        return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, additionalForgeables);
+        StateMgmtSetting setting = stateMgmtSettingsProvider.aggregation(fabricCharge, attributionKey, raw, serviceForge);
+        serviceForge.setStateMgmtSetting(setting);
+
+        return new AggregationServiceForgeDesc(serviceForge, aggregations, groupKeyExpressions, additionalForgeables, fabricCharge);
     }
 
     private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList, boolean intoTableNonRollup) {

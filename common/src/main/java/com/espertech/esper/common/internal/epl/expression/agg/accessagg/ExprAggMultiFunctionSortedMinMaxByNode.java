@@ -137,8 +137,8 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             SortedAggregationStateDesc(max, validationContext.getClasspathImportService(), criteriaExpressions.getFirst(), criteriaTypes, criteriaSerdes,
             criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterForge, streamEventType);
 
-        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
-        validationContext.getAdditionalForgeables().addAll(serdeForgables);
+        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver(), validationContext.getStateMgmtSettingsProvider());
+        validationContext.getAdditionalForgeables().addAll(serdeForgeables);
 
         return new AggregationForgeFactoryAccessSorted(this, accessor, accessorResultType, containedType, stateKey, sortedDesc, AggregationAgentDefault.INSTANCE);
     }
@@ -210,8 +210,8 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         SortedAggregationStateDesc stateDesc = new SortedAggregationStateDesc(max, validationContext.getClasspathImportService(), criteriaExpressions.getFirst(),
             criteriaTypes, criteriaSerdes, criteriaExpressions.getSecond(), ever, 0, this, null, containedType);
 
-        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
-        validationContext.getAdditionalForgeables().addAll(serdeForgables);
+        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver(), validationContext.getStateMgmtSettingsProvider());
+        validationContext.getAdditionalForgeables().addAll(serdeForgeables);
 
         return new AggregationForgeFactoryAccessSorted(this, accessor, accessorResultType, containedType, null, stateDesc, null);
     }

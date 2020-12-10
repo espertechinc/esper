@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
@@ -33,5 +34,9 @@ public class MultiKeyClassRefEmpty implements MultiKeyClassRef {
 
     public CodegenExpression getExprMKSerde(CodegenMethod method, CodegenClassScope classScope) {
         return constantNull();
+    }
+
+    public DataInputOutputSerdeForge[] getSerdeForges() {
+        return new DataInputOutputSerdeForge[0];
     }
 }

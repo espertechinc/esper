@@ -31,7 +31,7 @@ public class LastEventViewForge extends ViewFactoryForgeBase implements DataWind
         ViewForgeSupport.validateNoParameters(getViewName(), parameters);
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -50,7 +50,11 @@ public class LastEventViewForge extends ViewFactoryForgeBase implements DataWind
         return ViewEnum.LAST_EVENT.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_LASTEVENT;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

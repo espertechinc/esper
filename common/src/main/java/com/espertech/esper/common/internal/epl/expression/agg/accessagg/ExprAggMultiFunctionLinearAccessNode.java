@@ -229,8 +229,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE, containedType);
         EventType enumerationType = scalarCollectionComponentType == null ? containedType : null;
 
-        List<StmtClassForgeableFactory> serdeForgables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
-        validationContext.getAdditionalForgeables().addAll(serdeForgables);
+        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver(), validationContext.getStateMgmtSettingsProvider());
+        validationContext.getAdditionalForgeables().addAll(serdeForgeables);
 
         return new AggregationLinearFactoryDesc(factory, enumerationType, scalarCollectionComponentType, streamNum);
     }
@@ -252,8 +252,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationStateFactoryForge stateFactory = new AggregationStateLinearForge(this, 0, null, false);
         AggregationForgeFactoryAccessLinear factory = new AggregationForgeFactoryAccessLinear(this, accessor, JavaClassHelper.getArrayType(componentType), null, stateFactory, null, containedType);
 
-        List<StmtClassForgeableFactory> additionalForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver());
-        validationContext.getAdditionalForgeables().addAll(additionalForgeables);
+        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(containedType, validationContext.getStatementRawInfo(), validationContext.getSerdeEventTypeRegistry(), validationContext.getSerdeResolver(), validationContext.getStateMgmtSettingsProvider());
+        validationContext.getAdditionalForgeables().addAll(serdeForgeables);
 
         return new AggregationLinearFactoryDesc(factory, containedType, null, 0);
     }

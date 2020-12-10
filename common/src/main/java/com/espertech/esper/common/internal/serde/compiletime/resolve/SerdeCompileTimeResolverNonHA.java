@@ -79,7 +79,7 @@ public class SerdeCompileTimeResolverNonHA implements SerdeCompileTimeResolver {
     }
 
     private DataInputOutputSerdeForge noop() {
-        return DataInputOutputSerdeForgeNotApplicable.INSTANCE;
+        return DataInputOutputSerdeForgeSkip.INSTANCE;
     }
 
     private DataInputOutputSerdeForge[] noop(EPType[] types) {

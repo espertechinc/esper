@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethod;
 import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodFactoryContext;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -68,6 +69,10 @@ public class SupportConcatWCodegenAggregatorMethod implements AggregatorMethod {
     }
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
+
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
 
     }
 }

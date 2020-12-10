@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
 
 import java.lang.annotation.Annotation;
@@ -192,6 +193,10 @@ public class ExprValidationContext {
 
     public SerdeCompileTimeResolver getSerdeResolver() {
         return compileTimeServices.getSerdeResolver();
+    }
+
+    public StateMgmtSettingsProvider getStateMgmtSettingsProvider() {
+        return compileTimeServices.getStateMgmtSettingsProvider();
     }
 
     public SerdeEventTypeCompileTimeRegistry getSerdeEventTypeRegistry() {

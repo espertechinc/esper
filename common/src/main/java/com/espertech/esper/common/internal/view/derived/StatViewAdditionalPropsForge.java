@@ -58,7 +58,11 @@ public class StatViewAdditionalPropsForge {
         return additionalTypes;
     }
 
-    public static StatViewAdditionalPropsForge make(ExprNode[] validated, int startIndex, EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv) {
+    public DataInputOutputSerdeForge[] getAdditionalSerdes() {
+        return additionalSerdes;
+    }
+
+    public static StatViewAdditionalPropsForge make(ExprNode[] validated, int startIndex, EventType parentEventType, ViewForgeEnv viewForgeEnv) {
         if (validated.length <= startIndex) {
             return null;
         }
@@ -89,7 +93,7 @@ public class StatViewAdditionalPropsForge {
                 }
                 additionalProps.add(propertyDescriptor.getPropertyName());
                 EPType type = propertyDescriptor.getPropertyEPType();
-                lastValueForges.add(new ExprIdentNodeImpl(parentEventType, propertyDescriptor.getPropertyName(), streamNumber));
+                lastValueForges.add(new ExprIdentNodeImpl(parentEventType, propertyDescriptor.getPropertyName(), viewForgeEnv.getStreamNumber()));
                 lastValueTypes.add(type);
                 lastSerdes.add(viewForgeEnv.getSerdeResolver().serdeForDerivedViewAddProp(type, viewForgeEnv.getStatementRawInfo()));
             }

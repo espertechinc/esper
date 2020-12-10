@@ -12,6 +12,9 @@ package com.espertech.esper.common.internal.collection;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -196,5 +199,36 @@ public class SortedDoubleVector {
                 return nextMiddle;
             }
         }
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param output out
+     * @param vector points
+     * @throws IOException io error
+     */
+    public static void writePoints(DataOutput output, SortedDoubleVector vector) throws IOException {
+        output.writeInt(vector.getValues().size());
+        for (double num : vector.getValues()) {
+            output.writeDouble(num);
+        }
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
+     * @param input input
+     * @return points
+     * @throws IOException io error
+     */
+    public static SortedDoubleVector readPoints(DataInput input) throws IOException {
+        SortedDoubleVector points = new SortedDoubleVector();
+        int size = input.readInt();
+        for (int i = 0; i < size; i++) {
+            double d = input.readDouble();
+            points.add(d);
+        }
+        return points;
     }
 }

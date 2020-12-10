@@ -26,8 +26,9 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
+import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeClassTyped;
 
 import java.util.function.Consumer;
 
@@ -91,6 +92,11 @@ public class AggregatorFirstEver extends AggregatorMethodWDistinctWFilterWValueB
     protected void readWODistinct(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenExpressionRef unitKey, CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().apply(readBoolean(row, isSet, input))
                 .assignRef(rowDotMember(row, firstValue), readNullable(serdeField, input, unitKey, classScope));
+    }
+
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(boolean.class);
+        collector.serde(serde);
     }
 
     private Consumer<CodegenBlock> enterConsumer(CodegenExpression value) {

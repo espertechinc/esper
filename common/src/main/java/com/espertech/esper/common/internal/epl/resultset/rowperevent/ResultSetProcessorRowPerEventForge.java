@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.resultset.rowperevent;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenCtor;
@@ -20,15 +21,16 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodegenInstanceAux
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenTypedParam;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitLimitType;
 import com.espertech.esper.common.internal.compile.stage1.spec.OutputLimitSpec;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForge;
+import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryForgeBase;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_SELECTEXPRPROCESSOR;
@@ -37,36 +39,31 @@ import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSe
  * Result set processor prototype for the case: aggregation functions used in the select clause, and no group-by,
  * and not all of the properties in the select clause are under an aggregation function.
  */
-public class ResultSetProcessorRowPerEventForge implements ResultSetProcessorFactoryForge {
-    private final EventType resultEventType;
+public class ResultSetProcessorRowPerEventForge extends ResultSetProcessorFactoryForgeBase {
     private final ExprForge optionalHavingNode;
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
     private final OutputLimitSpec outputLimitSpec;
     private final boolean hasOrderBy;
-    private final Supplier<StateMgmtSetting> outputAllHelperSettings;
+    private StateMgmtSetting outputAllHelperSettings;
+    private StateMgmtSetting outputLastHelperSettings;
 
     public ResultSetProcessorRowPerEventForge(EventType resultEventType,
+                                              EventType[] typesPerStream,
                                               ExprForge optionalHavingNode,
                                               boolean isSelectRStream,
                                               boolean isUnidirectional,
                                               boolean isHistoricalOnly,
                                               OutputLimitSpec outputLimitSpec,
-                                              boolean hasOrderBy,
-                                              Supplier<StateMgmtSetting> outputAllHelperSettings) {
-        this.resultEventType = resultEventType;
+                                              boolean hasOrderBy) {
+        super(resultEventType, typesPerStream);
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
         this.isUnidirectional = isUnidirectional;
         this.isHistoricalOnly = isHistoricalOnly;
         this.outputLimitSpec = outputLimitSpec;
         this.hasOrderBy = hasOrderBy;
-        this.outputAllHelperSettings = outputAllHelperSettings;
-    }
-
-    public EventType getResultEventType() {
-        return resultEventType;
     }
 
     public ExprForge getOptionalHavingNode() {
@@ -171,7 +168,19 @@ public class ResultSetProcessorRowPerEventForge implements ResultSetProcessorFac
         return "ResultSetProcessUngroupedNonfullyAgg";
     }
 
-    public Supplier<StateMgmtSetting> getOutputAllHelperSettings() {
+    public StateMgmtSetting getOutputAllHelperSettings() {
         return outputAllHelperSettings;
+    }
+
+    public StateMgmtSetting getOutputLastHelperSettings() {
+        return outputLastHelperSettings;
+    }
+
+    public void planStateSettings(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        if (isOutputAll()) {
+            this.outputAllHelperSettings = services.getStateMgmtSettingsProvider().resultSet().rowPerEventOutputAll(fabricCharge, statementRawInfo, this);
+        } else if (isOutputLast()) {
+            this.outputLastHelperSettings = services.getStateMgmtSettingsProvider().resultSet().rowPerEventOutputLast(fabricCharge, statementRawInfo, this);
+        }
     }
 }

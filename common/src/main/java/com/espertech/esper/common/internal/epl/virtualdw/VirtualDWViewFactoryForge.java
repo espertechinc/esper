@@ -60,10 +60,10 @@ public class VirtualDWViewFactoryForge implements ViewFactoryForge, DataWindowVi
         this.streamNumber = streamNumber;
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attach(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         this.parentEventType = parentEventType;
 
-        validatedParameterExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, parameters, true, viewForgeEnv, streamNumber);
+        validatedParameterExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, parameters, true, viewForgeEnv);
         parameterValues = new Object[validatedParameterExpressions.length];
         for (int i = 0; i < validatedParameterExpressions.length; i++) {
             try {
@@ -111,5 +111,9 @@ public class VirtualDWViewFactoryForge implements ViewFactoryForge, DataWindowVi
 
     public Set<String> getUniqueKeys() {
         return forge.getUniqueKeyPropertyNames();
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

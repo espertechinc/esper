@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.collection.ArrayEventIterator;
 import com.espertech.esper.common.internal.epl.agg.access.core.AggregatorAccessWFilterBase;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.sharable.CodegenSharableSerdeEventTyped;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
@@ -89,6 +90,10 @@ public class AggregatorAccessLinearJoin extends AggregatorAccessWFilterBase impl
 
     public void readCodegen(CodegenExpressionRef row, int col, CodegenExpressionRef input, CodegenMethod method, CodegenExpressionRef unitKey, CodegenClassScope classScope) {
         method.getBlock().assignRef(rowDotMember(row, refSet), cast(EPTypePremade.LINKEDHASHMAP.getEPType(), exprDotMethod(getSerde(classScope), "read", input, unitKey)));
+    }
+
+    public void collectFabricType(FabricTypeCollector collector) {
+        collector.linkedHashMapEventsAndInt(forge.getEventType());
     }
 
     public CodegenExpression getFirstNthValueCodegen(CodegenExpressionRef index, CodegenMethod parentMethod, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

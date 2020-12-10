@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.epl.agg.method.core.AggregatorMethodW
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprForge;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
@@ -118,5 +119,9 @@ public class AggregatorRate extends AggregatorMethodWDistinctWFilterBase {
                 .apply(readLong(row, latest, input))
                 .apply(readLong(row, oldest, input))
                 .apply(readBoolean(row, isSet, input));
+    }
+
+    protected void appendFormatWODistinct(FabricTypeCollector collector) {
+        collector.builtin(double.class, long.class, long.class, boolean.class);
     }
 }

@@ -25,6 +25,21 @@ public enum AppliesTo {
     AGGREGATION_GROUPBY,
 
     /**
+     * Group-by for aggregations
+     */
+    AGGREGATION_UNGROUPED,
+
+    /**
+     * Local-Group-by for aggregations
+     */
+    AGGREGATION_LOCAL,
+
+    /**
+     * Rollup-Group-by for aggregations
+     */
+    AGGREGATION_ROLLUP,
+
+    /**
      * Context partition id management
      */
     CONTEXT_PARTITIONID,
@@ -75,6 +90,11 @@ public enum AppliesTo {
     INDEX_SORTED,
 
     /**
+     * Index composite of hash and btree
+     */
+    INDEX_COMPOSITE,
+
+    /**
      * Index unindexed
      */
     INDEX_UNINDEXED,
@@ -87,7 +107,7 @@ public enum AppliesTo {
     /**
      * Prior
      */
-    WINDOW_PRIOR,
+    PRIOR,
 
     /**
      * Rank window
@@ -165,6 +185,11 @@ public enum AppliesTo {
     PATTERN_EVERY,
 
     /**
+     * Previous-function
+     */
+    PREVIOUS,
+
+    /**
      * Result Set Aggregate-Grouped Output Limit Helper
      */
     RESULTSET_AGGREGATEGROUPED_OUTPUTFIRST,
@@ -205,14 +230,29 @@ public enum AppliesTo {
     RESULTSET_FULLYAGGREGATED_OUTPUTALL,
 
     /**
+     * Result Set Fully-Aggregated Output Last
+     */
+    RESULTSET_FULLYAGGREGATED_OUTPUTLAST,
+
+    /**
      * Result Set Simple Output All
      */
     RESULTSET_SIMPLE_OUTPUTALL,
 
     /**
+     * Result Set Simple Output Last
+     */
+    RESULTSET_SIMPLE_OUTPUTLAST,
+
+    /**
      * Result Set Simple Row-Per-Event Output All
      */
     RESULTSET_ROWPEREVENT_OUTPUTALL,
+
+    /**
+     * Result Set Simple Row-Per-Event Output Last
+     */
+    RESULTSET_ROWPEREVENT_OUTPUTLAST,
 
     /**
      * Result Set Row-Per-Group Output All

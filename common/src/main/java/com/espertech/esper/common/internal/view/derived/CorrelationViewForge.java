@@ -21,7 +21,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 import com.espertech.esper.common.internal.view.util.ViewForgeSupport;
@@ -33,19 +33,16 @@ import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeUt
 /**
  * Factory for {@link CorrelationView} instances.
  */
-public class CorrelationViewForge extends ViewFactoryForgeBase {
-    private List<ExprNode> viewParameters;
-
+public class CorrelationViewForge extends ViewFactoryForgeBaseDerived {
     protected ExprNode expressionX;
     protected ExprNode expressionY;
-    protected StatViewAdditionalPropsForge additionalProps;
 
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
         if (validated.length < 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
@@ -56,13 +53,13 @@ public class CorrelationViewForge extends ViewFactoryForgeBase {
         expressionX = validated[0];
         expressionY = validated[1];
 
-        additionalProps = StatViewAdditionalPropsForge.make(validated, 2, parentEventType, streamNumber, viewForgeEnv);
-        eventType = CorrelationView.createEventType(additionalProps, viewForgeEnv, streamNumber);
+        additionalProps = StatViewAdditionalPropsForge.make(validated, 2, parentEventType, viewForgeEnv);
+        eventType = CorrelationView.createEventType(additionalProps, viewForgeEnv);
     }
 
     @Override
     public List<StmtClassForgeableFactory> initAdditionalForgeables(ViewForgeEnv viewForgeEnv) {
-        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver());
+        return SerdeEventTypeUtility.plan(eventType, viewForgeEnv.getStatementRawInfo(), viewForgeEnv.getSerdeEventTypeRegistry(), viewForgeEnv.getSerdeResolver(), viewForgeEnv.getStateMgmtSettingsProvider());
     }
 
     public EPTypeClass typeOfFactory() {
@@ -86,8 +83,12 @@ public class CorrelationViewForge extends ViewFactoryForgeBase {
         return "Correlation";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_CORRELATION;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private String getViewParamMessage() {

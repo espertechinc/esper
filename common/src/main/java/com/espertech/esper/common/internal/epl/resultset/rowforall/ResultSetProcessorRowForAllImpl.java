@@ -12,7 +12,6 @@ package com.espertech.esper.common.internal.epl.resultset.rowforall;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -160,14 +159,13 @@ public class ResultSetProcessorRowForAllImpl {
     private static void processOutputLimitedLastAllNonBufferedCodegen(String methodName, ResultSetProcessorRowForAllForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
         CodegenExpressionField factory = classScope.addOrGetFieldSharable(ResultSetProcessorHelperFactoryField.INSTANCE);
 
-        if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.ALL) {
+        if (forge.isOutputAll()) {
             instance.addMember(NAME_OUTPUTALLHELPER, ResultSetProcessorRowForAllOutputAllHelper.EPTYPE);
-            StateMgmtSetting stateMgmtSettings = forge.getOutputAllHelperSettings().get();
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowForAllOutputAll", ref("this"), MEMBER_EXPREVALCONTEXT, stateMgmtSettings.toExpression()));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTALLHELPER, exprDotMethod(factory, "makeRSRowForAllOutputAll", ref("this"), MEMBER_EXPREVALCONTEXT, forge.getOutputAllHelperSettings().toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTALLHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
-        } else if (forge.getOutputLimitSpec().getDisplayLimit() == OutputLimitLimitType.LAST) {
+        } else if (forge.isOutputLast()) {
             instance.addMember(NAME_OUTPUTLASTHELPER, ResultSetProcessorRowForAllOutputLastHelper.EPTYPE);
-            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowForAllOutputLast", ref("this"), MEMBER_EXPREVALCONTEXT));
+            instance.getServiceCtor().getBlock().assignRef(NAME_OUTPUTLASTHELPER, exprDotMethod(factory, "makeRSRowForAllOutputLast", ref("this"), MEMBER_EXPREVALCONTEXT, forge.getOutputLastHelperSettings().toExpression()));
             method.getBlock().exprDotMethod(member(NAME_OUTPUTLASTHELPER), methodName, REF_NEWDATA, REF_OLDDATA, REF_ISSYNTHESIZE);
         }
     }

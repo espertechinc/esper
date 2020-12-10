@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprFilterSpecLoo
 import com.espertech.esper.common.internal.epl.index.advanced.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSkip;
 
 import java.util.function.Function;
 
@@ -38,7 +39,7 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
     private final String indexType;
 
     public FilterSpecLookupableAdvancedIndexForge(String expression, EventPropertyGetterSPI getter, EPTypeClass returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetterSPI x, EventPropertyGetterSPI y, EventPropertyGetterSPI width, EventPropertyGetterSPI height, String indexType) {
-        super(expression, new ExprEventEvaluatorForgeFromProp(getter), null, returnType, true, null);
+        super(expression, new ExprEventEvaluatorForgeFromProp(getter), null, returnType, true, DataInputOutputSerdeForgeSkip.INSTANCE);
         this.quadTreeConfig = quadTreeConfig;
         this.x = x;
         this.y = y;
@@ -52,16 +53,16 @@ public class FilterSpecLookupableAdvancedIndexForge extends ExprFilterSpecLookup
         CodegenMethod method = parent.makeChild(FilterSpecLookupableAdvancedIndex.EPTYPE, FilterSpecLookupableAdvancedIndexForge.class, classScope);
         Function<EventPropertyGetterSPI, CodegenExpression> toEval = getter -> EventTypeUtility.codegenGetterWCoerce(getter, EPTypePremade.DOUBLEBOXED.getEPType(), null, method, this.getClass(), classScope);
         method.getBlock()
-                .declareVar(FilterSpecLookupableAdvancedIndex.EPTYPE, "lookupable", newInstance(FilterSpecLookupableAdvancedIndex.EPTYPE,
-                        constant(expression), constantNull(), constant(returnType)))
-                .exprDotMethod(ref("lookupable"), "setQuadTreeConfig", quadTreeConfig.make())
-                .exprDotMethod(ref("lookupable"), "setX", toEval.apply(x))
-                .exprDotMethod(ref("lookupable"), "setY", toEval.apply(y))
-                .exprDotMethod(ref("lookupable"), "setWidth", toEval.apply(width))
-                .exprDotMethod(ref("lookupable"), "setHeight", toEval.apply(height))
-                .exprDotMethod(ref("lookupable"), "setIndexType", constant(indexType))
-                .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
-                .methodReturn(ref("lookupable"));
+            .declareVar(FilterSpecLookupableAdvancedIndex.EPTYPE, "lookupable", newInstance(FilterSpecLookupableAdvancedIndex.EPTYPE,
+                constant(expression), constantNull(), constant(returnType)))
+            .exprDotMethod(ref("lookupable"), "setQuadTreeConfig", quadTreeConfig.make())
+            .exprDotMethod(ref("lookupable"), "setX", toEval.apply(x))
+            .exprDotMethod(ref("lookupable"), "setY", toEval.apply(y))
+            .exprDotMethod(ref("lookupable"), "setWidth", toEval.apply(width))
+            .exprDotMethod(ref("lookupable"), "setHeight", toEval.apply(height))
+            .exprDotMethod(ref("lookupable"), "setIndexType", constant(indexType))
+            .expression(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETFILTERSHAREDLOOKUPABLEREGISTERY).add("registerLookupable", symbols.getAddEventType(method), ref("lookupable")))
+            .methodReturn(ref("lookupable"));
         return method;
     }
 

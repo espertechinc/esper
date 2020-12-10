@@ -67,4 +67,8 @@ public class ContextSpecConditionTimePeriod implements ContextSpecCondition, Sch
                 .methodReturn(ref("condition"));
         return localMethod(method);
     }
+
+    public <T> T accept(ContextSpecConditionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

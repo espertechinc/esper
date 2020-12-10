@@ -31,16 +31,15 @@ public class ViewFactoryTimePeriodHelper {
                                                                              ExprNode expression,
                                                                              String expectedMessage,
                                                                              int expressionNumber,
-                                                                             ViewForgeEnv viewForgeEnv,
-                                                                             int streamNumber)
+                                                                             ViewForgeEnv viewForgeEnv)
         throws ViewParameterException {
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(false);
         TimePeriodComputeForge forge;
         if (expression instanceof ExprTimePeriod) {
-            ExprTimePeriod validated = (ExprTimePeriod) ViewForgeSupport.validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
+            ExprTimePeriod validated = (ExprTimePeriod) ViewForgeSupport.validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber);
             forge = validated.getTimePeriodComputeForge();
         } else {
-            ExprNode validated = ViewForgeSupport.validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber, streamNumber);
+            ExprNode validated = ViewForgeSupport.validateExpr(viewName, expression, streamTypeService, viewForgeEnv, expressionNumber);
             EPType type = validated.getForge().getEvaluationType();
             if (type == null || !JavaClassHelper.isNumeric(type)) {
                 throw new ViewParameterException(expectedMessage);

@@ -16,5 +16,6 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 
 public interface ContextSpecCondition {
+    <T> T accept(ContextSpecConditionVisitor<T> visitor);
     CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 }

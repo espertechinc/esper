@@ -73,7 +73,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
 
         AggregationService aggregationService = null;
         if (aggregationServiceFactory != null) {
-            aggregationService = aggregationServiceFactory.makeService(exprEvaluatorContext, true, subqueryNumber, null);
+            aggregationService = aggregationServiceFactory.makeService(exprEvaluatorContext, null, subqueryNumber, null);
 
             final AggregationService aggregationServiceStoppable = aggregationService;
             stopCallbackList.add(new AgentInstanceMgmtCallback() {

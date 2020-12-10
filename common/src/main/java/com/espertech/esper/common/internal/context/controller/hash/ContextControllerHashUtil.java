@@ -25,7 +25,7 @@ import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.event.core.EventPropertyValueGetterForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
-import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingleton;
+import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSingletonBasicBuiltin;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIONullableIntegerSerde;
 import com.espertech.esper.common.internal.settings.ClasspathImportSingleRowDesc;
 
@@ -90,7 +90,7 @@ public class ContextControllerHashUtil {
 
             // create and register expression
             String expression = hashFuncName + "(" + ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(paramExpr) + ")";
-            DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingleton(DIONullableIntegerSerde.class);
+            DataInputOutputSerdeForge valueSerde = new DataInputOutputSerdeForgeSingletonBasicBuiltin(DIONullableIntegerSerde.class, EPTypePremade.INTEGERBOXED.getEPType());
             ExprEventEvaluatorForgeFromProp eval = new ExprEventEvaluatorForgeFromProp(getter);
             ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(expression, eval, null, EPTypePremade.INTEGERBOXED.getEPType(), true, valueSerde);
             item.setLookupable(lookupable);

@@ -64,13 +64,13 @@ public class OnExprViewTableMergeInsertUnmatched extends ViewSupport implements 
         for (EventBean trigger : newData) {
             eventsPerStream[1] = trigger;
             parent.getOnMergeHelper().getInsertUnmatched().apply(null, eventsPerStream, tableInstance, changeHandlerAdded, null, agentInstanceContext);
+        }
 
-            // The on-delete listeners receive the events deleted, but only if there is interest
-            if (postResultsToListeners) {
-                EventBean[] postedNew = changeHandlerAdded.getEvents();
-                if (postedNew != null) {
-                    child.update(postedNew, null);
-                }
+        // The on-delete listeners receive the events deleted, but only if there is interest
+        if (postResultsToListeners) {
+            EventBean[] postedNew = changeHandlerAdded.getEvents();
+            if (postedNew != null) {
+                child.update(postedNew, null);
             }
         }
 

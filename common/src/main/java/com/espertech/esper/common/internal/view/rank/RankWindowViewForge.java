@@ -51,7 +51,7 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         this.useCollatorSort = viewForgeEnv.getConfiguration().getCompiler().getLanguage().isSortUsingCollator();
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         eventType = parentEventType;
         String message = getViewName() + " view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys";
         if (viewParameters.size() < 3) {
@@ -59,7 +59,7 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         }
 
         // validate
-        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+        ExprNode[] validated = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, true, viewForgeEnv);
 
         // find size-parameter index
         int indexNumericSize = -1;
@@ -142,7 +142,19 @@ public class RankWindowViewForge extends ViewFactoryForgeBase implements DataWin
         return ViewEnum.RANK_WINDOW.getName();
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_RANK;
+    }
+
+    public MultiKeyClassRef getMultiKeyClassNames() {
+        return multiKeyClassNames;
+    }
+
+    public DataInputOutputSerdeForge[] getSortSerdes() {
+        return sortSerdes;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

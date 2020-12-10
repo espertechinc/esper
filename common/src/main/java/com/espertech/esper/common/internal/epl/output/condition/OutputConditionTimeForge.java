@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.output.condition;
 
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,10 +29,12 @@ public class OutputConditionTimeForge implements OutputConditionFactoryForge, Sc
     private final ExprTimePeriod timePeriod;
     private final boolean isStartConditionOnCreation;
     private int scheduleCallbackId = -1;
+    protected final StateMgmtSetting stateMgmtSetting;
 
-    public OutputConditionTimeForge(ExprTimePeriod timePeriod, boolean isStartConditionOnCreation) {
+    public OutputConditionTimeForge(ExprTimePeriod timePeriod, boolean isStartConditionOnCreation, StateMgmtSetting stateMgmtSetting) {
         this.timePeriod = timePeriod;
         this.isStartConditionOnCreation = isStartConditionOnCreation;
+        this.stateMgmtSetting = stateMgmtSetting;
     }
 
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
@@ -42,7 +45,7 @@ public class OutputConditionTimeForge implements OutputConditionFactoryForge, Sc
         method.getBlock()
                 .declareVar(TimePeriodCompute.EPTYPE, "delta", timePeriod.getTimePeriodComputeForge().makeEvaluator(method, classScope))
                 .methodReturn(exprDotMethodChain(symbols.getAddInitSvc(method)).add(EPStatementInitServices.GETRESULTSETPROCESSORHELPERFACTORY)
-                        .add("makeOutputConditionTime", constant(timePeriod.hasVariable()), ref("delta"), constant(isStartConditionOnCreation), constant(scheduleCallbackId)));
+                        .add("makeOutputConditionTime", constant(timePeriod.hasVariable()), ref("delta"), constant(isStartConditionOnCreation), constant(scheduleCallbackId), stateMgmtSetting.toExpression()));
         return localMethod(method);
     }
 

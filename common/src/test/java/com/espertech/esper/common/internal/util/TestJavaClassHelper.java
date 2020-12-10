@@ -29,6 +29,21 @@ import java.util.*;
 import static com.espertech.esper.common.internal.util.JavaClassHelper.*;
 
 public class TestJavaClassHelper extends TestCase {
+    public void testGetClassNameSimpleWithArrayDim() {
+        assertEquals("byte", getClassNameNormalized(EPTypePremade.BYTEPRIMITIVE.getEPType()));
+        assertEquals("Byte", getClassNameNormalized(EPTypePremade.BYTEBOXED.getEPType()));
+        assertEquals("byte[]", getClassNameNormalized(EPTypePremade.BYTEPRIMITIVEARRAY.getEPType()));
+        assertEquals("Byte[]", getClassNameNormalized(EPTypePremade.BYTEBOXEDARRAY.getEPType()));
+        assertEquals("byte[][]", getClassNameNormalized(EPTypePremade.BYTEPRIMITIVEARRAYARRAY.getEPType()));
+        assertEquals("Byte[][]", getClassNameNormalized(EPTypePremade.BYTEBOXEDARRAYARRAY.getEPType()));
+        assertEquals("String", getClassNameNormalized(EPTypePremade.STRING.getEPType()));
+        assertEquals("String[]", getClassNameNormalized(EPTypePremade.STRINGARRAY.getEPType()));
+        assertEquals("Date", getClassNameNormalized(EPTypePremade.DATE.getEPType()));
+        assertEquals("java.sql.Date", getClassNameNormalized(EPTypePremade.SQLDATE.getEPType()));
+        assertEquals("Date[]", getClassNameNormalized(EPTypePremade.DATEARRAY.getEPType()));
+        assertEquals("java.sql.Date[]", getClassNameNormalized(EPTypePremade.SQLDATEARRAY.getEPType()));
+    }
+
     public void testArrayTypeCompatible() {
         assertTrue(isArrayTypeCompatible(int.class, int.class));
         assertTrue(isArrayTypeCompatible(int.class, Integer.class));

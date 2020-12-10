@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
@@ -39,5 +40,9 @@ public class ContextControllerHashValidationItem implements Supplier<EventType> 
 
     public CodegenExpression make(CodegenExpressionRef addInitSvc) {
         return newInstance(ContextControllerHashValidationItem.EPTYPE, EventTypeUtility.resolveTypeCodegen(eventType, addInitSvc));
+    }
+
+    public void visitFilterAddendumEventTypes(Consumer<EventType> consumer) {
+        consumer.accept(eventType);
     }
 }

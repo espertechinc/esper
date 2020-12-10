@@ -19,10 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import com.espertech.esper.common.internal.view.core.ViewFactoryForgeBase;
-import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
-import com.espertech.esper.common.internal.view.core.ViewForgeVisitor;
-import com.espertech.esper.common.internal.view.core.ViewParameterException;
+import com.espertech.esper.common.internal.view.core.*;
 
 import java.util.List;
 
@@ -45,7 +42,7 @@ public class RowRecogNFAViewFactoryForge extends ViewFactoryForgeBase implements
         // no action
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         // no action
     }
 
@@ -78,7 +75,11 @@ public class RowRecogNFAViewFactoryForge extends ViewFactoryForgeBase implements
         this.scheduleCallbackId = id;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_ROWRECOG;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

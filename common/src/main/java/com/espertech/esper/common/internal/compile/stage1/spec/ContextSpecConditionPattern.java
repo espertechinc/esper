@@ -83,6 +83,10 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
         return asNameEventType;
     }
 
+    public PatternContext getPatternContext() {
+        return patternContext;
+    }
+
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenMethod method = parent.makeChild(ContextConditionDescriptorPattern.EPTYPE, this.getClass(), classScope);
         method.getBlock()
@@ -98,5 +102,9 @@ public class ContextSpecConditionPattern implements ContextSpecCondition {
                 .exprDotMethod(ref("condition"), "setAsNameEventType", asNameEventType == null ? constantNull() : EventTypeUtility.resolveTypeCodegen(asNameEventType, symbols.getAddInitSvc(method)))
                 .methodReturn(ref("condition"));
         return localMethod(method);
+    }
+
+    public <T> T accept(ContextSpecConditionVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

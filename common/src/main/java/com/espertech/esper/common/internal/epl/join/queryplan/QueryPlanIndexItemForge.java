@@ -12,9 +12,11 @@ package com.espertech.esper.common.internal.epl.join.queryplan;
 
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.util.StateMgmtIndexDescComposite;
+import com.espertech.esper.common.client.util.StateMgmtIndexDescHash;
+import com.espertech.esper.common.client.util.StateMgmtIndexDescSorted;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -31,8 +33,8 @@ import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingDefault;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -239,20 +241,20 @@ public class QueryPlanIndexItemForge implements CodegenMakeable<SAIFFInitializeS
             advancedIndexProvisionDesc.toRuntime(), stateMgmtSettings);
     }
 
-    public void planStateMgmtSettings(StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
-        AppliesTo appliesTo;
+    public void planStateMgmtSettings(FabricCharge fabricCharge, QueryPlanAttributionKey attributionKey, String indexName, QueryPlanIndexItemForge forge, StatementRawInfo raw, StatementCompileTimeServices compileTimeServices) {
         if (hashProps.length > 0 && rangeProps.length == 0) {
-            appliesTo = AppliesTo.INDEX_HASH;
-        } else if (hashProps.length == 0 && rangeProps.length > 0) {
-            appliesTo = AppliesTo.INDEX_SORTED;
-        } else if (hashProps.length > 0) {
-            stateMgmtSettings = StateMgmtSettingDefault.INSTANCE;
-            return;
+            StateMgmtIndexDescHash indexDesc = new StateMgmtIndexDescHash(forge.hashProps, forge.hashMultiKeyClasses, forge.unique);
+            stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().index().indexHash(fabricCharge, attributionKey, indexName, forge.eventType, indexDesc, raw);
+        } else if (hashProps.length == 0 && rangeProps.length == 1) {
+            StateMgmtIndexDescSorted indexDesc = new StateMgmtIndexDescSorted(rangeProps[0], rangeSerdes[0]);
+            stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().index().sorted(fabricCharge, attributionKey, indexName, forge.eventType, indexDesc, raw);
+        } else if (hashProps.length + rangeProps.length > 1) {
+            StateMgmtIndexDescComposite composite = new StateMgmtIndexDescComposite(hashProps, hashMultiKeyClasses, rangeProps, rangeSerdes);
+            stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().index().composite(fabricCharge, attributionKey, indexName, forge.eventType, composite, raw);
         } else if (advancedIndexProvisionDesc == null) {
-            appliesTo = AppliesTo.INDEX_UNINDEXED;
+            stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().index().unindexed(fabricCharge, attributionKey, forge.eventType, raw);
         } else {
-            appliesTo = AppliesTo.INDEX_OTHER;
+            stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().index().advanced(fabricCharge, attributionKey, indexName, forge.eventType, forge.advancedIndexProvisionDesc, raw);
         }
-        stateMgmtSettings = compileTimeServices.getStateMgmtSettingsProvider().getIndex(raw, appliesTo);
     }
 }

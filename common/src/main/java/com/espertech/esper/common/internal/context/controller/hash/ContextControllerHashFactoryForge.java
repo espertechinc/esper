@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.common.internal.context.controller.hash;
 
-import com.espertech.esper.common.client.annotation.AppliesTo;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -19,12 +19,13 @@ import com.espertech.esper.common.internal.compile.stage1.spec.ContextSpecHashIt
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryEnv;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerForgeBase;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 
 import java.util.LinkedHashMap;
 
@@ -41,9 +42,12 @@ public class ContextControllerHashFactoryForge extends ContextControllerForgeBas
         this.detail = detail;
     }
 
-    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-        ContextControllerHashUtil.validateContextDesc(contextName, detail, statementRawInfo, services);
-        stateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(statementRawInfo, contextName, AppliesTo.CONTEXT_HASH);
+    public void validateGetContextProps(LinkedHashMap<String, Object> props, String contextName, int controllerLevel, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+        // no props
+    }
+
+    public void planStateSettings(ContextMetaData detail, FabricCharge fabricCharge, int controllerLevel, String nestedContextName, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        stateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextHash(fabricCharge, detail, this, statementRawInfo, controllerLevel);
     }
 
     public CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols) {
@@ -62,5 +66,9 @@ public class ContextControllerHashFactoryForge extends ContextControllerForgeBas
             items[i] = new ContextControllerHashValidationItem(props.getFilterSpecCompiled().getFilterForEventType());
         }
         return new ContextControllerHashValidation(items);
+    }
+
+    public boolean isPreallocate() {
+        return detail.isPreallocate();
     }
 }

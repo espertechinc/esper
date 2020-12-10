@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIOBigDecimalBigIntegerUtil;
 
@@ -79,6 +80,14 @@ public class AggregatorSumBig extends AggregatorSumBase {
             method.getBlock().assignRef(rowDotMember(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigInt", input));
         } else {
             method.getBlock().assignRef(rowDotMember(row, sum), staticMethod(DIOBigDecimalBigIntegerUtil.class, "readBigDec", input));
+        }
+    }
+
+    protected void appendSumFormat(FabricTypeCollector collector) {
+        if (sumType.getType() == BigInteger.class) {
+            collector.bigInteger();
+        } else {
+            collector.bigDecimal();
         }
     }
 }

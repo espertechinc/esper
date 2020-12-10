@@ -54,11 +54,11 @@ public class ResultSetProcessorHelperFactoryDefault implements ResultSetProcesso
         return new OutputProcessViewConditionDeltaSetImpl(eventTypes.length > 1);
     }
 
-    public OutputConditionFactory makeOutputConditionTime(boolean hasVariable, TimePeriodCompute timePeriodCompute, boolean isStartConditionOnCreation, int scheduleCallbackId) {
+    public OutputConditionFactory makeOutputConditionTime(boolean hasVariable, TimePeriodCompute timePeriodCompute, boolean isStartConditionOnCreation, int scheduleCallbackId, StateMgmtSetting stateMgmtSetting) {
         return new OutputConditionTimeFactory(hasVariable, timePeriodCompute, isStartConditionOnCreation, scheduleCallbackId);
     }
 
-    public ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting) {
         return new ResultSetProcessorRowForAllOutputLastHelperImpl(processor);
     }
 
@@ -66,7 +66,7 @@ public class ResultSetProcessorHelperFactoryDefault implements ResultSetProcesso
         return new ResultSetProcessorRowForAllOutputAllHelperImpl(processor);
     }
 
-    public ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes) {
+    public ResultSetProcessorSimpleOutputLastHelper makeRSSimpleOutputLast(ResultSetProcessorSimple simple, ExprEvaluatorContext exprEvaluatorContext, EventType[] eventTypes, StateMgmtSetting stateMgmtSetting) {
         return new ResultSetProcessorSimpleOutputLastHelperImpl(simple);
     }
 
@@ -74,8 +74,8 @@ public class ResultSetProcessorHelperFactoryDefault implements ResultSetProcesso
         return new ResultSetProcessorSimpleOutputAllHelperImpl(simple);
     }
 
-    public ResultSetProcessorSimpleOutputFirstHelper makeRSSimpleOutputFirst(ExprEvaluatorContext exprEvaluatorContext) {
-        return new ResultSetProcessorSimpleOutputFirstHelperImpl();
+    public ResultSetProcessorStraightOutputFirstHelper makeRSStraightOutputFirst(ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting) {
+        return new ResultSetProcessorStraightOutputFirstHelperImpl();
     }
 
     public OutputConditionExpressionFactory makeOutputConditionExpression() {
@@ -86,8 +86,8 @@ public class ResultSetProcessorHelperFactoryDefault implements ResultSetProcesso
         return new OutputConditionCrontabFactory(crontabAtSchedule, isStartConditionOnCreation, scheduleCallbackId);
     }
 
-    public OutputConditionFactory makeOutputConditionCount(int rate, Variable variableMetaData) {
-        return new OutputConditionCountFactory(rate, variableMetaData);
+    public OutputConditionFactory makeOutputConditionCount(int rate, Variable variableMetaData, StateMgmtSetting stateMgmtSetting) {
+        return new OutputConditionCountFactory(rate, variableMetaData, stateMgmtSetting);
     }
 
     public OutputProcessViewAfterState makeOutputConditionAfter(Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, ExprEvaluatorContext exprEvaluatorContext) {
@@ -97,7 +97,7 @@ public class ResultSetProcessorHelperFactoryDefault implements ResultSetProcesso
         return new OutputProcessViewAfterStateImpl(afterConditionTime, afterConditionNumberOfEvents);
     }
 
-    public ResultSetProcessorRowPerEventOutputLastHelperImpl makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext) {
+    public ResultSetProcessorRowPerEventOutputLastHelperImpl makeRSRowPerEventOutputLast(ResultSetProcessorRowPerEvent processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting) {
         return new ResultSetProcessorRowPerEventOutputLastHelperImpl(processor);
     }
 

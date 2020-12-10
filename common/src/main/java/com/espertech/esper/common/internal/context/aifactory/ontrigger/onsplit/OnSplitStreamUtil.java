@@ -29,10 +29,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorDesc;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryFactory;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
-import com.espertech.esper.common.internal.epl.resultset.core.ResultSetSpec;
+import com.espertech.esper.common.internal.epl.resultset.core.*;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
@@ -112,7 +109,7 @@ public class OnSplitStreamUtil {
             activatorResult.getActivatorResultEventType(), subselectForges, tableAccessForges, items, desc.isFirst());
         StmtClassForgeableAIFactoryProviderOnTrigger triggerForge = new StmtClassForgeableAIFactoryProviderOnTrigger(aiFactoryProviderClassName, packageScope, splitStreamForge);
 
-        return new OnTriggerPlan(triggerForge, forgeables, new SelectSubscriberDescriptor(), subselectForgePlan.getAdditionalForgeables());
+        return new OnTriggerPlan(triggerForge, forgeables, new SelectSubscriberDescriptor(), subselectForgePlan.getAdditionalForgeables(), subselectForgePlan.getFabricCharge());
     }
 
     private static OnSplitItemForge onSplitValidate(StreamTypeService typeServiceTrigger, StatementSpecCompiled statementSpecCompiled, ContextPropertyRegistry contextPropertyRegistry, PropertyEvaluatorForge optionalPropertyEval, StatementRawInfo rawInfo, StatementCompileTimeServices services) throws ExprValidationException {
@@ -121,7 +118,7 @@ public class OnSplitStreamUtil {
         TableMetaData table = services.getTableCompileTimeResolver().resolve(insertIntoName);
         EPStatementStartMethodHelperValidate.validateNodes(statementSpecCompiled.getRaw(), typeServiceTrigger, null, rawInfo, services);
         ResultSetSpec spec = new ResultSetSpec(statementSpecCompiled);
-        ResultSetProcessorDesc factoryDescs = ResultSetProcessorFactoryFactory.getProcessorPrototype(spec, typeServiceTrigger,
+        ResultSetProcessorDesc factoryDescs = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, spec, typeServiceTrigger,
             null, new boolean[0], false, contextPropertyRegistry, false, true, rawInfo, services);
         return new OnSplitItemForge(statementSpecCompiled.getRaw().getWhereClause(), isNamedWindowInsert, table, factoryDescs, optionalPropertyEval);
     }

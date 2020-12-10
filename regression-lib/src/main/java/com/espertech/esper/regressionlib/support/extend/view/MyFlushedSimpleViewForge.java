@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeVisitor;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 import com.espertech.esper.common.internal.view.core.ViewParameterException;
 
@@ -29,7 +30,7 @@ public class MyFlushedSimpleViewForge implements ViewFactoryForge {
     public void setViewParameters(List<ExprNode> parameters, ViewForgeEnv viewForgeEnv, int streamNumber) throws ViewParameterException {
     }
 
-    public void attach(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attach(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         eventType = parentEventType;
     }
 
@@ -45,5 +46,9 @@ public class MyFlushedSimpleViewForge implements ViewFactoryForge {
         return new SAIFFInitializeBuilder(MyFlushedSimpleViewFactory.EPTYPE, this.getClass(), "factory", parent, symbols, classScope)
             .eventtype("eventType", eventType)
             .build();
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visitExtension(this);
     }
 }

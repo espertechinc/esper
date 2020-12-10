@@ -61,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -84,9 +85,10 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
      * @param configuration is the runtimeconfiguration
      * @param runtimeURI    is the runtime URI or "default" (or null which it assumes as "default") if this is the default provider
      * @param runtimes      map of URI and runtime
+     * @param options
      * @throws ConfigurationException is thrown to indicate a configuraton error
      */
-    public EPRuntimeImpl(Configuration configuration, String runtimeURI, Map<String, EPRuntimeSPI> runtimes) throws ConfigurationException {
+    public EPRuntimeImpl(Configuration configuration, String runtimeURI, Map<String, EPRuntimeSPI> runtimes, EPRuntimeOptions options) throws ConfigurationException {
         if (configuration == null) {
             throw new NullPointerException("Unexpected null value received for configuration");
         }
@@ -100,7 +102,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
         configLastProvided = takeSnapshot(configuration);
 
-        doInitialize(null);
+        doInitialize(null, options, null);
     }
 
     /**
@@ -235,15 +237,19 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
     }
 
     public void initialize() {
-        initializeInternal(null);
+        initializeInternal(null, null);
+    }
+
+    public void initialize(Consumer<EPRuntimeSPIRunAfterDestroyCtx> runAfterDestroy) {
+        initializeInternal(null, runAfterDestroy);
     }
 
     public void initialize(Long currentTime) {
-        initializeInternal(currentTime);
+        initializeInternal(currentTime, null);
     }
 
-    private void initializeInternal(Long currentTime) {
-        doInitialize(currentTime);
+    private void initializeInternal(Long currentTime, Consumer<EPRuntimeSPIRunAfterDestroyCtx> runAfterDestroy) {
+        doInitialize(currentTime, null, runAfterDestroy);
         postInitialize();
     }
 
@@ -252,7 +258,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
      *
      * @param startTime optional start time
      */
-    protected void doInitialize(Long startTime) {
+    protected void doInitialize(Long startTime, EPRuntimeOptions options, Consumer<EPRuntimeSPIRunAfterDestroyCtx> runAfterDestroy) {
         log.info("Initializing runtime URI '" + runtimeURI + "' version " + RuntimeVersion.RUNTIME_VERSION);
 
         // Retain config-at-initialization since config-last-provided can be set to new values and "initialize" can be called
@@ -284,6 +290,10 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
             runtimeEnvironment.getRuntime().initialize();
 
             runtimeEnvironment.getServices().destroy();
+
+            if (runAfterDestroy != null) {
+                runAfterDestroy.accept(new EPRuntimeSPIRunAfterDestroyCtx(runtimeURI));
+            }
         }
 
         serviceStatusProvider = new AtomicBoolean(true);
@@ -318,7 +328,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
         EPServicesContext services;
         try {
-            services = epServicesContextFactory.createServicesContext(this, configLastProvided);
+            services = epServicesContextFactory.createServicesContext(this, configLastProvided, options);
         } catch (Throwable t) {
             throw new ConfigurationException("Failed runtime startup: " + t.getMessage(), t);
         }

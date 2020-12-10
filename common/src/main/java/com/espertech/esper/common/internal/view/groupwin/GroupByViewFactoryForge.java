@@ -108,8 +108,8 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         }
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
-        criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv, streamNumber);
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+        criteriaExpressions = ViewForgeSupport.validate(getViewName(), parentEventType, viewParameters, false, viewForgeEnv);
 
         if (criteriaExpressions.length == 0) {
             String errorMessage = getViewName() + " view requires a one or more expressions provinding unique values as parameters";
@@ -122,7 +122,7 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         }
 
         EventType groupedEventType = groupeds.get(groupeds.size() - 1).getEventType();
-        eventType = determineEventType(groupedEventType, criteriaExpressions, streamNumber, viewForgeEnv);
+        eventType = determineEventType(groupedEventType, criteriaExpressions, viewForgeEnv);
         if (eventType != groupedEventType) {
             addingProperties = true;
         }
@@ -195,7 +195,7 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
         return groupeds;
     }
 
-    private static EventType determineEventType(EventType groupedEventType, ExprNode[] criteriaExpressions, int streamNum, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
+    private static EventType determineEventType(EventType groupedEventType, ExprNode[] criteriaExpressions, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
 
         // determine types of fields
         EPTypeClass[] fieldTypes = new EPTypeClass[criteriaExpressions.length];
@@ -245,14 +245,22 @@ public class GroupByViewFactoryForge extends ViewFactoryForgeBase {
             additionalProps.put(fieldNames[i], fieldTypes[i]);
         }
 
-        String outputEventTypeName = viewForgeEnv.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewGroup(streamNum);
+        String outputEventTypeName = viewForgeEnv.getStatementCompileTimeServices().getEventTypeNameGeneratorStatement().getViewGroup(viewForgeEnv.getStreamNumber());
         EventTypeMetadata metadata = new EventTypeMetadata(outputEventTypeName, viewForgeEnv.getModuleName(), EventTypeTypeClass.VIEWDERIVED, EventTypeApplicationType.WRAPPER, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         EventType eventType = WrapperEventTypeUtil.makeWrapper(metadata, groupedEventType, additionalProps, EventBeanTypedEventFactoryCompileTime.INSTANCE, viewForgeEnv.getBeanEventTypeFactoryProtected(), viewForgeEnv.getEventTypeCompileTimeResolver());
         viewForgeEnv.getEventTypeModuleCompileTimeRegistry().newType(eventType);
         return eventType;
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_GROUP;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    public MultiKeyClassRef getMultiKeyClassNames() {
+        return multiKeyClassNames;
     }
 }

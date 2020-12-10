@@ -10,8 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.agg.rollup;
 
+import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -25,7 +27,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.agg.core.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
+import com.espertech.esper.common.internal.fabric.FabricTypeCollector;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import java.util.List;
@@ -51,17 +53,36 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     protected final AggregationRowStateForgeDesc rowStateForgeDesc;
     protected final AggregationGroupByRollupDescForge rollupDesc;
     protected final ExprNode[] groupByNodes;
-    private final StateMgmtSetting stateMgmtSettings;
+    private StateMgmtSetting stateMgmtSetting;
 
-    public AggSvcGroupByRollupForge(AggregationRowStateForgeDesc rowStateForgeDesc, AggregationGroupByRollupDescForge rollupDesc, ExprNode[] groupByNodes, StateMgmtSetting stateMgmtSettings) {
+    public AggSvcGroupByRollupForge(AggregationRowStateForgeDesc rowStateForgeDesc, AggregationGroupByRollupDescForge rollupDesc, ExprNode[] groupByNodes) {
         this.rowStateForgeDesc = rowStateForgeDesc;
         this.rollupDesc = rollupDesc;
         this.groupByNodes = groupByNodes;
-        this.stateMgmtSettings = stateMgmtSettings;
+    }
+
+    public AppliesTo appliesTo() {
+        return AppliesTo.AGGREGATION_ROLLUP;
+    }
+
+    public void setStateMgmtSetting(StateMgmtSetting stateMgmtSetting) {
+        this.stateMgmtSetting = stateMgmtSetting;
+    }
+
+    public void appendRowFabricType(FabricTypeCollector fabricTypeCollector) {
+        AggregationServiceCodegenUtil.appendIncidentals(true, false, fabricTypeCollector);
     }
 
     public AggregationCodegenRowLevelDesc getRowLevelDesc() {
         return AggregationCodegenRowLevelDesc.fromTopOnly(rowStateForgeDesc);
+    }
+
+    public AggregationRowStateForgeDesc getRowStateForgeDesc() {
+        return rowStateForgeDesc;
+    }
+
+    public AggregationGroupByRollupDescForge getRollupDesc() {
+        return rollupDesc;
     }
 
     public void providerCodegen(CodegenMethod method, CodegenClassScope classScope, AggregationClassNames classNames) {
@@ -71,7 +92,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
                 .declareVar(DataInputOutputSerde.EPTYPE, "rowSerde", CodegenExpressionBuilder.newInstance(classNames.getRowSerdeTop(), ref("this")))
                 .methodReturn(exprDotMethodChain(EPStatementInitServices.REF).add(GETAGGREGATIONSERVICEFACTORYSERVICE).add("groupByRollup",
                         ref("svcFactory"), rollupDesc.codegen(method, classScope), ref("rowFactory"), rowStateForgeDesc.getUseFlags().toExpression(),
-                        ref("rowSerde"), stateMgmtSettings.toExpression()));
+                        ref("rowSerde"), stateMgmtSetting.toExpression()));
     }
 
     public void rowCtorCodegen(AggregationRowCtorDesc rowCtorDesc) {
@@ -188,6 +209,10 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
 
     public void getRowCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
         method.getBlock().methodReturn(MEMBER_CURRENTROW);
+    }
+
+    public <T> T accept(AggregationServiceFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private CodegenExpression getGroupKeyCountCodegen(CodegenMethodScope parent, CodegenClassScope classScope) {

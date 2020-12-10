@@ -41,9 +41,9 @@ public class ExternallyTimedBatchViewForge extends ViewFactoryForgeBase implemen
         this.viewParameters = parameters;
     }
 
-    public void attachValidate(EventType parentEventType, int streamNumber, ViewForgeEnv viewForgeEnv, boolean grouped) throws ViewParameterException {
+    public void attachValidate(EventType parentEventType, ViewForgeEnv viewForgeEnv) throws ViewParameterException {
         final String windowName = getViewName();
-        ExprNode[] validated = ViewForgeSupport.validate(windowName, parentEventType, viewParameters, true, viewForgeEnv, streamNumber);
+        ExprNode[] validated = ViewForgeSupport.validate(windowName, parentEventType, viewParameters, true, viewForgeEnv);
         if (viewParameters.size() < 2 || viewParameters.size() > 3) {
             throw new ViewParameterException(getViewParamMessage());
         }
@@ -55,11 +55,11 @@ public class ExternallyTimedBatchViewForge extends ViewFactoryForgeBase implemen
         timestampExpression = validated[0];
         ViewForgeSupport.assertReturnsNonConstant(windowName, validated[0], 0);
 
-        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv, streamNumber);
+        timePeriodComputeForge = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewParameters.get(1), getViewParamMessage(), 1, viewForgeEnv);
 
         // validate optional parameters
         if (validated.length == 3) {
-            Object constant = ViewForgeSupport.validateAndEvaluate(windowName, validated[2], viewForgeEnv, streamNumber);
+            Object constant = ViewForgeSupport.validateAndEvaluate(windowName, validated[2], viewForgeEnv);
             if ((!(constant instanceof Number)) || (JavaClassHelper.isFloatingPointNumber((Number) constant))) {
                 throw new ViewParameterException("Externally-timed batch view requires a Long-typed reference point in msec as a third parameter");
             }
@@ -89,8 +89,12 @@ public class ExternallyTimedBatchViewForge extends ViewFactoryForgeBase implemen
         return "Externally-timed-batch";
     }
 
-    protected AppliesTo appliesTo() {
+    public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_EXTTIMEDBATCH;
+    }
+
+    public <T> T accept(ViewFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     private String getViewParamMessage() {

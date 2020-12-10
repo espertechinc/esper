@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScop
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
+import com.espertech.esper.common.internal.fabric.*;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.List;
@@ -26,14 +27,16 @@ public class StmtForgeMethodResult {
     private final List<NamedWindowConsumerStreamSpec> namedWindowConsumers;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
     private final CodegenPackageScope packageScope;
+    private final FabricCharge fabricCharge;
 
-    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions, CodegenPackageScope packageScope) {
+    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions, CodegenPackageScope packageScope, FabricCharge fabricCharge) {
         this.forgeables = forgeables;
         this.filtereds = filtereds;
         this.scheduleds = scheduleds;
         this.namedWindowConsumers = namedWindowConsumers;
         this.filterBooleanExpressions = filterBooleanExpressions;
         this.packageScope = packageScope;
+        this.fabricCharge = fabricCharge;
     }
 
     public List<StmtClassForgeable> getForgeables() {
@@ -58,5 +61,9 @@ public class StmtForgeMethodResult {
 
     public CodegenPackageScope getPackageScope() {
         return packageScope;
+    }
+
+    public FabricCharge getFabricCharge() {
+        return fabricCharge;
     }
 }

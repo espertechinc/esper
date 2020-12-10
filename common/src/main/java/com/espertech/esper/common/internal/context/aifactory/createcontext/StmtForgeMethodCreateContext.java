@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.context.aifactory.createcontext;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.annotation.AppliesTo;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
@@ -20,12 +19,13 @@ import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
+import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
@@ -36,6 +36,7 @@ import com.espertech.esper.common.internal.context.controller.core.ContextContro
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryForge;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.controller.hash.ContextControllerHashFactoryForge;
+import com.espertech.esper.common.internal.context.controller.hash.ContextControllerHashUtil;
 import com.espertech.esper.common.internal.context.controller.initterm.ContextControllerInitTermFactoryForge;
 import com.espertech.esper.common.internal.context.controller.keyed.ContextControllerKeyedFactoryForge;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
@@ -45,14 +46,18 @@ import com.espertech.esper.common.internal.context.module.StatementProvider;
 import com.espertech.esper.common.internal.context.util.ContextPropertyEventType;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNode;
+import com.espertech.esper.common.internal.epl.pattern.core.PatternAttributionKeyContextCondition;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternContext;
 import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterForgeNode;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
-import com.espertech.esper.common.internal.event.core.*;
+import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
+import com.espertech.esper.common.internal.event.core.EventPropertyGetterSPI;
+import com.espertech.esper.common.internal.event.core.EventTypeSPI;
+import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.event.map.MapEventType;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
-import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.schedule.ScheduleExpressionUtil;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
@@ -80,6 +85,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
         List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
         List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
 
         final CreateContextDesc context = statementSpec.getRaw().getCreateContextDesc();
         if (services.getContextCompileTimeResolver().getContextInfo(context.getContextName()) != null) {
@@ -87,8 +93,11 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         }
 
         // compile filter specs, if any
-        CreateContextValidationEnv validationEnv = new CreateContextValidationEnv(context.getContextName(), base.getStatementRawInfo(), services, filterSpecCompileds, scheduleHandleCallbackProviders, filterBooleanExpressions);
-        List<StmtClassForgeableFactory> additionalForgeables = validateContextDetail(context.getContextDetail(), 0, validationEnv);
+        NameAccessModifier contextVisibility = services.getModuleVisibilityRules().getAccessModifierContext(base, context.getContextName());
+        CreateContextValidationEnv validationEnv = new CreateContextValidationEnv(context.getContextName(), contextVisibility, base.getStatementRawInfo(), services, filterSpecCompileds, scheduleHandleCallbackProviders, filterBooleanExpressions);
+        ValidateContextDetailResult validationResult = validateContextDetail(context.getContextDetail(), 0, validationEnv);
+        List<StmtClassForgeableFactory> additionalForgeables = validationResult.additionalForgables;
+        fabricCharge.add(validationResult.getFabricCharge());
 
         // get controller factory forges
         ContextControllerFactoryForge[] controllerFactoryForges = getForges(context.getContextName(), context.getContextDetail());
@@ -103,13 +112,15 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         services.getEventTypeCompileTimeRegistry().newType(contextPropertiesType);
 
         // register context
-        NameAccessModifier visibilityContext = services.getModuleVisibilityRules().getAccessModifierContext(base, context.getContextName());
         ContextControllerPortableInfo[] validationInfo = new ContextControllerPortableInfo[controllerFactoryForges.length];
         for (int i = 0; i < validationInfo.length; i++) {
             validationInfo[i] = controllerFactoryForges[i].getValidationInfo();
         }
-        ContextMetaData detail = new ContextMetaData(context.getContextName(), base.getModuleName(), visibilityContext, contextPropertiesType, validationInfo);
+        ContextMetaData detail = new ContextMetaData(context.getContextName(), base.getModuleName(), contextVisibility, contextPropertiesType, validationInfo);
         services.getContextCompileTimeRegistry().newContext(detail);
+
+        // build context properties type information
+        fabricCharge.add(planStateSettings(detail, controllerFactoryForges, base.getStatementRawInfo(), services));
 
         // define output event type
         String statementEventTypeName = services.getEventTypeNameGeneratorStatement().getContextStatementTypeName(context.getContextName());
@@ -129,7 +140,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         String statementAIFactoryProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementAIFactoryProvider.class, classPostfix);
 
         StatementAgentInstanceFactoryCreateContextForge forge = new StatementAgentInstanceFactoryCreateContextForge(context.getContextName(), statementEventType);
-        StateMgmtSetting partitionIdSvcStateMgmtSettings = services.getStateMgmtSettingsProvider().getContext(base.getStatementRawInfo(), context.getContextName(), AppliesTo.CONTEXT_PARTITIONID);
+        StateMgmtSetting partitionIdSvcStateMgmtSettings = services.getStateMgmtSettingsProvider().context().contextPartitionId(fabricCharge, base.getStatementRawInfo(), detail);
         forgeables.add(new StmtClassForgeableAIFactoryProviderCreateContext(statementAIFactoryProviderClassName, packageScope, context.getContextName(), controllerFactoryForges, contextPropertiesType, forge, partitionIdSvcStateMgmtSettings));
 
         SelectSubscriberDescriptor selectSubscriberDescriptor = new SelectSubscriberDescriptor();
@@ -138,7 +149,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtProvider(statementAIFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, filterBooleanExpressions), packageScope);
+        services.getStateMgmtSettingsProvider().context().context(fabricCharge, detail, controllerFactoryForges);
+
+        return new StmtForgeMethodResult(forgeables, filterSpecCompileds, scheduleHandleCallbackProviders, Collections.emptyList(), FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, filterBooleanExpressions), packageScope, fabricCharge);
     }
 
     private Map<String, Object> makeContextProperies(ContextControllerFactoryForge[] controllers, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
@@ -148,7 +161,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         props.put(ContextPropertyEventType.PROP_CTX_ID, EPTypePremade.INTEGERBOXED.getEPType());
 
         if (controllers.length == 1) {
-            controllers[0].validateGetContextProps(props, controllers[0].getFactoryEnv().getOutermostContextName(), statementRawInfo, services);
+            controllers[0].validateGetContextProps(props, controllers[0].getFactoryEnv().getOutermostContextName(), 0, statementRawInfo, services);
             return props;
         }
 
@@ -159,15 +172,25 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             if (level == controllers.length - 1) {
                 propsPerLevel.put(ContextPropertyEventType.PROP_CTX_ID, EPTypePremade.INTEGERBOXED.getEPType());
             }
-            controllers[level].validateGetContextProps(propsPerLevel, nestedContextName, statementRawInfo, services);
+            controllers[level].validateGetContextProps(propsPerLevel, nestedContextName, level, statementRawInfo, services);
             props.put(nestedContextName, propsPerLevel);
         }
 
         return props;
     }
 
-    private List<StmtClassForgeableFactory> validateContextDetail(ContextSpec contextSpec, int nestingLevel, CreateContextValidationEnv validationEnv) throws ExprValidationException {
+    private FabricCharge planStateSettings(ContextMetaData detail, ContextControllerFactoryForge[] controllers, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) {
+        FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        for (int level = 0; level < controllers.length; level++) {
+            String nestedContextName = controllers[level].getFactoryEnv().getContextName();
+            controllers[level].planStateSettings(detail, fabricCharge, level, nestedContextName, statementRawInfo, services);
+        }
+        return fabricCharge;
+    }
+
+    private ValidateContextDetailResult validateContextDetail(ContextSpec contextSpec, int nestingLevel, CreateContextValidationEnv validationEnv) throws ExprValidationException {
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
+        FabricCharge fabricCharge = validationEnv.getServices().getStateMgmtSettingsProvider().newCharge();
 
         if (contextSpec instanceof ContextSpecKeyed) {
             ContextSpecKeyed segmented = (ContextSpecKeyed) contextSpec;
@@ -202,6 +225,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                     validateAsName(asNames, partition.getAliasName(), filterSpecCompiled.getFilterForEventType());
                 }
             }
+            validationEnv.getServices().getStateMgmtSettingsProvider().context().filterContextKeyed(fabricCharge, segmented.getItems());
 
             // plan multi-key, make sure we use the same multikey for all items
             MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(getterTypes, false, base.getStatementRawInfo(), validationEnv.getServices().getSerdeResolver());
@@ -214,8 +238,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             if (segmented.getOptionalInit() != null) {
                 asNames.clear();
                 for (ContextSpecConditionFilter initCondition : segmented.getOptionalInit()) {
-                    ContextDetailMatchPair pair = validateRewriteContextCondition(true, nestingLevel, initCondition, new MatchEventSpec(), Collections.emptySet(), validationEnv);
+                    ContextDetailMatchPair pair = validateRewriteContextCondition(true, true, nestingLevel, initCondition, new MatchEventSpec(), Collections.emptySet(), validationEnv);
                     additionalForgeables.addAll(pair.additionalForgeables);
+                    fabricCharge.add(pair.fabricCharge);
 
                     EventType filterForType = initCondition.getFilterSpecCompiled().getFilterForEventType();
                     boolean found = false;
@@ -244,7 +269,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                         allTags.add(partition.getAliasName());
                         EventType eventType = partition.getFilterSpecCompiled().getFilterForEventType();
                         matchEventSpec.getTaggedEventTypes().put(partition.getAliasName(), new Pair<>(eventType, partition.getFilterSpecRaw().getEventTypeName()));
-                        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
+                        List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver(), validationEnv.getServices().getStateMgmtSettingsProvider());
                         additionalForgeables.addAll(serdeForgeables);
                     }
                 }
@@ -256,7 +281,8 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                         }
                     }
                 }
-                ContextDetailMatchPair endCondition = validateRewriteContextCondition(false, nestingLevel, segmented.getOptionalTermination(), matchEventSpec, allTags, validationEnv);
+                ContextDetailMatchPair endCondition = validateRewriteContextCondition(false, true, nestingLevel, segmented.getOptionalTermination(), matchEventSpec, allTags, validationEnv);
+                fabricCharge.add(endCondition.fabricCharge);
                 additionalForgeables.addAll(endCondition.additionalForgeables);
                 segmented.setOptionalTermination(endCondition.getCondition());
             }
@@ -282,6 +308,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 additionalForgeables.addAll(compiledDescItems.getAdditionalForgeables());
                 compiled.getFilterSpecCompiled().traverseFilterBooleanExpr(validationEnv.getFilterBooleanExpressions()::add);
                 item.setFilterPlan(compiled.getFilterSpecCompiled().getParameters());
+                validationEnv.getFilterSpecCompileds().add(compiled.getFilterSpecCompiled());
             }
         } else if (contextSpec instanceof ContextSpecHash) {
             ContextSpecHash hashed = (ContextSpecHash) contextSpec;
@@ -299,12 +326,17 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypes, validationEnv.getStatementRawInfo(), validationEnv.getServices()).withIsFilterExpression(true).build();
                 ExprNodeUtilityValidate.validate(ExprNodeOrigin.CONTEXT, Collections.singletonList(hashItem.getFunction()), validationContext);
             }
+            ContextControllerHashUtil.validateContextDesc(validationEnv.getContextName(), hashed, validationEnv.getStatementRawInfo(), validationEnv.getServices());
+            validationEnv.getServices().getStateMgmtSettingsProvider().context().filterContextHash(fabricCharge, hashed.getItems());
         } else if (contextSpec instanceof ContextSpecInitiatedTerminated) {
             ContextSpecInitiatedTerminated def = (ContextSpecInitiatedTerminated) contextSpec;
-            ContextDetailMatchPair startCondition = validateRewriteContextCondition(true, nestingLevel, def.getStartCondition(), new MatchEventSpec(), new LinkedHashSet<String>(), validationEnv);
+            ContextDetailMatchPair startCondition = validateRewriteContextCondition(true, false, nestingLevel, def.getStartCondition(), new MatchEventSpec(), new LinkedHashSet<String>(), validationEnv);
             additionalForgeables.addAll(startCondition.additionalForgeables);
-            ContextDetailMatchPair endCondition = validateRewriteContextCondition(false, nestingLevel, def.getEndCondition(), startCondition.getMatches(), startCondition.getAllTags(), validationEnv);
+            fabricCharge.add(startCondition.fabricCharge);
+
+            ContextDetailMatchPair endCondition = validateRewriteContextCondition(false, false, nestingLevel, def.getEndCondition(), startCondition.getMatches(), startCondition.getAllTags(), validationEnv);
             additionalForgeables.addAll(endCondition.additionalForgeables);
+            fabricCharge.add(endCondition.fabricCharge);
             def.setStartCondition(startCondition.getCondition());
             def.setEndCondition(endCondition.getCondition());
 
@@ -342,8 +374,9 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 }
                 namesUsed.add(nestedContext.getContextName());
 
-                List<StmtClassForgeableFactory> forgeables = validateContextDetail(nestedContext.getContextDetail(), level, validationEnv);
-                additionalForgeables.addAll(forgeables);
+                ValidateContextDetailResult result = validateContextDetail(nestedContext.getContextDetail(), level, validationEnv);
+                additionalForgeables.addAll(result.additionalForgables);
+                fabricCharge.add(result.getFabricCharge());
 
                 level++;
             }
@@ -351,7 +384,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             throw new IllegalStateException("Unrecognized context detail " + contextSpec);
         }
 
-        return additionalForgeables;
+        return new ValidateContextDetailResult(additionalForgeables, fabricCharge);
     }
 
     private Pair<FilterSpecCompiled, List<StmtClassForgeableFactory>> compilePartitonedFilterSpec(FilterSpecRaw filterSpecRaw, CreateContextValidationEnv validationEnv) throws ExprValidationException {
@@ -416,7 +449,8 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         return forge;
     }
 
-    private ContextDetailMatchPair validateRewriteContextCondition(boolean isStartCondition, int nestingLevel, ContextSpecCondition endpoint, MatchEventSpec priorMatches, Set<String> priorAllTags, CreateContextValidationEnv validationEnv) throws ExprValidationException {
+    private ContextDetailMatchPair validateRewriteContextCondition(boolean startCondition, boolean keyed, int nestingLevel, ContextSpecCondition endpoint, MatchEventSpec priorMatches, Set<String> priorAllTags, CreateContextValidationEnv validationEnv) throws ExprValidationException {
+        FabricCharge fabricCharge = validationEnv.getServices().getStateMgmtSettingsProvider().newCharge();
         if (endpoint instanceof ContextSpecConditionCrontab) {
             ContextSpecConditionCrontab crontab = (ContextSpecConditionCrontab) endpoint;
             ExprForge[][] forgesPerCrontab = new ExprForge[crontab.getCrontabs().size()][];
@@ -427,7 +461,7 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             }
             crontab.setForgesPerCrontab(forgesPerCrontab);
             validationEnv.getScheduleHandleCallbackProviders().add(crontab);
-            return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<>(), Collections.emptyList());
+            return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<>(), Collections.emptyList(), fabricCharge);
         }
 
         if (endpoint instanceof ContextSpecConditionTimePeriod) {
@@ -440,13 +474,13 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                 }
             }
             validationEnv.getScheduleHandleCallbackProviders().add(timePeriod);
-            return new ContextDetailMatchPair(timePeriod, new MatchEventSpec(), new LinkedHashSet<>(), Collections.emptyList());
+            return new ContextDetailMatchPair(timePeriod, new MatchEventSpec(), new LinkedHashSet<>(), Collections.emptyList(), fabricCharge);
         }
 
         if (endpoint instanceof ContextSpecConditionPattern) {
             ContextSpecConditionPattern pattern = (ContextSpecConditionPattern) endpoint;
-            PatternValidatedDesc validatedDesc = validatePatternContextConditionPattern(isStartCondition, nestingLevel, pattern, priorMatches, priorAllTags, validationEnv);
-            return new ContextDetailMatchPair(pattern, validatedDesc.getMatchEventSpec(), validatedDesc.getAllTags(), validatedDesc.additionalForgeables);
+            PatternValidatedDesc validatedDesc = validatePatternContextConditionPattern(startCondition, keyed, nestingLevel, pattern, priorMatches, priorAllTags, validationEnv);
+            return new ContextDetailMatchPair(pattern, validatedDesc.getMatchEventSpec(), validatedDesc.getAllTags(), validatedDesc.additionalForgeables, validatedDesc.getFabricCharge());
         }
 
         if (endpoint instanceof ContextSpecConditionFilter) {
@@ -467,34 +501,34 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
                     allTags.add(filter.getOptionalFilterAsName());
                 }
                 validationEnv.getFilterSpecCompileds().add(compiled.getFilterSpecCompiled());
-                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(filter.getFilterSpecCompiled().getFilterForEventType(), validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
+                List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(filter.getFilterSpecCompiled().getFilterForEventType(), validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver(), validationEnv.getServices().getStateMgmtSettingsProvider());
                 List<StmtClassForgeableFactory> allForgeables = Stream.concat(compiledDesc.getAdditionalForgeables().stream(), serdeForgeables.stream()).collect(Collectors.toList());
-                return new ContextDetailMatchPair(filter, matchEventSpec, allTags, allForgeables);
+                return new ContextDetailMatchPair(filter, matchEventSpec, allTags, allForgeables, fabricCharge);
             }
 
             // compile as pattern if there are prior matches to consider, since this is a type of followed-by relationship
             EvalForgeNode forgeNode = new EvalFilterForgeNode(validationEnv.getServices().isAttachPatternText(), filter.getFilterSpecRaw(), filter.getOptionalFilterAsName(), 0);
             ContextSpecConditionPattern pattern = new ContextSpecConditionPattern(forgeNode, true, false, null);
-            PatternValidatedDesc validated = validatePatternContextConditionPattern(isStartCondition, nestingLevel, pattern, priorMatches, priorAllTags, validationEnv);
-            return new ContextDetailMatchPair(pattern, validated.getMatchEventSpec(), validated.getAllTags(), validated.additionalForgeables);
+            PatternValidatedDesc validated = validatePatternContextConditionPattern(startCondition, keyed, nestingLevel, pattern, priorMatches, priorAllTags, validationEnv);
+            return new ContextDetailMatchPair(pattern, validated.getMatchEventSpec(), validated.getAllTags(), validated.getAdditionalForgeables(), validated.getFabricCharge());
         } else if (endpoint instanceof ContextSpecConditionImmediate || endpoint instanceof ContextSpecConditionNever) {
-            return new ContextDetailMatchPair(endpoint, new MatchEventSpec(), new LinkedHashSet<String>(), Collections.emptyList());
+            return new ContextDetailMatchPair(endpoint, new MatchEventSpec(), new LinkedHashSet<String>(), Collections.emptyList(), fabricCharge);
         } else {
             throw new IllegalStateException("Unrecognized endpoint type " + endpoint);
         }
     }
 
-    private PatternValidatedDesc validatePatternContextConditionPattern(boolean isStartCondition, int nestingLevel, ContextSpecConditionPattern pattern, MatchEventSpec priorMatches, Set<String> priorAllTags, CreateContextValidationEnv validationEnv)
+    private PatternValidatedDesc validatePatternContextConditionPattern(boolean startCondition, boolean keyed, int nestingLevel, ContextSpecConditionPattern pattern, MatchEventSpec priorMatches, Set<String> priorAllTags, CreateContextValidationEnv validationEnv)
             throws ExprValidationException {
         PatternStreamSpecRaw raw = new PatternStreamSpecRaw(pattern.getPatternRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT, false, false);
-        int streamNumber = getStreamNumberForNestingLevel(nestingLevel, isStartCondition);
+        int streamNumber = getStreamNumberForNestingLevel(nestingLevel, startCondition);
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         StreamSpecCompiledDesc compiledDesc = StreamSpecCompiler.compilePatternWTags(raw, priorMatches, priorAllTags, false, true, false, streamNumber, validationEnv.getStatementRawInfo(), validationEnv.getServices());
         additionalForgeables.addAll(compiledDesc.getAdditionalForgeables());
         PatternStreamSpecCompiled compiled = (PatternStreamSpecCompiled) compiledDesc.getStreamSpecCompiled();
         pattern.setPatternCompiled(compiled);
 
-        pattern.setPatternContext(new PatternContext(streamNumber, compiled.getMatchedEventMapMeta(), true, nestingLevel, isStartCondition));
+        pattern.setPatternContext(new PatternContext(streamNumber, compiled.getMatchedEventMapMeta(), true, nestingLevel, startCondition));
 
         List<EvalForgeNode> forges = compiled.getRoot().collectFactories();
         for (EvalForgeNode forge : forges) {
@@ -510,10 +544,10 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             Set<String> patternTags = FilterSpecCompilerTagUtil.getTagNumbers(pattern.getPatternRaw());
             pattern.setPatternTags(patternTags.toArray(new String[0]));
 
-            int streamNameForNaming = getStreamNumberForNestingLevel(nestingLevel, isStartCondition);
+            int streamNameForNaming = getStreamNumberForNestingLevel(nestingLevel, startCondition);
             MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(validationEnv.getStatementRawInfo().getModuleName(), streamNameForNaming, patternTags, pattern.getPatternCompiled(), validationEnv.getServices());
-            List<StmtClassForgeableFactory> forgeables = SerdeEventTypeUtility.plan(patternType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver());
-            additionalForgeables.addAll(forgeables);
+            List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(patternType, validationEnv.getStatementRawInfo(), validationEnv.getServices().getSerdeEventTypeRegistry(), validationEnv.getServices().getSerdeResolver(), validationEnv.getServices().getStateMgmtSettingsProvider());
+            additionalForgeables.addAll(serdeForgeables);
 
             pattern.setAsNameEventType(patternType);
 
@@ -522,7 +556,11 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
             allTags = new LinkedHashSet<>();
             allTags.add(pattern.getAsName());
         }
-        return new PatternValidatedDesc(matchEventSpec, allTags, additionalForgeables);
+
+        FabricCharge fabricCharge = validationEnv.getServices().getStateMgmtSettingsProvider().newCharge();
+        PatternAttributionKeyContextCondition attributionKey = new PatternAttributionKeyContextCondition(validationEnv.getContextName(), validationEnv.getContextVisibility(), validationEnv.getStatementRawInfo().getModuleName(), nestingLevel, startCondition, keyed);
+        validationEnv.getServices().getStateMgmtSettingsProvider().pattern(fabricCharge, attributionKey, compiled, validationEnv.getStatementRawInfo());
+        return new PatternValidatedDesc(matchEventSpec, allTags, additionalForgeables, fabricCharge);
     }
 
     private static class ContextDetailMatchPair {
@@ -530,12 +568,14 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         private final MatchEventSpec matches;
         private final Set<String> allTags;
         private final List<StmtClassForgeableFactory> additionalForgeables;
+        private final FabricCharge fabricCharge;
 
-        public ContextDetailMatchPair(ContextSpecCondition condition, MatchEventSpec matches, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables) {
+        public ContextDetailMatchPair(ContextSpecCondition condition, MatchEventSpec matches, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
             this.condition = condition;
             this.matches = matches;
             this.allTags = allTags;
             this.additionalForgeables = additionalForgeables;
+            this.fabricCharge = fabricCharge;
         }
 
         public ContextSpecCondition getCondition() {
@@ -553,17 +593,41 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
         public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
         }
+
+        public FabricCharge getFabricCharge() {
+            return fabricCharge;
+        }
+    }
+
+    private static class ValidateContextDetailResult {
+        private final List<StmtClassForgeableFactory> additionalForgables;
+        private final FabricCharge fabricCharge;
+
+        public ValidateContextDetailResult(List<StmtClassForgeableFactory> additionalForgables, FabricCharge fabricCharge) {
+            this.additionalForgables = additionalForgables;
+            this.fabricCharge = fabricCharge;
+        }
+
+        public List<StmtClassForgeableFactory> getAdditionalForgables() {
+            return additionalForgables;
+        }
+
+        public FabricCharge getFabricCharge() {
+            return fabricCharge;
+        }
     }
 
     private static class PatternValidatedDesc {
         private final MatchEventSpec matchEventSpec;
         private final Set<String> allTags;
         private final List<StmtClassForgeableFactory> additionalForgeables;
+        private final FabricCharge fabricCharge;
 
-        public PatternValidatedDesc(MatchEventSpec matchEventSpec, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables) {
+        public PatternValidatedDesc(MatchEventSpec matchEventSpec, Set<String> allTags, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
             this.matchEventSpec = matchEventSpec;
             this.allTags = allTags;
             this.additionalForgeables = additionalForgeables;
+            this.fabricCharge = fabricCharge;
         }
 
         public MatchEventSpec getMatchEventSpec() {
@@ -576,6 +640,10 @@ public class StmtForgeMethodCreateContext implements StmtForgeMethod {
 
         public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
+        }
+
+        public FabricCharge getFabricCharge() {
+            return fabricCharge;
         }
     }
 }

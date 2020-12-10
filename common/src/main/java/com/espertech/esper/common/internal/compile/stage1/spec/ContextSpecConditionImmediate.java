@@ -28,4 +28,8 @@ public class ContextSpecConditionImmediate implements ContextSpecCondition {
     public CodegenExpression make(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         return publicConstValue(ContextConditionDescriptorImmediate.class, "INSTANCE");
     }
+
+    public <T> T accept(ContextSpecConditionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

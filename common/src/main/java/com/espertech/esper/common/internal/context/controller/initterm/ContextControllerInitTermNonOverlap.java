@@ -34,7 +34,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
     public void activate(IntSeqKey path, Object[] parentPartitionKeys, EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern) {
         initTermSvc.mgmtCreate(path, parentPartitionKeys);
 
-        ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(path, parentPartitionKeys, factory.initTermSpec.getStartCondition(), this, this, true);
+        ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(path, parentPartitionKeys, factory.initTermSpec.getStartCondition(), this, this);
         boolean currentlyRunning = determineCurrentlyRunning(startCondition, this);
 
         if (!currentlyRunning) {
@@ -96,7 +96,7 @@ public class ContextControllerInitTermNonOverlap extends ContextControllerInitTe
             Object[] partitionKeys = initTermSvc.mgmtGetParentPartitionKeys(controllerPath);
 
             ContextConditionDescriptor startDesc = factory.initTermSpec.getStartCondition();
-            ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(controllerPath, partitionKeys, startDesc, this, this, true);
+            ContextControllerConditionNonHA startCondition = ContextControllerConditionFactory.getEndpoint(controllerPath, partitionKeys, startDesc, this, this);
             if (!startCondition.isImmediate()) {
                 startCondition.activate(optionalTriggeringEvent, null, optionalTriggeringPattern);
                 initTermSvc.mgmtUpdSetStartCondition(controllerPath, startCondition);
