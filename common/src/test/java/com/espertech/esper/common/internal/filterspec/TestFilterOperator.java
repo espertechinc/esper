@@ -13,6 +13,13 @@ package com.espertech.esper.common.internal.filterspec;
 import junit.framework.TestCase;
 
 public class TestFilterOperator extends TestCase {
+    public void testFromText() {
+        assertEquals(FilterOperator.EQUAL, FilterOperator.fromText("="));
+        for (FilterOperator op : FilterOperator.values()) {
+            assertEquals(op, FilterOperator.fromText(op.getTextualOp()));
+        }
+    }
+
     public void testRanges() {
         assertTrue(FilterOperator.parseRangeOperator(false, false, false) == FilterOperator.RANGE_OPEN);
         assertTrue(FilterOperator.parseRangeOperator(true, true, false) == FilterOperator.RANGE_CLOSED);

@@ -132,6 +132,15 @@ public enum FilterOperator {
         this.textualOp = textualOp;
     }
 
+    public static FilterOperator fromText(String text) {
+        for (FilterOperator value : values()) {
+            if (value.textualOp.equals(text)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException("Failed to find filter operator '" + text + "'");
+    }
+
     /**
      * Returns true for all range operators, false if not a range operator.
      *
