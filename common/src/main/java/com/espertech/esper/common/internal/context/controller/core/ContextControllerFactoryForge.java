@@ -32,4 +32,6 @@ public interface ContextControllerFactoryForge {
     CodegenMethod makeCodegen(CodegenClassScope classScope, CodegenMethodScope parent, SAIFFInitializeSymbol symbols);
 
     ContextControllerPortableInfo getValidationInfo();
+
+    <T> T accept(ContextControllerFactoryForgeVisitor<T> visitor);
 }

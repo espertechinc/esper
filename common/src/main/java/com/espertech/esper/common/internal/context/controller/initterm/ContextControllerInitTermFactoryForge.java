@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.compile.ContextMetaData;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryEnv;
+import com.espertech.esper.common.internal.context.controller.core.ContextControllerFactoryForgeVisitor;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerForgeBase;
 import com.espertech.esper.common.internal.context.controller.core.ContextControllerPortableInfo;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
@@ -78,5 +79,9 @@ public class ContextControllerInitTermFactoryForge extends ContextControllerForg
 
     public ContextSpecInitiatedTerminated getDetail() {
         return detail;
+    }
+
+    public <T> T accept(ContextControllerFactoryForgeVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }
