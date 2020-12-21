@@ -74,6 +74,10 @@ public class MultiKeyClassRefUUIDBased implements MultiKeyClassRef {
         return serdes;
     }
 
+    public <T> T accept(MultiKeyClassRefVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
     private void checkClassPostfix() {
         if (classPostfix == null) {
             throw new IllegalArgumentException("Class postfix has not been assigned");

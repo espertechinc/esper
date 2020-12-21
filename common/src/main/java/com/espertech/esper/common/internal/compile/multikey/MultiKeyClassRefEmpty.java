@@ -39,4 +39,8 @@ public class MultiKeyClassRefEmpty implements MultiKeyClassRef {
     public DataInputOutputSerdeForge[] getSerdeForges() {
         return new DataInputOutputSerdeForge[0];
     }
+
+    public <T> T accept(MultiKeyClassRefVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

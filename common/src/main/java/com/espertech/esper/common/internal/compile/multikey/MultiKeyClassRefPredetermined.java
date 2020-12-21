@@ -50,4 +50,8 @@ public class MultiKeyClassRefPredetermined implements MultiKeyClassRef {
     public DataInputOutputSerdeForge[] getSerdeForges() {
         return new DataInputOutputSerdeForge[] {serdeForge};
     }
+
+    public <T> T accept(MultiKeyClassRefVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

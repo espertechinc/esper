@@ -44,4 +44,8 @@ public class MultiKeyClassRefWSerde implements MultiKeyClassRef {
     public DataInputOutputSerdeForge[] getSerdeForges() {
         return new DataInputOutputSerdeForge[] {forge};
     }
+
+    public <T> T accept(MultiKeyClassRefVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }
