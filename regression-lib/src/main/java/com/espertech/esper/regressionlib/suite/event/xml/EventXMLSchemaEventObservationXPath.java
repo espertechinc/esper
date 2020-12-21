@@ -68,6 +68,8 @@ public class EventXMLSchemaEventObservationXPath {
         Document doc = SupportXML.getDocument(OBSERVATION_XML);
         env.sendEventXMLDOM(doc, eventTypeName);
 
+        env.milestone(0);
+
         SupportEventTypeAssertionUtil.assertConsistency(env.iterator("s0").next());
         SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e0").next());
         SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e1").next());
