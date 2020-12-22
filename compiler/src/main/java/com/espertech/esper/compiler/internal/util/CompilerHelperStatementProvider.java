@@ -222,7 +222,7 @@ public class CompilerHelperStatementProvider {
                 forgeables.add(additional.make(packageScope, classPostfix));
             }
 
-            List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
+            List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
             List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
@@ -239,9 +239,9 @@ public class CompilerHelperStatementProvider {
 
             // Stage 3(c) - filter assignments: assign filter callback ids and filter-path-num for boolean expressions
             int filterId = -1;
-            for (FilterSpecCompiled provider : filterSpecCompileds) {
+            for (FilterSpecTracked provider : filterSpecCompileds) {
                 int assigned = ++filterId;
-                provider.setFilterCallbackId(assigned);
+                provider.getFilterSpecCompiled().setFilterCallbackId(assigned);
             }
 
             // Stage 3(d) - schedule assignments: assign schedule callback ids
@@ -266,7 +266,7 @@ public class CompilerHelperStatementProvider {
             verifySubstitutionParams(raw.getSubstitutionParameters());
 
             // Stage 3(h) - fabric filter
-            for (FilterSpecCompiled provider : filterSpecCompileds) {
+            for (FilterSpecTracked provider : filterSpecCompileds) {
                 compileTimeServices.getStateMgmtSettingsProvider().filterNonContext(fabricCharge, provider);
             }
             if (contextDescriptor != null) {

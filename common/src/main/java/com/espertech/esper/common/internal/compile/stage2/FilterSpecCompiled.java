@@ -64,6 +64,10 @@ public final class FilterSpecCompiled {
         this.filterCallbackId = filterCallbackId;
     }
 
+    public int getFilterCallbackId() {
+        return filterCallbackId;
+    }
+
     /**
      * Returns type of event to filter for.
      *
@@ -234,10 +238,10 @@ public final class FilterSpecCompiled {
         return method;
     }
 
-    public static List<FilterSpecParamExprNodeForge> makeExprNodeList(List<FilterSpecCompiled> filterSpecCompileds, List<FilterSpecParamExprNodeForge> additionalBooleanExpressions) {
+    public static List<FilterSpecParamExprNodeForge> makeExprNodeList(List<FilterSpecTracked> filterSpecCompileds, List<FilterSpecParamExprNodeForge> additionalBooleanExpressions) {
         Set<FilterSpecParamExprNodeForge> boolExprs = new LinkedHashSet<>();
-        for (FilterSpecCompiled spec : filterSpecCompileds) {
-            spec.traverseFilterBooleanExpr(boolExprs::add);
+        for (FilterSpecTracked spec : filterSpecCompileds) {
+            spec.getFilterSpecCompiled().traverseFilterBooleanExpr(boolExprs::add);
         }
         boolExprs.addAll(additionalBooleanExpressions);
         return new ArrayList<>(boolExprs);

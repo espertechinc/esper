@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.context.aifactory.createcontext;
 
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
@@ -25,11 +25,11 @@ public class CreateContextValidationEnv {
     private final NameAccessModifier contextVisibility;
     private final StatementRawInfo statementRawInfo;
     private final StatementCompileTimeServices services;
-    private final List<FilterSpecCompiled> filterSpecCompileds;
+    private final List<FilterSpecTracked> filterSpecCompileds;
     private final List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
 
-    public CreateContextValidationEnv(String contextName, NameAccessModifier contextVisibility, StatementRawInfo statementRawInfo, StatementCompileTimeServices services, List<FilterSpecCompiled> filterSpecCompileds, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
+    public CreateContextValidationEnv(String contextName, NameAccessModifier contextVisibility, StatementRawInfo statementRawInfo, StatementCompileTimeServices services, List<FilterSpecTracked> filterSpecCompileds, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders, List<FilterSpecParamExprNodeForge> filterBooleanExpressions) {
         this.contextName = contextName;
         this.contextVisibility = contextVisibility;
         this.statementRawInfo = statementRawInfo;
@@ -55,7 +55,7 @@ public class CreateContextValidationEnv {
         return services;
     }
 
-    public List<FilterSpecCompiled> getFilterSpecCompileds() {
+    public List<FilterSpecTracked> getFilterSpecCompileds() {
         return filterSpecCompileds;
     }
 

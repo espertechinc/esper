@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternStreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
@@ -55,8 +55,8 @@ public interface StateMgmtSettingsProvider {
     StateMgmtSetting tableUnkeyed(FabricCharge fabricCharge, String tableName, TableAccessAnalysisResult tableInternalType, StatementRawInfo statementRawInfo);
 
     void filterViewable(FabricCharge fabricCharge, int stream, boolean isCanIterateUnbound, StatementRawInfo statementRawInfo, EventType eventType);
-    void filterNonContext(FabricCharge fabricCharge, FilterSpecCompiled spec);
-    void filterSubtypes(FabricCharge fabricCharge, List<FilterSpecCompiled> provider, ContextCompileTimeDescriptor contextDescriptor, StatementSpecCompiled compiled);
+    void filterNonContext(FabricCharge fabricCharge, FilterSpecTracked spec);
+    void filterSubtypes(FabricCharge fabricCharge, List<FilterSpecTracked> provider, ContextCompileTimeDescriptor contextDescriptor, StatementSpecCompiled compiled);
     void pattern(FabricCharge fabricCharge, PatternAttributionKey attributionKey, PatternStreamSpecCompiled patternStreamSpec, StatementRawInfo raw);
     void namedWindow(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, NamedWindowMetaData metaData, EventType eventType);
     void table(FabricCharge fabricCharge, String tableName, TableAccessAnalysisResult plan, StatementRawInfo statementRawInfo);

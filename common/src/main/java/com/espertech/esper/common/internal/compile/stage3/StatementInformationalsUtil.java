@@ -18,10 +18,7 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.StatementLifecycleSvcUtil;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecWalkUtil;
+import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.context.module.StatementInformationalsCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -43,7 +40,7 @@ public class StatementInformationalsUtil {
     public final static String EPL_ONLISTENERUPDATE_SCRIPT_NAME = "on_statement_listener_update";
 
     public static StatementInformationalsCompileTime getInformationals(StatementBaseInfo base,
-                                                                       List<FilterSpecCompiled> filterSpecCompileds,
+                                                                       List<FilterSpecTracked> filterSpecCompileds,
                                                                        List<ScheduleHandleCallbackProvider> schedules,
                                                                        List<NamedWindowConsumerStreamSpec> namedWindowConsumers,
                                                                        boolean allowContext,
@@ -128,9 +125,9 @@ public class StatementInformationalsUtil {
             packageScope, insertIntoLatchName, allowSubscriber, onScripts.toArray(new ExpressionScriptProvided[0]));
     }
 
-    private static boolean isNeedDedup(List<FilterSpecCompiled> filterSpecCompileds) {
-        for (FilterSpecCompiled provider : filterSpecCompileds) {
-            if (provider.getParameters().getPaths().length > 1) {
+    private static boolean isNeedDedup(List<FilterSpecTracked> filterSpecCompileds) {
+        for (FilterSpecTracked provider : filterSpecCompileds) {
+            if (provider.getFilterSpecCompiled().getParameters().getPaths().length > 1) {
                 return true;
             }
         }

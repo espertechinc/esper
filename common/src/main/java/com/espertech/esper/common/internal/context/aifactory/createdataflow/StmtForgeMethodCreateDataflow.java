@@ -26,9 +26,7 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompileException;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
 import com.espertech.esper.common.internal.context.module.StatementFields;
@@ -109,11 +107,11 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
         // compiled filter spec list
-        List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
+        List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
         for (Map.Entry<Integer, DataFlowOperatorForge> entry : dataflowForge.getOperatorFactories().entrySet()) {
             if (entry.getValue() instanceof EventBusSourceForge) {
                 EventBusSourceForge eventBusSource = (EventBusSourceForge) entry.getValue();
-                filterSpecCompileds.add(eventBusSource.getFilterSpecCompiled());
+                filterSpecCompileds.add(new FilterSpecTracked(FilterSpecAttributionDataflow.INSTANCE, eventBusSource.getFilterSpecCompiled()));
             }
         }
         List<FilterSpecParamExprNodeForge> filterBooleanExpr = FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList());

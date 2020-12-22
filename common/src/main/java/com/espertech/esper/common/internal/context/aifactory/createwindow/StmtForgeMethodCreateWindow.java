@@ -19,6 +19,8 @@ import com.espertech.esper.common.internal.compile.stage1.spec.CreateWindowDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseElementWildcard;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.compile.stage1.spec.ViewSpec;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecAttributionNamedWindow;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFilterForge;
@@ -141,6 +143,8 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         // fabric named window descriptor
         services.getStateMgmtSettingsProvider().namedWindow(fabricCharge, base.getStatementRawInfo(), metaData, namedWindowType);
 
+        List<FilterSpecTracked> filterSpecCompiled = Collections.singletonList(new FilterSpecTracked(FilterSpecAttributionNamedWindow.INSTANCE, compileResult.getFilterSpecCompiled()));
+
         // build forge list
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
 
@@ -158,13 +162,13 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         forgeables.add(aiFactoryForgeable);
 
         String statementProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementProvider.class, classPostfix);
-        StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
+        StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompiled, schedules, Collections.emptyList(), true, selectSubscriberDescriptor, packageScope, services);
         informationals.getProperties().put(StatementProperty.CREATEOBJECTNAME, createWindowDesc.getWindowName());
 
         forgeables.add(new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope));
         forgeables.add(new StmtClassForgeableStmtFields(statementFieldsClassName, packageScope));
 
-        return new StmtForgeMethodResult(forgeables, Collections.singletonList(compileResult.getFilterSpecCompiled()), schedules, Collections.emptyList(), Collections.emptyList(), packageScope, fabricCharge);
+        return new StmtForgeMethodResult(forgeables, filterSpecCompiled, schedules, Collections.emptyList(), Collections.emptyList(), packageScope, fabricCharge);
     }
 
     private static boolean determineBatchingDataWindow(List<ViewFactoryForge> forges) {

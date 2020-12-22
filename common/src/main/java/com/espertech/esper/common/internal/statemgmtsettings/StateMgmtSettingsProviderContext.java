@@ -26,8 +26,8 @@ import java.util.List;
 
 public interface StateMgmtSettingsProviderContext {
     void context(FabricCharge fabricCharge, ContextMetaData detail, ContextControllerFactoryForge[] controllerFactoryForges);
-    void filterContextKeyed(FabricCharge fabricCharge, List<ContextSpecKeyedItem> items);
-    void filterContextHash(FabricCharge fabricCharge, List<ContextSpecHashItem> items);
+    void filterContextKeyed(int nestingLevel, FabricCharge fabricCharge, List<ContextSpecKeyedItem> items);
+    void filterContextHash(int nestingLevel, FabricCharge fabricCharge, List<ContextSpecHashItem> items);
     StateMgmtSetting contextPartitionId(FabricCharge fabricCharge, StatementRawInfo statementRawInfo, ContextMetaData contextMetaData);
     StateMgmtSetting contextCategory(FabricCharge fabricCharge, ContextMetaData detail, ContextControllerCategoryFactoryForge forge, StatementRawInfo raw, int controllerLevel);
     StateMgmtSetting contextHash(FabricCharge fabricCharge, ContextMetaData detail, ContextControllerHashFactoryForge forge, StatementRawInfo raw, int controllerLevel);

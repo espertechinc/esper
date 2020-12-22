@@ -15,9 +15,7 @@ import com.espertech.esper.common.client.annotation.HintEnum;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamSpec;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
@@ -37,7 +35,7 @@ import java.util.*;
 
 public class SubSelectHelperActivations {
 
-    public static SubSelectActivationDesc createSubSelectActivation(boolean fireAndForget, List<FilterSpecCompiled> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
+    public static SubSelectActivationDesc createSubSelectActivation(boolean fireAndForget, List<FilterSpecTracked> filterSpecCompileds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, StatementBaseInfo statement, StatementCompileTimeServices services)
             throws ExprValidationException {
         Map<ExprSubselectNode, SubSelectActivationPlan> result = new LinkedHashMap<>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
@@ -67,7 +65,7 @@ public class SubSelectHelperActivations {
                 fabricCharge.add(viewForgeDesc.getFabricCharge());
                 EventType eventType = forges.isEmpty() ? filterStreamSpec.getFilterSpecCompiled().getResultEventType() : forges.get(forges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
-                filterSpecCompileds.add(filterStreamSpec.getFilterSpecCompiled());
+                filterSpecCompileds.add(new FilterSpecTracked(new FilterSpecAttributionSubquery(subqueryNumber), filterStreamSpec.getFilterSpecCompiled()));
 
                 // Add lookup to list, for later starts
                 result.put(subselect, new SubSelectActivationPlan(filterStreamSpec.getFilterSpecCompiled().getResultEventType(), forges, activatorDeactivator, streamSpec));

@@ -12,9 +12,9 @@ package com.espertech.esper.common.internal.compile.stage3;
 
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
-import com.espertech.esper.common.internal.fabric.*;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.List;
@@ -22,14 +22,14 @@ import java.util.List;
 public class StmtForgeMethodResult {
 
     private final List<StmtClassForgeable> forgeables;
-    private final List<FilterSpecCompiled> filtereds;
+    private final List<FilterSpecTracked> filtereds;
     private final List<ScheduleHandleCallbackProvider> scheduleds;
     private final List<NamedWindowConsumerStreamSpec> namedWindowConsumers;
     private final List<FilterSpecParamExprNodeForge> filterBooleanExpressions;
     private final CodegenPackageScope packageScope;
     private final FabricCharge fabricCharge;
 
-    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecCompiled> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions, CodegenPackageScope packageScope, FabricCharge fabricCharge) {
+    public StmtForgeMethodResult(List<StmtClassForgeable> forgeables, List<FilterSpecTracked> filtereds, List<ScheduleHandleCallbackProvider> scheduleds, List<NamedWindowConsumerStreamSpec> namedWindowConsumers, List<FilterSpecParamExprNodeForge> filterBooleanExpressions, CodegenPackageScope packageScope, FabricCharge fabricCharge) {
         this.forgeables = forgeables;
         this.filtereds = filtereds;
         this.scheduleds = scheduleds;
@@ -47,7 +47,7 @@ public class StmtForgeMethodResult {
         return scheduleds;
     }
 
-    public List<FilterSpecCompiled> getFiltereds() {
+    public List<FilterSpecTracked> getFiltereds() {
         return filtereds;
     }
 

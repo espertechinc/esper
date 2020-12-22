@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.*;
@@ -82,7 +82,7 @@ public class StmtForgeMethodUpdate implements StmtForgeMethod {
         StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{streamEventType}, new String[]{streamName}, new boolean[]{true}, false, false);
 
         // create subselect information
-        List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
+        List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, filterSpecCompileds, namedWindowConsumers, base, services);
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());

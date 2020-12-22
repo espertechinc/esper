@@ -20,9 +20,7 @@ import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
 import com.espertech.esper.common.internal.context.activator.*;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
@@ -87,7 +85,7 @@ import static com.espertech.esper.common.internal.context.aifactory.select.State
 public class StmtForgeMethodSelectUtil {
 
     public static StmtForgeMethodSelectResult make(boolean dataflowOperator, String packageName, String classPostfix, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {
-        List<FilterSpecCompiled> filterSpecCompileds = new ArrayList<>();
+        List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
         List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         StatementSpecCompiled statementSpec = base.getStatementSpec();
@@ -139,12 +137,13 @@ public class StmtForgeMethodSelectUtil {
                 viewForges[stream] = viewForgeDesc.getForges();
                 fabricCharge.add(viewForgeDesc.getFabricCharge());
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
-                filterSpecCompileds.add(filterSpecCompiled);
+                filterSpecCompileds.add(new FilterSpecTracked(new FilterSpecAttributionStream(stream), filterSpecCompiled));
             } else if (streamSpec instanceof PatternStreamSpecCompiled) {
                 PatternStreamSpecCompiled patternStreamSpec = (PatternStreamSpecCompiled) streamSpec;
                 List<EvalForgeNode> forges = patternStreamSpec.getRoot().collectFactories();
                 for (EvalForgeNode forge : forges) {
-                    forge.collectSelfFilterAndSchedule(filterSpecCompileds, scheduleHandleCallbackProviders);
+                    final int streamNum = stream;
+                    forge.collectSelfFilterAndSchedule(factoryNodeId -> new FilterSpecAttributionStreamPattern(streamNum, factoryNodeId), filterSpecCompileds, scheduleHandleCallbackProviders);
                 }
 
                 MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base.getModuleName(), stream, null, patternStreamSpec, services);

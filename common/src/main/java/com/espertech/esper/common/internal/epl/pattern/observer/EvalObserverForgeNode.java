@@ -15,7 +15,8 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternObserverSpec;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecAttribution;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityPrint;
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNodeBase;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 
@@ -80,7 +82,7 @@ public class EvalObserverForgeNode extends EvalForgeNodeBase {
         this.observerForge = observerForge;
     }
 
-    public void collectSelfFilterAndSchedule(List<FilterSpecCompiled> filters, List<ScheduleHandleCallbackProvider> schedules) {
+    public void collectSelfFilterAndSchedule(Function<Short, FilterSpecAttribution> attributionFunction, List<FilterSpecTracked> filters, List<ScheduleHandleCallbackProvider> schedules) {
         observerForge.collectSchedule(schedules);
     }
 

@@ -14,7 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage1.spec.MatchRecognizeSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.PatternStreamSpecCompiled;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
@@ -99,7 +99,7 @@ public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvid
         // no action
     }
 
-    public void filterNonContext(FabricCharge fabricCharge, FilterSpecCompiled spec) {
+    public void filterNonContext(FabricCharge fabricCharge, FilterSpecTracked spec) {
         // no action
     }
 
@@ -123,7 +123,7 @@ public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvid
         // no action
     }
 
-    public void filterSubtypes(FabricCharge fabricCharge, List<FilterSpecCompiled> provider, ContextCompileTimeDescriptor contextDescriptor, StatementSpecCompiled compiled) {
+    public void filterSubtypes(FabricCharge fabricCharge, List<FilterSpecTracked> provider, ContextCompileTimeDescriptor contextDescriptor, StatementSpecCompiled compiled) {
         // no action
     }
 

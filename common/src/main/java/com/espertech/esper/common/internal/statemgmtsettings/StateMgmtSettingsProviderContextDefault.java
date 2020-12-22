@@ -34,11 +34,11 @@ public class StateMgmtSettingsProviderContextDefault implements StateMgmtSetting
         // no action
     }
 
-    public void filterContextKeyed(FabricCharge fabricCharge, List<ContextSpecKeyedItem> items) {
+    public void filterContextKeyed(int nestingLevel, FabricCharge fabricCharge, List<ContextSpecKeyedItem> items) {
         // no action
     }
 
-    public void filterContextHash(FabricCharge fabricCharge, List<ContextSpecHashItem> items) {
+    public void filterContextHash(int nestingLevel, FabricCharge fabricCharge, List<ContextSpecHashItem> items) {
         // no action
     }
 
