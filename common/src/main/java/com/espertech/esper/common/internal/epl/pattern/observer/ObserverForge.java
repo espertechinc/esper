@@ -13,13 +13,15 @@ package com.espertech.esper.common.internal.epl.pattern.observer;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface ObserverForge {
 
@@ -35,5 +37,5 @@ public interface ObserverForge {
 
     CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
-    void collectSchedule(List<ScheduleHandleCallbackProvider> schedules);
+    void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> scheduleAttribution, List<ScheduleHandleTracked> schedules);
 }

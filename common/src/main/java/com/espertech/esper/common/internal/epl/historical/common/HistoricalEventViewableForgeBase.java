@@ -109,4 +109,8 @@ public abstract class HistoricalEventViewableForgeBase implements HistoricalEven
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
     }
+
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
 }

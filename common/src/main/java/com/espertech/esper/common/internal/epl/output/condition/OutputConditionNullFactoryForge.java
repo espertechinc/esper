@@ -13,8 +13,9 @@ package com.espertech.esper.common.internal.epl.output.condition;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionOutputRate;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -31,6 +32,6 @@ public class OutputConditionNullFactoryForge implements OutputConditionFactoryFo
         return publicConstValue(OutputConditionNullFactory.class, "INSTANCE");
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
+    public void collectSchedules(CallbackAttributionOutputRate callbackAttribution, List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
     }
 }

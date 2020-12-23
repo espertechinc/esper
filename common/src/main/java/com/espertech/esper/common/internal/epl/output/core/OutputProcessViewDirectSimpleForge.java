@@ -18,7 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -86,7 +86,7 @@ public class OutputProcessViewDirectSimpleForge implements OutputProcessViewFact
         method.getBlock().methodReturn(staticMethod(OutputStrategyUtil.class, "getIterator", ref(NAME_JOINEXECSTRATEGY), ref(NAME_RESULTSETPROCESSOR), ref(NAME_PARENTVIEW), constant(false), constantNull()));
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
+    public void collectSchedules(List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
     }
 
     private void generateRSPCall(String rspMethod, CodegenMethod method, CodegenClassScope classScope) {

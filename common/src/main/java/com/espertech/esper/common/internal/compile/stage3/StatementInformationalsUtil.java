@@ -18,14 +18,17 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.*;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
+import com.espertech.esper.common.internal.compile.stage2.StatementLifecycleSvcUtil;
+import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.StatementSpecWalkUtil;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeDescriptor;
 import com.espertech.esper.common.internal.context.module.StatementInformationalsCompileTime;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectSubscriberDescriptor;
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerExpr;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -41,7 +44,7 @@ public class StatementInformationalsUtil {
 
     public static StatementInformationalsCompileTime getInformationals(StatementBaseInfo base,
                                                                        List<FilterSpecTracked> filterSpecCompileds,
-                                                                       List<ScheduleHandleCallbackProvider> schedules,
+                                                                       List<ScheduleHandleTracked> schedules,
                                                                        List<NamedWindowConsumerStreamSpec> namedWindowConsumers,
                                                                        boolean allowContext,
                                                                        SelectSubscriberDescriptor selectSubscriberDescriptor,

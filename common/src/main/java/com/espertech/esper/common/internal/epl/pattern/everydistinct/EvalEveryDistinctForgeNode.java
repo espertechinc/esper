@@ -17,7 +17,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecAttribution;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -27,7 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCo
 import com.espertech.esper.common.internal.epl.pattern.core.EvalForgeNodeBase;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionPrecedenceEnum;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -77,7 +77,7 @@ public class EvalEveryDistinctForgeNode extends EvalForgeNodeBase {
             .exprDotMethod(ref("node"), "setTimePeriodCompute", timePeriodComputeForge == null ? constantNull() : timePeriodComputeForge.makeEvaluator(method, classScope));
     }
 
-    public void collectSelfFilterAndSchedule(Function<Short, FilterSpecAttribution> attributionFunction, List<FilterSpecTracked> filters, List<ScheduleHandleCallbackProvider> schedules) {
+    public void collectSelfFilterAndSchedule(Function<Short, CallbackAttribution> callbackAttribution, List<FilterSpecTracked> filters, List<ScheduleHandleTracked> schedules) {
         // nothing to collect for this node
     }
 

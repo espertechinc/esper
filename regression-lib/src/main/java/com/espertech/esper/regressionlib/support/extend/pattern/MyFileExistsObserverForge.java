@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.support.extend.pattern;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeBuilder;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -20,9 +21,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationCon
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.epl.pattern.observer.ObserverForge;
 import com.espertech.esper.common.internal.epl.pattern.observer.ObserverParameterException;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeString;
 
@@ -50,6 +52,6 @@ public class MyFileExistsObserverForge implements ObserverForge {
             .build();
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> scheduleAttribution, List<ScheduleHandleTracked> schedules) {
     }
 }

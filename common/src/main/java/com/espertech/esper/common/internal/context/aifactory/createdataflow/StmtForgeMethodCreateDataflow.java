@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGe
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionDataflow;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
 import com.espertech.esper.common.internal.context.module.StatementFields;
 import com.espertech.esper.common.internal.context.module.StatementInformationalsCompileTime;
@@ -49,7 +50,7 @@ import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeForgablesPair;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
 import com.espertech.esper.common.internal.util.DependencyGraph;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
@@ -111,12 +112,12 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         for (Map.Entry<Integer, DataFlowOperatorForge> entry : dataflowForge.getOperatorFactories().entrySet()) {
             if (entry.getValue() instanceof EventBusSourceForge) {
                 EventBusSourceForge eventBusSource = (EventBusSourceForge) entry.getValue();
-                filterSpecCompileds.add(new FilterSpecTracked(FilterSpecAttributionDataflow.INSTANCE, eventBusSource.getFilterSpecCompiled()));
+                filterSpecCompileds.add(new FilterSpecTracked(CallbackAttributionDataflow.INSTANCE, eventBusSource.getFilterSpecCompiled()));
             }
         }
         List<FilterSpecParamExprNodeForge> filterBooleanExpr = FilterSpecCompiled.makeExprNodeList(filterSpecCompileds, Collections.emptyList());
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
-        List<ScheduleHandleCallbackProvider> scheduleds = new ArrayList<>();
+        List<ScheduleHandleTracked> scheduleds = new ArrayList<>();
 
         // add additional forgeables
         for (StmtForgeMethodResult additional : dataflowForge.getForgables()) {

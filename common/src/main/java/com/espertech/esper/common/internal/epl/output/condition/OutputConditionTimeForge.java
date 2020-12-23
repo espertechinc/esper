@@ -15,11 +15,13 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionOutputRate;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.time.eval.TimePeriodCompute;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -53,7 +55,11 @@ public class OutputConditionTimeForge implements OutputConditionFactoryForge, Sc
         this.scheduleCallbackId = scheduleCallbackId;
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
-        scheduleHandleCallbackProviders.add(this);
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
+    public void collectSchedules(CallbackAttributionOutputRate callbackAttribution, List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
+        scheduleHandleCallbackProviders.add(new ScheduleHandleTracked(callbackAttribution, this));
     }
 }

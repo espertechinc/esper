@@ -78,6 +78,10 @@ public class TimeToLiveViewForge extends ViewFactoryForgeBase implements DataWin
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single expression supplying long-type timestamp values as a parameter";
     }

@@ -75,6 +75,10 @@ public class RowRecogNFAViewFactoryForge extends ViewFactoryForgeBase implements
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_ROWRECOG;
     }

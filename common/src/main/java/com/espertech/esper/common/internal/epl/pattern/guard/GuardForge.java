@@ -14,12 +14,14 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface GuardForge {
     /**
@@ -32,7 +34,7 @@ public interface GuardForge {
      */
     void setGuardParameters(List<ExprNode> guardParameters, MatchedEventConvertorForge convertor, StatementCompileTimeServices services) throws GuardParameterException;
 
-    void collectSchedule(List<ScheduleHandleCallbackProvider> schedules);
+    void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> callbackAttribution, List<ScheduleHandleTracked> schedules);
 
     CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 }

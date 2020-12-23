@@ -15,12 +15,14 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.schedule.ScheduleParameterException;
 
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -113,6 +116,10 @@ public class TimerScheduleObserverForge implements ObserverForge, ScheduleHandle
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         if (scheduleCallbackId == -1) {
             throw new IllegalStateException("Unassigned schedule callback id");
@@ -130,7 +137,7 @@ public class TimerScheduleObserverForge implements ObserverForge, ScheduleHandle
         return localMethod(method);
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
-        schedules.add(this);
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> callbackAttribution, List<ScheduleHandleTracked> schedules) {
+        schedules.add(new ScheduleHandleTracked(callbackAttribution.apply(factoryNodeId), this));
     }
 }

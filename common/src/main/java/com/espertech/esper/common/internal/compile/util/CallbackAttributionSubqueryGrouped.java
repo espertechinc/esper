@@ -8,15 +8,26 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public interface FilterSpecAttributionVisitor<T> {
-    T accept(FilterSpecAttributionSubquery attribution);
-    T accept(FilterSpecAttributionStreamPattern attribution);
-    T accept(FilterSpecAttributionContextController attribution);
-    T accept(FilterSpecAttributionContextCondition attribution);
-    T accept(FilterSpecAttributionContextConditionPattern attribution);
-    T accept(FilterSpecAttributionNamedWindow attribution);
-    T accept(FilterSpecAttributionStream attribution);
-    T accept(FilterSpecAttributionDataflow attribution);
+public class CallbackAttributionSubqueryGrouped implements CallbackAttribution {
+    private final int subqueryNum;
+    private final int[] group;
+
+    public CallbackAttributionSubqueryGrouped(int subqueryNum, int[] group) {
+        this.subqueryNum = subqueryNum;
+        this.group = group;
+    }
+
+    public int getSubqueryNum() {
+        return subqueryNum;
+    }
+
+    public int[] getGroup() {
+        return group;
+    }
+
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
+        return visitor.accept(this);
+    }
 }

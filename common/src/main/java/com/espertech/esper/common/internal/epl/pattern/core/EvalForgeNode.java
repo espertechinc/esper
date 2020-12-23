@@ -13,10 +13,10 @@ package com.espertech.esper.common.internal.epl.pattern.core;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecAttribution;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.io.StringWriter;
 import java.util.Collection;
@@ -68,5 +68,5 @@ public interface EvalForgeNode {
 
     CodegenMethod makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
-    void collectSelfFilterAndSchedule(Function<Short, FilterSpecAttribution> attributionFunction, List<FilterSpecTracked> filters, List<ScheduleHandleCallbackProvider> schedules);
+    void collectSelfFilterAndSchedule(Function<Short, CallbackAttribution> callbackAttribution, List<FilterSpecTracked> filters, List<ScheduleHandleTracked> schedules);
 }

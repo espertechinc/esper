@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionSubquery;
 import com.espertech.esper.common.internal.context.activator.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityMake;
@@ -26,6 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForgeDesc;
@@ -40,6 +42,7 @@ public class SubSelectHelperActivations {
         Map<ExprSubselectNode, SubSelectActivationPlan> result = new LinkedHashMap<>();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
+        List<ScheduleHandleTracked> schedules = new ArrayList<>(2);
 
         // Process all subselect expression nodes
         for (ExprSubselectNode subselect : statement.getStatementSpec().getSubselectNodes()) {
@@ -63,9 +66,10 @@ public class SubSelectHelperActivations {
                 List<ViewFactoryForge> forges = viewForgeDesc.getForges();
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 fabricCharge.add(viewForgeDesc.getFabricCharge());
+                schedules.addAll(viewForgeDesc.getSchedules());
                 EventType eventType = forges.isEmpty() ? filterStreamSpec.getFilterSpecCompiled().getResultEventType() : forges.get(forges.size() - 1).getEventType();
                 subselect.setRawEventType(eventType);
-                filterSpecCompileds.add(new FilterSpecTracked(new FilterSpecAttributionSubquery(subqueryNumber), filterStreamSpec.getFilterSpecCompiled()));
+                filterSpecCompileds.add(new FilterSpecTracked(new CallbackAttributionSubquery(subqueryNumber), filterStreamSpec.getFilterSpecCompiled()));
 
                 // Add lookup to list, for later starts
                 result.put(subselect, new SubSelectActivationPlan(filterStreamSpec.getFilterSpecCompiled().getResultEventType(), forges, activatorDeactivator, streamSpec));
@@ -101,6 +105,7 @@ public class SubSelectHelperActivations {
                     ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
                     List<ViewFactoryForge> forges = viewForgeDesc.getForges();
                     additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+                    schedules.addAll(viewForgeDesc.getSchedules());
                     subselect.setRawEventType(forges.isEmpty() ? namedWindowType : forges.get(forges.size() - 1).getEventType());
                     result.put(subselect, new SubSelectActivationPlan(namedWindowType, forges, activatorNamedWindow, streamSpec));
                 } else {
@@ -109,12 +114,13 @@ public class SubSelectHelperActivations {
                     List<ViewFactoryForge> forges = viewForgeDesc.getForges();
                     additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                     subselect.setRawEventType(namedWindowType);
+                    schedules.addAll(viewForgeDesc.getSchedules());
                     ViewableActivatorForge activatorNamedWindow = new ViewableActivatorSubselectNoneForge(namedWindowType);
                     result.put(subselect, new SubSelectActivationPlan(namedWindowType, forges, activatorNamedWindow, streamSpec));
                 }
             }
         }
 
-        return new SubSelectActivationDesc(result, additionalForgeables, fabricCharge);
+        return new SubSelectActivationDesc(result, additionalForgeables, schedules, fabricCharge);
     }
 }

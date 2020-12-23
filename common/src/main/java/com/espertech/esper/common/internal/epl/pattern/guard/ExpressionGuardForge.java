@@ -15,14 +15,16 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.util.JavaClassHelper.isTypeBoolean;
@@ -46,7 +48,7 @@ public class ExpressionGuardForge implements GuardForge {
         this.convertor = convertor;
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> callbackAttribution, List<ScheduleHandleTracked> schedules) {
         // nothing to collect
     }
 

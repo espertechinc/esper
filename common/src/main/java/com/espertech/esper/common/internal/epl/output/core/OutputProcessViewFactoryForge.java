@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.output.core;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -30,5 +30,5 @@ public interface OutputProcessViewFactoryForge {
 
     void iteratorCodegen(CodegenMethod method, CodegenClassScope classScope);
 
-    void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders);
+    void collectSchedules(List<ScheduleHandleTracked> scheduleHandleCallbackProviders);
 }

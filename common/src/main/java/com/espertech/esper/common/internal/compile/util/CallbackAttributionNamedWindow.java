@@ -8,22 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.view.core;
+package com.espertech.esper.common.internal.compile.util;
 
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+public class CallbackAttributionNamedWindow implements CallbackAttribution {
+    public final static CallbackAttributionNamedWindow INSTANCE = new CallbackAttributionNamedWindow();
+    private CallbackAttributionNamedWindow() {}
 
-import java.util.List;
-
-public class ViewForgeVisitorSchedulesCollector implements ViewForgeVisitor {
-    private final List<ScheduleHandleCallbackProvider> providers;
-
-    public ViewForgeVisitorSchedulesCollector(List<ScheduleHandleCallbackProvider> providers) {
-        this.providers = providers;
-    }
-
-    public void visit(ViewFactoryForge forge) {
-        if (forge instanceof ScheduleHandleCallbackProvider) {
-            providers.add((ScheduleHandleCallbackProvider) forge);
-        }
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
+        return visitor.accept(this);
     }
 }

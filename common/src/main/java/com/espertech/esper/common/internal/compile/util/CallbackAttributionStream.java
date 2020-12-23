@@ -8,20 +8,20 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public class FilterSpecAttributionContextController implements FilterSpecAttribution {
-    private final int nestingLevel;
+public class CallbackAttributionStream implements CallbackAttribution {
+    private final int streamNum;
 
-    public FilterSpecAttributionContextController(int nestingLevel) {
-        this.nestingLevel = nestingLevel;
+    public CallbackAttributionStream(int streamNum) {
+        this.streamNum = streamNum;
     }
 
-    public int getNestingLevel() {
-        return nestingLevel;
+    public int getStreamNum() {
+        return streamNum;
     }
 
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
         return visitor.accept(this);
     }
 }

@@ -15,19 +15,18 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
-import com.espertech.esper.common.internal.schedule.ScheduleParameterException;
-import com.espertech.esper.common.internal.schedule.ScheduleSpec;
-import com.espertech.esper.common.internal.schedule.ScheduleSpecUtil;
+import com.espertech.esper.common.internal.schedule.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -103,12 +102,16 @@ public class TimerAtObserverForge implements ObserverForge, ScheduleHandleCallba
         return localMethod(method);
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
-        schedules.add(this);
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> callbackAttribution, List<ScheduleHandleTracked> schedules) {
+        schedules.add(new ScheduleHandleTracked(callbackAttribution.apply(factoryNodeId), this));
     }
 
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
+    }
+
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
     }
 
     private static List<Object> evaluateCompileTime(List<ExprNode> parameters)

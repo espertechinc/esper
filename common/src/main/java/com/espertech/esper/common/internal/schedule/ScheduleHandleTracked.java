@@ -8,26 +8,24 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.schedule;
 
-public class FilterSpecAttributionStreamPattern implements FilterSpecAttribution {
-    private final int streamNum;
-    private final int factoryNodeId;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 
-    public FilterSpecAttributionStreamPattern(int streamNum, int factoryNodeId) {
-        this.streamNum = streamNum;
-        this.factoryNodeId = factoryNodeId;
+public class ScheduleHandleTracked {
+    private final CallbackAttribution attribution;
+    private final ScheduleHandleCallbackProvider provider;
+
+    public ScheduleHandleTracked(CallbackAttribution attribution, ScheduleHandleCallbackProvider provider) {
+        this.attribution = attribution;
+        this.provider = provider;
     }
 
-    public int getStreamNum() {
-        return streamNum;
+    public CallbackAttribution getAttribution() {
+        return attribution;
     }
 
-    public int getFactoryNodeId() {
-        return factoryNodeId;
-    }
-
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
-        return visitor.accept(this);
+    public ScheduleHandleCallbackProvider getProvider() {
+        return provider;
     }
 }

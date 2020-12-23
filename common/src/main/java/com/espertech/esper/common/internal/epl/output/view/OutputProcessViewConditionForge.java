@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionOutputRate;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeriod;
@@ -26,7 +27,7 @@ import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFact
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyPostProcessForge;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorOutputConditionType;
 import com.espertech.esper.common.internal.event.core.EventTypeUtility;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -80,24 +81,24 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
     public void provideCodegen(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpressionRef spec = ref("spec");
         method.getBlock()
-                .declareVarNewInstance(OutputProcessViewConditionSpec.EPTYPE, spec.getRef())
-                .exprDotMethod(spec, "setConditionType", enumValue(ResultSetProcessorOutputConditionType.class, conditionType.name()))
-                .exprDotMethod(spec, "setOutputConditionFactory", outputConditionFactoryForge.make(method, symbols, classScope))
-                .exprDotMethod(spec, "setStreamCount", constant(streamCount))
-                .exprDotMethod(spec, "setTerminable", constant(terminable))
-                .exprDotMethod(spec, "setSelectClauseStreamSelector", enumValue(SelectClauseStreamSelectorEnum.class, selectClauseStreamSelector.name()))
-                .exprDotMethod(spec, "setPostProcessFactory", outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope))
-                .exprDotMethod(spec, "setHasAfter", constant(hasAfter))
-                .exprDotMethod(spec, "setDistinct", constant(isDistinct))
-                .exprDotMethod(spec, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope))
-                .exprDotMethod(spec, "setResultEventType", EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method)))
-                .exprDotMethod(spec, "setAfterTimePeriod", afterTimePeriodExpr == null ? constantNull() : afterTimePeriodExpr.getTimePeriodComputeForge().makeEvaluator(method, classScope))
-                .exprDotMethod(spec, "setAfterConditionNumberOfEvents", constant(afterNumberOfEvents))
-                .exprDotMethod(spec, "setUnaggregatedUngrouped", constant(unaggregatedUngrouped))
-                .exprDotMethod(spec, "setEventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, EPStatementInitServices.REF))
-                .exprDotMethod(spec, "setChangeSetStateMgmtSettings", changeSetStateMgmtSettings.toExpression())
-                .exprDotMethod(spec, "setOutputFirstStateMgmtSettings", outputFirstStateMgmtSettings.toExpression())
-                .methodReturn(newInstance(OutputProcessViewConditionFactory.EPTYPE, spec));
+            .declareVarNewInstance(OutputProcessViewConditionSpec.EPTYPE, spec.getRef())
+            .exprDotMethod(spec, "setConditionType", enumValue(ResultSetProcessorOutputConditionType.class, conditionType.name()))
+            .exprDotMethod(spec, "setOutputConditionFactory", outputConditionFactoryForge.make(method, symbols, classScope))
+            .exprDotMethod(spec, "setStreamCount", constant(streamCount))
+            .exprDotMethod(spec, "setTerminable", constant(terminable))
+            .exprDotMethod(spec, "setSelectClauseStreamSelector", enumValue(SelectClauseStreamSelectorEnum.class, selectClauseStreamSelector.name()))
+            .exprDotMethod(spec, "setPostProcessFactory", outputStrategyPostProcessForge == null ? constantNull() : outputStrategyPostProcessForge.make(method, symbols, classScope))
+            .exprDotMethod(spec, "setHasAfter", constant(hasAfter))
+            .exprDotMethod(spec, "setDistinct", constant(isDistinct))
+            .exprDotMethod(spec, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(isDistinct, resultEventType, distinctMultiKey, method, classScope))
+            .exprDotMethod(spec, "setResultEventType", EventTypeUtility.resolveTypeCodegen(resultEventType, symbols.getAddInitSvc(method)))
+            .exprDotMethod(spec, "setAfterTimePeriod", afterTimePeriodExpr == null ? constantNull() : afterTimePeriodExpr.getTimePeriodComputeForge().makeEvaluator(method, classScope))
+            .exprDotMethod(spec, "setAfterConditionNumberOfEvents", constant(afterNumberOfEvents))
+            .exprDotMethod(spec, "setUnaggregatedUngrouped", constant(unaggregatedUngrouped))
+            .exprDotMethod(spec, "setEventTypes", EventTypeUtility.resolveTypeArrayCodegen(eventTypes, EPStatementInitServices.REF))
+            .exprDotMethod(spec, "setChangeSetStateMgmtSettings", changeSetStateMgmtSettings.toExpression())
+            .exprDotMethod(spec, "setOutputFirstStateMgmtSettings", outputFirstStateMgmtSettings.toExpression())
+            .methodReturn(newInstance(OutputProcessViewConditionFactory.EPTYPE, spec));
     }
 
     public void updateCodegen(CodegenMethod method, CodegenClassScope classScope) {
@@ -109,9 +110,9 @@ public class OutputProcessViewConditionForge implements OutputProcessViewFactory
     public void iteratorCodegen(CodegenMethod method, CodegenClassScope classScope) {
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
+    public void collectSchedules(List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
         if (outputConditionFactoryForge != null) {
-            outputConditionFactoryForge.collectSchedules(scheduleHandleCallbackProviders);
+            outputConditionFactoryForge.collectSchedules(CallbackAttributionOutputRate.INSTANCE, scheduleHandleCallbackProviders);
         }
     }
 }

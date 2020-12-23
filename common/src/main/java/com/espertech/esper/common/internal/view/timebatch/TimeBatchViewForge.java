@@ -114,6 +114,10 @@ public class TimeBatchViewForge extends ViewFactoryForgeBase implements DataWind
         this.scheduleCallbackId = scheduleCallbackId;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMEBATCH;
     }

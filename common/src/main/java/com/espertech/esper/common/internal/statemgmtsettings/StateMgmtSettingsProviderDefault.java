@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableAccessAnal
 import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.fabric.FabricChargeNonHA;
 import com.espertech.esper.common.internal.fabric.FabricStatement;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 
@@ -128,6 +129,10 @@ public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvid
     }
 
     public void historicalExpiryTime(FabricCharge fabricCharge, int streamNum) {
+        // no action
+    }
+
+    public void schedules(FabricCharge fabricCharge, List<ScheduleHandleTracked> trackeds) {
         // no action
     }
 }

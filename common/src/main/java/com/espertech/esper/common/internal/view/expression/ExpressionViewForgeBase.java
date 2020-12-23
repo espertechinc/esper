@@ -160,6 +160,10 @@ public abstract class ExpressionViewForgeBase extends ViewFactoryForgeBase imple
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public AggregationServiceForgeDesc getAggregationServiceForgeDesc() {
         return aggregationServiceForgeDesc;
     }

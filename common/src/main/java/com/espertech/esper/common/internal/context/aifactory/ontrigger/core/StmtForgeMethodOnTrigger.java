@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGe
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
 import com.espertech.esper.common.internal.compile.stage2.*;
 import com.espertech.esper.common.internal.compile.stage3.*;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionStream;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionStreamPattern;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorFilterForge;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorNamedWindowForge;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorPatternForge;
@@ -47,7 +49,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +68,7 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         final String contextName = base.getStatementSpec().getRaw().getOptionalContextName();
 
         List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>(2);
-        List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>(2);
+        List<ScheduleHandleTracked> schedules = new ArrayList<>(2);
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>(2);
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
         FabricCharge fabricCharge = services.getStateMgmtSettingsProvider().newCharge();
@@ -85,12 +87,13 @@ public class StmtForgeMethodOnTrigger implements StmtForgeMethod {
         if (streamSpec instanceof FilterStreamSpecCompiled) {
             FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) streamSpec;
             activatorResult = activatorFilter(filterStreamSpec, services);
-            filterSpecCompileds.add(new FilterSpecTracked(new FilterSpecAttributionStream(0), filterStreamSpec.getFilterSpecCompiled()));
+            filterSpecCompileds.add(new FilterSpecTracked(new CallbackAttributionStream(0), filterStreamSpec.getFilterSpecCompiled()));
         } else if (streamSpec instanceof PatternStreamSpecCompiled) {
             PatternStreamSpecCompiled patternStreamSpec = (PatternStreamSpecCompiled) streamSpec;
             List<EvalForgeNode> forges = patternStreamSpec.getRoot().collectFactories();
             for (EvalForgeNode forge : forges) {
-                forge.collectSelfFilterAndSchedule(factoryNodeId -> new FilterSpecAttributionStreamPattern(0, factoryNodeId), filterSpecCompileds, schedules);
+                forge.collectSelfFilterAndSchedule(factoryNodeId -> new CallbackAttributionStreamPattern(0, factoryNodeId),
+                    filterSpecCompileds, schedules);
             }
             activatorResult = activatorPattern(patternStreamSpec, services);
             services.getStateMgmtSettingsProvider().pattern(fabricCharge, new PatternAttributionKeyStream(0), patternStreamSpec, base.getStatementRawInfo());

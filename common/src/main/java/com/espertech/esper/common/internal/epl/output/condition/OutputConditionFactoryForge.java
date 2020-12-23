@@ -13,13 +13,14 @@ package com.espertech.esper.common.internal.epl.output.condition;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionOutputRate;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
 public interface OutputConditionFactoryForge {
     CodegenExpression make(CodegenMethodScope method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope);
 
-    void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders);
+    void collectSchedules(CallbackAttributionOutputRate callbackAttribution, List<ScheduleHandleTracked> scheduleHandleCallbackProviders);
 }

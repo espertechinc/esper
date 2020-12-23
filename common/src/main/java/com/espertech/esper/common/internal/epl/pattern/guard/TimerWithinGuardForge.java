@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -22,9 +23,11 @@ import com.espertech.esper.common.internal.epl.expression.time.abacus.TimeAbacus
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternDeltaComputeUtil;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -42,6 +45,10 @@ public class TimerWithinGuardForge implements GuardForge, ScheduleHandleCallback
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public void setGuardParameters(List<ExprNode> parameters, MatchedEventConvertorForge convertor, StatementCompileTimeServices services) throws GuardParameterException {
         String errorMessage = "Timer-within guard requires a single numeric or time period parameter";
         if (parameters.size() != 1) {
@@ -57,8 +64,8 @@ public class TimerWithinGuardForge implements GuardForge, ScheduleHandleCallback
         this.timeAbacus = services.getClasspathImportServiceCompileTime().getTimeAbacus();
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
-        schedules.add(this);
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> callbackAttribution, List<ScheduleHandleTracked> schedules) {
+        schedules.add(new ScheduleHandleTracked(callbackAttribution.apply(factoryNodeId), this));
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

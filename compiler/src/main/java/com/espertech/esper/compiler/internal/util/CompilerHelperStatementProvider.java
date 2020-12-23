@@ -59,9 +59,9 @@ import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaD
 import com.espertech.esper.common.internal.epl.script.core.ScriptValidationPrecompileUtil;
 import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubselectAndDeclaredDot;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
+import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamExprNodeForge;
-import com.espertech.esper.common.internal.fabric.*;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.option.StatementNameContext;
@@ -223,7 +223,7 @@ public class CompilerHelperStatementProvider {
             }
 
             List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
-            List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
+            List<ScheduleHandleTracked> scheduleHandleCallbackProviders = new ArrayList<>();
             List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
             List<FilterSpecParamExprNodeForge> filterBooleanExpressions = new ArrayList<>();
 
@@ -246,9 +246,10 @@ public class CompilerHelperStatementProvider {
 
             // Stage 3(d) - schedule assignments: assign schedule callback ids
             int scheduleId = 0;
-            for (ScheduleHandleCallbackProvider provider : scheduleHandleCallbackProviders) {
-                provider.setScheduleCallbackId(scheduleId++);
+            for (ScheduleHandleTracked provider : scheduleHandleCallbackProviders) {
+                provider.getProvider().setScheduleCallbackId(scheduleId++);
             }
+            compileTimeServices.getStateMgmtSettingsProvider().schedules(fabricCharge, scheduleHandleCallbackProviders);
 
             // Stage 3(e) - named window consumers: assign consumer id
             int namedWindowConsumerId = 0;

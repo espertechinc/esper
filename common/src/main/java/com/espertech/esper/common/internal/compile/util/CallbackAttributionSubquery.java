@@ -8,12 +8,12 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public class FilterSpecAttributionSubquery implements FilterSpecAttribution {
+public class CallbackAttributionSubquery implements CallbackAttribution {
     private final int subqueryNum;
 
-    public FilterSpecAttributionSubquery(int subqueryNum) {
+    public CallbackAttributionSubquery(int subqueryNum) {
         this.subqueryNum = subqueryNum;
     }
 
@@ -21,7 +21,7 @@ public class FilterSpecAttributionSubquery implements FilterSpecAttribution {
         return subqueryNum;
     }
 
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
         return visitor.accept(this);
     }
 }

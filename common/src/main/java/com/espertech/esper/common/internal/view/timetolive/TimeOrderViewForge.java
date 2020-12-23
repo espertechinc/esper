@@ -84,6 +84,10 @@ public class TimeOrderViewForge extends ViewFactoryForgeBase implements DataWind
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_TIMEORDER;
     }

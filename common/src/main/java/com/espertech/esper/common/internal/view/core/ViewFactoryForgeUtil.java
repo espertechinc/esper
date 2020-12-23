@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.stage1.spec.ViewSpec;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
@@ -22,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCo
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.util.IntArrayUtil;
 import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge;
@@ -37,22 +39,6 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public class ViewFactoryForgeUtil {
-
-    public static void determineViewSchedules(List<ViewFactoryForge>[] forgesPerStream, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
-        ViewForgeVisitorSchedulesCollector collector = new ViewForgeVisitorSchedulesCollector(scheduleHandleCallbackProviders);
-        for (int stream = 0; stream < forgesPerStream.length; stream++) {
-            for (ViewFactoryForge forge : forgesPerStream[stream]) {
-                forge.accept(collector);
-            }
-        }
-    }
-
-    public static void determineViewSchedules(List<ViewFactoryForge> forges, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
-        ViewForgeVisitorSchedulesCollector collector = new ViewForgeVisitorSchedulesCollector(scheduleHandleCallbackProviders);
-        for (ViewFactoryForge forge : forges) {
-            forge.accept(collector);
-        }
-    }
 
     public static ViewFactoryForgeDesc createForges(ViewSpec[] viewSpecDefinitions, ViewFactoryForgeArgs args, EventType parentEventType)
             throws ExprValidationException {
@@ -105,9 +91,9 @@ public class ViewFactoryForgeUtil {
             additionalForgeables.addAll(multikeyForges);
 
             // get state mgmt settings
-            FabricCharge fabricCharge = getStateMgmtSettings(forgesGrouped, viewForgeEnv);
+            Pair<List<ScheduleHandleTracked>, FabricCharge> states = getStateMgmtSettings(forgesGrouped, viewForgeEnv);
 
-            return new ViewFactoryForgeDesc(forgesGrouped, additionalForgeables, fabricCharge);
+            return new ViewFactoryForgeDesc(forgesGrouped, additionalForgeables, states.getFirst(), states.getSecond());
         } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Failed to validate data window declaration: " + ex.getMessage(), ex);
         }
@@ -127,31 +113,40 @@ public class ViewFactoryForgeUtil {
         }
     }
 
-    private static FabricCharge getStateMgmtSettings(List<ViewFactoryForge> forges, ViewForgeEnv viewForgeEnv) throws ViewProcessingException {
+    private static Pair<List<ScheduleHandleTracked>, FabricCharge> getStateMgmtSettings(List<ViewFactoryForge> forges, ViewForgeEnv viewForgeEnv) throws ViewProcessingException {
         FabricCharge fabricCharge = viewForgeEnv.getStateMgmtSettingsProvider().newCharge();
+        List<ScheduleHandleTracked> schedules = new ArrayList<>(2);
         for (ViewFactoryForge forge : forges) {
+            if (forge instanceof ScheduleHandleCallbackProvider) {
+                schedules.add(new ScheduleHandleTracked(viewForgeEnv.getAttributionUngrouped(), (ScheduleHandleCallbackProvider) forge));
+            }
+
             try {
                 forge.assignStateMgmtSettings(fabricCharge, viewForgeEnv, null);
             } catch (ViewParameterException e) {
                 throw new ViewProcessingException(e.getMessage(), e);
             }
 
-            getStateMgmtSettingsGroupedRecursive(forge.getInnerForges(), fabricCharge, viewForgeEnv, null);
+            getStateMgmtSettingsGroupedRecursive(forge.getInnerForges(), fabricCharge, schedules, viewForgeEnv, null);
         }
-        return fabricCharge;
+        return new Pair<>(schedules, fabricCharge);
     }
 
-    private static void getStateMgmtSettingsGroupedRecursive(List<ViewFactoryForge> forges, FabricCharge fabricCharge, ViewForgeEnv viewForgeEnv, int[] grouping) {
+    private static void getStateMgmtSettingsGroupedRecursive(List<ViewFactoryForge> forges, FabricCharge fabricCharge, List<ScheduleHandleTracked> schedules, ViewForgeEnv viewForgeEnv, int[] grouping) {
         for (int i = 0; i < forges.size(); i++) {
             int[] groupingChild = grouping == null ? new int[] {i} : IntArrayUtil.append(grouping, i);
             ViewFactoryForge child = forges.get(i);
             try {
+                if (child instanceof ScheduleHandleCallbackProvider) {
+                    schedules.add(new ScheduleHandleTracked(viewForgeEnv.getAttributionGrouped(groupingChild), (ScheduleHandleCallbackProvider) child));
+                }
+
                 child.assignStateMgmtSettings(fabricCharge, viewForgeEnv, groupingChild);
             } catch (ViewParameterException e) {
                 throw new ViewProcessingException(e.getMessage(), e);
             }
 
-            getStateMgmtSettingsGroupedRecursive(child.getInnerForges(), fabricCharge, viewForgeEnv, groupingChild);
+            getStateMgmtSettingsGroupedRecursive(child.getInnerForges(), fabricCharge, schedules, viewForgeEnv, groupingChild);
         }
     }
 

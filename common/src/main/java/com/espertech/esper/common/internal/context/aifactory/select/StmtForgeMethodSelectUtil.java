@@ -20,8 +20,14 @@ import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.compile.stage1.spec.*;
-import com.espertech.esper.common.internal.compile.stage2.*;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
+import com.espertech.esper.common.internal.compile.stage2.FilterStreamSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.*;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionMatchRecognize;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionStream;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionStreamPattern;
 import com.espertech.esper.common.internal.context.activator.*;
 import com.espertech.esper.common.internal.context.module.StatementAIFactoryProvider;
 import com.espertech.esper.common.internal.context.module.StatementFields;
@@ -69,13 +75,16 @@ import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyHelper;
 import com.espertech.esper.common.internal.epl.util.ViewResourceVerifyResult;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateDesc;
 import com.espertech.esper.common.internal.view.access.ViewResourceDelegateExpr;
-import com.espertech.esper.common.internal.view.core.*;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeArgs;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeDesc;
+import com.espertech.esper.common.internal.view.core.ViewFactoryForgeUtil;
 import com.espertech.esper.common.internal.view.prior.PriorEventViewForge;
 
 import java.util.*;
@@ -86,7 +95,7 @@ public class StmtForgeMethodSelectUtil {
 
     public static StmtForgeMethodSelectResult make(boolean dataflowOperator, String packageName, String classPostfix, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException {
         List<FilterSpecTracked> filterSpecCompileds = new ArrayList<>();
-        List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders = new ArrayList<>();
+        List<ScheduleHandleTracked> scheduleHandleCallbackProviders = new ArrayList<>();
         List<NamedWindowConsumerStreamSpec> namedWindowConsumers = new ArrayList<>();
         StatementSpecCompiled statementSpec = base.getStatementSpec();
         List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(1);
@@ -100,6 +109,7 @@ public class StmtForgeMethodSelectUtil {
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
         fabricCharge.add(subSelectActivationDesc.getFabricCharge());
+        scheduleHandleCallbackProviders.addAll(subSelectActivationDesc.getSchedules());
 
         // verify for joins that required views are present
         StreamJoinAnalysisResultCompileTime joinAnalysisResult = verifyJoinViews(statementSpec);
@@ -137,13 +147,15 @@ public class StmtForgeMethodSelectUtil {
                 viewForges[stream] = viewForgeDesc.getForges();
                 fabricCharge.add(viewForgeDesc.getFabricCharge());
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
-                filterSpecCompileds.add(new FilterSpecTracked(new FilterSpecAttributionStream(stream), filterSpecCompiled));
+                filterSpecCompileds.add(new FilterSpecTracked(new CallbackAttributionStream(stream), filterSpecCompiled));
+                scheduleHandleCallbackProviders.addAll(viewForgeDesc.getSchedules());
             } else if (streamSpec instanceof PatternStreamSpecCompiled) {
                 PatternStreamSpecCompiled patternStreamSpec = (PatternStreamSpecCompiled) streamSpec;
                 List<EvalForgeNode> forges = patternStreamSpec.getRoot().collectFactories();
                 for (EvalForgeNode forge : forges) {
                     final int streamNum = stream;
-                    forge.collectSelfFilterAndSchedule(factoryNodeId -> new FilterSpecAttributionStreamPattern(streamNum, factoryNodeId), filterSpecCompileds, scheduleHandleCallbackProviders);
+                    forge.collectSelfFilterAndSchedule(factoryNodeId -> new CallbackAttributionStreamPattern(streamNum, factoryNodeId),
+                        filterSpecCompileds, scheduleHandleCallbackProviders);
                 }
 
                 MapEventType patternType = ViewableActivatorPatternForge.makeRegisterPatternType(base.getModuleName(), stream, null, patternStreamSpec, services);
@@ -154,6 +166,7 @@ public class StmtForgeMethodSelectUtil {
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, patternType);
                 fabricCharge.add(viewForgeDesc.getFabricCharge());
                 viewForges[stream] = viewForgeDesc.getForges();
+                scheduleHandleCallbackProviders.addAll(viewForgeDesc.getSchedules());
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
                 services.getStateMgmtSettingsProvider().pattern(fabricCharge, new PatternAttributionKeyStream(stream), patternStreamSpec, base.getStatementRawInfo());
             } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
@@ -180,6 +193,7 @@ public class StmtForgeMethodSelectUtil {
                 ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, namedWindowType);
                 viewForges[stream] = viewForgeDesc.getForges();
                 additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
+                scheduleHandleCallbackProviders.addAll(viewForgeDesc.getSchedules());
                 EPStatementStartMethodHelperValidate.validateNoDataWindowOnNamedWindow(viewForges[stream]);
             } else if (streamSpec instanceof TableQueryStreamSpec) {
                 validateNoViews(streamSpec, "Table data");
@@ -247,7 +261,7 @@ public class StmtForgeMethodSelectUtil {
             RowRecogPlan plan = RowRecogNFAViewPlanUtil.validateAndPlan(eventType, isUnbound, base, services);
             RowRecogNFAViewFactoryForge forge = new RowRecogNFAViewFactoryForge(plan.getForge());
             additionalForgeables.addAll(plan.getAdditionalForgeables());
-            scheduleHandleCallbackProviders.add(forge);
+            scheduleHandleCallbackProviders.add(new ScheduleHandleTracked(CallbackAttributionMatchRecognize.INSTANCE, forge));
             viewForges[0].add(forge);
             List<StmtClassForgeableFactory> serdeForgeables = SerdeEventTypeUtility.plan(eventType, base.getStatementRawInfo(), services.getSerdeEventTypeRegistry(), services.getSerdeResolver(), services.getStateMgmtSettingsProvider());
             additionalForgeables.addAll(serdeForgeables);
@@ -267,11 +281,9 @@ public class StmtForgeMethodSelectUtil {
         Map<ExprSubselectNode, SubSelectFactoryForge> subselectForges = subselectForgePlan.getSubselects();
         additionalForgeables.addAll(subselectForgePlan.getAdditionalForgeables());
         fabricCharge.add(subselectForgePlan.getFabricCharge());
-        determineViewSchedules(subselectForges, scheduleHandleCallbackProviders);
 
         // determine view schedules
         ViewResourceDelegateExpr viewResourceDelegateExpr = new ViewResourceDelegateExpr();
-        ViewFactoryForgeUtil.determineViewSchedules(viewForges, scheduleHandleCallbackProviders);
 
         boolean[] hasIStreamOnly = getHasIStreamOnly(isNamedWindow, viewForges);
         boolean optionalStreamsIfAny = OuterJoinAnalyzer.optionalStreamsIfAny(statementSpec.getRaw().getOuterJoinDescList());
@@ -285,7 +297,7 @@ public class StmtForgeMethodSelectUtil {
             if (historicalEventViewable == null) {
                 continue;
             }
-            scheduleHandleCallbackProviders.add(historicalEventViewable);
+            scheduleHandleCallbackProviders.add(new ScheduleHandleTracked(new CallbackAttributionStream(stream), historicalEventViewable));
             List<StmtClassForgeableFactory> forgeables = historicalEventViewable.validate(typeService, base, services);
             additionalForgeables.addAll(forgeables);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
@@ -387,15 +399,6 @@ public class StmtForgeMethodSelectUtil {
         List<ViewFactoryForge> views = viewForgeDesc.getForges();
         ViewableActivatorDataFlowForge viewableActivator = new ViewableActivatorDataFlowForge(eventType);
         return new DataFlowActivationResult(eventType, typeName, viewableActivator, views, viewForgeDesc.getMultikeyForges());
-    }
-
-    private static void determineViewSchedules(Map<ExprSubselectNode, SubSelectFactoryForge> subselects, List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
-        ViewForgeVisitorSchedulesCollector collector = new ViewForgeVisitorSchedulesCollector(scheduleHandleCallbackProviders);
-        for (Map.Entry<ExprSubselectNode, SubSelectFactoryForge> subselect : subselects.entrySet()) {
-            for (ViewFactoryForge forge : subselect.getValue().getViewForges()) {
-                forge.accept(collector);
-            }
-        }
     }
 
     private static void validateNoViews(StreamSpecCompiled streamSpec, String conceptName)

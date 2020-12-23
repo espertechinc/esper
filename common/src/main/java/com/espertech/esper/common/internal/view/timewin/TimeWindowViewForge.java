@@ -70,6 +70,10 @@ public class TimeWindowViewForge extends ViewFactoryForgeBase implements DataWin
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric or time period parameter";
     }

@@ -8,9 +8,26 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.schedule;
+package com.espertech.esper.common.internal.compile.util;
 
-public interface ScheduleHandleCallbackProvider {
-    void setScheduleCallbackId(int id);
-    int getScheduleCallbackId();
+public class CallbackAttributionContextCondition implements CallbackAttribution {
+    private final int nestingLevel;
+    private final boolean startCondition;
+
+    public CallbackAttributionContextCondition(int nestingLevel, boolean startCondition) {
+        this.nestingLevel = nestingLevel;
+        this.startCondition = startCondition;
+    }
+
+    public int getNestingLevel() {
+        return nestingLevel;
+    }
+
+    public boolean isStartCondition() {
+        return startCondition;
+    }
+
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
+        return visitor.accept(this);
+    }
 }

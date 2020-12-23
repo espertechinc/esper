@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.subselect;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 import java.util.Map;
@@ -21,11 +22,13 @@ public class SubSelectActivationDesc {
 
     private final Map<ExprSubselectNode, SubSelectActivationPlan> subselects;
     private final List<StmtClassForgeableFactory> additionalForgeables;
+    private final List<ScheduleHandleTracked> schedules;
     private final FabricCharge fabricCharge;
 
-    public SubSelectActivationDesc(Map<ExprSubselectNode, SubSelectActivationPlan> subselects, List<StmtClassForgeableFactory> additionalForgeables, FabricCharge fabricCharge) {
+    public SubSelectActivationDesc(Map<ExprSubselectNode, SubSelectActivationPlan> subselects, List<StmtClassForgeableFactory> additionalForgeables, List<ScheduleHandleTracked> schedules, FabricCharge fabricCharge) {
         this.subselects = subselects;
         this.additionalForgeables = additionalForgeables;
+        this.schedules = schedules;
         this.fabricCharge = fabricCharge;
     }
 
@@ -39,5 +42,9 @@ public class SubSelectActivationDesc {
 
     public FabricCharge getFabricCharge() {
         return fabricCharge;
+    }
+
+    public List<ScheduleHandleTracked> getSchedules() {
+        return schedules;
     }
 }

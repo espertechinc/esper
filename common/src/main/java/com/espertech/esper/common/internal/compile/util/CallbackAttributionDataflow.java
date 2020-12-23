@@ -8,9 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.schedule;
+package com.espertech.esper.common.internal.compile.util;
 
-public interface ScheduleHandleCallbackProvider {
-    void setScheduleCallbackId(int id);
-    int getScheduleCallbackId();
+public class CallbackAttributionDataflow implements CallbackAttribution {
+    public final static CallbackAttributionDataflow INSTANCE = new CallbackAttributionDataflow();
+    private CallbackAttributionDataflow() {}
+
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
+        return visitor.accept(this);
+    }
 }

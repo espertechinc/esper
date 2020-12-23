@@ -8,13 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public class FilterSpecAttributionNamedWindow implements FilterSpecAttribution {
-    public final static FilterSpecAttributionNamedWindow INSTANCE = new FilterSpecAttributionNamedWindow();
-    private FilterSpecAttributionNamedWindow() {}
+public class CallbackAttributionOutputRate implements CallbackAttribution {
+    public final static CallbackAttributionOutputRate INSTANCE = new CallbackAttributionOutputRate();
+    private CallbackAttributionOutputRate() {}
 
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
         return visitor.accept(this);
     }
 }

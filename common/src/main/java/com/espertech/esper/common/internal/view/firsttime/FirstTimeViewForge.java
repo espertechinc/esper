@@ -77,6 +77,10 @@ public class FirstTimeViewForge extends ViewFactoryForgeBase implements Schedule
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     public AppliesTo appliesTo() {
         return AppliesTo.WINDOW_FIRSTTIME;
     }

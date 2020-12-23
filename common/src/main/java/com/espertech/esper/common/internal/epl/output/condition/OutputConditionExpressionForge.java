@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerSetAssignment;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionOutputRate;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -29,6 +30,7 @@ import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMeta
 import com.espertech.esper.common.internal.epl.variable.core.VariableDeployTimeResolver;
 import com.espertech.esper.common.internal.epl.variable.core.VariableReadWritePackageForge;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 import java.util.Map;
@@ -117,12 +119,16 @@ public class OutputConditionExpressionForge implements OutputConditionFactoryFor
         return localMethod(method);
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
-        scheduleHandleCallbackProviders.add(this);
+    public void collectSchedules(CallbackAttributionOutputRate callbackAttribution, List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
+        scheduleHandleCallbackProviders.add(new ScheduleHandleTracked(callbackAttribution, this));
     }
 
     public void setScheduleCallbackId(int id) {
         this.scheduleCallbackId = id;
+    }
+
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
     }
 
     private boolean containsBuiltinProperties(ExprNode expr) {

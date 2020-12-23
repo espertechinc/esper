@@ -13,14 +13,15 @@ package com.espertech.esper.common.internal.view.core;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.util.*;
 import com.espertech.esper.common.internal.context.module.EventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolver;
 import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFactory;
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
-import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.SerdeCompileTimeResolver;
 import com.espertech.esper.common.internal.settings.ClasspathImportServiceCompileTime;
+import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 
 import java.lang.annotation.Annotation;
 
@@ -105,5 +106,19 @@ public class ViewForgeEnv {
 
     public Integer getSubqueryNumber() {
         return args.getSubqueryNumber();
+    }
+
+    public CallbackAttribution getAttributionUngrouped() {
+        if (getSubqueryNumber() == null) {
+            return new CallbackAttributionStream(getStreamNumber());
+        }
+        return new CallbackAttributionSubquery(getSubqueryNumber());
+    }
+
+    public CallbackAttribution getAttributionGrouped(int[] groupingChild) {
+        if (getSubqueryNumber() == null) {
+            return new CallbackAttributionStreamGrouped(getStreamNumber(), groupingChild);
+        }
+        return new CallbackAttributionSubqueryGrouped(getSubqueryNumber(), groupingChild);
     }
 }

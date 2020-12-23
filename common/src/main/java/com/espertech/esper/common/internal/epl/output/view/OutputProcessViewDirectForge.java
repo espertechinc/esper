@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.epl.output.core.OutputProcessViewFactoryForge;
 import com.espertech.esper.common.internal.epl.output.core.OutputStrategyPostProcessForge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 
 import java.util.List;
 
@@ -55,6 +55,6 @@ public class OutputProcessViewDirectForge implements OutputProcessViewFactoryFor
     public void iteratorCodegen(CodegenMethod method, CodegenClassScope classScope) {
     }
 
-    public void collectSchedules(List<ScheduleHandleCallbackProvider> scheduleHandleCallbackProviders) {
+    public void collectSchedules(List<ScheduleHandleTracked> scheduleHandleCallbackProviders) {
     }
 }

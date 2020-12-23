@@ -8,8 +8,8 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public interface FilterSpecAttribution {
-    <T> T accept(FilterSpecAttributionVisitor<T> visitor);
+public interface CallbackAttribution {
+    <T> T accept(CallbackAttributionVisitor<T> visitor);
 }

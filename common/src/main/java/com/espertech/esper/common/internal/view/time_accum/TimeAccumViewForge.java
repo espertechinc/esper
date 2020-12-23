@@ -70,6 +70,10 @@ public class TimeAccumViewForge extends ViewFactoryForgeBase implements DataWind
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     private String getViewParamMessage() {
         return getViewName() + " view requires a single numeric parameter or time period parameter";
     }

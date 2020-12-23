@@ -70,6 +70,10 @@ public class TimeLengthBatchViewForge extends ViewFactoryForgeBase implements Da
         this.scheduleCallbackId = id;
     }
 
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
     protected EPTypeClass typeOfFactory() {
         return TimeLengthBatchViewFactory.EPTYPE;
     }

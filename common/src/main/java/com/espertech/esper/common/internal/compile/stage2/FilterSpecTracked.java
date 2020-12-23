@@ -10,16 +10,18 @@
  */
 package com.espertech.esper.common.internal.compile.stage2;
 
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
+
 public class FilterSpecTracked {
-    private final FilterSpecAttribution attribution;
+    private final CallbackAttribution attribution;
     private final FilterSpecCompiled filterSpecCompiled;
 
-    public FilterSpecTracked(FilterSpecAttribution attribution, FilterSpecCompiled filterSpecCompiled) {
+    public FilterSpecTracked(CallbackAttribution attribution, FilterSpecCompiled filterSpecCompiled) {
         this.attribution = attribution;
         this.filterSpecCompiled = filterSpecCompiled;
     }
 
-    public FilterSpecAttribution getAttribution() {
+    public CallbackAttribution getAttribution() {
         return attribution;
     }
 

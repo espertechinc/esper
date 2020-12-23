@@ -29,6 +29,7 @@ import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogDescForge;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableAccessAnalysisResult;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.fabric.FabricStatement;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 
@@ -63,4 +64,5 @@ public interface StateMgmtSettingsProvider {
     void inlinedClassesLocal(FabricCharge fabricCharge, ClassProvidedPrecompileResult classesInlined);
     void inlinedClasses(FabricCharge fabricCharge, ClassProvided classProvided);
     void historicalExpiryTime(FabricCharge fabricCharge, int streamNum);
+    void schedules(FabricCharge fabricCharge, List<ScheduleHandleTracked> trackeds);
 }

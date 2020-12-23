@@ -8,26 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public class FilterSpecAttributionContextCondition implements FilterSpecAttribution {
-    private final int nestingLevel;
-    private final boolean startCondition;
+public class CallbackAttributionMatchRecognize implements CallbackAttribution {
+    public final static CallbackAttributionMatchRecognize INSTANCE = new CallbackAttributionMatchRecognize();
+    private CallbackAttributionMatchRecognize() {}
 
-    public FilterSpecAttributionContextCondition(int nestingLevel, boolean startCondition) {
-        this.nestingLevel = nestingLevel;
-        this.startCondition = startCondition;
-    }
-
-    public int getNestingLevel() {
-        return nestingLevel;
-    }
-
-    public boolean isStartCondition() {
-        return startCondition;
-    }
-
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
         return visitor.accept(this);
     }
 }

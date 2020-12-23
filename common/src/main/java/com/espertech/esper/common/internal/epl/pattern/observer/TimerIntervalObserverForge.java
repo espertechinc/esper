@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.util.CallbackAttribution;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
 import com.espertech.esper.common.internal.context.module.EPStatementInitServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
@@ -24,9 +25,11 @@ import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeri
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternDeltaComputeUtil;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -63,8 +66,12 @@ public class TimerIntervalObserverForge implements ObserverForge, ScheduleHandle
         this.scheduleCallbackId = id;
     }
 
-    public void collectSchedule(List<ScheduleHandleCallbackProvider> schedules) {
-        schedules.add(this);
+    public int getScheduleCallbackId() {
+        return scheduleCallbackId;
+    }
+
+    public void collectSchedule(short factoryNodeId, Function<Short, CallbackAttribution> scheduleAttribution, List<ScheduleHandleTracked> schedules) {
+        schedules.add(new ScheduleHandleTracked(scheduleAttribution.apply(factoryNodeId), this));
     }
 
     public CodegenExpression makeCodegen(CodegenMethodScope parent, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {

@@ -8,20 +8,26 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.compile.stage2;
+package com.espertech.esper.common.internal.compile.util;
 
-public class FilterSpecAttributionStream implements FilterSpecAttribution {
+public class CallbackAttributionStreamGrouped implements CallbackAttribution {
     private final int streamNum;
+    private final int[] group;
 
-    public FilterSpecAttributionStream(int streamNum) {
+    public CallbackAttributionStreamGrouped(int streamNum, int[] group) {
         this.streamNum = streamNum;
+        this.group = group;
     }
 
     public int getStreamNum() {
         return streamNum;
     }
 
-    public <T> T accept(FilterSpecAttributionVisitor<T> visitor) {
+    public int[] getGroup() {
+        return group;
+    }
+
+    public <T> T accept(CallbackAttributionVisitor<T> visitor) {
         return visitor.accept(this);
     }
 }

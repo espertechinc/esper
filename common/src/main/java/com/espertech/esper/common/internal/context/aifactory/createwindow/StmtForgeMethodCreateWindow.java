@@ -19,7 +19,7 @@ import com.espertech.esper.common.internal.compile.stage1.spec.CreateWindowDesc;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseElementWildcard;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.compile.stage1.spec.ViewSpec;
-import com.espertech.esper.common.internal.compile.stage2.FilterSpecAttributionNamedWindow;
+import com.espertech.esper.common.internal.compile.util.CallbackAttributionNamedWindow;
 import com.espertech.esper.common.internal.compile.stage2.FilterSpecTracked;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.*;
@@ -37,7 +37,7 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWViewFactoryForge;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
-import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
+import com.espertech.esper.common.internal.schedule.ScheduleHandleTracked;
 import com.espertech.esper.common.internal.view.core.*;
 
 import java.util.ArrayList;
@@ -91,10 +91,10 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(viewSpecs.toArray(new ViewSpec[viewSpecs.size()]), viewArgs, namedWindowType);
         additionalForgeables.addAll(viewForgeDesc.getMultikeyForges());
         fabricCharge.add(viewForgeDesc.getFabricCharge());
+        List<ScheduleHandleTracked> schedules = viewForgeDesc.getSchedules();
 
         List<ViewFactoryForge> viewForges = viewForgeDesc.getForges();
-        List<ScheduleHandleCallbackProvider> schedules = new ArrayList<>();
-        ViewFactoryForgeUtil.determineViewSchedules(viewForges, schedules);
+
         verifyDataWindowViewFactoryChain(viewForges);
         Set<String> optionalUniqueKeyProps = StreamJoinAnalysisResultCompileTime.getUniqueCandidateProperties(viewForges, base.getStatementSpec().getAnnotations());
         String[] uniqueKeyProArray = optionalUniqueKeyProps == null ? null : optionalUniqueKeyProps.toArray(new String[optionalUniqueKeyProps.size()]);
@@ -143,7 +143,7 @@ public class StmtForgeMethodCreateWindow implements StmtForgeMethod {
         // fabric named window descriptor
         services.getStateMgmtSettingsProvider().namedWindow(fabricCharge, base.getStatementRawInfo(), metaData, namedWindowType);
 
-        List<FilterSpecTracked> filterSpecCompiled = Collections.singletonList(new FilterSpecTracked(FilterSpecAttributionNamedWindow.INSTANCE, compileResult.getFilterSpecCompiled()));
+        List<FilterSpecTracked> filterSpecCompiled = Collections.singletonList(new FilterSpecTracked(CallbackAttributionNamedWindow.INSTANCE, compileResult.getFilterSpecCompiled()));
 
         // build forge list
         List<StmtClassForgeable> forgeables = new ArrayList<>(2);
