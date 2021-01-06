@@ -8,18 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.runtime.client;
+package com.espertech.esper.runtime.client.option;
 
-import com.espertech.esper.runtime.client.option.UpgradeOption;
-
-public class EPRuntimeOptions {
-    private UpgradeOption upgradeOption;
-
-    public UpgradeOption getUpgradeOption() {
-        return upgradeOption;
-    }
-
-    public void setUpgradeOption(UpgradeOption upgradeOption) {
-        this.upgradeOption = upgradeOption;
-    }
+public interface UpgradeOption {
 }

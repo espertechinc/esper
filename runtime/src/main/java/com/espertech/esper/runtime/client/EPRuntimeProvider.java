@@ -51,6 +51,18 @@ public final class EPRuntimeProvider {
     }
 
     /**
+     * Returns the default runtime. The URI value for the runtime returned is "default".
+     *
+     * @param configuration is the configuration for the runtime
+     * @param options runtime options
+     * @return default instance of the runtime.
+     * @throws ConfigurationException to indicate a configuration problem
+     */
+    public static EPRuntime getDefaultRuntime(Configuration configuration, EPRuntimeOptions options) throws ConfigurationException {
+        return getRuntime(EPRuntimeProvider.DEFAULT_RUNTIME_URI, configuration, options);
+    }
+
+    /**
      * Returns a runtime for a given runtime URI.
      * <p>
      * Use the URI of "default" or null to return the default runtime.
