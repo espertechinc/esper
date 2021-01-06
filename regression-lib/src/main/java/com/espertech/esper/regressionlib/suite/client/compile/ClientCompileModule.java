@@ -44,7 +44,18 @@ public class ClientCompileModule {
         execs.add(new ClientCompileModuleParse());
         execs.add(new ClientCompileModuleParseFail());
         execs.add(new ClientCompileModuleCommentTrailing());
+        execs.add(new ClientCompileModuleEPLModuleText());
         return execs;
+    }
+
+    private static class ClientCompileModuleEPLModuleText implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean";
+            env.compileDeploy(epl);
+            EPDeployment deployment = env.deployment().getDeployment(env.deploymentId("s0"));
+            assertEquals(epl, deployment.getModuleProperties().get(ModuleProperty.MODULETEXT));
+            env.undeployAll();
+        }
     }
 
     private static class ClientCompileModuleCommentTrailing implements RegressionExecution {

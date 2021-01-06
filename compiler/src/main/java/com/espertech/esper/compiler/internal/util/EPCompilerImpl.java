@@ -33,6 +33,7 @@ import com.espertech.esper.common.internal.epl.script.compiletime.ScriptCompileT
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableCompileTimeResolverEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportException;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -87,8 +88,14 @@ public class EPCompilerImpl implements EPCompilerSPI {
             ModuleCompileTimeServices compileTimeServices = getCompileTimeServices(arguments, moduleName, moduleUses, false);
             addModuleImports(module.getImports(), compileTimeServices);
 
+            Map<ModuleProperty, Object> moduleProperties = Collections.emptyMap();
+            if (arguments.getConfiguration().getCompiler().getByteCode().isAttachModuleEPL()) {
+                moduleProperties = new HashMap<>(CollectionUtil.capacityHashMap(1));
+                moduleProperties.put(ModuleProperty.MODULETEXT, epl);
+            }
+
             // compile
-            return CompilerHelperModuleProvider.compile(compilables, moduleName, Collections.emptyMap(), compileTimeServices, arguments.getOptions());
+            return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions());
         } catch (EPCompileException ex) {
             throw ex;
         } catch (ParseException t) {
