@@ -50,55 +50,55 @@ public class EPLOuterFullJoin3Stream {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean_S1(10, "A_1", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, 10, "A_1", "B_1", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 10, "A_1", "B_1", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(11, "A_2", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, 11, "A_2", "B_1", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 11, "A_2", "B_1", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(12, "A_1", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, 12, "A_1", "B_2", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 12, "A_1", "B_2", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(13, "A_2", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, 13, "A_2", "B_2", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 13, "A_2", "B_2", null, null, null});
 
             env.sendEventBean(new SupportBean_S2(20, "A_1", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, 20, "A_1", "B_1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 20, "A_1", "B_1"});
 
             env.sendEventBean(new SupportBean_S2(21, "A_2", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, 21, "A_2", "B_1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 21, "A_2", "B_1"});
 
             env.sendEventBean(new SupportBean_S2(22, "A_1", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, 22, "A_1", "B_2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 22, "A_1", "B_2"});
 
             env.sendEventBean(new SupportBean_S2(23, "A_2", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, 23, "A_2", "B_2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(1, "A_3", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(2, "A_1", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(3, "A_3", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(4, "A_2", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(5, "A_2", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
 
             env.sendEventBean(new SupportBean_S1(14, "A_4", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, 14, "A_4", "B_3", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 14, "A_4", "B_3", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(15, "A_1", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", null, null, null});
 
             env.sendEventBean(new SupportBean_S2(24, "A_1", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", 24, "A_1", "B_3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", 24, "A_1", "B_3"});
 
             env.sendEventBean(new SupportBean_S2(25, "A_2", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, 25, "A_2", "B_3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 25, "A_2", "B_3"});
 
             env.undeployAll();
         }

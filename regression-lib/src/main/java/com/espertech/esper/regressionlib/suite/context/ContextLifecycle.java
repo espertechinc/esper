@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.context.SupportContextMgmtHelper;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDW;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDWFactory;
@@ -69,13 +68,13 @@ public class ContextLifecycle {
             env.compileDeploy(eplTwo, path);
             env.compileDeploy("@name('s0') select * from NewEventTwo", path).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("E1", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100});
 
             env.undeployAll();
         }

@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.epl.dataflow;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
@@ -130,7 +129,7 @@ public class EPLDataflowOpBeaconSource {
             env.compileDeploy("@name('s0') select * from SupportBean").addListener("s0");
             instance.run();
             sleep(200);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
 
             // invalid: no output stream
             tryInvalidCompile(env, "create dataflow DF1 BeaconSource {}",

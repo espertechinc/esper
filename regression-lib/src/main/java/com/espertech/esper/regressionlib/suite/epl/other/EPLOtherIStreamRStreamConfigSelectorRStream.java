@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import static junit.framework.TestCase.*;
 
@@ -25,7 +25,7 @@ public class EPLOtherIStreamRStreamConfigSelectorRStream implements RegressionEx
         Object theEvent = sendEvent(env, "a");
         sendEvent(env, "b");
         sendEvent(env, "c");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "d");
         assertTrue(env.listener("s0").isInvoked());

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
@@ -44,21 +43,21 @@ public class ExprDTWithDate implements RegressionExecution {
         SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypePremade.LONGBOXED.getEPType(), EPTypePremade.DATE.getEPType(), EPTypePremade.LONGBOXED.getEPType(), EPTypePremade.CALENDAR.getEPType(), EPTypePremade.LOCALDATETIME.getEPType(), EPTypePremade.ZONEDDATETIME.getEPType()});
 
         env.sendEventBean(SupportDateTime.make(null));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
 
         String expectedTime = "2004-09-03T09:00:00.000";
         env.runtime().getVariableService().setVariableValue(deployId, "varyear", 2004);
         env.runtime().getVariableService().setVariableValue(deployId, "varmonth", 8);
         env.runtime().getVariableService().setVariableValue(deployId, "varday", 3);
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         expectedTime = "2002-09-30T09:00:00.000";
         env.runtime().getVariableService().setVariableValue(deployId, "varyear", null);
         env.runtime().getVariableService().setVariableValue(deployId, "varmonth", 8);
         env.runtime().getVariableService().setVariableValue(deployId, "varday", null);
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         env.undeployAll();
     }

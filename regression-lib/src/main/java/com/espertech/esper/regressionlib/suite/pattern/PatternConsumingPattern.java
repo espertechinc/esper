@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 
 public class PatternConsumingPattern {
 
@@ -125,12 +124,12 @@ public class PatternConsumingPattern {
             env.milestone(1);
 
             sendTime(env, 1000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1"});
 
             env.milestone(2);
 
             sendTime(env, 5000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -161,11 +160,11 @@ public class PatternConsumingPattern {
             sendAEvent(env, "A2", 1); // 1 sec
             sendBEvent(env, "B1");
             sendTime(env, 1000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A2"});
 
             sendCEvent(env, "C1", null);
             sendTime(env, 5000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -200,12 +199,12 @@ public class PatternConsumingPattern {
             env.milestone(1);
 
             sendCEvent(env, "C1", "y");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
             env.milestone(2);
 
             sendCEvent(env, "C1", "x");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -246,15 +245,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -271,24 +270,24 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B1");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1"});
 
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B2");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendAEvent(env, "A2");
 
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B3");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B3"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B3"});
 
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B4");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -302,33 +301,33 @@ public class PatternConsumingPattern {
 
         sendAEvent(env, "E1");
         sendAEvent(env, "E2");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
 
         env.milestoneInc(milestone);
 
         sendAEvent(env, "E3");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3"});
         }
 
         env.milestoneInc(milestone);
 
         sendAEvent(env, "E4");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E4"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4"});
 
         env.milestoneInc(milestone);
 
         sendAEvent(env, "E5");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "E5"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E5"});
         }
 
         sendAEvent(env, "E6");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", "E6"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E6"});
 
         env.undeployAll();
     }
@@ -343,13 +342,13 @@ public class PatternConsumingPattern {
         sendAEvent(env, "A2", "y");
         sendBEvent(env, "B1");
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         sendCEvent(env, "C2", "x");
         if (target == TargetEnum.SUPPRESS_ONLY || target == TargetEnum.NONE) {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         } else {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         }
 
         env.undeployAll();
@@ -373,15 +372,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B2", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "B2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "B2"});
 
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B3", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "B3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "B3"});
         }
         env.undeployAll();
     }
@@ -404,15 +403,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();
@@ -433,12 +432,12 @@ public class PatternConsumingPattern {
         sendTime(env, 1000);
         sendAEvent(env, "A2");
         sendTime(env, 10000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "A2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2"});
 
         env.milestoneInc(milestone);
 
         sendTime(env, 11000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -454,7 +453,7 @@ public class PatternConsumingPattern {
         sendBEvent(env, "B1");
 
         if (target == TargetEnum.SUPPRESS_ONLY || target == TargetEnum.DISCARD_AND_SUPPRESS) {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "A2", "B1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", "B1"});
         } else {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
                 new Object[][]{{"A1", "A2", "B1"}, {"A2", null, "B1"}});
@@ -481,15 +480,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -516,15 +515,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();
@@ -548,15 +547,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -576,15 +575,15 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C2", "x");
         if (matchDiscard) {
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();

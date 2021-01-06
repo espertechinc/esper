@@ -932,9 +932,9 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.compileExecuteFAF("delete from MyInfra", path);
             final String[] fields = new String[]{"theString", "intPrimitive"};
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E0", 0});
+                env.assertPropsListenerNew("s0", fields, new Object[]{"E0", 0});
             } else {
-                assertFalse(env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             }
 
             env.undeployAll();

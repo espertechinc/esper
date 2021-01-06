@@ -11,12 +11,12 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.Support10ColEvent;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -74,30 +74,30 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             sendEventSB(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10, 10, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, 10, 10});
 
             env.milestone(2);
 
             sendEventSB(env, "E2", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10 + 100, 10, 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10 + 100, 10, 100});
 
             env.milestone(3);
 
             sendEventSB(env, "E3", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 10 + 100 + 11, 10, 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 10 + 100 + 11, 10, 100});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendEventSB(env, "E4", 9);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", 10 + 100 + 11 + 9, 9, 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 10 + 100 + 11 + 9, 9, 100});
 
             sendEventSB(env, "E5", 120);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", 10 + 100 + 11 + 9 + 120, 9, 120});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", 10 + 100 + 11 + 9 + 120, 9, 120});
 
             sendEventSB(env, "E6", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E6", 10 + 100 + 11 + 9 + 120 + 100, 9, 120});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", 10 + 100 + 11 + 9 + 120 + 100, 9, 120});
 
             env.undeployAll();
         }
@@ -115,12 +115,12 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             Object e1 = sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10, new Object[]{e1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, new Object[]{e1}});
 
             env.milestone(1);
 
             Object e2 = sendSupportBean(env, "E2", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10 + 100, new Object[]{e1, e2}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10 + 100, new Object[]{e1, e2}});
 
             env.milestone(2);
 
@@ -157,7 +157,7 @@ public class ResultSetQueryTypeRowForAll {
 
             env.sendEventBean(makeMarketDataEvent(100));
 
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgPrice", 100d},
                     {"sumPrice", 100d},
@@ -185,7 +185,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(200));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgPrice", (100 + 200) / 2.0},
                     {"sumPrice", 100 + 200d},
@@ -213,7 +213,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(150));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgPrice", (150 + 100 + 200) / 3.0},
                     {"sumPrice", 150 + 100 + 200d},
@@ -253,7 +253,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent(100));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"minPrice", 100d},
                     {"maxPrice", 100d},
@@ -267,7 +267,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(200));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"minPrice", 100d},
                     {"maxPrice", 200d},
@@ -281,7 +281,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(150));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"minPrice", 150d},
                     {"maxPrice", 200d},
@@ -452,38 +452,38 @@ public class ResultSetQueryTypeRowForAll {
     private static void tryAssert(RegressionEnvironment env) {
         // assert select result type
         assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{null}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{null}});
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
         assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{10L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 5000);
         sendEvent(env, 15);
         assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{25L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{25L}});
 
         sendTimerEvent(env, 8000);
         sendEvent(env, -5);
         assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         assertNull(env.listener("s0").getLastOldData());
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{20L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{20L}});
 
         sendTimerEvent(env, 10000);
         assertEquals(20L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{10L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 15000);
         assertEquals(10L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertEquals(-5L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{-5L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{-5L}});
 
         sendTimerEvent(env, 18000);
         assertEquals(-5L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertNull(env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), new String[]{"mySum"}, new Object[][]{{null}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{null}});
     }
 
     public static class ResultSetQueryTypeRowForAllNamedWindowWindow implements RegressionExecution {
@@ -499,34 +499,34 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", new Integer[]{10}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", new Integer[]{10}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", new Integer[]{10, 100}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", new Integer[]{10, 100}});
 
             env.milestone(2);
 
             sendSupportBean_A(env, "E2");    // delete E2
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E2", new Integer[]{10}});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", new Integer[]{10}});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 50);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", new Integer[]{10, 50}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", new Integer[]{10, 50}});
 
             env.milestone(4);
 
             env.milestone(5);  // no change
 
             sendSupportBean_A(env, "E1");    // delete E1
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1", new Integer[]{50}});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", new Integer[]{50}});
 
             env.milestone(6);
 
             sendSupportBean(env, "E4", -1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", new Integer[]{50, -1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", new Integer[]{50, -1}});
 
             env.undeployAll();
         }

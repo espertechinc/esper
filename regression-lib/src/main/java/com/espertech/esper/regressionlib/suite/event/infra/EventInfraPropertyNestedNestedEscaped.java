@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -78,7 +77,7 @@ public class EventInfraPropertyNestedNestedEscaped implements RegressionExecutio
                 " from " + eventTypeName, path).addListener("s0");
 
         sendEvent.apply(eventTypeName, env, "v2", "v2dyn", "v3");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[] {"v2", "v3", "v3", "v2dyn"});
+        env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[] {"v2", "v3", "v3", "v2dyn"});
 
         env.undeployModuleContaining("s0");
     }

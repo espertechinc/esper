@@ -11,17 +11,16 @@
 package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
-import static org.junit.Assert.assertFalse;
 
 public class EPLDatabaseNoJoinIterate {
 
@@ -51,7 +50,7 @@ public class EPLDatabaseNoJoinIterate {
             sendSupportBeanEvent(env, 5);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, new Object[][]{{30}});
 
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.undeployModuleContaining("s0");
 
             // Test multi-parameter and multi-row
@@ -84,7 +83,7 @@ public class EPLDatabaseNoJoinIterate {
             sendSupportBeanEvent(env, 5);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, new Object[][]{{50}});
 
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.undeployModuleContaining("s0");
 
             // Test boolean and multirow

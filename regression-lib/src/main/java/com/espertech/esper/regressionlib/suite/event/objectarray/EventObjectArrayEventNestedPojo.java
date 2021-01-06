@@ -26,7 +26,8 @@ import java.util.Map;
 
 import static com.espertech.esper.regressionlib.suite.event.map.EventMapCore.makeMap;
 import static com.espertech.esper.regressionlib.suite.event.objectarray.EventObjectArrayCore.getNestedKeyOA;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class EventObjectArrayEventNestedPojo implements RegressionExecution {
 
@@ -81,7 +82,7 @@ public class EventObjectArrayEventNestedPojo implements RegressionExecution {
         env.compileDeploy("@name('s0') select * from MyNested(bean.insides.anyOf(i=>id = 'A'))").addListener("s0");
 
         env.sendEventObjectArray(new Object[]{new MyNested(Arrays.asList(new MyInside[]{new MyInside("A")}))}, "MyNested");
-        assertTrue(env.listener("s0").isInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

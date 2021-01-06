@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckTypeOne;
@@ -46,10 +45,10 @@ public class ExprCoreDotExpressionDuckTyping implements RegressionExecution {
         String[] fields = "strval,intval,commonstrval,commonintval,commondoubleval".split(",");
 
         env.sendEventBean(new SupportBeanDuckTypeOne("x"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"x", null, null, -1, 12.9876d});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"x", null, null, -1, 12.9876d});
 
         env.sendEventBean(new SupportBeanDuckTypeTwo(-10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, -10, "mytext", null, 11.1234d});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, -10, "mytext", null, 11.1234d});
 
         env.undeployAll();
     }

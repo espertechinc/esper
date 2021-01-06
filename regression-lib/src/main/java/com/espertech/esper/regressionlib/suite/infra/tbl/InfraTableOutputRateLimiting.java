@@ -11,14 +11,12 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -54,7 +52,7 @@ public class InfraTableOutputRateLimiting implements RegressionExecution {
 
         currentTime.set(currentTime.get() + 1000L);
         env.advanceTime(currentTime.get());
-        assertTrue(env.listener("s0").isInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

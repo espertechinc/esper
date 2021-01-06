@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.map;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -37,7 +36,7 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
         env.addListener("s0");
 
         env.sendEventObjectArray(new Object[]{"E1", Collections.singletonMap("im", "IM1"), new Map[]{Collections.singletonMap("im", "IM2")}, Collections.singletonMap("om", "OM1")}, "OAType");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[]{"E1", "IM1", "IM2", "OM1"});
+        env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[]{"E1", "IM1", "IM2", "OM1"});
 
         env.undeployAll();
 
@@ -65,7 +64,7 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
         data.put("oa1", new Object[]{"A", 100});
         data.put("oa2", new Object[][]{{"B", 200}, {"C", 300}});
         env.sendEventMap(data, "MapTypeWOA");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[]{"A", 100, "B", 300});
+        env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[]{"A", 100, "B", 300});
         env.undeployModuleContaining("s0");
 
         // test inserting from map to array

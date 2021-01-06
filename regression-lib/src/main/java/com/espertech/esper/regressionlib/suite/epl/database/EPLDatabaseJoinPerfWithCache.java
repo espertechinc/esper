@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyHashForge;
 import com.espertech.esper.common.internal.epl.historical.indexingstrategy.PollResultIndexingStrategyInKeywordMultiForge;
 import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyInKeywordMultiForge;
 import com.espertech.esper.common.internal.epl.historical.lookupstrategy.HistoricalIndexLookupStrategyInKeywordSingleForge;
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescHistorical;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
 
@@ -160,13 +160,13 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
                 String col2 = Integer.toString(Math.round((float) num / 10));
                 SupportBean_S0 bean = new SupportBean_S0(num);
                 env.sendEventBean(bean);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
+                env.assertPropsListenerNew("s0", new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
             }
             long endTime = System.currentTimeMillis();
 
             // log.info("delta=" + (endTime - startTime));
             assertTrue(endTime - startTime < 500);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -192,7 +192,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
                 bean.setByteBoxed((byte) 10);
                 bean.setTheString("E" + i);
                 env.sendEventBean(bean);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"theString", "mycol3", "mycol4"}, new Object[]{"E" + i, 100, 10});
+                env.assertPropsListenerNew("s0", new String[]{"theString", "mycol3", "mycol4"}, new Object[]{"E" + i, 100, 10});
             }
             long endTime = System.currentTimeMillis();
 
@@ -221,7 +221,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
                 SupportBean bean = new SupportBean();
                 bean.setTheString("50");
                 env.sendEventBean(bean);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"50", 50, "50"});
+                env.assertPropsListenerNew("s0", new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"50", 50, "50"});
             }
             long endTime = System.currentTimeMillis();
 
@@ -229,7 +229,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             SupportBean bean = new SupportBean();
             bean.setTheString("-1");
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"-1", null, null});
+            env.assertPropsListenerNew("s0", new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"-1", null, null});
 
             // log.info("delta=" + (endTime - startTime));
             assertTrue(endTime - startTime < 500);
@@ -257,20 +257,20 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
                 bean.setTheString("50");
                 bean.setIntPrimitive(50);
                 env.sendEventBean(bean);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"50", 50, "50"});
+                env.assertPropsListenerNew("s0", new String[]{"theString", "mycol3", "mycol1"}, new Object[]{"50", 50, "50"});
             }
             long endTime = System.currentTimeMillis();
 
             // no matching on-clause
             SupportBean bean = new SupportBean();
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // matching on-clause not matching where
             bean = new SupportBean();
             bean.setTheString("50");
             bean.setIntPrimitive(49);
             env.sendEventBean(bean);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // log.info("delta=" + (endTime - startTime));
             assertTrue(endTime - startTime < 500);

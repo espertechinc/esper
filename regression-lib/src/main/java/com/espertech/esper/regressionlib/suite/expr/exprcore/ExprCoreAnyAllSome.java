@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -94,7 +93,7 @@ public class ExprCoreAnyAllSome {
                 SupportBean bean = new SupportBean("E", testdata[i][0]);
                 bean.setIntBoxed(testdata[i][1]);
                 env.sendEventBean(bean);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, result[i]);
+                env.assertPropsListenerNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -258,7 +257,7 @@ public class ExprCoreAnyAllSome {
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(3L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
 
             env.undeployAll();
         }
@@ -284,16 +283,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E3", null, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E4", 1, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEvent(env, "E5", null, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E6", 1, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
             sendEvent(env, "E7", 0, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
 
@@ -306,16 +305,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendEvent(env, "E3", null, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E4", 1, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEvent(env, "E5", null, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E6", 1, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
             sendEvent(env, "E7", 0, 1d, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -334,23 +333,23 @@ public class ExprCoreAnyAllSome {
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(1L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
 
             arrayBean.setLongBoxed(2L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{2, 2});
             arrayBean.setIntCol(Arrays.asList(2, 1));
             arrayBean.setLongBoxed(1L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{1, 1});
             arrayBean.setIntCol(Arrays.asList(1, 1));
             arrayBean.setLongBoxed(0L);
             env.sendEventBean(arrayBean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -378,7 +377,7 @@ public class ExprCoreAnyAllSome {
 
             for (int i = 0; i < 6; i++) {
                 env.sendEventBean(new SupportBean("E1", i));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, result[i]);
+                env.assertPropsListenerNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -407,7 +406,7 @@ public class ExprCoreAnyAllSome {
 
             for (int i = 0; i < 6; i++) {
                 env.sendEventBean(new SupportBean("E1", i));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, result[i]);
+                env.assertPropsListenerNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -431,16 +430,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E3", null, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E4", 1, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
 
             sendEvent(env, "E5", null, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E6", 1, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, true, false, null, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, false, null, true});
             sendEvent(env, "E7", 0, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, null, null, true, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, null, null, true, null});
 
             env.undeployAll();
 
@@ -456,16 +455,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendEvent(env, "E3", null, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E4", 1, null, null);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
 
             sendEvent(env, "E5", null, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E6", 1, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, true, false, null, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, false, null, true});
             sendEvent(env, "E7", 0, null, 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, null, null, true, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, null, null, true, null});
 
             env.undeployAll();
         }

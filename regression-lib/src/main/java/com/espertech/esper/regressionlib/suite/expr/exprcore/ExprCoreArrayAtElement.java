@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -58,7 +57,7 @@ public class ExprCoreArrayAtElement {
             assertEquals(String.class, eventType.getPropertyType("c0"));
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[] {"b"});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[] {"b"});
 
             env.undeployAll();
         }
@@ -116,13 +115,13 @@ public class ExprCoreArrayAtElement {
             }
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {10, 20, 30});
+            env.assertPropsListenerNew("s0", fields, new Object[] {10, 20, 30});
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {1, 1, 3});
+            env.assertPropsListenerNew("s0", fields, new Object[] {1, 1, 3});
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[] {null, null, null});
 
             env.undeployAll();
         }

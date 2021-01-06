@@ -13,9 +13,9 @@ package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.UniformPair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
@@ -871,7 +871,7 @@ public class ResultSetOutputLimitRowPerEvent {
 
         sendTimer(env, 1000);
         String[] fields = "symbol,avgPrice".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"SYM1", 10.5});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"SYM1", 10.5});
 
         sendEvent(env, "SYM1", 13d);
         sendEvent(env, "SYM1", 10d);

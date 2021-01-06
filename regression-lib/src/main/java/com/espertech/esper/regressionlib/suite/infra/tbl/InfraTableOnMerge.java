@@ -12,14 +12,10 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
-import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -289,7 +285,7 @@ public class InfraTableOnMerge {
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
         // create merge
         String eplMerge = "on SupportBean merge varaggIUD" +
@@ -306,7 +302,7 @@ public class InfraTableOnMerge {
 
         // assert
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
         // also aggregate-into the same key
         env.compileDeploy(soda, "into table varaggIUD select sum(50) as sumint from SupportBean_S1", path);
@@ -315,7 +311,7 @@ public class InfraTableOnMerge {
         env.milestone(0);
 
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 50});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 50});
 
         // update for varagg
         env.sendEventBean(new SupportBean("U2", 10));
@@ -333,7 +329,7 @@ public class InfraTableOnMerge {
         env.milestone(2);
 
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
         env.undeployAll();
     }
@@ -354,7 +350,7 @@ public class InfraTableOnMerge {
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null});
 
         // create merge
         String eplMerge = "@name('merge') on SupportBean merge varaggMIU" +
@@ -373,7 +369,7 @@ public class InfraTableOnMerge {
 
         // assert key "10"
         env.sendEventBean(new SupportBean_S0(10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"v1", 1000, new Integer[]{1, 2}, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"v1", 1000, new Integer[]{1, 2}, null});
 
         // also aggregate-into the same key
         env.compileDeploy(soda, "into table varaggMIU select sum(50) as sumint from SupportBean_S1 group by id", path);
@@ -382,7 +378,7 @@ public class InfraTableOnMerge {
         env.milestone(0);
 
         env.sendEventBean(new SupportBean_S0(10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"v1", 1000, new Integer[]{1, 2}, 50});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"v1", 1000, new Integer[]{1, 2}, 50});
 
         // update for varagg[10]
         env.sendEventBean(new SupportBean("U2", 10));
@@ -392,7 +388,7 @@ public class InfraTableOnMerge {
         env.milestone(1);
 
         env.sendEventBean(new SupportBean_S0(10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"v2", 2000, new Integer[]{3, 4}, 50});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"v2", 2000, new Integer[]{3, 4}, 50});
 
         // delete for varagg[10]
         env.sendEventBean(new SupportBean("D3", 10));
@@ -401,7 +397,7 @@ public class InfraTableOnMerge {
         env.milestone(2);
 
         env.sendEventBean(new SupportBean_S0(10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null});
 
         env.undeployAll();
     }
@@ -421,7 +417,7 @@ public class InfraTableOnMerge {
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(10, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null});
 
         // create merge
         String eplMerge = "@name('merge') on SupportBean merge varaggMIUD" +
@@ -443,7 +439,7 @@ public class InfraTableOnMerge {
 
         // assert key {"10", "A"}
         env.sendEventBean(new SupportBean_S0(10, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, "A", "inserted"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, "A", "inserted"});
 
         // update for varagg[10, "A"]
         env.sendEventBean(makeSupportBean("A", 10, 1));
@@ -451,7 +447,7 @@ public class InfraTableOnMerge {
         env.milestone(1);
 
         env.sendEventBean(new SupportBean_S0(10, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, "A", "updated"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, "A", "updated"});
 
         // test typable output
         env.compileDeploy("@name('convert') insert into LocalBean select varaggMIUD[10, 'A'] as val0 from SupportBean_S1", path).addListener("convert");
@@ -464,7 +460,7 @@ public class InfraTableOnMerge {
         env.milestone(2);
 
         env.sendEventBean(new SupportBean_S0(10, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null});
 
         env.undeployAll();
     }

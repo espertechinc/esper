@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportThreeArrayEvent;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetQueryTypeRollupDimensionality {
 
@@ -901,7 +900,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.sendEventBean(makeEvent("E1", 10, 100));
             env.sendEventBean(makeEvent("E2", 20, 200));
             env.sendEventBean(makeEvent("E1", 11, 300));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -917,7 +916,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.sendEventBean(makeEvent("E1", 11, 500));
             env.sendEventBean(makeEvent("E2", 20, 600));
             env.sendEventBean(makeEvent("E1", 11, 700));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -1060,7 +1059,7 @@ public class ResultSetQueryTypeRollupDimensionality {
 
         env.sendEventBean(new SupportBean("E2", 2));
         env.sendEventBean(new SupportBean("E1", 3));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
@@ -1075,7 +1074,7 @@ public class ResultSetQueryTypeRollupDimensionality {
 
         env.sendEventBean(new SupportBean("E1", 5));
         env.sendEventBean(new SupportBean("E1", 6));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 

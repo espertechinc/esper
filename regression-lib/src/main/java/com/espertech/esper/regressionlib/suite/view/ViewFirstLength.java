@@ -11,15 +11,13 @@
 package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class ViewFirstLength {
     public static Collection<RegressionExecution> executions() {
@@ -40,26 +38,26 @@ public class ViewFirstLength {
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(2);
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
             sendSupportBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(3);
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
             sendSupportBean(env, "E3");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             sendSupportBean(env, "E4");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
@@ -72,26 +70,26 @@ public class ViewFirstLength {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), "symbol".split(","), new Object[][]{{"E1"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}});
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E2"}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), "symbol".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E3"}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, null);
+            env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E4"));
-            assertFalse(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.undeployAll();
         }

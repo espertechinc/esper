@@ -16,19 +16,22 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.module.Module;
 import com.espertech.esper.common.client.module.ModuleItem;
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
-import com.espertech.esper.compiler.client.*;
+import com.espertech.esper.compiler.client.CompilerArguments;
+import com.espertech.esper.compiler.client.CompilerOptions;
+import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.regressionlib.support.util.SupportAdminUtil;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.stage.EPStage;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import org.apache.avro.generic.GenericData;
-import org.junit.Assert;
 import org.w3c.dom.Node;
 
 import java.util.Iterator;
@@ -39,7 +42,7 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.getRequireStatement;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.getRequireStatementListener;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public abstract class RegressionEnvironmentBase implements RegressionEnvironment {
     protected Configuration configuration;
@@ -266,7 +269,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             compileDeploy(epl, path);
         } else {
             EPStatementObjectModel model = eplToModel(epl);
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
             compileDeploy(model, path);
         }
         return this;
@@ -320,7 +323,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             compile(epl, arguments);
         }
         EPStatementObjectModel copy = eplToModel(epl);
-        Assert.assertEquals(epl, copy.toEPL());
+        assertEquals(epl, copy.toEPL());
         arguments.setConfiguration(configuration);
         return compile(copy, arguments);
     }
@@ -358,20 +361,20 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public RegressionEnvironment eplToModelCompileDeploy(String epl) {
         EPStatementObjectModel copy = eplToModel(epl);
 
-        Assert.assertEquals(epl.trim(), copy.toEPL());
+        assertEquals(epl.trim(), copy.toEPL());
 
         EPCompiled compiled = compile(copy, new CompilerArguments(getConfiguration()));
         EPDeployment result = tryDeploy(compiled);
 
         EPStatement stmt = result.getStatements()[0];
-        Assert.assertEquals(epl.trim(), stmt.getProperty(StatementProperty.EPL));
+        assertEquals(epl.trim(), stmt.getProperty(StatementProperty.EPL));
         return this;
     }
 
     public RegressionEnvironment eplToModelCompileDeploy(String epl, RegressionPath path) {
         EPStatementObjectModel copy = eplToModel(epl);
 
-        Assert.assertEquals(epl.trim(), copy.toEPL());
+        assertEquals(epl.trim(), copy.toEPL());
 
         CompilerArguments args = getArgsWithExportToPath(path);
 
@@ -380,7 +383,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
         EPDeployment result = tryDeploy(compiled);
 
-        Assert.assertEquals(epl.trim(), result.getStatements()[0].getProperty(StatementProperty.EPL));
+        assertEquals(epl.trim(), result.getStatements()[0].getProperty(StatementProperty.EPL));
         return this;
     }
 
@@ -516,6 +519,71 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         } catch (EPDeployException ex) {
             throw notExpected(ex);
         }
+    }
+
+    public void assertPropsPerRowIterator(String statementName, String[] fields, Object[][] expecteds) {
+        EPAssertionUtil.assertPropsPerRow(iterator(statementName), fields, expecteds);
+    }
+
+    public void assertPropsPerRowIteratorAnyOrder(String statementName, String[] fields, Object[][] expecteds) {
+        EPAssertionUtil.assertPropsPerRowAnyOrder(iterator(statementName), fields, expecteds);
+    }
+
+    public void assertPropsListenerNew(String statementName, String[] fields, Object[] expecteds) {
+        EPAssertionUtil.assertProps(listener(statementName).assertOneGetNewAndReset(), fields, expecteds);
+    }
+
+    public void assertPropsListenerOld(String statementName, String[] fields, Object[] expecteds) {
+        EPAssertionUtil.assertProps(listener(statementName).assertOneGetOldAndReset(), fields, expecteds);
+    }
+
+    public void assertPropsPerRowLastOld(String statementName, String[] fields, Object[][] expecteds) {
+        EPAssertionUtil.assertPropsPerRow(listener(statementName).getAndResetLastOldData(), fields, expecteds);
+    }
+
+    public void assertListenerInvoked(String statementName) {
+        assertTrue(listener(statementName).getIsInvokedAndReset());
+    }
+
+    public void assertListenerNotInvoked(String statementName) {
+        assertFalse(listener(statementName).isInvoked());
+    }
+
+    public void assertNVListener(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream) {
+        SupportListener listener = listener(statementName);
+        assertEquals(1, listener.getNewDataList().size());
+        assertEquals(1, listener.getOldDataList().size());
+        EPAssertionUtil.assertNameValuePairs(listener.getLastNewData(), nameAndValuePairsIStream);
+        EPAssertionUtil.assertNameValuePairs(listener.getLastOldData(), nameAndValuePairsRStream);
+        listener.reset();
+    }
+
+    public void assertStatement(String statementName, Consumer<EPStatement> assertor) {
+        assertor.accept(statement(statementName));
+    }
+
+    public void assertListener(String statementName, Consumer<SupportListener> assertor) {
+        assertor.accept(listener(statementName));
+    }
+
+    public void assertPropsPerRowNewFlattened(String statementName, String[] fields, Object[][] expecteds) {
+        SupportListener listener = listener(statementName);
+        EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, expecteds);
+        listener.reset();
+    }
+
+    public void assertPropsPerRowOldFlattened(String statementName, String[] fields, Object[][] expecteds) {
+        SupportListener listener = listener(statementName);
+        EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, expecteds);
+        listener.reset();
+    }
+
+    public void assertEqualsNew(String statementName, String fieldName, Object expected) {
+        assertEquals(expected, listener(statementName).assertOneGetNewAndReset().get(fieldName));
+    }
+
+    public void runtimeSetVariable(String deploymentId, String variableName, Object value) {
+        runtime().getVariableService().setVariableValue(deploymentId, variableName, value);
     }
 
     private EPDeployment tryDeploy(EPCompiled compiled) {

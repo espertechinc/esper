@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,16 +68,16 @@ public class InfraNamedWindowConsumer {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 30});
 
             env.sendEventBean(new SupportBean("E3", 25));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 45});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 45});
 
             env.sendEventBean(new SupportBean("E4", 26));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", 51});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 51});
 
             env.undeployAll();
         }

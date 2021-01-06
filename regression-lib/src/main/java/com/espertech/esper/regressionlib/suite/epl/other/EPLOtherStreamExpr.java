@@ -103,9 +103,9 @@ public class EPLOtherStreamExpr {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportMarketDataBean("ACME", 0, 0L, null));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportMarketDataBean("ACME", 0, 100L, null));
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -121,7 +121,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 0, 0L, null);
             env.sendEventBean(eventA);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"symbol", "theString"}, new Object[]{"ACME", null});
+            env.assertPropsListenerNew("s0", new String[]{"symbol", "theString"}, new Object[]{"ACME", null});
 
             env.undeployAll();
         }
@@ -166,7 +166,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 99L, null);
             env.sendEventBean(eventA);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"volume", "symbol", "pvf"}, new Object[]{99L, "ACME", 4d * 99L * 2});
+            env.assertPropsListenerNew("s0", new String[]{"volume", "symbol", "pvf"}, new Object[]{99L, "ACME", 4d * 99L * 2});
 
             env.undeployAll();
         }
@@ -185,7 +185,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 2L, null);
             env.sendEventBean(eventA);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"s0.getVolume()", "s0.getPriceTimesVolume(3)"}, new Object[]{2L, 4d * 2L * 3d});
+            env.assertPropsListenerNew("s0", new String[]{"s0.getVolume()", "s0.getPriceTimesVolume(3)"}, new Object[]{2L, 4d * 2L * 3d});
             env.undeployAll();
 
             // try instance method that accepts EventBean
@@ -197,7 +197,7 @@ public class EPLOtherStreamExpr {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventBean(new MyTestEvent(10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{10, 10});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{10, 10});
 
             env.undeployAll();
         }
@@ -225,7 +225,7 @@ public class EPLOtherStreamExpr {
 
             SupportBean eventB = new SupportBean();
             env.sendEventBean(eventB);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"s0stream", "s1stream"}, new Object[]{eventA, eventB});
+            env.assertPropsListenerNew("s0", new String[]{"s0stream", "s1stream"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
 
@@ -242,7 +242,7 @@ public class EPLOtherStreamExpr {
 
             env.sendEventBean(eventA);
             env.sendEventBean(eventB);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"s0", "s1"}, new Object[]{eventA, eventB});
+            env.assertPropsListenerNew("s0", new String[]{"s0", "s1"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
         }
@@ -260,7 +260,7 @@ public class EPLOtherStreamExpr {
 
             SupportBean eventB = new SupportBean("ACME", 1);
             env.sendEventBean(eventB);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"e1", "e2"}, new Object[]{eventA, eventB});
+            env.assertPropsListenerNew("s0", new String[]{"e1", "e2"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
         }

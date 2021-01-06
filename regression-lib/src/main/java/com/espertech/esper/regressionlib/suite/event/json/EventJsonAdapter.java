@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.json.minimaljson.JsonWriter;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.json.util.JsonFieldAdapterString;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -132,7 +131,7 @@ public class EventJsonAdapter {
     }
 
     private static void doAssert(RegressionEnvironment env, String json, Object[] expected) {
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "point,mydate".split(","), expected);
+        env.assertPropsListenerNew("s0", "point,mydate".split(","), expected);
 
         JsonEventObject event = (JsonEventObject) env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         assertEquals(json, event.toString());

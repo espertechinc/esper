@@ -21,7 +21,9 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportChainTop;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.bean.SupportTemperatureBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -105,7 +107,7 @@ public class EPLOtherStaticFunctions {
                 " from SupportBean").addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[]{10, 10, 10, 10});
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[]{10, 10, 10, 10});
 
             env.undeployAll();
         }
@@ -130,11 +132,11 @@ public class EPLOtherStaticFunctions {
 
             LevelOne.setField("v1");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{"v1"});
+            env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"v1"});
 
             LevelOne.setField("v2");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0".split(","), new Object[]{"v2"});
+            env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"v2"});
 
             env.undeployAll();
         }
@@ -202,9 +204,9 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(statementText).addListener("s0");
 
             env.sendEventBean(new SupportBean("b", 0));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("a", 0));
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
             statementText = "@name('s0') select * from pattern [myevent=SupportBean(" +
@@ -212,7 +214,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(statementText).addListener("s0");
 
             env.sendEventBean(new SupportBean("a", 0));
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -242,7 +244,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "v1,v2,v3,v4".split(","), new Object[]{10, 10d, 10d, 10d});
+            env.assertPropsListenerNew("s0", "v1,v2,v3,v4".split(","), new Object[]{10, 10d, 10d, 10d});
 
             env.undeployAll();
         }

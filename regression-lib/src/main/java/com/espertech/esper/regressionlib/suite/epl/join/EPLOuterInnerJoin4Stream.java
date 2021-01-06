@@ -10,18 +10,15 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLOuterInnerJoin4Stream {
     private final static String[] FIELDS = "s0.id, s0.p00, s1.id, s1.p10, s2.id, s2.p20, s3.id, s3.p30".split(",");
@@ -110,55 +107,55 @@ public class EPLOuterInnerJoin4Stream {
 
         // s0, s1, s2, s3
         env.sendEventBean(new SupportBean_S0(0, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(100, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(200, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(300, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
 
         // s0, s2, s3, s1
         env.sendEventBean(new SupportBean_S0(1, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(201, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(301, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(101, "B"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
 
         // s2, s3, s1, s0
         env.sendEventBean(new SupportBean_S2(202, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(302, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(102, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(2, "C"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
 
         // s1, s2, s0, s3
         env.sendEventBean(new SupportBean_S1(103, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(203, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(3, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(303, "D"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
 
         env.undeployAll();
     }
@@ -168,55 +165,55 @@ public class EPLOuterInnerJoin4Stream {
 
         // s0, s1, s2, s3
         env.sendEventBean(new SupportBean_S0(0, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(100, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{0, "A", 100, "A", null, null, null, null});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{0, "A", 100, "A", null, null, null, null});
 
         env.sendEventBean(new SupportBean_S2(200, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{0, "A", 100, "A", 200, "A", null, null});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{0, "A", 100, "A", 200, "A", null, null});
 
         env.sendEventBean(new SupportBean_S3(300, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
 
         // s0, s2, s3, s1
         env.sendEventBean(new SupportBean_S0(1, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(201, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(301, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(101, "B"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
 
         // s2, s3, s1, s0
         env.sendEventBean(new SupportBean_S2(202, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(302, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(102, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(2, "C"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
 
         // s1, s2, s0, s3
         env.sendEventBean(new SupportBean_S1(103, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(203, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(3, "D"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{3, "D", 103, "D", 203, "D", null, null});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{3, "D", 103, "D", 203, "D", null, null});
 
         env.sendEventBean(new SupportBean_S3(303, "D"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
 
         env.undeployAll();
     }
@@ -226,68 +223,68 @@ public class EPLOuterInnerJoin4Stream {
 
         // s0, s1, s2, s3
         env.sendEventBean(new SupportBean_S0(0, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(100, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(200, "A"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(300, "A"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{0, "A", 100, "A", 200, "A", 300, "A"});
 
         // s0, s2, s3, s1
         env.sendEventBean(new SupportBean_S0(1, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(201, "B"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(301, "B"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{1, "B", null, null, 201, "B", 301, "B"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{1, "B", null, null, 201, "B", 301, "B"});
 
         env.sendEventBean(new SupportBean_S1(101, "B"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{1, "B", 101, "B", 201, "B", 301, "B"});
 
         // s2, s3, s1, s0
         env.sendEventBean(new SupportBean_S2(202, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(302, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(102, "C"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(2, "C"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{2, "C", 102, "C", 202, "C", 302, "C"});
 
         // s1, s2, s0, s3
         env.sendEventBean(new SupportBean_S1(103, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(203, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(3, "D"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S3(303, "D"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{3, "D", 103, "D", 203, "D", 303, "D"});
 
         // s3, s0, s1, s2
         env.sendEventBean(new SupportBean_S3(304, "E"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(4, "E"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{4, "E", null, null, null, null, 304, "E"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{4, "E", null, null, null, null, 304, "E"});
 
         env.sendEventBean(new SupportBean_S1(104, "E"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{4, "E", 104, "E", null, null, 304, "E"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{4, "E", 104, "E", null, null, 304, "E"});
 
         env.sendEventBean(new SupportBean_S2(204, "E"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{4, "E", 104, "E", 204, "E", 304, "E"});
+        env.assertPropsListenerNew("s0", FIELDS, new Object[]{4, "E", 104, "E", 204, "E", 304, "E"});
 
         env.undeployAll();
     }

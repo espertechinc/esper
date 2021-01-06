@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 import java.util.ArrayList;
@@ -61,12 +61,12 @@ public class RowRecogInterval {
             String[] fields = "a,b0,b1,lastb".split(",");
             sendTimer(1000, env);
             env.sendEventBean(new SupportRecogBean("A1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             sendTimer(10999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}});
 
             env.milestoneInc(milestone);
@@ -79,18 +79,18 @@ public class RowRecogInterval {
 
             sendTimer(13000, env);
             env.sendEventBean(new SupportRecogBean("A2", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             sendTimer(15000, env);
             env.sendEventBean(new SupportRecogBean("B1", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             sendTimer(22999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
@@ -102,21 +102,21 @@ public class RowRecogInterval {
 
             sendTimer(25000, env);
             env.sendEventBean(new SupportRecogBean("A3", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(26000, env);
             env.sendEventBean(new SupportRecogBean("B2", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(29000, env);
             env.sendEventBean(new SupportRecogBean("B3", 6));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             sendTimer(34999, env);
             env.sendEventBean(new SupportRecogBean("B4", 7));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(35000, env);
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", "B1", null, "B1"}, {"A3", "B2", "B3", "B4"}});
@@ -171,7 +171,7 @@ public class RowRecogInterval {
             env.milestone(4);
 
             sendTimer(10999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
@@ -179,7 +179,7 @@ public class RowRecogInterval {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B2", "B3", "B3"}, {"A2", null, null, null}});
 
             sendTimer(11999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
@@ -211,18 +211,18 @@ public class RowRecogInterval {
 
             sendTimer(1000, env);
             env.sendEventBean(new SupportRecogBean("A1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(5000, env);
             env.sendEventBean(new SupportRecogBean("A2", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimer(10999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", null, null, null}});
 
             env.milestone(2);
@@ -239,11 +239,11 @@ public class RowRecogInterval {
 
             sendTimer(21000, env);
             env.sendEventBean(new SupportRecogBean("A3", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(22000, env);
             env.sendEventBean(new SupportRecogBean("A4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
@@ -252,7 +252,7 @@ public class RowRecogInterval {
             env.sendEventBean(new SupportRecogBean("B2", 6));
             env.sendEventBean(new SupportRecogBean("B3", 7));
             env.sendEventBean(new SupportRecogBean("B4", 8));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 

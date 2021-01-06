@@ -17,7 +17,9 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
@@ -55,23 +57,23 @@ public class PatternOperatorMatchUntil {
             env.milestone(0);
 
             sendSupportBean(env, "A1", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBean(env, "A2", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             sendSupportBean(env, "B1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "A2", "B1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", "B1"});
 
             env.milestone(3);
 
             sendSupportBean(env, "A1", 0);
             sendSupportBean(env, "B1", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -333,7 +335,7 @@ public class PatternOperatorMatchUntil {
 
             Object eventA2 = new SupportBean_A("A2");
             env.sendEventBean(eventA2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -358,7 +360,7 @@ public class PatternOperatorMatchUntil {
 
             env.sendEventBean(eventA1);
             env.sendEventBean(eventA2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(eventB1);
 
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -399,7 +401,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_C("C1"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -424,7 +426,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("A3", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A2", 10));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -444,7 +446,7 @@ public class PatternOperatorMatchUntil {
             env.sendEventBean(new SupportBean_B("B1"));
 
             env.sendEventBean(new SupportBean("A2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A3", 5));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -464,9 +466,9 @@ public class PatternOperatorMatchUntil {
             env.sendEventBean(new SupportBean_B("B1"));
 
             env.sendEventBean(new SupportBean("A2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("A1", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A6", 5));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -484,9 +486,9 @@ public class PatternOperatorMatchUntil {
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("E1", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("E2", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 5));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -510,7 +512,7 @@ public class PatternOperatorMatchUntil {
 
             env.sendEventBean(new SupportBean_A("A2"));
             env.sendEventBean(new SupportBean_B("A2"));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
 
@@ -556,7 +558,7 @@ public class PatternOperatorMatchUntil {
             env.sendEventBean(new SupportBean("2", 10));
             env.sendEventBean(new SupportBean("3", 10));
             env.sendEventBean(new SupportBean("3", 10));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -624,12 +626,12 @@ public class PatternOperatorMatchUntil {
             env.compileDeploy("@Name('s0') select * from pattern [s0=SupportBean_S0 -> [s0.id] b=SupportBean]").addListener("s0");
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "b[0].theString,b[1].theString".split(","), new Object[]{"E1", "E2"});
+            env.assertPropsListenerNew("s0", "b[0].theString,b[1].theString".split(","), new Object[]{"E1", "E2"});
 
             env.undeployAll();
 
@@ -649,18 +651,18 @@ public class PatternOperatorMatchUntil {
 
             env.advanceTime(6000);
             env.sendEventBean(new SupportBean_B("B1"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(15999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.advanceTime(16000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id".split(","), new Object[]{"A1"});
+            env.assertPropsListenerNew("s0", "a.id".split(","), new Object[]{"A1"});
 
             env.advanceTime(999999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.undeployAll();
 
             // test until
@@ -682,18 +684,18 @@ public class PatternOperatorMatchUntil {
             env.sendEventBean(new SupportBean_B("B2"));
             env.sendEventBean(new SupportBean_C("C1"));
             env.advanceTime(1015000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(1024998);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.advanceTime(1024999);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id,b[0].id,b[1].id".split(","), new Object[]{"A1", "B1", "B2"});
+            env.assertPropsListenerNew("s0", "a.id,b[0].id,b[1].id".split(","), new Object[]{"A1", "B1", "B2"});
 
             env.advanceTime(1999999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -711,7 +713,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, 2});
 
             env.sendEventBean(new SupportBean("A", 3));
 
@@ -722,12 +724,12 @@ public class PatternOperatorMatchUntil {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("A", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("A", 6));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, 6});
 
             env.undeployAll();
         }
@@ -758,7 +760,7 @@ public class PatternOperatorMatchUntil {
         for (int i = 0; i < numEventsA; i++) {
             env.sendEventBean(new SupportBean("A", i));
         }
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean("B", -1));
 
         assertEquals(match, env.listener("s0").isInvoked());

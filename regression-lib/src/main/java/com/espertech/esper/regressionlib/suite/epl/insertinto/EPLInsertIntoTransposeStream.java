@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -100,10 +100,10 @@ public class EPLInsertIntoTransposeStream {
             env.compileDeploy("@name('s0') " + epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
 
             // MySchema already exists, start second statement
             env.compileDeploy("@name('s1') " + epl, path).addListener("s1");
@@ -244,7 +244,7 @@ public class EPLInsertIntoTransposeStream {
             env.sendEventMap(eventOne, "AEventTE");
             env.sendEventMap(eventTwo, "BEventTE");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
 
             env.undeployAll();
         }
@@ -261,7 +261,7 @@ public class EPLInsertIntoTransposeStream {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
 
             env.undeployAll();
         }
@@ -277,7 +277,7 @@ public class EPLInsertIntoTransposeStream {
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "result".split(","), new Object[]{"nestedValue"});
+            env.assertPropsListenerNew("s0", "result".split(","), new Object[]{"nestedValue"});
 
             env.undeployAll();
         }

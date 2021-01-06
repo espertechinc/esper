@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.fromclausemethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -163,7 +162,7 @@ public class EPLFromClauseMethodMultikeyWArray {
     }
 
     private static void assertReceived(RegressionEnvironment env, String idOne, String idTwo) {
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(),
+        env.assertPropsListenerNew("s0",
             "e.id,s.id".split(","), new Object[]{idOne, idTwo});
     }
 

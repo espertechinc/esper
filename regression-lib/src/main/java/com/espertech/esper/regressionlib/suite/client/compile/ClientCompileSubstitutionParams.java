@@ -235,10 +235,10 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0").addListener("s1");
 
             env.sendEventBean(new SupportBean_S1(-1, "abc"));
-            assertTrue(env.listener("s1").isInvoked());
+            env.assertListenerInvoked("s1");
 
             env.sendEventBean(new SupportBean_S0(100));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -278,7 +278,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{10, 11});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{10, 11});
 
             env.undeployAll();
         }
@@ -321,12 +321,12 @@ public class ClientCompileSubstitutionParams {
             SupportBean event = new SupportBean("E1", 10);
             event.setLongPrimitive(100);
             env.sendEventBean(event);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{10});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
 
             env.milestone(0);
 
             env.sendEventBean(event);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{10});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
 
             env.undeployAll();
         }
@@ -349,12 +349,12 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -373,7 +373,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -393,7 +393,7 @@ public class ClientCompileSubstitutionParams {
             assertEquals(epl, env.statement("s1").getProperty(StatementProperty.EPL));
 
             env.sendEventBean(new SupportBean("e2", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertTrue(env.listener("s1").getAndClearIsInvoked());
 
             env.sendEventBean(new SupportBean("e1", 10));
@@ -454,7 +454,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s1");
 
             env.sendEventBean(new SupportBean("e2", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertTrue(env.listener("s1").getAndClearIsInvoked());
 
             env.sendEventBean(new SupportBean("e1", 10));
@@ -519,7 +519,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("e2", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("e1", 10));
             assertTrue(env.listener("s0").getAndClearIsInvoked());

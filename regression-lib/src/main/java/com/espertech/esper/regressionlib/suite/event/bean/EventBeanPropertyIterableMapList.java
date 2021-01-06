@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
@@ -42,7 +41,7 @@ public class EventBeanPropertyIterableMapList implements RegressionExecution {
         env.addListener("s0");
 
         env.sendEventBean(event);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0.id,c1.id,c2.id".split(","), new Object[]{"id1", "id2", "id3"});
+        env.assertPropsListenerNew("s0", "c0.id,c1.id,c2.id".split(","), new Object[]{"id1", "id2", "id3"});
 
         env.undeployAll();
     }

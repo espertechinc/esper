@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.hook.aggfunc.AggregationFunctionValidat
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportLowerUpperCompareAggregationFunction;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportLowerUpperCompareAggregationFunctionForge;
@@ -184,12 +184,12 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy(textTwo).addListener("s0");
 
             env.sendEventBean(new SupportBean("d", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val".split(","), new Object[]{"SupportBean(d, -1)"});
+            env.assertPropsListenerNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1)"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("e", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val".split(","), new Object[]{"SupportBean(d, -1) SupportBean(e, 2)"});
+            env.assertPropsListenerNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1) SupportBean(e, 2)"});
 
             tryInvalidCompile(env, "select concatstring(*) as val from SupportBean#lastevent, SupportBean unidirectional",
                 "Failed to validate select-clause expression 'concatstring(*)': The 'concatstring' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead");
@@ -227,10 +227,10 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy("@name('s0') select (myagg(id)).getTheString() as val0, (myagg(id)).getIntPrimitive() as val1 from SupportBean_A").addListener("s0");
 
             env.sendEventBean(new SupportBean_A("A1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"XX", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"XX", 1});
 
             env.sendEventBean(new SupportBean_A("A2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"XX", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"XX", 2});
 
             assertEquals(1, SupportSupportBeanAggregationFunctionFactory.getInstanceCount());
 

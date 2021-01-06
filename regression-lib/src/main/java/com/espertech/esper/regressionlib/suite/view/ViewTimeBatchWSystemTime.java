@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.support.util.DoubleValueAssertionUtil;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ViewTimeBatchWSystemTime implements RegressionExecution {
@@ -31,13 +30,13 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         env.compileDeployAddListenerMileZero(epl, "s0");
 
         checkMeanIterator(env, Double.NaN);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Send a couple of events, check mean
         sendEvent(env, SYMBOL, 500);
         sendEvent(env, SYMBOL, 1000);
         checkMeanIterator(env, Double.NaN);              // The iterator is still showing no result yet as no batch was released
-        assertFalse(env.listener("s0").isInvoked());      // No new data posted to the iterator, yet
+        env.assertListenerNotInvoked("s0");      // No new data posted to the iterator, yet
 
         // Sleep for 1 seconds
         sleep(1000);
@@ -46,7 +45,7 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         sendEvent(env, SYMBOL, 1000);
         sendEvent(env, SYMBOL, 1200);
         checkMeanIterator(env, Double.NaN);              // The iterator is still showing no result yet as no batch was released
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Sleep for 1.5 seconds, thus triggering a new batch
         sleep(1500);
@@ -59,7 +58,7 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         sendEvent(env, SYMBOL, 600);
         sendEvent(env, SYMBOL, 1000);
         checkMeanIterator(env, 925);              // The iterator is still showing the old result as next batch not released
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Sleep for 1 seconds
         sleep(1000);
@@ -67,7 +66,7 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         // Send more events
         sendEvent(env, SYMBOL, 200);
         checkMeanIterator(env, 925);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Sleep for 1.5 seconds, thus triggering a new batch
         sleep(1500);
@@ -78,7 +77,7 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         // Send more events
         sendEvent(env, SYMBOL, 1200);
         checkMeanIterator(env, 2300d / 4d);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Sleep for 2 seconds, no events received anymore
         sleep(2000);

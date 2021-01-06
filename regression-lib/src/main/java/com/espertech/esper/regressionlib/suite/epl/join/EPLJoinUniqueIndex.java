@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
@@ -35,7 +34,7 @@ public class EPLJoinUniqueIndex implements RegressionExecution, IndexBackingTabl
                 env.sendEventBean(new SupportSimpleBeanTwo("E2", 1, 2, 0));
                 env.sendEventBean(new SupportSimpleBeanTwo("E3", 1, 3, 9));
                 env.sendEventBean(new SupportSimpleBeanOne("EX", 1, 3, 9));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EX", "E3"});
+                env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E3"});
             }
         };
 

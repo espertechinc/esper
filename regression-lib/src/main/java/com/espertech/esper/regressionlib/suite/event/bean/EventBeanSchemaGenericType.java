@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.event.bean;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
@@ -151,7 +150,7 @@ public class EventBeanSchemaGenericType {
         assertEquals(expectedTwo, s0Type.getPropertyEPType("c1"));
 
         env.sendEventBean(event, "MyEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{valueOne, valueTwo});
+        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{valueOne, valueTwo});
 
         env.undeployAll();
     }

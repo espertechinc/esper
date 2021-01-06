@@ -11,10 +11,9 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.patternassert.*;
@@ -48,13 +47,13 @@ public class PatternOperatorOr {
             env.milestone(0);
 
             sendSupportBean(env, "EB", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, "EB"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, "EB"});
 
             env.milestone(1);
 
             sendSupportBean(env, "EA", 0);
             sendSupportBean(env, "EB", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 

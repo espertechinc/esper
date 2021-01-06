@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.epl.database;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -21,7 +20,9 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.util.SupportDatabaseService;
 
 import java.math.BigDecimal;
@@ -30,7 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.*;
+import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
+import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.fail;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 
@@ -75,13 +77,13 @@ public class EPLDatabaseJoin {
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("T3", -1));
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }
@@ -106,21 +108,21 @@ public class EPLDatabaseJoin {
                 " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s2 ";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBeanEvent(env, 6);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{6, 60, "F"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{6, 60, "F"}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{6, 60, "F"});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{6, 60, "F"}});
 
             sendSupportBeanEvent(env, 9);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{9, 90, "I"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{6, 60, "F"}, {9, 90, "I"}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{9, 90, "I"});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{6, 60, "F"}, {9, 90, "I"}});
 
             env.milestone(0);
 
             sendSupportBeanEvent(env, 20);
-            assertFalse(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{6, 60, "F"}, {9, 90, "I"}});
+            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{6, 60, "F"}, {9, 90, "I"}});
 
             env.undeployAll();
         }
@@ -139,18 +141,18 @@ public class EPLDatabaseJoin {
                 " on s2.myvarchar=s0.theString ";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("A", 1));
             env.sendEventBean(new SupportBean("A", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("B", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 3, "B", "B"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 3, "B", "B"});
 
             env.sendEventBean(new SupportBean("D", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -331,7 +333,7 @@ public class EPLDatabaseJoin {
             assertEquals("Y", env.listener("s0").assertOneGetNewAndReset().get("mychar"));
 
             env.advanceTime(9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(10000);
             assertEquals("Y", env.listener("s0").assertOneGetNewAndReset().get("mychar"));
@@ -460,18 +462,18 @@ public class EPLDatabaseJoin {
         String[] fields = new String[]{"myint"};
 
         env.advanceTime(0);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendSupportBeanEvent(env, 10);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{100}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{100}});
 
         sendSupportBeanEvent(env, 5);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{100}, {50}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{100}, {50}});
 
         env.milestone(0);
 
         sendSupportBeanEvent(env, 2);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{100}, {50}, {20}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{100}, {50}, {20}});
 
         env.advanceTime(10000);
         EventBean[] received = env.listener("s0").getLastNewData();
@@ -480,13 +482,13 @@ public class EPLDatabaseJoin {
         assertEquals(50, received[1].get("myint"));
         assertEquals(20, received[2].get("myint"));
 
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendSupportBeanEvent(env, 9);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{90}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{90}});
 
         sendSupportBeanEvent(env, 8);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{90}, {80}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{90}, {80}});
 
         env.undeployAll();
     }

@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
@@ -88,7 +87,7 @@ public class ClientCompileEnginePath {
             compileDeployWEnginePath(env, epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{10, "abc", 2, 5, "def"});
 
             env.undeployAll();

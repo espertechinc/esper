@@ -11,14 +11,13 @@
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,34 +126,34 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             sendEventWLong(env, "X1", 1000, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "X2", 1200, 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             env.milestone(0);
 
             sendEventWLong(env, "X2", 1300, 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A1", 1000, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             env.milestone(1);
 
             sendEventWLong(env, "A2", 1200, 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A3", 1300, 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A4", 1500, 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
 
             env.milestone(2);
 
             sendEventWLong(env, "A5", 2000, 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
 
             env.undeployAll();
         }
@@ -398,35 +397,35 @@ public class ResultSetAggregateFilterNamedParameter {
             env.milestone(0);
 
             SupportBean b1 = sendEvent(env, "B1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, "B1", "B1", new SupportBean[]{b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, "B1", "B1", new SupportBean[]{b1}});
 
             SupportBean a10 = sendEvent(env, "A10", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B1", "B1", new SupportBean[]{b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B1", "B1", new SupportBean[]{b1}});
 
             env.milestone(1);
 
             SupportBean b2 = sendEvent(env, "B2", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B2", "B1", new SupportBean[]{b1, b2}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B2", "B1", new SupportBean[]{b1, b2}});
 
             SupportBean a5 = sendEvent(env, "A5", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A10", "A5", new SupportBean[]{a5, a10}, "B2", "B1", new SupportBean[]{b1, b2}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A5", new SupportBean[]{a5, a10}, "B2", "B1", new SupportBean[]{b1, b2}});
 
             SupportBean a15 = sendEvent(env, "A15", 15);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a10, a15}, "B2", "B2", new SupportBean[]{b2}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a10, a15}, "B2", "B2", new SupportBean[]{b2}});
 
             sendEvent(env, "X3", 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, "B2", "B2", new SupportBean[]{b2}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, "B2", "B2", new SupportBean[]{b2}});
 
             env.milestone(2);
 
             sendEvent(env, "X4", 4);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, null, null, null});
 
             sendEvent(env, "X5", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A15", "A15", new SupportBean[]{a15}, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A15", new SupportBean[]{a15}, null, null, null});
 
             sendEvent(env, "X6", 6);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null});
 
             env.undeployAll();
         }
@@ -448,18 +447,18 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean b1 = sendEvent(env, "B1", 1, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new SupportBean[]{b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, new SupportBean[]{b1}});
 
             SupportBean a1 = sendEvent(env, "A1", 100, 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b1}});
 
             env.milestone(0);
 
             SupportBean b2 = sendEvent(env, "B2", 1, 4);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b2, b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b2, b1}});
 
             SupportBean a2 = sendEvent(env, "A2", 100, 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{new SupportBean[]{a1, a2}, new SupportBean[]{b2, b1}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1, a2}, new SupportBean[]{b2, b1}});
 
             env.undeployAll();
         }
@@ -618,15 +617,15 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean x1 = sendEvent(env, "X1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new SupportBean[]{x1}, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, new SupportBean[]{x1}, null});
 
             SupportBean a2 = sendEvent(env, "A2", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2}, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2}, null});
 
             env.milestone(0);
 
             SupportBean b3 = sendEvent(env, "B3", 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2, b3}, new SupportBean[]{b3}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2, b3}, new SupportBean[]{b3}});
 
             env.undeployAll();
         }
@@ -764,12 +763,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String[] fields, Object[] expected) {
         sendEvent(env, theString, intPrimitive);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 
     private static void sendEventAssertIsolated(RegressionEnvironment env, String theString, int intPrimitive, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 
     private static SupportBean sendEvent(RegressionEnvironment env, String theString, int intPrimitive) {
@@ -785,12 +784,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
     private static void sendEventAssertInfoTable(RegressionEnvironment env, Object ta, Object tb, Object wa, Object wb, Object sa, Object sb) {
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "ta,tb,wa,wb,sa,sb".split(","), new Object[]{ta, tb, wa, wb, sa, sb});
+        env.assertPropsListenerNew("s0", "ta,tb,wa,wb,sa,sb".split(","), new Object[]{ta, tb, wa, wb, sa, sb});
     }
 
     private static void sendEventAssertCount(RegressionEnvironment env, String p00, Object expected) {
         env.sendEventBean(new SupportBean_S0(0, p00));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expected});
+        env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
     }
 
     private static void sendEventWLong(RegressionEnvironment env, String theString, long longPrimitive, int intPrimitive) {

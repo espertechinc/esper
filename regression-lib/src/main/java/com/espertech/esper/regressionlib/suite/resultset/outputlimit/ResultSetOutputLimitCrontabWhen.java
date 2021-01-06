@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
@@ -184,14 +184,14 @@ public class ResultSetOutputLimitCrontabWhen {
             env.compileDeploy(eplToDeploy).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 2));
             assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("theString"));
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.sendEventBean(new SupportBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "varOutputTriggered", false); // turns true right away as triggering output
 
@@ -200,7 +200,7 @@ public class ResultSetOutputLimitCrontabWhen {
             assertEquals("E5", env.listener("s0").assertOneGetNewAndReset().get("theString"));
 
             env.sendEventBean(new SupportBean("E6", 6));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -216,7 +216,7 @@ public class ResultSetOutputLimitCrontabWhen {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 1));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
@@ -394,18 +394,18 @@ public class ResultSetOutputLimitCrontabWhen {
     private static void tryAssertionCrontab(RegressionEnvironment env, int days) {
         String[] fields = "symbol".split(",");
         sendEvent(env, "S1", 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 17, 14, 59, 0);
         sendEvent(env, "S2", 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 17, 15, 0, 0);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S1"}, {"S2"}});
 
         sendTimeEvent(env, days, 17, 18, 0, 0);
         sendEvent(env, "S3", 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 17, 30, 0, 0);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S3"}});
@@ -417,16 +417,16 @@ public class ResultSetOutputLimitCrontabWhen {
         sendEvent(env, "S4", 0);
         sendEvent(env, "S5", 0);
         sendTimeEvent(env, days, 18, 0, 0, 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 18, 1, 0, 0);
         sendEvent(env, "S6", 0);
 
         sendTimeEvent(env, days, 18, 15, 0, 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days + 1, 7, 59, 59, 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days + 1, 8, 0, 0, 0);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S4"}, {"S5"}, {"S6"}});

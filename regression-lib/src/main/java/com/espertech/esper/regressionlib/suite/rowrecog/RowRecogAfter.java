@@ -100,7 +100,7 @@ public class RowRecogAfter {
 
             // since the first match skipped past A, we do not match again
             env.sendEventBean(new SupportRecogBean("B1", 2));
-            assertFalse(env.listener("s0").isInvoked());  // incremental skips to next
+            env.assertListenerNotInvoked("s0");  // incremental skips to next
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"A1", "B1", null}});
 
@@ -128,7 +128,7 @@ public class RowRecogAfter {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E2", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(1);
@@ -142,7 +142,7 @@ public class RowRecogAfter {
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2", "E3"}});
 
@@ -169,7 +169,7 @@ public class RowRecogAfter {
             env.milestone(6);
 
             env.sendEventBean(new SupportRecogBean("E8", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}, {"E5", "E6"}});
 
@@ -202,7 +202,7 @@ public class RowRecogAfter {
             env.sendEventBean(new SupportRecogBean("E4", 5));
             env.sendEventBean(new SupportRecogBean("E5", 1));
             env.sendEventBean(new SupportRecogBean("E6", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(1);
@@ -251,7 +251,7 @@ public class RowRecogAfter {
             env.sendEventBean(new SupportRecogBean("S2", 5));
             env.sendEventBean(new SupportRecogBean("S1", 4));
             env.sendEventBean(new SupportRecogBean("S4", -1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(0);
@@ -284,7 +284,7 @@ public class RowRecogAfter {
             env.sendEventBean(new SupportRecogBean("S4", -1));
             env.sendEventBean(new SupportRecogBean("S3", 2));
             env.sendEventBean(new SupportRecogBean("S1", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"S1", 4, 6}, {"S4", -1, 10}, {"S4", 10, 11}});
 
@@ -310,7 +310,7 @@ public class RowRecogAfter {
             env.sendEventBean(new SupportRecogBean("S1", 7));
             env.sendEventBean(new SupportRecogBean("S2", 4));
             env.sendEventBean(new SupportRecogBean("S1", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(7);
 
@@ -341,7 +341,7 @@ public class RowRecogAfter {
 
             env.sendEventBean(new SupportRecogBean("E1", 5));
             env.sendEventBean(new SupportRecogBean("E2", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(0);
@@ -355,7 +355,7 @@ public class RowRecogAfter {
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2", "E3"}});
 
@@ -368,13 +368,13 @@ public class RowRecogAfter {
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E6", 10));
-            assertFalse(env.listener("s0").isInvoked());      // E5-E6 not a match since "skip past last row"
+            env.assertListenerNotInvoked("s0");      // E5-E6 not a match since "skip past last row"
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}});
 
             env.sendEventBean(new SupportRecogBean("E7", 9));
             env.sendEventBean(new SupportRecogBean("E8", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}});
 

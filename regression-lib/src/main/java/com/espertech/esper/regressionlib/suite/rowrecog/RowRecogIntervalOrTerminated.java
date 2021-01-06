@@ -17,8 +17,6 @@ import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
-
 public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -65,26 +63,26 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("C1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", null, null, null, "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", null, null, null, "C1"});
 
         env.sendEventBean(new SupportRecogBean("A2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("B1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", null, null, null, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportRecogBean("B2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("X1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B1", "B2", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "B2", null, null});
 
         env.sendEventBean(new SupportRecogBean("A3"));
         sendTimer(env, 10000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A3", null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A3", null, null, null, null});
 
         sendTimer(env, Integer.MAX_VALUE);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // destroy
         env.undeployAll();
@@ -110,14 +108,14 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("B1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1"});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("A3"));
         env.sendEventBean(new SupportRecogBean("B2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A3", "B2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A3", "B2"});
 
         // destroy
         env.undeployAll();
@@ -146,15 +144,15 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         sendTemperatureEvent(env, "E2", 1, 101);
         sendTemperatureEvent(env, "E3", 1, 102);
         sendTemperatureEvent(env, "E4", 1, 101);   // falls below
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTemperatureEvent(env, "E5", 1, 100);   // falls below
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L, "E3", "E4"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L, "E3", "E4"});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, Integer.MAX_VALUE);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // destroy
         env.undeployAll();
@@ -182,23 +180,23 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         env.sendEventBean(new SupportRecogBean("B1"));
         env.sendEventBean(new SupportRecogBean("C1"));
         env.sendEventBean(new SupportRecogBean("C2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportRecogBean("B2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C1", "C2", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C1", "C2", null});
 
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("X1"));
         env.sendEventBean(new SupportRecogBean("B3"));
         env.sendEventBean(new SupportRecogBean("X2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportRecogBean("A3"));
         env.sendEventBean(new SupportRecogBean("B4"));
         env.sendEventBean(new SupportRecogBean("X3"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A3", "B4", null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A3", "B4", null, null, null});
 
         env.milestoneInc(milestone);
 
@@ -206,15 +204,15 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         env.sendEventBean(new SupportRecogBean("A4"));
         env.sendEventBean(new SupportRecogBean("B5"));
         env.sendEventBean(new SupportRecogBean("C3"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 30000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A4", "B5", "C3", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A4", "B5", "C3", null, null});
 
         sendTimer(env, Integer.MAX_VALUE);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // destroy
         env.undeployAll();
@@ -242,13 +240,13 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("X1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", null, null, null, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("C1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", null, null, null, null});
 
         env.sendEventBean(new SupportRecogBean("B1"));
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
@@ -257,7 +255,7 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportRecogBean("C2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // destroy
         env.undeployAll();
@@ -287,9 +285,9 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("B2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("X2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B2", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B2", null, null});
 
         env.sendEventBean(new SupportRecogBean("A3"));
         env.sendEventBean(new SupportRecogBean("A4"));
@@ -298,9 +296,9 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("B3"));
         env.sendEventBean(new SupportRecogBean("B4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("X3", -1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A4", "B3", "B4", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A4", "B3", "B4", null});
 
         // destroy
         env.undeployAll();
@@ -324,9 +322,9 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
 
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("A2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("B1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "A2", null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", null, null, null});
 
         env.milestoneInc(milestone);
 
@@ -334,15 +332,15 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         env.sendEventBean(new SupportRecogBean("A3"));
         env.sendEventBean(new SupportRecogBean("A4"));
         env.sendEventBean(new SupportRecogBean("A5"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         sendTimer(env, 12000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A3", "A4", "A5", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A3", "A4", "A5", null, null});
 
         env.sendEventBean(new SupportRecogBean("A6"));
         env.sendEventBean(new SupportRecogBean("B2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A3", "A4", "A5", "A6", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A3", "A4", "A5", "A6", null});
         env.sendEventBean(new SupportRecogBean("B3"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // destroy
         env.undeployAll();
@@ -369,10 +367,10 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         // test output by terminated because of misfit event
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("B1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("X1"));
         if (!allMatches) {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", null, null});
         } else {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
                 new Object[][]{{"A1", "B1", null, null}, {"A1", null, null, null}});
@@ -381,17 +379,17 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         env.milestoneInc(milestone);
 
         sendTimer(env, 20000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // test output by timer expiry
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("B2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         sendTimer(env, 29999);
 
         sendTimer(env, 30000);
         if (!allMatches) {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B2", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B2", null, null});
         } else {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
                 new Object[][]{{"A2", "B2", null, null}, {"A2", null, null, null}});
@@ -421,23 +419,23 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         // test output by terminated because of misfit event
         env.sendEventBean(new SupportRecogBean("A1"));
         env.sendEventBean(new SupportRecogBean("B1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportRecogBean("X1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", null, null});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 20000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // test output by timer expiry
         env.sendEventBean(new SupportRecogBean("A2"));
         env.sendEventBean(new SupportRecogBean("B2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         sendTimer(env, 29999);
 
         sendTimer(env, 30000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B2", null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B2", null, null});
 
         // destroy
         env.undeployAll();

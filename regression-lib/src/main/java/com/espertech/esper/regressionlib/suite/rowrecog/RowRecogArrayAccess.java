@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class RowRecogArrayAccess {
@@ -51,18 +49,18 @@ public class RowRecogArrayAccess {
             env.compileDeploy(text).addListener("s0");
 
             sendEvents(env, new Object[][]{{"A1", 100}, {"B1", 50}, {"B2", 49}, {"C1", 49}, {"D1", 2}, {"D2", 2}, {"E1", 2}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C1", "D1", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C1", "D1", "E1"});
 
             env.milestone(0);
 
             sendEvents(env, new Object[][]{{"A1", 100}, {"B1", 50}, {"C1", 49}, {"D1", 2}, {"D2", 2}, {"E1", 2}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new Object[][]{{"A1", 100}, {"B1", 50}, {"B2", 49}, {"C1", 49}, {"D1", 2}, {"D2", 3}, {"E1", 2}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new Object[][]{{"A1", 100}, {"B1", 50}, {"B2", 49}, {"C1", 49}, {"D1", 2}, {"D2", 2}, {"D3", 99}, {"E1", 2}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "B1", "C1", "D1", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C1", "D1", "E1"});
 
             env.undeployAll();
         }
@@ -99,21 +97,21 @@ public class RowRecogArrayAccess {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvents(env, new Object[][]{{"E1", 50}, {"E2", 49}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new Object[][]{{"E3", 2}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E1", "E2", null, "E3"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E1", "E2", null, "E3"});
 
             env.milestone(0);
 
             sendEvents(env, new Object[][]{{"E4", 101}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{null, null, null, "E4"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{null, null, null, "E4"});
 
             sendEvents(env, new Object[][]{{"E5", 50}, {"E6", 51}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E5", null, null, "E6"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E5", null, null, "E6"});
 
             sendEvents(env, new Object[][]{{"E7", 10}, {"E8", 10}, {"E9", 79}, {"E10", 1}, {"E11", 1}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E7", "E8", "E9", "E11"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E7", "E8", "E9", "E11"});
             env.undeployAll();
 
             String[] fieldsTwo = "a[0].theString,a[1].theString,b.theString".split(",");
@@ -129,33 +127,33 @@ public class RowRecogArrayAccess {
             env.compileDeploy(eplTwo).addListener("s0");
 
             sendEvents(env, new Object[][]{{"A1", 1}, {"A2", 2}, {"B1", 3}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"A2", null, "B1"});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"A2", null, "B1"});
 
             sendEvents(env, new Object[][]{{"A3", 1}, {"A4", 2}, {"B2", 4}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"A3", "A4", "B2"});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"A3", "A4", "B2"});
 
             env.milestone(1);
 
             sendEvents(env, new Object[][]{{"A5", -1}, {"B3", 0}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"A5", null, "B3"});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"A5", null, "B3"});
 
             sendEvents(env, new Object[][]{{"A6", 10}, {"B3", 9}, {"B4", 11}});
             sendEvents(env, new Object[][]{{"A7", 10}, {"A8", 9}, {"A9", 8}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new Object[][]{{"B5", 18}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"A8", "A9", "B5"});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"A8", "A9", "B5"});
 
             env.milestone(2);
 
             sendEvents(env, new Object[][]{{"A0", 10}, {"A11", 9}, {"A12", 8}, {"B6", 8}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new Object[][]{{"A13", 1}, {"A14", 1}, {"A15", 1}, {"A16", 1}, {"B7", 5}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"A13", "A14", "B7"});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"A13", "A14", "B7"});
 
             sendEvents(env, new Object[][]{{"A17", 1}, {"A18", 1}, {"B8", 1}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -173,7 +171,7 @@ public class RowRecogArrayAccess {
         env.compileDeploy(text).addListener("s0");
 
         sendEvents(env, new Object[][]{{"A", 1}, {"A", 0}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvents(env, new Object[][]{{"B", 1}, {"B", 1}});
         assertNotNull(env.listener("s0").assertOneGetNewAndReset());
@@ -181,7 +179,7 @@ public class RowRecogArrayAccess {
         env.milestoneInc(milestone);
 
         sendEvents(env, new Object[][]{{"A", 2}, {"A", 3}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvents(env, new Object[][]{{"B", 2}, {"B", 2}});
         assertNotNull(env.listener("s0").assertOneGetNewAndReset());
@@ -208,15 +206,15 @@ public class RowRecogArrayAccess {
 
         sendEvents(env, new Object[][]{{"A1", 1}, {"B1", 1}, {"A2", 1}, {"B2", 1}});
         env.sendEventBean(new SupportBean("C1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A1", "A2", "B1", "B2", "C1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", "B1", "B2", "C1"});
 
         sendEvents(env, new Object[][]{{"A10", 1}, {"B10", 1}, {"A11", 1}, {"B11", 2}, {"C2", 2}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         sendEvents(env, new Object[][]{{"A20", 2}, {"B20", 2}, {"A21", 1}, {"B21", 2}, {"C3", 2}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

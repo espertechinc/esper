@@ -11,11 +11,11 @@
 package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -61,10 +61,10 @@ public class EPLOtherIStreamRStreamKeywords {
             env.compileDeploy(model).addListener("s0");
 
             Object theEvent = sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new String[]{"a", "b"});
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
@@ -85,10 +85,10 @@ public class EPLOtherIStreamRStreamKeywords {
             env.compileDeploy(model).addListener("s0");
 
             Object theEvent = sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new String[]{"a", "b"});
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
@@ -103,10 +103,10 @@ public class EPLOtherIStreamRStreamKeywords {
             env.compileDeploy("@name('s0') select rstream * from SupportBean#length(3)").addListener("s0");
 
             Object theEvent = sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvents(env, new String[]{"a", "b"});
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
@@ -125,11 +125,11 @@ public class EPLOtherIStreamRStreamKeywords {
             env.compileDeploy("@name('ii') select * from NextStream", path).addListener("ii");
 
             sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals("a", env.listener("ii").assertOneGetNewAndReset().get("theString"));    // insert into unchanged
 
             sendEvents(env, new String[]{"b", "c"});
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals(2, env.listener("ii").getNewDataList().size());    // insert into unchanged
             env.listener("ii").reset();
 
@@ -153,11 +153,11 @@ public class EPLOtherIStreamRStreamKeywords {
             env.compileDeploy("@name('ii') select * from NextStream", path).addListener("ii");
 
             sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             TestCase.assertFalse(env.listener("ii").isInvoked());
 
             sendEvents(env, new String[]{"b", "c"});
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             TestCase.assertFalse(env.listener("ii").isInvoked());
 
             sendEvent(env, "d", 2);
@@ -179,10 +179,10 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "a", 1);
             sendEvent(env, "b", 1);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "a", 3);
             Assert.assertEquals(1, env.listener("s0").getLastNewData()[0].get("aID"));    // receive 'a' as new data
@@ -248,10 +248,10 @@ public class EPLOtherIStreamRStreamKeywords {
             env.listener("s0").reset();
 
             sendEvent(env, "a", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "a", 3);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -139,7 +138,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
                 assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
             }
             env.sendEventBean(new SupportBean("E1", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
+            env.assertPropsListenerNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
             env.undeployAll();
         }
     }

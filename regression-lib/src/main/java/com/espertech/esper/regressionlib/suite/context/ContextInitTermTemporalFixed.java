@@ -98,7 +98,7 @@ public class ContextInitTermTemporalFixed {
 
             env.sendEventBean(new SupportBean("E1", 3));
             Object[][] expected = new Object[][]{{0, "S0_1", "E1", 6}, {0, "S0_1", "E2", 10}, {0, "S0_1", "E3", 201}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, expected);
 
             // test iterator targeted by context partition id
             SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(0));
@@ -156,7 +156,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(200, "G1"));  // terminate
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 200, 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100, 200, 5});
 
             env.sendEventBean(new SupportBean_S0(101, "G2"));    // starts new one
 
@@ -173,7 +173,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(201, "G2"));  // terminate
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{101, 201, 15});
+            env.assertPropsListenerNew("s0", fields, new Object[]{101, 201, 15});
 
             env.undeployAll();
         }
@@ -193,18 +193,18 @@ public class ContextInitTermTemporalFixed {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_S0(100, "G1"));    // starts it
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 2});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(200, "GX"));  // false terminate
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 5});
 
             env.milestone(2);
 
@@ -217,7 +217,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E6", 6));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 6});
 
             env.milestone(4);
 
@@ -225,13 +225,13 @@ public class ContextInitTermTemporalFixed {
             env.sendEventBean(new SupportBean_S1(101, "GY"));    // false terminate
 
             env.sendEventBean(new SupportBean("E7", 7));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 13});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 13});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S1(300, "G2"));  // actual terminate
             env.sendEventBean(new SupportBean("E8", 8));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(102, "G3"));    // starts third
             env.sendEventBean(new SupportBean_S1(0, "G3"));    // terminate third
@@ -239,7 +239,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("E9", 9));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -267,7 +267,7 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T08:00:05.000");
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:05.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:15.000"), 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:05.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:15.000"), 2});
 
             env.milestone(1);
 
@@ -276,7 +276,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsShort, new Object[]{5});
+            env.assertPropsListenerNew("s0", fieldsShort, new Object[]{5});
 
             env.milestone(3);
 
@@ -285,21 +285,21 @@ public class ContextInitTermTemporalFixed {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E4", 4));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimeEvent(env, "2002-05-1T08:00:20.000");
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:20.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:30.000"), 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{DateTime.parseDefaultMSec("2002-05-1T08:00:20.000"), DateTime.parseDefaultMSec("2002-05-1T08:00:30.000"), 5});
 
             sendTimeEvent(env, "2002-05-1T08:00:30.000");
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("E6", 6));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // try variable
             path.clear();
@@ -332,7 +332,7 @@ public class ContextInitTermTemporalFixed {
 
             // terminate
             env.sendEventBean(new SupportBean_S1(200, "S1_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_1", 5});
 
             env.milestone(1);
 
@@ -345,7 +345,7 @@ public class ContextInitTermTemporalFixed {
 
             env.sendEventBean(new SupportBean_S0(102, "S0_2"));    // starts it
             env.sendEventBean(new SupportBean_S1(201, "S1_3"));    // ends it
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_2", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_2", null});
 
             env.sendEventBean(new SupportBean_S0(103, "S0_3"));    // starts it
             env.sendEventBean(new SupportBean("E5", 6));           // some more data
@@ -354,7 +354,7 @@ public class ContextInitTermTemporalFixed {
 
             env.sendEventBean(new SupportBean_S0(104, "S0_4"));    // ignored
             env.sendEventBean(new SupportBean_S1(201, "S1_3"));    // ends it
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_3", 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_3", 6});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();
@@ -390,12 +390,12 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T08:00:01.000"); // 1 second passes
 
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_1", 4});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_1", 9});
 
             env.sendEventBean(new SupportBean_S0(101, "S0_2"));    // ignored
             sendTimeEvent(env, "2002-05-1T08:00:03.000");
@@ -403,12 +403,12 @@ public class ContextInitTermTemporalFixed {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E6", 6));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 15});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_1", 15});
 
             env.sendEventBean(new SupportBean_S1(101, "S1_1"));    // ignored
 
             env.sendEventBean(new SupportBean("E7", 7));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_1", 22});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_1", 22});
 
             env.milestone(4);
 
@@ -429,7 +429,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("E10", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_3", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_3", 10});
 
             env.undeployAll();
         }
@@ -500,24 +500,24 @@ public class ContextInitTermTemporalFixed {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // now started
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
             env.sendEventBean(new SupportBean_S0(2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Y"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Y"});
 
             // now gone
             sendTimeEvent(env, "2002-05-1T17:00:00.000");
 
             env.sendEventBean(new SupportBean_S0(2));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // now started
             sendTimeEvent(env, "2002-05-2T09:00:00.000");
 
             env.sendEventBean(new SupportBean_S0(3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"X"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"X"});
 
             env.undeployAll();
         }
@@ -536,7 +536,7 @@ public class ContextInitTermTemporalFixed {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // now started
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
@@ -550,7 +550,7 @@ public class ContextInitTermTemporalFixed {
 
             SupportBean event2 = new SupportBean("E2", 2);
             env.sendEventBean(event2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
 
             env.milestone(1);
 
@@ -559,7 +559,7 @@ public class ContextInitTermTemporalFixed {
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, null);
 
             env.sendEventBean(new SupportBean());
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0, null, 0, 0);
 
             env.milestone(2);
@@ -597,19 +597,19 @@ public class ContextInitTermTemporalFixed {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             // now started
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, 1, "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, 1, "E1"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E1", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 5, 1, "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 5, 1, "E1"});
 
             env.milestone(3);
 
@@ -620,7 +620,7 @@ public class ContextInitTermTemporalFixed {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
@@ -629,12 +629,12 @@ public class ContextInitTermTemporalFixed {
 
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
             env.sendEventBean(new SupportBean("E1", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 4, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 4, null, null});
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean_S0(2, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 4, 2, "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 4, 2, "E1"});
 
             env.undeployAll();
         }
@@ -653,12 +653,12 @@ public class ContextInitTermTemporalFixed {
             // now started
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));   // context + pattern
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimeEvent(env, "2002-05-1T09:00:10.000");
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(1);
 
@@ -672,12 +672,12 @@ public class ContextInitTermTemporalFixed {
             // now started
             sendTimeEvent(env, "2002-05-2T09:00:00.000");
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));   // context + pattern
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendTimeEvent(env, "2002-05-2T09:00:10.000");
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -702,7 +702,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(1);
 
@@ -711,7 +711,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "S01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "S01"});
 
             // now gone
             sendTimeEvent(env, "2002-05-1T17:00:00.000");
@@ -720,24 +720,24 @@ public class ContextInitTermTemporalFixed {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("Ex", 0));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             // now started
             sendTimeEvent(env, "2002-05-2T09:00:00.000");
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));   // from the context
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", null});
 
             env.sendEventBean(new SupportBean_S0(12, "S02"));
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "S02"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "S02"});
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1, 1, null, null);
 
             env.milestone(6);
@@ -749,7 +749,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("Ey", 0));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0, 0, null, null);
 
             env.undeployAll();
@@ -775,18 +775,18 @@ public class ContextInitTermTemporalFixed {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(11, "S01"));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", null});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("S01", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S01", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S01", 11});
 
             env.milestone(4);
 
@@ -796,24 +796,24 @@ public class ContextInitTermTemporalFixed {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("Ex", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
             // now started
             sendTimeEvent(env, "2002-05-2T9:00:00.000");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("S01", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S01", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S01", null});
 
             env.milestone(8);
 
             env.sendEventBean(new SupportBean_S0(12, "S02"));
             env.sendEventBean(new SupportBean("S02", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S02", 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S02", 12});
 
             env.milestone(9);
 
@@ -823,7 +823,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(10);
 
             env.sendEventBean(new SupportBean("Ey", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -848,7 +848,7 @@ public class ContextInitTermTemporalFixed {
                 "when not matched then insert select makeBean(id, p00)", path);
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -856,12 +856,12 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T09:00:00.000");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
 
             env.milestone(2);
 
@@ -877,7 +877,7 @@ public class ContextInitTermTemporalFixed {
 
             // no longer updated
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -887,7 +887,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.undeployAll();
         }
@@ -1128,7 +1128,7 @@ public class ContextInitTermTemporalFixed {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -1137,17 +1137,17 @@ public class ContextInitTermTemporalFixed {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
 
             env.milestone(5);
 
@@ -1156,7 +1156,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
@@ -1165,7 +1165,7 @@ public class ContextInitTermTemporalFixed {
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
 
             env.undeployAll();
         }

@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsExactOrder;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
+import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2Value;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2ValueNull;
 import static com.espertech.esper.regressionlib.support.bean.SupportCollection.makeString;
-import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
-import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
 
 public class ExprEnumArrayOf {
 

@@ -31,7 +31,8 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeLocalGroupBy {
     public final static String PLAN_CALLBACK_HOOK = "@Hook(type=" + HookType.class.getName() + ".INTERNAL_AGGLOCALLEVEL,hook='" + SupportAggLevelPlanHook.class.getName() + "')";
@@ -99,7 +100,7 @@ public class ResultSetQueryTypeLocalGroupBy {
         private void sendAssert(RegressionEnvironment env, String id, int value, int[] ints, long[] longs, double[] doubles, int c0, int c1, int c2, int c3, int c4) {
             final String[] fields = "c0,c1,c2,c3,c4".split(",");
             env.sendEventBean(new SupportThreeArrayEvent(id, value, ints, longs, doubles));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{c0, c1, c2, c3, c4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{c0, c1, c2, c3, c4});
         }
     }
 
@@ -121,27 +122,27 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.milestone(1);
 
             makeSendEvent(env, "E1", 1, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10L, 10L, 10L, 10L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10L, 10L, 10L, 10L});
 
             env.milestone(2);
 
             makeSendEvent(env, "E2", 2, 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11L, 11L, 11L, 21L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11L, 11L, 11L, 21L});
 
             env.milestone(3);
 
             makeSendEvent(env, "E1", 2, 12);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{12L, 10 + 12L, 11 + 12L, 10 + 11 + 12L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{12L, 10 + 12L, 11 + 12L, 10 + 11 + 12L});
 
             env.milestone(4);
 
             env.milestone(5);
 
             makeSendEvent(env, "E1", 1, 13);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10 + 13L, 10 + 12 + 13L, 10 + 13L, 10 + 11 + 12 + 13L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10 + 13L, 10 + 12 + 13L, 10 + 13L, 10 + 11 + 12 + 13L});
 
             makeSendEvent(env, "E2", 1, 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{14L, 11 + 14L, 10 + 13 + 14L, 10 + 11 + 12 + 13 + 14L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{14L, 11 + 14L, 10 + 13 + 14L, 10 + 11 + 12 + 13 + 14L});
 
             env.undeployAll();
         }
@@ -233,7 +234,7 @@ public class ResultSetQueryTypeLocalGroupBy {
             tryAssertionAggAndFullyAgg(env, "select sum(group_by:(),intPrimitive) as c0 from SupportBean",
                 new MyAssertion() {
                     public void doAssert(SupportListener listener) {
-                        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), colsC0, new Object[]{60});
+                        env.assertPropsListenerNew("s0", colsC0, new Object[]{60});
                     }
                 });
 
@@ -281,31 +282,31 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             makeSendEvent(env, "E1", 10, 101);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 10, 101L, 101L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 10, 101L, 101L});
 
             env.sendEventBean(new SupportBean_S0(10, "E1")); // delete event {"E1", 10}
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             makeSendEvent(env, "E1", 20, 102);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 20, 102L, 102L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 20, 102L, 102L});
 
             makeSendEvent(env, "E2", 30, 103);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E2", 30, 102 + 103L, 103L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E2", 30, 102 + 103L, 103L});
 
             makeSendEvent(env, "E1", 40, 104);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 40, 102 + 103 + 104L, 102 + 104L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 40, 102 + 103 + 104L, 102 + 104L});
 
             env.sendEventBean(new SupportBean_S0(40, "E1")); // delete event {"E1", 40}
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             makeSendEvent(env, "E1", 50, 105);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 50, 102 + 103 + 105L, 102 + 105L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 50, 102 + 103 + 105L, 102 + 105L});
 
             env.sendEventBean(new SupportBean_S1(-1)); // delete all
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             makeSendEvent(env, "E1", 60, 106);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 60, 106L, 106L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 60, 106L, 106L});
 
             env.undeployAll();
         }
@@ -324,31 +325,31 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             makeSendEvent(env, "E1", 10, 101);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 10, 101L, 101L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 10, 101L, 101L});
 
             env.sendEventBean(new SupportBean_S0(10, "E1")); // delete event {"E1", 10}
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 10, null, null});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 10, null, null});
 
             makeSendEvent(env, "E1", 20, 102);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 20, 102L, 102L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 20, 102L, 102L});
 
             makeSendEvent(env, "E2", 30, 103);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E2", 30, 103L, 103L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E2", 30, 103L, 103L});
 
             makeSendEvent(env, "E1", 40, 104);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 40, 104L, 102 + 104L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 40, 104L, 102 + 104L});
 
             env.sendEventBean(new SupportBean_S0(40, "E1")); // delete event {"E1", 40}
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 40, null, 102L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 40, null, 102L});
 
             makeSendEvent(env, "E1", 50, 105);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 50, 105L, 102 + 105L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 50, 105L, 102 + 105L});
 
             env.sendEventBean(new SupportBean_S1(-1)); // delete all
             env.listener("s0").reset();
 
             makeSendEvent(env, "E1", 60, 106);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{"E1", 60, 106L, 106L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{"E1", 60, 106L, 106L});
 
             env.undeployAll();
         }
@@ -537,16 +538,16 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(soda, epl).addListener("s0");
 
             makeSendEvent(env, "E1", 1, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{10L, 10L, 10L, 10L, 10L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{10L, 10L, 10L, 10L, 10L});
 
             makeSendEvent(env, "E1", 2, 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{21L, 21L, 21L, 21L, 11L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{21L, 21L, 21L, 21L, 11L});
 
             makeSendEvent(env, "E2", 1, 12);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{33L, 33L, 33L, 12L, 12L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{33L, 33L, 33L, 12L, 12L});
 
             makeSendEvent(env, "E2", 2, 13);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{46L, 46L, 46L, 25L, 13L});
+            env.assertPropsListenerNew("s0", cols, new Object[]{46L, 46L, 46L, 25L, 13L});
 
             env.undeployAll();
         }
@@ -581,22 +582,22 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             makeSendEvent(env, "E1", 10);
             assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{10}, new Integer[]{10});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{1L, 1L, 1L, 1L, "10", "10", false, false,
+            env.assertPropsListenerNew("s0", cols, new Object[]{1L, 1L, 1L, 1L, "10", "10", false, false,
                 null, null, null, null});
 
             makeSendEvent(env, "E2", 20);
             assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{20}, new Integer[]{10, 20});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{1L, 2L, 1L, 2L, "20", "10 20", false, false,
+            env.assertPropsListenerNew("s0", cols, new Object[]{1L, 2L, 1L, 2L, "20", "10 20", false, false,
                 null, null, null, 10});
 
             makeSendEvent(env, "E1", -1);
             assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{10, -1}, new Integer[]{10, 20, -1});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{1L, 2L, 2L, 3L, "10 -1", "10 20 -1", false, false,
+            env.assertPropsListenerNew("s0", cols, new Object[]{1L, 2L, 2L, 3L, "10 -1", "10 20 -1", false, false,
                 null, null, 10, 20});
 
             makeSendEvent(env, "E2", 30);
             assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{20, 30}, new Integer[]{10, 20, -1, 30});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{2L, 3L, 2L, 4L, "20 30", "10 20 -1 30", false, false,
+            env.assertPropsListenerNew("s0", cols, new Object[]{2L, 3L, 2L, 4L, "20 30", "10 20 -1 30", false, false,
                 null, null, 20, -1});
 
             env.undeployAll();
@@ -631,22 +632,22 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean b1 = makeSendEvent(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{b1, b1, b1, b1, new Object[]{b1}, new Object[]{b1},
+            env.assertPropsListenerNew("s0", cols, new Object[]{b1, b1, b1, b1, new Object[]{b1}, new Object[]{b1},
                 b1, b1, b1, b1, new Object[]{b1}, new Object[]{b1}, b1, b1, b1, b1,
                 b1, b1, b1, b1});
 
             SupportBean b2 = makeSendEvent(env, "E2", 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{b2, b1, b2, b2, new Object[]{b2}, new Object[]{b1, b2},
+            env.assertPropsListenerNew("s0", cols, new Object[]{b2, b1, b2, b2, new Object[]{b2}, new Object[]{b1, b2},
                 b2, b2, b2, b1, new Object[]{b2}, new Object[]{b1, b2}, b2, b2, b2, b1,
                 b2, b1, b2, b2});
 
             SupportBean b3 = makeSendEvent(env, "E1", 15);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{b1, b1, b3, b3, new Object[]{b1, b3}, new Object[]{b1, b2, b3},
+            env.assertPropsListenerNew("s0", cols, new Object[]{b1, b1, b3, b3, new Object[]{b1, b3}, new Object[]{b1, b2, b3},
                 b3, b2, b1, b1, new Object[]{b1, b3}, new Object[]{b1, b3, b2}, b3, b2, b1, b1,
                 b1, b1, b3, b3});
 
             SupportBean b4 = makeSendEvent(env, "E3", 16);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{b4, b2, b4, b4, new Object[]{b4}, new Object[]{b2, b3, b4},
+            env.assertPropsListenerNew("s0", cols, new Object[]{b4, b2, b4, b4, new Object[]{b4}, new Object[]{b2, b3, b4},
                 b4, b2, b4, b3, new Object[]{b4}, new Object[]{b3, b4, b2}, b4, b2, b4, b1,
                 b4, b1, b4, b4});
 
@@ -676,21 +677,21 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 10, 10,
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10, 10,
                 0.0d, 10d, 10, 10, 10, 10, 10, 10, 10, 10, 10.0, 0L});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, 10 + 20, 20,
+            env.assertPropsListenerNew("s0", fields, new Object[]{20, 10 + 20, 20,
                 0.0d, 20d, 20, 20, 20, 20, 20, 20, 20, 20, 20.0, 0L});
 
             env.sendEventBean(new SupportBean("E1", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{30, 10 + 20 + 30, 10 + 30,
+            env.assertPropsListenerNew("s0", fields, new Object[]{30, 10 + 20 + 30, 10 + 30,
                 10.0d, 20d, 30, 30, 10, 10, 30, 30, 10, 10, 20.0, 14L});
 
             env.sendEventBean(new SupportBean("E2", 40));
             Object[] expected = new Object[]{40, 10 + 20 + 30 + 40, 20 + 40,
                 10.0d, 30d, 40, 40, 20, 20, 40, 40, 20, 20, 30.0, 14L};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+            env.assertPropsListenerNew("s0", fields, expected);
 
             env.undeployAll();
         }
@@ -705,19 +706,19 @@ public class ResultSetQueryTypeLocalGroupBy {
             String[] cols = "c0,c1".split(",");
 
             env.sendEventObjectArray(new Object[]{"E1", "E1", 10}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{10, 10});
+            env.assertPropsListenerNew("s0", cols, new Object[]{10, 10});
 
             env.sendEventObjectArray(new Object[]{"E1", "E2", 11}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{21, 11});
+            env.assertPropsListenerNew("s0", cols, new Object[]{21, 11});
 
             env.sendEventObjectArray(new Object[]{"E2", "E1", 12}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{12, 22});
+            env.assertPropsListenerNew("s0", cols, new Object[]{12, 22});
 
             env.sendEventObjectArray(new Object[]{"E3", "E1", 13}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{13, 35});
+            env.assertPropsListenerNew("s0", cols, new Object[]{13, 35});
 
             env.sendEventObjectArray(new Object[]{"E3", "E3", 14}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{27, 14});
+            env.assertPropsListenerNew("s0", cols, new Object[]{27, 14});
 
             env.undeployAll();
         }
@@ -732,19 +733,19 @@ public class ResultSetQueryTypeLocalGroupBy {
             String[] cols = "c0,c1,c2".split(",");
 
             env.sendEventObjectArray(new Object[]{"E1", "E1", "E1", 10}, "MyEventTwo");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{10, 10, 10});
+            env.assertPropsListenerNew("s0", cols, new Object[]{10, 10, 10});
 
             env.sendEventObjectArray(new Object[]{"E1", "E1", "E2", 11}, "MyEventTwo");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{21, 21, 11});
+            env.assertPropsListenerNew("s0", cols, new Object[]{21, 21, 11});
 
             env.sendEventObjectArray(new Object[]{"E1", "E2", "E1", 12}, "MyEventTwo");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{33, 12, 22});
+            env.assertPropsListenerNew("s0", cols, new Object[]{33, 12, 22});
 
             env.sendEventObjectArray(new Object[]{"X", "E1", "E1", 13}, "MyEventTwo");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{13, 10 + 11 + 13, 10 + 12 + 13});
+            env.assertPropsListenerNew("s0", cols, new Object[]{13, 10 + 11 + 13, 10 + 12 + 13});
 
             env.sendEventObjectArray(new Object[]{"E1", "E2", "E3", 14}, "MyEventTwo");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), cols, new Object[]{10 + 11 + 12 + 14, 12 + 14, 14});
+            env.assertPropsListenerNew("s0", cols, new Object[]{10 + 11 + 12 + 14, 12 + 14, 14});
 
             env.undeployAll();
         }
@@ -760,13 +761,13 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{10, 10, 10}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{10, 10, 10}});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{10, 30, 10}, {20, 30, 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{10, 30, 10}, {20, 30, 20}});
 
             env.sendEventBean(new SupportBean("E1", 30));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{10, 60, 40}, {20, 60, 20}, {30, 60, 40}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{10, 60, 40}, {20, 60, 20}, {30, 60, 40}});
 
             env.undeployAll();
         }
@@ -779,11 +780,10 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             makeSendEvent(env, "E1", 95);
             makeSendEvent(env, "E2", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             makeSendEvent(env, "E1", 10);
-            assertTrue(env.listener("s0").isInvoked());
-            env.listener("s0").reset();
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -889,31 +889,31 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.milestone(0);
 
             SupportBean b1 = makeSendEvent(env, "E1", 10, 100L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{100L, 1L, new Object[]{b1}, 100L, 1L, new Object[]{b1}, 100L, 1L, new Object[]{b1}, 100L});
 
             env.milestone(1);
 
             SupportBean b2 = makeSendEvent(env, "E2", 10, 101L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{101L, 1L, new Object[]{b2}, 201L, 2L, new Object[]{b1, b2}, 101L, 1L, new Object[]{b2}, 201L});
 
             env.milestone(2);
 
             SupportBean b3 = makeSendEvent(env, "E1", 20, 102L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{202L, 2L, new Object[]{b1, b3}, 102L, 1L, new Object[]{b3}, 102L, 1L, new Object[]{b3}, 303L});
 
             env.milestone(3);
 
             SupportBean b4 = makeSendEvent(env, "E1", 10, 103L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{305L, 3L, new Object[]{b1, b3, b4}, 304L, 3L, new Object[]{b1, b2, b4}, 203L, 2L, new Object[]{b1, b4}, 406L});
 
             env.milestone(4);
 
             SupportBean b5 = makeSendEvent(env, "E1", 10, 104L); // expires b1
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{309L, 3L, new Object[]{b3, b4, b5}, 308L, 3L, new Object[]{b2, b4, b5}, 207L, 2L, new Object[]{b4, b5}, 410L});
 
             env.undeployAll();
@@ -942,31 +942,31 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.milestone(0);
 
             SupportBean b1 = makeSendEvent(env, "E1", 10, 100L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{100L, 1L, new Object[]{b1}, 100L, 1L, new Object[]{b1}, 100L, 1L, new Object[]{b1}, 100L});
 
             env.milestone(1);
 
             SupportBean b2 = makeSendEvent(env, "E2", 10, 101L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{101L, 1L, new Object[]{b2}, 201L, 2L, new Object[]{b1, b2}, 201L, 2L, new Object[]{b1, b2}, 101L});
 
             env.milestone(2);
 
             SupportBean b3 = makeSendEvent(env, "E1", 20, 102L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{202L, 2L, new Object[]{b1, b3}, 102L, 1L, new Object[]{b3}, 303L, 3L, new Object[]{b1, b2, b3}, 102L});
 
             env.milestone(3);
 
             SupportBean b4 = makeSendEvent(env, "E1", 10, 103L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{305L, 3L, new Object[]{b1, b3, b4}, 304L, 3L, new Object[]{b1, b2, b4}, 406L, 4L, new Object[]{b1, b2, b3, b4}, 203L});
 
             env.milestone(4);
 
             SupportBean b5 = makeSendEvent(env, "E1", 10, 104L); // expires b1
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{309L, 3L, new Object[]{b3, b4, b5}, 308L, 3L, new Object[]{b2, b4, b5}, 410L, 4L, new Object[]{b2, b3, b4, b5}, 207L});
 
             env.undeployAll();
@@ -993,7 +993,7 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean b1 = makeSendEvent(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5".split(","),
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4,c5".split(","),
                 new Object[]{b1, b1, 10, 10, 10, 10});
 
             env.undeployAll();

@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 
 import java.util.Collections;
@@ -101,7 +100,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventMap(makeMapEvent(), "MapEvent");
         env.sendEventBean(new SupportBean("keyOne", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 
@@ -110,7 +109,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventObjectArray(new Object[]{Collections.singletonMap("keyOne", "valueOne"), new int[]{1, 2}}, "ObjectArrayEvent");
         env.sendEventBean(new SupportBean("keyOne", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 
@@ -119,7 +118,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
         env.sendEventBean(new SupportBean("keyOne", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 

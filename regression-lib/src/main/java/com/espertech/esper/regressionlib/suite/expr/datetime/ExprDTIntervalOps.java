@@ -64,7 +64,7 @@ public class ExprDTIntervalOps {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{false});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{false});
 
             env.undeployAll();
         }
@@ -89,7 +89,7 @@ public class ExprDTIntervalOps {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{false});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{false});
 
             env.undeployAll();
         }
@@ -113,10 +113,10 @@ public class ExprDTIntervalOps {
             env.sendEventBean(bean);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true, true});
 
             env.sendEventBean(SupportDateTime.make("2003-05-30T08:00:00.000"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false, false});
 
             env.undeployAll();
         }

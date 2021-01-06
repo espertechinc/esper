@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.ArrayList;
@@ -50,28 +49,28 @@ public class ResultSetAggregateFirstEverLastEver {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 1L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2", 2L});
 
             env.sendEventBean(new SupportBean("E3", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_A("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.sendEventBean(new SupportBean_A("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.undeployAll();
         }
@@ -103,22 +102,22 @@ public class ResultSetAggregateFirstEverLastEver {
             env.milestone(0);
 
             makeSendBean(env, "E1", 10, 100, true);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", "E1", "E1", 1L, 1L, 1L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", "E1", "E1", 1L, 1L, 1L, 1L});
 
             env.milestone(1);
 
             makeSendBean(env, "E2", 11, null, true);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2", "E1", "E2", 2L, 1L, 2L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2", "E1", "E2", 2L, 1L, 2L, 1L});
 
             env.milestone(2);
 
             makeSendBean(env, "E3", 12, 120, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3", "E2", "E3", 3L, 2L, 2L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", "E2", "E3", 3L, 2L, 2L, 1L});
 
             env.milestone(3);
 
             makeSendBean(env, "E4", 13, 130, true);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E4", "E3", "E4", 4L, 3L, 3L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E4", "E3", "E4", 4L, 3L, 3L, 2L});
 
             env.undeployAll();
         }

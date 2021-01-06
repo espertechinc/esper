@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.define;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +77,7 @@ public class ExprDefineAliasFor {
             env.compileDeploy("@name('s0') select F3 as c0 from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{30});
 
             env.undeployAll();
         }
@@ -96,7 +95,7 @@ public class ExprDefineAliasFor {
             }
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 11});
 
             env.undeployAll();
         }
@@ -112,7 +111,7 @@ public class ExprDefineAliasFor {
             env.compileDeploy("@name('s0') select myaliastwo from SupportBean(intPrimitive = myalias)", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
             assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("myaliastwo"));

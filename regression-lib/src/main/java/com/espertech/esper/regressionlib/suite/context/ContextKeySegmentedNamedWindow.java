@@ -130,24 +130,24 @@ public class ContextKeySegmentedNamedWindow {
 
         env.sendEventBean(new SupportBean_S0(10, "s1"));
         env.sendEventBean(new SupportBean("G1", 10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, "s1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "s1"});
 
         env.milestone(0);
 
         env.sendEventBean(new SupportBean("G2", 10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 10, "s1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 10, "s1"});
 
         env.sendEventBean(new SupportBean("G3", 20));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 20, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 20, null});
 
         env.milestone(1);
 
         env.sendEventBean(new SupportBean_S0(20, "s2"));
         env.sendEventBean(new SupportBean("G3", 20));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 20, "s2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 20, "s2"});
 
         env.sendEventBean(new SupportBean("G1", 20));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 20, "s2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 20, "s2"});
     }
 
     private static void runAssertionNamedWindow(RegressionEnvironment env, String fromClause) {
@@ -160,16 +160,16 @@ public class ContextKeySegmentedNamedWindow {
         String[] fields = "c0,c1".split(",");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
 
         env.sendEventBean(new SupportBean("E1", 3));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 3});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
 
         env.sendEventBean(new SupportBean("E2", 4));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 4});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 4});
 
         tryInvalidCreateWindow(env, path);
         tryInvalidCreateWindow(env, path); // making sure all is cleaned up

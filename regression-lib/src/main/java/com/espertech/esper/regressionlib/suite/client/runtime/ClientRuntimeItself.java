@@ -131,7 +131,7 @@ public class ClientRuntimeItself {
 
             EPCompiled compiledFromEPL = svc.reflectiveCompile("@name('s0') select * from MyWindow");
             env.deploy(compiledFromEPL);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"theString"}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", new String[]{"theString"}, new Object[][]{{"E1"}});
 
             Module module = new Module();
             module.getItems().add(new ModuleItem("@name('s1') select * from MyWindow"));

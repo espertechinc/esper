@@ -13,15 +13,16 @@ package com.espertech.esper.regressionlib.suite.view;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ViewExternallyTimedWin {
     public static Collection<RegressionExecution> executions() {
@@ -42,35 +43,35 @@ public class ViewExternallyTimedWin {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1", 500));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2", 600));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E2"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3", 1500));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E3"}}, new Object[][]{{"symbol", "E1"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, new Object[][]{{"symbol", "E1"}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E4", 1600));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E4"}}, new Object[][]{{"symbol", "E2"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E4"}}, new Object[][]{{"symbol", "E2"}});
 
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("E5", 1700));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E5"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E5"}}, null);
 
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("E6", 1800));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E6"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E6"}}, null);
 
             env.milestone(6);
 
             env.sendEventBean(makeMarketDataEvent("E7", 1900));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E7"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E7"}}, null);
 
             env.milestone(7);
 
@@ -104,15 +105,15 @@ public class ViewExternallyTimedWin {
             String epl = "@Name('s0') select irstream theString as c0 from SupportBean#ext_timed(longPrimitive, 10 sec)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBeanWLong(env, "E1", 1000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
             sendSupportBeanWLong(env, "E2", 5000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
@@ -124,7 +125,7 @@ public class ViewExternallyTimedWin {
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBeanWLong(env, "E4", 14000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(4);
             env.milestone(5);
@@ -166,10 +167,10 @@ public class ViewExternallyTimedWin {
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000") - 1, "E2");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
 
             env.undeployAll();
         }

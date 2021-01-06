@@ -60,7 +60,7 @@ public class EPLJoinStartStop {
 
             env.compileDeploy(joinStatement).addListener("s0");
             sendEvent(env, setOne[2]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
             sendEvent(env, setOne[3]);
@@ -69,7 +69,7 @@ public class EPLJoinStartStop {
 
             env.compileDeploy(joinStatement).addListener("s0");
             sendEvent(env, setTwo[4]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

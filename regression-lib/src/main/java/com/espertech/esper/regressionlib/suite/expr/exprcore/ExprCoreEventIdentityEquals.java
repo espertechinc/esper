@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class ExprCoreEventIdentityEquals {
@@ -102,12 +100,12 @@ public class ExprCoreEventIdentityEquals {
 
     private static void sendAssert(RegressionEnvironment env, String theString, int intPrimitive, int expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,c0".split(","), new Object[]{theString, expected});
+        env.assertPropsListenerNew("s0", "theString,c0".split(","), new Object[]{theString, expected});
     }
 
     private static void sendAssertNotReceived(RegressionEnvironment env, String theString) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendAssertReceived(RegressionEnvironment env, String theString) {

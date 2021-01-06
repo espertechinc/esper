@@ -11,13 +11,13 @@
 package com.espertech.esper.regressionlib.suite.epl.fromclausemethod;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S2;
 
 import java.io.Serializable;
 import java.util.*;
@@ -170,7 +170,7 @@ public class EPLFromClauseMethodVariable {
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String expected) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+        env.assertPropsListenerNew("s0", fields, new Object[]{expected});
     }
 
     public static class MyConstantServiceVariable implements Serializable {

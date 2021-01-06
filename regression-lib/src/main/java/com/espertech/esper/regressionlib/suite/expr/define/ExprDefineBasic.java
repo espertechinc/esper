@@ -112,10 +112,10 @@ public class ExprDefineBasic {
             env.compileDeploy("@name('s0') select F3(myevent) as c0 from SupportBean as myevent", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{22});
+            env.assertPropsListenerNew("s0", fields, new Object[]{22});
 
             env.undeployAll();
         }
@@ -130,7 +130,7 @@ public class ExprDefineBasic {
             env.compileDeploy(eplNonJoin).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0, c1".split(","), new Object[]{2, 4});
+            env.assertPropsListenerNew("s0", "c0, c1".split(","), new Object[]{2, 4});
             env.undeployAll();
 
             String eplPattern = "@name('s0') expression abc { x => intPrimitive * 2} " +
@@ -139,7 +139,7 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean("E1", 2));
             env.sendEventBean(new SupportBean("E2", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.theString, b.theString".split(","), new Object[]{"E1", "E2"});
+            env.assertPropsListenerNew("s0", "a.theString, b.theString".split(","), new Object[]{"E1", "E2"});
 
             env.undeployAll();
         }
@@ -227,7 +227,7 @@ public class ExprDefineBasic {
             assertEquals("s0", env.statement("s0").getName());
 
             env.sendEventBean(new SupportBean_ST0("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "scalar()".split(","), new Object[]{1});
+            env.assertPropsListenerNew("s0", "scalar()".split(","), new Object[]{1});
 
             env.undeployAll();
         }
@@ -270,12 +270,12 @@ public class ExprDefineBasic {
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 5));
             env.sendEventBean(new SupportBean_ST0("ST0", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2 / 10d, 2 / 5d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2 / 10d, 2 / 5d});
 
             env.sendEventBean(new SupportBean("E3", 20));
             env.sendEventBean(new SupportBean("E4", 2));
             env.sendEventBean(new SupportBean_ST0("ST0", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4 / 20d, 4 / 2d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4 / 20d, 4 / 2d});
 
             env.undeployAll();
         }
@@ -304,12 +304,12 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("ST0", 20));
 
             env.sendEventBean(new SupportBean_ST1("x", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"ST0"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"ST0"});
 
             env.undeployAll();
         }
@@ -341,14 +341,14 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
             env.sendEventBean(new SupportBean("E0", 10));
             env.sendEventBean(new SupportBean_ST1("ST1", 0, "E0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, 10});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0, "E0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10});
 
             env.undeployAll();
         }
@@ -374,18 +374,18 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E0", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E0", null});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 100));
             env.sendEventBean(new SupportBean("E1", 99));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.sendEventBean(new SupportBean("E2", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "ST0"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "ST0"});
 
             env.sendEventBean(new SupportBean_ST0("ST1", 100));
             env.sendEventBean(new SupportBean("E3", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", null});
 
             env.undeployAll();
         }
@@ -410,15 +410,15 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E0", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E0", null});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean("E1", 99));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "ST0"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "ST0"});
 
             env.sendEventBean(new SupportBean_ST0("ST1", 0));
             env.sendEventBean(new SupportBean("E2", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "ST1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "ST1"});
 
             env.undeployAll();
         }
@@ -566,10 +566,10 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType()});
 
             env.sendEventBean(getSupportBean(5, 6));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, 6, 5 / 6d, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, 6, 5 / 6d, 1L});
 
             env.sendEventBean(getSupportBean(8, 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5 + 8, 6 + 10, (5 + 8) / (6d + 10d), 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5 + 8, 6 + 10, (5 + 8) / (6d + 10d), 2L});
 
             env.undeployAll();
         }
@@ -586,7 +586,7 @@ public class ExprDefineBasic {
 
             env.compileDeploy("@name('s0') select * from DEF", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -613,10 +613,10 @@ public class ExprDefineBasic {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 30});
 
             env.sendEventBean(new SupportBean("E2", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{15, 45});
+            env.assertPropsListenerNew("s0", fields, new Object[]{15, 45});
 
             env.undeployAll();
         }
@@ -656,13 +656,13 @@ public class ExprDefineBasic {
             env.sendEventBean(new SupportBean("E2", 1));
 
             env.sendEventBean(new SupportBeanObject(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanObject("X"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), props, new Object[]{0L});
+            env.assertPropsListenerNew("s0", props, new Object[]{0L});
 
             env.sendEventBean(new SupportBeanObject(1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), props, new Object[]{1L});
+            env.assertPropsListenerNew("s0", props, new Object[]{1L});
 
             env.undeployAll();
         }
@@ -799,7 +799,7 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, 5});
 
             env.undeployAll();
         }
@@ -829,11 +829,11 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 20, 40});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, 20, 40});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myvar", 3);
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 30, 90});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, 30, 90});
 
             env.undeployAll();
         }

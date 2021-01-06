@@ -23,9 +23,9 @@ import java.math.BigInteger;
 import java.util.*;
 
 import static com.espertech.esper.common.client.type.EPTypePremade.*;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 
 public class ExprEnumSumOf {
 

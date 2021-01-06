@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -52,10 +51,10 @@ public class ExprDTDataSources {
             String[] fields = "c0,c1".split(",");
 
             sendBean(env, 20000, 20000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
 
             sendBean(env, 19000, 20000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
 
             env.undeployAll();
         }
@@ -102,7 +101,7 @@ public class ExprDTDataSources {
             }
 
             env.sendEventBean(SupportDateTime.make(startTime));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{
+            env.assertPropsListenerNew("s0", fields, new Object[]{
                 1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9, 9, 9
             });
 
@@ -201,7 +200,7 @@ public class ExprDTDataSources {
         env.sendEventBean(sdt);
 
         boolean java8date = field.equals("zoneddate") || field.equals("localdate");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10".split(","), new Object[]{
+        env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10".split(","), new Object[]{
             1, java8date ? 5 : 4, 30, java8date ? THURSDAY : 5, 150, 1, 9, 3, 2, 22, 2002
         });
 

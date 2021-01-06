@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 
 public class PatternComplexPropertyAccess {
@@ -116,7 +115,7 @@ public class PatternComplexPropertyAccess {
 
             theEvent = new SupportBeanComplexProps(new int[]{6});
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = new SupportBeanComplexProps(new int[]{3});
             env.sendEventBean(theEvent);
@@ -168,11 +167,11 @@ public class PatternComplexPropertyAccess {
     private static void runIndexedValueProp(RegressionEnvironment env) {
         Object eventOne = new SupportBeanComplexProps(new int[]{3});
         env.sendEventBean(eventOne);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         Object theEvent = new SupportBeanComplexProps(new int[]{6});
         env.sendEventBean(theEvent);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         Object eventTwo = new SupportBeanComplexProps(new int[]{3});
         env.sendEventBean(eventTwo);

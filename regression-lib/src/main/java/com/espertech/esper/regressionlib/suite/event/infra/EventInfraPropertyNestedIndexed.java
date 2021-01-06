@@ -133,7 +133,7 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         SupportEventTypeAssertionUtil.assertConsistency(event);
 
         send.apply(typename, env, 10, 5, 50, 400);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, true, 5, true, 50, true, 400, true});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, true, 5, true, 50, true, 400, true});
 
         env.undeployModuleContaining("s0");
     }

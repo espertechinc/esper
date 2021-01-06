@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("s2", 5));
             env.sendEventBean(new SupportRecogBean("s1", 6));
             assertFalse(env.statement("s0").iterator().hasNext());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportRecogBean("s1", 7));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
@@ -105,14 +105,14 @@ public class RowRecogDataWin {
             sendTimer(1000, env);
             env.sendEventBean(new SupportRecogBean("E2", 2));
             assertFalse(env.statement("s0").iterator().hasNext());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             sendTimer(6000, env);
             env.sendEventBean(new SupportRecogBean("E3", 3));
             assertFalse(env.statement("s0").iterator().hasNext());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -142,7 +142,7 @@ public class RowRecogDataWin {
 
             sendTimer(12000, env);
             assertFalse(env.statement("s0").iterator().hasNext());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -171,7 +171,7 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("A1", "001", 1));
             env.sendEventBean(new SupportRecogBean("B1", "002", 1));
             env.sendEventBean(new SupportRecogBean("B2", "002", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(1);
@@ -180,7 +180,7 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("C1", "002", 4));
             env.sendEventBean(new SupportRecogBean("C2", "002", 5));
             env.sendEventBean(new SupportRecogBean("B3", "003", -1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{null, "B2", "C1"}});
 
@@ -196,13 +196,13 @@ public class RowRecogDataWin {
             sendTimer(6000, env);
             env.sendEventBean(new SupportRecogBean("C3", "003", -1));
             env.sendEventBean(new SupportRecogBean("C4", "001", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(4);
 
             sendTimer(10050, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(5);
@@ -212,7 +212,7 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("B4", "003", 10));
             env.sendEventBean(new SupportRecogBean("C5", "002", 0));
             env.sendEventBean(new SupportRecogBean("C6", "003", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{null, "B4", "C6"}, {"A2", null, "C5"}});
 
@@ -291,7 +291,7 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("A1", "001", 1));
             env.sendEventBean(new SupportRecogBean("B1", "002", 1));
             env.sendEventBean(new SupportRecogBean("B2", "002", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.iterator("s0").hasNext());
 
             env.milestone(0);
@@ -300,8 +300,8 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("C1", "002", 4));
             env.sendEventBean(new SupportRecogBean("C2", "002", 5));
             env.sendEventBean(new SupportRecogBean("B3", "003", -1));
-            assertFalse(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields,
+            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, "B2", "C1"}});
 
             env.milestone(1);
@@ -316,13 +316,13 @@ public class RowRecogDataWin {
             env.advanceTime(6000);
             env.sendEventBean(new SupportRecogBean("C3", "003", -1));
             env.sendEventBean(new SupportRecogBean("C4", "001", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.iterator("s0").hasNext());
 
             env.milestone(3);
 
             env.advanceTime(10050);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.iterator("s0").hasNext());
 
             env.milestone(4);
@@ -332,8 +332,8 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("B4", "003", 10));
             env.sendEventBean(new SupportRecogBean("C5", "002", 0));
             env.sendEventBean(new SupportRecogBean("C6", "003", 10));
-            assertFalse(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields,
+            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, "B4", "C6"}, {"A2", null, "C5"}});
 
             env.milestone(5);

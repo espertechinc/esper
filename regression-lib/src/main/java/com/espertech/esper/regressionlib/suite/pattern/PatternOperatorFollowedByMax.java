@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PatternOperatorFollowedByMax {
 
@@ -251,7 +252,7 @@ public class PatternOperatorFollowedByMax {
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A5", "B3"}, {"A6", "B3"}});
 
         env.sendEventBean(new SupportBean_B("B4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_A("A20"));
         env.sendEventBean(new SupportBean_A("A21"));

@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.*;
+import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventPropertyGetterIndexed;
+import com.espertech.esper.common.client.EventPropertyGetterMapped;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;

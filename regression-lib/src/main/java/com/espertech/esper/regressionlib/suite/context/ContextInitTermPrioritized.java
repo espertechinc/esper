@@ -10,13 +10,12 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportProductIdEvent;
 
 import java.util.ArrayList;
@@ -65,10 +64,10 @@ public class ContextInitTermPrioritized {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }

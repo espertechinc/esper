@@ -13,16 +13,17 @@ package com.espertech.esper.regressionlib.suite.view;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ViewTimeAccum {
     public static Collection<RegressionExecution> executions() {
@@ -49,7 +50,7 @@ public class ViewTimeAccum {
             env.sendEventBean(new SupportBean("E2", 2));
 
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
@@ -68,7 +69,7 @@ public class ViewTimeAccum {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendTimer(env, startTime + 10000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // 1st at 10 sec
             env.sendEventBean(events[0]);
@@ -91,7 +92,7 @@ public class ViewTimeAccum {
 
             // no event till 33 sec
             sendTimer(env, startTime + 32999);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 33000);
             TestCase.assertNull(env.listener("s0").getLastNewData());
@@ -102,7 +103,7 @@ public class ViewTimeAccum {
 
             // no events till 50 sec
             sendTimer(env, startTime + 50000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // next two events at 55 sec
             sendTimer(env, startTime + 55000);
@@ -113,7 +114,7 @@ public class ViewTimeAccum {
 
             // no event till 65 sec
             sendTimer(env, startTime + 64999);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 65000);
             TestCase.assertNull(env.listener("s0").getLastNewData());
@@ -148,7 +149,7 @@ public class ViewTimeAccum {
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time_accum(10 sec)";
             env.compileDeployAddListenerMileZero(text, "s0");
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             // 1st event
             sendTimer(env, 1000);
@@ -165,7 +166,7 @@ public class ViewTimeAccum {
             env.milestone(2);
 
             sendTimer(env, 14999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Window pushes out events
             sendTimer(env, 15000);
@@ -178,7 +179,7 @@ public class ViewTimeAccum {
 
             // No events for a while
             sendTimer(env, 30000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -197,7 +198,7 @@ public class ViewTimeAccum {
             env.milestone(6);
 
             sendTimer(env, 40999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 41000);
             assertEquals(null, env.listener("s0").getLastNewData());
@@ -240,23 +241,23 @@ public class ViewTimeAccum {
             String epl = "@Name('s0') select irstream * from SupportBean#time_accum(10 sec)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             sendTimer(env, 5000);
             sendSupportBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             sendTimer(env, 14999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -268,21 +269,21 @@ public class ViewTimeAccum {
 
             sendTimer(env, 18000);
             sendSupportBean(env, "E3");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
             sendSupportBean(env, "E4");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(5);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3"}, {"E4"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}});
             sendTimer(env, 19000);
             sendSupportBean(env, "E5");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(6);
 
             sendTimer(env, 28999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 29000);
             assertNull(env.listener("s0").getLastNewData());
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
@@ -291,7 +292,7 @@ public class ViewTimeAccum {
 
             sendTimer(env, 39000);
             sendTimer(env, 99000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -307,13 +308,13 @@ public class ViewTimeAccum {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendTimer(env, startTime + 10000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // some events at 10 sec
             env.sendEventBean(events[0]);
             env.sendEventBean(events[1]);
             env.sendEventBean(events[2]);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // flush out of the window
             sendTimer(env, startTime + 20000);
@@ -351,7 +352,7 @@ public class ViewTimeAccum {
             assertData(env.listener("s0").assertOneGetNewAndReset(), 7d, 6d, 6d);
 
             sendTimer(env, startTime + 43999);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 44000);
             TestCase.assertNull(env.listener("s0").getLastNewData());
@@ -439,7 +440,7 @@ public class ViewTimeAccum {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 34999);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 35000);
             assertData(env.listener("s0").getLastNewData()[0], null);

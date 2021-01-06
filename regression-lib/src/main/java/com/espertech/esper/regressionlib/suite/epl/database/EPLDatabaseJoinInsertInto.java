@@ -16,7 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
-import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertFalse;
 
 public class EPLDatabaseJoinInsertInto implements RegressionExecution {
 
@@ -46,7 +45,7 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         env.compileDeploy(sb.toString(), path).addListener("s0");
 
         env.advanceTime(20000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(30000);
         EventBean[] received = env.listener("s0").getLastNewData();
@@ -54,9 +53,9 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         env.listener("s0").reset();
 
         env.advanceTime(31000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.advanceTime(39000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(40000);
         received = env.listener("s0").getLastNewData();
@@ -64,7 +63,7 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         env.listener("s0").reset();
 
         env.advanceTime(41000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

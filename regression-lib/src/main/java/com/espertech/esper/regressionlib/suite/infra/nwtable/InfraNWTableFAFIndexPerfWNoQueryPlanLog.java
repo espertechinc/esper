@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.infra.nwtable;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQuery;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.ArrayList;

@@ -54,7 +54,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "IBM", 49);
             sendEvent(env, "CAT", 15);
             sendEvent(env, "IBM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{
                     {"CAT", 214d},
                     {"CAT", 214d},
@@ -63,7 +63,7 @@ public class ResultSetOrderByRowPerEvent {
                 });
 
             sendEvent(env, "KGB", 75);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{
                     {"CAT", 289d},
                     {"CAT", 289d},

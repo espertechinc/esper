@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.view;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTimestamp;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSensorEvent;
@@ -186,18 +186,18 @@ public class ViewGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{"A", 10}, "OAEventStringInt");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 10});
 
             env.sendEventObjectArray(new Object[]{"B", 11}, "OAEventStringInt");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 21});
 
             env.milestone(0);
 
             env.sendEventObjectArray(new Object[]{"A", 12}, "OAEventStringInt");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 33});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 33});
 
             env.sendEventObjectArray(new Object[]{"A", 13}, "OAEventStringInt");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 36});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 36});
 
             env.undeployAll();
         }
@@ -375,18 +375,18 @@ public class ViewGroup {
             String[] fields = new String[]{"symbol", "correlation", "feed"};
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 10.0, 1000L, "f1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"ABC", Double.NaN, "f1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", Double.NaN, "f1"});
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 1.0, 2L, "f2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"DEF", Double.NaN, "f2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", Double.NaN, "f2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 2.0, 4L, "f3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"DEF", 1.0, "f3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", 1.0, "f3"});
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 20.0, 2000L, "f4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"ABC", 1.0, "f4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", 1.0, "f4"});
 
             env.undeployAll();
         }
@@ -422,7 +422,7 @@ public class ViewGroup {
             String[] fields = new String[]{"symbol", "slope", "YIntercept", "feed"};
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 10.0, 50000L, "f1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"ABC", Double.NaN, Double.NaN, "f1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", Double.NaN, Double.NaN, "f1"});
 
             env.milestone(0);
 
@@ -449,10 +449,10 @@ public class ViewGroup {
             // above computed values tested in more detail in RegressionBean test
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 2.0, 2L, "f3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"DEF", 1.0, 0.0, "f3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", 1.0, 0.0, "f3"});
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 11.0, 50100L, "f4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"ABC", 100.0, 49000.0, "f4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", 100.0, 49000.0, "f4"});
 
             env.undeployAll();
         }
@@ -591,26 +591,26 @@ public class ViewGroup {
             // 1st event S1 group
             env.advanceTime(1000);
             sendEvent(env, "S1", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             // 2nd event S1 group
             env.advanceTime(5000);
             sendEvent(env, "S1", 20);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             // 1st event S2 group
             env.advanceTime(10000);
             sendEvent(env, "S2", 30);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.advanceTime(10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
             assertNull(env.listener("s0").getLastOldData());
@@ -675,7 +675,7 @@ public class ViewGroup {
 
             // Window pushes out event E2
             env.advanceTime(11999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(12000);
             assertNull(env.listener("s0").getLastNewData());
             EventBean[] oldData = env.listener("s0").getLastOldData();
@@ -686,7 +686,7 @@ public class ViewGroup {
 
             // Window pushes out event E4
             env.advanceTime(12499);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(12500);
             assertNull(env.listener("s0").getLastNewData());
             oldData = env.listener("s0").getLastOldData();
@@ -709,26 +709,26 @@ public class ViewGroup {
             // 1st event S1 group
             env.advanceTime(1000);
             sendEvent(env, "S1", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             // 2nd event S1 group
             env.advanceTime(5000);
             sendEvent(env, "S1", 20);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             // 1st event S2 group
             env.advanceTime(10000);
             sendEvent(env, "S2", 30);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.advanceTime(10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
             assertNull(env.listener("s0").getLastOldData());
@@ -775,7 +775,7 @@ public class ViewGroup {
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("S1", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -792,7 +792,7 @@ public class ViewGroup {
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("S2", 23));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
@@ -805,7 +805,7 @@ public class ViewGroup {
             env.milestone(7);
 
             env.sendEventBean(makeMarketDataEvent("S2", 24));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(8);
 
@@ -820,7 +820,7 @@ public class ViewGroup {
 
             env.sendEventBean(makeMarketDataEvent("S1", 4));
             env.sendEventBean(makeMarketDataEvent("S1", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(10);
 
@@ -866,7 +866,7 @@ public class ViewGroup {
             env.milestone(3);
 
             env.advanceTime(10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
             assertNull(env.listener("s0").getLastNewData());
@@ -906,15 +906,15 @@ public class ViewGroup {
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}});
             sendSupportBean(env, "E2", 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
 
             env.milestone(3);
 
@@ -924,7 +924,6 @@ public class ViewGroup {
             sendSupportBean(env, "E1", 3);
             assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E1", 2}, {"E2", 21}, {"E2", 22}, {"E1", 3}});
-            env.listener("s0").reset();
 
             env.milestone(4);
 

@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +41,7 @@ public class ResultSetOutputLimitInsertInto {
             assertReceivedS0AndS1(env, new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.listener("s1").isInvoked());
 
             env.advanceTime(2000);
@@ -62,7 +62,7 @@ public class ResultSetOutputLimitInsertInto {
             assertReceivedS0AndS1(env, new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.listener("s1").isInvoked());
 
             env.advanceTime(1000);

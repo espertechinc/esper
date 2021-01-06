@@ -94,19 +94,19 @@ public class ViewRank {
 
             String[] fields = "theString,intPrimitive,longPrimitive,doublePrimitive".split(",");
             env.sendEventBean(makeEvent("E1", 100, 0L, 1d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 100, 0L, 1d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 100, 0L, 1d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 100, 0L, 1d}});
 
             env.sendEventBean(makeEvent("E2", 100, 0L, 2d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 100, 0L, 2d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, 0L, 2d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 100, 0L, 1d}, {"E2", 100, 0L, 2d}});
 
             env.sendEventBean(makeEvent("E1", 200, 0L, 0.5d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 200, 0L, 0.5d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 200, 0L, 0.5d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 200, 0L, 0.5d}, {"E1", 100, 0L, 1d}, {"E2", 100, 0L, 2d}});
 
             env.sendEventBean(makeEvent("E2", 200, 0L, 2.5d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 200, 0L, 2.5d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 200, 0L, 2.5d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 200, 0L, 0.5d}, {"E1", 100, 0L, 1d}, {"E2", 100, 0L, 2d}, {"E2", 200, 0L, 2.5d}});
 
             env.sendEventBean(makeEvent("E1", 300, 0L, 0.1d));
@@ -124,17 +124,17 @@ public class ViewRank {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(makeEvent("E1", 100, 1L, 10d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 100, 1L, 10d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 100, 1L, 10d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 100, 1L, 10d}});
 
             env.sendEventBean(makeEvent("E1", 200, 1L, 9d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 200, 1L, 9d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 200, 1L, 9d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 200, 1L, 9d}, {"E1", 100, 1L, 10d}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E1", 150, 1L, 11d));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 150, 1L, 11d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 150, 1L, 11d});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 200, 1L, 9d}, {"E1", 100, 1L, 10d}, {"E1", 150, 1L, 11d}});
 
             env.sendEventBean(makeEvent("E1", 100, 1L, 8d));
@@ -171,15 +171,15 @@ public class ViewRank {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(makeEvent("E1", 10, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E1", 10, 0L}});
 
             env.sendEventBean(makeEvent("E2", 50, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 50, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 50, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E1", 10, 0L}, {"E2", 50, 0L}});
 
             env.sendEventBean(makeEvent("E3", 5, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 5, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 5, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E3", 5, 0L}, {"E1", 10, 0L}, {"E2", 50, 0L}});
 
             env.sendEventBean(makeEvent("E4", 5, 0L));
@@ -187,19 +187,19 @@ public class ViewRank {
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E3", 5, 0L}, {"E4", 5, 0L}, {"E1", 10, 0L}});
 
             env.sendEventBean(new SupportBean_A("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E3", 5, 0L});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E3", 5, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E4", 5, 0L}, {"E1", 10, 0L}});
 
             env.sendEventBean(new SupportBean_A("E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E4", 5, 0L});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E4", 5, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E1", 10, 0L}});
 
             env.sendEventBean(new SupportBean_A("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1", 10, 0L});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 10, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[0][]);
 
             env.sendEventBean(makeEvent("E3", 100, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 100, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 100, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E3", 100, 0L}});
 
             env.sendEventBean(makeEvent("E3", 101, 1L));
@@ -207,7 +207,7 @@ public class ViewRank {
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[][]{{"E3", 101, 1L}});
 
             env.sendEventBean(new SupportBean_A("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E3", 101, 1L});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E3", 101, 1L});
             EPAssertionUtil.assertPropsPerRow(env.statement("create").iterator(), fields, new Object[0][]);
 
             env.undeployAll();
@@ -220,56 +220,56 @@ public class ViewRank {
             String epl = "@Name('s0') select irstream * from SupportBean.ext:rank(theString, 3, intPrimitive)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "A", 10, 100L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 10, 100L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 10, 100L});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 10, 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 10, 100L}});
             sendSupportBean(env, "B", 20, 101L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 20, 101L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20, 101L});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 10, 100L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 10, 100L}, {"B", 20, 101L}});
             sendSupportBean(env, "A", 8, 102L);  // replace A
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"A", 8, 102L}, new Object[]{"A", 10, 100L});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 8, 102L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 8, 102L}, {"B", 20, 101L}});
             sendSupportBean(env, "C", 15, 103L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C", 15, 103L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C", 15, 103L});
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 8, 102L}, {"C", 15, 103L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 8, 102L}, {"C", 15, 103L}, {"B", 20, 101L}});
             sendSupportBean(env, "D", 21, 104L);
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"D", 21, 104L}, new Object[]{"D", 21, 104L});
 
             env.milestone(5);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 8, 102L}, {"C", 15, 103L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 8, 102L}, {"C", 15, 103L}, {"B", 20, 101L}});
             sendSupportBean(env, "A", 16, 105L);
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"A", 16, 105L}, new Object[]{"A", 8, 102L});
 
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"C", 15, 103L}, {"A", 16, 105L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"C", 15, 103L}, {"A", 16, 105L}, {"B", 20, 101L}});
             sendSupportBean(env, "C", 16, 106L);
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"C", 16, 106L}, new Object[]{"C", 15, 103L});
 
             env.milestone(7);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 16, 105L}, {"C", 16, 106L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 16, 105L}, {"C", 16, 106L}, {"B", 20, 101L}});
             sendSupportBean(env, "C", 16, 107L);
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"C", 16, 107L}, new Object[]{"C", 16, 106L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 16, 105L}, {"C", 16, 107L}, {"B", 20, 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 16, 105L}, {"C", 16, 107L}, {"B", 20, 101L}});
             sendSupportBean(env, "E", 1, 108L);
             EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E", 1, 108L}, new Object[]{"B", 20, 101L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E", 1, 108L}, {"A", 16, 105L}, {"C", 16, 107L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E", 1, 108L}, {"A", 16, 105L}, {"C", 16, 107L}});
 
             env.undeployAll();
         }
@@ -282,13 +282,13 @@ public class ViewRank {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeEvent("E1", 10, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 10, 0L}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 30, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 30, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 30, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 30, 0L}, {"E1", 10, 0L}});
 
             env.sendEventBean(makeEvent("E1", 50, 0L));
@@ -298,7 +298,7 @@ public class ViewRank {
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E3", 40, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 40, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 40, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 50, 0L}, {"E3", 40, 0L}, {"E2", 30, 0L}});
 
             env.sendEventBean(makeEvent("E2", 45, 0L));
@@ -322,7 +322,7 @@ public class ViewRank {
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 45, 0L}, {"E1", 43, 0L}, {"E3", 10, 0L}});
 
             env.sendEventBean(makeEvent("E4", 43, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", 43, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 43, 0L});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 45, 0L}, {"E1", 43, 0L}, {"E4", 43, 0L}, {"E3", 10, 0L}});
 
             env.milestone(4);

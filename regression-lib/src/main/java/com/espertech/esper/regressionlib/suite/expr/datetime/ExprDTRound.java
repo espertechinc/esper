@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -50,7 +49,7 @@ public class ExprDTRound {
             String startTime = "2002-05-30T09:01:02.003";
             String expectedTime = "2002-5-30T10:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
+            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
             env.undeployAll();
         }
@@ -83,7 +82,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }
@@ -116,7 +115,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }
@@ -149,7 +148,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T15:30:02.550";
             env.sendEventBean(SupportDateTime.make(startTime));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             // test rounding up/down
             env.undeployAll();
@@ -158,13 +157,13 @@ public class ExprDTRound {
             env.compileDeployAddListenerMile(eplFragment, "s0", 1);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:29.999"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.000"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.001"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.undeployAll();
         }

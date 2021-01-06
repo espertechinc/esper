@@ -17,13 +17,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S5;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLOuterJoin6Stream {
 
@@ -188,17 +188,17 @@ public class EPLOuterJoin6Stream {
         //
         s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=1, s2=0, s3=0, s4=0, s5=0
         //
         s1Events = SupportBean_S1.makeS1("B", new String[]{"B-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=1, s2=1, s3=0, s4=0, s5=0
         //
@@ -207,11 +207,11 @@ public class EPLOuterJoin6Stream {
 
         s2Events = SupportBean_S2.makeS2("C", new String[]{"C-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=1, s2=1, s3=1, s4=0, s5=0
         //
@@ -228,7 +228,7 @@ public class EPLOuterJoin6Stream {
 
         s0Events = SupportBean_S0.makeS0("D", new String[]{"D-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=1, s2=1, s3=1, s4=1, s5=0
         //
@@ -250,17 +250,17 @@ public class EPLOuterJoin6Stream {
 
         s0Events = SupportBean_S0.makeS0("E", new String[]{"E-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=2, s2=1, s3=1, s4=1, s5=1
         //
         s1Events = SupportBean_S1.makeS1("F", new String[]{"F-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("F", new String[]{"F-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s3Events = SupportBean_S3.makeS3("F", new String[]{"F-s3-1"});
         sendEvent(env, s3Events);
@@ -395,7 +395,7 @@ public class EPLOuterJoin6Stream {
         //
         s1Events = SupportBean_S1.makeS1("J", new String[]{"J-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s1 and s0=1, s2=0, s3=1, s4=1, s5=0
         //
@@ -414,11 +414,11 @@ public class EPLOuterJoin6Stream {
         //
         s0Events = SupportBean_S0.makeS0("L", new String[]{"L-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("L", new String[]{"L-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s3Events = SupportBean_S3.makeS3("L", new String[]{"L-s3-1"});
         sendEventsAndReset(env, s3Events);

@@ -25,10 +25,7 @@ import junit.framework.TestCase;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ContextCategory {
 
@@ -90,9 +87,9 @@ public class ContextCategory {
         private void sendAssert(RegressionEnvironment env, String theString, int intPrimitive, String categoryName, Long expected) {
             env.sendEventBean(new SupportBean(theString, intPrimitive));
             if (expected == null) {
-                assertFalse(env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             } else {
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), FIELDS, new Object[]{expected, categoryName});
+                env.assertPropsListenerNew("s0", FIELDS, new Object[]{expected, categoryName});
             }
         }
     }
@@ -110,28 +107,28 @@ public class ContextCategory {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, "cat1", "CtxCategory", 0});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1, "cat1", "CtxCategory", 0});
             assertPartitionInfo(env);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", -2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", -2, "cat2", "CtxCategory", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", -2, "cat2", "CtxCategory", 1});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 4, "cat1", "CtxCategory", 0});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 4, "cat1", "CtxCategory", 0});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("G4", -4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G4", -6, "cat2", "CtxCategory", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G4", -6, "cat2", "CtxCategory", 1});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("G5", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G5", 9, "cat1", "CtxCategory", 0});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G5", 9, "cat1", "CtxCategory", 0});
 
             env.undeployAll();
         }
@@ -201,7 +198,7 @@ public class ContextCategory {
             env.sendEventBean(new SupportBean("E3", -100));
             env.sendEventBean(new SupportBean("E3", -8));
             env.sendEventBean(new SupportBean("E1", 60));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{0, "grp1", "E3", -108}, {1, "grp2", "E1", 3}, {1, "grp2", "E2", -5}, {2, "grp3", "E1", 60}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{0, "grp1", "E3", -108}, {1, "grp2", "E1", 3}, {1, "grp2", "E2", -5}, {2, "grp3", "E1", 60}});
             SupportContextPropUtil.assertContextProps(env, "ctx", "MyCtx", new int[]{0, 1, 2}, "label", new Object[][]{{"grp1"}, {"grp2"}, {"grp3"}});
 
             env.milestoneInc(milestone);
@@ -285,29 +282,29 @@ public class ContextCategory {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 5});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{ctx, "cat1", 5}, {ctx, "cat2", null}, {ctx, "cat3", null}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat1", 9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 9});
 
             env.sendEventBean(new SupportBean("E3", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat2", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat2", 11});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 25));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat3", 25});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat3", 25});
 
             env.sendEventBean(new SupportBean("E5", 25));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat3", 50});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat3", 50});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E6", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat1", 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 12});
 
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
 
@@ -350,17 +347,17 @@ public class ContextCategory {
 
         String[] fields = "c0,c1,c2".split(",");
         env.sendEventBean(new SupportBean("E1", 5));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat1", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 20));
-        TestCase.assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E1", 4));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, "cat1", 5});
+        env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 5});
 
         assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
         env.undeployAll();
@@ -401,12 +398,12 @@ public class ContextCategory {
 
             String[] fields = "c0,c1,c2".split(",");
             env.sendEventBean(new SupportBean("E1", -2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"n", "xnx", "n"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"n", "xnx", "n"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"p", "xpx", "p"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"p", "xpx", "p"});
 
             env.undeployAll();
         }
@@ -421,7 +418,7 @@ public class ContextCategory {
     private static void sendAssertBooleanExprFilter(RegressionEnvironment env, String theString, String groupExpected, long countExpected) {
         String[] fields = "c0,c1".split(",");
         env.sendEventBean(new SupportBean(theString, 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{groupExpected, countExpected});
+        env.assertPropsListenerNew("s0", fields, new Object[]{groupExpected, countExpected});
     }
 
     private static class MySelectorFilteredCategory implements ContextPartitionSelectorFiltered {

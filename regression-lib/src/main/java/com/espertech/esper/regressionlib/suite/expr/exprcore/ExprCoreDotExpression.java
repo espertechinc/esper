@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventPropertyDescriptor;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -58,7 +57,7 @@ public class ExprCoreDotExpression {
 
             env.sendEventMap(Collections.singletonMap("mycoll", new ArrayList<>(Arrays.asList(1, 2))), "MyEvent");
             Object[] expected = new Object[] {1, 2};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2".split(","), new Object[] {expected, expected, expected});
+            env.assertPropsListenerNew("s0", "c0,c1,c2".split(","), new Object[] {expected, expected, expected});
 
             env.undeployAll();
         }
@@ -156,7 +155,7 @@ public class ExprCoreDotExpression {
 
             SupportEventTypeErasure event = new SupportEventTypeErasure("key1", 2, Collections.singletonMap("key1", new SupportEventInnerTypeWGetIds(new int[]{20, 30, 40})), new SupportEventInnerTypeWGetIds[]{new SupportEventInnerTypeWGetIds(new int[]{2, 3}), new SupportEventInnerTypeWGetIds(new int[]{4, 5}), new SupportEventInnerTypeWGetIds(new int[]{6, 7, 8})});
             env.sendEventBean(event);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[]{event.getInnerTypes().get("key1"), event.getInnerTypes().get("key1"), 30, 40, 5, 8, 999999, 999999});
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[]{event.getInnerTypes().get("key1"), event.getInnerTypes().get("key1"), 30, 40, 5, 8, 999999, 999999});
 
             env.undeployAll();
         }
@@ -186,7 +185,7 @@ public class ExprCoreDotExpression {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportLevelZero(new SupportLevelOne(new SupportLevelTwo(new SupportLevelThree()))));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0,val1,val2".split(","), new Object[]{"level1:10", "level2:20", "level3:30"});
+            env.assertPropsListenerNew("s0", "val0,val1,val2".split(","), new Object[]{"level1:10", "level2:20", "level3:30"});
 
             env.undeployAll();
         }
@@ -233,7 +232,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "nested.getNestedValue()".split(","), new Object[]{bean.getNested().getNestedValue()});
+            env.assertPropsListenerNew("s0", "nested.getNestedValue()".split(","), new Object[]{bean.getNested().getNestedValue()});
 
             env.undeployAll();
         }
@@ -279,7 +278,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "size,get0,get1,get2,get3".split(","),
+            env.assertPropsListenerNew("s0", "size,get0,get1,get2,get3".split(","),
                 new Object[]{bean.getArrayProperty().length, bean.getArrayProperty()[0], bean.getArrayProperty()[1], bean.getArrayProperty()[2], null});
 
             env.undeployAll();
@@ -306,7 +305,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "size,get0".split(","),
+            env.assertPropsListenerNew("s0", "size,get0".split(","),
                 new Object[]{bean.getArray().length, bean.getArray()[0].getNestLevOneVal()});
 
             env.undeployAll();
@@ -331,7 +330,7 @@ public class ExprCoreDotExpression {
 
     private static void sendAssertDotObjectEquals(RegressionEnvironment env, int intPrimitive, boolean expected) {
         env.sendEventBean(new SupportBean(UuidGenerator.generate(), intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expected});
+        env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
     }
 
     private static class MyHelperWithPrivateModifierAndPublicMethod {

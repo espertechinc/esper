@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,20 +41,20 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 0));
             env.sendEventBean(new SupportBean("E4", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4"});
 
             env.sendEventBean(new SupportBean("E5", 0));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E6", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", "E6"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E6"});
 
             env.undeployAll();
         }
@@ -67,7 +67,7 @@ public class PatternConsumingFilter {
             env.compileDeploy(pattern).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1"});
             env.undeployAll();
 
             pattern = "@name('s0') select a.theString as a, b.theString as b from pattern [every (a=SupportBean and b=SupportBean(intPrimitive=10)@consume(2))]";
@@ -75,7 +75,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E1"});
 
             env.sendEventBean(new SupportBean("E3", 1));
 
@@ -83,7 +83,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E5"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E5"});
             env.undeployAll();
 
             // test SODA
@@ -91,7 +91,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E1"});
 
             env.undeployAll();
         }
@@ -182,7 +182,7 @@ public class PatternConsumingFilter {
         if (expected instanceof Object[][]) {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, (Object[][]) expected);
         } else {
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, (Object[]) expected);
+            env.assertPropsListenerNew("s0", fields, (Object[]) expected);
         }
         env.undeployAll();
     }

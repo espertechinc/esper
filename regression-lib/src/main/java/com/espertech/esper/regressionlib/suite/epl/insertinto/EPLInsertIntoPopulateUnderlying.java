@@ -343,7 +343,7 @@ public class EPLInsertIntoPopulateUnderlying {
             vals.put("intBoxed", 4);
             vals.put("floatBoxed", 0f);
             env.sendEventMap(vals, "MyMap");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "longBoxed,doubleBoxed".split(","), new Object[]{4L, 0d});
+            env.assertPropsListenerNew("s0", "longBoxed,doubleBoxed".split(","), new Object[]{4L, 0d});
             env.undeployAll();
 
             // test new-to-map conversion
@@ -370,7 +370,7 @@ public class EPLInsertIntoPopulateUnderlying {
             vals.put("boolPrimitive", true);
 
             env.sendEventMap(vals, "MySupportMap");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(),
+            env.assertPropsListenerNew("s0",
                 "intPrimitive,longBoxed,theString,boolPrimitive".split(","),
                 new Object[]{4, 100L, "E1", true});
 
@@ -491,7 +491,7 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextOne).addListener("s0");
 
             env.sendEventMap(new HashMap(), "MyMap");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "id,type,device,measurement,confidence".split(","), new Object[]{2, "A01", "DHC1000", 100.0, 5.0});
+            env.assertPropsListenerNew("s0", "id,type,device,measurement,confidence".split(","), new Object[]{2, "A01", "DHC1000", 100.0, 5.0});
 
             try {
                 SupportBeanString.class.newInstance();
@@ -808,7 +808,7 @@ public class EPLInsertIntoPopulateUnderlying {
         bean.setDoubleBoxed(1001d);
         env.sendEventBean(bean);
 
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
+        env.assertPropsListenerNew("s0", "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
         env.undeployAll();
     }
 

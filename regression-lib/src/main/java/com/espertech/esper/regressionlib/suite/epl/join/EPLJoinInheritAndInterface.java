@@ -16,7 +16,8 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportBImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLJoinInheritAndInterface implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -25,7 +26,7 @@ public class EPLJoinInheritAndInterface implements RegressionExecution {
 
         env.sendEventBean(new ISupportAImpl("1", "ab1"));
         env.sendEventBean(new ISupportBImpl("2", "ab2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new ISupportBImpl("1", "ab3"));
         assertTrue(env.listener("s0").isInvoked());

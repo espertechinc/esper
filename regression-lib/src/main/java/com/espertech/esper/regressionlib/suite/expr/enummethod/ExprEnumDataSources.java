@@ -93,7 +93,7 @@ public class ExprEnumDataSources {
             sendEvent(env, 10);
             sendEvent(env, -2);
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[] {8});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[] {8});
 
             env.undeployAll();
         }
@@ -130,7 +130,7 @@ public class ExprEnumDataSources {
             event.put("arrayOfOptionalInt", makeOptional(10, -1));
             event.put("listOfOptionalInt", Arrays.asList(makeOptional(5, -2)));
             env.sendEventMap(event, "MyEvent");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3".split(","), new Object[] {9, 10, 3, 5});
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[] {9, 10, 3, 5});
 
             env.undeployAll();
         }
@@ -238,14 +238,14 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 1));
             assertColl("E1,E2,E3", env.listener("s0").assertOneGetNewAndReset().get("ids"));
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E6", 1));
             assertColl("E4,E5,E6", env.listener("s0").assertOneGetNewAndReset().get("ids"));
@@ -295,10 +295,10 @@ public class ExprEnumDataSources {
             env.sendEventBean(new SupportBean_ST0("E1", 10));
             env.sendEventBean(new SupportBean_ST0("E2", 15));
             env.sendEventBean(new SupportBean("E3", 15));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E4", 16));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a[0].id,a[1].id,b.theString".split(","), new Object[]{"E1", "E2", "E4"});
+            env.assertPropsListenerNew("s0", "a[0].id,a[1].id,b.theString".split(","), new Object[]{"E1", "E2", "E4"});
             env.undeployAll();
 
             env.compileDeploy("@name('s0') select * from pattern [ a=SupportBean_ST0 until b=SupportBean -> c=SupportBean(intPrimitive > a.sumOf(i => p00))]");
@@ -308,10 +308,10 @@ public class ExprEnumDataSources {
             env.sendEventBean(new SupportBean_ST0("E11", 15));
             env.sendEventBean(new SupportBean("E12", -1));
             env.sendEventBean(new SupportBean("E13", 25));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E14", 26));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a[0].id,a[1].id,b.theString,c.theString".split(","), new Object[]{"E10", "E11", "E12", "E14"});
+            env.assertPropsListenerNew("s0", "a[0].id,a[1].id,b.theString,c.theString".split(","), new Object[]{"E10", "E11", "E12", "E14"});
 
             env.undeployAll();
         }
@@ -333,15 +333,15 @@ public class ExprEnumDataSources {
             env.sendEventBean(new SupportBean("A1", 10));
             env.sendEventBean(new SupportBean("A2", 20));
             env.sendEventBean(new SupportBean("A3", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"A1", "A2", "A3"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"A1", "A2", "A3"});
 
             env.sendEventBean(new SupportBean("A4", 1));
             env.sendEventBean(new SupportBean("A5", 2));
             env.sendEventBean(new SupportBean("A6", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A7", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"A4", "A5", "A7"});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"A4", "A5", "A7"});
             env.undeployAll();
 
             // try measures-clause
@@ -358,14 +358,14 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean("A1", 10));
             env.sendEventBean(new SupportBean("A2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("B1", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{true});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{true});
 
             env.sendEventBean(new SupportBean("A1", 10));
             env.sendEventBean(new SupportBean("A2", 20));
             env.sendEventBean(new SupportBean("B1", 15));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{false});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{false});
 
             env.undeployAll();
         }
@@ -381,10 +381,10 @@ public class ExprEnumDataSources {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportEnumTwoEvent("0", SupportEnumTwo.ENUM_VALUE_1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
 
             env.sendEventBean(new SupportEnumTwoEvent("2", SupportEnumTwo.ENUM_VALUE_2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
 
             env.undeployAll();
         }
@@ -404,7 +404,7 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplWindowAgg).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true, true});
 
             env.undeployAll();
         }
@@ -419,7 +419,7 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportSelectorEvent("S1", "sel1"));
             env.sendEventBean(new SupportContainerEvent("C1", new SupportContainedItem("I1", "sel1")));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -626,13 +626,13 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplWindowAgg).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, null, true, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, null, true, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false, false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, false, true});
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, true, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true, false});
 
             env.undeployAll();
 
@@ -647,13 +647,13 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplWindowAggScalar).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, null, true, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, null, true, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false, false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, false, true});
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, true, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true, false});
 
             env.undeployAll();
         }
@@ -680,7 +680,7 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplFragment).addListener("s0");
 
             env.sendEventBean(SupportCollection.makeNumeric("5,6,7"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5 + 6 + 7, 5 + 6 + 7});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5 + 6 + 7, 5 + 6 + 7});
 
             env.undeployAll();
 
@@ -693,7 +693,7 @@ public class ExprEnumDataSources {
 
             Map<String, Object> event = Collections.singletonMap("books", new BookDesc[]{new BookDesc("1", "book1", "dave", 1.00, null)});
             env.sendEventMap(event, "MySchema");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "mymax".split(","), new Object[]{1.0});
+            env.assertPropsListenerNew("s0", "mymax".split(","), new Object[]{1.0});
 
             env.undeployAll();
 
@@ -715,10 +715,10 @@ public class ExprEnumDataSources {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
 
         env.sendEventBean(new SupportSelectorWithListEvent("1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+        env.assertPropsListenerNew("s0", fields, new Object[]{true});
 
         env.sendEventBean(new SupportSelectorWithListEvent("4"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+        env.assertPropsListenerNew("s0", fields, new Object[]{false});
 
         env.undeployAll();
     }
@@ -735,16 +735,16 @@ public class ExprEnumDataSources {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, null, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false});
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true});
 
             env.sendEventBean(new SupportBean("E4", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true});
             env.undeployAll();
 
             // test scalar prevwindow(property) etc
@@ -756,16 +756,16 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplScalar).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, null, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false});
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true});
 
             env.sendEventBean(new SupportBean("E4", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true});
 
             env.undeployAll();
         }

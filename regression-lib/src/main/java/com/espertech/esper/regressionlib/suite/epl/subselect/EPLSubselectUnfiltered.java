@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -20,7 +19,8 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
@@ -80,7 +80,7 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(2));
@@ -93,7 +93,7 @@ public class EPLSubselectUnfiltered {
 
             env.compileDeployAddListenerMileZero(stmtText, "s0");
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(3));
@@ -124,7 +124,7 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10, "X"));
             env.sendEventBean(new SupportBean_S0(0));
@@ -365,24 +365,24 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(11, "S01"));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "S01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "S01"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "S01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "S01"});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(12, "S02"));
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "S02"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "S02"});
 
             env.undeployAll();
         }

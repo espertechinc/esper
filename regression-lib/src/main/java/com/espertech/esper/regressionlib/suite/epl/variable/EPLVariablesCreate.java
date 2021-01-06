@@ -21,11 +21,11 @@ import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.client.variable.VariableValueException;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -133,7 +133,7 @@ public class EPLVariablesCreate {
 
             String[] fieldsVar = new String[]{"var1OMCreate", "var2OMCreate"};
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsVar, new Object[]{null, "abc"});
+            env.assertPropsListenerNew("s0", fieldsVar, new Object[]{null, "abc"});
 
             env.compileDeploy("create variable double[] arrdouble = {1.0d,2.0d}");
 
@@ -156,7 +156,7 @@ public class EPLVariablesCreate {
 
             String[] fieldsVar = new String[]{"var1CSS", "var2CSS"};
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsVar, new Object[]{null, "abc"});
+            env.assertPropsListenerNew("s0", fieldsVar, new Object[]{null, "abc"});
 
             // ESPER-545
             String createText = "@name('create') create variable int FOO = 0";

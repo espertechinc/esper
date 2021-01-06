@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.epl.variable;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 public class EPLVariablesOutputRate {
@@ -91,7 +90,7 @@ public class EPLVariablesOutputRate {
 
             sendSupportBeans(env, "E1", "E2");   // varargs: sends 2 events
             sendTimer(env, 2999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -112,7 +111,7 @@ public class EPLVariablesOutputRate {
             sendTimer(env, 3200);
             sendSupportBeans(env, "E3", "E4");
             sendTimer(env, 3999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 4000);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
@@ -124,13 +123,13 @@ public class EPLVariablesOutputRate {
             env.milestone(2);
 
             sendTimer(env, 4999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 5000);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
             env.listener("s0").reset();
 
             sendTimer(env, 7999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 8000);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
             env.listener("s0").reset();
@@ -140,7 +139,7 @@ public class EPLVariablesOutputRate {
             env.milestone(3);
 
             sendTimer(env, 11999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 12000);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{6L});
             env.listener("s0").reset();
@@ -149,10 +148,10 @@ public class EPLVariablesOutputRate {
             // set output limit to 2 seconds (takes effect next time event received, and is related to reference point which is 0)
             sendSetterBean(env, 2L);
             sendSupportBeans(env, "E7", "E8");   // varargs: sends 2 events
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 13999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             // set output limit to null : should stay at 2 seconds
             sendSetterBean(env, null);
             try {
@@ -167,7 +166,7 @@ public class EPLVariablesOutputRate {
 
     private static void tryAssertionOutputRateEventsAll(RegressionEnvironment env) {
         sendSupportBeans(env, "E1", "E2");   // varargs: sends 2 events
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E3");
         EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{3L});
@@ -179,7 +178,7 @@ public class EPLVariablesOutputRate {
         sendSetterBean(env, 5L);
 
         sendSupportBeans(env, "E4", "E5", "E6", "E7"); // send 4 events
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E8");
         EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{8L});
@@ -189,7 +188,7 @@ public class EPLVariablesOutputRate {
         sendSetterBean(env, 2L);
 
         sendSupportBeans(env, "E9"); // send 1 events
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E10");
         EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{10L});

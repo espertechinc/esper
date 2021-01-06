@@ -17,13 +17,13 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOp
 import com.espertech.esper.common.client.dataflow.util.EPDataFlowSignalFinalMarker;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.*;
-import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.ArrayList;
 import java.util.Collection;

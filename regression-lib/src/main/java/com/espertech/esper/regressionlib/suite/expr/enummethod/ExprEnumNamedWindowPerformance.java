@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 
 import java.util.Collection;

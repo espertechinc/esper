@@ -11,13 +11,12 @@
 package com.espertech.esper.regressionlib.suite.client.extension;
 
 import com.espertech.esper.common.internal.epl.pattern.guard.GuardForge;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ClientExtendPatternGuard implements RegressionExecution {
@@ -41,7 +40,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
         }
 
         env.sendEventBean(new SupportBean());
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -61,7 +60,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
         }
 
         env.sendEventBean(new SupportBean());
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

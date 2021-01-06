@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMaxAmountEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectWithinHaving {
     public static List<RegressionExecution> executions() {
@@ -62,32 +59,32 @@ public class EPLSubselectWithinHaving {
             env.sendEventBean(new SupportBean("G1", 5));
             env.sendEventBean(new SupportBean("G2", 19));
             env.sendEventBean(new SupportBean("G3", 28));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 21});
 
             env.sendEventBean(new SupportBean("G2", 18));
             env.sendEventBean(new SupportBean("G1", 4));
             env.sendEventBean(new SupportBean("G3", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G3", 29));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 31});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 31});
 
             env.sendEventBean(new SupportBean("G3", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 33});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 33});
 
             env.sendEventBean(new SupportBean("G1", 6));
             env.sendEventBean(new SupportBean("G2", 2));
             env.sendEventBean(new SupportBean("G3", 26));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G1", 99));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 105});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 105});
 
             env.sendEventBean(new SupportBean("G1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 100});
 
             env.undeployAll();
         }

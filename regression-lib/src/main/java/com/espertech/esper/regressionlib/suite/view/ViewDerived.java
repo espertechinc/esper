@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.view.derived.ViewFieldEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.util.DoubleValueAssertionUtil;
 
@@ -64,10 +64,10 @@ public class ViewDerived {
             String[] fields = "size,symbol,feed".split(",");
 
             sendEvent(env, "DELL", 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L, "DELL", "feed1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L, "DELL", "feed1"});
 
             sendEvent(env, "DELL", 1L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L, "DELL", "feed1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L, "DELL", "feed1"});
 
             env.undeployAll();
         }
@@ -79,18 +79,18 @@ public class ViewDerived {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"size", 1L}}, new Object[][]{{"size", 0L}});
+            env.assertNVListener("s0", new Object[][]{{"size", 1L}}, new Object[][]{{"size", 0L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"size", 2L}}, new Object[][]{{"size", 1L}});
+            env.assertNVListener("s0", new Object[][]{{"size", 2L}}, new Object[][]{{"size", 1L}});
 
             env.milestone(2);
 
             for (int i = 3; i < 10; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
-                env.listener("s0").assertNewOldData(new Object[][]{{"size", (long) i}}, // new data
+                env.assertNVListener("s0", new Object[][]{{"size", (long) i}}, // new data
                     new Object[][]{{"size", (long) i - 1}} //  old data
                 );
 
@@ -111,12 +111,12 @@ public class ViewDerived {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"size", 1L}, {"symbol", "E1"}}, new Object[][]{{"size", 0L}, {"symbol", null}});
+            env.assertNVListener("s0", new Object[][]{{"size", 1L}, {"symbol", "E1"}}, new Object[][]{{"size", 0L}, {"symbol", null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"size", 2L}, {"symbol", "E2"}}, new Object[][]{{"size", 1L}, {"symbol", "E1"}});
+            env.assertNVListener("s0", new Object[][]{{"size", 2L}, {"symbol", "E2"}}, new Object[][]{{"size", 1L}, {"symbol", "E1"}});
 
             EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
             EPAssertionUtil.assertPropsPerRow(events, new String[]{"size", "symbol"}, new Object[][]{{2L, "E2"}});
@@ -131,17 +131,17 @@ public class ViewDerived {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeBean(50, "f1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 50d}, {"datapoints", 1L}}, new Object[][]{{"total", 0.0}, {"datapoints", 0L}});
+            env.assertNVListener("s0", new Object[][]{{"total", 50d}, {"datapoints", 1L}}, new Object[][]{{"total", 0.0}, {"datapoints", 0L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeBean(25, "f2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 75.0}, {"datapoints", 2L}}, new Object[][]{{"total", 50d}, {"datapoints", 1L}});
+            env.assertNVListener("s0", new Object[][]{{"total", 75.0}, {"datapoints", 2L}}, new Object[][]{{"total", 50d}, {"datapoints", 1L}});
 
             env.milestone(2);
 
             env.sendEventBean(makeBean(25, "f3"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 100.0}, {"datapoints", 3L}}, new Object[][]{{"total", 75d}, {"datapoints", 2L}});
+            env.assertNVListener("s0", new Object[][]{{"total", 100.0}, {"datapoints", 3L}}, new Object[][]{{"total", 75d}, {"datapoints", 2L}});
 
             env.milestone(3);
 
@@ -150,7 +150,7 @@ public class ViewDerived {
             EPAssertionUtil.assertPropsPerRow(events, new String[]{"total", "datapoints"}, new Object[][]{{100.0, 3L}});
 
             env.sendEventBean(makeBean(1, "f4"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 51.0}, {"datapoints", 3L}}, new Object[][]{{"total", 100d}, {"datapoints", 3L}});
+            env.assertNVListener("s0", new Object[][]{{"total", 51.0}, {"datapoints", 3L}}, new Object[][]{{"total", 100d}, {"datapoints", 3L}});
 
             env.milestone(4);
 
@@ -216,12 +216,12 @@ public class ViewDerived {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeBean(50, "f1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 50d}, {"datapoints", 1L}, {"feed", "f1"}}, new Object[][]{{"total", 0.0}, {"datapoints", 0L}, {"feed", null}});
+            env.assertNVListener("s0", new Object[][]{{"total", 50d}, {"datapoints", 1L}, {"feed", "f1"}}, new Object[][]{{"total", 0.0}, {"datapoints", 0L}, {"feed", null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeBean(25, "f2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"total", 75.0}, {"datapoints", 2L}, {"feed", "f2"}}, new Object[][]{{"total", 50d}, {"datapoints", 1L}, {"feed", "f1"}});
+            env.assertNVListener("s0", new Object[][]{{"total", 75.0}, {"datapoints", 2L}, {"feed", "f2"}}, new Object[][]{{"total", 50d}, {"datapoints", 1L}, {"feed", "f1"}});
 
             env.undeployAll();
         }
@@ -234,17 +234,17 @@ public class ViewDerived {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeBean(10, 1000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10d}}, new Object[][]{{"average", Double.NaN}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10d}}, new Object[][]{{"average", Double.NaN}});
 
             env.milestone(1);
 
             env.sendEventBean(makeBean(11, 2000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10.666666666666666}}, new Object[][]{{"average", 10.0}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10.666666666666666}}, new Object[][]{{"average", 10.0}});
 
             env.milestone(2);
 
             env.sendEventBean(makeBean(10.5, 1500));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10.61111111111111}}, new Object[][]{{"average", 10.666666666666666}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10.61111111111111}}, new Object[][]{{"average", 10.666666666666666}});
 
             env.milestone(3);
 
@@ -253,7 +253,7 @@ public class ViewDerived {
             EPAssertionUtil.assertPropsPerRow(events, new String[]{"average"}, new Object[][]{{10.61111111111111}});
 
             env.sendEventBean(makeBean(9.5, 600));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10.597560975609756}}, new Object[][]{{"average", 10.61111111111111}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10.597560975609756}}, new Object[][]{{"average", 10.61111111111111}});
 
             env.milestone(4);
 
@@ -268,17 +268,17 @@ public class ViewDerived {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeBean(10, 1000, "f1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10d}, {"feed", "f1"}}, new Object[][]{{"average", Double.NaN}, {"feed", null}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10d}, {"feed", "f1"}}, new Object[][]{{"average", Double.NaN}, {"feed", null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeBean(11, 2000, "f2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10.666666666666666}, {"feed", "f2"}}, new Object[][]{{"average", 10.0}, {"feed", "f1"}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10.666666666666666}, {"feed", "f2"}}, new Object[][]{{"average", 10.0}, {"feed", "f1"}});
 
             env.milestone(1);
 
             env.sendEventBean(makeBean(10.5, 1500, "f3"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"average", 10.61111111111111}, {"feed", "f3"}}, new Object[][]{{"average", 10.666666666666666}, {"feed", "f2"}});
+            env.assertNVListener("s0", new Object[][]{{"average", 10.61111111111111}, {"feed", "f3"}}, new Object[][]{{"average", 10.666666666666666}, {"feed", "f2"}});
 
             env.undeployAll();
         }
@@ -291,11 +291,11 @@ public class ViewDerived {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeBean(70, 1000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}});
+            env.assertNVListener("s0", new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}});
             env.milestone(1);
 
             env.sendEventBean(makeBean(70.5, 1500));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}});
+            env.assertNVListener("s0", new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}});
             env.milestone(2);
 
             // test iterator
@@ -303,11 +303,11 @@ public class ViewDerived {
             EPAssertionUtil.assertPropsPerRow(events, new String[]{"slope", "YIntercept"}, new Object[][]{{1000.0, -69000.0}});
 
             env.sendEventBean(makeBean(70.1, 1200));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}}, new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}});
+            env.assertNVListener("s0", new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}}, new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}});
             env.milestone(3);
 
             env.sendEventBean(makeBean(70.25, 1000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", 877.5510204634593}, {"YIntercept", -60443.8775549068}}, new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}});
+            env.assertNVListener("s0", new Object[][]{{"slope", 877.5510204634593}, {"YIntercept", -60443.8775549068}}, new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}});
             env.milestone(4);
 
             env.undeployAll();
@@ -321,19 +321,19 @@ public class ViewDerived {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeBean(70, 1000, "f1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", "f1"}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", null}});
+            env.assertNVListener("s0", new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", "f1"}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeBean(70.5, 1500, "f2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}, {"feed", "f2"}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", "f1"}});
+            env.assertNVListener("s0", new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}, {"feed", "f2"}}, new Object[][]{{"slope", Double.NaN}, {"YIntercept", Double.NaN}, {"feed", "f1"}});
 
             // test iterator
             EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
             EPAssertionUtil.assertPropsPerRow(events, new String[]{"slope", "YIntercept", "feed"}, new Object[][]{{1000.0, -69000.0, "f2"}});
 
             env.sendEventBean(makeBean(70.1, 1200, "f3"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}, {"feed", "f3"}}, new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}, {"feed", "f2"}});
+            env.assertNVListener("s0", new Object[][]{{"slope", 928.571428587354}, {"YIntercept", -63952.38095349892}, {"feed", "f3"}}, new Object[][]{{"slope", 1000.0}, {"YIntercept", -69000.0}, {"feed", "f2"}});
 
             env.undeployAll();
         }
@@ -346,17 +346,17 @@ public class ViewDerived {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeBean(70, 1000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"correlation", Double.NaN}}, new Object[][]{{"correlation", Double.NaN}});
+            env.assertNVListener("s0", new Object[][]{{"correlation", Double.NaN}}, new Object[][]{{"correlation", Double.NaN}});
 
             env.milestone(1);
 
             env.sendEventBean(makeBean(70.5, 1500));
-            env.listener("s0").assertNewOldData(new Object[][]{{"correlation", 1.0}}, new Object[][]{{"correlation", Double.NaN}});
+            env.assertNVListener("s0", new Object[][]{{"correlation", 1.0}}, new Object[][]{{"correlation", Double.NaN}});
 
             env.milestone(2);
 
             env.sendEventBean(makeBean(70.1, 1200));
-            env.listener("s0").assertNewOldData(new Object[][]{{"correlation", 0.9762210399358}}, new Object[][]{{"correlation", 1.0}});
+            env.assertNVListener("s0", new Object[][]{{"correlation", 0.9762210399358}}, new Object[][]{{"correlation", 1.0}});
 
             // test iterator
             EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
@@ -365,7 +365,7 @@ public class ViewDerived {
             env.milestone(3);
 
             env.sendEventBean(makeBean(70.25, 1000));
-            env.listener("s0").assertNewOldData(new Object[][]{{"correlation", 0.7046340397673054}}, new Object[][]{{"correlation", 0.9762210399358}});
+            env.assertNVListener("s0", new Object[][]{{"correlation", 0.7046340397673054}}, new Object[][]{{"correlation", 0.9762210399358}});
 
             env.milestone(4);
 
@@ -405,7 +405,7 @@ public class ViewDerived {
             env.milestone(0);
 
             env.sendEventBean(makeBean(70, 1000));
-            env.listener("S1").assertNewOldData(new Object[][]{{"correlation", Double.NaN}}, new Object[][]{{"correlation", Double.NaN}});
+            env.assertNVListener("S1", new Object[][]{{"correlation", Double.NaN}}, new Object[][]{{"correlation", Double.NaN}});
             EPAssertionUtil.assertProps(env.listener("S2").assertGetAndResetIRPair(), f2, new Object[]{1L}, new Object[]{0L});
             EPAssertionUtil.assertProps(env.listener("S3").assertGetAndResetIRPair(), f3, new Object[]{Double.NaN, Double.NaN}, new Object[]{Double.NaN, Double.NaN});
             EPAssertionUtil.assertProps(env.listener("S4").assertGetAndResetIRPair(), f4, new Object[]{1000.0, 1L}, new Object[]{0.0, 0L});
@@ -414,7 +414,7 @@ public class ViewDerived {
             env.milestone(1);
 
             env.sendEventBean(makeBean(70.5, 1500));
-            env.listener("S1").assertNewOldData(new Object[][]{{"correlation", 1.0}}, new Object[][]{{"correlation", Double.NaN}});
+            env.assertNVListener("S1", new Object[][]{{"correlation", 1.0}}, new Object[][]{{"correlation", Double.NaN}});
             EPAssertionUtil.assertProps(env.listener("S2").assertGetAndResetIRPair(), f2, new Object[]{2L}, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("S3").assertGetAndResetIRPair(), f3, new Object[]{1000.0, -69000.0}, new Object[]{Double.NaN, Double.NaN});
             EPAssertionUtil.assertProps(env.listener("S4").assertGetAndResetIRPair(), f4, new Object[]{2500.0, 2L}, new Object[]{1000.0, 1L});
@@ -423,7 +423,7 @@ public class ViewDerived {
             env.milestone(2);
 
             env.sendEventBean(makeBean(70.1, 1200));
-            env.listener("S1").assertNewOldData(new Object[][]{{"correlation", 0.9762210399358}}, new Object[][]{{"correlation", 1.0}});
+            env.assertNVListener("S1", new Object[][]{{"correlation", 0.9762210399358}}, new Object[][]{{"correlation", 1.0}});
             EPAssertionUtil.assertProps(env.listener("S2").assertGetAndResetIRPair(), f2, new Object[]{3L}, new Object[]{2L});
             EPAssertionUtil.assertProps(env.listener("S3").assertGetAndResetIRPair(), f3, new Object[]{928.571428587354, -63952.38095349892}, new Object[]{1000.0, -69000.0});
             EPAssertionUtil.assertProps(env.listener("S4").assertGetAndResetIRPair(), f4, new Object[]{3700.0, 3L}, new Object[]{2500.0, 2L});
@@ -441,7 +441,7 @@ public class ViewDerived {
             env.milestone(4);
 
             env.sendEventBean(makeBean(70.25, 1000));
-            env.listener("S1").assertNewOldData(new Object[][]{{"correlation", 0.7865410694065471}}, new Object[][]{{"correlation", 0.9762210399358}});
+            env.assertNVListener("S1", new Object[][]{{"correlation", 0.7865410694065471}}, new Object[][]{{"correlation", 0.9762210399358}});
             EPAssertionUtil.assertProps(env.listener("S2").assertGetAndResetIRPair(), f2, new Object[]{4L}, new Object[]{3L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("S3"), f3, new Object[][]{{854.6255506976092, -58830.39647835589}});
             EPAssertionUtil.assertProps(env.listener("S4").assertGetAndResetIRPair(), f4, new Object[]{4700.0, 4L}, new Object[]{3700.0, 3L});

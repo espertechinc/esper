@@ -10,18 +10,15 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class PatternOperatorEvery {
 
@@ -46,22 +43,22 @@ public class PatternOperatorEvery {
             env.compileDeploy(epl).addListener("s0");
 
             sendSupportBean(env, "E1", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendSupportBean(env, "E3", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             sendSupportBean(env, "E4", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
 
             SupportListener listener = env.listener("s0");
             env.undeployModuleContaining("s0");
@@ -90,17 +87,17 @@ public class PatternOperatorEvery {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 10);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             sendSupportBean(env, "E1", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1, 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1, 2});
 
             env.milestone(3);
 
@@ -122,13 +119,13 @@ public class PatternOperatorEvery {
 
             env.advanceTime(5000);
             sendSupportBean(env, "E1", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.advanceTime(8000);
             sendSupportBean(env, "E2", 10);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -136,10 +133,10 @@ public class PatternOperatorEvery {
             env.milestone(3);
 
             sendSupportBean(env, "E1", 2);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "E2", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10, 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, 11});
 
             env.undeployAll();
         }
@@ -156,24 +153,24 @@ public class PatternOperatorEvery {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E3", -1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3"});
 
             env.milestone(2);
 
             sendSupportBean(env, "E4", -2);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendSupportBean(env, "E5", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", "E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E4"});
 
             env.undeployAll();
         }
@@ -242,7 +239,7 @@ public class PatternOperatorEvery {
             sendTimer(env, 6000);
             sendTimer(env, 7000);
             sendTimer(env, 7999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -258,7 +255,7 @@ public class PatternOperatorEvery {
             env.sendEventBean(new SupportBean());
 
             sendTimer(env, 18999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 

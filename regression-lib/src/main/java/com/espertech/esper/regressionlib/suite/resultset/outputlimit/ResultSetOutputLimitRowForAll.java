@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.collection.UniformPair;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.extend.aggfunc.SupportInvocationCountFunction;
@@ -311,7 +311,7 @@ public class ResultSetOutputLimitRowForAll {
             sendMDEvent(env, -100);
             sendMDEvent(env, 0);
             sendMDEvent(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMDEvent(env, 0);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{20L}});
@@ -339,7 +339,7 @@ public class ResultSetOutputLimitRowForAll {
             sendMDEvent(env, -100);
             sendMDEvent(env, 0);
             sendMDEvent(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMDEvent(env, 0);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{20L}});
@@ -419,9 +419,9 @@ public class ResultSetOutputLimitRowForAll {
 
             sendTimer(env, 0);
             sendTimer(env, 10000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 20000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "e1");
             sendTimer(env, 30000);
@@ -451,13 +451,13 @@ public class ResultSetOutputLimitRowForAll {
 
             sendTimer(env, 0);
             sendTimer(env, 10000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 20000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "e1");
             sendTimer(env, 30000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(env, 40000);
             EventBean[] newEvents = env.listener("s0").getAndResetLastNewData();
             assertEquals(2, newEvents.length);
@@ -638,7 +638,7 @@ public class ResultSetOutputLimitRowForAll {
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean("E2", 20));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "thesum".split(","), new Object[]{30});
+        env.assertPropsListenerNew("s0", "thesum".split(","), new Object[]{30});
 
         env.undeployAll();
     }

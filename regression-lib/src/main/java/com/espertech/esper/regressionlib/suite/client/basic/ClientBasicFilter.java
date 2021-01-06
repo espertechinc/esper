@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.client.basic;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 public class ClientBasicFilter implements RegressionExecution {
     public void run(RegressionEnvironment env) {

@@ -11,23 +11,19 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class PatternObserverTimerInterval {
 
@@ -220,12 +216,12 @@ public class PatternObserverTimerInterval {
             env.addListener("s0");
 
             sendTimer(62 * 1000 - 1, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(62 * 1000, env);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -244,12 +240,12 @@ public class PatternObserverTimerInterval {
             env.addListener("s0");
 
             sendTimer(62 * 1000 - 1, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(62 * 1000, env);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -268,12 +264,12 @@ public class PatternObserverTimerInterval {
             env.addListener("s0");
 
             sendTimer(62 * 1000 - 1, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(62 * 1000, env);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -293,7 +289,7 @@ public class PatternObserverTimerInterval {
             env.sendEventBean(new SupportBean("E2", 2));
 
             sendTimer(11999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -301,7 +297,7 @@ public class PatternObserverTimerInterval {
             Assert.assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
 
             sendTimer(12999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -326,12 +322,12 @@ public class PatternObserverTimerInterval {
             env.sendEventBean(new SupportBean("E2", 2));
 
             sendTimer(14999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(15000, env);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a0id,a1id".split(","), "E1,E2".split(","));
+            env.assertPropsListenerNew("s0", "a0id,a1id".split(","), "E1,E2".split(","));
 
             env.undeployAll();
         }
@@ -351,12 +347,12 @@ public class PatternObserverTimerInterval {
             env.addListener("s0");
 
             sendTimer(62 * 1000 - 1, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimer(62 * 1000, env);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -369,12 +365,12 @@ public class PatternObserverTimerInterval {
             env.compileDeploy("@name('s0') select * from pattern [timer:interval(1 month)]").addListener("s0");
 
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

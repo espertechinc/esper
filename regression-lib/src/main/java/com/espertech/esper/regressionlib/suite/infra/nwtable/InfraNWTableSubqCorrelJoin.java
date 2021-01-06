@@ -10,18 +10,15 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class InfraNWTableSubqCorrelJoin {
 
@@ -66,19 +63,19 @@ public class InfraNWTableSubqCorrelJoin {
             env.sendEventBean(new SupportBean("E3", 30));
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(1, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean_S0(1, "E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean_S1(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
 
             env.sendEventBean(new SupportBean_S1(1, "E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{30});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();

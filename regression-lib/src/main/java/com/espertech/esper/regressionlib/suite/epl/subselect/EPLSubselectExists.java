@@ -11,12 +11,12 @@
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
 import com.espertech.esper.common.client.soda.*;
-import com.espertech.esper.common.internal.util.SerializableObjectCopier;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.common.internal.util.SerializableObjectCopier;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectExists {
 
@@ -93,7 +92,7 @@ public class EPLSubselectExists {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
@@ -113,11 +112,11 @@ public class EPLSubselectExists {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(-2));
@@ -142,11 +141,11 @@ public class EPLSubselectExists {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S2(3));
             env.sendEventBean(new SupportBean_S0(3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(3));
             env.sendEventBean(new SupportBean_S0(3));
@@ -160,7 +159,7 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean_S0(0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -189,11 +188,11 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -209,11 +208,11 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -229,11 +228,11 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

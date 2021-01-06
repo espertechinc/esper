@@ -19,8 +19,8 @@ import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.*;
 
 import java.util.*;
 
@@ -82,7 +82,7 @@ public class EventVariantStream {
 
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"sb.theString", "s0.id"}, new Object[]{"E1", 10});
+            env.assertPropsListenerNew("s0", new String[]{"sb.theString", "s0.id"}, new Object[]{"E1", 10});
 
             env.undeployAll();
         }
@@ -97,7 +97,7 @@ public class EventVariantStream {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"theString", "field"}, new Object[]{"E1", "a"});
+            env.assertPropsListenerNew("s0", new String[]{"theString", "field"}, new Object[]{"E1", "a"});
 
             env.undeployAll();
         }
@@ -124,14 +124,14 @@ public class EventVariantStream {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_B("E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(3);
 
@@ -139,7 +139,7 @@ public class EventVariantStream {
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E3"});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1"});
             env.listener("s0").reset();
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
 
             env.undeployAll();
         }
@@ -214,14 +214,14 @@ public class EventVariantStream {
 
             // coerces to the higher resolution type, accepts boxed versus not boxed
             env.sendEventBean(new SupportBeanVariantStream("s1", true, 1, 20, 30, SupportEnum.ENUM_VALUE_1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{"s1", true, 1, 20L, 30d, SupportEnum.ENUM_VALUE_1});
+            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"s1", true, 1, 20L, 30d, SupportEnum.ENUM_VALUE_1});
 
             bean = new SupportBean("s2", 99);
             bean.setLongPrimitive(33);
             bean.setDoublePrimitive(50);
             bean.setEnumValue(SupportEnum.ENUM_VALUE_3);
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{"s2", null, 99, 33L, 50d, SupportEnum.ENUM_VALUE_3});
+            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"s2", null, 99, 33L, 50d, SupportEnum.ENUM_VALUE_3});
             env.undeployModuleContaining("s0");
 
             // make sure a property is not known since the property is not found on SupportBeanVariantStream
@@ -237,10 +237,10 @@ public class EventVariantStream {
             bean.setCharBoxed('a');
             bean.setDoubleBoxed(Double.NaN);
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{33L, 'a', Double.NaN});
+            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{33L, 'a', Double.NaN});
 
             env.sendEventBean(new SupportBeanVariantStream("s2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{null, null, null});
+            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{null, null, null});
 
             env.undeployAll();
         }
@@ -281,11 +281,11 @@ public class EventVariantStream {
 
             SupportBeanVariantOne ev1 = new SupportBeanVariantOne();
             env.sendEventBean(ev1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p6,p7,p8,p9,p10".split(","), new Object[]{1, 2, "val1", ev1.getInneritem(), ev1.getInneritem().getVal()});
+            env.assertPropsListenerNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{1, 2, "val1", ev1.getInneritem(), ev1.getInneritem().getVal()});
 
             SupportBeanVariantTwo ev2 = new SupportBeanVariantTwo();
             env.sendEventBean(ev2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p6,p7,p8,p9,p10".split(","), new Object[]{10, 20, "val2", ev2.getInneritem(), ev2.getInneritem().getVal()});
+            env.assertPropsListenerNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{10, 20, "val2", ev2.getInneritem(), ev2.getInneritem().getVal()});
 
             env.undeployAll();
         }
@@ -344,7 +344,7 @@ public class EventVariantStream {
             Object[] events = {new SupportBean("E1", -1), new SupportBeanVariantStream("E2")};
             env.sendEventBean(events[0]);
             env.sendEventBean(events[1]);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), events);
+            env.assertPropsListenerNew("s0", "a,b".split(","), events);
             env.undeployModuleContaining("s0");
 
             // test subquery
@@ -354,11 +354,11 @@ public class EventVariantStream {
 
             env.sendEventBean(events[0]);
             env.sendEventBean(events[2]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[1]);
             env.sendEventBean(events[2]);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -435,16 +435,16 @@ public class EventVariantStream {
 
             String[] fields = "theString,id,intPrimitive".split(",");
             env.sendEventBean(new SupportBeanVariantStream("E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", null, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", null, 10});
 
             env.sendEventBean(new SupportBean_A("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, "E3", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, "E3", null});
 
             env.sendEventBean(new SupportMarketDataBean("s1", 100, 1000L, "f1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"s1", "f1", 1000L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"s1", "f1", 1000L});
 
             env.undeployAll();
         }

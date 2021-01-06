@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
@@ -23,7 +23,8 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeAggregateGrouped {
     private final static String SYMBOL_DELL = "DELL";
@@ -94,12 +95,12 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 10}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 10}, {"E2", 20}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
 
             env.undeployAll();
         }
@@ -112,7 +113,7 @@ public class ResultSetQueryTypeAggregateGrouped {
 
             env.sendEventBean(new SupportBean("E1", 3));
             env.sendEventBean(new SupportBean("E2", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -135,15 +136,15 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, 10});
 
             env.sendEventBean(new SupportBean("G1", 9));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 9, 9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 9, 9});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 11, 9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 11, 9});
 
             env.undeployAll();
         }
@@ -159,7 +160,7 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, SYMBOL_DELL, 1000, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1000L, "DELL", 10.0, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1000L, "DELL", 10.0, 1L});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{1000L, "DELL", 10.0, 1L}});
 
             env.milestone(0);
@@ -278,7 +279,7 @@ public class ResultSetQueryTypeAggregateGrouped {
 
     private static void tryAssertionSum(RegressionEnvironment env) {
         String[] fields = new String[]{"symbol", "volume", "mySum"};
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         // assert select result type
         Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
@@ -287,31 +288,31 @@ public class ResultSetQueryTypeAggregateGrouped {
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         assertEvents(env, SYMBOL_DELL, 10000, 51);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{
             {"DELL", 10000L, 51d}});
 
         env.milestone(0);
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
         assertEvents(env, SYMBOL_DELL, 20000, 103);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{
             {"DELL", 10000L, 103d}, {"DELL", 20000L, 103d}});
 
         sendEvent(env, SYMBOL_IBM, 30000, 70);
         assertEvents(env, SYMBOL_IBM, 30000, 70);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{
             {"DELL", 10000L, 103d}, {"DELL", 20000L, 103d}, {"IBM", 30000L, 70d}});
 
         env.milestone(1);
 
         sendEvent(env, SYMBOL_IBM, 10000, 20);
         assertEvents(env, SYMBOL_DELL, 10000, 52, SYMBOL_IBM, 10000, 90);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{
             {"DELL", 20000L, 52d}, {"IBM", 30000L, 90d}, {"IBM", 10000L, 90d}});
 
         sendEvent(env, SYMBOL_DELL, 40000, 45);
         assertEvents(env, SYMBOL_DELL, 20000, 45, SYMBOL_DELL, 40000, 45);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{
             {"IBM", 10000L, 90d}, {"IBM", 30000L, 90d}, {"DELL", 40000L, 45d}});
     }
 
@@ -327,7 +328,7 @@ public class ResultSetQueryTypeAggregateGrouped {
         Assert.assertEquals(sum, newData[0].get("mySum"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, long volumeOld, double sumOld,
@@ -347,7 +348,7 @@ public class ResultSetQueryTypeAggregateGrouped {
         Assert.assertEquals(sumNew, newData[0].get("mySum"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume, double price) {
@@ -365,6 +366,6 @@ public class ResultSetQueryTypeAggregateGrouped {
     private static void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
         final String[] fields = "id,thesum".split(",");
         env.sendEventBean(new SupportEventWithIntArray(id, array, value));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {id, expected});
+        env.assertPropsListenerNew("s0", fields, new Object[] {id, expected});
     }
 }

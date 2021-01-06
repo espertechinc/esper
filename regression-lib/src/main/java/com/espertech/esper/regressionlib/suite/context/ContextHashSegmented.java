@@ -12,16 +12,16 @@ package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import org.apache.avro.generic.GenericData;
@@ -79,19 +79,19 @@ public class ContextHashSegmented {
             env.addListener("s0");
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Pete", "K1", "P1", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Pete", "K1", 100L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Pete", "K1", 100L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Pete", "K1", "P2", 15);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Pete", "K1", 115L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Pete", "K1", 115L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K1", "P2", 30);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Joe", "K1", 30L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K1", 30L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K2", "P1", 40);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Joe", "K2", 40L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K2", 40L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K1", "P1", 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"Joe", "K1", 50L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K1", 50L});
 
             env.undeployAll();
         }
@@ -117,7 +117,7 @@ public class ContextHashSegmented {
             env.sendEventBean(new SupportBean("E3", 101));
 
             env.sendEventBean(new SupportBean("E1", 3));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{5, "E1", 6}, {15, "E2", 10}, {9, "E3", 201}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{5, "E1", 6}, {15, "E2", 10}, {9, "E3", 201}});
             SupportContextPropUtil.assertContextProps(env, "ctx", "MyCtx", new int[]{5, 15, 9}, null, null);
 
             env.milestone(2);
@@ -214,12 +214,12 @@ public class ContextHashSegmented {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 12});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 12}});
 
             env.milestone(2);
@@ -230,10 +230,10 @@ public class ContextHashSegmented {
 
             env.sendEventBean(new SupportBean("E5", 1));
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 12}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E6", 15));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, 15});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 15});
 
             env.undeployAll();
         }
@@ -253,22 +253,22 @@ public class ContextHashSegmented {
             env.compileDeploy(eplGrouped, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0, "E1", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0, "E1", 10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "E2", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E2", 11});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "E2", 23});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E2", 23});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E1", 14));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0, "E1", 24});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0, "E1", 24});
 
             env.undeployAll();
 
@@ -298,10 +298,10 @@ public class ContextHashSegmented {
             env.compileDeploy(eplStmt, path).addListener("s0");
 
             env.sendEventBean(makeBean("E1", 100, 20L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 20L, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100, 20L, null, null, null});
 
             env.sendEventBean(makeBean("E1", 100, 21L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 41L, 20L, 20L, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100, 41L, 20L, 20L, null});
 
             env.milestoneInc(milestone);
 
@@ -310,7 +310,7 @@ public class ContextHashSegmented {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean("E1", 100, 22L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 63L, 21L, 21L, "S0"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100, 63L, 21L, 21L, "S0"});
 
             env.undeployAll();
         }
@@ -342,12 +342,12 @@ public class ContextHashSegmented {
 
             env.sendEventBean(new SupportBean("E3", 11));
             env.sendEventBean(new SupportBean_S0(2, "E4"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(3, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, 10, 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 10, 3});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 10, 3}});
 
             env.sendEventBean(new SupportBean_S0(4, "E4"));
@@ -355,12 +355,12 @@ public class ContextHashSegmented {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(5, "E5"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E2", 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, 12, 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 12, 1});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 10, 3}, {ctx, 12, 1}});
 
             env.undeployAll();
@@ -443,37 +443,37 @@ public class ContextHashSegmented {
             String[] fields = "c0,c1,c2".split(",");
 
             env.sendEventBean(new SupportBean("E1", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E1", 5});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 6));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E2", 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E2", 6});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E3", 7));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E3", 7});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E3", 7});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E2", 6}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 8));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E4", 8});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E4", 8});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E5", 9));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E5", 9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E5", 9});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E1", 15});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E1", 15});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 15}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E4", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{stmtNameContext, "E4", 19});
+            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E4", 19});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 15}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 19}, {stmtNameContext, "E2", 6}});
 
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
@@ -505,15 +505,15 @@ public class ContextHashSegmented {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 3, "E1", "E1"});    // context id matches the number returned by myHashFunc
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, 3, "E1", "E1"});    // context id matches the number returned by myHashFunc
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0, 0, "E2", "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0, 0, "E2", "E2"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 7));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 7, "E3", "E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, 7, "E3", "E3"});
 
             env.undeployAll();
         }

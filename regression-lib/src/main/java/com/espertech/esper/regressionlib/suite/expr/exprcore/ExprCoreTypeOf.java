@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -219,7 +218,7 @@ public class ExprCoreTypeOf {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{new Object[2], null}, "MySchema");
@@ -240,7 +239,7 @@ public class ExprCoreTypeOf {
             fail();
         }
 
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"InnerSchema", null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"InnerSchema", null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{null, new Object[2][]}, "MySchema");
@@ -260,7 +259,7 @@ public class ExprCoreTypeOf {
             fail();
         }
 
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, "InnerSchema[]"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, "InnerSchema[]"});
 
         env.undeployAll();
     }

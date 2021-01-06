@@ -54,7 +54,7 @@ public class EPLJoinMultiKeyAndRange {
             sendS0(env, 11, "a1", "b0", "X");
             sendS1(env, 22, "a0", "b1", "F");
             sendS0(env, 12, "a0", "b1", "A");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendS0(env, 13, "a0", "b1", "Z");
             assertReceived(env, new Object[][] {{13, 22}});
@@ -99,10 +99,10 @@ public class EPLJoinMultiKeyAndRange {
             assertReceived(env, new Object[][] {{"I1", "M2"}, {"I2", "M2"}});
 
             sendManyArray(env, "M3", new int[] {1}, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendIntArray(env, "I3", new int[] {2}, 30);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendIntArray(env, "I4", new int[] {1}, 40);
             assertReceived(env, new Object[][] {{"I4", "M3"}});
@@ -147,10 +147,10 @@ public class EPLJoinMultiKeyAndRange {
             assertReceived(env, new Object[][] {{"I1", "M2"}, {"I2", "M2"}});
 
             sendManyArray(env, "M3", new int[] {1});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendIntArray(env, "I3", new int[] {2});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendIntArray(env, "I4", new int[] {1});
             assertReceived(env, new Object[][] {{"I4", "M3"}});
@@ -191,7 +191,7 @@ public class EPLJoinMultiKeyAndRange {
 
             // range invalid
             sendEvent(env, new SupportBeanRange("R4", "G", 10, 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertFalse(env.listener("s1").isInvoked());
 
             // duplicates
@@ -209,7 +209,7 @@ public class EPLJoinMultiKeyAndRange {
 
             sendSupportBean(env, "P", 1, 1);
             sendEvent(env, new SupportBeanRange("R5", "R5", "O", "Q"));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -258,10 +258,10 @@ public class EPLJoinMultiKeyAndRange {
             env.milestone(0);
 
             sendSupportBean(env, "AX", 2, 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"AX", "B1"});
+            env.assertPropsListenerNew("s0", fields, new Object[] {"AX", "B1"});
 
             sendSupportBean(env, "BX", 1, 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {"A0", "BX"});
+            env.assertPropsListenerNew("s0", fields, new Object[] {"A0", "BX"});
 
             env.undeployAll();
         }

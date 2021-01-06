@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
 
 import java.util.ArrayList;
@@ -44,11 +43,11 @@ public class EPLDatabase3StreamOuterJoin {
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.sendEventBean(new SupportBean("T3", -1));
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }
@@ -67,17 +66,17 @@ public class EPLDatabase3StreamOuterJoin {
 
             env.sendEventBean(new SupportBeanTwo("T1", 2));
             env.sendEventBean(new SupportBean("T1", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T1", "T1", null});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T1", "T1", null});
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.sendEventBean(new SupportBean("T3", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", null, null});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", null, null});
 
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }

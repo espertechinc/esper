@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -110,6 +109,6 @@ public class RowRecogMultikeyWArray {
     }
 
     private static void assertReceived(RegressionEnvironment env, String a, String b) {
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), new Object[] {a, b});
+        env.assertPropsListenerNew("s0", "a,b".split(","), new Object[] {a, b});
     }
 }

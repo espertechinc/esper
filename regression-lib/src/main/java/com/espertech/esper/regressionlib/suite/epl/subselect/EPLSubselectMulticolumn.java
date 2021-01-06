@@ -14,12 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -49,23 +49,23 @@ public class EPLSubselectMulticolumn {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "G1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 0L, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, 0L, null});
 
             env.sendEventBean(new SupportBean_S1(200, "G2"));
             env.sendEventBean(new SupportBean_S0(2, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 1L, 200});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, 1L, 200});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(210, "G2"));
             env.sendEventBean(new SupportBean_S0(3, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 2L, 410});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, 2L, 410});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(220, "G2"));
             env.sendEventBean(new SupportBean_S0(4, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, 3L, 630});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4, 3L, 630});
 
             env.undeployAll();
         }
@@ -210,10 +210,10 @@ public class EPLSubselectMulticolumn {
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean_S0(2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
 
         env.sendEventBean(new SupportBean("E2", 20));
         env.sendEventBean(new SupportBean_S0(3));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
     }
 }

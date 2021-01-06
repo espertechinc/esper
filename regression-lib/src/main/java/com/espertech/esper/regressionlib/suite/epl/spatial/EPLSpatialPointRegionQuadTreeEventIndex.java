@@ -425,7 +425,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
             env.sendEventBean(new SupportSpatialAABB("R3", 0, 0, 5, 30, "NW"));
             env.sendEventBean(new SupportSpatialAABB("R3", 0, 0, 30, 20, "NW"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

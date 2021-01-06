@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 import org.junit.Assert;
 
@@ -281,15 +281,15 @@ public class ExprCoreBigNumberSupport {
             String[] fieldList = "v1,v2,v3,v4".split(",");
 
             sendBigNumEvent(env, 1, 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList,
+            env.assertPropsListenerNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(1), BigInteger.valueOf(1), new BigDecimal(10), new BigDecimal(100d)});
 
             sendBigNumEvent(env, 40, 300);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList,
+            env.assertPropsListenerNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(10), BigInteger.valueOf(10), new BigDecimal(300), new BigDecimal(300)});
 
             sendBigNumEvent(env, 250, 200);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList,
+            env.assertPropsListenerNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(10), BigInteger.valueOf(10), new BigDecimal(200), new BigDecimal(250)});
 
             env.undeployAll();
@@ -303,29 +303,28 @@ public class ExprCoreBigNumberSupport {
             env.compileDeploy(epl).addListener("s0");
 
             sendBigNumEvent(env, 0, 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 0, 4);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList, new Object[]{new BigDecimal(4)});
+            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(4)});
 
             env.undeployAll();
             env.compileDeployAddListenerMile("@name('s0') select bigdec from SupportBeanNumeric(bigdec = 4d)", "s0", 1);
 
             sendBigNumEvent(env, 0, 4);
-            assertTrue(env.listener("s0").isInvoked());
-            env.listener("s0").reset();
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(BigInteger.valueOf(0), new BigDecimal(4d)));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList, new Object[]{new BigDecimal(4d)});
+            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(4d)});
 
             env.undeployAll();
             env.compileDeployAddListenerMile("@name('s0') select bigdec from SupportBeanNumeric(bigint = 4)", "s0", 2);
 
             sendBigNumEvent(env, 3, 4);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 4, 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList, new Object[]{new BigDecimal(3)});
+            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(3)});
 
             env.undeployAll();
         }
@@ -341,10 +340,10 @@ public class ExprCoreBigNumberSupport {
             sendSupportBean(env, 2, 3);
             sendBigNumEvent(env, 0, 2);
             sendBigNumEvent(env, 2, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(BigInteger.valueOf(2), new BigDecimal(3d)));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3d)});
+            env.assertPropsListenerNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3d)});
 
             env.undeployAll();
         }
@@ -357,7 +356,7 @@ public class ExprCoreBigNumberSupport {
 
             String[] fieldList = "v1,v2".split(",");
             sendBigNumEvent(env, 0, 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3.0)});
+            env.assertPropsListenerNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3.0)});
 
             env.undeployAll();
         }

@@ -151,10 +151,10 @@ public class InfraNamedWindowOnMerge {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", true});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", true});
 
             env.undeployAll();
         }

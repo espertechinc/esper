@@ -12,18 +12,16 @@ package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetQueryTypeAggregateGroupedHaving {
     private final static String SYMBOL_DELL = "DELL";
@@ -118,19 +116,19 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
 
         String[] fields = "symbol,volume,mySum".split(",");
         sendEvent(env, SYMBOL_DELL, 10000, 49);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 20000, 54);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SYMBOL_DELL, 20000L, 103d});
+        env.assertPropsListenerNew("s0", fields, new Object[]{SYMBOL_DELL, 20000L, 103d});
 
         sendEvent(env, SYMBOL_IBM, 1000, 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_IBM, 5000, 20);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{SYMBOL_DELL, 10000L, 54d});
+        env.assertPropsListenerOld("s0", fields, new Object[]{SYMBOL_DELL, 10000L, 54d});
 
         sendEvent(env, SYMBOL_IBM, 6000, 5);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume, double price) {

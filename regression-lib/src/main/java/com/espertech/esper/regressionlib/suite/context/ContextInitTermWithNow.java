@@ -10,18 +10,16 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ContextInitTermWithNow {
 
@@ -86,20 +84,20 @@ public class ContextInitTermWithNow {
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.advanceTime(10000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E4", 4));
             env.advanceTime(19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(20000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.milestone(3);
 
             env.advanceTime(30000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0L});
 
             env.eplToModelCompileDeploy(streamExpr, path);
 
@@ -134,9 +132,9 @@ public class ContextInitTermWithNow {
             env.milestone(1);
 
             env.advanceTime(9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(10000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
 
             env.milestone(2);
 
@@ -147,22 +145,22 @@ public class ContextInitTermWithNow {
 
             env.sendEventBean(new SupportBean("E5", 5));
             env.advanceTime(19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(20000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
 
             env.milestone(4);
 
             env.advanceTime(30000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0L});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E6", 6));
 
             env.advanceTime(40000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.eplToModelCompileDeploy(streamExpr, path);
 

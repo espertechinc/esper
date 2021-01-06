@@ -17,13 +17,14 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S5;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S6;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLOuterJoin7Stream {
 
@@ -667,23 +668,23 @@ public class EPLOuterJoin7Stream {
         //
         s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=0, s2=1, s3=0, s4=0, s5=0, s6=0
         //
         s2Events = SupportBean_S2.makeS2("B", new String[]{"B-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=0, s2=1, s3=0, s4=0, s5=0, s6=1
         //
         s2Events = SupportBean_S2.makeS2("C", new String[]{"C-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s6Events = SupportBean_S6.makeS6("C", new String[]{"C-s6-1"});
         sendEvent(env, s6Events);
@@ -699,11 +700,11 @@ public class EPLOuterJoin7Stream {
         //
         s1Events = SupportBean_S1.makeS1("D", new String[]{"D-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("D", new String[]{"D-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s3Events = SupportBean_S3.makeS3("D", new String[]{"D-s3-1"});
         sendEvent(env, s3Events);
@@ -712,7 +713,7 @@ public class EPLOuterJoin7Stream {
 
         s5Events = SupportBean_S5.makeS5("D", new String[]{"D-s5-1"});
         sendEvent(env, s5Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s6Events = SupportBean_S6.makeS6("D", new String[]{"D-s6-1"});
         sendEvent(env, s6Events);
@@ -737,7 +738,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("E", new String[]{"E-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s5Events = SupportBean_S5.makeS5("E", new String[]{"E-s5-1"});
         sendEventsAndReset(env, s5Events);
@@ -763,7 +764,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("F", new String[]{"F-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s5Events = SupportBean_S5.makeS5("F", new String[]{"F-s5-1"});
         sendEventsAndReset(env, s5Events);
@@ -792,7 +793,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("G", new String[]{"G-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s5Events = SupportBean_S5.makeS5("G", new String[]{"G-s5-1"});
         sendEventsAndReset(env, s5Events);
@@ -821,7 +822,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("H", new String[]{"H-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s5Events = SupportBean_S5.makeS5("H", new String[]{"H-s5-1", "H-s5-2"});
         sendEventsAndReset(env, s5Events);
@@ -857,7 +858,7 @@ public class EPLOuterJoin7Stream {
 
         s1Events = SupportBean_S1.makeS1("I", new String[]{"I-s1-1", "I-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());    // no s6
+        env.assertListenerNotInvoked("s0");    // no s6
 
         // Test s1 and s0=1, s2=1, s3=1, s4=0, s5=1, s6=1
         //
@@ -1012,23 +1013,23 @@ public class EPLOuterJoin7Stream {
         //
         s0Events = SupportBean_S0.makeS0("Q", new String[]{"Q-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s1Events = SupportBean_S1.makeS1("Q", new String[]{"Q-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("Q", new String[]{"Q-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s4Events = SupportBean_S4.makeS4("Q", new String[]{"Q-s4-1", "Q-s4-2"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s5Events = SupportBean_S5.makeS5("Q", new String[]{"Q-s5-1", "Q-s5-2"});
         sendEvent(env, s5Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s6Events = SupportBean_S6.makeS6("Q", new String[]{"Q-s6-1"});
         sendEvent(env, s6Events);
@@ -1054,7 +1055,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("R", new String[]{"R-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s4 and s0=2, s1=1, s2=1, s4=0, s5=0, s6=2
         //
@@ -1075,7 +1076,7 @@ public class EPLOuterJoin7Stream {
 
         s4Events = SupportBean_S4.makeS4("S", new String[]{"S-s4-1"});
         sendEvent(env, s4Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s4 and s0=1, s1=1, s2=1, s4=0, s5=0, s6=1
         //

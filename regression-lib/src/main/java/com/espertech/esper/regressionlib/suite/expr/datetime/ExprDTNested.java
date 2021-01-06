@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -36,7 +35,7 @@ public class ExprDTNested implements RegressionExecution {
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-05-30T01:02:03.000";
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
         env.undeployAll();
 
@@ -51,7 +50,7 @@ public class ExprDTNested implements RegressionExecution {
         SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, CALENDAR.getEPType());
 
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "cal", "cal", "cal", "cal", "cal"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "cal", "cal", "cal", "cal", "cal"));
 
         env.undeployAll();
     }

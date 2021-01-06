@@ -145,7 +145,7 @@ public class ResultSetAggregationMethodSorted {
         private static void sendAssertGrouped(RegressionEnvironment env, String p00, Integer firstKey, Integer lastKey) {
             final String[] fields = "firstkey,lastkey".split(",");
             env.sendEventBean(new SupportBean_S0(-1, p00));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{firstKey, lastKey});
+            env.assertPropsListenerNew("s0", fields, new Object[]{firstKey, lastKey});
         }
     }
 
@@ -477,18 +477,18 @@ public class ResultSetAggregationMethodSorted {
             env.eplToModelCompileDeploy(epl).addListener("s0");
 
             makeSendBean(env, treemap, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{floorEntryFirstEvent(treemap, 10 - 1)});
+            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 10 - 1)});
 
             makeSendBean(env, treemap, "E2", 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{floorEntryFirstEvent(treemap, 20 - 1)});
+            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 20 - 1)});
 
             env.milestone(0);
 
             makeSendBean(env, treemap, "E3", 15);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{floorEntryFirstEvent(treemap, 15 - 1)});
+            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 15 - 1)});
 
             makeSendBean(env, treemap, "E3", 17);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{floorEntryFirstEvent(treemap, 17 - 1)});
+            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 17 - 1)});
 
             env.undeployAll();
         }

@@ -24,9 +24,9 @@ import java.util.Collection;
 
 import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
 import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 
 public class ExprEnumMinMaxBy {
 

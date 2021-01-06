@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -28,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PatternUseResult {
 
@@ -131,7 +131,7 @@ public class PatternUseResult {
             for (int i = 0; i < 10; i++) {
                 env.sendEventBean(new SupportBean_A("E" + i));
             }
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -376,14 +376,14 @@ public class PatternUseResult {
     private static void sendBeanAAssert(RegressionEnvironment env, String id, int intPrimitiveExpected, int numFiltersRemaining) {
         env.sendEventBean(new SupportBean_A(id));
         final String[] fields = "c0".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{intPrimitiveExpected});
+        env.assertPropsListenerNew("s0", fields, new Object[]{intPrimitiveExpected});
         assertEquals(numFiltersRemaining, SupportFilterServiceHelper.getFilterSvcCount(env.statement("s0"), "SupportBean_A"));
     }
 
     private static void sendBeanAMiss(RegressionEnvironment env, String idCSV) {
         for (String id : idCSV.split(",")) {
             env.sendEventBean(new SupportBean_A(id));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         }
     }
 }

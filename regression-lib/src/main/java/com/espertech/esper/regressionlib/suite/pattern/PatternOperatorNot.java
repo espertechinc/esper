@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import org.junit.Assert;
@@ -23,7 +22,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class PatternOperatorNot {
 
@@ -251,13 +250,13 @@ public class PatternOperatorNot {
 
             sendTimer(30000, env);
             env.sendEventBean(new SupportBean("E3", 123));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimer(40000, env);
             String[] fields = new String[]{"theString"};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -280,7 +279,7 @@ public class PatternOperatorNot {
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportMarketDataBean("E5", "M1", 1d));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -297,24 +296,24 @@ public class PatternOperatorNot {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             sendSupportBean(env, "E2", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E3", 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
 
             sendSupportBean(env, "E4", -1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             sendSupportBean(env, "E5", 3);
             sendSupportBean(env, "E6", -1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

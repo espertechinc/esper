@@ -72,7 +72,7 @@ public class EPLInsertIntoTransposePattern {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
 
             env.undeployAll();
         }

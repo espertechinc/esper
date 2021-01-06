@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
@@ -50,13 +49,13 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
                     env.milestoneInc(milestone);
 
                     env.sendEventBean(new SupportSimpleBeanOne("EX", 10, 11, 12));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EX", "E1"});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E1"});
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 1, 2, 3));
 
                     env.milestoneInc(milestone);
 
                     env.sendEventBean(new SupportSimpleBeanOne("EY", 10, 11, 12));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EY", null});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"EY", null});
                 }
             };
             tryAssertion(env, false, "s2,i2", "", IndexBackingTableInfo.BACKING_UNINDEXED, assertNoWhere);
@@ -72,7 +71,7 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
                     env.milestoneInc(milestone);
 
                     env.sendEventBean(new SupportSimpleBeanOne("EX", 1, 3, 9));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EX", "E3"});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E3"});
                 }
             };
             tryAssertion(env, false, "d2,i2", "where ssb2.i2 = ssb1.i1 and ssb2.d2 = ssb1.d1", IndexBackingTableInfo.BACKING_MULTI_UNIQUE, assertSendEvents);
@@ -184,10 +183,10 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean("E2", 4));
 
             env.sendEventBean(new SupportBean_S0(10, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 4});
 
             env.sendEventBean(new SupportBean_S0(11, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11, 3});
 
             env.undeployAll();
 
@@ -206,10 +205,10 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean("E2", 4));
 
             env.sendEventBean(new SupportBean_S0(10, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 2});
 
             env.sendEventBean(new SupportBean_S0(11, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11, 1});
 
             env.undeployAll();
 
@@ -228,10 +227,10 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean("E2", 4));
 
             env.sendEventBean(new SupportBean_S0(10, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 4});
 
             env.sendEventBean(new SupportBean_S0(11, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11, 3});
 
             env.undeployAll();
 
@@ -249,7 +248,7 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             env.sendEventBean(makeBean("E1", 1, 102));
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 102L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, 102L});
 
             env.undeployAll();
         }
@@ -280,6 +279,6 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
 
     private static void sendAssert(RegressionEnvironment env, String sbOneS1, int sbOneI1, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportSimpleBeanOne(sbOneS1, sbOneI1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 }

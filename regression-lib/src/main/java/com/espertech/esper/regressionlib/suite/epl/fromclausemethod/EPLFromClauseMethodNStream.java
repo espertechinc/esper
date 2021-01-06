@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
-
 public class EPLFromClauseMethodNStream {
 
     public static List<RegressionExecution> executions() {
@@ -57,7 +55,7 @@ public class EPLFromClauseMethodNStream {
 
             SupportTradeEventWithSide one = new SupportTradeEventWithSide("T1", "B");
             env.sendEventBean(one);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             SupportTradeEventWithSide two = new SupportTradeEventWithSide("T2", "S");
             env.sendEventBean(two);
@@ -322,7 +320,7 @@ public class EPLFromClauseMethodNStream {
             String[] fields = "ids0,ids1,valh0,valh1".split(",");
             sendBeanInt(env, "S00", 1);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanInt(env, "S10", 1);
             Object[][] resultOne = new Object[][]{{"S00", "S10", "S00H11", "S10H21"}};
@@ -359,7 +357,7 @@ public class EPLFromClauseMethodNStream {
             sendBeanInt(env, "S00", 2);
             sendBeanInt(env, "S10", 1);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanInt(env, "S20", 1);
             Object[][] resultOne = new Object[][]{{"S00", "S10", "S20", "S10S20H11"}, {"S00", "S10", "S20", "S10S20H12"}};

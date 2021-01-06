@@ -13,18 +13,19 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ExprCorePrevious {
     public static Collection<RegressionExecution> executions() {
@@ -166,18 +167,18 @@ public class ExprCorePrevious {
             SupportBean_S0 e1 = new SupportBean_S0(1);
             env.sendEventBean(e1);
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{null, e1, new Object[]{e1}, 1L});
 
             SupportBean_S0 e2 = new SupportBean_S0(2);
             env.sendEventBean(e2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{e1, e1, new Object[]{e2, e1}, 2L});
             Assert.assertEquals(SupportBean_S0.class, env.statement("s0").getEventType().getPropertyType("result"));
 
             SupportBean_S0 e3 = new SupportBean_S0(3);
             env.sendEventBean(e3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{e2, e2, new Object[]{e3, e2}, 2L});
 
             env.undeployAll();
@@ -221,25 +222,25 @@ public class ExprCorePrevious {
             String[] fields = "symbol,feed,prevPrice,tailPrice,countPrice,windowPrice".split(",");
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 10, 0L, "F1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"IBM", "F1", null, 10d, 1L, splitDoubles("10d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", null, 10d, 1L, splitDoubles("10d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 11, 0L, "F1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"IBM", "F1", 10d, 10d, 2L, splitDoubles("11d,10d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", 10d, 10d, 2L, splitDoubles("11d,10d")});
 
             env.sendEventBean(new SupportMarketDataBean("MSFT", 100, 0L, "F2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"MSFT", "F2", null, 100d, 1L, splitDoubles("100d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"MSFT", "F2", null, 100d, 1L, splitDoubles("100d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 12, 0L, "F2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"IBM", "F2", null, 12d, 1L, splitDoubles("12d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F2", null, 12d, 1L, splitDoubles("12d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 13, 0L, "F1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"IBM", "F1", 11d, 11d, 2L, splitDoubles("13d,11d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", 11d, 11d, 2L, splitDoubles("13d,11d")});
 
             env.sendEventBean(new SupportMarketDataBean("MSFT", 101, 0L, "F2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"MSFT", "F2", 100d, 100d, 2L, splitDoubles("101d,100d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"MSFT", "F2", 100d, 100d, 2L, splitDoubles("101d,100d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 17, 0L, "F2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"IBM", "F2", 12d, 12d, 2L, splitDoubles("17d,12d")});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F2", 12d, 12d, 2L, splitDoubles("17d,12d")});
 
             env.undeployAll();
 
@@ -425,7 +426,7 @@ public class ExprCorePrevious {
             sendMarketEvent(env, "MSFT", 50);
             sendMarketEvent(env, "IBM", 76);
             sendMarketEvent(env, "CIC", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendMarketEvent(env, "IBM", 77);
 
             EventBean[] eventsNew = env.listener("s0").getLastNewData();
@@ -538,37 +539,37 @@ public class ExprCorePrevious {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("prevPrice"));
 
             sendTimer(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D1", 1);
             assertNewEventWTail(env, "D1", null, null, "D1", 1d, null, null, 1L, splitDoubles("1d"));
 
             sendTimer(env, 1000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D2", 2);
             assertNewEventWTail(env, "D2", null, null, "D1", 1d, "D2", 2d, 2L, splitDoubles("2d,1d"));
 
             sendTimer(env, 2000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D3", 3);
             assertNewEventWTail(env, "D3", "D1", 1d, "D1", 1d, "D2", 2d, 3L, splitDoubles("3d,2d,1d"));
 
             sendTimer(env, 3000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D4", 4);
             assertNewEventWTail(env, "D4", "D2", 2d, "D1", 1d, "D2", 2d, 4L, splitDoubles("4d,3d,2d,1d"));
 
             sendTimer(env, 4000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D5", 5);
             assertNewEventWTail(env, "D5", "D3", 3d, "D1", 1d, "D2", 2d, 5L, splitDoubles("5d,4d,3d,2d,1d"));
 
             sendTimer(env, 30000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D6", 6);
             assertNewEventWTail(env, "D6", "D4", 4d, "D1", 1d, "D2", 2d, 6L, splitDoubles("6d,5d,4d,3d,2d,1d"));
@@ -663,11 +664,11 @@ public class ExprCorePrevious {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("prevPrice"));
 
             sendTimer(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -678,7 +679,7 @@ public class ExprCorePrevious {
 
             sendTimer(env, 80000);
             sendMarketEvent(env, "C", 3);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
@@ -722,12 +723,12 @@ public class ExprCorePrevious {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("prevPrice"));
 
             sendTimer(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 2);
             sendBeanEvent(env, "X1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -739,7 +740,7 @@ public class ExprCorePrevious {
             sendMarketEvent(env, "C1", 11);
             sendMarketEvent(env, "C2", 12);
             sendMarketEvent(env, "C3", 13);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
             Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
@@ -822,7 +823,7 @@ public class ExprCorePrevious {
 
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "C", 3);
             EventBean[] newEvents = env.listener("s0").getLastNewData();
@@ -834,7 +835,7 @@ public class ExprCorePrevious {
 
             sendMarketEvent(env, "D", 4);
             sendMarketEvent(env, "E", 5);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "F", 6);
             newEvents = env.listener("s0").getLastNewData();
@@ -862,7 +863,7 @@ public class ExprCorePrevious {
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 130);
             sendMarketEvent(env, "C", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendMarketEvent(env, "D", 5);
             Assert.assertEquals("B", env.listener("s0").assertOneGetNewAndReset().get("currSymbol"));
 
@@ -1254,7 +1255,7 @@ public class ExprCorePrevious {
         assertCountAndPrice(env.listener("s0").assertOneGetNewAndReset(), 4L, 77D);
 
         sendTimer(env, 65000);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendTimer(env, 70000);
         Assert.assertEquals(1, env.listener("s0").getOldDataList().size());

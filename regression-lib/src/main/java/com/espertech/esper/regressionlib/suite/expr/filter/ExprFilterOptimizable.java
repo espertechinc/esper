@@ -156,7 +156,7 @@ public class ExprFilterOptimizable {
             beanTwo.setBigDecimal(BigDecimal.valueOf(13));
             env.sendEventBean(beanTwo);
 
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

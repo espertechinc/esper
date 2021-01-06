@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLJoin2StreamRangePerformance {
 
@@ -177,7 +177,7 @@ public class EPLJoin2StreamRangePerformance {
             // test no event found
             env.sendEventBean(new SupportBeanRange("R", "56", 2000, 3000));
             env.sendEventBean(new SupportBeanRange("R", "X", 2000, 3000));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             assertTrue("delta=" + (endTime - startTime), (endTime - startTime) < 1500);
 
@@ -443,7 +443,7 @@ public class EPLJoin2StreamRangePerformance {
             //    log.info("At loop #" + i);
             //}
             env.sendEventBean(assertionCallback.getEvent(i));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, assertionCallback.getExpectedValue(i));
+            env.assertPropsListenerNew("s0", fields, assertionCallback.getExpectedValue(i));
         }
         log.info("Done Querying");
         long endTime = System.currentTimeMillis();

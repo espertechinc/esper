@@ -264,24 +264,24 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0").milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, false, null, null, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, false, null, null, false});
 
             env.milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, true, null, null, true, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, null, null, true, null});
 
             sendSupportBean(env, new SupportBean("A", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, true, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true, true, false});
 
             sendSupportBean(env, new SupportBean("A", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false, true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true, true, true});
 
             sendSupportBean(env, new SupportBean("B", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, false, false, false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false, false, false});
 
             sendSupportBean(env, new SupportBean("B", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true, false, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, false, true, false});
 
             env.undeployAll().milestoneInc(milestone);
 
@@ -319,16 +319,16 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0").milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, false, false, false, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false, false, false});
 
             sendSupportBean(env, new SupportBean(null, 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, true, true, false, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, false, true, false});
 
             sendSupportBean(env, new SupportBean("A", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, false, false, true, true, false});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true, true, false});
 
             sendSupportBean(env, new SupportBean("A", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, true, false, true, true, true});
+            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true, true, true});
 
             env.undeployAll();
 
@@ -361,7 +361,7 @@ public class ExprFilterExpressions {
             env.milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null});
 
             env.undeployAll();
 
@@ -391,7 +391,7 @@ public class ExprFilterExpressions {
             env.sendEventBean(new SupportBeanArrayCollMap(setOfString));
 
             env.sendEventBean(new SupportBean("Version1", 0));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -477,7 +477,7 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendSupportBean(env, new SupportBean("A", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -505,7 +505,7 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportTradeEvent(1, null, 1001));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportTradeEvent(2, "1234", 1001));
             Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("event1.id"));
@@ -525,7 +525,7 @@ public class ExprFilterExpressions {
 
             theEvent = new SupportBean("e1", 1);
             env.sendEventBean(theEvent);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -542,7 +542,7 @@ public class ExprFilterExpressions {
 
             theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -559,7 +559,7 @@ public class ExprFilterExpressions {
 
             theEvent = new SupportBeanWithEnum("e2", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
 
@@ -573,7 +573,7 @@ public class ExprFilterExpressions {
 
             theEvent = new SupportBeanWithEnum("e2", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -896,7 +896,7 @@ public class ExprFilterExpressions {
             eventOne.setSimpleProperty("1");
 
             env.sendEventBean(eventOne);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -943,18 +943,18 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "a");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEvent(env, "b");
             assertSame(theEvent, env.listener("s0").getAndResetLastNewData()[0].getUnderlying());
 
             sendEvent(env, "a");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendEvent(env, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -966,18 +966,18 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "b", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendEvent(env, "a", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEvent(env, "x", 0);
             assertSame(theEvent, env.listener("s0").getAndResetLastNewData()[0].getUnderlying());
 
             sendEvent(env, null, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1067,10 +1067,10 @@ public class ExprFilterExpressions {
             Assert.assertEquals(eventOne.getNested(), eventTwo.getNested());
 
             env.sendEventBean(eventOne);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(eventTwo);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

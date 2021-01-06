@@ -12,22 +12,24 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeployStatementName;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPStatement;
+import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.support.schedule.SupportDateTimeUtil.timePlusMonth;
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ViewTimeWin {
     private final static String SYMBOL_DELL = "DELL";
@@ -67,72 +69,72 @@ public class ViewTimeWin {
             String epl = "@Name('s0') select irstream * from SupportBean#time(10 sec)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
             env.advanceTime(1000);
             sendSupportBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
             env.advanceTime(2000);
             sendSupportBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             env.advanceTime(3000);
             sendSupportBean(env, "E3");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
             env.advanceTime(10999);
-            Assert.assertFalse(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.advanceTime(11000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
             env.advanceTime(12000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
 
             env.milestone(5);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}});
             sendSupportBean(env, "E4");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3"}, {"E4"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}});
             sendSupportBean(env, "E5");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(7);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
             env.advanceTime(13000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
 
             env.milestone(8);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}, {"E5"}});
             env.advanceTime(22000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowLastOld("s0", fields, new Object[][]{{"E4"}, {"E5"}});
 
             env.milestone(9);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{});
 
             env.milestone(10);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{});
 
             env.undeployAll();
         }
@@ -149,32 +151,32 @@ public class ViewTimeWin {
             sendSupportBean(env, "E2");
 
             env.milestone(1);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             sendSupportBean(env, "E3");
             sendSupportBean(env, "E4");
 
             env.milestone(2);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
 
             env.advanceTime(2000);
             sendSupportBean(env, "E5");
 
             env.milestone(3);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
 
             env.advanceTime(10999);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
 
             env.milestone(4);
 
             env.advanceTime(11000);
 
             env.milestone(5);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5"}});
 
             env.milestone(6);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5"}});
 
             env.undeployAll();
         }
@@ -192,16 +194,16 @@ public class ViewTimeWin {
             sendCurrentTime(env, "2002-02-15T09:00:00.000");
             env.sendEventBean(new SupportBean("E2", 2));
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
 
             sendCurrentTimeWithMinus(env, "2002-03-15T09:00:00.000", 1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-15T09:00:00.000");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString".split(","), new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -215,26 +217,26 @@ public class ViewTimeWin {
             String epl = "@name('s0') select symbol, volume, sum(price) as mySum from SupportMarketDataBean#time(30)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            assertSelectResultType(env.statement("s0"));
+            env.assertStatement("s0", ViewTimeWin::assertSelectResultType);
 
             sendEvent(env, SYMBOL_DELL, 10000, 51);
-            assertEvents(env, SYMBOL_DELL, 10000, 51, false);
+            env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 10000, 51, false));
 
             sendEvent(env, SYMBOL_IBM, 20000, 52);
-            assertEvents(env, SYMBOL_IBM, 20000, 103, false);
+            env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 20000, 103, false));
 
             sendEvent(env, SYMBOL_DELL, 40000, 45);
-            assertEvents(env, SYMBOL_DELL, 40000, 148, false);
+            env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 40000, 148, false));
 
             env.advanceTime(35000);
 
             //These events are out of the window and new sums are generated
 
             sendEvent(env, SYMBOL_IBM, 30000, 70);
-            assertEvents(env, SYMBOL_IBM, 30000, 70, false);
+            env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 30000, 70, false));
 
             sendEvent(env, SYMBOL_DELL, 10000, 20);
-            assertEvents(env, SYMBOL_DELL, 10000, 90, false);
+            env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 10000, 90, false));
 
             env.undeployAll();
         }
@@ -271,31 +273,29 @@ public class ViewTimeWin {
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time(1 sec)";
             env.compileDeployAddListenerMileZero(text, "s0");
-            String[] fields = new String[]{"symbol"};
 
             env.advanceTime(500);
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
 
             env.milestone(1);
 
             env.advanceTime(600);
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E2"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
 
             env.milestone(2);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.statement("s0").iterator());
-            EPAssertionUtil.assertPropsPerRow(events, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.advanceTime(1500);
-            env.listener("s0").assertNewOldData(null, new Object[][]{{"symbol", "E1"}}); // olddata
+            env.assertNVListener("s0", null, new Object[][]{{"symbol", "E1"}}); // olddata
 
             env.milestone(3);
 
             env.advanceTime(1600);
-            env.listener("s0").assertNewOldData(null, new Object[][]{{"symbol", "E2"}}); // olddata
+            env.assertNVListener("s0", null, new Object[][]{{"symbol", "E2"}}); // olddata
 
             env.milestone(4);
 
@@ -304,7 +304,7 @@ public class ViewTimeWin {
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E3"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, null);
 
             env.milestone(6);
 
@@ -313,57 +313,57 @@ public class ViewTimeWin {
     }
 
     private static void tryGroupByAssertions(RegressionEnvironment env) {
-        assertSelectResultType(env.statement("s0"));
+        env.assertStatement("s0", ViewTimeWin::assertSelectResultType);
 
         env.advanceTime(0);
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
-        assertEvents(env, SYMBOL_DELL, 10000, 51, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 10000, 51, false));
 
         sendEvent(env, SYMBOL_IBM, 30000, 70);
-        assertEvents(env, SYMBOL_IBM, 30000, 70, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 30000, 70, false));
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
-        assertEvents(env, SYMBOL_DELL, 20000, 103, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 20000, 103, false));
 
         sendEvent(env, SYMBOL_IBM, 30000, 70);
-        assertEvents(env, SYMBOL_IBM, 30000, 140, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 30000, 140, false));
 
         env.advanceTime(35000);
 
         //These events are out of the window and new sums are generated
         sendEvent(env, SYMBOL_DELL, 10000, 90);
-        assertEvents(env, SYMBOL_DELL, 10000, 90, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 10000, 90, false));
 
         sendEvent(env, SYMBOL_IBM, 30000, 120);
-        assertEvents(env, SYMBOL_IBM, 30000, 120, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 30000, 120, false));
 
         sendEvent(env, SYMBOL_DELL, 20000, 90);
-        assertEvents(env, SYMBOL_DELL, 20000, 180, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_DELL, 20000, 180, false));
 
         sendEvent(env, SYMBOL_IBM, 30000, 120);
-        assertEvents(env, SYMBOL_IBM, 30000, 240, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 30000, 240, false));
     }
 
     private static void trySingleAssertion(RegressionEnvironment env) {
-        assertSelectResultType(env.statement("s0"));
+        env.assertStatement("s0", ViewTimeWin::assertSelectResultType);
 
         env.advanceTime(0);
 
         sendEvent(env, SYMBOL_IBM, 20000, 52);
-        assertEvents(env, SYMBOL_IBM, 20000, 52, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 20000, 52, false));
 
         sendEvent(env, SYMBOL_IBM, 20000, 100);
-        assertEvents(env, SYMBOL_IBM, 20000, 152, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 20000, 152, false));
 
         env.advanceTime(35000);
 
         //These events are out of the window and new sums are generated
         sendEvent(env, SYMBOL_IBM, 20000, 252);
-        assertEvents(env, SYMBOL_IBM, 20000, 252, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 20000, 252, false));
 
         sendEvent(env, SYMBOL_IBM, 20000, 100);
-        assertEvents(env, SYMBOL_IBM, 20000, 352, false);
+        env.assertListener("s0", listener -> assertEvents(listener, SYMBOL_IBM, 20000, 352, false));
     }
 
     public static class ViewTimeWindowWPrev implements RegressionExecution {
@@ -384,31 +384,28 @@ public class ViewTimeWin {
             env.sendEventBean(makeMarketDataEvent("E1"));
             env.sendEventBean(makeMarketDataEvent("E2"));
             env.sendEventBean(makeMarketDataEvent("E3"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{{"E1", null, "E1", 1L, new Object[]{"E1"}}, {"E2", "E1", "E1", 2L, new Object[]{"E2", "E1"}}, {"E3", "E2", "E1", 3L, new Object[]{"E3", "E2", "E1"}}});
-            env.listener("s0").reset();
 
             env.milestone(1);
 
             env.advanceTime(1200);
             env.sendEventBean(makeMarketDataEvent("E4"));
             env.sendEventBean(makeMarketDataEvent("E5"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{
                     {"E4", "E3", "E1", 4L, new Object[]{"E4", "E3", "E2", "E1"}},
                     {"E5", "E4", "E1", 5L, new Object[]{"E5", "E4", "E3", "E2", "E1"}}});
-            env.listener("s0").reset();
 
             env.milestone(2);
 
             env.advanceTime(1600);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowOldFlattened("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E6"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E6"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E6"}}, null);
 
             env.milestone(4);
 
@@ -423,11 +420,11 @@ public class ViewTimeWin {
             EPCompiled compiled = env.compile(text);
 
             env.deploy(compiled, new DeploymentOptions()
-                .setStatementSubstitutionParameter(prepared -> prepared.setObject(1, 4))
-                .setStatementNameRuntime(ctx -> "s0"));
+                .setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, 4))
+                .setStatementNameRuntime(new SupportPortableDeployStatementName("s0")));
             env.deploy(compiled, new DeploymentOptions()
-                .setStatementSubstitutionParameter(prepared -> prepared.setObject(1, 3))
-                .setStatementNameRuntime(ctx -> "s1"));
+                .setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, 3))
+                .setStatementNameRuntime(new SupportPortableDeployStatementName("s1")));
             env.addListener("s0").addListener("s1");
 
             runAssertion(env);
@@ -442,7 +439,7 @@ public class ViewTimeWin {
             String text = "select rstream theString from SupportBean#time(TIME_WIN_ONE)";
             env.compileDeploy("@name('s0') " + text).addListener("s0");
 
-            env.runtime().getVariableService().setVariableValue(null, "TIME_WIN_ONE", 3);
+            env.runtimeSetVariable(null, "TIME_WIN_ONE", 3);
 
             env.compileDeploy("@name('s1') " + text).addListener("s1");
 
@@ -476,7 +473,7 @@ public class ViewTimeWin {
             env.compileDeploy("@name('s0')" + text).addListener("s0");
 
             text = "select rstream theString from SupportBean#time(TIME_WIN_TWO minutes)";
-            env.runtime().getVariableService().setVariableValue(null, "TIME_WIN_TWO", 0.05);
+            env.runtimeSetVariable(null, "TIME_WIN_TWO", 0.05);
             env.compileDeploy("@name('s1')" + text).addListener("s1");
 
             runAssertion(env);
@@ -519,10 +516,10 @@ public class ViewTimeWin {
             env.sendEventBean(new SupportBean("E1", 1));
 
             env.advanceTime(flipTime - 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}});
 
             env.advanceTime(flipTime);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             env.undeployAll();
         }
@@ -542,7 +539,7 @@ public class ViewTimeWin {
         env.compileDeploy(epl).addListener("s0");
 
         sendEvent(env, "E1");
-        env.listener("s0").reset();
+        env.assertListener("s0", SupportListener::reset);
 
         sendTimerAssertNotInvoked(env, 29999 * 1000);
         sendTimerAssertInvoked(env, 30000 * 1000);
@@ -550,9 +547,9 @@ public class ViewTimeWin {
         env.undeployAll();
     }
 
-    private static void assertEvents(RegressionEnvironment env, String symbol, long volume, double sum, boolean unique) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+    private static void assertEvents(SupportListener listener, String symbol, long volume, double sum, boolean unique) {
+        EventBean[] oldData = listener.getLastOldData();
+        EventBean[] newData = listener.getLastNewData();
 
         if (!unique)
             assertNull(oldData);
@@ -563,7 +560,7 @@ public class ViewTimeWin {
         Assert.assertEquals(volume, newData[0].get("volume"));
         Assert.assertEquals(sum, newData[0].get("mySum"));
 
-        env.listener("s0").reset();
+        listener.reset();
     }
 
     private static void assertSelectResultType(EPStatement stmt) {
@@ -595,15 +592,15 @@ public class ViewTimeWin {
         env.advanceTime(3000);
         sendEvent(env, "E3");
 
-        assertFalse(env.listener("s0").isInvoked());
-        assertFalse(env.listener("s1").isInvoked());
+        env.assertListenerNotInvoked("s0");
+        env.assertListenerNotInvoked("s1");
 
         env.advanceTime(4000);
-        assertEquals("E1", env.listener("s1").assertOneGetNewAndReset().get("theString"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertEqualsNew("s1", "theString", "E1");
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(5000);
-        assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+        env.assertEqualsNew("s0", "theString", "E1");
     }
 
     private static void sendEvent(RegressionEnvironment env, String theString) {
@@ -613,13 +610,12 @@ public class ViewTimeWin {
 
     private static void sendTimerAssertNotInvoked(RegressionEnvironment env, long timeInMSec) {
         env.advanceTime(timeInMSec);
-        Assert.assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendTimerAssertInvoked(RegressionEnvironment env, long timeInMSec) {
         env.advanceTime(timeInMSec);
-        assertTrue(env.listener("s0").isInvoked());
-        env.listener("s0").reset();
+        env.assertListenerInvoked("s0");
     }
 
     private static void sendCurrentTime(RegressionEnvironment env, String time) {

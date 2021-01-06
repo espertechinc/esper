@@ -24,7 +24,9 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.ISupportABCImpl;
+import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
+import com.espertech.esper.regressionlib.support.bean.ISupportBImpl;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import org.junit.Assert;
@@ -34,7 +36,6 @@ import java.util.Collection;
 
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcCount;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ContextKeySegmentedWInitTermPrioritized {
 
@@ -93,17 +94,17 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean("A", 2));
             env.sendEventBean(new SupportBean("B", 3));
             env.sendEventBean(new SupportBean("C", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("A", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 10 + 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 10 + 2});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("C", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C", -1 + 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C", -1 + 4});
 
             env.sendEventBean(new SupportBean("A", 11));
             env.sendEventBean(new SupportBean("A", 12));
@@ -111,12 +112,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("B", 99));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 99 + 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 99 + 3});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("A", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 11 + 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 11 + 12});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -151,19 +152,19 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendBean(env, "A", 0, 4, false);
             sendBean(env, "B", 0, 5, false);
             sendBean(env, "A", 0, 6, true);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertPartitionsInitWCorrelatedTermFilter(env);
             SupportContextPropUtil.assertContextProps(env, "ctx", "CtxPartitionInitWCorrTerm", new int[]{0, 1}, "key1,sb", new Object[][]{{"A", initA}, {"B", initB}});
 
             env.milestone(1);
 
             sendBean(env, "B", 200, 7, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 3 + 5L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 3 + 5L});
 
             env.milestone(2);
 
             sendBean(env, "A", 100, 8, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 1 + 4 + 6L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1 + 4 + 6L});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -203,13 +204,13 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean_S1(1, "A"));
             env.sendEventBean(new SupportBean_S0(2, "A"));
             env.sendEventBean(new SupportBean_S2(12, "B"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, null, "A", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, null, "A", 21});
 
             env.sendEventBean(new SupportBean_S1(2, "B"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 2, "B", 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, 2, "B", 12});
 
             assertFilterSvcCount(env, 2, "ctx");
             env.undeployAll();
@@ -292,17 +293,17 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendS1(env, "b", "B");
             sendS0(env, "a", "C");
             sendS2(env, "", "B");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendS2(env, "z", "B");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1L});
 
             env.milestone(1);
 
             sendS2(env, "z", "C");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C", 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C", 0L});
 
             assertFilterSvcCount(env, 2, "ctx");
             env.undeployModuleContaining("s0");
@@ -339,12 +340,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean("B", 30));
             env.sendEventBean(new SupportBean("B", -100));
             env.sendEventBean(new SupportBean("A", 1000));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 1000));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 30});
 
             env.milestone(2);
 
@@ -355,12 +356,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("A", 50));
             env.sendEventBean(new SupportBean("A", -20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("A", 1000));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 90});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 90});
 
             env.undeployAll();
         }
@@ -410,12 +411,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("B", 30));
             env.sendEventBean(new SupportBean("A", 1000));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("B", 1000));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 30});
 
             env.sendEventBean(new SupportBean("C", 1000));
 
@@ -432,17 +433,17 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("A", 40));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("C", 1000));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C", 0});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C", 0});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("A", 1000));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 40});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 40});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployModuleContaining("s0");
@@ -470,15 +471,15 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean_S2(0, "A"));
             env.sendEventBean(new SupportBean_S0(0, "B"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S2(0, "B"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2L});
 
             env.sendEventBean(new SupportBean_S1(0, "A"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -488,7 +489,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S2(0, "A"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 3L});
 
             assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             env.undeployAll();
@@ -518,20 +519,20 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendBean(env, "B", 2, 50, true);
 
             sendBean(env, "A", 2, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 2, 52L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 2, 52L});
 
             env.milestone(1);
 
             sendBean(env, "B", 2, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 2, 63L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2, 63L});
 
             sendBean(env, "A", 1, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 1, 40L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1, 40L});
 
             env.milestone(2);
 
             sendBean(env, "B", 1, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 1, 31L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1, 31L});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -552,13 +553,13 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("B", 1));
             env.sendEventBean(new SupportBean("B", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 0));
             env.sendEventBean(new SupportBean("A", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -593,7 +594,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("B", 0));
             env.sendEventBean(new SupportBean("B", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -660,7 +661,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(-1, "B")); // stop B
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1L});
 
             env.milestone(1);
 
@@ -671,22 +672,22 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S1(-1, "A")); // stop A
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 3L});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(-1, "A")); // stop A
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(-1, "B")); // stop B
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2L});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S1(-1, "B")); // stop B
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -719,7 +720,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             env.sendEventBean(new SupportBean("B", 0));
             env.sendEventBean(new SupportBean("A", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-02-01T09:01:00.000");
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,cnt".split(","), new Object[][]{{"A", 3L}, {"B", 2L}});
@@ -739,7 +740,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,cnt".split(","), new Object[][]{{"A", 1L}, {"C", 2L}, {"D", 1L}});
 
             sendCurrentTime(env, "2002-02-01T09:03:00.000");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -843,7 +844,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
         private static void sendOAAssert(RegressionEnvironment env, String poa, long count) {
             env.sendEventObjectArray(new Object[]{poa}, "TypeOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "poa,cnt".split(","), new Object[]{poa, count});
+            env.assertPropsListenerNew("s0", "poa,cnt".split(","), new Object[]{poa, count});
         }
     }
 
@@ -858,17 +859,17 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(0);
 
             env.sendEventBean(new ISupportABCImpl("a", "a", null, null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,cnt".split(","), new Object[]{"a", 1L});
+            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new ISupportAImpl("a", null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,cnt".split(","), new Object[]{"a", 2L});
+            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 2L});
 
             env.milestone(2);
 
             env.sendEventBean(new ISupportBImpl("a", null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,cnt".split(","), new Object[]{"a", 3L});
+            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 3L});
 
             env.undeployModuleContaining("s0");
 
@@ -943,12 +944,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
     private static void sendAssertSB(long expected, RegressionEnvironment env, String theString, int intPrimitive) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,cnt".split(","), new Object[]{theString, expected});
+        env.assertPropsListenerNew("s0", "theString,cnt".split(","), new Object[]{theString, expected});
     }
 
     private static void sendAssertNone(RegressionEnvironment env, Object event) {
         env.sendEventBean(event);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendCurrentTime(RegressionEnvironment env, String time) {
@@ -977,14 +978,14 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
     private static void sendS0AssertNone(RegressionEnvironment env, int id, String p00, String p01) {
         env.sendEventBean(new SupportBean_S0(id, p00, p01));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static SupportBean_S0 sendS0Assert(int expected, SupportBean_S0 s0Init, RegressionEnvironment env, int id, String p00, String p01) {
         SupportBean_S0 s0 = new SupportBean_S0(id, p00, p01);
         env.sendEventBean(s0);
         String[] fields = "p00,p01,s0,theSum".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{p00, p01, s0Init == null ? s0 : s0Init, expected});
+        env.assertPropsListenerNew("s0", fields, new Object[]{p00, p01, s0Init == null ? s0 : s0Init, expected});
         return s0;
     }
 }

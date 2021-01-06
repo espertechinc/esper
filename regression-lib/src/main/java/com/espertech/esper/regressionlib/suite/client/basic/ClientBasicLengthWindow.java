@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.client.basic;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.collection.UniformPair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertSame;

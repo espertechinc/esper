@@ -13,15 +13,16 @@ package com.espertech.esper.regressionlib.suite.client.instrument;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.metric.RuntimeMetric;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.client.MyMetricFunctions;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ClientInstrumentMetricsReportingRuntimeMetrics implements RegressionExecution {
 
@@ -35,7 +36,7 @@ public class ClientInstrumentMetricsReportingRuntimeMetrics implements Regressio
         env.sendEventBean(new SupportBean());
 
         sendTimer(env, 10999);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.compileDeploy("select * from pattern[timer:interval(5 sec)]");
 

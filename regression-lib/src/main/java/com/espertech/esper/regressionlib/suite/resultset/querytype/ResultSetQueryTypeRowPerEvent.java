@@ -11,12 +11,11 @@
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
@@ -24,7 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeRowPerEvent {
     private final static String JOIN_KEY = "KEY";
@@ -110,7 +110,7 @@ public class ResultSetQueryTypeRowPerEvent {
             Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("val"));
 
             sendEvent(env, "E2", 10, 11);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -123,7 +123,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(1);
 
             sendEvent(env, "E5", 25, 25);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -137,13 +137,13 @@ public class ResultSetQueryTypeRowPerEvent {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendMarketDataEvent(env, "GE", 10L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketDataEvent(env, "IBM", 20L);
             assertPostedNew(env, 20d, 20L);
 
             sendMarketDataEvent(env, "XXX", 10000L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -203,7 +203,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent(100L, "ONE"));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 1L},
@@ -216,7 +216,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(null, null));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 1L},
@@ -229,7 +229,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(null, "Two"));
-            env.listener("s0").assertNewOldData(
+            env.assertNVListener("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 2L},
@@ -293,46 +293,46 @@ public class ResultSetQueryTypeRowPerEvent {
 
         // assert select result type
         assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
         AtomicInteger eventCount = new AtomicInteger();
 
         sendEvent(env, eventCount, 10);
         assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{1L, 10L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 10L}});
 
         env.milestone(1);
 
         sendEvent(env, eventCount, 15);
         assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{1L, 25L}, {2L, 25L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 25L}, {2L, 25L}});
 
         env.milestone(2);
 
         sendEvent(env, eventCount, -5);
         assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
         assertNull(env.listener("s0").getLastOldData());
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{1L, 20L}, {2L, 20L}, {3L, 20L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 20L}, {2L, 20L}, {3L, 20L}});
 
         env.milestone(3);
 
         sendEvent(env, eventCount, -2);
         assertEquals(8L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertEquals(8L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{4L, 8L}, {2L, 8L}, {3L, 8L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 8L}, {2L, 8L}, {3L, 8L}});
 
         env.milestone(4);
 
         sendEvent(env, eventCount, 100);
         assertEquals(93L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertEquals(93L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{4L, 93L}, {5L, 93L}, {3L, 93L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 93L}, {5L, 93L}, {3L, 93L}});
 
         env.milestone(5);
 
         sendEvent(env, eventCount, 1000);
         assertEquals(1098L, env.listener("s0").getLastOldData()[0].get("mySum"));
         assertEquals(1098L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{4L, 1098L}, {5L, 1098L}, {6L, 1098L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 1098L}, {5L, 1098L}, {6L, 1098L}});
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbol, long volSum) {
@@ -346,7 +346,7 @@ public class ResultSetQueryTypeRowPerEvent {
         Assert.assertEquals(volSum, newData[0].get("volSum"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, long volSumOld,
@@ -364,7 +364,7 @@ public class ResultSetQueryTypeRowPerEvent {
         Assert.assertEquals(volSumNew, newData[0].get("volSum"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume) {

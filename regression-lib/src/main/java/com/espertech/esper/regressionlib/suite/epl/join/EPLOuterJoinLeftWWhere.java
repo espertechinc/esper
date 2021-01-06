@@ -13,15 +13,16 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class EPLOuterJoinLeftWWhere {
 
@@ -115,17 +116,17 @@ public class EPLOuterJoinLeftWWhere {
             // Send S0[0] p01=a
             eventsS0[0].setP01("[a]");
             sendEvent(eventsS0[0], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send S1[1] p11=b
             eventsS1[1].setP11("[b]");
             sendEvent(eventsS1[1], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send S0[1] p01=c, no match expected
             eventsS0[1].setP01("[c]");
             sendEvent(eventsS0[1], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send S1[2] p11=d
             eventsS1[2].setP11("[d]");
@@ -140,7 +141,7 @@ public class EPLOuterJoinLeftWWhere {
             sendEvent(eventsS1[3], env);
             eventsS0[3].setP01("[e1]");
             sendEvent(eventsS0[3], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -161,7 +162,7 @@ public class EPLOuterJoinLeftWWhere {
         SupportBean_S1 s1Bean2 = new SupportBean_S1(1001, "5", null);
         SupportBean_S1 s1Bean3 = new SupportBean_S1(1002, "6", null);
         sendEvent(env, new Object[]{s1Bean1, s1Bean2, s1Bean3});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         SupportBean_S0 s0 = new SupportBean_S0(1, "5", "X");
         sendEvent(s0, env);
@@ -173,7 +174,7 @@ public class EPLOuterJoinLeftWWhere {
         SupportBean_S1 s1Bean2 = new SupportBean_S1(1001, "5", null);
         SupportBean_S1 s1Bean3 = new SupportBean_S1(1002, "6", null);
         sendEvent(env, new Object[]{s1Bean1, s1Bean2, s1Bean3});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         SupportBean_S0 s0 = new SupportBean_S0(1, "5", "X");
         sendEvent(s0, env);

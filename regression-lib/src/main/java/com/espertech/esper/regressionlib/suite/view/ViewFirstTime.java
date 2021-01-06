@@ -12,15 +12,13 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class ViewFirstTime {
 
@@ -43,16 +41,16 @@ public class ViewFirstTime {
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}});
             env.advanceTime(2000);
             sendSupportBean(env, "E2", 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
 
             env.milestone(3);
 
@@ -63,12 +61,12 @@ public class ViewFirstTime {
             env.advanceTime(10000);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E2", 20}});
             sendSupportBean(env, "E3", 30);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
             sendSupportBean(env, "E4", 40);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E2", 20}});
 
             env.undeployAll();
@@ -84,32 +82,32 @@ public class ViewFirstTime {
 
             env.advanceTime(500);
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"symbol"}, new Object[][]{{"E1"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}});
 
             env.milestone(1);
 
             env.advanceTime(600);
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E2"}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
 
             env.advanceTime(1500);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.advanceTime(1600);
             env.sendEventBean(makeMarketDataEvent("E3"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.advanceTime(2000);
             env.sendEventBean(makeMarketDataEvent("E4"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 

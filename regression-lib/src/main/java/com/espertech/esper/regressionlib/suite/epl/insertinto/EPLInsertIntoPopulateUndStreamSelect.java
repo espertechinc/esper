@@ -125,7 +125,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "myint,mystr,addprop".split(","), new Object[]{123, "abc", null});
+        env.assertPropsListenerNew("s0", "myint,mystr,addprop".split(","), new Object[]{123, "abc", null});
         env.undeployModuleContaining("insert");
 
         // select underlying plus property
@@ -144,7 +144,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
+        env.assertPropsListenerNew("s0", "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
 
         env.undeployAll();
     }
@@ -219,7 +219,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), expected);
+        env.assertPropsListenerNew("s0", fields.split(","), expected);
         env.undeployModuleContaining("s0");
     }
 

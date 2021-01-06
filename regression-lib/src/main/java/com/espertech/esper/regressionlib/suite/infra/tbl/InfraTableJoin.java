@@ -18,14 +18,14 @@ import com.espertech.esper.common.internal.epl.join.queryplan.LookupInstructionQ
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupNodeForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupPlanForge;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanSimple;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
@@ -37,7 +37,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -65,10 +66,10 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             env.compileExecuteFAF("insert into MyTable select 'a' as p0, 10 as p1", path);
 
             env.sendEventBean(new SupportBean("a", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"a", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"a", 10});
 
             env.sendEventBean(new SupportBean("b", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"b", null});
 
             env.undeployAll();
         }
@@ -275,7 +276,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             env.compileExecuteFAF("insert into SecondTable values ('a1', 10)", path);
             env.compileDeploy("@name('s0')select a, b from SecondTable, SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), new Object[]{"a1", 10});
+            env.assertPropsListenerNew("s0", "a,b".split(","), new Object[]{"a1", 10});
 
             env.undeployAll();
         }
@@ -355,7 +356,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
         for (int i = 0; i < keyarr.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, keyarr[i]));
             if (values[i] == null) {
-                assertFalse(env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             } else {
                 EventBean event = env.listener("s0").assertOneGetNewAndReset();
                 assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));

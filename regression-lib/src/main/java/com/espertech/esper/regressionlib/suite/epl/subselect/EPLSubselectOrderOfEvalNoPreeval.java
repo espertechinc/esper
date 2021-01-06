@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import static org.junit.Assert.assertTrue;
 

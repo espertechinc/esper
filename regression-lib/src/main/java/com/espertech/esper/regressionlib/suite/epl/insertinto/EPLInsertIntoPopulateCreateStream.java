@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -55,7 +54,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
         env.sendEventObjectArray(new Object[]{"p0value", "p1value", new Object[]{"i"}}, "MyOASource");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"p0value", "p1value"});
+        env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"p0value", "p1value"});
 
         env.undeployAll();
     }

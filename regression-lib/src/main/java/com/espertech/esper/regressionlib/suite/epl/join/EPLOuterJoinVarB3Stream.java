@@ -12,18 +12,17 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class EPLOuterJoinVarB3Stream {
@@ -99,11 +98,11 @@ public class EPLOuterJoinVarB3Stream {
         //
         s1Events = SupportBean_S1.makeS1("A", new String[]{"A-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 ... s1 with 0 rows, s2 with 1 rows
         //
@@ -120,7 +119,7 @@ public class EPLOuterJoinVarB3Stream {
         //
         s1Events = SupportBean_S1.makeS1("C", new String[]{"C-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
@@ -135,7 +134,7 @@ public class EPLOuterJoinVarB3Stream {
         //
         s1Events = SupportBean_S1.makeS1("D", new String[]{"D-s1-1", "D-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("D", new String[]{"D-s2-1"});
         sendEventsAndReset(env, s2Events);
@@ -150,7 +149,7 @@ public class EPLOuterJoinVarB3Stream {
         //
         s1Events = SupportBean_S1.makeS1("E", new String[]{"E-s1-1", "E-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("E", new String[]{"E-s2-1", "E-s2-2"});
         sendEventsAndReset(env, s2Events);
@@ -181,7 +180,7 @@ public class EPLOuterJoinVarB3Stream {
 
         s1Events = SupportBean_S1.makeS1("H", new String[]{"H-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s1 ... s0 with 1 rows, s2 with 0 rows
         //
@@ -190,7 +189,7 @@ public class EPLOuterJoinVarB3Stream {
 
         s1Events = SupportBean_S1.makeS1("I", new String[]{"I-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s1 ... s0 with 1 rows, s2 with 1 rows
         //

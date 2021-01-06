@@ -12,13 +12,13 @@ package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetOutputLimitRowLimit {
 
@@ -154,7 +153,7 @@ public class ResultSetOutputLimitRowLimit {
 
             sendEvent(env, "E4", 99);
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E4"}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E5", 6);
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3"}, {"E1"}});
@@ -315,7 +314,7 @@ public class ResultSetOutputLimitRowLimit {
 
         sendEvent(env, "E4", 4);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}, {"E3"}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E5", 5);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}, {"E3"}});
@@ -323,23 +322,23 @@ public class ResultSetOutputLimitRowLimit {
 
         sendEvent(env, "E6", 6);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3"}, {"E4"}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // change variable values
         env.sendEventBean(new SupportBeanNumeric(2, 3));
         sendEvent(env, "E7", 7);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E6"}, {"E7"}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(-1, 0));
         sendEvent(env, "E8", 8);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}, {"E8"}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(10, 0));
         sendEvent(env, "E9", 9);
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E5"}, {"E6"}, {"E7"}, {"E8"}, {"E9"}});
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(6, 3));
         sendEvent(env, "E10", 10);
@@ -387,7 +386,7 @@ public class ResultSetOutputLimitRowLimit {
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
 
         sendEvent(env, "E2", 2);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
 
         sendEvent(env, "E3", 3);
@@ -416,7 +415,7 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, theString, 0);
         }
         env.sendEventBean(new SupportBean_S1(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString".split(","), new Object[]{expected});
+        env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{expected});
     }
 
     private static void sendSBSequenceAndAssert(RegressionEnvironment env, String expectedString, int expectedInt, Object[][] rows) {
@@ -425,6 +424,6 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, row[0].toString(), (Integer) row[1]);
         }
         env.sendEventBean(new SupportBean_S1(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,intPrimitive".split(","), new Object[]{expectedString, expectedInt});
+        env.assertPropsListenerNew("s0", "theString,intPrimitive".split(","), new Object[]{expectedString, expectedInt});
     }
 }

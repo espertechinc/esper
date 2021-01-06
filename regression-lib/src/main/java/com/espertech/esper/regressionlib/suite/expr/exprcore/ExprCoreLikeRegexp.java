@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreLikeRegexp {
     public static Collection<RegressionExecution> executions() {

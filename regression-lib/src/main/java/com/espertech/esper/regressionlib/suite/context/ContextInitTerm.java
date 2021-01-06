@@ -100,7 +100,7 @@ public class ContextInitTerm {
             sendUser(env, "U1", "A");
             sendUser(env, "U1", null);
             sendUser(env, "U1", null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.milestone(0);
 
             Map<String, Object> term = sendUser(env, "U1", "B");
@@ -359,13 +359,13 @@ public class ContextInitTerm {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E1", 1});
 
             env.milestone(0);
 
             env.advanceTime(59999);
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E2", 2});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E2", 2});
 
             env.milestone(1);
 
@@ -388,19 +388,19 @@ public class ContextInitTerm {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E1", 10});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E1", 10});
 
             env.milestone(0);
 
             env.advanceTime(120000 + 59999);
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{"E2", 30});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E2", 30});
 
             env.milestone(1);
 
             env.advanceTime(120000 + 60000);
             env.sendEventBean(new SupportBean("E3", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
             assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
@@ -434,21 +434,21 @@ public class ContextInitTerm {
             env.milestone(2);
 
             env.advanceTime(9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(10000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
 
             env.milestone(3);
 
             env.advanceTime(10100);
             env.sendEventBean(new SupportBean("E2", 4));
             env.sendEventBean(new SupportBean("E1", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.advanceTime(11000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 4});
 
             env.milestone(5);
 
@@ -456,19 +456,19 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean("E2", 6));
 
             env.advanceTime(20099);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
             env.advanceTime(20100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 5});
 
             env.milestone(7);
 
             env.advanceTime(26100 - 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(26100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 6});
 
             env.undeployAll();
             path.clear();
@@ -486,7 +486,7 @@ public class ContextInitTerm {
             env.milestone(9);
 
             env.sendEventBean(new SupportBean_S1(20, "S1_1"));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -512,12 +512,12 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 10, 10, 10d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10, 10, 10d});
 
             env.milestone(2);
 
@@ -539,12 +539,12 @@ public class ContextInitTerm {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 11, 21, 10.5d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 11, 21, 10.5d});
 
             env.undeployAll();
 
@@ -599,7 +599,7 @@ public class ContextInitTerm {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 3));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{0, "S0_1", "E1", 6}, {0, "S0_1", "E2", 10}, {0, "S0_1", "E3", 201}, {1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{0, "S0_1", "E1", 6}, {0, "S0_1", "E2", 10}, {0, "S0_1", "E3", 201}, {1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
             SupportContextPropUtil.assertContextProps(env, "ctx", "MyCtx", new int[]{0, 1}, "startTime,endTime,s0", new Object[][]{{1000L, null, initOne}, {2000L, null, initTwo}});
 
             env.milestoneInc(milestone);
@@ -644,7 +644,7 @@ public class ContextInitTerm {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -653,7 +653,7 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2});
 
             env.sendEventBean(new SupportBean_S0(11, "S0_2"));  // initiate another
 
@@ -672,7 +672,7 @@ public class ContextInitTerm {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -709,7 +709,7 @@ public class ContextInitTerm {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(200, "G1"));  // terminate
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 5});
 
             env.sendEventBean(new SupportBean_S0(101, "G2"));    // starts new one
             env.sendEventBean(new SupportBean("E4", 4));
@@ -727,12 +727,12 @@ public class ContextInitTerm {
             env.milestone(6);
 
             env.sendEventBean(new SupportBean_S1(0, "G2"));  // terminate G2
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 15});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 15});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean_S1(0, "G3"));  // terminate G3
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 11});
 
             env.undeployAll();
         }
@@ -960,7 +960,7 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 2, "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, 2, "E1"});
 
             env.milestone(1);
 
@@ -993,35 +993,35 @@ public class ContextInitTerm {
             env.addListener("s0");
 
             env.sendEventBean(makeEvent("E1", -1, -2L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("I1", 2, 4L)); // counts towards stuff
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4L});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 2, 3L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{7L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{7L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("I2", 3, 14L)); // counts towards stuff
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{14L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{14L});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("E3", 2, 2L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{9L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{9L});
 
             env.sendEventBean(makeEvent("E4", 3, 15L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{29L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{29L});
 
             env.milestone(3);
 
             sendTimeEvent(env, "2002-05-1T08:01:30.000");
 
             env.sendEventBean(makeEvent("E", -1, -2L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // test SODA
             env.undeployAll();
@@ -1126,14 +1126,14 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(3, "S01"));
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2, "S01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2, "S01"});
 
             env.sendEventBean(new SupportBean_S0(3, "S02"));
 
@@ -1178,12 +1178,12 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, "SB01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 2, "SB01"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 5, "SB01"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 5, "SB01"});
 
             env.milestone(3);
 
@@ -1244,7 +1244,7 @@ public class ContextInitTerm {
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1 + 2 + 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1 + 2 + 3});
 
             env.milestone(2);
 
@@ -1258,7 +1258,7 @@ public class ContextInitTerm {
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4 + 5 + 6});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4 + 5 + 6});
 
             env.undeployModuleContaining("s0");
 
@@ -1269,22 +1269,22 @@ public class ContextInitTerm {
 
             env.sendEventBean(new SupportBean("E10", 1));
             env.sendEventBean(new SupportBean("E11", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             sendTimeEvent(env, "2002-05-1T08:04:00.000");
             env.sendEventBean(new SupportBean("E12", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E13", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{7});
+            env.assertPropsListenerNew("s0", fields, new Object[]{7});
 
             env.milestone(5);
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:05:00.000");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1374,7 +1374,7 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -1395,7 +1395,7 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:02:10.000");
             env.sendEventBean(new SupportBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -1403,7 +1403,7 @@ public class ContextInitTerm {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4"}, {"E5"}});
 
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.eplToModelCompileDeploy(epl, path).undeployAll();
         }
@@ -1432,7 +1432,7 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -1444,7 +1444,7 @@ public class ContextInitTerm {
 
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1512,7 +1512,7 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean_S0(1, "S0"));
 
             env.sendEventBean(new SupportBean("E4", 4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
@@ -1704,46 +1704,46 @@ public class ContextInitTerm {
             env.milestone(2);
 
             sendSummedEvent(env, "CP2", "G1", 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 100});
 
             env.milestone(3);
 
             sendSummedEvent(env, "CP1", "G1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10});
 
             env.milestone(4);
 
             sendSummedEvent(env, "CP1", "G2", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 5});
 
             env.milestone(5);
 
             sendSummedEvent(env, "CP2", "G1", 101);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 201});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 201});
 
             env.milestone(6);
 
             sendSummedEvent(env, "CP1", "G1", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 21});
 
             env.milestone(7);
 
             sendTermEvent(env, "CP1");
             sendSummedEvent(env, "CP1", "G1", -1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(8);
 
             sendTermEvent(env, "CP2");
             sendSummedEvent(env, "CP1", "G1", -1);
             sendSummedEvent(env, "CP2", "G1", -1);
-            Assert.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(9);
 
             sendInitEvent(env, "CP1");
             sendSummedEvent(env, "CP1", "G1", 1000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1000});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1000});
 
             env.undeployAll();
             env.milestone(10);
@@ -1784,7 +1784,7 @@ public class ContextInitTerm {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -1800,7 +1800,7 @@ public class ContextInitTerm {
 
             SupportBean event2 = new SupportBean("E2", 2);
             env.sendEventBean(event2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
 
             env.milestone(2);
 
@@ -1811,7 +1811,7 @@ public class ContextInitTerm {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -1852,12 +1852,12 @@ public class ContextInitTerm {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10, "P2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 200, 5L, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, 200, 5L, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(20, "P1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, 100, 5L, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{20, 100, 5L, null});
 
         env.undeployAll();
     }
@@ -1880,12 +1880,12 @@ public class ContextInitTerm {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10, "P2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(20, "P1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, 100, 5L, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{20, 100, 5L, null});
 
         env.undeployAll();
     }

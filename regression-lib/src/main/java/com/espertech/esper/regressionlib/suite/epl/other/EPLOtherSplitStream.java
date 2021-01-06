@@ -16,12 +16,12 @@ import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -401,15 +401,15 @@ public class EPLOtherSplitStream {
 
         sendSupportBean(env, "E1", 1);
         assertReceivedSingle(listeners, 0, "E1");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBean(env, "E2", 2);
         assertReceivedSingle(listeners, 1, "E2");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBean(env, "E3", 1);
         assertReceivedSingle(listeners, 0, "E3");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendSupportBean(env, "E4", -999);
         assertReceivedNone(listeners);

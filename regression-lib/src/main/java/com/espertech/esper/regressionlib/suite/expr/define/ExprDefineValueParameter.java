@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.define;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -69,7 +68,7 @@ public class ExprDefineValueParameter {
             assertTypeExpected(env, Integer.class);
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1});
 
             env.undeployAll();
         }
@@ -249,13 +248,13 @@ public class ExprDefineValueParameter {
             String[] fields = "c0,c1,c2".split(",");
 
             env.sendEventMap(CollectionUtil.buildMap("value1", 1d, "value2", 1.5d), "A");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[] {1.5d, 1.2d, 1.5d});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "D", 1.1d);
 
             env.sendEventMap(CollectionUtil.buildMap("value1", 1.8d, "value2", 1.5d), "A");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[] {1.8d, 1.8d, 1.2d});
 
             env.undeployAll();
@@ -276,7 +275,7 @@ public class ExprDefineValueParameter {
     private static void sendAssert(RegressionEnvironment env, String expected, String p00, String p01, String p02) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean_S0(0, p00, p01, p02));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+        env.assertPropsListenerNew("s0", fields, new Object[]{expected});
     }
 
     public static class ExprDefineLocalService {

@@ -50,13 +50,13 @@ public class RowRecogIterateOnly {
             }
             long end = System.currentTimeMillis();
             assertTrue((end - start) <= 100);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E2", 2));
             env.runtime().getVariableService().setVariableValue(null, "mySleepDuration", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E2"}});
 
@@ -98,7 +98,7 @@ public class RowRecogIterateOnly {
             env.sendEventBean(new SupportRecogBean("E7", 2));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E7"}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -139,7 +139,7 @@ public class RowRecogIterateOnly {
             env.sendEventBean(new SupportRecogBean("E7", "B", 3));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
                 new Object[][]{{"E7", "B"}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
-
 public class RowRecogGreedyness {
 
     public static Collection<RegressionExecution> executions() {
@@ -144,7 +142,7 @@ public class RowRecogGreedyness {
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E18", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

@@ -10,20 +10,18 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportIdAndValueEvent;
+import com.espertech.esper.regressionlib.support.bean.SupportValueEvent;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectAggregatedInExistsAnyAll {
 
@@ -444,17 +442,17 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventS0(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 100);
             sendEventS0(env, 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 100);
             Assert.assertEquals(100, env.listener("s0").assertOneGetNewAndReset().get("id"));
 
             sendEventS0(env, 200);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, -1);
             sendEventS1(env, -1);
@@ -467,12 +465,12 @@ public class EPLSubselectAggregatedInExistsAnyAll {
 
     private static void sendVEAndAssert(RegressionEnvironment env, String[] fields, int value, Object[] expected) {
         env.sendEventBean(new SupportValueEvent(value));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 
     private static void sendVEAndAssert(RegressionEnvironment env, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportValueEvent(-1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 
     private static void sendEventS0(RegressionEnvironment env, int id) {

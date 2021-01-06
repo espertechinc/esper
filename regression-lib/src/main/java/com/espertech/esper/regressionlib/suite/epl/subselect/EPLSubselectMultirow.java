@@ -13,11 +13,11 @@ package com.espertech.esper.regressionlib.suite.epl.subselect;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -75,11 +75,11 @@ public class EPLSubselectMultirow {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new Integer[]{10, 15, 6}});   // length window 3
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, new Integer[]{10, 15, 6}});   // length window 3
 
             env.sendEventBean(new SupportBean("T1", 5));
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, new Integer[]{15, 6, 5}});   // length window 3
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, new Integer[]{15, 6, 5}});   // length window 3
 
             env.undeployAll();
         }

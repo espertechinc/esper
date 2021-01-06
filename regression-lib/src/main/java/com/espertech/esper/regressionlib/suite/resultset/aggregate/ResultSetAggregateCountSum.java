@@ -228,15 +228,15 @@ public class ResultSetAggregateCountSum {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEvent(env, SYMBOL_DELL, 50L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 1L, 1d});
+            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 1L, 1d});
 
             sendEvent(env, SYMBOL_DELL, 51L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
+            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
 
             env.milestone(0);
 
             sendEvent(env, SYMBOL_DELL, 52L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
+            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
 
             sendEvent(env, "IBM", 52L);
             EventBean[] events = env.listener("s0").getLastNewData();
@@ -247,7 +247,7 @@ public class ResultSetAggregateCountSum {
             env.milestone(1);
 
             sendEvent(env, SYMBOL_DELL, 53L);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
+            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
 
             env.undeployAll();
         }
@@ -337,45 +337,45 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("A", 100));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 100});
 
             env.sendEventBean(new SupportBean("B", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 101));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 201});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 201});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 21));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 41});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 201}, {"B", 41}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 41});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 201}, {"B", 41}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_A("A"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", null});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"B", 41}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", null});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"B", 41}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("A", 102));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 102});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 102}, {"B", 41}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 102});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 41}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_A("B"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", null});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 102}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", null});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("B", 22));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 22});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"A", 102}, {"B", 22}});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 22});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 22}});
 
             env.undeployAll();
         }
@@ -445,7 +445,7 @@ public class ResultSetAggregateCountSum {
         assertEquals(countVolNew, newData[0].get("countVol"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, Long volume) {
@@ -464,6 +464,6 @@ public class ResultSetAggregateCountSum {
 
     private static void sendManyArrayAssert(RegressionEnvironment env, int[] intOne, int[] intTwo, long expectedC0, long expectedC1) {
         env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(intOne).withIntTwo(intTwo));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{expectedC0, expectedC1});
+        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{expectedC0, expectedC1});
     }
 }

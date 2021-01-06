@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -57,7 +57,7 @@ public class ResultSetQueryTypeHaving {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -154,20 +154,20 @@ public class ResultSetQueryTypeHaving {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean("abc", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("abc", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("abc", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("abc", 5));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -179,7 +179,7 @@ public class ResultSetQueryTypeHaving {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, 1);
             Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
@@ -200,7 +200,7 @@ public class ResultSetQueryTypeHaving {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -208,7 +208,7 @@ public class ResultSetQueryTypeHaving {
             Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
 
             sendEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -221,7 +221,7 @@ public class ResultSetQueryTypeHaving {
         Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("avgPrice"));
 
         sendEvent(env, SYMBOL_DELL, 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 5);
         assertNewEvents(env, SYMBOL_DELL, 5d, 7.5d);
@@ -229,13 +229,13 @@ public class ResultSetQueryTypeHaving {
         env.milestone(0);
 
         sendEvent(env, SYMBOL_DELL, 15);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 8);  // avg = (10 + 5 + 15 + 8) / 4 = 38/4=9.5
         assertNewEvents(env, SYMBOL_DELL, 8d, 9.5d);
 
         sendEvent(env, SYMBOL_DELL, 10);  // avg = (10 + 5 + 15 + 8 + 10) / 5 = 48/5=9.5
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(1);
 
@@ -287,7 +287,7 @@ public class ResultSetQueryTypeHaving {
         env.compileDeploy(epl).addListener("s0");
 
         sendPriceEvent(env, "SYM1", 20);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(0);
 
@@ -302,13 +302,13 @@ public class ResultSetQueryTypeHaving {
         sendPriceEvent(env, "SYM2", 20);
         sendPriceEvent(env, "SYM2", 20);
         sendPriceEvent(env, "SYM1", 20);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendPriceEvent(env, "SYM1", 18.7);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendPriceEvent(env, "SYM2", 20);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(2);
 

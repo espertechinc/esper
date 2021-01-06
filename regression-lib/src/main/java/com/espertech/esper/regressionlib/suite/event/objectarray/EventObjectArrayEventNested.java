@@ -13,9 +13,9 @@ package com.espertech.esper.regressionlib.suite.event.objectarray;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class EventObjectArrayEventNested {
             Object[] eventData = new Object[]{p0, beans};
             env.sendEventObjectArray(eventData, "MyArrayOA");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
+            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
             EventType eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -63,7 +63,7 @@ public class EventObjectArrayEventNested {
 
             env.sendEventObjectArray(new Object[]{eventData}, "MyArrayOAMapOuter");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
+            env.assertPropsListenerNew("s0", "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
             eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -87,7 +87,7 @@ public class EventObjectArrayEventNested {
             Map<String, Object> theEvent = makeMap(new Object[][]{{"p0", eventVal}});
             env.sendEventMap(theEvent, "MyMappedPropertyMap");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a".split(","), new Object[]{"v1"});
+            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"v1"});
             assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
             env.undeployAll();
 
@@ -98,7 +98,7 @@ public class EventObjectArrayEventNested {
             Map<String, Object> eventOuter = makeMap(new Object[][]{{"outer", theEvent}});
             env.sendEventMap(eventOuter, "MyMappedPropertyMapOuter");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a".split(","), new Object[]{"v1"});
+            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"v1"});
             assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
             env.undeployModuleContaining("s0");
 
@@ -108,7 +108,7 @@ public class EventObjectArrayEventNested {
             Map<String, Object> eventOuterTwo = makeMap(new Object[][]{{"outerTwo", SupportBeanComplexProps.makeDefaultBean()}});
             env.sendEventMap(eventOuterTwo, "MyMappedPropertyMapOuterTwo");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a".split(","), new Object[]{"yOne"});
+            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"yOne"});
             assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("a"));
 
             env.undeployAll();
@@ -129,7 +129,7 @@ public class EventObjectArrayEventNested {
             Map<String, Object> theEvent = makeMap(new Object[][]{{"p0", n0Bean1}, {"p1", n0Bean2}});
             env.sendEventObjectArray(new Object[]{theEvent}, "MyObjectArrayMapOuter");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
+            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
             EventType eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -143,7 +143,7 @@ public class EventObjectArrayEventNested {
 
             env.sendEventObjectArray(new Object[]{theEvent}, "MyObjectArrayMapOuter");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
+            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("a"));
 
             env.undeployAll();

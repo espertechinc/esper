@@ -11,9 +11,9 @@
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
-import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -119,9 +119,9 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "ssb2.s2,ssb1.s1,ssb1.i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 50, 21, 22));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E2", 20});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 20});
                     env.sendEventBean(new SupportSimpleBeanTwo("E1", 60, 11, 12));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 10});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10});
                 }
             };
 
@@ -499,26 +499,26 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("b"));
 
             sendMarketBean(env, "S1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "S1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S1", "S1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S1", "S1", 1});
 
             sendSupportBean_A(env, "S1"); // deletes from window
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"S1", "S1", 1});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"S1", "S1", 1});
 
             sendMarketBean(env, "S1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "S2", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketBean(env, "S2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S2", "S2", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S2", "S2", 2});
 
             sendSupportBean(env, "S3", 3);
             sendSupportBean(env, "S3", 4);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketBean(env, "S3");
             assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -529,7 +529,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.listener("s0").reset();
 
             sendMarketBean(env, "S3");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -549,19 +549,19 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.compileDeploy(epl).addListener("s0");
 
             sendSupportBean(env, true, "S0", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, false, "S0", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0", 1, "S0", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0", 1, "S0", 2});
 
             sendSupportBean(env, false, "S1", 3);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, true, "S1", 4);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S1", 4, "S1", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S1", 4, "S1", 3});
 
             sendSupportBean(env, true, "S1", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S1", 5, "S1", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S1", 5, "S1", 3});
 
             sendSupportBean(env, false, "S1", 6);
             assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -569,17 +569,17 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
 
             // delete and insert back in
             sendMarketBean(env, "S0", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"S0", 1, "S0", 2});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"S0", 1, "S0", 2});
 
             sendSupportBean(env, false, "S0", 7);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0", 1, "S0", 7});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0", 1, "S0", 7});
 
             // delete and insert back in
             sendMarketBean(env, "S0", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"S0", 1, "S0", 7});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"S0", 1, "S0", 7});
 
             sendSupportBean(env, true, "S0", 8);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0", 8, "S0", 7});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0", 8, "S0", 7});
 
             env.undeployAll();
         }
@@ -596,16 +596,16 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.compileDeploy(epl).addListener("s0");
 
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1, "E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1, "E1", 1});
 
             sendSupportBean(env, "E2", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2, "E2", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2, "E2", 2});
 
             sendMarketBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1", 1, "E1", 1});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 1, "E1", 1});
 
             sendMarketBean(env, "E0", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

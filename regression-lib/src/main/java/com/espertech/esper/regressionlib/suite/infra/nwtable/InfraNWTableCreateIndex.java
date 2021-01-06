@@ -23,12 +23,12 @@ import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowInstance;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 
 import java.util.ArrayList;
@@ -38,7 +38,8 @@ import java.util.Collections;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class InfraNWTableCreateIndex {
     public static Collection<RegressionExecution> executions() {
@@ -179,7 +180,7 @@ public class InfraNWTableCreateIndex {
             assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             // create second identical statement
             env.compileDeploy("@name('stmtTwo') on SupportBean_S0 s0 select nw.f1 as f1, nw.f2 as f2 from MyInfraONR nw where nw.f2 = s0.id", path);
@@ -682,9 +683,9 @@ public class InfraNWTableCreateIndex {
         for (int i = 0; i < p00s.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, p00s[i]));
             if (expected[i] == null) {
-                assertFalse(env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             } else {
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "col0,col1".split(","), expected[i]);
+                env.assertPropsListenerNew("s0", "col0,col1".split(","), expected[i]);
             }
         }
     }

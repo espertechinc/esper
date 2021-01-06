@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.client.extension;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.enummethod.*;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
@@ -71,7 +70,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String expected, String csv) {
             env.sendEventBean(SupportCollection.makeString(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expected});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
         }
     }
 
@@ -93,7 +92,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, Integer expected, String csv) {
             env.sendEventBean(SupportCollection.makeNumeric(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{expected});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
         }
     }
 
@@ -235,7 +234,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String[] fields, Integer expected, String csv) {
             env.sendEventBean(SupportCollection.makeNumeric(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+            env.assertPropsListenerNew("s0", fields, new Object[]{expected});
         }
     }
 
@@ -257,7 +256,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String[] fields, Integer expected, String csv) {
             env.sendEventBean(SupportCollection.makeNumeric(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+            env.assertPropsListenerNew("s0", fields, new Object[]{expected});
         }
     }
 
@@ -282,7 +281,7 @@ public class ClientExtendEnumMethod {
 
         private void sendAssert(RegressionEnvironment env, String[] fields, Double c0, Double c1, Double c2, String csv) {
             env.sendEventBean(SupportCollection.makeString(csv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{c0, c1, c2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{c0, c1, c2});
         }
     }
 
@@ -306,7 +305,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String[] fields, Double expected, String... values) {
             env.sendEventBean(SupportBean_ST0_Container.make2Value(values));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+            env.assertPropsListenerNew("s0", fields, new Object[]{expected});
         }
     }
 
@@ -335,7 +334,7 @@ public class ClientExtendEnumMethod {
 
         private void sendAssert(RegressionEnvironment env, String[] fields, Double expected, String intcsv) {
             env.sendEventBean(SupportCollection.makeNumeric(intcsv));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expected});
+            env.assertPropsListenerNew("s0", fields, new Object[]{expected});
         }
     }
 

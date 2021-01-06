@@ -10,16 +10,15 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -29,9 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EPLOtherCreateExpression {
     public static List<RegressionExecution> executions() {
@@ -74,7 +71,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(eplMapped, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{"--x--", "--E1--"});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"--x--", "--E1--"});
             env.undeployModuleContaining("s0");
 
             // test expression chained syntax
@@ -95,7 +92,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(eplScript, path);
             env.compileDeploy("@name('s0') select callIt() as val0, callIt().getTheString() as val1 from SupportBean as sb", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
+            env.assertPropsListenerNew("s0", "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
 
             env.undeployAll();
         }
@@ -111,7 +108,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(makeBean("E1", 10, 3.5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{350, 100});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{350, 100});
 
             env.undeployAll();
 
@@ -149,7 +146,7 @@ public class EPLOtherCreateExpression {
 
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean("E1", 3));   // factor is 3
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields,
+            env.assertPropsListenerNew("s0", fields,
                 new Object[]{Math.PI * 2, Math.PI * 2, Math.PI * 3});
 
             env.undeployModuleContaining("s0");
@@ -158,7 +155,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy("@name('s0') expression TwoPi {Math.PI * 10} select TwoPi() as c0 from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{Math.PI * 10});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{Math.PI * 10});
 
             // test SODA
             String eplExpr = "@name('expr') create expression JoinMultiplication {(s1,s2) => s1.intPrimitive*s2.id}";
@@ -196,7 +193,7 @@ public class EPLOtherCreateExpression {
 
             env.sendEventBean(new SupportBean("E1", 100));
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{100});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{100});
 
             env.undeployAll();
         }

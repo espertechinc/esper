@@ -12,17 +12,16 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 public class EPLOuterJoinVarC3Stream {
@@ -91,7 +90,7 @@ public class EPLOuterJoinVarC3Stream {
         //
         Object[] s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 ... s1 with 1 rows, s2 with 0 rows
         //
@@ -100,7 +99,7 @@ public class EPLOuterJoinVarC3Stream {
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 ... s1 with 0 rows, s2 with 1 rows
         //
@@ -109,7 +108,7 @@ public class EPLOuterJoinVarC3Stream {
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 ... s1 with 1 rows, s2 with 1 rows
         //

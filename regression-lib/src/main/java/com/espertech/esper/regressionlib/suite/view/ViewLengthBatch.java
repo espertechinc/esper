@@ -12,17 +12,16 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 public class ViewLengthBatch {
@@ -112,7 +111,7 @@ public class ViewLengthBatch {
             SupportBean[] events = get10Events();
 
             sendEvent(events[0], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0]}, env.statement("s0").iterator());
 
             sendEvent(events[1], env);
@@ -120,7 +119,7 @@ public class ViewLengthBatch {
             EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
 
             sendEvent(events[2], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[2]}, env.statement("s0").iterator());
 
             sendEvent(events[3], env);
@@ -128,7 +127,7 @@ public class ViewLengthBatch {
             EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
 
             sendEvent(events[4], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[4]}, env.statement("s0").iterator());
 
             sendEvent(events[5], env);
@@ -168,11 +167,11 @@ public class ViewLengthBatch {
             SupportBean[] events = get10Events();
 
             sendEvent(events[0], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0]}, env.statement("s0").iterator());
 
             sendEvent(events[1], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0], events[1]}, env.statement("s0").iterator());
 
             sendEvent(events[2], env);
@@ -180,11 +179,11 @@ public class ViewLengthBatch {
             EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
 
             sendEvent(events[3], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[3]}, env.statement("s0").iterator());
 
             sendEvent(events[4], env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[3], events[4]}, env.statement("s0").iterator());
 
             sendEvent(events[5], env);
@@ -241,47 +240,47 @@ public class ViewLengthBatch {
                 "@Name('s0') select irstream * from ABCWin;\n";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "E1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             sendSupportBean_A(env, "E1");    // delete
-            assertFalse(env.listener("s0").isInvoked());  // batch is quiet-delete
+            env.assertListenerNotInvoked("s0");  // batch is quiet-delete
 
             env.milestone(2);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
 
             sendSupportBean(env, "E2");
             sendSupportBean(env, "E3");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBean_A(env, "E3");    // delete
-            assertFalse(env.listener("s0").isInvoked());  // batch is quiet-delete
+            env.assertListenerNotInvoked("s0");  // batch is quiet-delete
 
             env.milestone(4);
 
             sendSupportBean(env, "E4");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E5");
             assertNull(env.listener("s0").getLastOldData());
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2"}, {"E4"}, {"E5"}});
 
             env.milestone(5);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
 
             sendSupportBean(env, "E6");
             sendSupportBean(env, "E7");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E6"}, {"E7"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}});
 
             sendSupportBean(env, "E8");
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E2"}, {"E4"}, {"E5"}});
@@ -318,19 +317,19 @@ public class ViewLengthBatch {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.milestone(1);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "E1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             sendSupportBean(env, "E2");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             sendSupportBean(env, "E3");
             assertNull(env.listener("s0").getLastOldData());
@@ -340,26 +339,26 @@ public class ViewLengthBatch {
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(4);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
 
             sendSupportBean(env, "E4");
             sendSupportBean(env, "E5");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}, {"E5"}});
 
             sendSupportBean(env, "E6");
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(6);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
 
             env.milestone(7);
 
             sendSupportBean(env, "E7");
             sendSupportBean(env, "E8");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "E9");
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});

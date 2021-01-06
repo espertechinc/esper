@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.annotation.Drop;
 import com.espertech.esper.common.client.annotation.Priority;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
@@ -242,15 +242,15 @@ public class ClientRuntimePriorityAndDropInstructions {
             env.compileDeploy(stmtTwoText).addListener("l1");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l0,l1", 0, "E1");
 
             env.sendEventBean(new SupportBean("E2", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l0,l1", 1, "E2");
 
             env.sendEventBean(new SupportBean("E3", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l0,l1", 0, "E3");
 
             env.sendEventBean(new SupportBean("E4", 3));
@@ -261,11 +261,11 @@ public class ClientRuntimePriorityAndDropInstructions {
             env.compileDeploy(stmtThreeText).addListener("l2");
 
             env.sendEventBean(new SupportBean("E5", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l0,l1,l2", 2, "E5");
 
             env.sendEventBean(new SupportBean("E6", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l0,l1,l2", 0, "E6");
 
             env.undeployModuleContaining("l0");
@@ -282,7 +282,7 @@ public class ClientRuntimePriorityAndDropInstructions {
             assertReceivedNone(env, "l1,l2");
 
             env.sendEventBean(new SupportBean("E9", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             assertReceivedSingle(env, "l1,l2", 0, "E9");
 
             env.undeployAll();

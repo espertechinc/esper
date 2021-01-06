@@ -183,16 +183,16 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         env.sendEventBean(new SupportBean_S0(1, "x1", "y1"));
         env.sendEventBean(new SupportBean("E1", 1));
         Object[] expected = filter ? new Object[]{null, null} : new Object[]{"x1", "y1"};
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
 
         env.sendEventBean(new SupportBean_S0(100, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"x2", "y2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"x2", "y2"});
 
         env.sendEventBean(new SupportBean_S0(2, "x3", "y3"));
         env.sendEventBean(new SupportBean("E3", 3));
         expected = filter ? new Object[]{null, null} : new Object[]{"x3", "y3"};
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
 
         env.undeployAll();
     }
@@ -220,7 +220,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(2, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "x1", "y1", "x2", "y2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "x1", "y1", "x2", "y2"});
 
         env.undeployAll();
     }
@@ -283,7 +283,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         env.sendEventBean(new SupportBean_S0(1, "x1"));
         env.sendEventBean(new SupportBean("E1", 1));
         Object[] expected = filter ? new Object[]{null} : new Object[]{"x1"};
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
 
         env.sendEventBean(new SupportBean_S0(100, "x2"));
         env.sendEventBean(new SupportBean("E2", 2));

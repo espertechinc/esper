@@ -71,7 +71,7 @@ public class EPLVariablesUse {
             env.compileDeploy("@name('s0') select * from MyVariableCustomEvent(name=my_variable_custom_typed)").addListener("s0");
 
             env.sendEventBean(new MyVariableCustomEvent(MyVariableCustomType.of("abc")));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -168,7 +168,7 @@ public class EPLVariablesUse {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{"hello", "hello"});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"hello", "hello"});
 
             env.undeployAll();
         }
@@ -438,7 +438,7 @@ public class EPLVariablesUse {
             env.compileDeploy(stmtTextSelect).addListener("s0");
 
             sendSupportBean(env, null, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -446,18 +446,18 @@ public class EPLVariablesUse {
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a", "b"});
 
             sendSupportBean(env, "a", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"a", 2});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"a", 2});
 
             sendSupportBean(env, null, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBean(env, "b", 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"b", 3});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"b", 3});
 
             sendSupportBean(env, "c", 4);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -465,10 +465,10 @@ public class EPLVariablesUse {
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"e", "c"});
 
             sendSupportBean(env, "c", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"c", 5});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"c", 5});
 
             sendSupportBean(env, "e", 6);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"e", 6});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"e", 6});
 
             env.undeployAll();
         }
@@ -487,18 +487,18 @@ public class EPLVariablesUse {
             env.compileDeploy(stmtTextSelect).addListener("s0");
 
             sendSupportBean(env, null, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBeanS0NewThread(env, 100, "a", "b");
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a"});
 
             sendSupportBean(env, "a", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"a", 2});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"a", 2});
 
             env.milestone(0);
 
             sendSupportBean(env, null, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBeanS0NewThread(env, 100, "e", "c");
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"e"});
@@ -506,10 +506,10 @@ public class EPLVariablesUse {
             env.milestone(1);
 
             sendSupportBean(env, "c", 5);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "e", 6);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{"e", 6});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"e", 6});
 
             env.undeployAll();
         }

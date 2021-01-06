@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 public class EPLOtherLiteralConstants implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -27,7 +26,7 @@ public class EPLOtherLiteralConstants implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("e1", 100));
 
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(),
+        env.assertPropsListenerNew("s0",
             "mybyte,myunicode,zero8,zero9,zeroZero8".split(","),
             new Object[]{(byte) 35, "A", 8, 9, 8});
 

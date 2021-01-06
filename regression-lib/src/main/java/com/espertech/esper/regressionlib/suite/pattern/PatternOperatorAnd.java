@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
@@ -24,7 +23,7 @@ import com.espertech.esper.regressionlib.support.patternassert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class PatternOperatorAnd {
 
@@ -48,22 +47,22 @@ public class PatternOperatorAnd {
             env.milestone(0);
 
             sendSupportBean(env, "EB", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBean(env, "EA", 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EA", "EB"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"EA", "EB"});
 
             env.milestone(2);
             sendSupportBean(env, "EB", 1);
             sendSupportBean(env, "EA", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
             sendSupportBean(env, "EB", 1);
             sendSupportBean(env, "EA", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -84,7 +83,7 @@ public class PatternOperatorAnd {
             env.sendEventBean(new SupportBean_B("B1"));
 
             env.sendEventBean(new SupportBean_C("C1"));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -107,7 +106,7 @@ public class PatternOperatorAnd {
 
             env.addListener("s0");
             env.sendEventBean(new SupportBean_B("B_last"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a.id,b.id".split(","), new Object[]{"A1", "B_last"});
+            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B_last"});
 
             env.undeployAll();
         }

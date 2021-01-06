@@ -20,7 +20,6 @@ import com.espertech.esper.runtime.client.UpdateListener;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertNameValuePairs;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.*;
 
 /**
@@ -344,14 +343,6 @@ public class SupportUpdateListener implements UpdateListener, SupportListener {
             listeners[i] = new SupportUpdateListener();
         }
         return listeners;
-    }
-
-    public void assertNewOldData(Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream) {
-        assertEquals(1, newDataList.size());
-        assertEquals(1, oldDataList.size());
-        assertNameValuePairs(lastNewData, nameAndValuePairsIStream);
-        assertNameValuePairs(lastOldData, nameAndValuePairsRStream);
-        reset();
     }
 
     public UniformPair<EventBean> assertGetAndResetIRPair() {

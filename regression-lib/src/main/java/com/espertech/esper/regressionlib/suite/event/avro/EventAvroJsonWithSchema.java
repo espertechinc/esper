@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.avro;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -37,12 +36,12 @@ public class EventAvroJsonWithSchema implements RegressionExecution {
         String eventOneJson = "{\"name\": \"Jane\", \"favorite_number\": 256, \"favorite_color\": \"red\"}";
         GenericData.Record record = parse(schema, eventOneJson);
         env.sendEventAvro(record, "User");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{"Jane", 256, "red"});
+        env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"Jane", 256, "red"});
 
         String eventTwoJson = "{\"name\": \"Hans\", \"favorite_number\": -1, \"favorite_color\": \"green\"}";
         record = parse(schema, eventTwoJson);
         env.sendEventAvro(record, "User");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields.split(","), new Object[]{"Hans", -1, "green"});
+        env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"Hans", -1, "green"});
 
         env.undeployAll();
     }

@@ -1280,15 +1280,15 @@ public class InfraNWTableOnMerge {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 10d);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "event_name,status".split(","), new Object[]{"name1", namedWindow ? 0d : 10d});
+            env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", namedWindow ? 0d : 10d});
 
             // for named windows we can send same-value keys now
             if (namedWindow) {
                 makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 11d);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "event_name,status".split(","), new Object[]{"name1", 10d});
+                env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", 10d});
 
                 makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 12d);
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "event_name,status".split(","), new Object[]{"name1", 11d});
+                env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", 11d});
             }
 
             env.undeployAll();

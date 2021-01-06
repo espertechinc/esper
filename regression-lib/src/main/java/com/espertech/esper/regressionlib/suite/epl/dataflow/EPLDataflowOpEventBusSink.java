@@ -151,7 +151,7 @@ public class EPLDataflowOpEventBusSink {
 
             env.listener("s0").waitForInvocation(3000, 1);
             env.listener("s1").waitForInvocation(3000, 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{100, "abc"});
+            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{100, "abc"});
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "f0,f1".split(","), new Object[]{"GE", -1});
 
             env.undeployAll();

@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetAggregateMedianAndDeviation {
     private final static String SYMBOL_DELL = "DELL";
@@ -240,7 +239,7 @@ public class ResultSetAggregateMedianAndDeviation {
         }
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price) {

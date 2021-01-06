@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ContextKeySegmentedPrioritized implements RegressionExecution {
 
@@ -32,8 +29,8 @@ public class ContextKeySegmentedPrioritized implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("test msg", 1));
 
-        assertTrue(env.listener("s0").isInvoked());
-        assertFalse(env.listener("s1").isInvoked());
+        env.assertListenerInvoked("s0");
+        env.assertListenerNotInvoked("s1");
 
         env.undeployAll();
     }

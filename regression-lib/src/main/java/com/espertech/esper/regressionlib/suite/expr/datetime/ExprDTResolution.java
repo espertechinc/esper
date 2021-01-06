@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -97,7 +96,7 @@ public class ExprDTResolution {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(event);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
 
         env.undeployAll();
     }

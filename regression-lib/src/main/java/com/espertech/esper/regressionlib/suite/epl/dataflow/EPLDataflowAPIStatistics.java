@@ -19,9 +19,9 @@ import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.List;
 

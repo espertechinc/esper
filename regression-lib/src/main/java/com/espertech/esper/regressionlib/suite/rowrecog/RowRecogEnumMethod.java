@@ -10,12 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
-
-import static org.junit.Assert.assertFalse;
 
 public class RowRecogEnumMethod implements RegressionExecution {
 
@@ -34,7 +31,7 @@ public class RowRecogEnumMethod implements RegressionExecution {
         sendEvent(env, "E1", 10, 0);
         sendEvent(env, "E1", 11, 50);
         sendEvent(env, "E1", 12, 11);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(0);
 
@@ -44,7 +41,7 @@ public class RowRecogEnumMethod implements RegressionExecution {
         env.milestone(1);
 
         sendEvent(env, "E2", 12, 12);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 12});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 12});
 
         env.undeployAll();
     }

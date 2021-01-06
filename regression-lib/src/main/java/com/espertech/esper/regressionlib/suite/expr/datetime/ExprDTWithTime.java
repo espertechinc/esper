@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
@@ -56,12 +55,12 @@ public class ExprDTWithTime implements RegressionExecution {
         SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
         env.sendEventBean(SupportDateTime.make(null));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
 
         String expectedTime = "2002-05-30T09:00:00.000";
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", null); // variable is null
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         expectedTime = "2002-05-30T01:02:03.004";
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", 1);
@@ -69,7 +68,7 @@ public class ExprDTWithTime implements RegressionExecution {
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varsec", 3);
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varmsec", 4);
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         expectedTime = "2002-05-30T00:00:00.006";
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", 0);
@@ -77,7 +76,7 @@ public class ExprDTWithTime implements RegressionExecution {
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varsec", null);
         env.runtime().getVariableService().setVariableValue(variablesDepId, "varmsec", 6);
         env.sendEventBean(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
+        env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         env.undeployAll();
     }

@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -33,7 +32,6 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ClientCompileVisibility {
     private final static String FIRST_MESSAGE = "Failed to resolve event type, named window or table by name 'MySchema'";
@@ -181,7 +179,7 @@ public class ClientCompileVisibility {
             env.compileDeploy("@Public @BusEventType create schema MyEvent(p0 string);\n" +
                 "@name('s0') select * from MyEvent;\n").addListener("s0");
             env.sendEventMap(Collections.emptyMap(), "MyEvent");
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
         }
     }
@@ -312,16 +310,16 @@ public class ClientCompileVisibility {
             env.deploy(compiledSelect).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 30});
 
             env.sendEventBean(new SupportBean("E3", 25));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 45});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 45});
 
             env.sendEventBean(new SupportBean("E4", 26));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", 51});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 51});
 
             env.undeployAll();
         }

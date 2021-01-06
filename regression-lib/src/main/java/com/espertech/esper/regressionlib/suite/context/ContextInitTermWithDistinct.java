@@ -11,20 +11,18 @@
 package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class ContextInitTermWithDistinct {
 
@@ -114,44 +112,44 @@ public class ContextInitTermWithDistinct {
             env.milestone(0);
 
             sendEvent(env, "A", 1, 11);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendEvent(env, "A", 0, 12);   // allocate context
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 12L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 12L, 1L});
 
             sendEvent(env, "A", 0, 13);   // counts towards the existing context, not having a new one
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 13L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 13L, 2L});
 
             env.milestone(2);
 
             sendEvent(env, "A", -1, 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 14L, 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 14L, 3L});
 
             sendEvent(env, "A", 1, 15);   // context termination
             sendEvent(env, "A", -1, 16);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendEvent(env, "A", 0, 17);   // allocate context
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 17L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 17L, 1L});
 
             env.milestone(4);
 
             sendEvent(env, "A", -1, 18);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 18L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 18L, 2L});
 
             env.milestone(5);
 
             sendEvent(env, "B", 0, 19);   // allocate context
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 19L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 19L, 1L});
 
             env.milestone(6);
 
             sendEvent(env, "B", -1, 20);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 20L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20L, 2L});
 
             sendEvent(env, "A", 1, 21);   // context termination
 
@@ -163,15 +161,15 @@ public class ContextInitTermWithDistinct {
             env.milestone(8);
 
             sendEvent(env, "B", -1, 24);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "A", 0, 25);   // allocate context
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 25L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 25L, 1L});
 
             env.milestone(9);
 
             sendEvent(env, "B", 0, 26);   // allocate context
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 26L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 26L, 1L});
 
             env.undeployAll();
         }
@@ -197,15 +195,15 @@ public class ContextInitTermWithDistinct {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "A", "E1", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E1", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "A", "E2", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E2", 2L});
 
             env.sendEventBean(new SupportBean_S1(-1)); // terminate all
             env.sendEventBean(new SupportBean_S0(1, "A", "E3"));
@@ -215,23 +213,23 @@ public class ContextInitTermWithDistinct {
             env.sendEventBean(new SupportBean("A", 1));
             env.sendEventBean(new SupportBean("B", 2));
             env.sendEventBean(new SupportBean("B", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "A", "E4", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E4", 1L});
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E5"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E5", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E5", 1L});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(1, "B", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "B", "E6", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "B", "E6", 1L});
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E7"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E7", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E7", 2L});
 
             env.milestone(5);
 
@@ -241,15 +239,15 @@ public class ContextInitTermWithDistinct {
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E8"));
             env.sendEventBean(new SupportBean("B", 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E9"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E9", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E9", 1L});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E10"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "B", "E10", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E10", 2L});
 
             env.undeployAll();
         }

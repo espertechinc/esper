@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.epl.contained;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
 
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class EPLContainedEventNested {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(OrderBeanFactory.makeEventFour());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("Foundation 2", 2));
             env.sendEventBean(OrderBeanFactory.makeEventFour());
@@ -164,7 +164,7 @@ public class EPLContainedEventNested {
             env.sendEventBean(OrderBeanFactory.makeEventOne());
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}});
             env.listener("s0").reset();
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

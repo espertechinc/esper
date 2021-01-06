@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
@@ -180,16 +179,16 @@ public class EPLOuterJoinUnidirectional {
 
     private static void assertReceived2Stream(RegressionEnvironment env, String a, String b) {
         String[] fields = "aid,bid".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{a, b});
+        env.assertPropsListenerNew("s0", fields, new Object[]{a, b});
     }
 
     private static void assertReceived3Stream(RegressionEnvironment env, String a, String b, String c) {
         String[] fields = "a.id,b.id,c.id".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{a, b, c});
+        env.assertPropsListenerNew("s0", fields, new Object[]{a, b, c});
     }
 
     private static void assertReceived3StreamMixed(RegressionEnvironment env, String a, String b, String c, String d) {
         String[] fields = "aid,bid,cid,did".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{a, b, c, d});
+        env.assertPropsListenerNew("s0", fields, new Object[]{a, b, c, d});
     }
 }

@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -37,7 +36,7 @@ public class InfraTableWNamedWindow implements RegressionExecution {
         env.milestone(0);
 
         env.sendEventBean(new SupportBean_S0(0, "E1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
 
         env.undeployAll();
     }

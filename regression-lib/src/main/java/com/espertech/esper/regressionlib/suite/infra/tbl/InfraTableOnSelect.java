@@ -11,15 +11,14 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -61,7 +60,7 @@ public class InfraTableOnSelect implements RegressionExecution {
         for (int i = 0; i < keyarr.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, keyarr[i]));
             if (values[i] == null) {
-                assertFalse(env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             } else {
                 EventBean event = env.listener("s0").assertOneGetNewAndReset();
                 assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));

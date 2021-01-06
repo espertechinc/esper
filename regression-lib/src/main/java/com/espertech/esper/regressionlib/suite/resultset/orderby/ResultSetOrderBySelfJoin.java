@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportHierarchyEvent;
@@ -46,7 +45,7 @@ public class ResultSetOrderBySelfJoin {
 
             sendEvent(env, 3, 2, 2);
             sendEvent(env, 3, 2, 2);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{1, 2}, {2, 2}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, 2}, {2, 2}});
 
             env.undeployAll();
         }

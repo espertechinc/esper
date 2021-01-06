@@ -32,7 +32,6 @@ import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ExprFilterOptimizableLookupableLimitedExpr {
     public static Collection<RegressionExecution> executions() {
@@ -56,7 +55,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

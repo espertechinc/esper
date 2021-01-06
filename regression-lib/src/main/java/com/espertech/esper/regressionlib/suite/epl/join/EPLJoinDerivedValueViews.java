@@ -10,11 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLJoinDerivedValueViews implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -27,7 +25,7 @@ public class EPLJoinDerivedValueViews implements RegressionExecution {
         env.compileDeployAddListenerMileZero(epl, "s0");
         env.sendEventBean(makeEvent("E3", 1, 100));
         env.sendEventBean(makeEvent("E4", 1, 100));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

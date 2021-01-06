@@ -431,7 +431,7 @@ public class ExprFilterOptimizableOrRewrite {
         env.listener("s0").reset();
         for (Object nonMatch : nonMatches) {
             env.sendEventBean(nonMatch);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         }
     }
 

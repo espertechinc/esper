@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EventXMLSchemaWithAll {
 
@@ -74,7 +73,7 @@ public class EventXMLSchemaWithAll {
                 "<event-page-visit xmlns=\"samples:schemas:simpleSchemaWithAll\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"samples:schemas:simpleSchemaWithAll simpleSchemaWithAll.xsd\">\n" +
                 "<url>page2</url>" +
                 "</event-page-visit>", eventTypeName);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         EventType type = env.compileDeploy("@name('s1') select * from " + eventTypeName, path).statement("s1").getEventType();
         SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),

@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +29,16 @@ public class EPLDatabaseDataSourceFactory implements RegressionExecution {
         env.compileDeploy(stmtText).addListener("s0");
 
         sendSupportBeanEvent(env, 10);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100});
+        env.assertPropsListenerNew("s0", fields, new Object[]{100});
 
         sendSupportBeanEvent(env, 6);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{60});
+        env.assertPropsListenerNew("s0", fields, new Object[]{60});
 
         long startTime = System.currentTimeMillis();
         // Send 100 events which all fireStatementStopped a join
         for (int i = 0; i < 100; i++) {
             sendSupportBeanEvent(env, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100});
+            env.assertPropsListenerNew("s0", fields, new Object[]{100});
         }
         long endTime = System.currentTimeMillis();
         log.info("delta=" + (endTime - startTime));

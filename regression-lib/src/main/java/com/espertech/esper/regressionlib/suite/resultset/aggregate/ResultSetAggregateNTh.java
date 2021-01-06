@@ -11,14 +11,13 @@
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetAggregateNTh implements RegressionExecution {
 
@@ -52,7 +51,7 @@ public class ResultSetAggregateNTh implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("G1", 10));
         env.sendEventBean(new SupportBean("G2", 11));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
@@ -61,7 +60,7 @@ public class ResultSetAggregateNTh implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("G2", 30));
         env.sendEventBean(new SupportBean("G2", 20));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
@@ -70,7 +69,7 @@ public class ResultSetAggregateNTh implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("G1", -1));
         env.sendEventBean(new SupportBean("G1", -2));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 

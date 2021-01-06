@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 
 public class EPLFromClauseMethodOuterNStream {
 
@@ -365,7 +364,7 @@ public class EPLFromClauseMethodOuterNStream {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
 
             sendBeanInt(env, "E1", 1, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
 
             sendBeanInt(env, "F1", 1, 1);
@@ -431,7 +430,7 @@ public class EPLFromClauseMethodOuterNStream {
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, resultOne);
 
         sendBeanInt(env, "E1", 0);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, resultOne);
 
         sendBeanInt(env, "E2", 2);
@@ -509,7 +508,7 @@ public class EPLFromClauseMethodOuterNStream {
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
 
         sendBeanInt(env, "E1", 0, 0, 0, 0, 1, 1);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
 
         sendBeanInt(env, "E2", 1, 1, 1, 1, 1, 1);
@@ -523,11 +522,11 @@ public class EPLFromClauseMethodOuterNStream {
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultTwo, resultThree));
 
         sendBeanInt(env, "E4", 0, 5, 3, 4, 1, 1);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultTwo, resultThree));
 
         sendBeanInt(env, "E5", 2, 0, 2, 1, 1, 1);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultTwo, resultThree));
 
         // set 2 rows for H0

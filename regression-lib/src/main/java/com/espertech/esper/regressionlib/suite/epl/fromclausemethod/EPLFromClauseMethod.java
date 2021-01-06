@@ -15,11 +15,11 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
@@ -91,7 +91,7 @@ public class EPLFromClauseMethod {
             assertStatelessStmt(env, "s0", false);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
+            env.assertPropsListenerNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
 
             env.undeployAll();
         }
@@ -104,7 +104,7 @@ public class EPLFromClauseMethod {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
+            env.assertPropsListenerNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
 
             env.undeployAll();
         }
@@ -165,7 +165,7 @@ public class EPLFromClauseMethod {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "col1,col2".split(","), new Object[]{expectedFirst, expectedSecond});
+            env.assertPropsListenerNew("s0", "col1,col2".split(","), new Object[]{expectedFirst, expectedSecond});
 
             env.undeployAll();
         }
@@ -359,7 +359,7 @@ public class EPLFromClauseMethod {
             sendSupportBeanEvent(env, 4, 4);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"value"}, new Object[][]{{4}});
 
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.undeployAll();
         }
     }
@@ -418,10 +418,10 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"1", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"1", "E1"});
 
             sendBeanEvent(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"1", "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"1", "E2"});
 
             env.undeployAll();
         }
@@ -463,13 +463,13 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1", -1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E2", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E3", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", "E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", "E3"});
 
             sendBeanEvent(env, "E4", 2);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E4"}, {"B", "E4"}});
@@ -504,12 +504,12 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"2", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"2", "E1"});
 
             env.milestone(0);
 
             sendBeanEvent(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"2", "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"2", "E2"});
 
             env.undeployAll();
         }
@@ -525,13 +525,13 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"|E1|", "E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"|E1|", "E1"});
 
             sendBeanEvent(env, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"|E2|", "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"|E2|", "E2"});
 
             env.undeployAll();
         }
@@ -722,16 +722,16 @@ public class EPLFromClauseMethod {
         String[] fields = new String[]{"theString", "intPrimitive", "mapstring", "mapint"};
 
         sendBeanEvent(env, "E1", 1);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1, "|E1|", 2});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1, "|E1|", 2});
 
         sendBeanEvent(env, "E2", 3);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 3, "|E2|", 4});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 3, "|E2|", 4});
 
         sendBeanEvent(env, "E3", 0);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 0, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 0, null, null});
 
         sendBeanEvent(env, "E4", -1);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -743,29 +743,29 @@ public class EPLFromClauseMethod {
         String[] fields = "theString,intPrimitive,mapstring,mapint".split(",");
         env.compileDeploy(epl).addListener("s0");
 
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendBeanEvent(env, "E1", 0);
-        assertFalse(env.listener("s0").isInvoked());
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+        env.assertListenerNotInvoked("s0");
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendBeanEvent(env, "E2", -1);
-        assertFalse(env.listener("s0").isInvoked());
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, null);
+        env.assertListenerNotInvoked("s0");
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendBeanEvent(env, "E3", 1);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 1, "|E3_0|", 100});
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3", 1, "|E3_0|", 100}});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 1, "|E3_0|", 100});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100}});
 
         sendBeanEvent(env, "E4", 2);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
             new Object[][]{{"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101}});
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3", 1, "|E3_0|", 100}, {"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100}, {"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101}});
 
         sendBeanEvent(env, "E5", 3);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
             new Object[][]{{"E5", 3, "|E5_0|", 100}, {"E5", 3, "|E5_1|", 101}, {"E5", 3, "|E5_2|", 102}});
-        EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{"E3", 1, "|E3_0|", 100},
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100},
             {"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101},
             {"E5", 3, "|E5_0|", 100}, {"E5", 3, "|E5_1|", 101}, {"E5", 3, "|E5_2|", 102}});
 

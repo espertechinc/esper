@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,10 +62,10 @@ public class InfraNWTableJoin {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("C2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C2", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C2", 1});
 
             env.sendEventBean(new SupportBean("C1", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C1", 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"C1", 4});
 
             env.undeployAll();
         }

@@ -23,7 +23,10 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
+import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
+import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
@@ -111,7 +114,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "thesum".split(","), new Object[] {21});
+            env.assertPropsListenerNew("s0", "thesum".split(","), new Object[] {21});
 
             env.compileExecuteFAF("insert into MyInfraPC values('E3', {1, 2}, 21)", path);
             env.compileExecuteFAF("insert into MyInfraPC values('E4', {1}, 22)", path);
@@ -860,9 +863,9 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "ssb2.s2,ssb1.s1,ssb1.i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 50, 21, 22));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E2", 20});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 20});
                     env.sendEventBean(new SupportSimpleBeanTwo("E1", 60, 11, 12));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 10});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10});
                 }
             };
 
@@ -950,7 +953,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "ssb2.s2,ssb1.s1,ssb1.i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("EX", 0, 0, 0));
-                    EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EX", "E1", 10});
+                    env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E1", 10});
                 }
             };
             assertIndexChoice(env, namedWindow, new String[0], preloadedEventsRelOp, "win:keepall()",

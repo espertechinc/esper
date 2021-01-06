@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
@@ -52,10 +51,10 @@ public class ExprDTFormat {
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf", "dtf_isodt", "dtf_isozdt");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+            env.assertPropsListenerNew("s0", fields, expected);
 
             env.sendEventBean(SupportDateTime.make(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null, null, null});
 
             env.undeployAll();
         }
@@ -90,10 +89,10 @@ public class ExprDTFormat {
                 sdt.getLocaldate().format(dtf), sdt.getZoneddate().format(dtf),
                 SimpleDateFormat.getDateInstance().format(sdt.getUtildate()), sdt.getLocaldate().format(DateTimeFormatter.BASIC_ISO_DATE)
             };
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+            env.assertPropsListenerNew("s0", fields, expected);
 
             env.sendEventBean(SupportDateTime.make(null));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, null});
 
             env.undeployAll();
         }

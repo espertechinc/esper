@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.filter.*;
 import junit.framework.TestCase;
 

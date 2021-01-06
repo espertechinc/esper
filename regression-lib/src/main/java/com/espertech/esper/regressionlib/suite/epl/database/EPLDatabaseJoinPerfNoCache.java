@@ -11,15 +11,13 @@
 package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import org.junit.Assert;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
     @Override
@@ -62,7 +60,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
         for (int i = 0; i < 1000; i++) {
             SupportBean_S0 bean = new SupportBean_S0(10);
             env.sendEventBean(bean);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;
@@ -99,7 +97,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
 
         // log.info(".testSelectIStream delta=" + (endTime - startTime));
         assertTrue(endTime - startTime < 200);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -115,7 +113,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
             String col2 = Integer.toString(Math.round((float) num / 10));
             SupportBean_S0 bean = new SupportBean_S0(num);
             env.sendEventBean(bean);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
+            env.assertPropsListenerNew("s0", new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
         }
 
         env.undeployAll();

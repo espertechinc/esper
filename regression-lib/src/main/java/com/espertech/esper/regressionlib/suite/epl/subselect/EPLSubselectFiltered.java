@@ -29,7 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class EPLSubselectFiltered {
 
@@ -342,7 +343,7 @@ public class EPLSubselectFiltered {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("S1", -10, 2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -355,7 +356,7 @@ public class EPLSubselectFiltered {
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("S1", -20, 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -571,7 +572,7 @@ public class EPLSubselectFiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(1));
             env.sendEventBean(new SupportBean_S0(1));
@@ -582,7 +583,7 @@ public class EPLSubselectFiltered {
             TestCase.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
 
             env.sendEventBean(new SupportBean_S0(3));
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(3));
             env.sendEventBean(new SupportBean_S0(3));
@@ -631,13 +632,13 @@ public class EPLSubselectFiltered {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportSensorEvent(1, "Temperature", "A", 51, 94.5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(2, "Temperature", "A", 57, 95.5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(3, "Humidity", "B", 29, 67.5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(4, "Temperature", "B", 55, 88.0));
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -645,10 +646,10 @@ public class EPLSubselectFiltered {
             TestCase.assertEquals(4, theEvent.get("b.id"));
 
             env.sendEventBean(new SupportSensorEvent(5, "Temperature", "B", 65, 85.0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(6, "Temperature", "B", 49, 87.0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(7, "Temperature", "A", 51, 99.5));
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -804,7 +805,7 @@ public class EPLSubselectFiltered {
 
         env.sendEventBean(new SupportBean_S0(0, "X"));
         env.sendEventBean(new SupportBean_S1(0, "Y"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(1, "ab"));
         env.sendEventBean(new SupportBean_S0(1, "a"));

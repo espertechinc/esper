@@ -14,14 +14,14 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.ContextPartitionVariableState;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
-import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import org.junit.Assert;
 
@@ -57,29 +57,29 @@ public class ContextVariables {
             env.sendEventBean(new SupportBean("P1", 0));   // allocate partition P1
             env.sendEventBean(new SupportBean("P1", 10));   // set variable
             env.sendEventBean(new SupportBean_S0(1, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("P2", 11));   // allocate and set variable partition E2
             env.sendEventBean(new SupportBean_S0(2, "P2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(3, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(4, "P2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(5, "P3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0});
+            env.assertPropsListenerNew("s0", fields, new Object[]{0});
 
             env.sendEventBean(new SupportBean("P3", 12));
             env.sendEventBean(new SupportBean_S0(6, "P3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{12});
 
             env.undeployAll();
         }
@@ -105,7 +105,7 @@ public class ContextVariables {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S2(1, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5});
 
             env.milestone(2);
 
@@ -118,7 +118,7 @@ public class ContextVariables {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
 
             // set all to -1
             env.sendEventBean(new SupportBean("P2", -1));
@@ -126,12 +126,12 @@ public class ContextVariables {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{-1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{-1});
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean_S2(2, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{-1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{-1});
 
             env.milestone(7);
 
@@ -144,12 +144,12 @@ public class ContextVariables {
             env.milestone(9);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20});
 
             env.milestone(10);
 
             env.sendEventBean(new SupportBean_S2(2, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{21});
 
             // terminate context partitions
             env.sendEventBean(new SupportBean_S1(0, "P1"));
@@ -159,7 +159,7 @@ public class ContextVariables {
 
             env.sendEventBean(new SupportBean_S0(0, "P1"));    // allocate partition P1
             env.sendEventBean(new SupportBean_S2(1, "P1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5});
 
             env.undeployAll();
 

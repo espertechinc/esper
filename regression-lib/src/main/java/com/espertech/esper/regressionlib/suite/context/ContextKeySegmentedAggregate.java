@@ -15,11 +15,11 @@ import com.espertech.esper.common.client.context.ContextPartitionIdentifierParti
 import com.espertech.esper.common.client.context.ContextPartitionSelectorAll;
 import com.espertech.esper.common.client.context.EPContextPartitionService;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 
@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ContextKeySegmentedAggregate {
 
@@ -59,20 +58,20 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(makeEvent("G1", 1, 10L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L}});
+            env.assertPropsListenerNew("s0", fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("G1", 2, 100L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 2, new Long[]{100L}});
+            env.assertPropsListenerNew("s0", fieldsGrouped, new Object[]{"G1", 2, new Long[]{100L}});
 
             env.sendEventBean(makeEvent("G2", 1, 200L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G2", 1, new Long[]{200L}});
+            env.assertPropsListenerNew("s0", fieldsGrouped, new Object[]{"G2", 1, new Long[]{200L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("G1", 1, 11L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L, 11L}});
+            env.assertPropsListenerNew("s0", fieldsGrouped, new Object[]{"G1", 1, new Long[]{10L, 11L}});
 
             env.undeployAll();
         }
@@ -94,7 +93,7 @@ public class ContextKeySegmentedAggregate {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, 0L});
 
             env.undeployAll();
         }
@@ -110,22 +109,22 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 1L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 1L});
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{200, 1L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{200, 1L});
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 2L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 2L});
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{11, 1L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{11, 1L});
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{200, 2L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{200, 2L});
 
             env.sendEventBean(new SupportBean("G2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 1L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 1L});
 
             env.undeployModuleContaining("s0");
 
@@ -135,22 +134,22 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G1", 10, 1L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G1", 10, 1L});
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G2", 200, 1L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G2", 200, 1L});
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G1", 10, 2L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G1", 10, 2L});
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G1", 11, 1L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G1", 11, 1L});
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G2", 200, 2L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G2", 200, 2L});
 
             env.sendEventBean(new SupportBean("G2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G2", 10, 1L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G2", 10, 1L});
 
             env.undeployAll();
         }
@@ -167,7 +166,7 @@ public class ContextKeySegmentedAggregate {
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean("G2", 200));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -178,12 +177,12 @@ public class ContextKeySegmentedAggregate {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G1", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{200, 2L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{200, 2L});
 
             env.milestone(3);
 
@@ -207,7 +206,7 @@ public class ContextKeySegmentedAggregate {
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean("G2", 200));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
@@ -216,12 +215,12 @@ public class ContextKeySegmentedAggregate {
             EPAssertionUtil.assertProps(env.listener("s0").getAndResetLastNewData()[1], fieldsTwo, new Object[]{"G1", 11, 1L});
 
             env.sendEventBean(new SupportBean("G1", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("G2", 200));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{"G2", 200, 2L});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{"G2", 200, 2L});
 
             env.sendEventBean(new SupportBean("G1", 10));
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fieldsTwo, new Object[]{"G1", 10, 2L});
@@ -251,20 +250,20 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(makeEvent("G1", 10, 200L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 1L, new Object[]{200L}, 200L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 1L, new Object[]{200L}, 200L});
 
             env.sendEventBean(makeEvent("G1", 10, 300L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 2L, new Object[]{200L, 300L}, 200L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 2L, new Object[]{200L, 300L}, 200L});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("G2", 10, 1000L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 1L, new Object[]{1000L}, 1000L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 1L, new Object[]{1000L}, 1000L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("G2", 10, 1010L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 2L, new Object[]{1000L, 1010L}, 1000L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 2L, new Object[]{1000L, 1010L}, 1000L});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();
@@ -286,27 +285,27 @@ public class ContextKeySegmentedAggregate {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("G1", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{3});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{3});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{2});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{2});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("G1", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{7});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{7});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("G2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{3});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{3});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("G3", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{-1});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{-1});
 
             env.milestoneInc(milestone);
 
@@ -320,16 +319,16 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 8));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{8, new Object[]{8}});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{8, new Object[]{8}});
 
             env.sendEventBean(new SupportBean("G2", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{5, new Object[]{5}});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{5, new Object[]{5}});
 
             env.sendEventBean(new SupportBean("G1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{9, new Object[]{8, 1}});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{9, new Object[]{8, 1}});
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsTwo, new Object[]{7, new Object[]{5, 2}});
+            env.assertPropsListenerNew("s0", fieldsTwo, new Object[]{7, new Object[]{5, 2}});
 
             env.undeployModuleContaining("s0");
 
@@ -341,16 +340,16 @@ public class ContextKeySegmentedAggregate {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 8));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsThree, new Object[]{new Object[]{8}});
+            env.assertPropsListenerNew("s0", fieldsThree, new Object[]{new Object[]{8}});
 
             env.sendEventBean(new SupportBean("G2", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsThree, new Object[]{new Object[]{5}});
+            env.assertPropsListenerNew("s0", fieldsThree, new Object[]{new Object[]{5}});
 
             env.sendEventBean(new SupportBean("G1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsThree, new Object[]{new Object[]{8, 1}});
+            env.assertPropsListenerNew("s0", fieldsThree, new Object[]{new Object[]{8, 1}});
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsThree, new Object[]{new Object[]{5, 2}});
+            env.assertPropsListenerNew("s0", fieldsThree, new Object[]{new Object[]{5, 2}});
 
             env.undeployModuleContaining("s0");
 
@@ -389,36 +388,36 @@ public class ContextKeySegmentedAggregate {
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 2L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 2L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(3));
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 3L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 3L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", 20));
             env.sendEventBean(new SupportBean_S0(4));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{20, 1L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{20, 1L});
 
             env.sendEventBean(new SupportBean_S0(5));
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{20, 2L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{20, 2L});
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsOne, new Object[]{10, 5L});
+            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{10, 5L});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();

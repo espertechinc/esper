@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
@@ -20,7 +20,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeRowForAllHaving {
@@ -73,7 +72,7 @@ public class ResultSetQueryTypeRowForAllHaving {
             env.listener("s0").reset();
 
             sendEvent(env, "A", 5);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "B", -6);
             Assert.assertEquals(-.5d, env.listener("s0").getLastNewData()[0].get("aprice"));
@@ -82,10 +81,10 @@ public class ResultSetQueryTypeRowForAllHaving {
             env.milestone(0);
 
             sendEvent(env, "C", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "C", 3);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -103,7 +102,7 @@ public class ResultSetQueryTypeRowForAllHaving {
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(0);
 

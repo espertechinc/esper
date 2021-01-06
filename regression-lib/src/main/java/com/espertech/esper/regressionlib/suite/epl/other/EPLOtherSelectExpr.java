@@ -14,10 +14,10 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.annotation.Description;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanKeywords;
 import org.junit.Assert;
@@ -129,7 +129,7 @@ public class EPLOtherSelectExpr {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), new String[]{"field1", "field2", "unicodeA"}, new Object[]{"volume", "sleep", "A"});
+            env.assertPropsListenerNew("s0", new String[]{"field1", "field2", "unicodeA"}, new Object[]{"volume", "sleep", "A"});
             env.undeployAll();
 
             tryStatementMatch(env, "John's", "select * from SupportBean(theString='John\\'s')");

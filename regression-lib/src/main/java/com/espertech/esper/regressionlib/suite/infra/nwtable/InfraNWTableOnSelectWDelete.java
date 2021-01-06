@@ -11,11 +11,11 @@
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
 
             // select and delete bean E1
             env.sendEventBean(new SupportBean_S0(100, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{1});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{1});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[][]{{"E2", 2}});
 
             env.milestone(0);
@@ -75,7 +75,7 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
 
             // select and delete beans E2
             env.sendEventBean(new SupportBean_S0(101, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSelect, new Object[]{2 + 3 + 4});
+            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{2 + 3 + 4});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[0][]);
 
             // test SODA

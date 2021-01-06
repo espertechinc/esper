@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EventBeanInheritAndInterface {
     public static Collection<RegressionExecution> executions() {
@@ -41,7 +42,7 @@ public class EventBeanInheritAndInterface {
             assertEquals("valA", theEvent.get("value"));
 
             env.sendEventBean(new SupportOverrideBase("x"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportOverrideOneB("valB", "valTwo", "valBase2"));
             theEvent = env.listener("s0").getAndResetLastNewData()[0];

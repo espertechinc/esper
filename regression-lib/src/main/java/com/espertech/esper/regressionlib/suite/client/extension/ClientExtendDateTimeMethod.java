@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.client.extension;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.hook.datetimemethod.*;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFP;
 import com.espertech.esper.common.internal.epl.methodbase.DotMethodFPInputEnum;
@@ -76,7 +75,7 @@ public class ClientExtendDateTimeMethod {
             calExpected.roll(Calendar.DATE, true);
 
             env.sendEventBean(event);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{calExpected, calExpected.getTimeInMillis(), calExpected.getTime(), event.getLocaldate().plusDays(1), event.getZoneddate().plusDays(1)});
 
             env.undeployAll();
@@ -98,7 +97,7 @@ public class ClientExtendDateTimeMethod {
 
             env.sendEventBean(event);
             String[] expected = "30,5,2002".split(",");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{expected, expected, expected, expected, expected});
 
             env.undeployAll();

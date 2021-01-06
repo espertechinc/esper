@@ -97,11 +97,11 @@ public class ClientExtendAggregationMultiFunction {
 
             SupportBean eventEnumOne = new SupportBean("E1", 1);
             env.sendEventBean(eventEnumOne);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne}, true, true});
+            env.assertPropsListenerNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne}, true, true});
 
             SupportBean eventEnumTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventEnumTwo);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne, eventEnumTwo}, false, false});
+            env.assertPropsListenerNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne, eventEnumTwo}, false, false});
 
             env.undeployAll();
         }
@@ -128,13 +128,13 @@ public class ClientExtendAggregationMultiFunction {
 
             SupportBean eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSingleEvent, new Object[]{eventOne, true, true, "E1", 1});
+            env.assertPropsListenerNew("s0", fieldsSingleEvent, new Object[]{eventOne, true, true, "E1", 1});
 
             env.milestone(0);
 
             SupportBean eventTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventTwo);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsSingleEvent, new Object[]{eventTwo, false, false, "E2", 2});
+            env.assertPropsListenerNew("s0", fieldsSingleEvent, new Object[]{eventTwo, false, false, "E2", 2});
 
             env.undeployAll();
         }
@@ -160,12 +160,12 @@ public class ClientExtendAggregationMultiFunction {
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarColl, new Object[]{true, true});
+            env.assertPropsListenerNew("s0", fieldsScalarColl, new Object[]{true, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1", "E2"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarColl, new Object[]{false, false});
+            env.assertPropsListenerNew("s0", fieldsScalarColl, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -188,11 +188,11 @@ public class ClientExtendAggregationMultiFunction {
             SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarArray, new Object[]{
+            env.assertPropsListenerNew("s0", fieldsScalarArray, new Object[]{
                 new String[]{"E1"}, new Integer[]{1}, true, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalarArray, new Object[]{
+            env.assertPropsListenerNew("s0", fieldsScalarArray, new Object[]{
                 new String[]{"E1", "E2"}, new Integer[]{1, 2}, false, false});
 
             env.undeployAll();
@@ -208,12 +208,12 @@ public class ClientExtendAggregationMultiFunction {
             SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalar, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fieldsScalar, new Object[]{"E1", 1});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsScalar, new Object[]{"E2", 2});
+            env.assertPropsListenerNew("s0", fieldsScalar, new Object[]{"E2", 2});
 
             env.undeployAll();
         }
@@ -304,7 +304,7 @@ public class ClientExtendAggregationMultiFunction {
         // group 1
         SupportBean eventOne = new SupportBean("E1", 1);
         env.sendEventBean(eventOne);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventOne, eventOne});
+        env.assertPropsListenerNew("s0", fields, new Object[]{eventOne, eventOne});
         if (!SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().isEmpty()) {
             assertEquals(1, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
             SupportAggMFMultiRTSingleEventState context = SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().get(0);
@@ -314,7 +314,7 @@ public class ClientExtendAggregationMultiFunction {
         // group 2
         SupportBean eventTwo = new SupportBean("E2", 2);
         env.sendEventBean(eventTwo);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventTwo, eventTwo});
+        env.assertPropsListenerNew("s0", fields, new Object[]{eventTwo, eventTwo});
         if (!SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().isEmpty()) {
             assertEquals(2, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
         }

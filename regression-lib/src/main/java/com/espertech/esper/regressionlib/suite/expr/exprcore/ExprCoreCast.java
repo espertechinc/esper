@@ -287,7 +287,7 @@ public class ExprCoreCast {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBeanObject(new SupportBean("E1", 1)));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "t0,t1".split(","), new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", "t0,t1".split(","), new Object[]{"E1", null});
             assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("t1"));
 
             env.undeployAll();
@@ -363,7 +363,7 @@ public class ExprCoreCast {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("t0"));
 
             env.sendEventBean(new SupportBean("12", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "t0".split(","), new Object[]{12});
+            env.assertPropsListenerNew("s0", "t0".split(","), new Object[]{12});
 
             env.undeployAll();
         }

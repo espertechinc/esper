@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class PatternOperatorFollowedBy {
 
@@ -163,7 +164,7 @@ public class PatternOperatorFollowedBy {
             // test case where no Completed or Cancel event arrives
             eventA = sendA("A1", env);
             sendTimer(9999, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimer(10000, env);
             received = env.listener("s0").assertOneGetNewAndReset();
             assertEquals(eventA, received.get("a"));
@@ -176,7 +177,7 @@ public class PatternOperatorFollowedBy {
             sendTimer(29999, env);
             sendB("A2", env);
             sendTimer(30000, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -186,7 +187,7 @@ public class PatternOperatorFollowedBy {
             sendTimer(30000, env);
             sendC("A3", env);
             sendTimer(40000, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -281,7 +282,7 @@ public class PatternOperatorFollowedBy {
 
             SupportRFIDEvent theEvent = new SupportRFIDEvent("a", "1");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -291,13 +292,13 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
@@ -327,7 +328,7 @@ public class PatternOperatorFollowedBy {
 
             SupportRFIDEvent theEvent = new SupportRFIDEvent("a", "2");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -337,11 +338,11 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
@@ -403,7 +404,7 @@ public class PatternOperatorFollowedBy {
 
             events[3] = new SupportBean_C("C1");
             env.sendEventBean(events[3]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             events[4] = new SupportBean_D("D1");
             env.sendEventBean(events[4]);
@@ -427,7 +428,7 @@ public class PatternOperatorFollowedBy {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
 
@@ -439,7 +440,7 @@ public class PatternOperatorFollowedBy {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -459,12 +460,12 @@ public class PatternOperatorFollowedBy {
             env.sendEventBean(new SupportBean("E", 0));
 
             env.advanceTime(10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.advanceTime(11000);
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

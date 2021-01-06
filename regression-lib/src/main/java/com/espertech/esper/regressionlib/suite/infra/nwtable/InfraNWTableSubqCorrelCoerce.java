@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -84,33 +83,33 @@ public class InfraNWTableSubqCorrelCoerce {
 
             sendWindow(env, "W1", 10L, "c31");
             sendEvent(env, "E1", 10, "c31");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "W1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "W1"});
 
             sendEvent(env, "E2", 11, "c32");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", null});
 
             sendWindow(env, "W2", 11L, "c32");
             sendEvent(env, "E3", 11, "c32");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "W2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "W2"});
 
             sendWindow(env, "W3", 11L, "c31");
             sendWindow(env, "W4", 10L, "c32");
 
             sendEvent(env, "E4", 11, "c31");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "W3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "W3"});
 
             sendEvent(env, "E5", 10, "c31");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", "W1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "W1"});
 
             sendEvent(env, "E6", 10, "c32");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E6", "W4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", "W4"});
 
             // test late start
             env.undeployModuleContaining("s0");
             env.compileDeploy(consumeEpl, path).addListener("s0");
 
             sendEvent(env, "E6", 10, "c32");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E6", "W4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", "W4"});
 
             env.undeployModuleContaining("s0");
             if (env.statement("index") != null) {

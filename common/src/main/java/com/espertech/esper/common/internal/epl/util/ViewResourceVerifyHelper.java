@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.util;
 
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.util.StateMgmtSetting;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
@@ -35,7 +36,6 @@ public class ViewResourceVerifyHelper {
 
         // verify "previous"
         boolean[] previousPerStream = new boolean[numStreams];
-        StateMgmtSetting[] previousStateMgmtSettings = new StateMgmtSetting[numStreams];
         for (ExprPreviousNode previousNode : delegate.getPreviousRequests()) {
             int stream = previousNode.getStreamNumber();
             List<ViewFactoryForge> forges = unmaterializedViewChain[stream];
@@ -51,7 +51,15 @@ public class ViewResourceVerifyHelper {
             }
 
             previousPerStream[stream] = true;
-            previousStateMgmtSettings[stream] = services.getStateMgmtSettingsProvider().previous(fabricCharge, raw, stream, subqueryNumber, forges.get(forges.size() - 1).getEventType());
+        }
+
+        StateMgmtSetting[] previousStateMgmtSettings = new StateMgmtSetting[numStreams];
+        for (int streamNum = 0; streamNum < numStreams; streamNum++) {
+            if (previousPerStream[streamNum]) {
+                List<ViewFactoryForge> forges = unmaterializedViewChain[streamNum];
+                EventType eventType = forges.get(forges.size() - 1).getEventType();
+                previousStateMgmtSettings[streamNum] = services.getStateMgmtSettingsProvider().previous(fabricCharge, raw, streamNum, subqueryNumber, eventType);
+            }
         }
 
         // determine 'prior' indexes

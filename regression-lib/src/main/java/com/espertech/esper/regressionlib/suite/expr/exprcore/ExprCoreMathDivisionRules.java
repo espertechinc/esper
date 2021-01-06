@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigInteger.valueOf(4).divide(BigInteger.valueOf(2))});
+            env.assertPropsListenerNew("s0", fields, new Object[]{BigInteger.valueOf(4).divide(BigInteger.valueOf(2))});
 
             env.undeployAll();
         }
@@ -57,7 +56,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5L});
 
             env.undeployAll();
         }
@@ -72,7 +71,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5f});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5f});
 
             env.undeployAll();
         }
@@ -85,7 +84,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null});
 
             env.undeployAll();
         }

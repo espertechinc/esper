@@ -82,7 +82,7 @@ public class ContextKeySegmented {
             sendUser(env, "U1", "A");
             sendUser(env, "U1", null);
             sendUser(env, "U1", null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.milestone(0);
 
             Map<String, Object> term = sendUser(env, "U1", "B");
@@ -108,7 +108,7 @@ public class ContextKeySegmented {
 
             sendSBEvent(env, "A", 10, 1);
             sendSBEvent(env, "A", 20, 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {10, 20});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[] {10, 20});
 
             env.undeployAll();
         }
@@ -125,7 +125,7 @@ public class ContextKeySegmented {
             SupportBean sb1 = sendSBEvent(env, "A", 1);
             SupportBean sb2 = sendSBEvent(env, "A", 0);
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {sb1, sb2});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[] {sb1, sb2});
 
             env.undeployAll();
         }
@@ -291,12 +291,12 @@ public class ContextKeySegmented {
             env.milestone(1);
 
             env.sendEventBean(makeEvent("A", 2, 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), new Object[]{10L, 20L});
+            env.assertPropsListenerNew("s0", "a,b".split(","), new Object[]{10L, 20L});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("B", 2, 40));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a,b".split(","), new Object[]{30L, 40L});
+            env.assertPropsListenerNew("s0", "a,b".split(","), new Object[]{30L, 40L});
 
             env.undeployAll();
 
@@ -324,12 +324,12 @@ public class ContextKeySegmented {
             env.milestone(2);
 
             env.sendEventBean(makeEvent("A", 3, 103));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "e1,e2".split(","), new Object[]{102L, 103L});
+            env.assertPropsListenerNew("s0", "e1,e2".split(","), new Object[]{102L, 103L});
 
             env.milestone(3);
 
             env.sendEventBean(makeEvent("B", 3, 203));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "e1,e2".split(","), new Object[]{202L, 203L});
+            env.assertPropsListenerNew("s0", "e1,e2".split(","), new Object[]{202L, 203L});
 
             env.undeployAll();
         }
@@ -357,23 +357,23 @@ public class ContextKeySegmented {
 
             // Set up statement for finding missing events
             sendWebEventsComplete(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(20000);
             sendWebEventsComplete(env, 1);
 
             env.advanceTime(40000);
             sendWebEventsComplete(env, 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(60000);
             sendWebEventsIncomplete(env, 3);
 
             env.advanceTime(80000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(100000);
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -500,7 +500,7 @@ public class ContextKeySegmented {
 
             for (int i = 0; i < 10000; i++) {
                 env.sendEventBean(new SupportBean("E" + i, i));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{i});
+                env.assertPropsListenerNew("s0", fields, new Object[]{i});
             }
 
             env.undeployAll();
@@ -531,34 +531,34 @@ public class ContextKeySegmented {
             env.sendEventBean(new SupportBean_S0(-3, "S0"));
             env.sendEventBean(new SupportBean("S0", -1));
             env.sendEventBean(new SupportBean("S1", -2));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(2, "S0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null, 2});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("S1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, null});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(-2, "S0"));
             env.sendEventBean(new SupportBean("S1", -10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(3, "S1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, 3});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("S0", 9));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{9, 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{9, 2});
 
             env.milestone(6);
 
@@ -596,21 +596,21 @@ public class ContextKeySegmented {
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(10, "S0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
 
             env.milestone(0);
 
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(8, "S1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{8});
+            env.assertPropsListenerNew("s0", fields, new Object[]{8});
 
             env.milestone(1);
 
             Assert.assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean_S0(4, "S0"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{14});
+            env.assertPropsListenerNew("s0", fields, new Object[]{14});
 
             env.milestone(2);
 
@@ -658,18 +658,18 @@ public class ContextKeySegmented {
             env.milestone(0);
 
             env.sendEventBean(new ISupportAImpl("A1", "AB1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.sendEventBean(new ISupportAImpl("A2", "AB1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
 
             env.milestone(1);
 
             env.sendEventBean(new ISupportAImpl("A3", "AB2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.sendEventBean(new ISupportAImpl("A4", "AB1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
 
             env.undeployAll();
         }
@@ -700,23 +700,23 @@ public class ContextKeySegmented {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(1, "G2"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 1, 1, "G2", "G2", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 1, 1, "G2", "G2", 1});
 
             env.sendEventBean(new SupportBean_S0(2, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, 2, "G2", "G2", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 2, 2, "G2", "G2", 2});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(1, "G1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 1, 1, "G1", "G1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1, 1, "G1", "G1", 1});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("G1", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 2, 2, "G1", "G1", 2});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 2, 2, "G1", "G1", 2});
 
             env.undeployAll();
         }
@@ -733,21 +733,21 @@ public class ContextKeySegmented {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrev, new Object[]{"G1", null});
+            env.assertPropsListenerNew("s0", fieldsPrev, new Object[]{"G1", null});
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrev, new Object[]{"G1", 1});
+            env.assertPropsListenerNew("s0", fieldsPrev, new Object[]{"G1", 1});
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrev, new Object[]{"G2", null});
+            env.assertPropsListenerNew("s0", fieldsPrev, new Object[]{"G2", null});
 
             env.sendEventBean(new SupportBean_S0(2, "E2"));
             env.sendEventBean(new SupportBean("G2", 21));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrev, new Object[]{"G2", 2});
+            env.assertPropsListenerNew("s0", fieldsPrev, new Object[]{"G2", 2});
 
             env.sendEventBean(new SupportBean("G1", 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrev, new Object[]{"G1", null});  // since returning multiple rows
+            env.assertPropsListenerNew("s0", fieldsPrev, new Object[]{"G1", null});  // since returning multiple rows
 
             env.undeployModuleContaining("s0");
 
@@ -757,21 +757,21 @@ public class ContextKeySegmented {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrior, new Object[]{"G1", null});
+            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"G1", null});
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrior, new Object[]{"G1", 1});
+            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"G1", 1});
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrior, new Object[]{"G2", null});    // since category started as soon as statement added
+            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"G2", null});    // since category started as soon as statement added
 
             env.sendEventBean(new SupportBean_S0(2, "E2"));
             env.sendEventBean(new SupportBean("G2", 21));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrior, new Object[]{"G2", 2}); // since returning multiple rows
+            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"G2", 2}); // since returning multiple rows
 
             env.sendEventBean(new SupportBean("G1", 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsPrior, new Object[]{"G1", null});  // since returning multiple rows
+            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"G1", null});  // since returning multiple rows
 
             env.undeployAll();
         }
@@ -788,17 +788,17 @@ public class ContextKeySegmented {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, null});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20, null});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11, 10});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();
@@ -818,30 +818,30 @@ public class ContextKeySegmented {
 
             env.sendEventBean(new SupportBean_S0(10, "s1"));
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, null});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(10, "s2"));
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, "s2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "s2"});
 
             env.sendEventBean(new SupportBean("G2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 10, null});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(10, "s3"));
             env.sendEventBean(new SupportBean("G2", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 10, "s3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 10, "s3"});
 
             env.sendEventBean(new SupportBean("G3", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G3", 10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 10, null});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, "s3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "s3"});
 
             env.undeployAll();
         }
@@ -860,20 +860,20 @@ public class ContextKeySegmented {
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean("G2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20, 20});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 20, 20});
 
             env.sendEventBean(new SupportBean_S0(30));
             env.sendEventBean(new SupportBean("G3", 30));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G1", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 30, 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 30, 30});
 
             env.sendEventBean(new SupportBean("G2", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 30, 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 30, 30});
 
             env.undeployAll();
         }
@@ -893,20 +893,20 @@ public class ContextKeySegmented {
             env.sendEventBean(new SupportBean("G1", 20));
             env.sendEventBean(new SupportBean("G2", 10));
             env.sendEventBean(new SupportBean("G2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 21));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20, "G2", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 20, "G2", 21});
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, "G1", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "G1", 11});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", 22));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 21, "G2", 22});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 21, "G2", 22});
 
             env.undeployModuleContaining("s0");
 
@@ -922,18 +922,18 @@ public class ContextKeySegmented {
 
             env.sendEventBean(new SupportBean("G2", 10));
             env.sendEventBean(new SupportBean("G2", 20));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G2", 21));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20, "G2", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 20, "G2", 21});
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10, "G1", 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "G1", 11});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("G2", 22));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployModuleContaining("s0");
 
@@ -945,7 +945,7 @@ public class ContextKeySegmented {
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean("G2", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -1040,7 +1040,7 @@ public class ContextKeySegmented {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{ctx, 0, "G1", "G1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 0, "G1", "G1"});
             SupportContextPropUtil.assertContextProps(env, "context", "SegmentedByString", new int[]{0}, "key1", new Object[][]{{"G1"}});
 
             env.undeployAll();
@@ -1258,12 +1258,12 @@ public class ContextKeySegmented {
 
     private static void sendAssertSB(long expected, RegressionEnvironment env, String theString, int intPrimitive) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,cnt".split(","), new Object[]{theString, expected});
+        env.assertPropsListenerNew("s0", "theString,cnt".split(","), new Object[]{theString, expected});
     }
 
     private static void sendAssertNone(RegressionEnvironment env, Object event) {
         env.sendEventBean(event);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static SupportBean sendSBEvent(RegressionEnvironment env, String string, Integer intBoxed, int intPrimitive) {

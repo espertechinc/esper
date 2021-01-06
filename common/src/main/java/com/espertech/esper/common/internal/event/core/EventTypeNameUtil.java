@@ -25,6 +25,10 @@ public class EventTypeNameUtil {
         return typeName.substring(TABLE_INTERNAL_PREFIX.length());
     }
 
+    public static boolean isTableNamePrefix(String typeName) {
+        return typeName.startsWith(TABLE_INTERNAL_PREFIX);
+    }
+
     public static String getTablePublicTypeName(String tableName) {
         return "table_" + tableName;
     }

@@ -12,10 +12,10 @@ package com.espertech.esper.regressionlib.suite.epl.subselect;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class EPLSubselectNamedWindowPerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "", -1, -1));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{9734});
+                env.assertPropsListenerNew("s0", fields, new Object[]{9734});
             }
             long delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -192,7 +192,7 @@ public class EPLSubselectNamedWindowPerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R1", "A", 300, 312));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{300, 312});
+                env.assertPropsListenerNew("s0", fields, new Object[]{300, 312});
             }
             long delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -248,7 +248,7 @@ public class EPLSubselectNamedWindowPerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R1", "K", 300, 312));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{300, 312});
+                env.assertPropsListenerNew("s0", fields, new Object[]{300, 312});
             }
             long delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -290,10 +290,10 @@ public class EPLSubselectNamedWindowPerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 500; i++) {
                 env.sendEventBean(new SupportBeanRange("R1", "A", 299, 313));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{299, 313});
+                env.assertPropsListenerNew("s0", fields, new Object[]{299, 313});
 
                 env.sendEventBean(new SupportBeanRange("R2", "B", 7500, 7510));
-                EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{7500, 7510});
+                env.assertPropsListenerNew("s0", fields, new Object[]{7500, 7510});
             }
             long delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -372,7 +372,7 @@ public class EPLSubselectNamedWindowPerformance {
         // test once
         env.sendEventBean(new SupportBean("WX", 10));
         sendEvent(env, "E1", 10, "WX");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "WX"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "WX"});
 
         // preload
         for (int i = 0; i < 10000; i++) {
@@ -382,7 +382,7 @@ public class EPLSubselectNamedWindowPerformance {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 5000; i++) {
             sendEvent(env, "E" + i, i, "W" + i);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E" + i, "W" + i});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E" + i, "W" + i});
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;

@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestResult;
@@ -22,8 +22,6 @@ import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestR
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetOutputLimitRowPerGroupRollup {
 
@@ -334,7 +332,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
             env.sendEventBean(makeEvent("E2", 1, 40L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 2, 50L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -343,7 +341,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             // pass 1 second
             env.advanceTime(2000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -364,7 +362,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                 new Object[][]{{"E1", 1, 130L}, {"E1", null, 180L}, {null, null, 220L}});
 
             env.sendEventBean(makeEvent("E1", 1, 80L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -429,7 +427,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             // pass 1 second
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -447,7 +445,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             // pass 1 second
             env.advanceTime(2000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -472,7 +470,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.milestone(6);
 
             env.sendEventBean(makeEvent("E1", 1, 80L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -538,7 +536,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             // pass 1 second
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -552,7 +550,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             // pass 1 second
             env.advanceTime(2000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
@@ -573,7 +571,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                 new Object[][]{{null, null, 280L}, {"E1", null, 240L}, {"E1", 1, 170L}, {"E1", 2, 70L}});
 
             env.sendEventBean(makeEvent("E1", 1, 80L));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,

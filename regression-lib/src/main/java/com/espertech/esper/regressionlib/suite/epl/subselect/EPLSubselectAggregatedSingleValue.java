@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -18,7 +17,10 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST1;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_ST2;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -259,15 +261,15 @@ public class EPLSubselectAggregatedSingleValue {
             String[] fields = "c0,c1".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.sendEventBean(new SupportBean("", 10));
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10});
 
             env.sendEventBean(new SupportBean("", 20));
             env.sendEventBean(new SupportBean_S0(3, "E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 30});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 30});
 
             env.undeployAll();
         }
@@ -301,35 +303,35 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "G1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, 0L});
 
             env.sendEventBean(new SupportBean_S1(200, "G2"));
             env.sendEventBean(new SupportBean_S0(2, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, 1L});
 
             env.sendEventBean(new SupportBean_S1(201, "G2"));
             env.sendEventBean(new SupportBean_S0(3, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, 2L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(4, "G1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4, 0L});
 
             env.sendEventBean(new SupportBean_S0(5, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, 2L});
 
             env.sendEventBean(new SupportBean_S0(6, "G3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{6, 0L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{6, 0L});
 
             env.sendEventBean(new SupportBean_S1(202, "G2"));
             env.sendEventBean(new SupportBean_S0(7, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{7, 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{7, 3L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(8, "G2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{8, 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{8, 3L});
 
             env.undeployAll();
         }
@@ -348,23 +350,23 @@ public class EPLSubselectAggregatedSingleValue {
             String[] fields = "p00,sump00".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "T1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", null});
 
             env.sendEventBean(new SupportBean("T1", 10));
             env.sendEventBean(new SupportBean_S0(2, "T1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T1", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", 10});
 
             env.sendEventBean(new SupportBean("T1", 11));
             env.sendEventBean(new SupportBean_S0(3, "T1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T1", 21});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", 21});
 
             env.sendEventBean(new SupportBean_S0(4, "T2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T2", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"T2", null});
 
             env.sendEventBean(new SupportBean("T2", -2));
             env.sendEventBean(new SupportBean("T2", -7));
             env.sendEventBean(new SupportBean_S0(5, "T2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T2", -9});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"T2", -9});
             env.undeployAll();
 
             // test distinct
@@ -378,16 +380,16 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 1L, 1L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L, 1L, 1L, 1L});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L, 1L, 1L, 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L, 1L, 1L, 1L});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L, 2L, 2L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L, 2L, 2L, 2L});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 3L, 2L, 3L, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 3L, 2L, 3L, 2L});
 
             env.undeployAll();
         }
@@ -484,10 +486,10 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventMD(env, "GOOG", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "GOOG", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEventMD(env, "IBM", 3);
             Assert.assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
@@ -717,22 +719,22 @@ public class EPLSubselectAggregatedSingleValue {
         String[] fields = "p00".split(",");
 
         env.sendEventBean(new SupportBean_S0(1, "T1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("T1", 10));
 
         env.sendEventBean(new SupportBean_S0(10, "T1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(11, "T1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"T1"});
 
         env.sendEventBean(new SupportBean("T1", 11));
         env.sendEventBean(new SupportBean_S0(21, "T1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(22, "T1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"T1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"T1"});
     }
 
     private static void sendEventS0(RegressionEnvironment env, int id) {
@@ -777,6 +779,6 @@ public class EPLSubselectAggregatedSingleValue {
 
     private static void sendEventS0Assert(RegressionEnvironment env, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportBean_S0(1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+        env.assertPropsListenerNew("s0", fields, expected);
     }
 }

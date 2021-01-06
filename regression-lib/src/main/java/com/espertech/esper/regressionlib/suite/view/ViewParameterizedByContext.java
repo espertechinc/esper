@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportContextInitEventWLength;
 
 import java.util.ArrayList;
@@ -60,11 +59,11 @@ public class ViewParameterizedByContext {
             sendInitEvent(env, "P2", 4);
             sendInitEvent(env, "P3", 3);
             sendValueEvent(env, "P2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"P1", 0L}, {"P2", 1L}, {"P3", 0L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"P1", 0L}, {"P2", 1L}, {"P3", 0L}});
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"P1", 0L}, {"P2", 1L}, {"P3", 0L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"P1", 0L}, {"P2", 1L}, {"P3", 0L}});
 
             for (int i = 0; i < 10; i++) {
                 sendValueEvent(env, "P1");
@@ -72,15 +71,15 @@ public class ViewParameterizedByContext {
                 sendValueEvent(env, "P3");
             }
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
             sendValueEvent(env, "P1");
             sendValueEvent(env, "P2");
             sendValueEvent(env, "P3");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
 
             env.undeployAll();
         }
@@ -125,7 +124,7 @@ public class ViewParameterizedByContext {
                 env.sendEventBean(new SupportBean("P3", 0));
             }
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), "id,cnt".split(","), new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", "id,cnt".split(","), new Object[][]{{"P1", 2L}, {"P2", 4L}, {"P3", 3L}});
 
             env.undeployAll();
         }

@@ -23,7 +23,8 @@ import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertST0Id;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertValuesArrayScalar;
 
 public class ExprEnumReverse {
 

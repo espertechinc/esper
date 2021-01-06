@@ -22,7 +22,6 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import com.espertech.esper.runtime.client.EPStageService;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Iterator;
@@ -165,4 +164,19 @@ public interface RegressionEnvironment {
     SupportListener listenerNew();
 
     EPStageService stageService();
+
+    void assertPropsPerRowIterator(String statementName, String[] fields, Object[][] expecteds);
+    void assertPropsPerRowIteratorAnyOrder(String statementName, String[] fields, Object[][] expecteds);
+    void assertPropsPerRowLastOld(String statementName, String[] fields, Object[][] expecteds);
+    void assertPropsPerRowNewFlattened(String statementName, String[] fields, Object[][] expecteds);
+    void assertPropsPerRowOldFlattened(String statementName, String[] fields, Object[][] expecteds);
+    void assertPropsListenerNew(String statementName, String[] fields, Object[] expecteds);
+    void assertPropsListenerOld(String statementName, String[] fields, Object[] expecteds);
+    void assertListenerInvoked(String statementName);
+    void assertListenerNotInvoked(String statementName);
+    void assertNVListener(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream);
+    void assertStatement(String statementName, Consumer<EPStatement> assertor);
+    void assertListener(String statementName, Consumer<SupportListener> assertor);
+    void assertEqualsNew(String statementName, String fieldName, Object expected);
+    void runtimeSetVariable(String deploymentId, String variableName, Object value);
 }

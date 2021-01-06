@@ -17,13 +17,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLOuterJoinCart5Stream {
 
@@ -249,7 +248,7 @@ public class EPLOuterJoinCart5Stream {
         //
         s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s0 and s1=1, s2=0, s3=0, s4=0
         //

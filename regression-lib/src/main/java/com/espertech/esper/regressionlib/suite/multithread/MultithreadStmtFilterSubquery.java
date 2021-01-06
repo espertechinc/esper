@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.multithread;
 
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.runtime.client.EPRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -19,7 +18,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +27,6 @@ import java.util.List;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectIn {
     public static List<RegressionExecution> executions() {
@@ -105,41 +103,41 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10));
 
             env.sendEventBean(new SupportBean_S0(10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(11));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(11));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(11));
             env.sendEventBean(new SupportBean_S0(11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11});
 
             env.sendEventBean(new SupportBean_S1(12));   //pushing 10 out
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean_S0(11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{11});
             env.sendEventBean(new SupportBean_S0(12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{12});
 
             env.undeployAll();
         }
@@ -224,21 +222,21 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(2, null));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(-1, "A"));
             env.sendEventBean(new SupportBean_S0(3, null));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(4, "A"));
             assertEquals(4, env.listener("s0").assertOneGetNewAndReset().get("id"));
 
             env.sendEventBean(new SupportBean_S1(-2, null));
             env.sendEventBean(new SupportBean_S0(5, null));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -254,19 +252,19 @@ public class EPLSubselectIn {
 
             sendBean(env, "A", 0, 0L);
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "B", null, null);
 
             sendBean(env, "A", 0, 0L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "B", 99, null);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBean(env, "A", null, 99L);
             assertEquals(99L, env.listener("s0").assertOneGetNewAndReset().get("longBoxed"));
 
@@ -290,7 +288,7 @@ public class EPLSubselectIn {
             sendBean(env, "B", 1, 1L);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
             assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("intBoxed"));
@@ -298,7 +296,7 @@ public class EPLSubselectIn {
             sendBean(env, "B", null, null);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
             assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("intBoxed"));
@@ -360,18 +358,18 @@ public class EPLSubselectIn {
             sendBean(env, "B", 1, 1L);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "B", null, null);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -421,24 +419,24 @@ public class EPLSubselectIn {
             sendBean(env, "B", null, null);
 
             sendBean(env, "A", 1, 1L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "B", 99, null);
 
             sendBean(env, "A", null, null);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBean(env, "A", null, 99L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "B", 98, null);
 
             sendBean(env, "A", null, 98L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", null, 97L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

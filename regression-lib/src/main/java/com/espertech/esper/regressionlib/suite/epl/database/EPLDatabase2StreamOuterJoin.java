@@ -12,16 +12,14 @@ package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class EPLDatabase2StreamOuterJoin {
     private final static String ALL_FIELDS = "mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal";
@@ -111,20 +109,20 @@ public class EPLDatabase2StreamOuterJoin {
             EventBean received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(1, received.get("MyInt"));
             assertReceived(received, null, null, null, null, null, null, null, null, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{1, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
 
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
             received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(-1, received.get("MyInt"));
             assertReceived(received, null, null, null, null, null, null, null, null, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{-1, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
             received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(2, received.get("MyInt"));
             assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{2, 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
 
             env.undeployAll();
         }
@@ -145,20 +143,20 @@ public class EPLDatabase2StreamOuterJoin {
             EventBean received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(1, received.get("MyInt"));
             assertReceived(received, null, null, null, null, null, null, null, null, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{1, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
 
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
             received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(-1, received.get("MyInt"));
             assertReceived(received, null, null, null, null, null, null, null, null, null);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{-1, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
             received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(2, received.get("MyInt"));
             assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{2, 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
 
             env.undeployAll();
         }
@@ -178,14 +176,14 @@ public class EPLDatabase2StreamOuterJoin {
 
             // No result as the SQL query returns 1 row and therefore the on-clause filters it out
             sendEvent(env, 1, "xxx");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
 
             sendEvent(env, -1, "A");
             EventBean received = env.listener("s0").assertOneGetNewAndReset();
             Assert.assertEquals(-1, received.get("MyInt"));
             Assert.assertEquals("A", received.get("MyVarChar"));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[][]{{-1, "A"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, "A"}});
 
             env.undeployAll();
         }
@@ -200,7 +198,7 @@ public class EPLDatabase2StreamOuterJoin {
         assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
 
         sendEvent(env, 11);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

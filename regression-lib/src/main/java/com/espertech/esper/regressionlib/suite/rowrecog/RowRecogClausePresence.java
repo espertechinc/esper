@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class RowRecogClausePresence implements RegressionExecution {
 
@@ -48,16 +46,16 @@ public class RowRecogClausePresence implements RegressionExecution {
         }
 
         env.sendEventBean(beans[0]);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(beans[1]);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beans[0], beans[1]});
+        env.assertPropsListenerNew("s0", fields, new Object[]{beans[0], beans[1]});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(beans[2]);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(beans[3]);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{beans[2], beans[3]});
+        env.assertPropsListenerNew("s0", fields, new Object[]{beans[2], beans[3]});
 
         env.undeployAll();
     }

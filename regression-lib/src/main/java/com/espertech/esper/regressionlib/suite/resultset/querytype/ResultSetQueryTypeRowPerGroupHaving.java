@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetQueryTypeRowPerGroupHaving {
     private final static String SYMBOL_DELL = "DELL";
@@ -46,11 +45,11 @@ public class ResultSetQueryTypeRowPerGroupHaving {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.advanceTime(1000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "y".split(","), new Object[] {1L});
+            env.assertPropsListenerNew("s0", "y".split(","), new Object[] {1L});
 
             env.sendEventBean(new SupportBean("E2", 0));
             env.advanceTime(2000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "y".split(","), new Object[] {1L});
+            env.assertPropsListenerNew("s0", "y".split(","), new Object[] {1L});
 
             env.undeployAll();
         }
@@ -66,9 +65,9 @@ public class ResultSetQueryTypeRowPerGroupHaving {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A1", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("A1", 3));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -112,10 +111,10 @@ public class ResultSetQueryTypeRowPerGroupHaving {
 
     private static void tryAssertion(RegressionEnvironment env) {
         sendEvent(env, SYMBOL_DELL, 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 60);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(0);
 
@@ -140,7 +139,7 @@ public class ResultSetQueryTypeRowPerGroupHaving {
         Assert.assertEquals(symbol, newData[0].get("symbol"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void assertOldEvent(RegressionEnvironment env, String symbol, double newSum) {
@@ -154,7 +153,7 @@ public class ResultSetQueryTypeRowPerGroupHaving {
         Assert.assertEquals(symbol, oldData[0].get("symbol"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price) {

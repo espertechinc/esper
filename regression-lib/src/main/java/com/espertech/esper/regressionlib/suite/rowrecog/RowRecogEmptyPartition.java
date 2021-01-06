@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
@@ -41,7 +40,7 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.milestone(0);
 
         env.sendEventBean(new SupportRecogBean("B", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1});
+        env.assertPropsListenerNew("s0", fields, new Object[]{1});
 
         env.milestone(1);
 
@@ -50,19 +49,19 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.milestone(2);
 
         env.sendEventBean(new SupportRecogBean("A", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2});
+        env.assertPropsListenerNew("s0", fields, new Object[]{2});
 
         env.milestone(3);
 
         env.sendEventBean(new SupportRecogBean("B", 3));
         env.sendEventBean(new SupportRecogBean("A", 4));
         env.sendEventBean(new SupportRecogBean("A", 3));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3});
+        env.assertPropsListenerNew("s0", fields, new Object[]{3});
 
         env.milestone(4);
 
         env.sendEventBean(new SupportRecogBean("B", 4));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4});
+        env.assertPropsListenerNew("s0", fields, new Object[]{4});
 
         env.milestone(5);
 
@@ -70,7 +69,7 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.sendEventBean(new SupportRecogBean("B", 7));
         env.sendEventBean(new SupportRecogBean("B", 8));
         env.sendEventBean(new SupportRecogBean("A", 7));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{7});
+        env.assertPropsListenerNew("s0", fields, new Object[]{7});
 
         /**
          * Comment-in for testing partition removal.
@@ -79,7 +78,7 @@ public class RowRecogEmptyPartition implements RegressionExecution {
             env.sendEventBean(new SupportRecogBean("A", i));
             //System.out.println(i);
             //env.sendEventBean(new SupportRecogBean("B", i));
-            //EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[] {i});
+            //env.assertPropsListenerNew("s0", fields, new Object[] {i});
         }
 
         env.undeployAll();

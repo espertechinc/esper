@@ -11,12 +11,12 @@
 package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class EPLOtherAsKeywordBacktick {
 
             SupportBean_S1 s1 = new SupportBean_S1(10, "S1_1");
             env.sendEventBean(s1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "order,select,order.p00,select.p10".split(","), new Object[]{s0, s1, "S0_1", "S1_1"});
+            env.assertPropsListenerNew("s0", "order,select,order.p00,select.p10".split(","), new Object[]{s0, s1, "S0_1", "S1_1"});
 
             env.undeployAll();
         }

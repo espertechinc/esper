@@ -158,7 +158,7 @@ public class EPLOtherCreateSchema {
             assertEquals("SimpleSchema", env.statement("schema").getProperty(StatementProperty.CREATEOBJECTNAME));
 
             env.sendEventBean(new SupportBean("a", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 20});
+            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
 
             assertNull(env.runtime().getEventTypeService().getBusEventType("SimpleSchema"));
 
@@ -173,7 +173,7 @@ public class EPLOtherCreateSchema {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventMap(CollectionUtil.buildMap("p0", "a", "p1", 20), "MySchema");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 20});
+            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
 
             EventType eventType = env.runtime().getEventTypeService().getBusEventType("MySchema");
             assertEquals("MySchema", eventType.getName());
@@ -197,7 +197,7 @@ public class EPLOtherCreateSchema {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{"E1", 10d}, "MyEventOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1,p2".split(","), new Object[]{"E1", 10d, "abc"});
+            env.assertPropsListenerNew("s0", "p0,p1,p2".split(","), new Object[]{"E1", 10d, "abc"});
 
             env.undeployAll();
         }
@@ -236,7 +236,7 @@ public class EPLOtherCreateSchema {
 
             env.compileDeploy("@name('s0') insert into MySchema select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent").addListener("s0");
             env.sendEventBean(theEvent);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
+            env.assertPropsListenerNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
             env.undeployModuleContaining("s0");
 
             // test named window
@@ -263,7 +263,7 @@ public class EPLOtherCreateSchema {
             // test configured Map type
             env.compileDeploy("@name('s0') insert into MyConfiguredMap select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent").addListener("s0");
             env.sendEventBean(theEvent);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
+            env.assertPropsListenerNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
 
             env.undeployAll();
         }
@@ -309,7 +309,7 @@ public class EPLOtherCreateSchema {
             } else {
                 fail();
             }
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "prop1,prop2".split(","), new Object[]{"v1", 2});
+            env.assertPropsListenerNew("s0", "prop1,prop2".split(","), new Object[]{"v1", 2});
             env.undeployModuleContaining("s0");
 
             // test two copy-from types
@@ -482,12 +482,12 @@ public class EPLOtherCreateSchema {
             Assert.assertEquals(SupportBean_ST0.class, env.statement("s1").getEventType().getUnderlyingType());
 
             env.sendEventBean(new SupportBean_ST0("E1", 2), "SupportBeanOne");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "id,p00".split(","), new Object[]{"E1", 2});
+            env.assertPropsListenerNew("s0", "id,p00".split(","), new Object[]{"E1", 2});
             assertFalse(env.listener("s1").isInvoked());
 
             env.sendEventBean(new SupportBean_ST0("E2", 3), "SupportBeanTwo");
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "id,p00".split(","), new Object[]{"E2", 3});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // assert type information
             EventType type = env.statement("s0").getEventType();
@@ -710,7 +710,7 @@ public class EPLOtherCreateSchema {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "col1.inn1[1],col2[1].inn2[1]".split(","), new Object[]{"def", 2});
+        env.assertPropsListenerNew("s0", "col1.inn1[1],col2[1].inn2[1]".split(","), new Object[]{"def", 2});
 
         env.undeployAll();
     }

@@ -10,11 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class EPLOtherCreateIndex {
             env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 1});
+            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
 
             env.undeployAll();
         }
@@ -63,7 +62,7 @@ public class EPLOtherCreateIndex {
             env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "p0,p1".split(","), new Object[]{"a", 1});
+            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
 
             env.undeployAll();
         }

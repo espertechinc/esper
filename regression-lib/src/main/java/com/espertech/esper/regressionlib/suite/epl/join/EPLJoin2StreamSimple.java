@@ -16,7 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLJoin2StreamSimple implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -26,7 +25,7 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.compileDeployAddListenerMileZero(text, "s0");
 
         env.sendEventBean(makeMarketDataEvent("S0", 100, 1));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(1);
 
@@ -49,7 +48,7 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.milestone(3);
 
         env.sendEventBean(makeMarketDataEvent("S1", 22, 2));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(4);
 

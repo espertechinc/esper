@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
 
 public class ClientExtendView implements RegressionExecution {
 
@@ -33,7 +32,7 @@ public class ClientExtendView implements RegressionExecution {
 
         sendEvent(env, 1);
         sendEvent(env, 2);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

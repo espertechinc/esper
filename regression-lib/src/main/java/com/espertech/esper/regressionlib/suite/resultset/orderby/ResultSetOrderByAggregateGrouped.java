@@ -190,7 +190,7 @@ public class ResultSetOrderByAggregateGrouped {
             sendEvent(env, "IBM", 49);
             sendEvent(env, "CAT", 15);
             sendEvent(env, "IBM", 100);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{
                     {"CAT", "CAT", 65d},
                     {"CAT", "CAT", 65d},
@@ -199,7 +199,7 @@ public class ResultSetOrderByAggregateGrouped {
                 });
 
             sendEvent(env, "KGB", 75);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{
                     {"CAT", "CAT", 65d},
                     {"CAT", "CAT", 65d},

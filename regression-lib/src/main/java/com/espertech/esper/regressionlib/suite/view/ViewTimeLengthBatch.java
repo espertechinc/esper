@@ -56,7 +56,7 @@ public class ViewTimeLengthBatch {
             env.milestone(2);
 
             sendTimer(env, 10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
             EventBean[] newData = env.listener("s0").getLastNewData();
@@ -82,7 +82,7 @@ public class ViewTimeLengthBatch {
             env.milestone(5);
 
             sendTimer(env, 24999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // wait 10 second, check call
             sendTimer(env, 25000);
@@ -94,7 +94,7 @@ public class ViewTimeLengthBatch {
 
             // wait 10 second, check no call received, no events
             sendTimer(env, 35000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -111,10 +111,10 @@ public class ViewTimeLengthBatch {
 
             // Send 3 events in batch
             env.sendEventBean(events[0]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[1]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[2]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -124,7 +124,7 @@ public class ViewTimeLengthBatch {
             // Send another 3 events in batch
             env.sendEventBean(events[3]);
             env.sendEventBean(events[4]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[5]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -135,7 +135,7 @@ public class ViewTimeLengthBatch {
 
             // Expire the last 3 events by moving time
             sendTimer(env, startTime + 9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -145,15 +145,15 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 10001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send an event, let the timer send the batch
             sendTimer(env, startTime + 10100);
             env.sendEventBean(events[6]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 20000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -163,16 +163,16 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 20001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send two events, let the timer send the batch
             sendTimer(env, startTime + 29998);
             env.sendEventBean(events[7]);
             env.sendEventBean(events[8]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 29999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 30000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -183,14 +183,14 @@ public class ViewTimeLengthBatch {
 
             // Send three events, the the 3 events batch
             sendTimer(env, startTime + 30001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[9]);
             env.sendEventBean(events[10]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[11]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -201,10 +201,10 @@ public class ViewTimeLengthBatch {
 
             // Send 1 event, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[12]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 10000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -214,11 +214,11 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 10001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send no events, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 20000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -228,27 +228,27 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 20001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send no events, let the timer to do NO batch
             sendTimer(env, startTime + 39000 + 29999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 30000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 30001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send 1 more event
             sendTimer(env, startTime + 90000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[13]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 99999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 100000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -279,7 +279,7 @@ public class ViewTimeLengthBatch {
             env.milestone(2);
 
             sendTimer(env, 10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
             EventBean[] newData = env.listener("s0").getLastNewData();
@@ -305,7 +305,7 @@ public class ViewTimeLengthBatch {
             env.milestone(5);
 
             sendTimer(env, 24999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // wait 10 second, check call
             sendTimer(env, 25000);
@@ -338,10 +338,10 @@ public class ViewTimeLengthBatch {
 
             // Send 3 events in batch
             env.sendEventBean(events[0]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[1]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[2]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -351,7 +351,7 @@ public class ViewTimeLengthBatch {
             // Send another 3 events in batch
             env.sendEventBean(events[3]);
             env.sendEventBean(events[4]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[5]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -362,7 +362,7 @@ public class ViewTimeLengthBatch {
 
             // Expire the last 3 events by moving time
             sendTimer(env, startTime + 9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -372,15 +372,15 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 10001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send an event, let the timer send the batch
             sendTimer(env, startTime + 10100);
             env.sendEventBean(events[6]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 20000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -390,16 +390,16 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 20001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send two events, let the timer send the batch
             sendTimer(env, startTime + 29998);
             env.sendEventBean(events[7]);
             env.sendEventBean(events[8]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 29999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 30000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -410,14 +410,14 @@ public class ViewTimeLengthBatch {
 
             // Send three events, the the 3 events batch
             sendTimer(env, startTime + 30001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[9]);
             env.sendEventBean(events[10]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[11]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -428,10 +428,10 @@ public class ViewTimeLengthBatch {
 
             // Send 1 event, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[12]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 10000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -441,11 +441,11 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 10001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send no events, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 19999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 20000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -455,11 +455,11 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 20001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send no events, let the timer do a batch
             sendTimer(env, startTime + 39000 + 29999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 30000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -469,11 +469,11 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 30001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send no events, let the timer do a batch
             sendTimer(env, startTime + 39000 + 39999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 40000);
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
@@ -481,17 +481,17 @@ public class ViewTimeLengthBatch {
             env.listener("s0").reset();
 
             sendTimer(env, startTime + 39000 + 40001);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send 1 more event
             sendTimer(env, startTime + 80000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[13]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 88999);   // 10 sec from last batch
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 89000);
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
@@ -502,7 +502,7 @@ public class ViewTimeLengthBatch {
             sendTimer(env, startTime + 90000);
             env.sendEventBean(events[14]);
             env.sendEventBean(events[15]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 92000);
             env.sendEventBean(events[16]);
@@ -512,7 +512,7 @@ public class ViewTimeLengthBatch {
 
             // Send no events, let the timer do a batch
             sendTimer(env, startTime + 101999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 102000);
             EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[14], events[15], events[16]}, env.listener("s0").getOldDataListFlattened());
@@ -534,7 +534,7 @@ public class ViewTimeLengthBatch {
 
             // Send 1 events in batch
             env.sendEventBean(events[10]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
             assertEquals(10.0, env.listener("s0").getLastNewData()[0].get("sum(price)"));
@@ -564,7 +564,7 @@ public class ViewTimeLengthBatch {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             sendTimer(env, 10999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
             assertTrue(env.listener("s0").isInvoked());
@@ -576,7 +576,7 @@ public class ViewTimeLengthBatch {
 
             // Time period without events
             sendTimer(env, 20999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 21000);
             assertTrue(env.listener("s0").isInvoked());
@@ -602,7 +602,7 @@ public class ViewTimeLengthBatch {
 
             // Time period without events
             sendTimer(env, 34999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 35000);
             EventBean[] oldData = env.listener("s0").getLastOldData();
@@ -636,10 +636,10 @@ public class ViewTimeLengthBatch {
 
             String epl = "@name('s0') select sum(price) from SupportMarketDataBean#time_length_batch(10 sec, 3, 'force_update, start_eager')";
             env.compileDeployAddListenerMileZero(epl, "s0");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 9999);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send batch off
             sendTimer(env, startTime + 10000);
@@ -671,11 +671,11 @@ public class ViewTimeLengthBatch {
 
             // No batch as we are not start eager
             sendTimer(env, startTime + 10000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // No batch as we are not start eager
             sendTimer(env, startTime + 20000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -693,7 +693,7 @@ public class ViewTimeLengthBatch {
             // Send 3 events in batch
             env.sendEventBean(premades[0]);
             env.sendEventBean(premades[1]);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(premades[2]);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -716,7 +716,7 @@ public class ViewTimeLengthBatch {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendTimer(env, startTime + 4000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 6000);
             assertEquals(1, env.listener("s0").getNewDataList().size());
@@ -734,7 +734,7 @@ public class ViewTimeLengthBatch {
             env.sendEventBean(new SupportMarketDataBean("S1", "e3", 1d));
 
             sendTimer(env, startTime + 10000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 11000);
             assertEquals(1, env.listener("s0").getNewDataList().size());

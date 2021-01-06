@@ -15,10 +15,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.collection.Pair;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
@@ -135,7 +135,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Pair.class, type.getUnderlyingType());
 
             sendBeanEvent(env, "E1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
             EventBean outevent = env.listener("s0").assertOneGetNewAndReset();
@@ -175,7 +175,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Pair.class, type.getUnderlyingType());
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"s0", "s1", "symbol", "volume"};
@@ -198,7 +198,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             Object theEvent = sendBeanEvent(env, "E1", 15);
             String[] fields = new String[]{"theString", "intPrimitive", "s0"};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 15, theEvent});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 15, theEvent});
 
             env.undeployAll();
         }
@@ -219,7 +219,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Map.class, type.getUnderlyingType());
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"s0", "s1", "s0stream", "s1stream"};
@@ -245,7 +245,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             Object theEvent = sendBeanEvent(env, "E1", 12);
             String[] fields = new String[]{"s0", "s1", "a", "b"};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{theEvent, theEvent, 12, 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{theEvent, theEvent, 12, 12});
 
             env.undeployAll();
         }
@@ -267,7 +267,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Map.class, type.getUnderlyingType());
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"intPrimitive", "sym", "theString", "s0stream", "s1stream"};
@@ -294,7 +294,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             sendBeanEvent(env, "E1", 10);
             String[] fields = new String[]{"a", "theString", "intPrimitive", "b"};
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, "E1", 10, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{10, "E1", 10, 10});
 
             env.undeployAll();
         }
@@ -312,7 +312,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Pair.class, type.getUnderlyingType());
 
             sendBeanEvent(env, "E1", 11);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
             String[] fields = new String[]{"intPrimitive", "sym", "symbol"};
@@ -370,7 +370,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Map.class, type.getUnderlyingType());
 
             sendBeanEvent(env, "E1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
             TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("s1"));
@@ -387,7 +387,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(Map.class, type.getUnderlyingType());
 
             sendMarketEvent(env, "E1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = sendBeanEvent(env, "E1");
             TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("szero"));
@@ -407,7 +407,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(SupportMarketDataBean.class, type.getUnderlyingType());
 
             sendBeanEvent(env, "E1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
             TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
@@ -424,7 +424,7 @@ public class EPLOtherSelectExprStreamSelector {
             Assert.assertEquals(SupportBean.class, type.getUnderlyingType());
 
             sendMarketEvent(env, "E1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = sendBeanEvent(env, "E1");
             TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());

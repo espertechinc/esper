@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -98,27 +98,27 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, null});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 12);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", 11, 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 11, 10});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendSupportBean(env, "E4", 13);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", 12, 11});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 12, 11});
 
             sendSupportBean(env, "E5", 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5", 13, 12});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", 13, 12});
 
             env.undeployAll();
         }
@@ -133,12 +133,12 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, null});
 
             env.milestone(3);
 
@@ -171,12 +171,12 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10});
 
             env.milestone(3);
 
@@ -247,37 +247,37 @@ public class ExprCorePrior {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
 
             sendTimer(env, 0);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D1", 1);
             assertNewEvents(env, "D1", null, null);
 
             sendTimer(env, 1000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D2", 2);
             assertNewEvents(env, "D2", null, null);
 
             sendTimer(env, 2000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D3", 3);
             assertNewEvents(env, "D3", "D1", 1d);
 
             sendTimer(env, 3000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D4", 4);
             assertNewEvents(env, "D4", "D2", 2d);
 
             sendTimer(env, 4000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D5", 5);
             assertNewEvents(env, "D5", "D3", 3d);
 
             sendTimer(env, 30000);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "D6", 6);
             assertNewEvents(env, "D6", "D4", 4d);
@@ -390,11 +390,11 @@ public class ExprCorePrior {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
 
             sendTimer(env, 0);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 2);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -405,7 +405,7 @@ public class ExprCorePrior {
 
             sendTimer(env, 80000);
             sendMarketEvent(env, "C", 3);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
@@ -475,13 +475,13 @@ public class ExprCorePrior {
             env.compileDeploy(text).addListener("s0");
 
             sendMarketEvent(env, "IBM", 75);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "IBM", 100);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "IBM", 120);
-            TestCase.assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -691,7 +691,7 @@ public class ExprCorePrior {
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 130);
             sendMarketEvent(env, "C", 10);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendMarketEvent(env, "D", 5);
             Assert.assertEquals("B", env.listener("s0").assertOneGetNewAndReset().get("currSymbol"));
 
@@ -741,12 +741,12 @@ public class ExprCorePrior {
             Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
 
             sendTimer(env, 0);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMarketEvent(env, "A", 1);
             sendMarketEvent(env, "B", 2);
             sendBeanEvent(env, "X1");
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
@@ -758,7 +758,7 @@ public class ExprCorePrior {
             sendMarketEvent(env, "C1", 11);
             sendMarketEvent(env, "C2", 12);
             sendMarketEvent(env, "C3", 13);
-            TestCase.assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
             Assert.assertEquals(3, env.listener("s0").getLastNewData().length);

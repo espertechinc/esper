@@ -19,10 +19,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.epl.rowrecog.core.RowRecogPatternExpandUtil;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNode;
 import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNodePrecedenceEnum;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.SupportStatementCompileHook;
 
 import java.io.StringWriter;
@@ -68,7 +68,7 @@ public class RowRecogRepetition implements RegressionExecution {
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3", "E4", "E5"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4", "E5"});
 
         env.undeployAll();
     }
@@ -93,7 +93,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E3", "E4", "E5"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3", "E4", "E5"});
 
         env.undeployAll();
     }
@@ -113,13 +113,13 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
 
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", "E3"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3"});
 
         env.milestone(0);
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "E5"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E5"});
 
         env.undeployAll();
     }
@@ -174,7 +174,7 @@ public class RowRecogRepetition implements RegressionExecution {
         SupportBean b6 = sendEvent("A6", 6, env);
         SupportBean b7 = sendEvent("A7", 7, env);
         SupportBean b8 = sendEvent("A9", 8, env);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
+        env.assertPropsListenerNew("s0", "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
 
         env.undeployAll();
     }

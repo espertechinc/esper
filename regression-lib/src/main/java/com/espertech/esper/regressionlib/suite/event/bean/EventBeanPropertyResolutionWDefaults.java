@@ -13,12 +13,11 @@ package com.espertech.esper.regressionlib.suite.event.bean;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDupProperty;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanReservedKeyword;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWriteOnly;
@@ -80,7 +79,7 @@ public class EventBeanPropertyResolutionWDefaults {
             defValues.put("children's books", new int[]{50, 51});
             defValues.put("my <> map", Collections.singletonMap("xx", "abc"));
             env.sendEventMap(defValues, "MyType");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","), new Object[]{"Enders Game", "book", 100, 50, "abc"});
+            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","), new Object[]{"Enders Game", "book", 100, 50, "abc"});
             env.undeployAll();
 
             tryInvalidCompile(env, "select `select` from SupportBean", "Failed to validate select-clause expression 'select': Property named '`select`' is not valid in any stream [");

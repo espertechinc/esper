@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class ExprCoreBigNumberSupportMathContext {
             assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("c0"));
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{BigDecimal.valueOf(2, 0)});
+            env.assertPropsListenerNew("s0", fields, new Object[]{BigDecimal.valueOf(2, 0)});
 
             env.undeployAll();
         }

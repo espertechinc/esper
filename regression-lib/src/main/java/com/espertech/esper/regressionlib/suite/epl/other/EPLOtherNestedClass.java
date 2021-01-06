@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLOtherNestedClass {
     public static List<RegressionExecution> executions() {
@@ -33,7 +32,7 @@ public class EPLOtherNestedClass {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new MyEventWithColorEnum(MyEventWithColorEnum.Color.BLUE));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new MyEventWithColorEnum(MyEventWithColorEnum.Color.GREEN));
             assertEquals(MyEventWithColorEnum.Color.RED, env.listener("s0").assertOneGetNewAndReset().get("c0"));

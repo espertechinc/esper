@@ -14,11 +14,11 @@ import com.espertech.esper.common.client.render.EventPropertyRenderer;
 import com.espertech.esper.common.client.render.EventPropertyRendererContext;
 import com.espertech.esper.common.client.render.JSONRenderingOptions;
 import com.espertech.esper.common.client.render.XMLRenderingOptions;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRendererOne;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRendererThree;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.util.*;
 

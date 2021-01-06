@@ -122,13 +122,13 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             eventOne = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
         assertTrue(((Map) env.listener("insert").assertOneGetNewAndReset().getUnderlying()).get("c0") instanceof EventBean);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
 
         Object eventTwo = sendEvent(env, rep, "E2");
         if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             eventTwo = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
 
         // test SODA
         env.eplToModelCompileDeploy(eplInsert, path);

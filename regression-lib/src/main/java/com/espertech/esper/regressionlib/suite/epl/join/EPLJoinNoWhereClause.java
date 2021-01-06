@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class EPLJoinNoWhereClause {
             sendEvent(env, "A2", 2);
             sendEvent(env, "A3", 3);
             sendEvent(env, "B2", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A2", "B2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B2"});
 
             env.undeployAll();
         }
@@ -66,21 +65,21 @@ public class EPLJoinNoWhereClause {
 
             // Send 2 events, should join on second one
             sendEvent(env, setOne[0]);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendEvent(env, setTwo[0]);
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(setOne[0], env.listener("s0").getLastNewData()[0].get("stream_0"));
             assertEquals(setTwo[0], env.listener("s0").getLastNewData()[0].get("stream_1"));
             env.listener("s0").reset();
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{0L, 0L}});
 
             sendEvent(env, setOne[1]);
             sendEvent(env, setOne[2]);
             sendEvent(env, setTwo[1]);
             assertEquals(3, env.listener("s0").getLastNewData().length);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{0L, 0L},
                     {1L, 0L},
                     {2L, 0L},

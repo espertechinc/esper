@@ -114,7 +114,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             env.compileExecuteFAF("insert into Regions values ('R1', 2, 2, 5, 5)", path);
             env.sendEventMap(CollectionUtil.populateNameValueMap("x", 3d, "y", 3d, "vin", "V1"), "Geofence");
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "vin,regionId".split(","), new Object[]{"V1", "R1"});
+            env.assertPropsListenerNew("s0", "vin,regionId".split(","), new Object[]{"V1", "R1"});
 
             env.undeployAll();
         }

@@ -13,20 +13,19 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
+import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.type.OuterJoinType;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
-import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.*;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLOuterJoinVarA3Stream {
 
@@ -55,30 +54,30 @@ public class EPLOuterJoinVarA3Stream {
             String[] fields = new String[]{"t1.col1", "t1.col2", "t2.col1", "t2.col2", "t3.col1", "t3.col2"};
 
             sendMapEvent(env, "Type2", "a1", "b1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMapEvent(env, "Type1", "b1", "a1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b1", "a1", null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"b1", "a1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "a1", "a1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"a1", "a1", null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"a1", "a1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "b1", "b1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b1", "b1", null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"b1", "b1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "a1", "b1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"a1", "b1", "a1", "b1", null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"a1", "b1", "a1", "b1", null, null});
 
             sendMapEvent(env, "Type3", "c1", "b1");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendMapEvent(env, "Type1", "d1", "b1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"d1", "b1", null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"d1", "b1", null, null, null, null});
 
             sendMapEvent(env, "Type3", "d1", "bx");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"d1", "b1", null, null, "d1", "bx"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"d1", "b1", null, null, "d1", "bx"});
 
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.undeployAll();
         }
     }
@@ -97,28 +96,28 @@ public class EPLOuterJoinVarA3Stream {
             env.sendEventBean(new SupportBean_S1(11, "A_2", "B_1"));
             env.sendEventBean(new SupportBean_S1(12, "A_1", "B_2"));
             env.sendEventBean(new SupportBean_S1(13, "A_2", "B_2"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S2(20, "A_1", "B_1"));
             env.sendEventBean(new SupportBean_S2(21, "A_2", "B_1"));
             env.sendEventBean(new SupportBean_S2(22, "A_1", "B_2"));
             env.sendEventBean(new SupportBean_S2(23, "A_2", "B_2"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A_3", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(2, "A_1", "B_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(3, "A_3", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(4, "A_2", "B_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(5, "A_2", "B_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
 
             env.undeployAll();
         }
@@ -236,11 +235,11 @@ public class EPLOuterJoinVarA3Stream {
         //
         Object[] s1Events = SupportBean_S1.makeS1("A", new String[]{"A-s1-1", "A-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         Object[] s2Events = SupportBean_S2.makeS2("A", new String[]{"A-s2-1", "A-s2-2"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         Object[] s0Events = SupportBean_S0.makeS0("A", new String[]{"A-s0-1"});
         sendEvent(env, s0Events);
@@ -266,7 +265,7 @@ public class EPLOuterJoinVarA3Stream {
         //
         s1Events = SupportBean_S1.makeS1("C", new String[]{"C-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
@@ -276,7 +275,7 @@ public class EPLOuterJoinVarA3Stream {
         //
         s1Events = SupportBean_S1.makeS1("D", new String[]{"D-s1-1", "D-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("D", new String[]{"D-s0-1"});
         sendEvent(env, s0Events);
@@ -288,7 +287,7 @@ public class EPLOuterJoinVarA3Stream {
         //
         s2Events = SupportBean_S2.makeS2("E", new String[]{"E-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("E", new String[]{"E-s0-1"});
         sendEvent(env, s0Events);
@@ -298,7 +297,7 @@ public class EPLOuterJoinVarA3Stream {
         //
         s2Events = SupportBean_S2.makeS2("F", new String[]{"F-s2-1", "F-s2-2"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("F", new String[]{"F-s0-1"});
         sendEvent(env, s0Events);
@@ -310,11 +309,11 @@ public class EPLOuterJoinVarA3Stream {
         //
         s1Events = SupportBean_S1.makeS1("G", new String[]{"G-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("G", new String[]{"G-s2-1", "G-s2-2"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("G", new String[]{"G-s0-2"});
         sendEvent(env, s0Events);
@@ -328,11 +327,11 @@ public class EPLOuterJoinVarA3Stream {
         //
         s1Events = SupportBean_S1.makeS1("H", new String[]{"H-s1-1", "H-s1-2"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("H", new String[]{"H-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("H", new String[]{"H-s0-2"});
         sendEvent(env, s0Events);
@@ -346,11 +345,11 @@ public class EPLOuterJoinVarA3Stream {
         //
         s1Events = SupportBean_S1.makeS1("I", new String[]{"I-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s2Events = SupportBean_S2.makeS2("I", new String[]{"I-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         s0Events = SupportBean_S0.makeS0("I", new String[]{"I-s0-2"});
         sendEvent(env, s0Events);
@@ -386,7 +385,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s1Events = SupportBean_S1.makeS1("R", new String[]{"R-s1-1"});
         sendEvent(env, s1Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 1 rows, s2 with 0 rows
         //
@@ -481,7 +480,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s2Events = SupportBean_S2.makeS2("K", new String[]{"K-s2-1"});
         sendEvent(env, s2Events);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 1 rows, s1 with 0 rows
         //

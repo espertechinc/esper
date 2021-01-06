@@ -8,21 +8,22 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.regressionlib.suite.client.basic;
+package com.espertech.esper.regressionlib.support.client;
 
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.runtime.client.option.StatementNameRuntimeContext;
+import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 
-public class ClientBasicSelectClause implements RegressionExecution {
-    public void run(RegressionEnvironment env) {
-        String epl = "@name('s0') select intPrimitive from SupportBean";
-        env.compileDeployAddListenerMileZero(epl, "s0");
+import java.io.Serializable;
 
-        env.sendEventBean(new SupportBean("E1", 10));
+public class SupportPortableDeployStatementName implements StatementNameRuntimeOption, Serializable {
+    private static final long serialVersionUID = -4589367721631406894L;
+    private final String name;
 
-        env.assertPropsListenerNew("s0", "intPrimitive".split(","), new Object[]{10});
+    public SupportPortableDeployStatementName(String name) {
+        this.name = name;
+    }
 
-        env.undeployAll();
+    public String getStatementName(StatementNameRuntimeContext env) {
+        return name;
     }
 }

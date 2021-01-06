@@ -13,9 +13,9 @@ package com.espertech.esper.regressionlib.suite.epl.database;
 import com.espertech.esper.common.client.hook.type.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.util.SupportSQLColumnTypeConversion;
 import com.espertech.esper.regressionlib.support.util.SupportSQLOutputRowConversion;
 import org.junit.Assert;
@@ -62,7 +62,7 @@ public class EPLDatabaseHintHook {
             Assert.assertEquals(1, val.getColumnNumber());
 
             env.runtime().getVariableService().setVariableValue(null, "myvariableOCC", 60);    // greater 50 turns true
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, new Object[][]{{true}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{true}});
 
             env.undeployAll();
         }

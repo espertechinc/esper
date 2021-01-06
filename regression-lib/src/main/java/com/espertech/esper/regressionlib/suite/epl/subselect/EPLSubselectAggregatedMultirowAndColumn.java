@@ -90,17 +90,17 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{21});
+            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{21});
 
             env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{33});
+            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{33});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "subq".split(","), new Object[]{null});
+            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{null});
 
             env.undeployAll();
         }

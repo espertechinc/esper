@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 
 import java.util.ArrayList;
@@ -60,32 +59,32 @@ public class ResultSetOutputLimitFirstHaving {
 
             sendBeanEvent(env, 10);
             sendBeanEvent(env, 80);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(1000);
             sendBeanEvent(env, 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{101d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{101d});
 
             sendBeanEvent(env, 1);
 
             env.advanceTime(2999);
             sendBeanEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(3000);
             sendBeanEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, 100);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{114d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{114d});
 
             env.advanceTime(4999);
             sendBeanEvent(env, 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000);
             sendBeanEvent(env, 0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{102d});
+            env.assertPropsListenerNew("s0", fields, new Object[]{102d});
 
             env.undeployAll();
         }
@@ -97,13 +96,13 @@ public class ResultSetOutputLimitFirstHaving {
             env.compileDeploy(query).addListener("s0");
 
             sendBeanEvent(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, 9);
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

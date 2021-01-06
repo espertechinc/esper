@@ -12,11 +12,11 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLOtherPatternQueries {
     public static List<RegressionExecution> executions() {
@@ -73,10 +72,10 @@ public class EPLOtherPatternQueries {
             assertEventIds(env, 1, null);
 
             sendEventS0(env, 101);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 100);
             assertEventIds(env, null, 100);
@@ -104,10 +103,10 @@ public class EPLOtherPatternQueries {
             assertEventIds(env, 1, null);
 
             sendEventS0(env, 101);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 100);
             assertEventIds(env, null, 100);
@@ -128,10 +127,10 @@ public class EPLOtherPatternQueries {
             assertEventIds(env, 1, null);
 
             sendEventS0(env, 101);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS1(env, 100);
             assertEventIds(env, null, 100);
@@ -172,7 +171,7 @@ public class EPLOtherPatternQueries {
             env.advanceTime(0);
 
             sendEvent(env, 1, "e1a");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendEvent(env, 2, "e1a");
             assertNewEvent(env, 1, 2, "e1a");
 
@@ -180,7 +179,7 @@ public class EPLOtherPatternQueries {
             sendEvent(env, 10, "e2a");
             sendEvent(env, 11, "e2b");
             sendEvent(env, 12, "e2c");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             sendEvent(env, 13, "e2b");
             assertNewEvent(env, 11, 13, "e2b");
 
@@ -218,7 +217,7 @@ public class EPLOtherPatternQueries {
 
             SupportMarketDataBean eventThree = makeMarketDataEvent("S1");
             env.sendEventBean(eventThree);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             SupportMarketDataBean eventFour = makeMarketDataEvent("S0");
             env.sendEventBean(eventFour);

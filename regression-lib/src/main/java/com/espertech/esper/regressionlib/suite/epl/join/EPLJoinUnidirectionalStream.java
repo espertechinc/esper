@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.type.OuterJoinType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class EPLJoinUnidirectionalStream {
     public static List<RegressionExecution> executions() {
@@ -89,15 +90,15 @@ public class EPLJoinUnidirectionalStream {
 
             env.sendEventBean(new SupportBean_S0(1, "S0_1"));
             env.sendEventBean(new SupportBean("E1", 100));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(2, "S0_2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsIJ, new Object[]{100, 1L});
+            env.assertPropsListenerNew("s0", fieldsIJ, new Object[]{100, 1L});
 
             env.sendEventBean(new SupportBean("E2", 200));
 
             env.sendEventBean(new SupportBean_S0(3, "S0_3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fieldsIJ, new Object[]{300, 2L});
+            env.assertPropsListenerNew("s0", fieldsIJ, new Object[]{300, 2L});
             env.undeployAll();
 
             // test 2-stream inner join with group-by
@@ -117,13 +118,13 @@ public class EPLJoinUnidirectionalStream {
 
             env.sendEventBean(new SupportBean_S0(1, "S0_1"));
             env.sendEventBean(new SupportBean("E1", 50));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10, "S1_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields3IJ, new Object[]{50, 1L});
+            env.assertPropsListenerNew("s0", fields3IJ, new Object[]{50, 1L});
 
             env.sendEventBean(new SupportBean("E2", 51));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields3IJ, new Object[]{101, 2L});
+            env.assertPropsListenerNew("s0", fields3IJ, new Object[]{101, 2L});
 
             env.undeployAll();
 
@@ -140,10 +141,10 @@ public class EPLJoinUnidirectionalStream {
             env.compileDeployAddListenerMile(stmtText3FOJ, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBean_S0(1, "S0_1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields3FOJ, new Object[]{"S0_1", null, null});
+            env.assertPropsListenerNew("s0", fields3FOJ, new Object[]{"S0_1", null, null});
 
             env.sendEventBean(new SupportBean("E10", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields3FOJ, new Object[]{null, null, "E10"});
+            env.assertPropsListenerNew("s0", fields3FOJ, new Object[]{null, null, "E10"});
 
             env.sendEventBean(new SupportBean_S0(2, "S0_2"));
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields3FOJ, new Object[][]{{"S0_2", null, null}});
@@ -174,13 +175,13 @@ public class EPLJoinUnidirectionalStream {
             env.compileDeployAddListenerMile(stmtText3FOJW, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBean_S0(1, "X1"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(1, "Y1"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "Y1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields3FOJW, new Object[]{"Y1", "Y1", null});
+            env.assertPropsListenerNew("s0", fields3FOJW, new Object[]{"Y1", "Y1", null});
 
             env.undeployAll();
         }
@@ -196,10 +197,10 @@ public class EPLJoinUnidirectionalStream {
             // send event, expect result
             sendEventMD(env, "E1", 1L);
             String[] fields = "symbol,cnt".split(",");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E1", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 2L);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E1", 1L});
@@ -207,7 +208,7 @@ public class EPLJoinUnidirectionalStream {
             env.listener("s0").reset();
 
             sendEvent(env, "E1", 20);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 3L);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E1", 2L});
@@ -243,10 +244,10 @@ public class EPLJoinUnidirectionalStream {
             // send event, expect result
             sendEventMD(env, "E1", 1L);
             String[] fields = "cnt".split(",");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E1", 10);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 2L);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
@@ -254,7 +255,7 @@ public class EPLJoinUnidirectionalStream {
             env.listener("s0").reset();
 
             sendEvent(env, "E1", 20);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 3L);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{2L});
@@ -313,7 +314,7 @@ public class EPLJoinUnidirectionalStream {
             sendEvent(env, "A", 2);
             sendEvent(env, "B", 1);
             sendEvent(env, "B", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(70000);
             assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("num"));
@@ -341,7 +342,7 @@ public class EPLJoinUnidirectionalStream {
             sendEvent(env, "A", 2);
             sendEvent(env, "B", 1);
             sendEvent(env, "B", 2);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(70000);
             env.advanceTime(140000);
@@ -511,16 +512,16 @@ public class EPLJoinUnidirectionalStream {
         // send event, expect result
         sendEventMD(env, "E1", 1L);
         String[] fields = "symbol,volume,theString,intPrimitive".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L, null, null});
 
         sendEvent(env, "E1", 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEventMD(env, "E1", 2L);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 2L, "E1", 10});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2L, "E1", 10});
 
         sendEvent(env, "E1", 20);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void tryJoinPassive2Stream(RegressionEnvironment env, String stmtText) {
@@ -530,16 +531,16 @@ public class EPLJoinUnidirectionalStream {
         // send event, expect result
         sendEventMD(env, "E1", 1L);
         String[] fields = "symbol,volume,theString,intPrimitive".split(",");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E1", 10);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEventMD(env, "E1", 2L);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 2L, "E1", 10});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2L, "E1", 10});
 
         sendEvent(env, "E1", 20);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -559,23 +560,23 @@ public class EPLJoinUnidirectionalStream {
     private static void tryAssertionPatternUniOuterJoinNoOn(RegressionEnvironment env, long startTime) {
         String[] fields = "c0,c1".split(",");
         env.advanceTime(startTime + 2000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, 1L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{null, 1L});
 
         env.sendEventBean(new SupportBean("E1", 10));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(startTime + 3000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 1L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, 1L});
 
         env.sendEventBean(new SupportBean("E2", 11));
 
         env.advanceTime(startTime + 4000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{21, 2L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{21, 2L});
 
         env.sendEventBean(new SupportBean("E3", 12));
 
         env.advanceTime(startTime + 5000);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{33, 3L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{33, 3L});
     }
 
     private static void tryAssertion2StreamInnerWGroupBy(RegressionEnvironment env) {
@@ -588,13 +589,13 @@ public class EPLJoinUnidirectionalStream {
         String[] fields = "c0,c1,c2".split(",");
 
         env.sendEventObjectArray(new Object[]{"A", 100}, "E2");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventObjectArray(new Object[]{"A", "X", 10}, "E1");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L, 10, "A"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{1L, 10, "A"});
 
         env.sendEventObjectArray(new Object[]{"A", "Y", 20}, "E1");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L, 20, "A"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{1L, 20, "A"});
 
         env.undeployAll();
     }
@@ -603,62 +604,62 @@ public class EPLJoinUnidirectionalStream {
         String[] fields = "s0.id,s1.id,s2.id".split(",");
 
         env.sendEventBean(new SupportBean_S0(1, "E1"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{1, null, null});
         env.sendEventBean(new SupportBean_S1(2, "E1"));
         env.sendEventBean(new SupportBean_S2(3, "E1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(20, "E2"));
         env.sendEventBean(new SupportBean_S0(10, "E2"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 20, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, 20, null});
         env.sendEventBean(new SupportBean_S2(30, "E2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(300, "E3"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean_S0(100, "E3"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, null, null});
+        env.assertPropsListenerNew("s0", fields, new Object[]{100, null, null});
         env.sendEventBean(new SupportBean_S1(200, "E3"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(31, "E4"));
         env.sendEventBean(new SupportBean_S1(21, "E4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean_S0(11, "E4"));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 21, 31});
+        env.assertPropsListenerNew("s0", fields, new Object[]{11, 21, 31});
 
         env.sendEventBean(new SupportBean_S2(32, "E4"));
         env.sendEventBean(new SupportBean_S1(22, "E4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void try3TableJoin(RegressionEnvironment env) {
         env.sendEventBean(new SupportBean_S0(1, "E1"));
         env.sendEventBean(new SupportBean_S1(2, "E1"));
         env.sendEventBean(new SupportBean_S2(3, "E1"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(20, "E2"));
         env.sendEventBean(new SupportBean_S0(10, "E2"));
         env.sendEventBean(new SupportBean_S2(30, "E2"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(300, "E3"));
         env.sendEventBean(new SupportBean_S0(100, "E3"));
         env.sendEventBean(new SupportBean_S1(200, "E3"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(31, "E4"));
         env.sendEventBean(new SupportBean_S1(21, "E4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(11, "E4"));
         String[] fields = "s0.id,s1.id,s2.id".split(",");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{11, 21, 31});
+        env.assertPropsListenerNew("s0", fields, new Object[]{11, 21, 31});
 
         env.sendEventBean(new SupportBean_S2(32, "E4"));
         env.sendEventBean(new SupportBean_S1(22, "E4"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void tryUnsupportedIterator(EPStatement stmt) {

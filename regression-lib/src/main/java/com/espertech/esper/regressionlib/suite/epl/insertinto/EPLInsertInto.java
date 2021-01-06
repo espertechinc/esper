@@ -519,10 +519,10 @@ public class EPLInsertInto {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{20, null});
 
             env.sendEventBean(new SupportBean("E2", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{5, "E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{5, "E2"});
 
             env.undeployAll();
         }
@@ -554,7 +554,7 @@ public class EPLInsertInto {
             env.advanceTime(50 * 1000);
             env.advanceTime(55 * 1000);
 
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(60 * 1000);
 
             assertTrue(env.listener("s0").isInvoked());
@@ -568,7 +568,7 @@ public class EPLInsertInto {
             env.listener("s0").reset();
 
             env.advanceTime(65 * 1000);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.advanceTime(70 * 1000);
             assertEquals("ABC", env.listener("s0").getNewDataList().get(0)[0].get("mySymbol"));
@@ -731,7 +731,7 @@ public class EPLInsertInto {
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}, {"val", 3}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}, {"val", 3}}, null);
 
             env.undeployAll();
         }

@@ -13,13 +13,13 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,17 +146,17 @@ public class InfraTableAccessDotMethod {
         String[] fields = "c0,c1,c2".split(",");
         makeSendBean(env, "E1", 10, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{10, 1, Collections.singletonList(10)});
+        env.assertPropsListenerNew("s0", fields, new Object[]{10, 1, Collections.singletonList(10)});
 
         makeSendBean(env, "E1", 20, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{20, 2, Collections.singletonList(10)});
+        env.assertPropsListenerNew("s0", fields, new Object[]{20, 2, Collections.singletonList(10)});
 
         env.milestoneInc(milestone);
 
         makeSendBean(env, "E1", 30, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{30, 2, Collections.singletonList(20)});
+        env.assertPropsListenerNew("s0", fields, new Object[]{30, 2, Collections.singletonList(20)});
 
         env.undeployAll();
     }
@@ -196,13 +196,13 @@ public class InfraTableAccessDotMethod {
         String[] fields = "c0,c1".split(",");
         makeSendBean(env, "E1", 10, 100);
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false, 1});
+        env.assertPropsListenerNew("s0", fields, new Object[]{false, 1});
 
         env.milestoneInc(milestone);
 
         makeSendBean(env, "E1", 20, 200);
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true, 2});
+        env.assertPropsListenerNew("s0", fields, new Object[]{true, 2});
 
         env.undeployAll();
     }

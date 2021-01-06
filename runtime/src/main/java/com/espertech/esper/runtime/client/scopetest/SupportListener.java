@@ -139,14 +139,6 @@ public interface SupportListener extends UpdateListener {
     UniformPair<EventBean[]> getAndResetDataListsFlattened();
 
     /**
-     * Asserts name-value pairs of insert and remove stream events
-     *
-     * @param nameAndValuePairsIStream insert-stream assertions
-     * @param nameAndValuePairsRStream remove-stream assertions
-     */
-    void assertNewOldData(Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream);
-
-    /**
      * Asserts that exactly one remove stream event was received and no insert stream events, resets the listener clearing all state and returns the received event.
      *
      * @return single remove-stream event

@@ -14,7 +14,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RowRecogPerf implements RegressionExecution {
@@ -48,7 +47,7 @@ public class RowRecogPerf implements RegressionExecution {
             for (int i = 0; i < 25000; i++) {
                 env.sendEventBean(new SupportRecogBean("E2_" + i, "2", partition));
             }
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportRecogBean("E3", "3", partition));
             assertTrue(env.listener("s0").getAndClearIsInvoked());

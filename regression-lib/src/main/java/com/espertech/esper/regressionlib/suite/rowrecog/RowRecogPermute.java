@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.PermutationEnumeration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
-
-import static org.junit.Assert.assertFalse;
 
 public class RowRecogPermute implements RegressionExecution {
 
@@ -67,16 +64,16 @@ public class RowRecogPermute implements RegressionExecution {
 
         env.sendEventObjectArray(new Object[]{"E1", 1, 99d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E2"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
 
         env.milestone(0);
 
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E4", 1, 99d}, "TemperatureSensorEvent");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4", "E3"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E3"});
 
         env.sendEventObjectArray(new Object[]{"E5", 1, 98d}, "TemperatureSensorEvent");
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -112,7 +109,7 @@ public class RowRecogPermute implements RegressionExecution {
             }
             count++;
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, expected);
+            env.assertPropsListenerNew("s0", fields, expected);
         }
 
         env.undeployAll();

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ResultSetAggregateMaxMinGroupBy {
     private final static String SYMBOL_DELL = "DELL";
@@ -149,7 +148,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             sendEvent(env, "DELL", 100L);
             sendEvent(env, "DELL", 105L);
             sendEvent(env, "DELL", 100L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -162,7 +161,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             env.milestone(1);
 
             sendEvent(env, "DELL", 129L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -177,7 +176,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             sendEvent(env, "DELL", 100L);
             sendEvent(env, "DELL", 105L);
             sendEvent(env, "DELL", 100L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "DELL", 131L);
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -194,7 +193,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             sendEvent(env, "DELL", 129L);
             sendEvent(env, "DELL", 125L);
             sendEvent(env, "DELL", 125L);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "DELL", 170L);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -289,7 +288,7 @@ public class ResultSetAggregateMaxMinGroupBy {
         assertEquals(maxDistVolNew, newData[0].get("maxDistVol"));
 
         env.listener("s0").reset();
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, Long volume) {

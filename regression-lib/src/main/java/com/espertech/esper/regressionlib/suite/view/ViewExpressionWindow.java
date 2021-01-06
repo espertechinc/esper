@@ -11,10 +11,10 @@
 package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.ArrayList;
@@ -53,16 +53,16 @@ public class ViewExpressionWindow {
             env.compileDeploy(epl).addListener("s0").milestone(0);
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             env.advanceTime(1500);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
             sendSupportBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
@@ -80,7 +80,7 @@ public class ViewExpressionWindow {
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBean(env, "E4");
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E4"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}, {"E4"}});
             env.advanceTime(2500);
@@ -109,13 +109,13 @@ public class ViewExpressionWindow {
             env.compileDeploy(epl).addListener("s0").milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
@@ -135,13 +135,13 @@ public class ViewExpressionWindow {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E5", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E5"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}, {"E5"}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E6", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E6"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E6"});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.milestone(6);
@@ -187,17 +187,17 @@ public class ViewExpressionWindow {
             env.advanceTime(1000);
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.advanceTime(1500);
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 3));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
 
             env.advanceTime(2500);
             env.sendEventBean(new SupportBean("E4", 4));
@@ -252,7 +252,7 @@ public class ViewExpressionWindow {
 
             env.listener("s0").reset();
             env.advanceTime(1001);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(0);
@@ -266,7 +266,7 @@ public class ViewExpressionWindow {
             env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "KEEP", true);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E3"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3"}});
 
             env.undeployAll();
@@ -365,7 +365,7 @@ public class ViewExpressionWindow {
 
             env.sendEventBean(new SupportBean_A("E2"));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E3"}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOldAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -378,12 +378,12 @@ public class ViewExpressionWindow {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsListenerNew("s0", fields, new Object[]{null});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -397,7 +397,7 @@ public class ViewExpressionWindow {
 
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 

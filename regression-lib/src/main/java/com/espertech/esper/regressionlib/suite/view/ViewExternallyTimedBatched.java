@@ -12,17 +12,15 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportEventIdWithTimestamp;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertFalse;
 
 public class ViewExternallyTimedBatched {
 
@@ -44,15 +42,15 @@ public class ViewExternallyTimedBatched {
             String epl = "@Name('s0') select irstream theString as c0 from SupportBean#ext_timed_batch(longPrimitive, 10 sec)";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBeanWLong(env, "E1", 1000);   // reference point is 1000, every batch is 11000/21000/31000...
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendSupportBeanWLong(env, "E2", 5000);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -65,7 +63,7 @@ public class ViewExternallyTimedBatched {
 
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E3"}});
             sendSupportBeanWLong(env, "E4", 0);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -101,7 +99,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(1);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E3", "8:00:59.999"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
@@ -127,7 +125,7 @@ public class ViewExternallyTimedBatched {
                 new Object[][]{{"E7"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E9", "8:03:59.000"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
@@ -144,7 +142,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(8);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E12", "8:06:59.999"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(9);
 
@@ -233,7 +231,7 @@ public class ViewExternallyTimedBatched {
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E1", "8:00:00.000"));
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E2", "8:00:04.999"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E3", "8:00:05.000"));
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
@@ -242,7 +240,7 @@ public class ViewExternallyTimedBatched {
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E4", "8:00:04.000"));
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E5", "7:00:00.000"));
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E6", "8:01:04.999"));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E7", "8:01:05.000"));
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
@@ -268,7 +266,7 @@ public class ViewExternallyTimedBatched {
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-02-01T09:00:00.000"), "E1");
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000") - 1, "E2");
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});

@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.client.basic;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 public class ClientBasicAggregation implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -35,6 +34,6 @@ public class ClientBasicAggregation implements RegressionExecution {
 
     private void sendAssert(RegressionEnvironment env, long expected) {
         env.sendEventBean(new SupportBean("E1", 0));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "cnt".split(","), new Object[]{expected});
+        env.assertPropsListenerNew("s0", "cnt".split(","), new Object[]{expected});
     }
 }

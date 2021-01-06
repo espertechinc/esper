@@ -10,14 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean_S0;
 
 import java.io.StringWriter;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class EPLJoin20Stream implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -36,9 +33,9 @@ public class EPLJoin20Stream implements RegressionExecution {
         for (int i = 0; i < 19; i++) {
             env.sendEventBean(new SupportBean_S0(i));
         }
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean_S0(19));
-        assertTrue(env.listener("s0").isInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

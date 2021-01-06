@@ -14,14 +14,14 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
@@ -90,7 +90,7 @@ public class ContextNested {
             SupportBean sb1 = sendSBEvent(env, "A", 1);
             SupportBean sb2 = sendSBEvent(env, "A", 0);
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {sb1, sb2});
+            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[] {sb1, sb2});
 
             env.undeployAll();
         }
@@ -111,23 +111,23 @@ public class ContextNested {
             env.sendEventBean(criteriaA);
             env.sendEventBean(new SupportBean_S0(1, "B"));
             env.sendEventBean(new SupportBean("B", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             SupportBean_S0 s0 = new SupportBean_S0(2, "A");
             env.sendEventBean(s0);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,event,cnt".split(","), new Object[]{criteriaA, s0, 1L});
+            env.assertPropsListenerNew("s0", "c0,event,cnt".split(","), new Object[]{criteriaA, s0, 1L});
 
             env.sendEventBean(new SupportBean_S0(3, "A"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,cnt".split(","), new Object[]{criteriaA, 2L});
+            env.assertPropsListenerNew("s0", "c0,cnt".split(","), new Object[]{criteriaA, 2L});
 
             env.milestone(1);
 
             env.advanceTime(5000000);
 
             env.sendEventBean(new SupportBean_S0(4, "A"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,cnt".split(","), new Object[]{criteriaA, 1L});
+            env.assertPropsListenerNew("s0", "c0,cnt".split(","), new Object[]{criteriaA, 1L});
 
             env.undeployAll();
         }
@@ -146,7 +146,7 @@ public class ContextNested {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("A", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "cnt".split(","), new Object[]{1L});
+            env.assertPropsListenerNew("s0", "cnt".split(","), new Object[]{1L});
 
             env.milestone(0);
 
@@ -157,14 +157,14 @@ public class ContextNested {
             ContextPartitionIdentifierInitiatedTerminated second = (ContextPartitionIdentifierInitiatedTerminated) nested.getIdentifiers()[1];
 
             env.sendEventBean(new SupportBean("A", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "cnt".split(","), new Object[]{2L});
+            env.assertPropsListenerNew("s0", "cnt".split(","), new Object[]{2L});
 
             env.milestone(1);
 
             env.advanceTime(100000);
 
             env.sendEventBean(new SupportBean("A", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "cnt".split(","), new Object[]{1L});
+            env.assertPropsListenerNew("s0", "cnt".split(","), new Object[]{1L});
 
             env.undeployAll();
         }
@@ -191,15 +191,15 @@ public class ContextNested {
 
             sendSupportBean(env, "A", 0, 5);
             sendSupportBean(env, "C", 0, 6);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "C", 2, -10);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,theSum".split(","), new Object[]{"C", -1L});
+            env.assertPropsListenerNew("s0", "theString,theSum".split(","), new Object[]{"C", -1L});
 
             env.milestone(2);
 
             sendSupportBean(env, "D", 2, 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "theString,theSum".split(","), new Object[]{"D", 9L});
+            env.assertPropsListenerNew("s0", "theString,theSum".split(","), new Object[]{"D", 9L});
 
             env.undeployAll();
         }
@@ -227,7 +227,7 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("X", -1));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
 
@@ -263,7 +263,7 @@ public class ContextNested {
             env.milestoneInc(milestone);
 
             Object[][] expectedAll = new Object[][]{{"S0_1", "grp1", "E2", -1}, {"S0_1", "grp3", "E3", 5}, {"S0_1", "grp3", "E1", 3}, {"S0_2", "grp3", "E1", 2}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expectedAll);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, expectedAll);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(ContextPartitionSelectorAll.INSTANCE), env.statement("s0").safeIterator(ContextPartitionSelectorAll.INSTANCE), fields, expectedAll);
             SupportSelectorById allIds = new SupportSelectorById(new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 5)));
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(allIds), env.statement("s0").safeIterator(allIds), fields, expectedAll);
@@ -570,7 +570,7 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(100, "S1_2"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
@@ -607,7 +607,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:10.000");
 
             env.sendEventBean(new SupportBean("E3", 8));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(104, "S0_4"));
             env.sendEventBean(new SupportBean_S1(104, "S1_4"));
@@ -647,7 +647,7 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", -5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             SupportContextPropUtil.assertContextPropsNested(env, "ctx", "NestedContext", new int[]{0}, "SegByString,InitCtx".split(","), new String[]{"key1", "s0"},
                 new Object[][][]{{{"E1"}, {s0Bean1}}});
 
@@ -659,7 +659,7 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E2", 3));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             SupportBean_S0 s0Bean2 = new SupportBean_S0(2, "S0_2");
             env.sendEventBean(s0Bean2);
@@ -803,7 +803,7 @@ public class ContextNested {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
@@ -849,7 +849,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:15.000"); // terminate S0_2/S1_2/S2_3 and S0_2/S1_3/S2_3 leafs
 
             env.sendEventBean(new SupportBean("E7", 7));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
@@ -864,7 +864,7 @@ public class ContextNested {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E9", 9));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(105, "S1_5"));
             env.sendEventBean(new SupportBean_S2(205, "S2_5"));
@@ -877,7 +877,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:60.000"); // terminate S0_2 branch, only the "8to9" is left
 
             env.sendEventBean(new SupportBean("E11", 11));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(6, "S0_6"));
 
@@ -902,7 +902,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T10:00:00.000"); // terminate all
 
             env.sendEventBean(new SupportBean("E14", 14));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimeEvent(env, "2002-05-2T08:00:00.000"); // start next day
 
@@ -945,20 +945,20 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E2", 1));
             env.sendEventBean(new SupportBean_S0(1, "S0_2"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_2", "E3", 3});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_2", "E3", 3});
 
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_2", "E4", 4});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_2", "E4", 4});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 5));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_2", "E3", 8});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_2", "E3", 8});
 
             sendTimeEvent(env, "2002-05-1T08:00:05.000");
 
@@ -979,10 +979,10 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:10.000"); // expires first context
 
             env.sendEventBean(new SupportBean("E3", 8));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_4", "E3", 14});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_4", "E3", 14});
 
             env.sendEventBean(new SupportBean("E4", 9));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_4", "E4", 16});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_4", "E4", 16});
 
             env.milestone(5);
 
@@ -990,18 +990,18 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("Ex", 1));
             env.sendEventBean(new SupportBean_S0(1, "S0_5"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("E4", 10));
             env.sendEventBean(new SupportBean("E4", -10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"S0_5", "E4", 10});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_5", "E4", 10});
 
             sendTimeEvent(env, "2002-05-1T08:00:25.000"); // expires second context
 
             env.sendEventBean(new SupportBean("E4", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1065,29 +1065,29 @@ public class ContextNested {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendTimeEvent(env, "2002-05-1T08:00:00.000"); // start context
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
 
             sendTimeEvent(env, "2002-05-1T09:00:00.000"); // terminate
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -1096,7 +1096,7 @@ public class ContextNested {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
 
             env.undeployAll();
         }
@@ -1127,7 +1127,7 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 5));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -1138,38 +1138,38 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("X101", 10));
             env.sendEventBean(new SupportBean("X102", -10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("init_2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "init_2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "init_2", 1L});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "init_2", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "init_2", 2L});
 
             env.sendEventBean(new SupportBean("E4", 10));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("init_3", -2));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "init_3", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "init_3", 1L});
 
             env.sendEventBean(new SupportBean("E5", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "init_3", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "init_3", 2L});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E6", -1));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "init_3", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "init_3", 3L});
 
             sendTimeEvent(env, "2002-05-1T08:11:00.000"); // terminates all
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E7", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1198,7 +1198,7 @@ public class ContextNested {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
@@ -1209,17 +1209,17 @@ public class ContextNested {
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
@@ -1231,7 +1231,7 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
@@ -1240,19 +1240,19 @@ public class ContextNested {
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2, null, null, null);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
 
             SupportListener listener = env.listener("s0");
             env.undeployAll();
@@ -1293,7 +1293,7 @@ public class ContextNested {
             Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
@@ -1304,19 +1304,19 @@ public class ContextNested {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             // ends EightToNine context
@@ -1325,7 +1325,7 @@ public class ContextNested {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
 
             env.milestone(2);
@@ -1335,15 +1335,15 @@ public class ContextNested {
             Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2, null, null, null);
             Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
 
@@ -1390,7 +1390,7 @@ public class ContextNested {
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
+            env.assertPropsListenerNew("s0", fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E1",
                 "NestedContext",
                 10, 1L});
@@ -1399,7 +1399,7 @@ public class ContextNested {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
+            env.assertPropsListenerNew("s0", fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E2",
                 "NestedContext",
                 20, 1L});
@@ -1418,7 +1418,7 @@ public class ContextNested {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E2", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
+            env.assertPropsListenerNew("s0", fields, new Object[]{"EightToNine", DateTime.parseDefaultMSec("2002-05-1T08:30:00.000"),
                 "SegmentedByAString", "E2",
                 "NestedContext",
                 30, 1L});
@@ -1464,7 +1464,7 @@ public class ContextNested {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
 
             env.compileDeploy("@name('s2') context NestedContext select theString as c0, sum(intPrimitive) as c1 from SupportBean", path);
             env.addListener("s2");
@@ -1472,11 +1472,11 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 20));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2L});
             EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{"E1", 20});
 
             env.sendEventBean(new SupportBean("E2", 30));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
             EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{"E2", 30});
 
             env.milestone(2);
@@ -1487,7 +1487,7 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E1", 40));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 3L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3L});
             EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{"E1", 60});
             EPAssertionUtil.assertProps(env.listener("s3").assertOneGetNewAndReset(), fields, new Object[]{"E1", 40});
 
@@ -1497,7 +1497,7 @@ public class ContextNested {
             env.undeployModuleContaining("s2");
 
             env.sendEventBean(new SupportBean("E1", 50));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 4L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 4L});
             assertFalse(s2Listener.isInvoked());
             EPAssertionUtil.assertProps(env.listener("s3").assertOneGetNewAndReset(), fields, new Object[]{"E1", 40});
 
@@ -1535,12 +1535,12 @@ public class ContextNested {
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 1, 1));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 0, 2L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 0, 2L});
 
             env.undeployAll();
         }
@@ -1613,20 +1613,20 @@ public class ContextNested {
             sendBean(env, "B", 2, 50, true);
 
             sendBean(env, "A", 1, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 1, 40L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1, 40L});
 
             env.milestone(2);
 
             sendBean(env, "B", 2, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 2, 63L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2, 63L});
 
             sendBean(env, "A", 2, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A", 2, 52L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 2, 52L});
 
             env.milestone(3);
 
             sendBean(env, "B", 1, 0, false);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"B", 1, 31L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1, 31L});
 
             assertFilterCount(env, 3, "ctx");
             env.undeployModuleContaining("s0");
@@ -1662,12 +1662,12 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(2, "B"));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", "A", "B"});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "A", "B"});
 
             env.undeployAll();
         }
@@ -1696,38 +1696,38 @@ public class ContextNested {
             env.addListener("s0");
 
             env.sendEventBean(makeEvent("E1", 0, 10));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E1", 10L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E1", 10L});
             assertPartitionInfo(env);
 
             env.milestone(0);
 
             assertPartitionInfo(env);
             env.sendEventBean(makeEvent("E2", 0, 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E2", 11L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E2", 11L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E1", 0, 12));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E1", 22L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E1", 22L});
             assertPartitionInfoMulti(env, 2);
 
             env.milestone(2);
 
             assertPartitionInfoMulti(env, 2);
             env.sendEventBean(makeEvent("E1", 1, 13));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g3", "E1", 13L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g3", "E1", 13L});
             assertPartitionInfoMulti(env, 3);
 
             env.milestone(3);
 
             assertPartitionInfoMulti(env, 3);
             env.sendEventBean(makeEvent("E1", -1, 14));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "E1", 14L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "E1", 14L});
 
             env.milestone(4);
 
             env.sendEventBean(makeEvent("E2", -1, 15));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "E2", 15L});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "E2", 15L});
 
             env.milestone(5);
 
@@ -1736,7 +1736,7 @@ public class ContextNested {
             env.milestone(6);
 
             env.sendEventBean(makeEvent("E2", -1, 15));
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1864,14 +1864,14 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, "E1"}, {2, "E1"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 1));
             Object[][] expectedAll = new Object[][]{{1, "E1"}, {2, "E1"}, {1, "E2"}, {2, "E2"}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, expectedAll);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, expectedAll);
 
             // all-selector
             SupportSelectorNested selectorNested = new SupportSelectorNested(new ContextPartitionSelectorAll(), new ContextPartitionSelectorAll());
@@ -1886,13 +1886,13 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, "E1"}, {1, "E2"}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[0][]);
 
             env.undeployAll();
@@ -1920,14 +1920,14 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, "E1"}, {2, "E1"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 1));
             Object[][] expectedAll = new Object[][]{{1, "E1"}, {2, "E1"}, {1, "E2"}, {2, "E2"}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, expectedAll);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, expectedAll);
 
             // all-selector
             SupportSelectorNested selectorNested = new SupportSelectorNested(new ContextPartitionSelectorAll(), new ContextPartitionSelectorAll());
@@ -1942,13 +1942,13 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, "E1"}, {1, "E2"}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[0][]);
 
             env.undeployAll();
@@ -1977,14 +1977,14 @@ public class ContextNested {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, 10, "E1"}, {2, 10, "E1"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 1));
             Object[][] expectedAll = new Object[][]{{1, 10, "E1"}, {2, 10, "E1"}, {1, 10, "E2"}, {2, 10, "E2"}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields, expectedAll);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, expectedAll);
 
             // all-selector
             SupportSelectorNested selectorNested = new SupportSelectorNested(new ContextPartitionSelectorAll(), new ContextPartitionSelectorAll());
@@ -1996,13 +1996,13 @@ public class ContextNested {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{1, 10, "E1"}, {1, 10, "E2"}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[0][]);
 
             env.undeployAll();
@@ -2078,35 +2078,35 @@ public class ContextNested {
 
     private static void tryAssertion3Contexts(RegressionEnvironment env, AtomicInteger milestone, String[] fields, String startTime, String subsequentTime) {
         env.sendEventBean(makeEvent("E1", 0, 10));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E1", 10L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E1", 10L});
 
         assertPartitionInfo(env, startTime);
 
         env.sendEventBean(makeEvent("E2", 0, 11));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E2", 11L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E2", 11L});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 0, 12));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g2", "E1", 22L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g2", "E1", 22L});
 
         env.sendEventBean(makeEvent("E1", 1, 13));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g3", "E1", 13L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g3", "E1", 13L});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", -1, 14));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "E1", 14L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "E1", 14L});
 
         env.sendEventBean(makeEvent("E2", -1, 15));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"g1", "E2", 15L});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"g1", "E2", 15L});
 
         sendTimeEvent(env, subsequentTime);
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E2", -1, 15));
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendSupportBean(RegressionEnvironment env, String theString, int intPrimitive, long longPrimitive) {

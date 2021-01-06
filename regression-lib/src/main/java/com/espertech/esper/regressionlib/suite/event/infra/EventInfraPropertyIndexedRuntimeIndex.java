@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -84,7 +83,7 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
         EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("s0"), "LocalEvent");
 
         sender.accept(eventType, new String[]{"a", "b"});
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[]{"a", "b"});
+        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"a", "b"});
 
         env.undeployAll();
     }

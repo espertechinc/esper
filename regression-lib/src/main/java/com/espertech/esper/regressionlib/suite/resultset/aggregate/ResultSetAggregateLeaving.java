@@ -10,10 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,24 +43,24 @@ public class ResultSetAggregateLeaving implements RegressionExecution {
         String[] fields = "val".split(",");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+        env.assertPropsListenerNew("s0", fields, new Object[]{false});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+        env.assertPropsListenerNew("s0", fields, new Object[]{false});
 
         env.sendEventBean(new SupportBean("E3", 3));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{false});
+        env.assertPropsListenerNew("s0", fields, new Object[]{false});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E4", 4));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+        env.assertPropsListenerNew("s0", fields, new Object[]{true});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E5", 5));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{true});
+        env.assertPropsListenerNew("s0", fields, new Object[]{true});
     }
 }

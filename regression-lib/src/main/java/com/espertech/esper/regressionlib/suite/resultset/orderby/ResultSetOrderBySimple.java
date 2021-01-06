@@ -14,10 +14,10 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
@@ -136,7 +136,7 @@ public class ResultSetOrderBySimple {
             sendEvent(env, "IBM", 49);
             sendEvent(env, "CAT", 15);
             sendEvent(env, "IBM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"symbol", "theString", "price"},
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol", "theString", "price"},
                 new Object[][]{
                     {"CAT", "CAT", 15d},
                     {"IBM", "IBM", 49d},
@@ -147,7 +147,7 @@ public class ResultSetOrderBySimple {
             env.milestoneInc(milestone);
 
             sendEvent(env, "KGB", 75);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), new String[]{"symbol", "theString", "price"},
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol", "theString", "price"},
                 new Object[][]{
                     {"CAT", "CAT", 15d},
                     {"IBM", "IBM", 49d},

@@ -13,10 +13,9 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.condition.ConditionHandlerFactoryContext;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
 
 import static org.junit.Assert.assertEquals;
@@ -65,13 +64,13 @@ public class RowRecogMaxStatesEngineWideNoPreventStart implements RegressionExec
         RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("s0"), handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 4));
 
         env.sendEventBean(new SupportBean("D", 2));    // D gone
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"D"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"D"});
 
         env.sendEventBean(new SupportBean("A", 2));    // A gone
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"A"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"A"});
 
         env.sendEventBean(new SupportBean("C", 2));    // C gone
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"C"});
+        env.assertPropsListenerNew("s0", fields, new Object[]{"C"});
 
         env.sendEventBean(new SupportBean("F", 1));
         assertTrue(handler.getContexts().isEmpty());

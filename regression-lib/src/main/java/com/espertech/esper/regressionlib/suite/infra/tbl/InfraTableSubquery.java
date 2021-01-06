@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -110,7 +109,7 @@ public class InfraTableSubquery {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[]{10});
+            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
 
             env.undeployAll();
         }
@@ -167,6 +166,6 @@ public class InfraTableSubquery {
     private static void assertSubselect(RegressionEnvironment env, String string, Integer expectedSum) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean(string, -1));
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{expectedSum});
+        env.assertPropsListenerNew("s0", fields, new Object[]{expectedSum});
     }
 }

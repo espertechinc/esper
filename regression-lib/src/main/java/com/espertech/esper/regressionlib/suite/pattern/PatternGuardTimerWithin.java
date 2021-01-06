@@ -13,10 +13,10 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.DateTime;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
@@ -309,7 +309,7 @@ public class PatternGuardTimerWithin {
             env.milestone(1);
 
             sendTimer(3000, env);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -334,7 +334,7 @@ public class PatternGuardTimerWithin {
             env.milestone(1);
 
             env.sendEventBean(new SupportMarketDataBean("E5", "M1", 1d));
-            assertTrue(env.listener("s0").isInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -392,7 +392,7 @@ public class PatternGuardTimerWithin {
 
         sendTimer(time, env);
         sendEvent(env);
-        assertFalse(env.listener("s0").isInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendTimer(long timeInMSec, RegressionEnvironment env) {

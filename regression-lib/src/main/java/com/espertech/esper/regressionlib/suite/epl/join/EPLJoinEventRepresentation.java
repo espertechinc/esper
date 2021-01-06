@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class EPLJoinEventRepresentation {
@@ -76,7 +75,7 @@ public class EPLJoinEventRepresentation {
             String s1Name = "S1_" + rep.getName();
 
             sendRepEvent(env, rep, s0Name, "a", 1);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendRepEvent(env, rep, s1Name, "a", 2);
             EventBean output = env.listener("s0").assertOneGetNewAndReset();
@@ -85,7 +84,7 @@ public class EPLJoinEventRepresentation {
 
             sendRepEvent(env, rep, s1Name, "b", 3);
             sendRepEvent(env, rep, s0Name, "c", 4);
-            assertFalse(env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployModuleContaining("s0");
         }

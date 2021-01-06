@@ -12,9 +12,9 @@ package com.espertech.esper.regressionlib.suite.view;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ public class ViewLastEvent {
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
@@ -72,12 +72,12 @@ public class ViewLastEvent {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E1"}}, null);
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E2"}}, new Object[][]{{"symbol", "E1"}});
+            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, new Object[][]{{"symbol", "E1"}});
 
             // test iterator
             EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
@@ -87,7 +87,7 @@ public class ViewLastEvent {
 
             for (int i = 3; i < 10; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
-                env.listener("s0").assertNewOldData(new Object[][]{{"symbol", "E" + i}}, // new data
+                env.assertNVListener("s0", new Object[][]{{"symbol", "E" + i}}, // new data
                     new Object[][]{{"symbol", "E" + (i - 1)}} //  old data
                 );
 
