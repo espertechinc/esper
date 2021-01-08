@@ -96,7 +96,7 @@ public class ExprDTResolution {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(event);
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
 
         env.undeployAll();
     }

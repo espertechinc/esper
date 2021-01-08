@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
@@ -288,8 +289,8 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static class ExprFilterOptReboolConstValueRegexpRHSPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

@@ -86,7 +86,7 @@ public class EventInfraPropertyMappedRuntimeKey implements RegressionExecution {
         values.put("a1", "x");
         values.put("a2", "y");
         sender.accept(eventType, values);
-        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"x", "y"});
+        env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"x", "y"});
 
         env.undeployAll();
     }

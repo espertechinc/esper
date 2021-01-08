@@ -52,7 +52,7 @@ public class EPLJoinPatterns {
 
             sendEventS1(env, 1, "s1A");
             sendEventS0(env, 2, "a");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 1, "b");
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -64,7 +64,7 @@ public class EPLJoinPatterns {
 
             sendEventS1(env, 20, "s20A");
             sendEventS1(env, 30, "s30A");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 20, "a");
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -75,10 +75,10 @@ public class EPLJoinPatterns {
             assertEventData(theEvent, null, null, 20, "b", 20, "s20A");
 
             sendEventS0(env, 30, "c");   // filtered out
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 40, "a");   // not matching id in s1
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 50, "b");   // pushing an event s0(2, "a") out the window
             theEvent = env.listener("s0").assertOneGetOldAndReset();
@@ -99,7 +99,7 @@ public class EPLJoinPatterns {
             sendEventS1(env, 70, "s1-70");
             sendEventS0(env, 60, "a");
             sendEventS1(env, 20, "s1");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 70, "b");
             theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -138,7 +138,7 @@ public class EPLJoinPatterns {
             sendEventS2(env, 13, "c1");
             sendEventS1(env, 12, "b1");
             sendEventS3(env, 15, "d1");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS3(env, 25, "d2");
             sendEventS0(env, 21, "a2");
@@ -153,13 +153,13 @@ public class EPLJoinPatterns {
             assertEventData(theEvent, 3, 1, 3, 2, "a", "b", "c", "d");
             sendEventS2(env, 33, "c3");
             sendEventS3(env, 35, "d3");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 41, "a4");
             sendEventS2(env, 43, "c4");
             sendEventS1(env, 42, "b4");
             sendEventS3(env, 45, "d4");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // stop statement
             SupportListener listener = env.listener("s0");

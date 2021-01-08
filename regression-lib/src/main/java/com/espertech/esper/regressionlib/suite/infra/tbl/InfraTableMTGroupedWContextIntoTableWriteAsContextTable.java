@@ -12,6 +12,9 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
+
+import java.util.EnumSet;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -19,8 +22,8 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 public class InfraTableMTGroupedWContextIntoTableWriteAsContextTable implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     /**

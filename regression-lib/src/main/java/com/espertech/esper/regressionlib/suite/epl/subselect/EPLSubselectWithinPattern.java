@@ -21,10 +21,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class EPLSubselectWithinPattern {
 
     public static List<RegressionExecution> executions() {
@@ -42,13 +38,13 @@ public class EPLSubselectWithinPattern {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window MyWindowInvalid#lastevent as select * from SupportBean_S0", path);
 
-            tryInvalidCompile(env, "select * from SupportBean_S0(exists (select * from SupportBean_S1))",
+            env.tryInvalidCompile("select * from SupportBean_S0(exists (select * from SupportBean_S1))",
                 "Failed to validate subquery number 1 querying SupportBean_S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from SupportBean_S0(exists (select * from SupportBean_S1))]");
 
-            tryInvalidCompile(env, path, "select * from SupportBean_S0(exists (select * from MyWindowInvalid#lastevent))",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0(exists (select * from MyWindowInvalid#lastevent))",
                 "Failed to validate subquery number 1 querying MyWindowInvalid: Consuming statements to a named window cannot declare a data window view onto the named window [select * from SupportBean_S0(exists (select * from MyWindowInvalid#lastevent))]");
 
-            tryInvalidCompile(env, path, "select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))",
                 "Failed to validate filter expression 'id in (subselect_1)': Implicit conversion not allowed: Cannot coerce types Integer and String [select * from SupportBean_S0(id in ((select p00 from MyWindowInvalid)))]");
 
             env.undeployAll();
@@ -127,7 +123,7 @@ public class EPLSubselectWithinPattern {
             env.sendEventBean(new SupportBean_S0(1, "A"));
             env.sendEventBean(new SupportBean_S0(2, "Y"));
             env.sendEventBean(new SupportBean_S0(3, "C"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(4, "B", "B"));
             Assert.assertEquals("Y+B", env.listener("s0").assertOneGetNewAndReset().get("myid"));
@@ -136,7 +132,7 @@ public class EPLSubselectWithinPattern {
             env.sendEventBean(new SupportBean_S1(5, "C", "B"));
             env.sendEventBean(new SupportBean_S1(6, "X", "A"));
             env.sendEventBean(new SupportBean_S1(7, "A", "C"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -150,26 +146,26 @@ public class EPLSubselectWithinPattern {
 
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(3));  // now at 4
             env.sendEventBean(new SupportBean_S0(3));
             env.sendEventBean(new SupportBean_S0(5));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(4));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(10));  // now at 13 (length window 2)
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean_S0(3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(13));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -180,7 +176,7 @@ public class EPLSubselectWithinPattern {
         env.sendEventBean(new SupportBean_S1(2, "A"));
         env.sendEventBean(new SupportBean_S0(3, "B"));
         env.sendEventBean(new SupportBean_S1(4, "C"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(5, "C"));
         Assert.assertEquals(5, env.listener("s0").assertOneGetNewAndReset().get("myid"));
@@ -190,7 +186,7 @@ public class EPLSubselectWithinPattern {
 
         env.sendEventBean(new SupportBean_S0(7, "D"));
         env.sendEventBean(new SupportBean_S1(8, "E"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(9, "C"));
         Assert.assertEquals(9, env.listener("s0").assertOneGetNewAndReset().get("myid"));
@@ -201,7 +197,7 @@ public class EPLSubselectWithinPattern {
         env.sendEventBean(new SupportBean_S1(2, "A"));
         env.sendEventBean(new SupportBean_S0(3, "B"));
         env.sendEventBean(new SupportBean_S1(4, "C"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(5, "C"));
         Assert.assertEquals(5, env.listener("s0").assertOneGetNewAndReset().get("myid"));
@@ -210,7 +206,7 @@ public class EPLSubselectWithinPattern {
         env.sendEventBean(new SupportBean_S0(7, "D"));
         env.sendEventBean(new SupportBean_S1(8, "E"));
         env.sendEventBean(new SupportBean_S0(9, "C"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(10, "E"));
         Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("myid"));

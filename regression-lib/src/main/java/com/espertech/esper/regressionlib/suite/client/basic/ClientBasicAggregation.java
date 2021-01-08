@@ -34,6 +34,6 @@ public class ClientBasicAggregation implements RegressionExecution {
 
     private void sendAssert(RegressionEnvironment env, long expected) {
         env.sendEventBean(new SupportBean("E1", 0));
-        env.assertPropsListenerNew("s0", "cnt".split(","), new Object[]{expected});
+        env.assertPropsNew("s0", "cnt".split(","), new Object[]{expected});
     }
 }

@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplA;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplB;
@@ -28,6 +29,7 @@ import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.function.Function;
 
 import static com.espertech.esper.regressionlib.support.events.SupportEventInfra.*;
@@ -43,8 +45,8 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
     public final static String JSON_TYPENAME = EventInfraPropertyDynamicSimple.class.getSimpleName() + "Json";
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

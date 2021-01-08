@@ -25,9 +25,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class PatternGuardTimerWithin {
 
     public static Collection<RegressionExecution> executions() {
@@ -355,17 +352,17 @@ public class PatternGuardTimerWithin {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 0));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
         env.sendEventBean(new SupportBean("E2", 0));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.milestone(0);
 
         sendCurrentTime(env, "2002-03-01T09:00:00.000");
         env.sendEventBean(new SupportBean("E3", 0));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

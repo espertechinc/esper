@@ -16,18 +16,21 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
+
 import static org.junit.Assert.*;
 
 public class EPLJoin5StreamPerformance implements RegressionExecution {
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

@@ -41,7 +41,7 @@ public class EventBeanPropertyIterableMapList implements RegressionExecution {
         env.addListener("s0");
 
         env.sendEventBean(event);
-        env.assertPropsListenerNew("s0", "c0.id,c1.id,c2.id".split(","), new Object[]{"id1", "id2", "id3"});
+        env.assertPropsNew("s0", "c0.id,c1.id,c2.id".split(","), new Object[]{"id1", "id2", "id3"});
 
         env.undeployAll();
     }

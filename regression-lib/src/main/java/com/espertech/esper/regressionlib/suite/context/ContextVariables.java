@@ -27,7 +27,6 @@ import org.junit.Assert;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -57,29 +56,29 @@ public class ContextVariables {
             env.sendEventBean(new SupportBean("P1", 0));   // allocate partition P1
             env.sendEventBean(new SupportBean("P1", 10));   // set variable
             env.sendEventBean(new SupportBean_S0(1, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("P2", 11));   // allocate and set variable partition E2
             env.sendEventBean(new SupportBean_S0(2, "P2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11});
+            env.assertPropsNew("s0", fields, new Object[]{11});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(3, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(4, "P2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11});
+            env.assertPropsNew("s0", fields, new Object[]{11});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(5, "P3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0});
+            env.assertPropsNew("s0", fields, new Object[]{0});
 
             env.sendEventBean(new SupportBean("P3", 12));
             env.sendEventBean(new SupportBean_S0(6, "P3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{12});
+            env.assertPropsNew("s0", fields, new Object[]{12});
 
             env.undeployAll();
         }
@@ -105,7 +104,7 @@ public class ContextVariables {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S2(1, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5});
+            env.assertPropsNew("s0", fields, new Object[]{5});
 
             env.milestone(2);
 
@@ -118,7 +117,7 @@ public class ContextVariables {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
 
             // set all to -1
             env.sendEventBean(new SupportBean("P2", -1));
@@ -126,12 +125,12 @@ public class ContextVariables {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{-1});
+            env.assertPropsNew("s0", fields, new Object[]{-1});
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean_S2(2, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{-1});
+            env.assertPropsNew("s0", fields, new Object[]{-1});
 
             env.milestone(7);
 
@@ -144,12 +143,12 @@ public class ContextVariables {
             env.milestone(9);
 
             env.sendEventBean(new SupportBean_S2(2, "P2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20});
+            env.assertPropsNew("s0", fields, new Object[]{20});
 
             env.milestone(10);
 
             env.sendEventBean(new SupportBean_S2(2, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{21});
+            env.assertPropsNew("s0", fields, new Object[]{21});
 
             // terminate context partitions
             env.sendEventBean(new SupportBean_S1(0, "P1"));
@@ -159,7 +158,7 @@ public class ContextVariables {
 
             env.sendEventBean(new SupportBean_S0(0, "P1"));    // allocate partition P1
             env.sendEventBean(new SupportBean_S2(1, "P1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5});
+            env.assertPropsNew("s0", fields, new Object[]{5});
 
             env.undeployAll();
 
@@ -197,7 +196,7 @@ public class ContextVariables {
             env.sendEventBean(new SupportBean("P1", 100));    // update
             EPAssertionUtil.assertProps(env.listener("upd").assertOneGetNewAndReset(), fields, new Object[]{100});
             EPAssertionUtil.assertPropsPerRow(EPAssertionUtil.iteratorToArray(env.iterator("upd")), fields, new Object[][]{{100}});
-            EPAssertionUtil.assertProps(env.listener("var").assertGetAndResetIRPair(), fields, new Object[]{100}, new Object[]{5});
+            EPAssertionUtil.assertProps(env.listener("var").assertPairGetIRAndReset(), fields, new Object[]{100}, new Object[]{5});
 
             env.milestone(3);
 
@@ -211,7 +210,7 @@ public class ContextVariables {
 
             EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("var"));
             EPAssertionUtil.assertPropsPerRowAnyOrder(events, fields, new Object[][]{{100}, {101}});
-            EPAssertionUtil.assertProps(env.listener("var").assertGetAndResetIRPair(), fields, new Object[]{101}, new Object[]{5});
+            EPAssertionUtil.assertProps(env.listener("var").assertPairGetIRAndReset(), fields, new Object[]{101}, new Object[]{5});
 
             env.undeployAll();
         }
@@ -267,25 +266,25 @@ public class ContextVariables {
             env.compileDeploy("context MyCtxOne create variable int myctxone_int = 0", path);
 
             // undefined context
-            tryInvalidCompile(env, path, "context MyCtx create variable int mycontext_invalid1 = 0",
+            env.tryInvalidCompile(path, "context MyCtx create variable int mycontext_invalid1 = 0",
                 "Context by name 'MyCtx' could not be found");
 
             // wrong context uses variable
-            tryInvalidCompile(env, path, "context MyCtxTwo select myctxone_int from SupportBean_S0",
+            env.tryInvalidCompile(path, "context MyCtxTwo select myctxone_int from SupportBean_S0",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' is not available for use with context 'MyCtxTwo'");
 
             // variable use outside of context
-            tryInvalidCompile(env, path, "select myctxone_int from SupportBean_S0",
+            env.tryInvalidCompile(path, "select myctxone_int from SupportBean_S0",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
-            tryInvalidCompile(env, path, "select * from SupportBean_S0#expr(myctxone_int > 5)",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0#expr(myctxone_int > 5)",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
-            tryInvalidCompile(env, path, "select * from SupportBean_S0#keepall limit myctxone_int",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0#keepall limit myctxone_int",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
-            tryInvalidCompile(env, path, "select * from SupportBean_S0#keepall limit 10 offset myctxone_int",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0#keepall limit 10 offset myctxone_int",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
-            tryInvalidCompile(env, path, "select * from SupportBean_S0#keepall output every myctxone_int events",
+            env.tryInvalidCompile(path, "select * from SupportBean_S0#keepall output every myctxone_int events",
                 "Failed to validate the output rate limiting clause: Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
-            tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=myctxone_int') select longPrimitive, count(*) from SupportBean group by longPrimitive",
+            env.tryInvalidCompile(path, "@Hint('reclaim_group_aged=myctxone_int') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Variable 'myctxone_int' defined for use with context 'MyCtxOne' can only be accessed within that context");
 
             env.undeployAll();

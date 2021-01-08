@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportGroupSubgroupEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertTrue;
 
 public class ContextKeySegmentedNamedWindow {
@@ -130,24 +129,24 @@ public class ContextKeySegmentedNamedWindow {
 
         env.sendEventBean(new SupportBean_S0(10, "s1"));
         env.sendEventBean(new SupportBean("G1", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10, "s1"});
+        env.assertPropsNew("s0", fields, new Object[]{"G1", 10, "s1"});
 
         env.milestone(0);
 
         env.sendEventBean(new SupportBean("G2", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 10, "s1"});
+        env.assertPropsNew("s0", fields, new Object[]{"G2", 10, "s1"});
 
         env.sendEventBean(new SupportBean("G3", 20));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 20, null});
+        env.assertPropsNew("s0", fields, new Object[]{"G3", 20, null});
 
         env.milestone(1);
 
         env.sendEventBean(new SupportBean_S0(20, "s2"));
         env.sendEventBean(new SupportBean("G3", 20));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 20, "s2"});
+        env.assertPropsNew("s0", fields, new Object[]{"G3", 20, "s2"});
 
         env.sendEventBean(new SupportBean("G1", 20));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 20, "s2"});
+        env.assertPropsNew("s0", fields, new Object[]{"G1", 20, "s2"});
     }
 
     private static void runAssertionNamedWindow(RegressionEnvironment env, String fromClause) {
@@ -160,16 +159,16 @@ public class ContextKeySegmentedNamedWindow {
         String[] fields = "c0,c1".split(",");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         env.sendEventBean(new SupportBean("E2", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
         env.sendEventBean(new SupportBean("E1", 3));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 3});
 
         env.sendEventBean(new SupportBean("E2", 4));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 4});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 4});
 
         tryInvalidCreateWindow(env, path);
         tryInvalidCreateWindow(env, path); // making sure all is cleaned up
@@ -178,7 +177,7 @@ public class ContextKeySegmentedNamedWindow {
     }
 
     private static void tryInvalidCreateWindow(RegressionEnvironment env, RegressionPath path) {
-        tryInvalidCompile(env, path, "context Ctx create window MyInvalidWindow#unique(p00) as SupportBean_S0",
+        env.tryInvalidCompile(path, "context Ctx create window MyInvalidWindow#unique(p00) as SupportBean_S0",
             "Segmented context 'Ctx' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [context Ctx create window MyInvalidWindow#unique(p00) as SupportBean_S0]");
     }
 }

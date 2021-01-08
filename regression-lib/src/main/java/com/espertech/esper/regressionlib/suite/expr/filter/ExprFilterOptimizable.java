@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -92,7 +91,7 @@ public class ExprFilterOptimizable {
             tryInArrayContextProvided(env, milestone);
 
             if (hasFilterIndexPlanBasicOrMore(env)) {
-                tryInvalidCompile(env, "select * from pattern[every a=SupportInKeywordBean -> SupportBean(intPrimitive in (a.longs))]",
+                env.tryInvalidCompile("select * from pattern[every a=SupportInKeywordBean -> SupportBean(intPrimitive in (a.longs))]",
                     "Implicit conversion from datatype 'long' to 'Integer' for property 'intPrimitive' is not allowed (strict filter type coercion)");
             }
         }
@@ -180,11 +179,11 @@ public class ExprFilterOptimizable {
                 }
 
                 env.sendEventBean(new SupportBean("a", 0));
-                assertTrue(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvoked("s0");
                 env.sendEventBean(new SupportBean("b", 0));
-                assertTrue(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvoked("s0");
                 env.sendEventBean(new SupportBean("c", 0));
-                assertFalse(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerNotInvoked("s0");
 
                 env.undeployAll();
             }
@@ -208,7 +207,7 @@ public class ExprFilterOptimizable {
             runAssertionEqualsWSubsWCoercion(env, "select * from SupportBean(?:p0:int=longPrimitive)");
 
             if (hasFilterIndexPlanBasicOrMore(env)) {
-                tryInvalidCompile(env, "select * from SupportBean(intPrimitive=?:p0:long)",
+                env.tryInvalidCompile("select * from SupportBean(intPrimitive=?:p0:long)",
                     "Implicit conversion from datatype 'Long' to 'Integer' for property 'intPrimitive' is not allowed");
             }
 
@@ -265,16 +264,16 @@ public class ExprFilterOptimizable {
         }
 
         env.sendEventBean(new SupportBean("b", 0));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("c", 0));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("d", 0));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("e", 0));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -299,16 +298,16 @@ public class ExprFilterOptimizable {
 
     private static void tryAssertionWSubsFrom9To12(RegressionEnvironment env) {
         env.sendEventBean(new SupportBean("E1", 9));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 10));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("E3", 11));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("E1", 12));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void runAssertionInWSubs(RegressionEnvironment env, String epl) {
@@ -345,10 +344,10 @@ public class ExprFilterOptimizable {
         }
 
         env.sendEventBean(new SupportBean("E1", 10));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 11));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }
@@ -369,10 +368,10 @@ public class ExprFilterOptimizable {
         }
 
         env.sendEventBean(new SupportBean("abc", 0));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("x", 0));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -386,7 +385,7 @@ public class ExprFilterOptimizable {
         SupportBean sb = new SupportBean();
         sb.setLongPrimitive(100);
         env.sendEventBean(sb);
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }
@@ -488,10 +487,10 @@ public class ExprFilterOptimizable {
             env.compileDeployAddListenerMile(epl, "s0", 0);
 
             env.sendEventBean(new SupportOverrideBase(""));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportOverrideOne("a", "b"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -102,7 +101,7 @@ public class EPLDatabase2StreamOuterJoin {
                 "on theString = myvarchar";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             // Result as the SQL query returns 1 row and therefore the on-clause filters it out, but because of left out still getting a row
             sendEvent(env, 1, "xxx");
@@ -136,7 +135,7 @@ public class EPLDatabase2StreamOuterJoin {
                 "SupportBean as s0 on theString = myvarchar";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             // No result as the SQL query returns 1 row and therefore the on-clause filters it out
             sendEvent(env, 1, "xxx");
@@ -172,12 +171,12 @@ public class EPLDatabase2StreamOuterJoin {
                 "on theString = MyVarChar";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             // No result as the SQL query returns 1 row and therefore the on-clause filters it out
             sendEvent(env, 1, "xxx");
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendEvent(env, -1, "A");
             EventBean received = env.listener("s0").assertOneGetNewAndReset();

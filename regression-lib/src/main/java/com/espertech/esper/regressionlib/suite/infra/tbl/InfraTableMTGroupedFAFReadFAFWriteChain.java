@@ -15,11 +15,13 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQu
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
@@ -35,8 +37,8 @@ public class InfraTableMTGroupedFAFReadFAFWriteChain implements RegressionExecut
     private static final Logger log = LoggerFactory.getLogger(InfraTableMTGroupedFAFReadFAFWriteChain.class);
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     /**

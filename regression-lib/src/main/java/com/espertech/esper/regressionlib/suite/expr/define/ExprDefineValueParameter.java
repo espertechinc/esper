@@ -25,7 +25,6 @@ import java.util.List;
 
 import static com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum.NAME;
 import static com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum.TYPE;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -68,7 +67,7 @@ public class ExprDefineValueParameter {
             assertTypeExpected(env, Integer.class);
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{1});
+            env.assertPropsNew("s0", fields, new Object[]{1});
 
             env.undeployAll();
         }
@@ -208,7 +207,7 @@ public class ExprDefineValueParameter {
 
     private static class ExprDefineValueParameterInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "expression cc{(v1,v2) -> v1 || v2} select cc(1, 2) from SupportBean",
+            env.tryInvalidCompile("expression cc{(v1,v2) -> v1 || v2} select cc(1, 2) from SupportBean",
                 "Failed to validate select-clause expression 'cc(1,2)': Failed to validate expression declaration 'cc': Failed to validate declared expression body expression 'v1||v2': Implicit conversion from datatype 'Integer' to string is not allowed");
         }
     }
@@ -248,13 +247,13 @@ public class ExprDefineValueParameter {
             String[] fields = "c0,c1,c2".split(",");
 
             env.sendEventMap(CollectionUtil.buildMap("value1", 1d, "value2", 1.5d), "A");
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[] {1.5d, 1.2d, 1.5d});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "D", 1.1d);
 
             env.sendEventMap(CollectionUtil.buildMap("value1", 1.8d, "value2", 1.5d), "A");
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[] {1.8d, 1.8d, 1.2d});
 
             env.undeployAll();
@@ -275,7 +274,7 @@ public class ExprDefineValueParameter {
     private static void sendAssert(RegressionEnvironment env, String expected, String p00, String p01, String p02) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean_S0(0, p00, p01, p02));
-        env.assertPropsListenerNew("s0", fields, new Object[]{expected});
+        env.assertPropsNew("s0", fields, new Object[]{expected});
     }
 
     public static class ExprDefineLocalService {

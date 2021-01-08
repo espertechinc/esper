@@ -203,7 +203,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent(100L, "ONE"));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 1L},
@@ -216,7 +216,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(null, null));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 1L},
@@ -229,7 +229,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(null, "Two"));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgVolume", 100d},
                     {"countDistinctSymbol", 2L},

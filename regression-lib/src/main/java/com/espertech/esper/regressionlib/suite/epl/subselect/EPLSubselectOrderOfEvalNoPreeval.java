@@ -14,8 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static org.junit.Assert.assertTrue;
-
 public class EPLSubselectOrderOfEvalNoPreeval implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -24,7 +22,7 @@ public class EPLSubselectOrderOfEvalNoPreeval implements RegressionExecution {
         env.compileDeployAddListenerMileZero(epl, "s0");
 
         env.sendEventBean(new SupportBean("E1", 5));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
 
@@ -32,7 +30,7 @@ public class EPLSubselectOrderOfEvalNoPreeval implements RegressionExecution {
         env.compileDeployAddListenerMile(eplTwo, "s0", 1);
 
         env.sendEventBean(new SupportBean("E1", 5));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

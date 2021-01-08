@@ -14,11 +14,13 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowSubqueryLookupCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 
+import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,8 +34,8 @@ import static org.junit.Assert.assertEquals;
 public class MultithreadStmtNamedWindowSubqueryLookup implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

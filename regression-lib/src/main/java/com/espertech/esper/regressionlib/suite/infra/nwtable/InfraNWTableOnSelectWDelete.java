@@ -63,7 +63,7 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
 
             // select and delete bean E1
             env.sendEventBean(new SupportBean_S0(100, "E1"));
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{1});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{1});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[][]{{"E2", 2}});
 
             env.milestone(0);
@@ -75,7 +75,7 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
 
             // select and delete beans E2
             env.sendEventBean(new SupportBean_S0(101, "E2"));
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{2 + 3 + 4});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{2 + 3 + 4});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[0][]);
 
             // test SODA

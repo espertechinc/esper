@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetAggregateCountSum {
 
@@ -58,15 +57,15 @@ public class ResultSetAggregateCountSum {
 
             String message = "Failed to validate select-clause expression 'XXX': Implicit conversion from datatype 'null' to numeric is not allowed for aggregation function '";
             epl = "select avg(null) from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "avg(null)"));
+            env.tryInvalidCompile(epl, message.replace("XXX", "avg(null)"));
             epl = "select avg(distinct null) from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "avg(distinct null)"));
+            env.tryInvalidCompile(epl, message.replace("XXX", "avg(distinct null)"));
             epl = "select median(null) from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "median(null)"));
+            env.tryInvalidCompile(epl, message.replace("XXX", "median(null)"));
             epl = "select sum(null) from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "sum(null)"));
+            env.tryInvalidCompile(epl, message.replace("XXX", "sum(null)"));
             epl = "select stddev(null) from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message.replace("XXX", "stddev(null)"));
+            env.tryInvalidCompile(epl, message.replace("XXX", "stddev(null)"));
         }
     }
 
@@ -95,13 +94,13 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "S0", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(1L, env.listener("s0").getLastNewData()[0].get("cnt"));
             assertEquals("S0", env.listener("s0").getLastNewData()[0].get("symbol"));
 
             sendEvent(env, "S1", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
             assertEquals("S1", env.listener("s0").getLastNewData()[0].get("symbol"));
@@ -109,7 +108,7 @@ public class ResultSetAggregateCountSum {
             env.milestone(0);
 
             sendEvent(env, "S2", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(3L, env.listener("s0").getLastNewData()[0].get("cnt"));
             assertEquals("S2", env.listener("s0").getLastNewData()[0].get("symbol"));
@@ -124,24 +123,24 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "DELL", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(1L, env.listener("s0").getLastNewData()[0].get("cnt"));
 
             sendEvent(env, "DELL", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
 
             env.milestone(0);
 
             sendEvent(env, "DELL", 1L);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(3L, env.listener("s0").getLastNewData()[0].get("cnt"));
 
             // test invalid distinct
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select count(distinct *) from SupportMarketDataBean",
+            env.tryInvalidCompile("select count(distinct *) from SupportMarketDataBean",
                 "Failed to validate select-clause expression 'count(distinct *)': Invalid use of the 'distinct' keyword with count and wildcard");
 
             env.undeployAll();
@@ -154,7 +153,7 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendEvent(env);
             assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
 
@@ -173,7 +172,7 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendEvent(env);
             assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
 
@@ -228,15 +227,15 @@ public class ResultSetAggregateCountSum {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEvent(env, SYMBOL_DELL, 50L);
-            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 1L, 1d});
+            env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 1L, 1d});
 
             sendEvent(env, SYMBOL_DELL, 51L);
-            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
+            env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
 
             env.milestone(0);
 
             sendEvent(env, SYMBOL_DELL, 52L);
-            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
+            env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
 
             sendEvent(env, "IBM", 52L);
             EventBean[] events = env.listener("s0").getLastNewData();
@@ -247,7 +246,7 @@ public class ResultSetAggregateCountSum {
             env.milestone(1);
 
             sendEvent(env, SYMBOL_DELL, 53L);
-            env.assertPropsListenerNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
+            env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
 
             env.undeployAll();
         }
@@ -337,44 +336,44 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("A", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 100});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 100});
 
             env.sendEventBean(new SupportBean("B", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 20});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 101));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 201});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 201});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 21));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 41});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 41});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 201}, {"B", 41}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_A("A"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", null});
+            env.assertPropsNew("s0", fields, new Object[]{"A", null});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"B", 41}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("A", 102));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 102});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 102});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 41}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_A("B"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", null});
+            env.assertPropsNew("s0", fields, new Object[]{"B", null});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("B", 22));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 22});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 22});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 22}});
 
             env.undeployAll();
@@ -464,6 +463,6 @@ public class ResultSetAggregateCountSum {
 
     private static void sendManyArrayAssert(RegressionEnvironment env, int[] intOne, int[] intTwo, long expectedC0, long expectedC1) {
         env.sendEventBean(new SupportEventWithManyArray("id").withIntOne(intOne).withIntTwo(intTwo));
-        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{expectedC0, expectedC1});
+        env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{expectedC0, expectedC1});
     }
 }

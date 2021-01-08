@@ -24,12 +24,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertEquals;
 
 public class EPLDataflowOpSelect {
@@ -365,8 +366,8 @@ public class EPLDataflowOpSelect {
 
     private static class EPLDataflowSelectPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -396,6 +397,6 @@ public class EPLDataflowOpSelect {
             "DefaultSupportSourceOp -> instream<SupportBean>{}\n" +
             "Select(instream as ME) -> outstream {select: (" + select + "), iterate: " + iterate + "}\n" +
             "DefaultSupportCaptureOp(outstream) {}";
-        tryInvalidCompile(env, graph, message);
+        env.tryInvalidCompile(graph, message);
     }
 }

@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ExprClassClassDependency {
@@ -90,7 +89,7 @@ public class ExprClassClassDependency {
                 "    }\n" +
                 "\"\"\" \n" +
                 "select MyClass.doIt(theString) as c0 from SupportBean\n";
-            tryInvalidCompile(env, path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
+            env.tryInvalidCompile(path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
 
             // create-class depending on create-class
             eplInvalid = "create inlined_class \"\"\"\n" +
@@ -100,7 +99,7 @@ public class ExprClassClassDependency {
                 "        }\n" +
                 "    }\n" +
                 "\"\"\"";
-            tryInvalidCompile(env, path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
+            env.tryInvalidCompile(path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
         }
     }
 

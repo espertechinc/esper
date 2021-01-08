@@ -10,19 +10,13 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-
-import static org.junit.Assert.assertFalse;
 
 public class ViewKeepAll {
 
@@ -43,26 +37,26 @@ public class ViewKeepAll {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}});
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
             sendSupportBean(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
 
             env.milestone(4);
 
@@ -73,38 +67,19 @@ public class ViewKeepAll {
 
     private static class ViewKeepAllIterator implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "symbol,price".split(",");
             String epl = "@name('s0') select symbol, price from SupportMarketDataBean#keepall";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEvent(env, "ABC", 20);
             sendEvent(env, "DEF", 100);
-
-            // check iterator results
-            Iterator<EventBean> events = env.statement("s0").iterator();
-            EventBean theEvent = events.next();
-            Assert.assertEquals("ABC", theEvent.get("symbol"));
-            Assert.assertEquals(20d, theEvent.get("price"));
-
-            theEvent = events.next();
-            Assert.assertEquals("DEF", theEvent.get("symbol"));
-            Assert.assertEquals(100d, theEvent.get("price"));
-            assertFalse(events.hasNext());
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"ABC", 20d}, {"DEF", 100d}});
 
             sendEvent(env, "EFG", 50);
 
-            // check iterator results
-            events = env.statement("s0").iterator();
-            theEvent = events.next();
-            Assert.assertEquals("ABC", theEvent.get("symbol"));
-            Assert.assertEquals(20d, theEvent.get("price"));
+            env.milestone(1);
 
-            theEvent = events.next();
-            Assert.assertEquals("DEF", theEvent.get("symbol"));
-            Assert.assertEquals(100d, theEvent.get("price"));
-
-            theEvent = events.next();
-            Assert.assertEquals("EFG", theEvent.get("symbol"));
-            Assert.assertEquals(50d, theEvent.get("price"));
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"ABC", 20d}, {"DEF", 100d}, {"EFG", 50d}});
 
             env.undeployAll();
         }
@@ -117,24 +92,18 @@ public class ViewKeepAll {
 
             sendEvent(env, "S1", 100);
             String[] fields = new String[]{"symbol", "cnt", "mysum"};
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"S1", 1L, 100d});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"S1", 0L, null});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"S1", 1L, 100d}, new Object[]{"S1", 0L, null});
 
             sendEvent(env, "S2", 50);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"S2", 1L, 50d});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"S2", 0L, null});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"S2", 1L, 50d}, new Object[]{"S2", 0L, null});
+
+            env.milestone(1);
 
             sendEvent(env, "S1", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"S1", 2L, 105d});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"S1", 1L, 100d});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"S1", 2L, 105d}, new Object[]{"S1", 1L, 100d});
 
             sendEvent(env, "S2", -1);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"S2", 2L, 49d});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"S2", 1L, 50d});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"S2", 2L, 49d}, new Object[]{"S2", 1L, 50d});
 
             env.undeployAll();
         }

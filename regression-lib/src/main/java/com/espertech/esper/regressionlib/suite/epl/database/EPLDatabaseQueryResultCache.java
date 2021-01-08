@@ -14,10 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
@@ -33,8 +35,8 @@ public class EPLDatabaseQueryResultCache implements RegressionExecution {
     private final boolean useRandomKeyLookup;
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public EPLDatabaseQueryResultCache(boolean lru, Integer lruSize, Double expiryMaxAgeSeconds, Double expiryPurgeIntervalSeconds, long assertMaximumTime, int numEvents, boolean useRandomKeyLookup) {

@@ -109,6 +109,6 @@ public class RowRecogMultikeyWArray {
     }
 
     private static void assertReceived(RegressionEnvironment env, String a, String b) {
-        env.assertPropsListenerNew("s0", "a,b".split(","), new Object[] {a, b});
+        env.assertPropsNew("s0", "a,b".split(","), new Object[] {a, b});
     }
 }

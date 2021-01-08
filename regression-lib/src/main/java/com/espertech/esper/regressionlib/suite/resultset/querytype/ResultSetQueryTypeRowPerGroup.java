@@ -17,13 +17,14 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -113,24 +114,24 @@ public class ResultSetQueryTypeRowPerGroup {
                 (unbound ?
                     "@Name('s0') select sum(value) as thesum from SupportEventWithIntArray group by array" :
                     "@Name('s0') select sum(value) as thesum from SupportEventWithIntArray#keepall group by array"
-                    );
+                );
 
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean());
 
-            sendAssertIntArray(env, "E1", new int[] {1, 2}, 5, 5);
+            sendAssertIntArray(env, "E1", new int[]{1, 2}, 5, 5);
 
             env.milestone(0);
 
-            sendAssertIntArray(env, "E2", new int[] {1, 2}, 10, 15);
-            sendAssertIntArray(env, "E3", new int[] {1}, 11, 11);
-            sendAssertIntArray(env, "E4", new int[] {1, 3}, 12, 12);
+            sendAssertIntArray(env, "E2", new int[]{1, 2}, 10, 15);
+            sendAssertIntArray(env, "E3", new int[]{1}, 11, 11);
+            sendAssertIntArray(env, "E4", new int[]{1, 3}, 12, 12);
 
             env.milestone(1);
 
-            sendAssertIntArray(env, "E5", new int[] {1}, 13, 24);
-            sendAssertIntArray(env, "E6", new int[] {1, 3}, 15, 27);
-            sendAssertIntArray(env, "E7", new int[] {1, 2}, 16, 31);
+            sendAssertIntArray(env, "E5", new int[]{1}, 13, 24);
+            sendAssertIntArray(env, "E6", new int[]{1, 3}, 15, 27);
+            sendAssertIntArray(env, "E7", new int[]{1, 2}, 16, 31);
 
             env.undeployAll();
         }
@@ -153,49 +154,49 @@ public class ResultSetQueryTypeRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             sendEventSB(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, 10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, 10, 10});
 
             env.milestone(1);
 
             sendEventSB(env, "E2", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, 100, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 100, 100, 100});
 
             env.milestone(2);
 
             sendEventSB(env, "E1", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 21, 10, 11});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 21, 10, 11});
 
             env.milestone(3);
 
             sendEventSB(env, "E1", 9);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 30, 9, 11});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 30, 9, 11});
 
             env.milestone(4);
 
             sendEventSB(env, "E2", 99);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 199, 99, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 199, 99, 100});
 
             env.milestone(5);
 
             sendEventSB(env, "E2", 97);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 296, 97, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 296, 97, 100});
 
             env.milestone(6);
 
             sendEventSB(env, "E3", 1000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 1000, 1000, 1000});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 1000, 1000, 1000});
 
             env.milestone(7);
 
             sendEventSB(env, "E2", 96);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 392, 96, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 392, 96, 100});
 
             env.milestone(8);
 
             env.milestone(9);
 
             sendEventSB(env, "E2", 101);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 493, 96, 101});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 493, 96, 101});
 
             env.undeployAll();
         }
@@ -210,10 +211,10 @@ public class ResultSetQueryTypeRowPerGroup {
             String[] fields = "aprice,symbol".split(",");
 
             sendEvent(env, "A", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{1.0, "A"});
+            env.assertPropsNew("s0", fields, new Object[]{1.0, "A"});
 
             sendEvent(env, "B", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{3.0, "B"});
+            env.assertPropsNew("s0", fields, new Object[]{3.0, "B"});
 
             env.milestone(0);
 
@@ -251,7 +252,7 @@ public class ResultSetQueryTypeRowPerGroup {
             String[] fieldsFour = "val1,val2".split(",");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{1});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{1});
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1}});
             EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{1, new Integer[]{1}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{1, new Integer[]{1}});
@@ -259,13 +260,13 @@ public class ResultSetQueryTypeRowPerGroup {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{3});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{3});
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1, 2}});
             EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{3, new Integer[]{1, 2}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{3, new Integer[]{1, 2}});
 
             env.sendEventBean(new SupportBean("E2", 4));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{4});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{4});
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{4}});
             EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{4, new Integer[]{4}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{4, new Integer[]{4}});
@@ -273,13 +274,13 @@ public class ResultSetQueryTypeRowPerGroup {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 5));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{9});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{9});
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{4, 5}});
             EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new Integer[]{4, 5}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new Integer[]{4, 5}});
 
             env.sendEventBean(new SupportBean("E1", 6));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{9});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{9});
             EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fieldsTwo, new Object[]{new Integer[]{1, 2, 6}});
             EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fieldsThree, new Object[]{9, new Integer[]{1, 2, 6}});
             EPAssertionUtil.assertProps(env.listener("S3").assertOneGetNewAndReset(), fieldsFour, new Object[]{9, new Integer[]{1, 2, 6}});
@@ -296,7 +297,7 @@ public class ResultSetQueryTypeRowPerGroup {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E1", 20));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"E1", 30});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"E1", 30});
 
             env.undeployAll();
         }
@@ -313,23 +314,23 @@ public class ResultSetQueryTypeRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 10}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 10}});
             env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 10}, {"E2", 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 10}, {"E2", 20}});
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E0", 30));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 21}, {"E2", 20}, {"E0", 30}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}, {"E0", 30}});
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
@@ -342,17 +343,17 @@ public class ResultSetQueryTypeRowPerGroup {
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E0", 30));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E0", 30}, {"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E0", 30}, {"E1", 21}, {"E2", 20}});
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 40));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E0", 30}, {"E1", 21}, {"E2", 20}, {"E3", 40}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E0", 30}, {"E1", 21}, {"E2", 20}, {"E3", 40}});
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
@@ -362,18 +363,18 @@ public class ResultSetQueryTypeRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{null, 10}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{null, 10}});
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{null, 30}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{null, 30}});
             env.assertListenerNotInvoked("s0");
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{null, 41}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{null, 41}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{null, 41}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{null, 41}});
 
             env.undeployAll();
 
@@ -394,14 +395,14 @@ public class ResultSetQueryTypeRowPerGroup {
 
             env.advanceTime(1800);
             env.sendEventBean(new SupportBean("E2", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 10}, {"E0", 11}, {"E2", 12}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 10}, {"E0", 11}, {"E2", 12}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 10}, {"E0", 11}, {"E2", 12}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 10}, {"E0", 11}, {"E2", 12}});
 
             env.milestoneInc(milestone);
 
             env.advanceTime(2200);
             env.sendEventBean(new SupportBean("E2", 13));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E0", 11}, {"E2", 25}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E0", 11}, {"E2", 25}});
 
             env.undeployAll();
         }
@@ -437,8 +438,8 @@ public class ResultSetQueryTypeRowPerGroup {
 
     private static class ResultSetQueryTypeUnboundStreamUnlimitedKey implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -528,13 +529,13 @@ public class ResultSetQueryTypeRowPerGroup {
             env.undeployAll();
 
             // invalid tests
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive",
+            env.tryInvalidCompile(path, "@Hint('reclaim_group_aged=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Failed to parse hint parameter value 'xyz' as a double-typed seconds value or variable name [@Hint('reclaim_group_aged=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=30,reclaim_group_freq=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive",
+            env.tryInvalidCompile(path, "@Hint('reclaim_group_aged=30,reclaim_group_freq=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Failed to parse hint parameter value 'xyz' as a double-typed seconds value or variable name [@Hint('reclaim_group_aged=30,reclaim_group_freq=xyz') select longPrimitive, count(*) from SupportBean group by longPrimitive]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=MyVar') select longPrimitive, count(*) from SupportBean group by longPrimitive",
+            env.tryInvalidCompile(path, "@Hint('reclaim_group_aged=MyVar') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Variable type of variable 'MyVar' is not numeric [@Hint('reclaim_group_aged=MyVar') select longPrimitive, count(*) from SupportBean group by longPrimitive]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "@Hint('reclaim_group_aged=-30,reclaim_group_freq=30') select longPrimitive, count(*) from SupportBean group by longPrimitive",
+            env.tryInvalidCompile(path, "@Hint('reclaim_group_aged=-30,reclaim_group_freq=30') select longPrimitive, count(*) from SupportBean group by longPrimitive",
                 "Hint parameter value '-30' is an invalid value, expecting a double-typed seconds value or variable name [@Hint('reclaim_group_aged=-30,reclaim_group_freq=30') select longPrimitive, count(*) from SupportBean group by longPrimitive]");
         }
     }
@@ -551,7 +552,7 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1L}});
             env.listener("s0").reset();
 
             env.milestone(0);
@@ -559,13 +560,13 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 11);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{1L}, {1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1L}, {1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{2L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{2L}, {1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2L}, {1L}});
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -584,13 +585,13 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_DELL, 11);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{1L}, {1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1L}, {1L}});
             env.listener("s0").reset();
 
             env.milestone(0);
@@ -598,13 +599,13 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{2L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{2L}, {1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2L}, {1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{2L}, {1L}, {1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2L}, {1L}, {1L}});
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -623,13 +624,13 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"DELL", 10.0, 1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"DELL", 10.0, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_DELL, 11);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"DELL", 11.0, 1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"DELL", 11.0, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 1L}, {"DELL", 11.0, 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 1L}, {"DELL", 11.0, 1L}});
             env.listener("s0").reset();
 
             env.milestone(0);
@@ -637,21 +638,21 @@ public class ResultSetQueryTypeRowPerGroup {
             sendEvent(env, SYMBOL_DELL, 10);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"DELL", 10.0, 2L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"DELL", 10.0, 1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 5);
             Assert.assertEquals(1, env.listener("s0").getNewDataList().size());
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"IBM", 5.0, 1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 5.0, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}, {"IBM", 5.0, 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}, {"IBM", 5.0, 1L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 5);
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"IBM", 5.0, 2L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 5.0, 1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}, {"IBM", 5.0, 2L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 2L}, {"DELL", 11.0, 1L}, {"IBM", 5.0, 2L}});
             env.listener("s0").reset();
 
             env.milestone(1);
@@ -662,7 +663,7 @@ public class ResultSetQueryTypeRowPerGroup {
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"IBM", 5.0, 2L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"DELL", 10.0, 1L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"DELL", 10.0, 2L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 11.0, 1L}, {"DELL", 10.0, 1L}, {"IBM", 5.0, 3L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 11.0, 1L}, {"DELL", 10.0, 1L}, {"IBM", 5.0, 3L}});
             env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 5);
@@ -671,7 +672,7 @@ public class ResultSetQueryTypeRowPerGroup {
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"IBM", 5.0, 3L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"DELL", 11.0, 0L});
             EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"DELL", 11.0, 1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"DELL", 10.0, 1L}, {"IBM", 5.0, 4L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"DELL", 10.0, 1L}, {"IBM", 5.0, 4L}});
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -706,39 +707,39 @@ public class ResultSetQueryTypeRowPerGroup {
 
     private static void tryAssertionNamedWindowDelete(RegressionEnvironment env, String[] fields, AtomicInteger milestone) {
         env.sendEventBean(new SupportBean("A", 100));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A", 100});
+        env.assertPropsNew("s0", fields, new Object[]{"A", 100});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B", 20));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20});
+        env.assertPropsNew("s0", fields, new Object[]{"B", 20});
 
         env.sendEventBean(new SupportBean("A", 101));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A", 201});
+        env.assertPropsNew("s0", fields, new Object[]{"A", 201});
 
         env.sendEventBean(new SupportBean("B", 21));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"B", 41});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A", 201}, {"B", 41}});
+        env.assertPropsNew("s0", fields, new Object[]{"B", 41});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 201}, {"B", 41}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_A("A"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A", null});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"B", 41}});
+        env.assertPropsNew("s0", fields, new Object[]{"A", null});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"B", 41}});
 
         env.sendEventBean(new SupportBean("A", 102));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A", 102});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A", 102}, {"B", 41}});
+        env.assertPropsNew("s0", fields, new Object[]{"A", 102});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 41}});
 
         env.sendEventBean(new SupportBean_A("B"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"B", null});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A", 102}});
+        env.assertPropsNew("s0", fields, new Object[]{"B", null});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B", 22));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"B", 22});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A", 102}, {"B", 22}});
+        env.assertPropsNew("s0", fields, new Object[]{"B", 22});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 102}, {"B", 22}});
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbol,
@@ -921,6 +922,6 @@ public class ResultSetQueryTypeRowPerGroup {
     private static void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, int expected) {
         final String[] fields = "thesum".split(",");
         env.sendEventBean(new SupportEventWithIntArray(id, array, value));
-        env.assertPropsListenerNew("s0", fields, new Object[] {expected});
+        env.assertPropsNew("s0", fields, new Object[]{expected});
     }
 }

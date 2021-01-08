@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -42,32 +40,32 @@ public class ViewSort {
             String[] fields = "theString,intPrimitive,longPrimitive".split(",");
 
             env.sendEventBean(makeEvent("E1", 100, 0L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 100, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 100, 0L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 100, 0L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 100, 0L}});
 
             env.sendEventBean(makeEvent("E2", 99, 5L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 99, 5L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 100, 0L}, {"E2", 99, 5L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 99, 5L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 100, 0L}, {"E2", 99, 5L}});
 
             env.sendEventBean(makeEvent("E3", 100, -1L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 100, -1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3", 100, -1L}, {"E1", 100, 0L}, {"E2", 99, 5L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 100, -1L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 100, -1L}, {"E1", 100, 0L}, {"E2", 99, 5L}});
 
             env.sendEventBean(makeEvent("E4", 100, 1L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertPairGetIRAndReset(), fields, new Object[]{"E4", 100, 1L}, new Object[]{"E2", 99, 5L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3", 100, -1L}, {"E1", 100, 0L}, {"E4", 100, 1L}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4", 100, 1L}, new Object[]{"E2", 99, 5L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 100, -1L}, {"E1", 100, 0L}, {"E4", 100, 1L}});
 
             env.sendEventBean(makeEvent("E5", 101, 10L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertPairGetIRAndReset(), fields, new Object[]{"E5", 101, 10L}, new Object[]{"E4", 100, 1L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E5", 101, 10L}, {"E3", 100, -1L}, {"E1", 100, 0L}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5", 101, 10L}, new Object[]{"E4", 100, 1L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5", 101, 10L}, {"E3", 100, -1L}, {"E1", 100, 0L}});
 
             env.sendEventBean(makeEvent("E6", 101, 11L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertPairGetIRAndReset(), fields, new Object[]{"E6", 101, 11L}, new Object[]{"E1", 100, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E5", 101, 10L}, {"E6", 101, 11L}, {"E3", 100, -1L}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6", 101, 11L}, new Object[]{"E1", 100, 0L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5", 101, 10L}, {"E6", 101, 11L}, {"E3", 100, -1L}});
 
             env.sendEventBean(makeEvent("E6", 100, 0L));
-            EPAssertionUtil.assertProps(env.listener("s0").assertPairGetIRAndReset(), fields, new Object[]{"E6", 100, 0L}, new Object[]{"E6", 100, 0L});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E5", 101, 10L}, {"E6", 101, 11L}, {"E3", 100, -1L}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6", 100, 0L}, new Object[]{"E6", 100, 0L});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5", 101, 10L}, {"E6", 101, 11L}, {"E3", 100, -1L}});
 
             env.undeployAll();
         }
@@ -84,49 +82,49 @@ public class ViewSort {
             env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "G", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"G", 1});
 
             env.milestone(1);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"G", 1}});
             sendSupportBean(env, "E", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E", 2});
 
             env.milestone(2);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E", 2}, {"G", 1}});
             sendSupportBean(env, "H", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"H", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"H", 3});
 
             env.milestone(3);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E", 2}, {"G", 1}, {"H", 3}});
             sendSupportBean(env, "I", 4);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"I", 4}, new Object[]{"I", 4});
+            env.assertPropsIRPair("s0", fields, new Object[]{"I", 4}, new Object[]{"I", 4});
 
             env.milestone(4);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E", 2}, {"G", 1}, {"H", 3}});
             sendSupportBean(env, "A", 5);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"A", 5}, new Object[]{"H", 3});
+            env.assertPropsIRPair("s0", fields, new Object[]{"A", 5}, new Object[]{"H", 3});
 
             env.milestone(5);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 5}, {"E", 2}, {"G", 1}});
             sendSupportBean(env, "C", 6);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"C", 6}, new Object[]{"G", 1});
+            env.assertPropsIRPair("s0", fields, new Object[]{"C", 6}, new Object[]{"G", 1});
 
             env.milestone(6);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 5}, {"C", 6}, {"E", 2}});
             sendSupportBean(env, "C", 7);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"C", 7}, new Object[]{"E", 2});
+            env.assertPropsIRPair("s0", fields, new Object[]{"C", 7}, new Object[]{"E", 2});
 
             env.milestone(7);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 5}, {"C", 7}, {"C", 6}});
             sendSupportBean(env, "C", 8);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"C", 8}, new Object[]{"C", 6});
+            env.assertPropsIRPair("s0", fields, new Object[]{"C", 8}, new Object[]{"C", 6});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A", 5}, {"C", 8}, {"C", 7}});
 
             env.undeployAll();
@@ -139,38 +137,37 @@ public class ViewSort {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("B1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "B1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "B1"}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("D1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "D1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "D1"}}, null);
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("C1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "C1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "C1"}}, null);
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("A1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "A1"}}, new Object[][]{{"symbol", "D1"}});
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "A1"}}, new Object[][]{{"symbol", "D1"}});
 
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("F1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "F1"}}, new Object[][]{{"symbol", "F1"}});
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "F1"}}, new Object[][]{{"symbol", "F1"}});
 
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("B2"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "B2"}}, new Object[][]{{"symbol", "C1"}});
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "B2"}}, new Object[][]{{"symbol", "C1"}});
 
             env.milestone(6);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRow(events, new String[]{"symbol"}, new Object[][]{{"A1"}, {"B1"}, {"B2"}});
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"A1"}, {"B1"}, {"B2"}});
 
             env.undeployAll();
         }
@@ -183,17 +180,17 @@ public class ViewSort {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(new SupportBeanWithEnum("E1", SupportEnum.ENUM_VALUE_1));
-            env.assertNVListener("s0", new Object[][]{{"theString", "E1"}, {"supportEnum", SupportEnum.ENUM_VALUE_1}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"theString", "E1"}, {"supportEnum", SupportEnum.ENUM_VALUE_1}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBeanWithEnum("E2", SupportEnum.ENUM_VALUE_2));
-            env.assertNVListener("s0", new Object[][]{{"theString", "E2"}}, new Object[][]{{"theString", "E2"}});
+            env.assertPropsNV("s0", new Object[][]{{"theString", "E2"}}, new Object[][]{{"theString", "E2"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBeanWithEnum("E0", SupportEnum.ENUM_VALUE_1));
-            env.assertNVListener("s0", new Object[][]{{"theString", "E0"}}, new Object[][]{{"theString", "E1"}});
+            env.assertPropsNV("s0", new Object[][]{{"theString", "E0"}}, new Object[][]{{"theString", "E1"}});
 
             env.undeployAll();
         }
@@ -205,17 +202,17 @@ public class ViewSort {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent(10.5));
-            env.assertNVListener("s0", new Object[][]{{"price", 10.5}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"price", 10.5}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(10));
-            env.assertNVListener("s0", new Object[][]{{"price", 10.0}}, new Object[][]{{"price", 10.5}});
+            env.assertPropsNV("s0", new Object[][]{{"price", 10.0}}, new Object[][]{{"price", 10.5}});
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(11));
-            env.assertNVListener("s0", new Object[][]{{"price", 11.0}}, new Object[][]{{"price", 11.0}});
+            env.assertPropsNV("s0", new Object[][]{{"price", 11.0}}, new Object[][]{{"price", 11.0}});
 
             env.undeployAll();
         }
@@ -233,35 +230,30 @@ public class ViewSort {
             String[] fields = new String[]{"symbol", "prev1", "prevtail", "prevCountSym", "prevWindowSym"};
 
             env.sendEventBean(makeMarketDataEvent("B1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+            env.assertPropsPerRowNewFlattened("s0",
                 fields, new Object[][]{{"B1", null, "B1", 1L, new Object[]{"B1"}}});
-            env.listener("s0").reset();
 
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent("D1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+            env.assertPropsPerRowNewFlattened("s0",
                 fields, new Object[][]{{"D1", "D1", "D1", 2L, new Object[]{"B1", "D1"}}});
-            env.listener("s0").reset();
 
             env.sendEventBean(makeMarketDataEvent("C1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+            env.assertPropsPerRowNewFlattened("s0",
                 fields, new Object[][]{{"C1", "C1", "D1", 3L, new Object[]{"B1", "C1", "D1"}}});
-            env.listener("s0").reset();
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("A1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+            env.assertPropsPerRowNewFlattened("s0",
                 fields, new Object[][]{{"A1", "B1", "C1", 3L, new Object[]{"A1", "B1", "C1"}}});
-            env.listener("s0").reset();
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("F1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+            env.assertPropsPerRowNewFlattened("s0",
                 fields, new Object[][]{{"F1", "B1", "C1", 3L, new Object[]{"A1", "B1", "C1"}}});
-            env.listener("s0").reset();
 
             env.milestone(3);
 

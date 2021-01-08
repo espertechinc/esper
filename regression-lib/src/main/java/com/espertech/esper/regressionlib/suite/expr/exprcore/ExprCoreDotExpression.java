@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.events.SampleEnumInEventsPackage;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -57,7 +56,7 @@ public class ExprCoreDotExpression {
 
             env.sendEventMap(Collections.singletonMap("mycoll", new ArrayList<>(Arrays.asList(1, 2))), "MyEvent");
             Object[] expected = new Object[] {1, 2};
-            env.assertPropsListenerNew("s0", "c0,c1,c2".split(","), new Object[] {expected, expected, expected});
+            env.assertPropsNew("s0", "c0,c1,c2".split(","), new Object[] {expected, expected, expected});
 
             env.undeployAll();
         }
@@ -155,7 +154,7 @@ public class ExprCoreDotExpression {
 
             SupportEventTypeErasure event = new SupportEventTypeErasure("key1", 2, Collections.singletonMap("key1", new SupportEventInnerTypeWGetIds(new int[]{20, 30, 40})), new SupportEventInnerTypeWGetIds[]{new SupportEventInnerTypeWGetIds(new int[]{2, 3}), new SupportEventInnerTypeWGetIds(new int[]{4, 5}), new SupportEventInnerTypeWGetIds(new int[]{6, 7, 8})});
             env.sendEventBean(event);
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[]{event.getInnerTypes().get("key1"), event.getInnerTypes().get("key1"), 30, 40, 5, 8, 999999, 999999});
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7".split(","), new Object[]{event.getInnerTypes().get("key1"), event.getInnerTypes().get("key1"), 30, 40, 5, 8, 999999, 999999});
 
             env.undeployAll();
         }
@@ -163,14 +162,14 @@ public class ExprCoreDotExpression {
 
     private static class ExprCoreDotInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select abc.noSuchMethod() from SupportBean abc",
+            env.tryInvalidCompile("select abc.noSuchMethod() from SupportBean abc",
                 "Failed to validate select-clause expression 'abc.noSuchMethod()': Failed to solve 'noSuchMethod' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method, instance method or property named 'noSuchMethod' in class '" + SupportBean.class.getName() + "' taking no parameters [select abc.noSuchMethod() from SupportBean abc]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc",
+            env.tryInvalidCompile("select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc",
                 "Failed to validate select-clause expression 'abc.getChildOne(\"abc\",10).noSuchMethod()': Failed to solve 'getChildOne' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'noSuchMethod': Could not find enumeration method, date-time method, instance method or property named 'noSuchMethod' in class '" + SupportChainChildOne.class.getName() + "' taking no parameters [select abc.getChildOne(\"abc\", 10).noSuchMethod() from SupportChainTop abc]");
 
             String epl = "import " + MyHelperWithPrivateModifierAndPublicMethod.class.getName() + ";\n" +
                          "select " + MyHelperWithPrivateModifierAndPublicMethod.class.getSimpleName() + ".callMe() from SupportBean;\n";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate select-clause expression 'MyHelperWithPrivateModifierAndPubli...(51 chars)': Failed to resolve 'MyHelperWithPrivateModifierAndPublicMethod.callMe' to");
         }
     }
@@ -185,7 +184,7 @@ public class ExprCoreDotExpression {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportLevelZero(new SupportLevelOne(new SupportLevelTwo(new SupportLevelThree()))));
-            env.assertPropsListenerNew("s0", "val0,val1,val2".split(","), new Object[]{"level1:10", "level2:20", "level3:30"});
+            env.assertPropsNew("s0", "val0,val1,val2".split(","), new Object[]{"level1:10", "level2:20", "level3:30"});
 
             env.undeployAll();
         }
@@ -232,7 +231,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", "nested.getNestedValue()".split(","), new Object[]{bean.getNested().getNestedValue()});
+            env.assertPropsNew("s0", "nested.getNestedValue()".split(","), new Object[]{bean.getNested().getNestedValue()});
 
             env.undeployAll();
         }
@@ -278,7 +277,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", "size,get0,get1,get2,get3".split(","),
+            env.assertPropsNew("s0", "size,get0,get1,get2,get3".split(","),
                 new Object[]{bean.getArrayProperty().length, bean.getArrayProperty()[0], bean.getArrayProperty()[1], bean.getArrayProperty()[2], null});
 
             env.undeployAll();
@@ -305,7 +304,7 @@ public class ExprCoreDotExpression {
             }
 
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", "size,get0".split(","),
+            env.assertPropsNew("s0", "size,get0".split(","),
                 new Object[]{bean.getArray().length, bean.getArray()[0].getNestLevOneVal()});
 
             env.undeployAll();
@@ -330,7 +329,7 @@ public class ExprCoreDotExpression {
 
     private static void sendAssertDotObjectEquals(RegressionEnvironment env, int intPrimitive, boolean expected) {
         env.sendEventBean(new SupportBean(UuidGenerator.generate(), intPrimitive));
-        env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
+        env.assertPropsNew("s0", "c0".split(","), new Object[]{expected});
     }
 
     private static class MyHelperWithPrivateModifierAndPublicMethod {

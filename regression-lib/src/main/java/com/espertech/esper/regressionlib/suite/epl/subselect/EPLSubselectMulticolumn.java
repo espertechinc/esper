@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -49,23 +48,23 @@ public class EPLSubselectMulticolumn {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "G1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 0L, null});
+            env.assertPropsNew("s0", fields, new Object[]{1, 0L, null});
 
             env.sendEventBean(new SupportBean_S1(200, "G2"));
             env.sendEventBean(new SupportBean_S0(2, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, 1L, 200});
+            env.assertPropsNew("s0", fields, new Object[]{2, 1L, 200});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(210, "G2"));
             env.sendEventBean(new SupportBean_S0(3, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 2L, 410});
+            env.assertPropsNew("s0", fields, new Object[]{3, 2L, 410});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(220, "G2"));
             env.sendEventBean(new SupportBean_S0(4, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, 3L, 630});
+            env.assertPropsNew("s0", fields, new Object[]{4, 3L, 630});
 
             env.undeployAll();
         }
@@ -75,25 +74,25 @@ public class EPLSubselectMulticolumn {
         public void run(RegressionEnvironment env) {
 
             String epl = "select (select theString, sum(intPrimitive) from SupportBean#lastevent as sb) from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subquery with multi-column select requires that either all or none of the selected columns are under aggregation, unless a group-by clause is also specified [select (select theString, sum(intPrimitive) from SupportBean#lastevent as sb) from SupportBean_S0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subquery with multi-column select requires that either all or none of the selected columns are under aggregation, unless a group-by clause is also specified [select (select theString, sum(intPrimitive) from SupportBean#lastevent as sb) from SupportBean_S0]");
 
             epl = "select (select theString, theString from SupportBean#lastevent as sb) from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Column 1 in subquery does not have a unique column name assigned [select (select theString, theString from SupportBean#lastevent as sb) from SupportBean_S0]");
+            env.tryInvalidCompile(epl, "Column 1 in subquery does not have a unique column name assigned [select (select theString, theString from SupportBean#lastevent as sb) from SupportBean_S0]");
 
             epl = "select * from SupportBean_S0(p00 = (select theString, theString from SupportBean#lastevent as sb))";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate subquery number 1 querying SupportBean: Subquery multi-column select is not allowed in this context. [select * from SupportBean_S0(p00 = (select theString, theString from SupportBean#lastevent as sb))]");
+            env.tryInvalidCompile(epl, "Failed to validate subquery number 1 querying SupportBean: Subquery multi-column select is not allowed in this context. [select * from SupportBean_S0(p00 = (select theString, theString from SupportBean#lastevent as sb))]");
 
             epl = "select exists(select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select exists(select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select exists(select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
 
             epl = "select (select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select (select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select (select sb.* as v1, intPrimitive*2 as v3 from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
 
             epl = "select (select *, intPrimitive from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select (select *, intPrimitive from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subquery multi-column select does not allow wildcard or stream wildcard when selecting multiple columns. [select (select *, intPrimitive from SupportBean#lastevent as sb) as subrow from SupportBean_S0 as s0]");
 
             epl = "select * from SupportBean_S0(p00 in (select theString, theString from SupportBean#lastevent as sb))";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate subquery number 1 querying SupportBean: Subquery multi-column select is not allowed in this context. [select * from SupportBean_S0(p00 in (select theString, theString from SupportBean#lastevent as sb))]");
+            env.tryInvalidCompile(epl, "Failed to validate subquery number 1 querying SupportBean: Subquery multi-column select is not allowed in this context. [select * from SupportBean_S0(p00 in (select theString, theString from SupportBean#lastevent as sb))]");
         }
     }
 
@@ -210,10 +209,10 @@ public class EPLSubselectMulticolumn {
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean_S0(2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
         env.sendEventBean(new SupportBean("E2", 20));
         env.sendEventBean(new SupportBean_S0(3));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
     }
 }

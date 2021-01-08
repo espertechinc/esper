@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertFalse;
 
 public class EventMapInheritanceInitTime implements RegressionExecution {
@@ -86,7 +85,7 @@ public class EventMapInheritanceInitTime implements RegressionExecution {
         assertFalse(listeners[1].isInvoked() || listeners[2].isInvoked() || listeners[3].isInvoked() || listeners[4].isInvoked());
 
         // try property not available
-        tryInvalidCompile(env, path, "select suba from Sub1Event",
+        env.tryInvalidCompile(path, "select suba from Sub1Event",
             "Failed to validate select-clause expression 'suba': Property named 'suba' is not valid in any stream (did you mean 'sub1'?) [select suba from Sub1Event]");
 
         env.undeployAll();

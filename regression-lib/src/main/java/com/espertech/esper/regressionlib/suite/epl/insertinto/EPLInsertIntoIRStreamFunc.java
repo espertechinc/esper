@@ -35,15 +35,15 @@ public class EPLInsertIntoIRStreamFunc implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("E1", 0));
         EPAssertionUtil.assertProps(env.listener("i0").assertOneGetNewAndReset(), fields, new Object[]{"E1", true});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", true});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", true});
 
         env.sendEventBean(new SupportBean("E2", 0));
         EPAssertionUtil.assertProps(env.listener("i0").assertPairGetIRAndReset(), fields, new Object[]{"E2", true}, new Object[]{"E1", false});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E2", true}, {"E1", false}}, new Object[0][]);
+        env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"E2", true}, {"E1", false}}, new Object[0][]);
 
         env.sendEventBean(new SupportBean("E3", 0));
         EPAssertionUtil.assertProps(env.listener("i0").assertPairGetIRAndReset(), fields, new Object[]{"E3", true}, new Object[]{"E2", false});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E3", true}, {"E2", false}}, new Object[0][]);
+        env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"E3", true}, {"E2", false}}, new Object[0][]);
 
         // test SODA
         String eplModel = "@name('s1') select istream() from SupportBean";
@@ -58,7 +58,7 @@ public class EPLInsertIntoIRStreamFunc implements RegressionExecution {
         env.compileDeploy(stmtTextJoin).addListener("s0");
         env.sendEventBean(new SupportBean("E1", 0));
         env.sendEventBean(new SupportBean_S0(10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, true});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 10, true});
 
         env.sendEventBean(new SupportBean("E2", 0));
         EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1", 10, false});

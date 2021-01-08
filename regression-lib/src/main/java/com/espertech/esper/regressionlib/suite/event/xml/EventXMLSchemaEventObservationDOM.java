@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EventXMLSchemaEventObservationDOM {
     protected final static String OBSERVATION_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -91,7 +91,7 @@ public class EventXMLSchemaEventObservationDOM {
         EPAssertionUtil.assertProps(env.iterator("e2_0").next(), "Observation.Command,Observation.Tag[0].ID".split(","), new Object[]{"READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
         EPAssertionUtil.assertProps(env.iterator("e3_0").next(), "sensorId,Command,Tag[0].ID".split(","), new Object[]{"urn:epc:1:4.16.36", "READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
 
-        tryInvalidCompile(env, path, "select Observation.Tag.ID from " + eventTypeName,
+        env.tryInvalidCompile(path, "select Observation.Tag.ID from " + eventTypeName,
             "Failed to validate select-clause expression 'Observation.Tag.ID': Failed to resolve property 'Observation.Tag.ID' to a stream or nested property in a stream");
 
         env.undeployAll();

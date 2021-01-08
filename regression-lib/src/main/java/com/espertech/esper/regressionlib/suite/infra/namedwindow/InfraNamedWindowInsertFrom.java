@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.buildMap;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
@@ -243,15 +242,15 @@ public class InfraNamedWindowInsertFrom {
             String stmtTextCreateOne = "create window MyWindowINV#keepall as SupportBean";
             env.compileDeploy(stmtTextCreateOne, path);
 
-            tryInvalidCompile(env, "create window testWindow3#keepall as SupportBean insert",
+            env.tryInvalidCompile("create window testWindow3#keepall as SupportBean insert",
                 "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
-            tryInvalidCompile(env, "create window testWindow3#keepall as select * from SupportBean insert where (intPrimitive = 10)",
+            env.tryInvalidCompile("create window testWindow3#keepall as select * from SupportBean insert where (intPrimitive = 10)",
                 "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
-            tryInvalidCompile(env, path, "create window MyWindowTwo#keepall as MyWindowINV insert where (select intPrimitive from SupportBean#lastevent)",
+            env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where (select intPrimitive from SupportBean#lastevent)",
                 "Create window where-clause may not have a subselect");
-            tryInvalidCompile(env, path, "create window MyWindowTwo#keepall as MyWindowINV insert where sum(intPrimitive) > 2",
+            env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where sum(intPrimitive) > 2",
                 "Create window where-clause may not have an aggregation function");
-            tryInvalidCompile(env, path, "create window MyWindowTwo#keepall as MyWindowINV insert where prev(1, intPrimitive) = 1",
+            env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where prev(1, intPrimitive) = 1",
                 "Create window where-clause may not have a function that requires view resources (prior, prev)");
 
             env.undeployAll();

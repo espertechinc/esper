@@ -25,7 +25,7 @@ import java.util.*;
 import static com.espertech.esper.common.client.type.EPTypePremade.*;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumSumOf {
 
@@ -163,10 +163,10 @@ public class ExprEnumSumOf {
             String epl;
 
             epl = "select beans.sumof() from SupportBean_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'beans.sumof()': Invalid input for built-in enumeration method 'sumof' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'beans.sumof()': Invalid input for built-in enumeration method 'sumof' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '");
 
             epl = "select strvals.sumOf(v => null) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.sumOf()': Failed to validate enumeration method 'sumOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.sumOf()': Failed to validate enumeration method 'sumOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 

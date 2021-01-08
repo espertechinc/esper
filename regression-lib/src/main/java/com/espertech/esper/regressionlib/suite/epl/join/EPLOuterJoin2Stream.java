@@ -150,7 +150,7 @@ public class EPLOuterJoin2Stream {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("K1", 30));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"K1", 30, "K1", 20, 30}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"K1", 30, "K1", 20, 30}});
 
             env.sendEventBean(new SupportBean("K1", 40));
             env.sendEventBean(new SupportBean("K1", 31));
@@ -158,24 +158,24 @@ public class EPLOuterJoin2Stream {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanRange("R2", "K1", 39, 41));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"K1", 40, "K1", 39, 41}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"K1", 40, "K1", 39, 41}});
 
             env.sendEventBean(new SupportBeanRange("R2", "K1", 38, 40));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"K1", 40, "K1", 38, 40}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"K1", 40, "K1", 38, 40}});
 
             env.sendEventBean(new SupportBeanRange("R2", "K1", 40, 42));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"K1", 40, "K1", 40, 42}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"K1", 40, "K1", 40, 42}});
 
             env.sendEventBean(new SupportBeanRange("R2", "K1", 41, 42));
             env.sendEventBean(new SupportBeanRange("R2", "K1", 38, 39));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("K1", 41));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"K1", 41, "K1", 39, 41}, {"K1", 41, "K1", 40, 42}, {"K1", 41, "K1", 41, 42}});
 
             env.sendEventBean(new SupportBeanRange("R2", "K1", 35, 42));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]
                 {{"K1", 40, "K1", 35, 42}, {"K1", 41, "K1", 35, 42}});
 
             env.undeployAll();
@@ -246,27 +246,27 @@ public class EPLOuterJoin2Stream {
             // Send S0[0]
             sendEvent(EVENTS_S0[0], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), 100, "0", null, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null}});
 
             // Send S1[1]
             sendEvent(EVENTS_S1[1], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 201, "1");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"}});
 
             // Send S1[2] and S0[2]
             sendEvent(EVENTS_S1[2], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {null, null, 202, "2"}});
 
             sendEvent(EVENTS_S0[2], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), 102, "2", 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {102, "2", 202, "2"}});
@@ -274,14 +274,14 @@ public class EPLOuterJoin2Stream {
             // Send S0[3] and S1[3]
             sendEvent(EVENTS_S0[3], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), 103, "3", null, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {102, "2", 202, "2"},
                     {103, "3", null, null}});
             sendEvent(EVENTS_S1[3], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), 103, "3", 203, "3");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {102, "2", 202, "2"},
@@ -294,7 +294,7 @@ public class EPLOuterJoin2Stream {
             compareEvent(oldEvent, 100, "0", null, null);
             compareEvent(newEvent, 104, "4", null, null);
             env.listener("s0").reset();
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
                     {103, "3", 203, "3"},
@@ -303,7 +303,7 @@ public class EPLOuterJoin2Stream {
             // Send S1[4]
             sendEvent(EVENTS_S1[4], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), 104, "4", 204, "4");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
                     {103, "3", 203, "3"},
@@ -312,7 +312,7 @@ public class EPLOuterJoin2Stream {
             // Send S1[5]
             sendEvent(EVENTS_S1[5], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 205, "5");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
                     {103, "3", 203, "3"},
@@ -325,7 +325,7 @@ public class EPLOuterJoin2Stream {
             newEvent = env.listener("s0").getLastNewData()[0];
             compareEvent(oldEvent, null, null, 201, "1");
             compareEvent(newEvent, null, null, 205, "5");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {103, "3", 203, "3"},
                     {104, "4", 204, "4"},
@@ -391,13 +391,13 @@ public class EPLOuterJoin2Stream {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(2, "A_1", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_1", "B_1", 2, "A_1", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A_1", "B_1", 2, "A_1", "B_1"});
 
             env.sendEventBean(new SupportBean_S1(3, "A_2", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 3, "A_2", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 3, "A_2", "B_1"});
 
             env.sendEventBean(new SupportBean_S1(4, "A_1", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 4, "A_1", "B_2"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 4, "A_1", "B_2"});
 
             env.undeployAll();
         }
@@ -414,7 +414,7 @@ public class EPLOuterJoin2Stream {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "S1_1", 10, 20d);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, "S1_1"});
+            env.assertPropsNew("s0", fields, new Object[]{null, "S1_1"});
 
             sendEvent(env, "S0_2", 11, 22d);
             env.assertListenerNotInvoked("s0");
@@ -426,13 +426,13 @@ public class EPLOuterJoin2Stream {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "S1_2", 11, 22d);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, "S1_2"});
+            env.assertPropsNew("s0", fields, new Object[]{null, "S1_2"});
 
             sendEvent(env, "S1_3", 22, 11d);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_2", "S1_3"});
+            env.assertPropsNew("s0", fields, new Object[]{"S0_2", "S1_3"});
 
             sendEvent(env, "S0_5", 22, 11d);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"S0_5", "S1_2"});
+            env.assertPropsNew("s0", fields, new Object[]{"S0_5", "S1_2"});
 
             env.undeployAll();
         }
@@ -446,27 +446,27 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S0[0], env);
             sendEvent(EVENTS_S0[1], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS, null);
 
             // Send S1[2]
             sendEvent(EVENTS_S1[2], env);
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, null, null, 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"}});
 
             // Send S0[2] events, joined event expected
             sendEvent(EVENTS_S0[2], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 102, "2", 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
             // Send S1[3]
             sendEvent(EVENTS_S1[3], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, null, null, 203, "3");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {null, null, 203, "3"}});
 
@@ -474,14 +474,14 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S0[3], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 103, "3", 203, "3");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {103, "3", 203, "3"}});
 
             // Send some more S0 events
             sendEvent(EVENTS_S0[4], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {103, "3", 203, "3"}});
 
@@ -489,7 +489,7 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S0[5], env);
             theEvent = env.listener("s0").assertOneGetOldAndReset();
             compareEvent(theEvent, 102, "2", 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"},
                     {103, "3", 203, "3"}});
 
@@ -500,7 +500,7 @@ public class EPLOuterJoin2Stream {
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 207, "7");
             sendEvent(EVENTS_S1[8], env);
             compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 208, "8");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"},
                     {103, "3", 203, "3"},
                     {null, null, 206, "6"},
@@ -513,7 +513,7 @@ public class EPLOuterJoin2Stream {
             EventBean newEvent = env.listener("s0").getLastNewData()[0];
             compareEvent(oldEvent, null, null, 202, "2");
             compareEvent(newEvent, null, null, 209, "9");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{103, "3", 203, "3"},
                     {null, null, 206, "6"},
                     {null, null, 207, "7"},
@@ -533,20 +533,20 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S1[1], env);
             sendEvent(EVENTS_S1[3], env);
             assertNull(env.listener("s0").getLastNewData());    // No events expected
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS, null);
 
             // Send S0 event, expect event back from outer join
             sendEvent(EVENTS_S0[2], env);
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 102, "2", null, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null}});
 
             // Send S1 event matching S0, expect event back
             sendEvent(EVENTS_S1[2], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 102, "2", 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
             // Send some more unmatched events
@@ -554,14 +554,14 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S1[5], env);
             sendEvent(EVENTS_S1[6], env);
             assertNull(env.listener("s0").getLastNewData());    // No events expected
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
             // Send event, expect a join result
             sendEvent(EVENTS_S0[5], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 105, "5", 205, "5");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {105, "5", 205, "5"}});
 
@@ -570,7 +570,7 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S1[8], env);
             theEvent = env.listener("s0").assertOneGetOldAndReset();
             compareEvent(theEvent, 102, "2", 202, "2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null},
                     {105, "5", 205, "5"}});
 
@@ -578,7 +578,7 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S0[9], env);
             theEvent = env.listener("s0").assertOneGetNewAndReset();
             compareEvent(theEvent, 109, "9", null, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null},
                     {109, "9", null, null},
                     {105, "5", 205, "5"}});
@@ -589,7 +589,7 @@ public class EPLOuterJoin2Stream {
             EventBean newEvent = env.listener("s0").getLastNewData()[0];
             compareEvent(oldEvent, 102, "2", null, null);     // S1[2] has left the window already
             compareEvent(newEvent, 110, "10", null, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+            env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{110, "10", null, null},
                     {109, "9", null, null},
                     {105, "5", 205, "5"}});
@@ -642,10 +642,10 @@ public class EPLOuterJoin2Stream {
     private static void assertMultiColumnLeft(RegressionEnvironment env) {
         String[] fields = "s0.id, s0.p00, s0.p01, s1.id, s1.p10, s1.p11".split(",");
         env.sendEventBean(new SupportBean_S0(1, "A_1", "B_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_1", "B_1", null, null, null});
+        env.assertPropsNew("s0", fields, new Object[]{1, "A_1", "B_1", null, null, null});
 
         env.sendEventBean(new SupportBean_S1(2, "A_1", "B_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_1", "B_1", 2, "A_1", "B_1"});
+        env.assertPropsNew("s0", fields, new Object[]{1, "A_1", "B_1", 2, "A_1", "B_1"});
 
         env.sendEventBean(new SupportBean_S1(3, "A_2", "B_1"));
         env.assertListenerNotInvoked("s0");

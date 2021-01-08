@@ -12,15 +12,18 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 
 public class RowRecogPerf implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -50,7 +53,7 @@ public class RowRecogPerf implements RegressionExecution {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportRecogBean("E3", "3", partition));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
         }
 
         long end = System.currentTimeMillis();

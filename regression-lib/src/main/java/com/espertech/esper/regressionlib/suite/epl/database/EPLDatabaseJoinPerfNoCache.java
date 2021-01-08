@@ -14,15 +14,18 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import org.junit.Assert;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
 
 public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -113,7 +116,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
             String col2 = Integer.toString(Math.round((float) num / 10));
             SupportBean_S0 bean = new SupportBean_S0(num);
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
+            env.assertPropsNew("s0", new String[]{"id", "mycol3", "mycol2"}, new Object[]{num, num, col2});
         }
 
         env.undeployAll();

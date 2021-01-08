@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.fail;
 
 public class ClientExtendSingleRowFunction {
@@ -53,10 +52,10 @@ public class ClientExtendSingleRowFunction {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean("a", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             env.sendEventBean(new SupportBean(null, 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true});
             env.undeployAll();
 
             // test pattern
@@ -64,7 +63,7 @@ public class ClientExtendSingleRowFunction {
             env.compileDeploy(textPattern).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
+            env.assertPropsNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
             env.undeployAll();
 
             // test filter
@@ -100,7 +99,7 @@ public class ClientExtendSingleRowFunction {
 
             String[] fields = new String[]{"val"};
             env.sendEventBean(new SupportBean("a", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"XtestX"});
+            env.assertPropsNew("s0", fields, new Object[]{"XtestX"});
 
             env.undeployAll();
         }
@@ -185,7 +184,7 @@ public class ClientExtendSingleRowFunction {
 
     private static class ClientExtendSRFFailedValidation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select singlerow('a', 'b') from SupportBean",
+            env.tryInvalidCompile("select singlerow('a', 'b') from SupportBean",
                 "Failed to validate select-clause expression 'singlerow(\"a\",\"b\")': Could not find static method named 'testSingleRow' in class '" + SupportSingleRowFunctionTwo.class.getName() + "' with matching parameter number and expected parameter type(s) 'String, String' (nearest match found was 'testSingleRow' taking type(s) 'String, int')");
         }
     }
@@ -193,7 +192,7 @@ public class ClientExtendSingleRowFunction {
     private static void tryAssertionChainMethod(RegressionEnvironment env) {
         String[] fields = new String[]{"val"};
         env.sendEventBean(new SupportBean("a", 3));
-        env.assertPropsListenerNew("s0", fields, new Object[]{36});
+        env.assertPropsNew("s0", fields, new Object[]{36});
 
         env.undeployAll();
     }
@@ -201,7 +200,7 @@ public class ClientExtendSingleRowFunction {
     private static void tryAssertionSingleMethod(RegressionEnvironment env) {
         String[] fields = new String[]{"val"};
         env.sendEventBean(new SupportBean("a", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{8});
+        env.assertPropsNew("s0", fields, new Object[]{8});
         env.undeployAll();
     }
 

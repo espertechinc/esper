@@ -19,7 +19,7 @@ import com.espertech.esper.regressionlib.support.sales.Sale;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ExprEnumNested {
 
@@ -95,10 +95,10 @@ public class ExprEnumNested {
 
     private static void tryAssertionAnyOf(RegressionEnvironment env) {
         env.sendEventBean(makeContainerEvent("A"));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(makeContainerEvent("B"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static SupportContainerLevelEvent makeContainerEvent(String value) {

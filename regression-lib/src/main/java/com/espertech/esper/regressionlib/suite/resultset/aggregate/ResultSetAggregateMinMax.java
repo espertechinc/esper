@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Random;
 
 public class ResultSetAggregateMinMax {
@@ -57,20 +59,20 @@ public class ResultSetAggregateMinMax {
             env.compileDeploy(soda, epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean(null, 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 1, 1, 1});
+            env.assertPropsNew("s0", fields, new Object[]{1, 1, 1, 1});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean(null, 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 5, 1, 5});
+            env.assertPropsNew("s0", fields, new Object[]{1, 5, 1, 5});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean(null, 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 5, 1, 5});
+            env.assertPropsNew("s0", fields, new Object[]{3, 5, 1, 5});
 
             env.sendEventBean(new SupportBean(null, 6));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 6, 1, 6});
+            env.assertPropsNew("s0", fields, new Object[]{3, 6, 1, 6});
 
             env.undeployAll();
         }
@@ -92,22 +94,22 @@ public class ResultSetAggregateMinMax {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 3, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{3, 3, null, null});
 
             env.sendEventBean(new SupportBean("E2", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, 3, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{4, 3, null, null});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean("E3", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, 3, 2, 2});
+            env.assertPropsNew("s0", fields, new Object[]{4, 3, 2, 2});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean("E4", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, 3, 1, 1});
+            env.assertPropsNew("s0", fields, new Object[]{5, 3, 1, 1});
 
             env.undeployAll();
             /**
@@ -125,8 +127,8 @@ public class ResultSetAggregateMinMax {
 
     private static class ResultSetAggregateMemoryMinHaving implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

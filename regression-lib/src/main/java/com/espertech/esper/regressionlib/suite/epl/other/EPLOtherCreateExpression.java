@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -48,11 +47,11 @@ public class EPLOtherCreateExpression {
             assertEquals(StatementType.CREATE_EXPRESSION, env.statement("s0").getProperty(StatementProperty.STATEMENTTYPE));
             assertEquals("E1", env.statement("s0").getProperty(StatementProperty.CREATEOBJECTNAME));
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "create expression E1 {''}",
+            env.tryInvalidCompile(path, "create expression E1 {''}",
                 "Expression 'E1' has already been declared [create expression E1 {''}]");
 
             env.compileDeploy("create expression int js:abc(p1, p2) [p1*p2]", path);
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "create expression int js:abc(a, a) [p1*p2]",
+            env.tryInvalidCompile(path, "create expression int js:abc(a, a) [p1*p2]",
                 "Script 'abc' that takes the same number of parameters has already been declared [create expression int js:abc(a, a) [p1*p2]]");
 
             env.undeployAll();
@@ -71,7 +70,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(eplMapped, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"--x--", "--E1--"});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"--x--", "--E1--"});
             env.undeployModuleContaining("s0");
 
             // test expression chained syntax
@@ -92,7 +91,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(eplScript, path);
             env.compileDeploy("@name('s0') select callIt() as val0, callIt().getTheString() as val1 from SupportBean as sb", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
+            env.assertPropsNew("s0", "val0.theString,val0.intPrimitive,val1".split(","), new Object[]{"E1", 10, "E1"});
 
             env.undeployAll();
         }
@@ -108,7 +107,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(makeBean("E1", 10, 3.5));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{350, 100});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{350, 100});
 
             env.undeployAll();
 
@@ -146,7 +145,7 @@ public class EPLOtherCreateExpression {
 
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean("E1", 3));   // factor is 3
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{Math.PI * 2, Math.PI * 2, Math.PI * 3});
 
             env.undeployModuleContaining("s0");
@@ -155,7 +154,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy("@name('s0') expression TwoPi {Math.PI * 10} select TwoPi() as c0 from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{Math.PI * 10});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{Math.PI * 10});
 
             // test SODA
             String eplExpr = "@name('expr') create expression JoinMultiplication {(s1,s2) => s1.intPrimitive*s2.id}";
@@ -193,7 +192,7 @@ public class EPLOtherCreateExpression {
 
             env.sendEventBean(new SupportBean("E1", 100));
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{100});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{100});
 
             env.undeployAll();
         }

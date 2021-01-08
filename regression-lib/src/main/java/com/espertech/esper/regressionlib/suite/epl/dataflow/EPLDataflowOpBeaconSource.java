@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -129,10 +128,10 @@ public class EPLDataflowOpBeaconSource {
             env.compileDeploy("@name('s0') select * from SupportBean").addListener("s0");
             instance.run();
             sleep(200);
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             // invalid: no output stream
-            tryInvalidCompile(env, "create dataflow DF1 BeaconSource {}",
+            env.tryInvalidCompile("create dataflow DF1 BeaconSource {}",
                 "Failed to obtain operator 'BeaconSource': BeaconSource operator requires one output stream but produces 0 streams");
 
             env.undeployAll();

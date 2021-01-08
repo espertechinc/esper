@@ -50,55 +50,55 @@ public class EPLOuterFullJoin3Stream {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean_S1(10, "A_1", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 10, "A_1", "B_1", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 10, "A_1", "B_1", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(11, "A_2", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 11, "A_2", "B_1", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 11, "A_2", "B_1", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(12, "A_1", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 12, "A_1", "B_2", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 12, "A_1", "B_2", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(13, "A_2", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 13, "A_2", "B_2", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 13, "A_2", "B_2", null, null, null});
 
             env.sendEventBean(new SupportBean_S2(20, "A_1", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 20, "A_1", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, 20, "A_1", "B_1"});
 
             env.sendEventBean(new SupportBean_S2(21, "A_2", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 21, "A_2", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, 21, "A_2", "B_1"});
 
             env.sendEventBean(new SupportBean_S2(22, "A_1", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 22, "A_1", "B_2"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, 22, "A_1", "B_2"});
 
             env.sendEventBean(new SupportBean_S2(23, "A_2", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 23, "A_2", "B_2"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(1, "A_3", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(2, "A_1", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(3, "A_3", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(4, "A_2", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
+            env.assertPropsNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(5, "A_2", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
 
             env.sendEventBean(new SupportBean_S1(14, "A_4", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, 14, "A_4", "B_3", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, 14, "A_4", "B_3", null, null, null});
 
             env.sendEventBean(new SupportBean_S1(15, "A_1", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", null, null, null});
 
             env.sendEventBean(new SupportBean_S2(24, "A_1", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", 24, "A_1", "B_3"});
+            env.assertPropsNew("s0", fields, new Object[]{2, "A_1", "B_3", 15, "A_1", "B_3", 24, "A_1", "B_3"});
 
             env.sendEventBean(new SupportBean_S2(25, "A_2", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, 25, "A_2", "B_3"});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, 25, "A_2", "B_3"});
 
             env.undeployAll();
         }
@@ -129,14 +129,14 @@ public class EPLOuterFullJoin3Stream {
         Object[] s1Events = SupportBean_S1.makeS1("A", new String[]{"A-s1-1", "A-s1-2"});
         sendEvent(env, s1Events);
         EPAssertionUtil.assertSameAnyOrder(new Object[][]{{null, s1Events[1], null}}, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{null, null, "A", "A-s1-1", null, null},
                 {null, null, "A", "A-s1-2", null, null}});
 
         Object[] s2Events = SupportBean_S2.makeS2("A", new String[]{"A-s2-1", "A-s2-2"});
         sendEvent(env, s2Events);
         EPAssertionUtil.assertSameAnyOrder(new Object[][]{{null, null, s2Events[1]}}, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{null, null, "A", "A-s1-1", null, null},
                 {null, null, "A", "A-s1-2", null, null},
                 {null, null, null, null, "A", "A-s2-1"},
@@ -151,7 +151,7 @@ public class EPLOuterFullJoin3Stream {
             {s0Events[0], s1Events[1], s2Events[1]},
         };
         EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-2", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-2"},
@@ -162,7 +162,7 @@ public class EPLOuterFullJoin3Stream {
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
         EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-2", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-2"},
@@ -172,7 +172,7 @@ public class EPLOuterFullJoin3Stream {
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-2"});
         sendEvent(env, s0Events);
         EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-2", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-2"},
@@ -184,7 +184,7 @@ public class EPLOuterFullJoin3Stream {
         //
         s1Events = SupportBean_S1.makeS1("C", new String[]{"C-s1-1"});
         sendEventsAndReset(env, s1Events);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-2", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-2"},
@@ -196,7 +196,7 @@ public class EPLOuterFullJoin3Stream {
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
         EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], s1Events[0], null}}, getAndResetNewEvents(env));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), FIELDS,
+        env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
             new Object[][]{{"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-2", "A", "A-s2-1"},
                 {"A", "A-s0-1", "A", "A-s1-1", "A", "A-s2-2"},

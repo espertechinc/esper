@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -43,14 +42,14 @@ public class ViewFirstTime {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
             env.advanceTime(2000);
             sendSupportBean(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
 
             env.milestone(3);
 
@@ -59,7 +58,7 @@ public class ViewFirstTime {
             env.milestone(4);
 
             env.advanceTime(10000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 20}});
             sendSupportBean(env, "E3", 30);
             env.assertListenerNotInvoked("s0");
 
@@ -67,7 +66,7 @@ public class ViewFirstTime {
 
             sendSupportBean(env, "E4", 40);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 20}});
 
             env.undeployAll();
         }
@@ -82,14 +81,14 @@ public class ViewFirstTime {
 
             env.advanceTime(500);
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E1"}}, null);
             env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}});
 
             env.milestone(1);
 
             env.advanceTime(600);
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E2"}}, null);
             env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
@@ -129,7 +128,7 @@ public class ViewFirstTime {
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             env.sendEventBean(new SupportBean("E3", 3));
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("s0", "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
         }

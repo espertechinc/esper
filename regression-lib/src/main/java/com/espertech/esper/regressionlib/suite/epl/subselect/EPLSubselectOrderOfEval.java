@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectOrderOfEval {
     public static List<RegressionExecution> executions() {
@@ -59,7 +58,7 @@ public class EPLSubselectOrderOfEval {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean("E1", 5));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
 
@@ -67,7 +66,7 @@ public class EPLSubselectOrderOfEval {
             env.compileDeployAddListenerMile(eplTwo, "s0", 1);
 
             env.sendEventBean(new SupportBean("E1", 5));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

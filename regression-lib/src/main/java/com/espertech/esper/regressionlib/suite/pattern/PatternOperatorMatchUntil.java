@@ -27,7 +27,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class PatternOperatorMatchUntil {
@@ -67,7 +66,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(2);
 
             sendSupportBean(env, "B1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", "B1"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "A2", "B1"});
 
             env.milestone(3);
 
@@ -631,7 +630,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", "b[0].theString,b[1].theString".split(","), new Object[]{"E1", "E2"});
+            env.assertPropsNew("s0", "b[0].theString,b[1].theString".split(","), new Object[]{"E1", "E2"});
 
             env.undeployAll();
 
@@ -659,7 +658,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(1);
 
             env.advanceTime(16000);
-            env.assertPropsListenerNew("s0", "a.id".split(","), new Object[]{"A1"});
+            env.assertPropsNew("s0", "a.id".split(","), new Object[]{"A1"});
 
             env.advanceTime(999999);
             env.assertListenerNotInvoked("s0");
@@ -692,7 +691,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(4);
 
             env.advanceTime(1024999);
-            env.assertPropsListenerNew("s0", "a.id,b[0].id,b[1].id".split(","), new Object[]{"A1", "B1", "B2"});
+            env.assertPropsNew("s0", "a.id,b[0].id,b[1].id".split(","), new Object[]{"A1", "B1", "B2"});
 
             env.advanceTime(1999999);
             env.assertListenerNotInvoked("s0");
@@ -713,7 +712,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 2});
+            env.assertPropsNew("s0", fields, new Object[]{1, 2});
 
             env.sendEventBean(new SupportBean("A", 3));
 
@@ -729,7 +728,7 @@ public class PatternOperatorMatchUntil {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("A", 6));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, 6});
+            env.assertPropsNew("s0", fields, new Object[]{5, 6});
 
             env.undeployAll();
         }
@@ -780,6 +779,6 @@ public class PatternOperatorMatchUntil {
     }
 
     private static void tryInvalidPattern(RegressionEnvironment env, String epl, String message) {
-        tryInvalidCompile(env, "select * from pattern[" + epl + "]", message);
+        env.tryInvalidCompile("select * from pattern[" + epl + "]", message);
     }
 }

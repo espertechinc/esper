@@ -54,7 +54,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
         env.sendEventObjectArray(new Object[]{"p0value", "p1value", new Object[]{"i"}}, "MyOASource");
-        env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"p0value", "p1value"});
+        env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"p0value", "p1value"});
 
         env.undeployAll();
     }

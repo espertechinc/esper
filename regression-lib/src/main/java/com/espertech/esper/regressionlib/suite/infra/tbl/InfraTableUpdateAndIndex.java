@@ -211,7 +211,7 @@ public class InfraTableUpdateAndIndex {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E2", "E20"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 10}, {"E20", 20}, {"E3", 30}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 10}, {"E20", 20}, {"E3", 30}});
 
             env.milestone(1);
 
@@ -219,13 +219,13 @@ public class InfraTableUpdateAndIndex {
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E10", 10}, {"E20", 20}, {"E3", 30}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E10", 10}, {"E20", 20}, {"E3", 30}});
 
             env.sendEventBean(new SupportBean_S0(0, "E3", "E30"));
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E10", 10}, {"E20", 20}, {"E30", 30}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E10", 10}, {"E20", 20}, {"E30", 30}});
 
             env.undeployAll();
         }

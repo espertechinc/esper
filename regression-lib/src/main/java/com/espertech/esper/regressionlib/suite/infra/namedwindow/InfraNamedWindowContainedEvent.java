@@ -14,7 +14,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -26,11 +26,11 @@ public class InfraNamedWindowContainedEvent implements RegressionExecution {
         env.compileDeploy("create window BookWindow#time(30) as BookDesc", path);
 
         epl = "select * from SupportBean unidirectional, BookWindow[reviews]";
-        tryInvalidCompile(env, path, epl, "Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");
+        env.tryInvalidCompile(path, epl, "Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");
 
         epl = "select *, (select * from BookWindow[reviews] where sb.theString = comment) " +
             "from SupportBean sb";
-        tryInvalidCompile(env, path, epl, "Failed to plan subquery number 1 querying BookWindow: Failed to validate named window use in subquery, contained-event is only allowed for named windows when not correlated ");
+        env.tryInvalidCompile(path, epl, "Failed to plan subquery number 1 querying BookWindow: Failed to validate named window use in subquery, contained-event is only allowed for named windows when not correlated ");
 
         env.undeployAll();
     }

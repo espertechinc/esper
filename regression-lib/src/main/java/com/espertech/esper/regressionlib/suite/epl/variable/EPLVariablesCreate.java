@@ -30,7 +30,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EPLVariablesCreate {
@@ -133,7 +132,7 @@ public class EPLVariablesCreate {
 
             String[] fieldsVar = new String[]{"var1OMCreate", "var2OMCreate"};
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fieldsVar, new Object[]{null, "abc"});
+            env.assertPropsNew("s0", fieldsVar, new Object[]{null, "abc"});
 
             env.compileDeploy("create variable double[] arrdouble = {1.0d,2.0d}");
 
@@ -156,7 +155,7 @@ public class EPLVariablesCreate {
 
             String[] fieldsVar = new String[]{"var1CSS", "var2CSS"};
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fieldsVar, new Object[]{null, "abc"});
+            env.assertPropsNew("s0", fieldsVar, new Object[]{null, "abc"});
 
             // ESPER-545
             String createText = "@name('create') create variable int FOO = 0";
@@ -172,7 +171,7 @@ public class EPLVariablesCreate {
 
             // cleanup of variable when statement exception occurs
             env.compileDeploy("create variable int x = 123");
-            tryInvalidCompile(env, "select missingScript(x) from SupportBean", "skip");
+            env.tryInvalidCompile("select missingScript(x) from SupportBean", "skip");
             env.compileDeploy("create variable int x = 123");
 
             env.undeployAll();
@@ -309,20 +308,20 @@ public class EPLVariablesCreate {
     private static class EPLVariableInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmt = "create variable somedummy myvar = 10";
-            tryInvalidCompile(env, stmt, "Cannot create variable 'myvar', type 'somedummy' is not a recognized type [create variable somedummy myvar = 10]");
+            env.tryInvalidCompile(stmt, "Cannot create variable 'myvar', type 'somedummy' is not a recognized type [create variable somedummy myvar = 10]");
 
             stmt = "create variable string myvar = 5";
-            tryInvalidCompile(env, stmt, "Variable 'myvar' of declared type String cannot be initialized by a value of type Integer [create variable string myvar = 5]");
+            env.tryInvalidCompile(stmt, "Variable 'myvar' of declared type String cannot be initialized by a value of type Integer [create variable string myvar = 5]");
 
             stmt = "create variable string myvar = 'a'";
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create variable string myvar = 'a'", path);
-            tryInvalidCompile(env, path, stmt, "A variable by name 'myvar' has already been declared");
+            env.tryInvalidCompile(path, stmt, "A variable by name 'myvar' has already been declared");
 
-            tryInvalidCompile(env, "select * from SupportBean output every somevar events",
+            env.tryInvalidCompile("select * from SupportBean output every somevar events",
                 "Failed to validate the output rate limiting clause: Variable named 'somevar' has not been declared [");
 
-            tryInvalidCompile(env, "create variable SupportBean<Integer> sb",
+            env.tryInvalidCompile("create variable SupportBean<Integer> sb",
                 "Cannot create variable 'sb', type 'SupportBean' cannot be declared as an array type and cannot receive type parameters as it is an event type");
 
             env.undeployAll();

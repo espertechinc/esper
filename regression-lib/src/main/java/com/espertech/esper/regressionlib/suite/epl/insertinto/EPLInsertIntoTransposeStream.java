@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.apache.avro.SchemaBuilder.record;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -100,10 +99,10 @@ public class EPLInsertIntoTransposeStream {
             env.compileDeploy("@name('s0') " + epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
             // MySchema already exists, start second statement
             env.compileDeploy("@name('s1') " + epl, path).addListener("s1");
@@ -191,15 +190,15 @@ public class EPLInsertIntoTransposeStream {
             env.undeployModuleContaining("s0");
 
             // invalid wrong-bean target
-            tryInvalidCompile(env, "insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean",
+            env.tryInvalidCompile("insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean",
                 "Expression-returned value of type '" + SupportBean.class.getName() + "' cannot be converted to target event type 'SupportBeanNumeric' with underlying type '" + SupportBeanNumeric.class.getName() + "' [insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean]");
 
             // invalid additional properties
-            tryInvalidCompile(env, "insert into SupportBean select 1 as dummy, transpose(customOne('O', 10)) from SupportBean",
+            env.tryInvalidCompile("insert into SupportBean select 1 as dummy, transpose(customOne('O', 10)) from SupportBean",
                 "Cannot transpose additional properties in the select-clause to target event type 'SupportBean' with underlying type '" + SupportBean.class.getName() + "', the transpose function must occur alone in the select clause [insert into SupportBean select 1 as dummy, transpose(customOne('O', 10)) from SupportBean]");
 
             // invalid occurs twice
-            tryInvalidCompile(env, "insert into SupportBean select transpose(customOne('O', 10)), transpose(customOne('O', 11)) from SupportBean",
+            env.tryInvalidCompile("insert into SupportBean select transpose(customOne('O', 10)), transpose(customOne('O', 11)) from SupportBean",
                 "A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation");
 
             // invalid wrong-type target
@@ -214,7 +213,7 @@ public class EPLInsertIntoTransposeStream {
             env.undeployAll();
 
             // invalid two parameters
-            tryInvalidCompile(env, "select transpose(customOne('O', 10), customOne('O', 10)) from SupportBean",
+            env.tryInvalidCompile("select transpose(customOne('O', 10), customOne('O', 10)) from SupportBean",
                 "Failed to validate select-clause expression 'transpose(customOne(\"O\",10),customO...(46 chars)': The transpose function requires a single parameter expression [select transpose(customOne('O', 10), customOne('O', 10)) from SupportBean]");
 
             // test not a top-level function or used in where-clause (possible but not useful)
@@ -222,7 +221,7 @@ public class EPLInsertIntoTransposeStream {
             env.compileDeploy("select transpose(customOne('O', 10)) is not null from SupportBean");
 
             // invalid insert of object-array into undefined stream
-            tryInvalidCompile(env, "insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean",
+            env.tryInvalidCompile("insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean",
                 "Invalid expression return type 'Object[]' for transpose function [insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean]");
 
             env.undeployAll();
@@ -244,7 +243,7 @@ public class EPLInsertIntoTransposeStream {
             env.sendEventMap(eventOne, "AEventTE");
             env.sendEventMap(eventTwo, "BEventTE");
 
-            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
 
             env.undeployAll();
         }
@@ -261,7 +260,7 @@ public class EPLInsertIntoTransposeStream {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
 
             env.undeployAll();
         }
@@ -277,7 +276,7 @@ public class EPLInsertIntoTransposeStream {
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-            env.assertPropsListenerNew("s0", "result".split(","), new Object[]{"nestedValue"});
+            env.assertPropsNew("s0", "result".split(","), new Object[]{"nestedValue"});
 
             env.undeployAll();
         }
@@ -289,11 +288,11 @@ public class EPLInsertIntoTransposeStream {
             String stmtTextOne = "insert into MyStreamComplexMap select nested as inneritem from ComplexMap";
             env.compileDeploy(stmtTextOne, path);
 
-            tryInvalidCompile(env, path, "select inneritem.nestedValue as result from MyStreamComplexMap",
+            env.tryInvalidCompile(path, "select inneritem.nestedValue as result from MyStreamComplexMap",
                 "Failed to validate select-clause expression 'inneritem.nestedValue': Failed to resolve property 'inneritem.nestedValue' (property 'inneritem' is a mapped property and requires keyed access) [select inneritem.nestedValue as result from MyStreamComplexMap]");
 
             // test invalid unwrap-properties
-            tryInvalidCompile(env,
+            env.tryInvalidCompile(
                 "create schema E1 as " + E1.class.getName() + ";\n" +
                     "create schema E2 as " + E2.class.getName() + ";\n" +
                     "create schema EnrichedE2 as " + EnrichedE2.class.getName() + ";\n" +
@@ -303,7 +302,7 @@ public class EPLInsertIntoTransposeStream {
                     "where e1.id = e2.id ",
                 "The 'e2.* as event' syntax is not allowed when inserting into an existing bean event type, use the 'e2 as event' syntax instead");
 
-            tryInvalidCompile(env, "select transpose(null) from SupportBean",
+            env.tryInvalidCompile("select transpose(null) from SupportBean",
                 "Invalid expression return type 'null' for transpose function");
 
             env.undeployAll();

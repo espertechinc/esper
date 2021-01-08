@@ -45,11 +45,11 @@ public class ResultSetQueryTypeRowPerGroupHaving {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.advanceTime(1000);
-            env.assertPropsListenerNew("s0", "y".split(","), new Object[] {1L});
+            env.assertPropsNew("s0", "y".split(","), new Object[] {1L});
 
             env.sendEventBean(new SupportBean("E2", 0));
             env.advanceTime(2000);
-            env.assertPropsListenerNew("s0", "y".split(","), new Object[] {1L});
+            env.assertPropsNew("s0", "y".split(","), new Object[] {1L});
 
             env.undeployAll();
         }

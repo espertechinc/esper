@@ -12,13 +12,16 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
+
+import java.util.EnumSet;
 
 public class RowRecogEmptyPartition implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -40,7 +43,7 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.milestone(0);
 
         env.sendEventBean(new SupportRecogBean("B", 1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{1});
+        env.assertPropsNew("s0", fields, new Object[]{1});
 
         env.milestone(1);
 
@@ -49,19 +52,19 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.milestone(2);
 
         env.sendEventBean(new SupportRecogBean("A", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{2});
+        env.assertPropsNew("s0", fields, new Object[]{2});
 
         env.milestone(3);
 
         env.sendEventBean(new SupportRecogBean("B", 3));
         env.sendEventBean(new SupportRecogBean("A", 4));
         env.sendEventBean(new SupportRecogBean("A", 3));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3});
+        env.assertPropsNew("s0", fields, new Object[]{3});
 
         env.milestone(4);
 
         env.sendEventBean(new SupportRecogBean("B", 4));
-        env.assertPropsListenerNew("s0", fields, new Object[]{4});
+        env.assertPropsNew("s0", fields, new Object[]{4});
 
         env.milestone(5);
 
@@ -69,7 +72,7 @@ public class RowRecogEmptyPartition implements RegressionExecution {
         env.sendEventBean(new SupportRecogBean("B", 7));
         env.sendEventBean(new SupportRecogBean("B", 8));
         env.sendEventBean(new SupportRecogBean("A", 7));
-        env.assertPropsListenerNew("s0", fields, new Object[]{7});
+        env.assertPropsNew("s0", fields, new Object[]{7});
 
         /**
          * Comment-in for testing partition removal.

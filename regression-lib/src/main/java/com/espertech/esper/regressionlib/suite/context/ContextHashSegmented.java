@@ -21,7 +21,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import org.apache.avro.generic.GenericData;
@@ -79,19 +78,19 @@ public class ContextHashSegmented {
             env.addListener("s0");
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Pete", "K1", "P1", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"Pete", "K1", 100L});
+            env.assertPropsNew("s0", fields, new Object[]{"Pete", "K1", 100L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Pete", "K1", "P2", 15);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"Pete", "K1", 115L});
+            env.assertPropsNew("s0", fields, new Object[]{"Pete", "K1", 115L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K1", "P2", 30);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K1", 30L});
+            env.assertPropsNew("s0", fields, new Object[]{"Joe", "K1", 30L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K2", "P1", 40);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K2", 40L});
+            env.assertPropsNew("s0", fields, new Object[]{"Joe", "K2", 40L});
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Joe", "K1", "P1", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"Joe", "K1", 50L});
+            env.assertPropsNew("s0", fields, new Object[]{"Joe", "K1", 50L});
 
             env.undeployAll();
         }
@@ -106,7 +105,7 @@ public class ContextHashSegmented {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{5, "E1", 1}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{5, "E1", 1}});
 
             env.sendEventBean(new SupportBean("E2", 10));
             env.sendEventBean(new SupportBean("E1", 2));
@@ -165,28 +164,28 @@ public class ContextHashSegmented {
 
             // invalid filter spec
             epl = "create context ACtx coalesce hash_code(intPrimitive) from SupportBean(dummy = 1) granularity 10";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate filter expression 'dummy=1': Property named 'dummy' is not valid in any stream [");
+            env.tryInvalidCompile(epl, "Failed to validate filter expression 'dummy=1': Property named 'dummy' is not valid in any stream [");
 
             // invalid hash code function
             epl = "create context ACtx coalesce hash_code_xyz(intPrimitive) from SupportBean granularity 10";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'hash_code_xyz' [");
+            env.tryInvalidCompile(epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'hash_code_xyz' [");
             epl = "create context ACtx coalesce intPrimitive from SupportBean granularity 10";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'intPrimitive' [");
+            env.tryInvalidCompile(epl, "For context 'ACtx' expected a hash function that is any of {consistent_hash_crc32, hash_code} or a plug-in single-row function or script but received 'intPrimitive' [");
 
             // invalid no-param hash code function
             epl = "create context ACtx coalesce hash_code() from SupportBean granularity 10";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "For context 'ACtx' expected one or more parameters to the hash function, but found no parameter list [");
+            env.tryInvalidCompile(epl, "For context 'ACtx' expected one or more parameters to the hash function, but found no parameter list [");
 
             // validate statement not applicable filters
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create context ACtx coalesce hash_code(intPrimitive) from SupportBean granularity 10", path);
             epl = "context ACtx select * from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, epl, "Segmented context 'ACtx' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
+            env.tryInvalidCompile(path, epl, "Segmented context 'ACtx' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
 
             // invalid attempt to partition a named window's streams
             env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
             epl = "create context SegmentedByWhat partition by theString from MyWindow";
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, epl, "Partition criteria may not include named windows [create context SegmentedByWhat partition by theString from MyWindow]");
+            env.tryInvalidCompile(path, epl, "Partition criteria may not include named windows [create context SegmentedByWhat partition by theString from MyWindow]");
 
             env.undeployAll();
         }
@@ -219,7 +218,7 @@ public class ContextHashSegmented {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 12});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, 12});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 12}});
 
             env.milestone(2);
@@ -233,7 +232,7 @@ public class ContextHashSegmented {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E6", 15));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 15});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, 15});
 
             env.undeployAll();
         }
@@ -253,22 +252,22 @@ public class ContextHashSegmented {
             env.compileDeploy(eplGrouped, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0, "E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{0, "E1", 10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E2", 11});
+            env.assertPropsNew("s0", fields, new Object[]{1, "E2", 11});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E2", 23});
+            env.assertPropsNew("s0", fields, new Object[]{1, "E2", 23});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E1", 14));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0, "E1", 24});
+            env.assertPropsNew("s0", fields, new Object[]{0, "E1", 24});
 
             env.undeployAll();
 
@@ -298,10 +297,10 @@ public class ContextHashSegmented {
             env.compileDeploy(eplStmt, path).addListener("s0");
 
             env.sendEventBean(makeBean("E1", 100, 20L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 20L, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{100, 20L, null, null, null});
 
             env.sendEventBean(makeBean("E1", 100, 21L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 41L, 20L, 20L, null});
+            env.assertPropsNew("s0", fields, new Object[]{100, 41L, 20L, 20L, null});
 
             env.milestoneInc(milestone);
 
@@ -310,7 +309,7 @@ public class ContextHashSegmented {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean("E1", 100, 22L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 63L, 21L, 21L, "S0"});
+            env.assertPropsNew("s0", fields, new Object[]{100, 63L, 21L, 21L, "S0"});
 
             env.undeployAll();
         }
@@ -347,7 +346,7 @@ public class ContextHashSegmented {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(3, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 10, 3});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, 10, 3});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 10, 3}});
 
             env.sendEventBean(new SupportBean_S0(4, "E4"));
@@ -360,7 +359,7 @@ public class ContextHashSegmented {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E2", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, 12, 1});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, 12, 1});
             assertIterator(env, "s0", fields, new Object[][]{{ctx, 10, 3}, {ctx, 12, 1}});
 
             env.undeployAll();
@@ -443,37 +442,37 @@ public class ContextHashSegmented {
             String[] fields = "c0,c1,c2".split(",");
 
             env.sendEventBean(new SupportBean("E1", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E1", 5});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E1", 5});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 6));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E2", 6});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E2", 6});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E3", 7));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E3", 7});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E3", 7});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E2", 6}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 8));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E4", 8});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E4", 8});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E5", 9));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E5", 9});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E5", 9});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 5}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E1", 15});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E1", 15});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 15}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 8}, {stmtNameContext, "E2", 6}});
 
             env.sendEventBean(new SupportBean("E4", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{stmtNameContext, "E4", 19});
+            env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E4", 19});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 15}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 19}, {stmtNameContext, "E2", 6}});
 
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
@@ -505,15 +504,15 @@ public class ContextHashSegmented {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 3, "E1", "E1"});    // context id matches the number returned by myHashFunc
+            env.assertPropsNew("s0", fields, new Object[]{3, 3, "E1", "E1"});    // context id matches the number returned by myHashFunc
 
             env.sendEventBean(new SupportBean("E2", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0, 0, "E2", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{0, 0, "E2", "E2"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 7));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 7, "E3", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{3, 7, "E3", "E3"});
 
             env.undeployAll();
         }

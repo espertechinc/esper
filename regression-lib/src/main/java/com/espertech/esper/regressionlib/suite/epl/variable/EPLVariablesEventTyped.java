@@ -28,7 +28,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EPLVariablesEventTyped {
@@ -53,10 +52,10 @@ public class EPLVariablesEventTyped {
                 assertEquals("Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S1.class.getName() + "'", ex.getMessage());
             }
 
-            tryInvalidCompile(env, "on SupportBean_S0 arrival set vars1_A = arrival",
+            env.tryInvalidCompile("on SupportBean_S0 arrival set vars1_A = arrival",
                 "Failed to validate assignment expression 'vars1_A=arrival': Variable 'vars1_A' of declared event type '" + SupportBean_S1.class.getName() + "' underlying type '" + SupportBean_S1.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S0.class.getName() + "'");
 
-            tryInvalidCompile(env, "on SupportBean_S0 arrival set vars0_A = 1",
+            env.tryInvalidCompile("on SupportBean_S0 arrival set vars0_A = 1",
                 "Failed to validate assignment expression 'vars0_A=1': Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'int'");
         }
     }
@@ -154,7 +153,7 @@ public class EPLVariablesEventTyped {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null});
 
             env.compileDeploy("@name('set') on SupportBean_A set varbean.theString = 'A', varbean.intPrimitive = 1", path);
             env.addListener("set");
@@ -164,7 +163,7 @@ public class EPLVariablesEventTyped {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null});
 
             SupportBean setBean = new SupportBean();
             env.runtime().getVariableService().setVariableValue(env.deploymentId("create"), "varbean", setBean);
@@ -175,7 +174,7 @@ public class EPLVariablesEventTyped {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1, "A"});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 1, "A"});
             assertNotSame(setBean, env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "varbean"));
             assertEquals(1, ((SupportBean) env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "varbean")).getIntPrimitive());
 
@@ -213,7 +212,7 @@ public class EPLVariablesEventTyped {
 
             // test null
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
 
             env.milestone(0);
 
@@ -227,7 +226,7 @@ public class EPLVariablesEventTyped {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{"abc", a1objectOne, a1objectOne.getId(), s0objectOne, s0objectOne.getId()});
+            env.assertPropsNew("s0", fields, new Object[]{"abc", a1objectOne, a1objectOne.getId(), s0objectOne, s0objectOne.getId()});
 
             // test on-set for Object and EventType
             String[] fieldsTop = "varobject,vartype,varbean".split(",");
@@ -249,7 +248,7 @@ public class EPLVariablesEventTyped {
             newValues.put(new DeploymentIdNamePair(depIdVarbean, "varbean"), null);
             env.runtime().getVariableService().setVariableValue(newValues);
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
 
             // set via API to values
             newValues.put(new DeploymentIdNamePair(depIdVarobject, "varobject"), 10L);
@@ -257,7 +256,7 @@ public class EPLVariablesEventTyped {
             newValues.put(new DeploymentIdNamePair(depIdVarbean, "varbean"), a1objectOne);
             env.runtime().getVariableService().setVariableValue(newValues);
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{10L, a1objectOne, a1objectOne.getId(), s0objectTwo, s0objectTwo.getId()});
+            env.assertPropsNew("s0", fields, new Object[]{10L, a1objectOne, a1objectOne.getId(), s0objectTwo, s0objectTwo.getId()});
 
             // test on-set for Bean class
             env.compileDeploy("@name('set-two') on SupportBean_A(id='Y') arrival set varobject=null, vartype=null, varbean=arrival", path);

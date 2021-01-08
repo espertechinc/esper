@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
@@ -219,15 +218,15 @@ public class ResultSetOutputLimitCrontabWhen {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "var_cnt_total", -1);
 
             env.sendEventBean(new SupportBean("E4", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E5", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -365,28 +364,28 @@ public class ResultSetOutputLimitCrontabWhen {
 
     private static class ResultSetInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when myvardummy",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when myvardummy",
                 "The when-trigger expression in the OUTPUT WHEN clause must return a boolean-type value [select * from SupportMarketDataBean output when myvardummy]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set myvardummy = 'b'",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when true then set myvardummy = 'b'",
                 "Failed to validate the output rate limiting clause: Failed to validate assignment expression 'myvardummy=\"b\"': Variable 'myvardummy' of declared type Integer cannot be assigned a value of type String [select * from SupportMarketDataBean output when true then set myvardummy = 'b']");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)",
                 "Aggregation functions may not be used within update-set [select * from SupportMarketDataBean output when true then set myvardummy = sum(myvardummy)]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when true then set 1",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when true then set 1",
                 "Failed to validate the output rate limiting clause: Failed to validate assignment expression '1': Assignment expression must receive a single variable value");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when sum(price) > 0",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when sum(price) > 0",
                 "Failed to validate output limit expression '(sum(price))>0': Property named 'price' is not valid in any stream [select * from SupportMarketDataBean output when sum(price) > 0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when sum(count_insert) > 0",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when sum(count_insert) > 0",
                 "An aggregate function may not appear in a OUTPUT LIMIT clause [select * from SupportMarketDataBean output when sum(count_insert) > 0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean output when prev(1, count_insert) = 0",
+            env.tryInvalidCompile("select * from SupportMarketDataBean output when prev(1, count_insert) = 0",
                 "Failed to validate output limit expression 'prev(1,count_insert)=0': Previous function cannot be used in this context [select * from SupportMarketDataBean output when prev(1, count_insert) = 0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, count(*) from SupportBean#length(2) group by theString output all every 0 seconds",
+            env.tryInvalidCompile("select theString, count(*) from SupportBean#length(2) group by theString output all every 0 seconds",
                 "Invalid time period expression returns a zero or negative time interval [select theString, count(*) from SupportBean#length(2) group by theString output all every 0 seconds]");
         }
     }
@@ -401,18 +400,18 @@ public class ResultSetOutputLimitCrontabWhen {
         env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 17, 15, 0, 0);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S1"}, {"S2"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"S1"}, {"S2"}});
 
         sendTimeEvent(env, days, 17, 18, 0, 0);
         sendEvent(env, "S3", 0);
         env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days, 17, 30, 0, 0);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S3"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"S3"}});
 
         sendTimeEvent(env, days, 17, 35, 0, 0);
         sendTimeEvent(env, days, 17, 45, 0, 0);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
+        env.assertPropsPerRowLastNew("s0", fields, null);
 
         sendEvent(env, "S4", 0);
         sendEvent(env, "S5", 0);
@@ -429,7 +428,7 @@ public class ResultSetOutputLimitCrontabWhen {
         env.assertListenerNotInvoked("s0");
 
         sendTimeEvent(env, days + 1, 8, 0, 0, 0);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"S4"}, {"S5"}, {"S6"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"S4"}, {"S5"}, {"S6"}});
 
         env.undeployAll();
     }

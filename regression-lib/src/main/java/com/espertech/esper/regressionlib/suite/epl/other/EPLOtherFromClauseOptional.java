@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertPropsPerRow;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
 import static org.junit.Assert.*;
 
@@ -153,10 +152,10 @@ public class EPLOtherFromClauseOptional {
             env.compileDeploy(context, path);
 
             // subselect needs from clause
-            tryInvalidCompile(env, "select (select 1)", "Incorrect syntax near ')'");
+            env.tryInvalidCompile("select (select 1)", "Incorrect syntax near ')'");
 
             // wildcard not allowed
-            tryInvalidCompile(env, "select *", "Wildcard cannot be used when the from-clause is not provided");
+            env.tryInvalidCompile("select *", "Wildcard cannot be used when the from-clause is not provided");
             tryInvalidFAFCompile(env, path, "select *", "Wildcard cannot be used when the from-clause is not provided");
 
             // context requires a single selector

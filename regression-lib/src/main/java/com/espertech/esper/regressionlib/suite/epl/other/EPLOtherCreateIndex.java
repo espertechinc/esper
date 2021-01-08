@@ -43,7 +43,7 @@ public class EPLOtherCreateIndex {
             env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
+            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
 
             env.undeployAll();
         }
@@ -62,7 +62,7 @@ public class EPLOtherCreateIndex {
             env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
+            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
 
             env.undeployAll();
         }

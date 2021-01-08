@@ -23,7 +23,6 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportABCImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportBImpl;
@@ -99,12 +98,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("A", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 10 + 2});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 10 + 2});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("C", -1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"C", -1 + 4});
+            env.assertPropsNew("s0", fields, new Object[]{"C", -1 + 4});
 
             env.sendEventBean(new SupportBean("A", 11));
             env.sendEventBean(new SupportBean("A", 12));
@@ -112,12 +111,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("B", 99));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 99 + 3});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 99 + 3});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("A", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 11 + 12});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 11 + 12});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -159,12 +158,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(1);
 
             sendBean(env, "B", 200, 7, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 3 + 5L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 3 + 5L});
 
             env.milestone(2);
 
             sendBean(env, "A", 100, 8, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1 + 4 + 6L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 1 + 4 + 6L});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -207,10 +206,10 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, null, "A", 21});
+            env.assertPropsNew("s0", fields, new Object[]{1, null, "A", 21});
 
             env.sendEventBean(new SupportBean_S1(2, "B"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, 2, "B", 12});
+            env.assertPropsNew("s0", fields, new Object[]{null, 2, "B", 12});
 
             assertFilterSvcCount(env, 2, "ctx");
             env.undeployAll();
@@ -298,12 +297,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(0);
 
             sendS2(env, "z", "B");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 1L});
 
             env.milestone(1);
 
             sendS2(env, "z", "C");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"C", 0L});
+            env.assertPropsNew("s0", fields, new Object[]{"C", 0L});
 
             assertFilterSvcCount(env, 2, "ctx");
             env.undeployModuleContaining("s0");
@@ -345,7 +344,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("B", 1000));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 30});
 
             env.milestone(2);
 
@@ -361,7 +360,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("A", 1000));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 90});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 90});
 
             env.undeployAll();
         }
@@ -373,18 +372,18 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
             // invalid initiated-by type
             epl = "create context InvalidCtx partition by theString from SupportBean initiated by SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Segmented context 'InvalidCtx' requires that all of the event types that are listed in the initialized-by also appear in the partition-by, type 'SupportBean_S0' is not one of the types listed in partition-by");
+            env.tryInvalidCompile(epl, "Segmented context 'InvalidCtx' requires that all of the event types that are listed in the initialized-by also appear in the partition-by, type 'SupportBean_S0' is not one of the types listed in partition-by");
 
             // cannot assign name in different places
             epl = "create context InvalidCtx partition by p00 from SupportBean_S0 as n1 initiated by SupportBean_S0 as n2";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Segmented context 'InvalidCtx' requires that either partition-by or initialized-by assign stream names, but not both");
+            env.tryInvalidCompile(epl, "Segmented context 'InvalidCtx' requires that either partition-by or initialized-by assign stream names, but not both");
 
             // name assigned is already used
             String message = "Name 'a' already used for type 'SupportBean_S0'";
             epl = "create context InvalidCtx partition by p00 from SupportBean_S0, p10 from SupportBean_S1 initiated by SupportBean_S0 as a, SupportBean_S1 as a";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
             epl = "create context InvalidCtx partition by p00 from SupportBean_S0 as a, p10 from SupportBean_S1 as a";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
         }
     }
 
@@ -416,7 +415,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("B", 1000));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 30});
 
             env.sendEventBean(new SupportBean("C", 1000));
 
@@ -438,12 +437,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("C", 1000));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"C", 0});
+            env.assertPropsNew("s0", fields, new Object[]{"C", 0});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("A", 1000));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 40});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 40});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployModuleContaining("s0");
@@ -476,7 +475,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S2(0, "B"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 2L});
 
             env.sendEventBean(new SupportBean_S1(0, "A"));
             env.assertListenerNotInvoked("s0");
@@ -489,7 +488,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S2(0, "A"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 3L});
 
             assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             env.undeployAll();
@@ -519,20 +518,20 @@ public class ContextKeySegmentedWInitTermPrioritized {
             sendBean(env, "B", 2, 50, true);
 
             sendBean(env, "A", 2, 0, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 2, 52L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 2, 52L});
 
             env.milestone(1);
 
             sendBean(env, "B", 2, 0, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2, 63L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 2, 63L});
 
             sendBean(env, "A", 1, 0, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 1, 40L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 1, 40L});
 
             env.milestone(2);
 
             sendBean(env, "B", 1, 0, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1, 31L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 1, 31L});
 
             assertFilterSvcCount(env, 1, "ctx");
             env.undeployAll();
@@ -661,7 +660,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(-1, "B")); // stop B
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 1L});
 
             env.milestone(1);
 
@@ -672,7 +671,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S1(-1, "A")); // stop A
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 3L});
 
             env.milestone(3);
 
@@ -682,7 +681,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S1(-1, "B")); // stop B
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 2L});
 
             env.milestone(5);
 
@@ -844,7 +843,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
         private static void sendOAAssert(RegressionEnvironment env, String poa, long count) {
             env.sendEventObjectArray(new Object[]{poa}, "TypeOne");
-            env.assertPropsListenerNew("s0", "poa,cnt".split(","), new Object[]{poa, count});
+            env.assertPropsNew("s0", "poa,cnt".split(","), new Object[]{poa, count});
         }
     }
 
@@ -859,17 +858,17 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(0);
 
             env.sendEventBean(new ISupportABCImpl("a", "a", null, null));
-            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 1L});
+            env.assertPropsNew("s0", "p0,cnt".split(","), new Object[]{"a", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new ISupportAImpl("a", null));
-            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 2L});
+            env.assertPropsNew("s0", "p0,cnt".split(","), new Object[]{"a", 2L});
 
             env.milestone(2);
 
             env.sendEventBean(new ISupportBImpl("a", null));
-            env.assertPropsListenerNew("s0", "p0,cnt".split(","), new Object[]{"a", 3L});
+            env.assertPropsNew("s0", "p0,cnt".split(","), new Object[]{"a", 3L});
 
             env.undeployModuleContaining("s0");
 
@@ -944,7 +943,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
     private static void sendAssertSB(long expected, RegressionEnvironment env, String theString, int intPrimitive) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        env.assertPropsListenerNew("s0", "theString,cnt".split(","), new Object[]{theString, expected});
+        env.assertPropsNew("s0", "theString,cnt".split(","), new Object[]{theString, expected});
     }
 
     private static void sendAssertNone(RegressionEnvironment env, Object event) {
@@ -985,7 +984,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
         SupportBean_S0 s0 = new SupportBean_S0(id, p00, p01);
         env.sendEventBean(s0);
         String[] fields = "p00,p01,s0,theSum".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{p00, p01, s0Init == null ? s0 : s0Init, expected});
+        env.assertPropsNew("s0", fields, new Object[]{p00, p01, s0Init == null ? s0 : s0Init, expected});
         return s0;
     }
 }

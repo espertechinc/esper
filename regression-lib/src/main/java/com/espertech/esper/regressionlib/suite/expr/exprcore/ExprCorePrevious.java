@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import org.junit.Assert;
 
@@ -99,7 +98,7 @@ public class ExprCorePrevious {
 
             env.advanceTime(3500);
             Object[] win = new Object[]{"E5", "E4", "E3"};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0",  fields,
                 new Object[][]{{"E3", null, "E3", 3L, win}, {"E4", "E3", "E3", 3L, win}, {"E5", "E4", "E3", 3L, win}});
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields,
                 new Object[][]{{"E1", null, null, null, null}, {"E2", null, null, null, null}});
@@ -167,18 +166,18 @@ public class ExprCorePrevious {
             SupportBean_S0 e1 = new SupportBean_S0(1);
             env.sendEventBean(e1);
 
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{null, e1, new Object[]{e1}, 1L});
 
             SupportBean_S0 e2 = new SupportBean_S0(2);
             env.sendEventBean(e2);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{e1, e1, new Object[]{e2, e1}, 2L});
             Assert.assertEquals(SupportBean_S0.class, env.statement("s0").getEventType().getPropertyType("result"));
 
             SupportBean_S0 e3 = new SupportBean_S0(3);
             env.sendEventBean(e3);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{e2, e2, new Object[]{e3, e2}, 2L});
 
             env.undeployAll();
@@ -222,25 +221,25 @@ public class ExprCorePrevious {
             String[] fields = "symbol,feed,prevPrice,tailPrice,countPrice,windowPrice".split(",");
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 10, 0L, "F1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", null, 10d, 1L, splitDoubles("10d")});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", "F1", null, 10d, 1L, splitDoubles("10d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 11, 0L, "F1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", 10d, 10d, 2L, splitDoubles("11d,10d")});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", "F1", 10d, 10d, 2L, splitDoubles("11d,10d")});
 
             env.sendEventBean(new SupportMarketDataBean("MSFT", 100, 0L, "F2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"MSFT", "F2", null, 100d, 1L, splitDoubles("100d")});
+            env.assertPropsNew("s0", fields, new Object[]{"MSFT", "F2", null, 100d, 1L, splitDoubles("100d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 12, 0L, "F2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F2", null, 12d, 1L, splitDoubles("12d")});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", "F2", null, 12d, 1L, splitDoubles("12d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 13, 0L, "F1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F1", 11d, 11d, 2L, splitDoubles("13d,11d")});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", "F1", 11d, 11d, 2L, splitDoubles("13d,11d")});
 
             env.sendEventBean(new SupportMarketDataBean("MSFT", 101, 0L, "F2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"MSFT", "F2", 100d, 100d, 2L, splitDoubles("101d,100d")});
+            env.assertPropsNew("s0", fields, new Object[]{"MSFT", "F2", 100d, 100d, 2L, splitDoubles("101d,100d")});
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 17, 0L, "F2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", "F2", 12d, 12d, 2L, splitDoubles("17d,12d")});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", "F2", 12d, 12d, 2L, splitDoubles("17d,12d")});
 
             env.undeployAll();
 
@@ -971,7 +970,7 @@ public class ExprCorePrevious {
             sendMarketEvent(env, "C", 3, 1002);
             sendMarketEvent(env, "D", 4, 10000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{
                     {"A", "A", 1d, null, null, null, null, "A", 1d, "B", 2d, 3L, splitDoubles("3d,2d,1d")},
                     {"B", "B", 2d, "A", 1d, null, null, "A", 1d, "B", 2d, 3L, splitDoubles("3d,2d,1d")},
@@ -981,7 +980,7 @@ public class ExprCorePrevious {
 
             sendMarketEvent(env, "E", 5, 20000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{
                     {"D", "D", 4d, null, null, null, null, "D", 4d, null, null, 1L, splitDoubles("4d")},
                 },
@@ -998,14 +997,14 @@ public class ExprCorePrevious {
 
     private static class ExprCorePreviousInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select prev(0, average) " +
+            env.tryInvalidCompile("select prev(0, average) " +
                     "from SupportMarketDataBean#length(100)#uni(price)",
                 "Previous function requires a single data window view onto the stream [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5",
+            env.tryInvalidCompile("select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5",
                 "The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall where prev(0, intPrimitive) = 5]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select count(*) from SupportBean#keepall having prev(0, intPrimitive) = 5",
+            env.tryInvalidCompile("select count(*) from SupportBean#keepall having prev(0, intPrimitive) = 5",
                 "The 'prev' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead [select count(*) from SupportBean#keepall having prev(0, intPrimitive) = 5]");
         }
     }

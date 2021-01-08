@@ -52,7 +52,7 @@ public class PatternOperatorAnd {
             env.milestone(1);
 
             sendSupportBean(env, "EA", 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"EA", "EB"});
+            env.assertPropsNew("s0", fields, new Object[]{"EA", "EB"});
 
             env.milestone(2);
             sendSupportBean(env, "EB", 1);
@@ -106,7 +106,7 @@ public class PatternOperatorAnd {
 
             env.addListener("s0");
             env.sendEventBean(new SupportBean_B("B_last"));
-            env.assertPropsListenerNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B_last"});
+            env.assertPropsNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B_last"});
 
             env.undeployAll();
         }

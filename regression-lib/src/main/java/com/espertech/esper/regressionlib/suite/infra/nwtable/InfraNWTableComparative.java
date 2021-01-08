@@ -14,9 +14,11 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 public class InfraNWTableComparative {
 
@@ -44,8 +46,8 @@ public class InfraNWTableComparative {
         private final int numSets;
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public InfraNWTableComparativeGroupByTopLevelSingleAgg(String caseName, int numEvents, String epl, int numSets) {
@@ -70,7 +72,7 @@ public class InfraNWTableComparative {
                 for (int i = 0; i < numEvents; i++) {
                     String key = "E" + i;
                     env.sendEventBean(new SupportBean_S0(0, key));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{key, i});
+                    env.assertPropsNew("s0", fields, new Object[]{key, i});
                 }
             }
             long deltaQuery = System.nanoTime() - startQuery;

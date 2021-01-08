@@ -26,7 +26,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
@@ -87,23 +86,23 @@ public class ResultSetAggregationMethodSorted {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n", path);
 
-            tryInvalidCompile(env, path, "select MyTable.sortcol.notAnAggMethod() from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.notAnAggMethod() from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.notAnAggMethod()': Could not find event property or method named 'notAnAggMethod' in collection of events of type ");
 
-            tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey() from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.floorKey() from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.floorKey()': Parameters mismatch for aggregation method 'floorKey', the method requires an expression providing the key value");
-            tryInvalidCompile(env, path, "select MyTable.sortcol.floorKey('a') from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.floorKey('a') from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.floorKey(\"a\")': Method 'floorKey' for parameter 0 requires a key of type 'Integer' but receives 'String'");
 
-            tryInvalidCompile(env, path, "select MyTable.sortcol.firstKey(id) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.firstKey(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.firstKey(id)': Parameters mismatch for aggregation method 'firstKey', the method requires no parameters");
 
-            tryInvalidCompile(env, path, "select MyTable.sortcol.submap(1, 2, 3, true) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.submap(1, 2, 3, true) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,2,3,true)': Failed to validate aggregation method 'submap', expected a boolean-type result for expression parameter 1 but received int");
-            tryInvalidCompile(env, path, "select MyTable.sortcol.submap('a', true, 3, true) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.submap('a', true, 3, true) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.submap(\"a\",true,3,true)': Method 'submap' for parameter 0 requires a key of type 'Integer' but receives 'String'");
 
-            tryInvalidCompile(env, path, "select MyTable.sortcol.submap(1, true, 'a', true) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.sortcol.submap(1, true, 'a', true) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.submap(1,true,\"a\",true)': Method 'submap' for parameter 2 requires a key of type 'Integer' but receives 'String'");
 
             env.undeployAll();
@@ -145,7 +144,7 @@ public class ResultSetAggregationMethodSorted {
         private static void sendAssertGrouped(RegressionEnvironment env, String p00, Integer firstKey, Integer lastKey) {
             final String[] fields = "firstkey,lastkey".split(",");
             env.sendEventBean(new SupportBean_S0(-1, p00));
-            env.assertPropsListenerNew("s0", fields, new Object[]{firstKey, lastKey});
+            env.assertPropsNew("s0", fields, new Object[]{firstKey, lastKey});
         }
     }
 
@@ -477,18 +476,18 @@ public class ResultSetAggregationMethodSorted {
             env.eplToModelCompileDeploy(epl).addListener("s0");
 
             makeSendBean(env, treemap, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 10 - 1)});
+            env.assertPropsNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 10 - 1)});
 
             makeSendBean(env, treemap, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 20 - 1)});
+            env.assertPropsNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 20 - 1)});
 
             env.milestone(0);
 
             makeSendBean(env, treemap, "E3", 15);
-            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 15 - 1)});
+            env.assertPropsNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 15 - 1)});
 
             makeSendBean(env, treemap, "E3", 17);
-            env.assertPropsListenerNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 17 - 1)});
+            env.assertPropsNew("s0", fields, new Object[]{floorEntryFirstEvent(treemap, 17 - 1)});
 
             env.undeployAll();
         }

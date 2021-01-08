@@ -26,7 +26,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanBuilder;
@@ -171,7 +170,7 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             String epl = "select * from SupportBean_S0 unidirectional, SupportBean_S1#keepall";
             // no params
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@hint('exclude_plan') " + epl,
+            env.tryInvalidCompile("@hint('exclude_plan') " + epl,
                 "Failed to process statement annotations: Hint 'EXCLUDE_PLAN' requires additional parameters in parentheses");
 
             // empty parameter allowed, to be filled in
@@ -179,11 +178,11 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean_S0(1));
 
             // invalid return type
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@hint('exclude_plan(1)') " + epl,
+            env.tryInvalidCompile("@hint('exclude_plan(1)') " + epl,
                 "Expression provided for hint EXCLUDE_PLAN must return a boolean value");
 
             // invalid expression
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@hint('exclude_plan(dummy = 1)') " + epl,
+            env.tryInvalidCompile("@hint('exclude_plan(dummy = 1)') " + epl,
                 "Failed to validate hint expression 'dummy=1': Property named 'dummy' is not valid in any stream");
 
             env.undeployAll();

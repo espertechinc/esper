@@ -15,7 +15,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
@@ -159,9 +159,9 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMile(text, "s0", 0);
 
             sendBeanIntDouble(env, 20, 50d);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBeanIntDouble(env, 25, 50d);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             text = "@name('s1') select * from SupportBean(2*intBoxed=doubleBoxed, theString='s')";
             env.compileDeployAddListenerMile(text, "s1", 1);
@@ -264,24 +264,24 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0").milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, false, null, null, false});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, false, null, null, false});
 
             env.milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, null, null, true, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, true, null, null, true, null});
 
             sendSupportBean(env, new SupportBean("A", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, true, true, false});
 
             sendSupportBean(env, new SupportBean("A", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, true, true, true});
 
             sendSupportBean(env, new SupportBean("B", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false, false, false});
 
             sendSupportBean(env, new SupportBean("B", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, false, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, false, true, false});
 
             env.undeployAll().milestoneInc(milestone);
 
@@ -319,16 +319,16 @@ public class ExprFilterExpressions {
             env.compileDeploy(epl).addListener("s0").milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean(null, 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false, false, false});
 
             sendSupportBean(env, new SupportBean(null, 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, false, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, false, true, false});
 
             sendSupportBean(env, new SupportBean("A", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, true, true, false});
 
             sendSupportBean(env, new SupportBean("A", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, true, true, true});
 
             env.undeployAll();
 
@@ -361,7 +361,7 @@ public class ExprFilterExpressions {
             env.milestoneInc(milestone);
 
             sendSupportBean(env, new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null});
 
             env.undeployAll();
 
@@ -460,8 +460,8 @@ public class ExprFilterExpressions {
 
     private static class ExprFilterShortCircuitEvalAndOverspecified implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -521,7 +521,7 @@ public class ExprFilterExpressions {
 
             SupportBean theEvent = new SupportBean("e1", 2);
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = new SupportBean("e1", 1);
             env.sendEventBean(theEvent);
@@ -538,7 +538,7 @@ public class ExprFilterExpressions {
 
             SupportBeanWithEnum theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_2);
             env.sendEventBean(theEvent);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
@@ -555,7 +555,7 @@ public class ExprFilterExpressions {
 
             SupportBeanWithEnum theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_2);
             env.sendEventBean(theEvent);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             theEvent = new SupportBeanWithEnum("e2", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
@@ -569,7 +569,7 @@ public class ExprFilterExpressions {
 
             theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_2);
             env.sendEventBean(theEvent);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             theEvent = new SupportBeanWithEnum("e2", SupportEnum.ENUM_VALUE_1);
             env.sendEventBean(theEvent);
@@ -922,7 +922,7 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMileZero(expr, "s0");
 
             sendBean(env, "intBoxed", 5);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -997,30 +997,30 @@ public class ExprFilterExpressions {
 
     private static class ExprFilterInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [every a=SupportBean -> " +
+            env.tryInvalidCompile("select * from pattern [every a=SupportBean -> " +
                     "b=SupportMarketDataBean(sum(a.longBoxed) = 2)]",
                 "Aggregation functions not allowed within filters [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [every a=SupportBean(prior(1, a.longBoxed))]",
+            env.tryInvalidCompile("select * from pattern [every a=SupportBean(prior(1, a.longBoxed))]",
                 "Failed to validate filter expression 'prior(1,a.longBoxed)': Prior function cannot be used in this context [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [every a=SupportBean(prev(1, a.longBoxed))]",
+            env.tryInvalidCompile("select * from pattern [every a=SupportBean(prev(1, a.longBoxed))]",
                 "Failed to validate filter expression 'prev(1,a.longBoxed)': Previous function cannot be used in this context [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean(5 - 10)",
+            env.tryInvalidCompile("select * from SupportBean(5 - 10)",
                 "Filter expression not returning a boolean value: '5-10' [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBeanWithEnum(theString=" + SupportEnum.class.getName() + ".ENUM_VALUE_1)",
+            env.tryInvalidCompile("select * from SupportBeanWithEnum(theString=" + SupportEnum.class.getName() + ".ENUM_VALUE_1)",
                 "Failed to validate filter expression 'theString=ENUM_VALUE_1': Implicit conversion from datatype '" + SupportEnum.class.getName() + "' to 'String' is not allowed [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBeanWithEnum(supportEnum=A.b)",
+            env.tryInvalidCompile("select * from SupportBeanWithEnum(supportEnum=A.b)",
                 "Failed to validate filter expression 'supportEnum=A.b': Failed to resolve property 'A.b' to a stream or nested property in a stream [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [a=SupportBean -> b=" +
+            env.tryInvalidCompile("select * from pattern [a=SupportBean -> b=" +
                     SupportBean.class.getSimpleName() + "(doubleBoxed not in (doubleBoxed, x.intBoxed, 9))]",
                 "Failed to validate filter expression 'doubleBoxed not in (doubleBoxed,x.i...(45 chars)': Failed to find a stream named 'x' (did you mean 'b'?) [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [a=SupportBean"
+            env.tryInvalidCompile("select * from pattern [a=SupportBean"
                     + " -> b=SupportBean(cluedo.intPrimitive=a.intPrimitive)"
                     + " -> c=SupportBean"
                     + "]",
@@ -1218,20 +1218,20 @@ public class ExprFilterExpressions {
 
         sendBeanLong(env, 10L);
         env.sendEventBean(new SupportMarketDataBean("IBM", 0, 0L, ""));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportMarketDataBean("IBM", 0, 5L, ""));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendBeanLong(env, 0L);
         env.sendEventBean(new SupportMarketDataBean("IBM", 0, 0L, ""));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         env.sendEventBean(new SupportMarketDataBean("IBM", 0, 1L, ""));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanLong(env, 20L);
         env.sendEventBean(new SupportMarketDataBean("IBM", 0, 10L, ""));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }
@@ -1241,10 +1241,10 @@ public class ExprFilterExpressions {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         sendSupportBean(env, new SupportBean("E1", 3));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendSupportBean(env, new SupportBean("E2", 4));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

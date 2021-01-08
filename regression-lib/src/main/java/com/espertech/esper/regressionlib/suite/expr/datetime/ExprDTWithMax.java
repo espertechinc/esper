@@ -47,7 +47,7 @@ public class ExprDTWithMax {
             String startTime = "2002-05-30T09:00:00.000";
             String expectedTime = "2002-12-30T09:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
             env.undeployAll();
         }
@@ -82,7 +82,7 @@ public class ExprDTWithMax {
             };
             String startTime = "2002-05-30T09:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }

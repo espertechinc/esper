@@ -13,12 +13,12 @@ package com.espertech.esper.regressionlib.suite.epl.script;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EPLScriptExpressionConfiguration implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        tryInvalidCompile(env, "expression abc [10] select * from SupportBean",
+        env.tryInvalidCompile("expression abc [10] select * from SupportBean",
             "Failed to obtain script runtime for dialect 'dummy' for script 'abc' [expression abc [10] select * from SupportBean]");
     }
 }

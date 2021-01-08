@@ -13,8 +13,11 @@ package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCountAccessEvent;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,8 +27,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class InfraNamedWindowLateStartIndex implements RegressionExecution {
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -38,7 +41,7 @@ public class InfraNamedWindowLateStartIndex implements RegressionExecution {
         assertEquals(2, SupportCountAccessEvent.getAndResetCountGetterCalled());
 
         env.sendEventBean(new SupportBean_S0(-1, "x"));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         // test subquery no-index-share
         String eplSubqueryNoIndexShare = "@name('s1') select (select id from AWindow(p00='x') as aw where aw.id = s0.id) " +

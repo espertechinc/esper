@@ -33,7 +33,6 @@ import java.util.List;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.fail;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 
 public class EPLDatabaseJoin {
@@ -77,13 +76,13 @@ public class EPLDatabaseJoin {
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -1));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("T3", -1));
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }
@@ -111,11 +110,11 @@ public class EPLDatabaseJoin {
             env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBeanEvent(env, 6);
-            env.assertPropsListenerNew("s0", fields, new Object[]{6, 60, "F"});
+            env.assertPropsNew("s0", fields, new Object[]{6, 60, "F"});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{6, 60, "F"}});
 
             sendSupportBeanEvent(env, 9);
-            env.assertPropsListenerNew("s0", fields, new Object[]{9, 90, "I"});
+            env.assertPropsNew("s0", fields, new Object[]{9, 90, "I"});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{6, 60, "F"}, {9, 90, "I"}});
 
             env.milestone(0);
@@ -149,7 +148,7 @@ public class EPLDatabaseJoin {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("B", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 3, "B", "B"});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 3, "B", "B"});
 
             env.sendEventBean(new SupportBean("D", 4));
             env.assertListenerNotInvoked("s0");
@@ -230,7 +229,7 @@ public class EPLDatabaseJoin {
             String stmtText = "@name('s0') select myvarchar from " +
                 " sql:MyDBWithRetain ['select mychar,, from mytesttable where '] as s0," +
                 "SupportBeanComplexProps as s1";
-            tryInvalidCompile(env, stmtText,
+            env.tryInvalidCompile(stmtText,
                 "Error in statement 'select mychar,, from mytesttable where ', failed to obtain result metadata, consider turning off metadata interrogation via configuration, please check the statement, reason: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' from mytesttable where' at line 1");
         }
     }
@@ -242,7 +241,7 @@ public class EPLDatabaseJoin {
             String stmtText = "@name('s0') select s0.myvarchar as s0Name, s1.mychar as s1Name from " +
                 sqlOne + " as s0, " + sqlTwo + "  as s1";
 
-            tryInvalidCompile(env, stmtText, "Circular dependency detected between historical streams");
+            env.tryInvalidCompile(stmtText, "Circular dependency detected between historical streams");
         }
     }
 
@@ -251,12 +250,12 @@ public class EPLDatabaseJoin {
             String stmtText = "@name('s0') select myvarchar from " +
                 " sql:MyDBWithRetain ['select mychar from mytesttable where ${s1.xxx[0]} = mytesttable.mybigint'] as s0," +
                 "SupportBeanComplexProps as s1";
-            tryInvalidCompile(env, stmtText, "Failed to validate from-clause database-access parameter expression 's1.xxx[0]': Failed to resolve property 's1.xxx[0]' to a stream or nested property in a stream");
+            env.tryInvalidCompile(stmtText, "Failed to validate from-clause database-access parameter expression 's1.xxx[0]': Failed to resolve property 's1.xxx[0]' to a stream or nested property in a stream");
 
             stmtText = "@name('s0') select myvarchar from " +
                 " sql:MyDBWithRetain ['select mychar from mytesttable where ${} = mytesttable.mybigint'] as s0," +
                 "SupportBeanComplexProps as s1";
-            tryInvalidCompile(env, stmtText,
+            env.tryInvalidCompile(stmtText,
                 "Missing expression within ${...} in SQL statement [");
         }
     }
@@ -266,7 +265,7 @@ public class EPLDatabaseJoin {
             String stmtText = "@name('s0') select myvarchar from " +
                 " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${myvarchar} = mytesttable.mybigint'] as s0," +
                 "SupportBeanComplexProps as s1";
-            tryInvalidCompile(env, stmtText,
+            env.tryInvalidCompile(stmtText,
                 "Invalid expression 'myvarchar' resolves to the historical data itself");
         }
     }
@@ -275,7 +274,7 @@ public class EPLDatabaseJoin {
         public void run(RegressionEnvironment env) {
             String sql = "sql:MyDBWithRetain ['select myvarchar, mybigint from mytesttable where ${mybigint} = myint']";
             String stmtText = "@name('s0') select myvarchar as s0Name from " + sql + " as s0";
-            tryInvalidCompile(env, stmtText, "Invalid expression 'mybigint' resolves to the historical data itself");
+            env.tryInvalidCompile(stmtText, "Invalid expression 'mybigint' resolves to the historical data itself");
         }
     }
 
@@ -284,7 +283,7 @@ public class EPLDatabaseJoin {
             String sql = "sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec)";
             String stmtText = "@name('s0') select myvarchar as s0Name from " +
                 sql + " as s0, " + "SupportBean as s1";
-            tryInvalidCompile(env, stmtText,
+            env.tryInvalidCompile(stmtText,
                 "Historical data joins do not allow views onto the data, view 'time' is not valid in this context");
         }
     }

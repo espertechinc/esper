@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.fail;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -171,11 +170,11 @@ public class EPLDataflowOpEPStatementSource {
                 "Failed to instantiate data flow 'DF1': Failed to obtain operator instance for 'EPStatementSource': Failed to find required 'statementName' or 'statementFilter' parameter");
 
             // invalid: no output stream
-            tryInvalidCompile(env, "create dataflow DF1 EPStatementSource { statementName : 'abc' }",
+            env.tryInvalidCompile("create dataflow DF1 EPStatementSource { statementName : 'abc' }",
                 "Failed to obtain operator 'EPStatementSource': EPStatementSource operator requires one output stream but produces 0 streams");
 
             // invalid: no statement deployment id
-            tryInvalidCompile(env, "create dataflow DF1 EPStatementSource ->abc { statementName : 'abc' }",
+            env.tryInvalidCompile("create dataflow DF1 EPStatementSource ->abc { statementName : 'abc' }",
                 "Failed to obtain operator 'EPStatementSource': Both 'statementDeploymentId' and 'statementName' are required when either of these are specified");
         }
     }

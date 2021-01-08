@@ -25,7 +25,6 @@ import java.util.Collection;
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsExactOrder;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2Value;
 import static com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container.make2ValueNull;
 import static com.espertech.esper.regressionlib.support.bean.SupportCollection.makeString;
@@ -193,7 +192,7 @@ public class ExprEnumArrayOf {
             String epl;
 
             epl = "select strvals.arrayOf(v => null) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.arrayOf()': Null-type is not allowed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.arrayOf()': Null-type is not allowed");
         }
     }
 }

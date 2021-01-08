@@ -14,19 +14,17 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumToMap {
 
@@ -41,8 +39,8 @@ public class ExprEnumToMap {
     private static class ExprEnumToMapEvent implements RegressionExecution {
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -76,8 +74,8 @@ public class ExprEnumToMap {
     private static class ExprEnumToMapScalar implements RegressionExecution {
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -116,7 +114,7 @@ public class ExprEnumToMap {
     private static class ExprEnumToMapInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "select strvals.toMap(k => k, (v, i) => extractNum(v)) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.toMap(,)': Parameters mismatch for enumeration method 'toMap', the method requires a lambda expression providing key-selector and a lambda expression providing value-selector, but receives a lambda expression and a 2-parameter lambda expression");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.toMap(,)': Parameters mismatch for enumeration method 'toMap', the method requires a lambda expression providing key-selector and a lambda expression providing value-selector, but receives a lambda expression and a 2-parameter lambda expression");
         }
     }
 

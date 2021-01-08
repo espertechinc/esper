@@ -79,10 +79,10 @@ public class ResultSetOrderByRowForAll {
             sendEvent(env, "IBM", 49);
             sendEvent(env, "CAT", 15);
             sendEvent(env, "IBM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{214d}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{214d}});
 
             sendEvent(env, "KGB", 75);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{289d}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{289d}});
 
             env.undeployAll();
         }

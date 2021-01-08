@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -19,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 
 public class EPLDatabaseNoJoinIterate {
@@ -45,10 +43,10 @@ public class EPLDatabaseNoJoinIterate {
             env.compileDeploy(stmtText, path).addListener("s0");
             assertStatelessStmt(env, "s0", false);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, null);
 
             sendSupportBeanEvent(env, 5);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, new Object[][]{{30}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, new Object[][]{{30}});
 
             env.assertListenerNotInvoked("s0");
             env.undeployModuleContaining("s0");
@@ -56,11 +54,11 @@ public class EPLDatabaseNoJoinIterate {
             // Test multi-parameter and multi-row
             stmtText = "@name('s0') select myint from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where mytesttable.mybigint between ${queryvar_int-2} and ${queryvar_int+2}'] order by myint";
             env.compileDeploy(stmtText, path);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, new Object[][]{{30}, {40}, {50}, {60}, {70}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, new Object[][]{{30}, {40}, {50}, {60}, {70}});
             env.undeployAll();
 
             // Test substitution parameters
-            tryInvalidCompile(env, "@name('s0') select myint from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where mytesttable.mybigint between ${?} and ${queryvar_int+?}'] order by myint",
+            env.tryInvalidCompile("@name('s0') select myint from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where mytesttable.mybigint between ${?} and ${queryvar_int+?}'] order by myint",
                 "EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");
         }
     }
@@ -78,10 +76,10 @@ public class EPLDatabaseNoJoinIterate {
             String stmtText = "@name('s0') select myint from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where ${queryvar_int} = mytesttable.mybigint']";
             env.compileDeploy(stmtText, path).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, null);
 
             sendSupportBeanEvent(env, 5);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"myint"}, new Object[][]{{50}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, new Object[][]{{50}});
 
             env.assertListenerNotInvoked("s0");
             env.undeployModuleContaining("s0");
@@ -91,19 +89,19 @@ public class EPLDatabaseNoJoinIterate {
             env.compileDeploy(stmtText, path).addListener("s0");
 
             String[] fields = new String[]{"mybigint", "mybool"};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendSupportBeanEvent(env, true, 10, 40);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1L, true}, {4L, true}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, true}, {4L, true}});
 
             sendSupportBeanEvent(env, false, 30, 80);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{3L, false}, {5L, false}, {6L, false}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{3L, false}, {5L, false}, {6L, false}});
 
             sendSupportBeanEvent(env, true, 20, 30);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendSupportBeanEvent(env, true, 20, 60);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{4L, true}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, true}});
 
             env.undeployAll();
         }

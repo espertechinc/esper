@@ -19,7 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EPLSubselectAllAnySomeExpr {
     public static List<RegressionExecution> executions() {
@@ -46,39 +46,39 @@ public class EPLSubselectAllAnySomeExpr {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true});
 
             env.sendEventBean(new SupportBean("S1", 1));
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false});
 
             env.sendEventBean(new SupportBean("S2", 2));
 
             env.sendEventBean(new SupportBean("E3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false});
 
             env.sendEventBean(new SupportBean("E4", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, false});
 
             env.sendEventBean(new SupportBean("E5", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, true});
 
             env.sendEventBean(new SupportBean("E6", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, true, true});
 
             env.undeployAll();
 
-            tryInvalidCompile(env, "select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap",
+            env.tryInvalidCompile("select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap",
                 "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords [select intArr > all (select intPrimitive from SupportBean#keepall) from SupportBeanArrayCollMap]");
 
             // test OM
             env.eplToModelCompileDeploy(stmtText).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true});
             env.undeployAll();
         }
     }
@@ -95,27 +95,27 @@ public class EPLSubselectAllAnySomeExpr {
             // subs is empty
             // select  null >= all (select val from subs), null >= any (select val from subs)
             sendEvent(env, "E1", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
 
             // select  1 >= all (select val from subs), 1 >= any (select val from subs)
             sendEvent(env, "E2", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
 
             // subs is {null}
             sendEvent(env, "S1", null, null);
 
             sendEvent(env, "E3", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E4", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             // subs is {null, 1}
             sendEvent(env, "S2", null, 1d);
 
             sendEvent(env, "E5", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E6", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true});
 
             sendEvent(env, "E7", 0, null);
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
@@ -137,32 +137,32 @@ public class EPLSubselectAllAnySomeExpr {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false});
 
             env.sendEventBean(new SupportBean("S1", 1));
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false});
 
             env.sendEventBean(new SupportBean("E2a", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, true, true});
 
             env.sendEventBean(new SupportBean("S2", 2));
 
             env.sendEventBean(new SupportBean("E3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false});
 
             env.sendEventBean(new SupportBean("E4", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, true});
 
             env.sendEventBean(new SupportBean("E5", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, true, true});
 
             env.sendEventBean(new SupportBean("E6", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, true, true});
 
             env.undeployAll();
         }
@@ -180,23 +180,23 @@ public class EPLSubselectAllAnySomeExpr {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, false});
 
             env.sendEventBean(new SupportBean("S1", 11));
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false, false, false});
 
             env.sendEventBean(new SupportBean("E3", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, true, true});
 
             env.sendEventBean(new SupportBean("S1", 12));
 
             env.sendEventBean(new SupportBean("E4", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, true});
 
             env.sendEventBean(new SupportBean("E5", 14));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, true, true});
 
             env.undeployAll();
         }
@@ -215,21 +215,21 @@ public class EPLSubselectAllAnySomeExpr {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false});
 
             env.sendEventBean(new SupportBean("S1", 11));
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, false, false});
 
             env.sendEventBean(new SupportBean("E3", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, true, true});
 
             env.sendEventBean(new SupportBean("S2", 12));
             env.sendEventBean(new SupportBean("E4", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true});
 
             env.sendEventBean(new SupportBean("E5", 13));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, true, true});
 
             env.undeployAll();
         }
@@ -250,29 +250,29 @@ public class EPLSubselectAllAnySomeExpr {
             // subs is empty
             // select  null = all (select val from subs), null = any (select val from subs), null != all (select val from subs), null != any (select val from subs), null in (select val from subs)
             sendEvent(env, "E1", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false, true, false, false});
 
             // select  1 = all (select val from subs), 1 = any (select val from subs), 1 != all (select val from subs), 1 != any (select val from subs), 1 in (select val from subs)
             sendEvent(env, "E2", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false, true, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false, true, false, false});
 
             // subs is {null}
             sendEvent(env, "S1", null, null);
 
             sendEvent(env, "E3", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E4", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
 
             // subs is {null, 1}
             sendEvent(env, "S2", null, 1d);
 
             sendEvent(env, "E5", null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E6", 1, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, false, null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true, false, null, true});
             sendEvent(env, "E7", 0, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, null, null, true, null});
+            env.assertPropsNew("s0", fields, new Object[]{false, null, null, true, null});
 
             env.undeployAll();
         }
@@ -280,7 +280,7 @@ public class EPLSubselectAllAnySomeExpr {
 
     private static class EPLSubselectInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env,
+            env.tryInvalidCompile(
                 "select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap",
                 "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords [select intArr = all (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap]");
         }

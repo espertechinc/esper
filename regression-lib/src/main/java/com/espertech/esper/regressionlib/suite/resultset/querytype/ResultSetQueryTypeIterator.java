@@ -149,16 +149,16 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 1L}});
 
             sendEvent(env, "OCC", 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 2L}, {"SYM", 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 2L}, {"SYM", 1L}});
 
             sendEvent(env, "SYM", 0);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 2L}, {"SYM", 0L}, {"SYM", 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 2L}, {"SYM", 0L}, {"SYM", 1L}});
 
             sendEvent(env, "OCC", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 2L}, {"OCC", 3L}, {"SYM", 0L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 2L}, {"OCC", 3L}, {"SYM", 0L}});
 
             env.undeployAll();
         }
@@ -175,36 +175,36 @@ public class ResultSetQueryTypeIterator {
 
             sendEvent(env, "SYM", 100);
             assertFalse(env.statement("s0").iterator().hasNext());
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "SYM", -1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -10L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -10L}});
 
             sendEvent(env, "SYM", -6);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}});
 
             env.milestone(0);
 
             sendEvent(env, "SYM", 1);
             sendEvent(env, "SYM", 16);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}});
 
             sendEvent(env, "SYM", -9);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}, {"SYM", -90L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -10L}, {"SYM", -60L}, {"SYM", -90L}});
 
             env.milestone(1);
 
             sendEvent(env, "SYM", 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -60L}, {"SYM", -90L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -60L}, {"SYM", -90L}});
 
             sendEvent(env, "SYM", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -90L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -90L}});
 
             env.milestone(2);
 
             sendEvent(env, "SYM", 4);
             sendEvent(env, "SYM", 5);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -90L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -90L}});
 
             env.milestone(3);
 
@@ -229,28 +229,28 @@ public class ResultSetQueryTypeIterator {
             env.milestone(0);
 
             sendEvent(env, "SYM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
 
             env.milestone(1);
 
             sendEvent(env, "OCC", 5);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 5L}, {"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 5L}, {"SYM", 100L}});
 
             sendEvent(env, "SYM", 10);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 5L}, {"SYM", 110L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 5L}, {"SYM", 110L}});
 
             sendEvent(env, "OCC", 6);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"OCC", 11L}, {"SYM", 110L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"OCC", 11L}, {"SYM", 110L}});
 
             env.milestone(2);
 
             sendEvent(env, "ATB", 8);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"ATB", 8L}, {"OCC", 11L}, {"SYM", 110L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"ATB", 8L}, {"OCC", 11L}, {"SYM", 110L}});
 
             env.milestone(3);
 
             sendEvent(env, "ATB", 7);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"ATB", 15L}, {"OCC", 11L}, {"SYM", 10L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"ATB", 15L}, {"OCC", 11L}, {"SYM", 10L}});
 
             env.undeployAll();
         }
@@ -267,34 +267,34 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
 
             sendEvent(env, "SYM", 10);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 110L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 110L}});
 
             env.milestone(0);
 
             sendEvent(env, "TAC", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 110L}, {"TAC", 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 110L}, {"TAC", 1L}});
 
             sendEvent(env, "SYM", 11);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 121L}, {"TAC", 1L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 121L}, {"TAC", 1L}});
 
             env.milestone(1);
 
             sendEvent(env, "TAC", 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 121L}, {"TAC", 3L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 121L}, {"TAC", 3L}});
 
             sendEvent(env, "OCC", 55);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 21L}, {"TAC", 3L}, {"OCC", 55L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 21L}, {"TAC", 3L}, {"OCC", 55L}});
 
             env.milestone(2);
 
             sendEvent(env, "OCC", 4);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"TAC", 3L}, {"SYM", 11L}, {"OCC", 59L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"TAC", 3L}, {"SYM", 11L}, {"OCC", 59L}});
 
             sendEvent(env, "OCC", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 11L}, {"TAC", 2L}, {"OCC", 62L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 11L}, {"TAC", 2L}, {"OCC", 62L}});
 
             env.undeployAll();
         }
@@ -311,34 +311,34 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
 
             sendEvent(env, "SYM", 5);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 105L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 105L}});
 
             env.milestone(0);
 
             sendEvent(env, "TAC", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 105L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 105L}});
 
             sendEvent(env, "SYM", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 108L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 108L}});
 
             env.milestone(1);
 
             sendEvent(env, "TAC", 12);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 108L}, {"TAC", 13L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 108L}, {"TAC", 13L}});
 
             sendEvent(env, "OCC", 55);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"TAC", 13L}, {"OCC", 55L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"TAC", 13L}, {"OCC", 55L}});
 
             sendEvent(env, "OCC", 4);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"TAC", 13L}, {"OCC", 59L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"TAC", 13L}, {"OCC", 59L}});
 
             env.milestone(2);
 
             sendEvent(env, "OCC", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"TAC", 12L}, {"OCC", 62L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"TAC", 12L}, {"OCC", 62L}});
 
             env.undeployAll();
         }
@@ -362,7 +362,7 @@ public class ResultSetQueryTypeIterator {
             env.milestone(1);
 
             env.sendEventBean(new SupportMarketDataBean("SYM", 100000d, 0L, null));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", "1x1000.0"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", "1x1000.0"}});
 
             env.sendEventBean(new SupportMarketDataBean("SYM", 1d, 1L, null));
             assertFalse(env.statement("s0").iterator().hasNext());
@@ -382,32 +382,32 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", -1, 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -1d, 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
 
             env.milestone(0);
 
             sendEvent(env, "TAC", -2, 12);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}, {"TAC", -2d, 12L}});
 
             sendEvent(env, "TAC", -3, 13);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}});
 
             env.milestone(1);
 
             sendEvent(env, "SYM", -4, 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 101L}, {"SYM", -4d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}});
 
             env.milestone(2);
 
             sendEvent(env, "OCC", -5, 99);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"OCC", -5d, 99L}, {"SYM", -1d, 101L}, {"SYM", -4d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}});
 
             sendEvent(env, "TAC", -6, 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"OCC", -5d, 99L}, {"SYM", -4d, 1L}, {"TAC", -2d, 27L}, {"TAC", -3d, 27L}, {"TAC", -6d, 27L}});
 
             env.undeployAll();
@@ -425,30 +425,30 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", -1, 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -1d, 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
 
             sendEvent(env, "TAC", -2, 12);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}, {"TAC", -2d, 12L}});
 
             env.milestone(0);
 
             sendEvent(env, "TAC", -3, 13);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}});
 
             env.milestone(1);
 
             sendEvent(env, "SYM", -4, 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}, {"SYM", -4d, 101L}});
 
             sendEvent(env, "OCC", -5, 99);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}, {"SYM", -4d, 101L}, {"OCC", -5d, 99L}});
 
             sendEvent(env, "TAC", -6, 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"TAC", -2d, 27L}, {"TAC", -3d, 27L}, {"SYM", -4d, 1L}, {"OCC", -5d, 99L}, {"TAC", -6d, 27L}});
 
             env.undeployAll();
@@ -466,32 +466,32 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", -1, 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", -1d, 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
 
             sendEvent(env, "TAC", -2, 12);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}});
 
             env.milestone(0);
 
             sendEvent(env, "TAC", -3, 13);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 100L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}});
 
             sendEvent(env, "SYM", -4, 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}, {"SYM", -4d, 101L}});
 
             env.milestone(1);
 
             sendEvent(env, "OCC", -5, 99);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"SYM", -1d, 101L}, {"TAC", -2d, 25L}, {"TAC", -3d, 25L}, {"SYM", -4d, 101L}, {"OCC", -5d, 99L}});
 
             env.milestone(2);
 
             sendEvent(env, "TAC", -6, 2);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"TAC", -2d, 27L}, {"TAC", -3d, 27L}, {"OCC", -5d, 99L}, {"TAC", -6d, 27L}});
 
             env.undeployAll();
@@ -508,18 +508,18 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
 
             sendEvent(env, "TAC", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
 
             env.milestone(0);
 
             sendEvent(env, "MOV", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 104L}, {"TAC", 104L}, {"MOV", 104L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 104L}, {"TAC", 104L}, {"MOV", 104L}});
 
             sendEvent(env, "SYM", 10);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"TAC", 14L}, {"MOV", 14L}, {"SYM", 14L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"TAC", 14L}, {"MOV", 14L}, {"SYM", 14L}});
 
             env.undeployAll();
         }
@@ -535,18 +535,18 @@ public class ResultSetQueryTypeIterator {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             sendEvent(env, "SYM", 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
 
             sendEvent(env, "TAC", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
 
             sendEvent(env, "MOV", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"MOV", 104L}, {"SYM", 104L}, {"TAC", 104L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"MOV", 104L}, {"SYM", 104L}, {"TAC", 104L}});
 
             env.milestone(0);
 
             sendEvent(env, "SYM", 10);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"MOV", 14L}, {"SYM", 14L}, {"TAC", 14L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"MOV", 14L}, {"SYM", 14L}, {"TAC", 14L}});
 
             env.undeployAll();
         }
@@ -568,12 +568,12 @@ public class ResultSetQueryTypeIterator {
             env.milestone(0);
 
             sendEvent(env, "TAC", 1);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 101L}, {"TAC", 101L}});
 
             env.milestone(1);
 
             sendEvent(env, "MOV", 3);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"SYM", 104L}, {"TAC", 104L}, {"MOV", 104L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 104L}, {"TAC", 104L}, {"MOV", 104L}});
 
             sendEvent(env, "SYM", 10);
             assertFalse(env.statement("s0").iterator().hasNext());
@@ -589,25 +589,25 @@ public class ResultSetQueryTypeIterator {
                 "from SupportMarketDataBean#length(3) ";
 
             env.compileDeploy(stmtText).addListener("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{null}});
 
             env.milestone(0);
 
             sendEvent(env, 100);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{100L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{100L}});
 
             env.milestone(1);
 
             sendEvent(env, 50);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{150L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{150L}});
 
             sendEvent(env, 25);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{175L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{175L}});
 
             env.milestone(2);
 
             sendEvent(env, 10);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{85L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{85L}});
 
             env.undeployAll();
         }
@@ -628,10 +628,10 @@ public class ResultSetQueryTypeIterator {
             env.milestone(0);
 
             sendEvent(env, 50);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{150L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{150L}});
 
             sendEvent(env, 25);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{175L}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{175L}});
 
             env.milestone(1);
 

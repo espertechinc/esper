@@ -26,6 +26,7 @@ import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCollectionEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportJsonArrayEvent;
@@ -35,7 +36,6 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.apache.avro.SchemaBuilder.record;
 import static org.junit.Assert.*;
 
@@ -50,8 +50,8 @@ public class EPLContainedEventSplitExpr {
 
     private static class EPLContainedScriptContextValue implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -129,8 +129,8 @@ public class EPLContainedEventSplitExpr {
 
     private static class EPLContainedSingleRowSplitAndType implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -158,17 +158,17 @@ public class EPLContainedEventSplitExpr {
         assertTrue(eventRepresentationEnum.matchesClass(env.statement("s0").getEventType().getUnderlyingType()));
 
         sendMySentenceEvent(env, eventRepresentationEnum, "I am testing this code");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}, {"code"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}, {"code"}});
 
         sendMySentenceEvent(env, eventRepresentationEnum, "the second event");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"the"}, {"second"}, {"event"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"the"}, {"second"}, {"event"}});
 
         env.undeployModuleContaining("s0");
 
         // test SODA
         env.eplToModelCompileDeploy(stmtText, path).addListener("s0");
         sendMySentenceEvent(env, eventRepresentationEnum, "the third event");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"the"}, {"third"}, {"event"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"the"}, {"third"}, {"event"}});
         env.undeployModuleContaining("s0");
 
         // test script
@@ -230,7 +230,7 @@ public class EPLContainedEventSplitExpr {
 
             Object[][] rows = new Object[][]{{"this"}, {"is"}, {"collection"}};
             env.sendEventBean(new SupportObjectArrayEvent(rows));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
             env.undeployAll();
         } else if (eventRepresentationEnum.isMapEvent()) {
             stmtText = eventRepresentationEnum.getAnnotationText() + " @name('s0') select * from SupportCollectionEvent[someCollection@type(WordEvent)]";
@@ -257,7 +257,7 @@ public class EPLContainedEventSplitExpr {
                 rows[i].put("word", words[i]);
             }
             env.sendEventBean(new SupportAvroArrayEvent(rows));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
             env.undeployAll();
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " select * from SupportJsonArrayEvent[someJsonArray@type(WordEvent)]";
@@ -270,39 +270,39 @@ public class EPLContainedEventSplitExpr {
                 rows[i] = "{ \"word\": \"" + words[i] + "\"}";
             }
             env.sendEventBean(new SupportJsonArrayEvent(rows));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
             env.undeployAll();
         } else {
             throw new IllegalArgumentException("Unrecognized enum " + eventRepresentationEnum);
         }
 
         // invalid: event type not found
-        tryInvalidCompile(env, path, "select * from MySentenceEvent[splitSentence_" + eventRepresentationEnum.name() + "(sentence)@type(XYZ)]",
+        env.tryInvalidCompile(path, "select * from MySentenceEvent[splitSentence_" + eventRepresentationEnum.name() + "(sentence)@type(XYZ)]",
             "Event type by name 'XYZ' could not be found");
 
         // invalid lib-function annotation
-        tryInvalidCompile(env, path, "select * from MySentenceEvent[splitSentence_" + eventRepresentationEnum.name() + "(sentence)@dummy(WordEvent)]",
+        env.tryInvalidCompile(path, "select * from MySentenceEvent[splitSentence_" + eventRepresentationEnum.name() + "(sentence)@dummy(WordEvent)]",
             "Invalid annotation for property selection, expected 'type' but found 'dummy' in text '@dummy(WordEvent)'");
 
         // invalid type assignment to event type
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
+            env.tryInvalidCompile(path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type Object[] cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isMapEvent()) {
-            tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
+            env.tryInvalidCompile(path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type java.util.Map<String,Object> cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
+            env.tryInvalidCompile(path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' underlying type " + JavaClassHelper.APACHE_AVRO_GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-            tryInvalidCompile(env, path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
+            env.tryInvalidCompile(path, "select * from MySentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                 "Event type 'WordEvent' requires string-type array and cannot be assigned from value of type " + ClassHelperPrint.getClassNameFullyQualPretty(SupportBean[].class));
         } else {
             fail();
         }
 
         // invalid subquery
-        tryInvalidCompile(env, path, "select * from MySentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]",
+        env.tryInvalidCompile(path, "select * from MySentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]",
             "Invalid contained-event expression 'splitSentence(subselect_0)': Aggregation, sub-select, previous or prior functions are not supported in this context [select * from MySentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]]");
 
         env.undeployAll();

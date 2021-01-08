@@ -15,12 +15,14 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowUpdateCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import org.junit.Assert;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -42,8 +44,8 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
     }
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread) {

@@ -287,7 +287,7 @@ public class ExprCoreCast {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBeanObject(new SupportBean("E1", 1)));
-            env.assertPropsListenerNew("s0", "t0,t1".split(","), new Object[]{"E1", null});
+            env.assertPropsNew("s0", "t0,t1".split(","), new Object[]{"E1", null});
             assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("t1"));
 
             env.undeployAll();
@@ -363,7 +363,7 @@ public class ExprCoreCast {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("t0"));
 
             env.sendEventBean(new SupportBean("12", 1));
-            env.assertPropsListenerNew("s0", "t0".split(","), new Object[]{12});
+            env.assertPropsNew("s0", "t0".split(","), new Object[]{12});
 
             env.undeployAll();
         }
@@ -739,27 +739,27 @@ public class ExprCoreCast {
 
     private static void runAssertionDatetimeInvalid(RegressionEnvironment env) {
         // not a valid named parameter
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast(theString, date, x:1) from SupportBean",
+        env.tryInvalidCompile("select cast(theString, date, x:1) from SupportBean",
             "Failed to validate select-clause expression 'cast(theString,date,x:1)': Unexpected named parameter 'x', expecting any of the following: [dateformat]");
 
         // invalid date format
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast(theString, date, dateformat:'BBBBMMDD') from SupportBean",
+        env.tryInvalidCompile("select cast(theString, date, dateformat:'BBBBMMDD') from SupportBean",
             "Failed to validate select-clause expression 'cast(theString,date,dateformat:\"BBB...(42 chars)': Invalid date format 'BBBBMMDD' (as obtained from new SimpleDateFormat): Illegal pattern character 'B'");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast(theString, date, dateformat:1) from SupportBean",
+        env.tryInvalidCompile("select cast(theString, date, dateformat:1) from SupportBean",
             "Failed to validate select-clause expression 'cast(theString,date,dateformat:1)': Failed to validate named parameter 'dateformat', expected a single expression returning any of the following types: string,DateFormat,DateTimeFormatter");
 
         // invalid input
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast(intPrimitive, date, dateformat:'yyyyMMdd') from SupportBean",
+        env.tryInvalidCompile("select cast(intPrimitive, date, dateformat:'yyyyMMdd') from SupportBean",
             "Failed to validate select-clause expression 'cast(intPrimitive,date,dateformat:\"...(45 chars)': Use of the 'dateformat' named parameter requires a string-type input");
 
         // invalid target
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast(theString, int, dateformat:'yyyyMMdd') from SupportBean",
+        env.tryInvalidCompile("select cast(theString, int, dateformat:'yyyyMMdd') from SupportBean",
             "Failed to validate select-clause expression 'cast(theString,int,dateformat:\"yyyy...(41 chars)': Use of the 'dateformat' named parameter requires a target type of calendar, date, long, localdatetime, localdate, localtime or zoneddatetime");
 
         // invalid parser
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast('xx', date, dateformat:java.time.format.DateTimeFormatter.ofPattern(\"yyyyMMddHHmmssVV\")) from SupportBean",
+        env.tryInvalidCompile("select cast('xx', date, dateformat:java.time.format.DateTimeFormatter.ofPattern(\"yyyyMMddHHmmssVV\")) from SupportBean",
             "Failed to validate select-clause expression 'cast(\"xx\",date,dateformat:java.time...(91 chars)': Invalid format, expected string-format or DateFormat but received java.time.format.DateTimeFormatter");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select cast('xx', localdatetime, dateformat:SimpleDateFormat.getInstance()) from SupportBean",
+        env.tryInvalidCompile("select cast('xx', localdatetime, dateformat:SimpleDateFormat.getInstance()) from SupportBean",
             "Failed to validate select-clause expression 'cast(\"xx\",localdatetime,dateformat:...(66 chars)': Invalid format, expected string-format or DateTimeFormatter but received java.text.DateFormat");
     }
 

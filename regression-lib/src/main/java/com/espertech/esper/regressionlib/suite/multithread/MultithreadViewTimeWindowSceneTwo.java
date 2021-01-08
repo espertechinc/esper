@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -21,6 +22,7 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.Assert.assertFalse;
@@ -45,8 +47,8 @@ public class MultithreadViewTimeWindowSceneTwo implements RegressionExecution {
     private ResultUpdateListener[] listeners;
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

@@ -43,22 +43,22 @@ public class PatternOperatorEvery {
             env.compileDeploy(epl).addListener("s0");
 
             sendSupportBean(env, "E1", 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendSupportBean(env, "E3", 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             sendSupportBean(env, "E4", 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             SupportListener listener = env.listener("s0");
             env.undeployModuleContaining("s0");
@@ -97,7 +97,7 @@ public class PatternOperatorEvery {
             env.milestone(2);
 
             sendSupportBean(env, "E1", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1, 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1, 2});
 
             env.milestone(3);
 
@@ -136,7 +136,7 @@ public class PatternOperatorEvery {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "E2", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, 11});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10, 11});
 
             env.undeployAll();
         }
@@ -160,7 +160,7 @@ public class PatternOperatorEvery {
             sendSupportBean(env, "E2", 1);
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E3", -1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3"});
 
             env.milestone(2);
 
@@ -170,7 +170,7 @@ public class PatternOperatorEvery {
             env.milestone(3);
 
             sendSupportBean(env, "E5", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", "E4"});
 
             env.undeployAll();
         }

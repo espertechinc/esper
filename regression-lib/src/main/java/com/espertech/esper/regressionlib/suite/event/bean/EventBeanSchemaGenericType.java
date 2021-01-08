@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import static com.espertech.esper.common.client.type.EPTypeClassParameterized.from;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EventBeanSchemaGenericType {
@@ -42,27 +41,27 @@ public class EventBeanSchemaGenericType {
             String epl;
 
             epl = "create schema MyEvent as " + MyLocalUnparameterized.class.getName() + "<Integer>";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Number of type parameters mismatch, the class '" + MyLocalUnparameterized.class.getName() + "' has 0 type parameters but specified are 1 type parameters");
 
             epl = "create schema MyEvent as " + MyLocalOneParameter.class.getName() + "<Integer, String>";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Number of type parameters mismatch, the class '" + MyLocalOneParameter.class.getName() + "' has 1 type parameters but specified are 2 type parameters");
 
             epl = "create schema MyEvent as " + MyLocalUnparameterized.class.getName() + "[]";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Array dimensions are not allowed");
 
             epl = "create schema MyEvent as " + MyLocalOneParameter.class.getName() + "<Dummy>";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to resolve type parameter 0 of type 'Dummy': Could not load class by name 'Dummy', please check imports");
 
             epl = "create schema MyEvent as " + MyLocalBoundParameter.class.getName() + "<String>";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Bound type parameters 0 named 'T' expects 'java.lang.Number' but receives 'java.lang.String'");
 
             epl = "create schema MyEvent as " + MyLocalBoundParameter.class.getName() + "<int>";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to resolve type parameter 0 of type 'int': Could not load class by name 'int', please check imports");
         }
     }
@@ -150,7 +149,7 @@ public class EventBeanSchemaGenericType {
         assertEquals(expectedTwo, s0Type.getPropertyEPType("c1"));
 
         env.sendEventBean(event, "MyEvent");
-        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{valueOne, valueTwo});
+        env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{valueOne, valueTwo});
 
         env.undeployAll();
     }

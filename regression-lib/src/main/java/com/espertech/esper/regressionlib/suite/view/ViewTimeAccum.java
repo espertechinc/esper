@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +52,7 @@ public class ViewTimeAccum {
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
         }
@@ -73,33 +72,35 @@ public class ViewTimeAccum {
 
             // 1st at 10 sec
             env.sendEventBean(events[0]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[0]);
+            assertUnderlying(env, events[0]);
 
             // 2nd event at 14 sec
             sendTimer(env, startTime + 14000);
             env.sendEventBean(events[1]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[1]);
+            assertUnderlying(env, events[1]);
 
             // 3nd event at 14 sec
             sendTimer(env, startTime + 14000);
             env.sendEventBean(events[2]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[2]);
+            assertUnderlying(env, events[2]);
 
             // 3rd event at 23 sec
             sendTimer(env, startTime + 23000);
             env.sendEventBean(events[3]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[3]);
+            assertUnderlying(env, events[3]);
 
             // no event till 33 sec
             sendTimer(env, startTime + 32999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 33000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(4, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2], events[3]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(4, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2], events[3]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             // no events till 50 sec
             sendTimer(env, startTime + 50000);
@@ -108,35 +109,39 @@ public class ViewTimeAccum {
             // next two events at 55 sec
             sendTimer(env, startTime + 55000);
             env.sendEventBean(events[4]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[4]);
+            assertUnderlying(env, events[4]);
             env.sendEventBean(events[5]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[5]);
+            assertUnderlying(env, events[5]);
 
             // no event till 65 sec
             sendTimer(env, startTime + 64999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 65000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(2, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[4], events[5]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(2, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[4], events[5]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             // next window
             env.sendEventBean(events[6]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[6]);
+            assertUnderlying(env, events[6]);
 
             sendTimer(env, startTime + 74999);
             env.sendEventBean(events[7]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[7]);
+            assertUnderlying(env, events[7]);
 
             sendTimer(env, startTime + 74999 + 10000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(2, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6], events[7]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(2, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6], events[7]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -145,7 +150,7 @@ public class ViewTimeAccum {
     public static class ViewTimeAccumSceneTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             sendTimer(env, 1000);
-            String[] fields = "theString".split(",");
+            String[] fields = "symbol".split(",");
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time_accum(10 sec)";
             env.compileDeployAddListenerMileZero(text, "s0");
@@ -154,14 +159,14 @@ public class ViewTimeAccum {
             // 1st event
             sendTimer(env, 1000);
             sendEvent(env, "E1");
-            assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E1");
 
             env.milestone(1);
 
             // 2nd event
             sendTimer(env, 5000);
             sendEvent(env, "E2");
-            assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E2");
 
             env.milestone(2);
 
@@ -170,10 +175,7 @@ public class ViewTimeAccum {
 
             // Window pushes out events
             sendTimer(env, 15000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(3);
 
@@ -186,13 +188,13 @@ public class ViewTimeAccum {
             // 3rd and 4th event
             sendTimer(env, 31000);
             sendEvent(env, "E3");
-            assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E3");
 
             env.milestone(5);
 
             sendTimer(env, 31000);
             sendEvent(env, "E4");
-            assertEquals("E4", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E4");
 
             // Window pushes out events
             env.milestone(6);
@@ -201,33 +203,27 @@ public class ViewTimeAccum {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 41000);
-            assertEquals(null, env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E3"}, {"E4"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E3"}, {"E4"}});
 
             // 5th event
             sendEvent(env, "E5");
-            assertEquals("E5", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E5");
 
             env.milestone(7);
 
             // 6th and 7th event
             sendTimer(env, 41000);
             sendEvent(env, "E6");
-            assertEquals("E6", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E6");
 
             sendTimer(env, 49000);
             sendEvent(env, "E7");
-            assertEquals("E7", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E7");
 
             env.milestone(8);
 
             sendTimer(env, 59000);
-            assertNull(env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E5"}, {"E6"}, {"E7"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E5"}, {"E6"}, {"E7"}});
 
             env.undeployAll();
         }
@@ -244,14 +240,14 @@ public class ViewTimeAccum {
             env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             sendTimer(env, 5000);
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
@@ -262,31 +258,29 @@ public class ViewTimeAccum {
             env.milestone(3);
 
             sendTimer(env, 15000);
-            assertNull(env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(4);
 
             sendTimer(env, 18000);
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
             sendSupportBean(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(5);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}});
             sendTimer(env, 19000);
             sendSupportBean(env, "E5");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(6);
 
             sendTimer(env, 28999);
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 29000);
-            assertNull(env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             env.milestone(7);
 
@@ -318,9 +312,11 @@ public class ViewTimeAccum {
 
             // flush out of the window
             sendTimer(env, startTime + 20000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, listener.getNewDataListFlattened());
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -339,30 +335,32 @@ public class ViewTimeAccum {
             // 1st event
             sendTimer(env, startTime + 20000);
             env.sendEventBean(events[5]);
-            assertData(env.listener("s0").assertOneGetNewAndReset(), 5d, null, null);
+            env.assertEventNew("s0", event -> assertData(event, 5d, null, null));
 
             // 2nd event
             sendTimer(env, startTime + 25000);
             env.sendEventBean(events[6]);
-            assertData(env.listener("s0").assertOneGetNewAndReset(), 6d, 5d, 5d);
+            env.assertEventNew("s0", event -> assertData(event, 6d, 5d, 5d));
 
             // 3nd event
             sendTimer(env, startTime + 34000);
             env.sendEventBean(events[7]);
-            assertData(env.listener("s0").assertOneGetNewAndReset(), 7d, 6d, 6d);
+            env.assertEventNew("s0", event -> assertData(event, 7d, 6d, 6d));
 
             sendTimer(env, startTime + 43999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 44000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(3, env.listener("s0").getLastOldData().length);
-            assertData(env.listener("s0").getLastOldData()[0], 5d, null, null);
-            assertData(env.listener("s0").getLastOldData()[1], 6d, null, 5d);
-            assertData(env.listener("s0").getLastOldData()[2], 7d, null, 6d);
-            env.listener("s0").reset();
-
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(3, listener.getLastOldData().length);
+                assertData(listener.getLastOldData()[0], 5d, null, null);
+                assertData(listener.getLastOldData()[1], 6d, null, 5d);
+                assertData(listener.getLastOldData()[2], 7d, null, 6d);
+                listener.reset();
+            });
+            
             env.undeployAll();
         }
     }
@@ -383,34 +381,33 @@ public class ViewTimeAccum {
             // 1st event S1 group
             sendTimer(env, 1000);
             sendEvent(env, "S1", 10);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertData(event, 10d, null, null, 10d, 1L, new Object[]{10d});
+            env.assertEventNew("s0", event -> assertData(event, 10d, null, null, 10d, 1L, new Object[]{10d}));
 
             env.milestone(1);
 
             // 2nd event S1 group
             sendTimer(env, 5000);
             sendEvent(env, "S1", 20);
-            event = env.listener("s0").assertOneGetNewAndReset();
-            assertData(event, 20d, 10d, 10d, 10d, 2L, new Object[]{20d, 10d});
+            env.assertEventNew("s0", event -> assertData(event, 20d, 10d, 10d, 10d, 2L, new Object[]{20d, 10d}));
 
             env.milestone(2);
 
             // 1st event S2 group
             sendTimer(env, 10000);
             sendEvent(env, "S2", 30);
-            event = env.listener("s0").assertOneGetNewAndReset();
-            assertData(event, 30d, 20d, 20d, 10d, 3L, new Object[]{30d, 20d, 10d});
+            env.assertEventNew("s0", event -> assertData(event, 30d, 20d, 20d, 10d, 3L, new Object[]{30d, 20d, 10d}));
 
             env.milestone(3);
 
             sendTimer(env, 20000);
-            assertNull(null, env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            assertData(oldData[0], 10d, null, null, null, null, null);
-            assertData(oldData[1], 20d, null, 10d, null, null, null);
-            assertData(oldData[2], 30d, null, 20d, null, null, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(null, listener.getLastNewData());
+                EventBean[] oldData = listener.getLastOldData();
+                assertData(oldData[0], 10d, null, null, null, null, null);
+                assertData(oldData[1], 20d, null, 10d, null, null, null);
+                assertData(oldData[2], 30d, null, 20d, null, null, null);
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -428,24 +425,30 @@ public class ViewTimeAccum {
             // 1st event
             sendTimer(env, startTime + 20000);
             env.sendEventBean(events[5]);
-            assertData(env.listener("s0").getLastNewData()[0], 5d);
-            assertData(env.listener("s0").getLastOldData()[0], null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertData(listener.getLastNewData()[0], 5d);
+                assertData(listener.getLastOldData()[0], null);
+                listener.reset();
+            });
 
             // 2nd event
             sendTimer(env, startTime + 25000);
             env.sendEventBean(events[6]);
-            assertData(env.listener("s0").getLastNewData()[0], 11d);
-            assertData(env.listener("s0").getLastOldData()[0], 5d);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertData(listener.getLastNewData()[0], 11d);
+                assertData(listener.getLastOldData()[0], 5d);
+                listener.reset();
+            });
 
             sendTimer(env, startTime + 34999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 35000);
-            assertData(env.listener("s0").getLastNewData()[0], null);
-            assertData(env.listener("s0").getLastOldData()[0], 11d);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertData(listener.getLastNewData()[0], null);
+                assertData(listener.getLastOldData()[0], 11d);
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -463,52 +466,58 @@ public class ViewTimeAccum {
             // 1st S1 event
             sendTimer(env, startTime + 10000);
             env.sendEventBean(events[1]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[1]);
+            assertUnderlying(env, events[1]);
 
             // 1st S2 event
             sendTimer(env, startTime + 12000);
             env.sendEventBean(events[2]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[2]);
+            assertUnderlying(env, events[2]);
 
             // 2nd S1 event
             sendTimer(env, startTime + 15000);
             env.sendEventBean(events[11]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[11]);
+            assertUnderlying(env, events[11]);
 
             // 2nd S2 event
             sendTimer(env, startTime + 18000);
             env.sendEventBean(events[12]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[12]);
+            assertUnderlying(env, events[12]);
 
             // 3rd S1 event
             sendTimer(env, startTime + 21000);
             env.sendEventBean(events[21]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[21]);
+            assertUnderlying(env, events[21]);
 
             sendTimer(env, startTime + 28000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(2, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[2], events[12]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(2, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[2], events[12]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             // 3rd S2 event
             sendTimer(env, startTime + 29000);
             env.sendEventBean(events[32]);
-            TestCase.assertSame(env.listener("s0").assertOneGetNewAndReset().getUnderlying(), events[32]);
+            assertUnderlying(env, events[32]);
 
             sendTimer(env, startTime + 31000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            assertEquals(3, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[1], events[11], events[21]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(3, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[1], events[11], events[21]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             sendTimer(env, startTime + 39000);
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[32]}, env.listener("s0").getOldDataListFlattened());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastNewData());
+                assertEquals(1, listener.getLastOldData().length);
+                EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[32]}, listener.getOldDataListFlattened());
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -566,5 +575,11 @@ public class ViewTimeAccum {
         assertEquals(prevtailPrice, event.get("prevtailPrice"));
         assertEquals(prevCountPrice, event.get("prevCountPrice"));
         EPAssertionUtil.assertEqualsExactOrder(prevWindowPrice, (Object[]) event.get("prevWindowPrice"));
+    }
+
+    private static void assertUnderlying(RegressionEnvironment env, Object underlying) {
+        env.assertListener("s0", listener -> {
+            assertEquals(listener.assertOneGetNewAndReset().getUnderlying(), underlying);
+        });
     }
 }

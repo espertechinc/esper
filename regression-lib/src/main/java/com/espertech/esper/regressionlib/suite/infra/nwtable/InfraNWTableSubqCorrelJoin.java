@@ -66,16 +66,16 @@ public class InfraNWTableSubqCorrelJoin {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(1, "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20});
+            env.assertPropsNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean_S0(1, "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20});
+            env.assertPropsNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean_S1(1, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
 
             env.sendEventBean(new SupportBean_S1(1, "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{30});
+            env.assertPropsNew("s0", fields, new Object[]{30});
 
             env.undeployModuleContaining("s0");
             env.undeployAll();

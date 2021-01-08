@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -489,7 +488,7 @@ public class ExprFilterOptimizableOrRewrite {
                 env.sendEventBean(new SupportBean("b", 1));
                 env.listener("s0").assertOneGetNewAndReset();
                 env.sendEventBean(new SupportBean("c", 0));
-                assertFalse(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerNotInvoked("s0");
 
                 env.undeployAll();
             }

@@ -18,17 +18,25 @@ import com.espertech.esper.compiler.client.EPCompileExceptionItem;
 import com.espertech.esper.compiler.client.EPCompileExceptionSyntaxItem;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
+
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.INVALIDITY;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ViewInvalid implements RegressionExecution {
     private final static String EVENT_NUM = SupportBean_N.class.getSimpleName();
     private final static String EVENT_ALLTYPES = SupportBean.class.getSimpleName();
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(INVALIDITY);
+    }
 
     public void run(RegressionEnvironment env) {
         runAssertionInvalidPropertyExpression(env);
@@ -41,16 +49,18 @@ public class ViewInvalid implements RegressionExecution {
         String epl = "@name('s0') @IterableUnbound select * from SupportBean";
         env.compileDeploy(epl);
         env.sendEventBean(new SupportBean());
-        EventBean theEvent = env.statement("s0").iterator().next();
+        env.assertIterator("s0", iterator -> {
+            EventBean theEvent = iterator.next();
 
-        String exceptionText = getSyntaxExceptionProperty("", theEvent);
-        assertTrue(exceptionText.startsWith("Property named '' is not a valid property name for this type"));
+            String exceptionText = getSyntaxExceptionProperty("", theEvent);
+            assertTrue(exceptionText.startsWith("Property named '' is not a valid property name for this type"));
 
-        exceptionText = getSyntaxExceptionProperty("-", theEvent);
-        assertTrue(exceptionText.startsWith("Property named '-' is not a valid property name for this type"));
+            exceptionText = getSyntaxExceptionProperty("-", theEvent);
+            assertTrue(exceptionText.startsWith("Property named '-' is not a valid property name for this type"));
 
-        exceptionText = getSyntaxExceptionProperty("a[]", theEvent);
-        assertTrue(exceptionText.startsWith("Property named 'a[]' is not a valid property name for this type"));
+            exceptionText = getSyntaxExceptionProperty("a[]", theEvent);
+            assertTrue(exceptionText.startsWith("Property named 'a[]' is not a valid property name for this type"));
+        });
 
         env.undeployAll();
     }

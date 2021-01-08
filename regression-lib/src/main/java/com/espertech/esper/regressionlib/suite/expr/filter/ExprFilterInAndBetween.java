@@ -26,7 +26,6 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -91,11 +90,11 @@ public class ExprFilterInAndBetween {
 
             sendBeanNumeric(env, 10, 20);
             sendBeanInt(env, 10);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBeanInt(env, 11);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBeanInt(env, 20);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
 
@@ -104,15 +103,15 @@ public class ExprFilterInAndBetween {
 
             env.sendEventBean(new SupportBean_S0(1, "a", "b", "c", "d"));
             sendBeanString(env, "a");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBeanString(env, "x");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBeanString(env, "b");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBeanString(env, "c");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBeanString(env, "d");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -124,11 +123,11 @@ public class ExprFilterInAndBetween {
             env.compileDeployAddListenerMile(epl, "s0", 0);
 
             sendBeanInt(env, 10);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBeanInt(env, 11);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendBeanInt(env, 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
 
@@ -382,6 +381,6 @@ public class ExprFilterInAndBetween {
     }
 
     private static void tryInvalidFilter(RegressionEnvironment env, String epl) {
-        tryInvalidCompile(env, epl, "skip");
+        env.tryInvalidCompile(epl, "skip");
     }
 }

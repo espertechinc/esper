@@ -14,10 +14,12 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,8 +33,8 @@ public class ExprFilterWhereClauseNoDataWindowPerformance {
 
     private static class ExprFilterWhereClauseNoDataWindowPerf implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

@@ -48,7 +48,6 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertPropEquals;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.events.SupportGenericColUtil.assertPropertyEPTypes;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
@@ -130,7 +129,7 @@ public class EPLOtherCreateSchema {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("create schema MyEvent as Rectangle");
 
-            tryInvalidCompile(env, "create schema MyEvent as XXUnknown", "Could not load class by name 'XXUnknown', please check imports");
+            env.tryInvalidCompile("create schema MyEvent as XXUnknown", "Could not load class by name 'XXUnknown', please check imports");
 
             env.undeployAll();
         }
@@ -158,7 +157,7 @@ public class EPLOtherCreateSchema {
             assertEquals("SimpleSchema", env.statement("schema").getProperty(StatementProperty.CREATEOBJECTNAME));
 
             env.sendEventBean(new SupportBean("a", 20));
-            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
+            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
 
             assertNull(env.runtime().getEventTypeService().getBusEventType("SimpleSchema"));
 
@@ -173,7 +172,7 @@ public class EPLOtherCreateSchema {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventMap(CollectionUtil.buildMap("p0", "a", "p1", 20), "MySchema");
-            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
+            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 20});
 
             EventType eventType = env.runtime().getEventTypeService().getBusEventType("MySchema");
             assertEquals("MySchema", eventType.getName());
@@ -197,7 +196,7 @@ public class EPLOtherCreateSchema {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{"E1", 10d}, "MyEventOne");
-            env.assertPropsListenerNew("s0", "p0,p1,p2".split(","), new Object[]{"E1", 10d, "abc"});
+            env.assertPropsNew("s0", "p0,p1,p2".split(","), new Object[]{"E1", 10d, "abc"});
 
             env.undeployAll();
         }
@@ -208,11 +207,11 @@ public class EPLOtherCreateSchema {
             tryAssertionSchemaArrayPrimitiveType(env, true);
             tryAssertionSchemaArrayPrimitiveType(env, false);
 
-            tryInvalidCompile(env, "create schema Invalid (x dummy[primitive])",
+            env.tryInvalidCompile("create schema Invalid (x dummy[primitive])",
                 "Type 'dummy' is not a primitive type [create schema Invalid (x dummy[primitive])]");
-            tryInvalidCompile(env, "create schema Invalid (x int[dummy])",
+            env.tryInvalidCompile("create schema Invalid (x int[dummy])",
                 "Invalid array keyword 'dummy', expected 'primitive'");
-            tryInvalidCompile(env, "create schema Invalid (x int<string>[primitive])",
+            env.tryInvalidCompile("create schema Invalid (x int<string>[primitive])",
                 "Cannot use the 'primitive' keyword with type parameters");
         }
 
@@ -236,7 +235,7 @@ public class EPLOtherCreateSchema {
 
             env.compileDeploy("@name('s0') insert into MySchema select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent").addListener("s0");
             env.sendEventBean(theEvent);
-            env.assertPropsListenerNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
+            env.assertPropsNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
             env.undeployModuleContaining("s0");
 
             // test named window
@@ -263,7 +262,7 @@ public class EPLOtherCreateSchema {
             // test configured Map type
             env.compileDeploy("@name('s0') insert into MyConfiguredMap select sb as bean, s0Arr as beanarray from SupportBeanSourceEvent").addListener("s0");
             env.sendEventBean(theEvent);
-            env.assertPropsListenerNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
+            env.assertPropsNew("s0", "bean.theString,beanarray[0].id".split(","), new Object[]{"E1", 2});
 
             env.undeployAll();
         }
@@ -309,7 +308,7 @@ public class EPLOtherCreateSchema {
             } else {
                 fail();
             }
-            env.assertPropsListenerNew("s0", "prop1,prop2".split(","), new Object[]{"v1", 2});
+            env.assertPropsNew("s0", "prop1,prop2".split(","), new Object[]{"v1", 2});
             env.undeployModuleContaining("s0");
 
             // test two copy-from types
@@ -362,15 +361,15 @@ public class EPLOtherCreateSchema {
 
             // invalid tests
             String prefix = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedDummy.class);
-            tryInvalidCompile(env, path, prefix + " create schema E4(a long) copyFrom MyType",
+            env.tryInvalidCompile(path, prefix + " create schema E4(a long) copyFrom MyType",
                 "Duplicate column name 'a' [");
-            tryInvalidCompile(env, path, prefix + " create schema E4(c BaseTwo) copyFrom MyType",
+            env.tryInvalidCompile(path, prefix + " create schema E4(c BaseTwo) copyFrom MyType",
                 "Duplicate column name 'c' [");
-            tryInvalidCompile(env, path, prefix + " create schema E4(c BaseTwo) copyFrom XYZ",
+            env.tryInvalidCompile(path, prefix + " create schema E4(c BaseTwo) copyFrom XYZ",
                 "Type by name 'XYZ' could not be located [");
-            tryInvalidCompile(env, path, prefix + " create schema E4 as " + SupportBean.class.getName() + " copyFrom XYZ",
+            env.tryInvalidCompile(path, prefix + " create schema E4 as " + SupportBean.class.getName() + " copyFrom XYZ",
                 "Copy-from types are not allowed with class-provided types [");
-            tryInvalidCompile(env, path, prefix + " create variant schema E4(c BaseTwo) copyFrom XYZ",
+            env.tryInvalidCompile(path, prefix + " create variant schema E4(c BaseTwo) copyFrom XYZ",
                 "Copy-from types are not allowed with variant types [");
 
             // test SODA
@@ -402,7 +401,7 @@ public class EPLOtherCreateSchema {
                 tryAssertionInvalid(env, rep);
             }
 
-            tryInvalidCompile(env, "create objectarray schema A();\n" +
+            env.tryInvalidCompile("create objectarray schema A();\n" +
                     "create objectarray schema B();\n" +
                     "create objectarray schema InvalidOA () inherits A, B;\n",
                 "Object-array event types only allow a single supertype");
@@ -413,23 +412,23 @@ public class EPLOtherCreateSchema {
                 "Nestable type configuration encountered an unexpected property type name 'xxxx' for property 'col1', expected java.lang.Class or java.util.Map or the name of a previously-declared event type [" :
                 "Type definition encountered an unexpected property type name 'xxxx' for property 'col1', expected the name of a previously-declared Avro type";
             String prefix = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedDummy.class);
-            tryInvalidCompile(env, prefix + " create schema MyEventType as (col1 xxxx)", expectedOne);
+            env.tryInvalidCompile(prefix + " create schema MyEventType as (col1 xxxx)", expectedOne);
 
-            tryInvalidCompile(env, prefix + " create schema MyEventType as (col1 int, col1 string)",
+            env.tryInvalidCompile(prefix + " create schema MyEventType as (col1 int, col1 string)",
                 "Duplicate column name 'col1' [");
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy(prefix + " create schema MyEventType as (col1 string)", path);
             String expectedTwo = "Event type named 'MyEventType' has already been declared";
-            tryInvalidCompile(env, path, "create schema MyEventType as (col1 string, col2 string)", expectedTwo);
+            env.tryInvalidCompile(path, "create schema MyEventType as (col1 string, col2 string)", expectedTwo);
 
-            tryInvalidCompile(env, prefix + " create schema MyEventTypeT1 as () inherit ABC",
+            env.tryInvalidCompile(prefix + " create schema MyEventTypeT1 as () inherit ABC",
                 "Expected 'inherits', 'starttimestamp', 'endtimestamp' or 'copyfrom' keyword after create-schema clause but encountered 'inherit' [");
 
-            tryInvalidCompile(env, prefix + " create schema MyEventTypeT2 as () inherits ABC",
+            env.tryInvalidCompile(prefix + " create schema MyEventTypeT2 as () inherits ABC",
                 "Supertype by name 'ABC' could not be found [");
 
-            tryInvalidCompile(env, prefix + " create schema MyEventTypeT3 as () inherits",
+            env.tryInvalidCompile(prefix + " create schema MyEventTypeT3 as () inherits",
                 "Incorrect syntax near end-of-input expecting an identifier but found end-of-input at line 1 column ");
 
             env.undeployAll();
@@ -482,7 +481,7 @@ public class EPLOtherCreateSchema {
             Assert.assertEquals(SupportBean_ST0.class, env.statement("s1").getEventType().getUnderlyingType());
 
             env.sendEventBean(new SupportBean_ST0("E1", 2), "SupportBeanOne");
-            env.assertPropsListenerNew("s0", "id,p00".split(","), new Object[]{"E1", 2});
+            env.assertPropsNew("s0", "id,p00".split(","), new Object[]{"E1", 2});
             assertFalse(env.listener("s1").isInvoked());
 
             env.sendEventBean(new SupportBean_ST0("E2", 3), "SupportBeanTwo");
@@ -494,9 +493,9 @@ public class EPLOtherCreateSchema {
             Assert.assertEquals(EventTypeTypeClass.STREAM, type.getMetadata().getTypeClass());
 
             // test keyword
-            tryInvalidCompile(env, "create schema MySchemaInvalid as com.mycompany.event.ABC",
+            env.tryInvalidCompile("create schema MySchemaInvalid as com.mycompany.event.ABC",
                 "Could not load class by name 'com.mycompany.event.ABC', please check imports");
-            tryInvalidCompile(env, "create schema MySchemaInvalid as com.mycompany.events.ABC",
+            env.tryInvalidCompile("create schema MySchemaInvalid as com.mycompany.events.ABC",
                 "Could not load class by name 'com.mycompany.events.ABC', please check imports");
 
             env.undeployAll();
@@ -557,7 +556,7 @@ public class EPLOtherCreateSchema {
 
             env.compileDeploy("insert into MyVariantPredef select * from MyTypeZero", path);
             env.compileDeploy("insert into MyVariantPredef select * from MyTypeOne", path);
-            tryInvalidCompile(env, path, "insert into MyVariantPredef select * from MyTypeTwo",
+            env.tryInvalidCompile(path, "insert into MyVariantPredef select * from MyTypeTwo",
                 "Selected event type is not a valid event type of the variant stream 'MyVariantPredef' [insert into MyVariantPredef select * from MyTypeTwo]");
 
             // try predefined with any
@@ -710,7 +709,7 @@ public class EPLOtherCreateSchema {
         } else {
             fail();
         }
-        env.assertPropsListenerNew("s0", "col1.inn1[1],col2[1].inn2[1]".split(","), new Object[]{"def", 2});
+        env.assertPropsNew("s0", "col1.inn1[1],col2[1].inn2[1]".split(","), new Object[]{"def", 2});
 
         env.undeployAll();
     }

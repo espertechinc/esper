@@ -22,7 +22,6 @@ import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNodePre
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.util.SupportStatementCompileHook;
 
 import java.io.StringWriter;
@@ -68,7 +67,7 @@ public class RowRecogRepetition implements RegressionExecution {
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4", "E5"});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", "E4", "E5"});
 
         env.undeployAll();
     }
@@ -93,7 +92,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3", "E4", "E5"});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "E3", "E4", "E5"});
 
         env.undeployAll();
     }
@@ -113,13 +112,13 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
 
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3"});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "E3"});
 
         env.milestone(0);
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E5"});
+        env.assertPropsNew("s0", fields, new Object[]{"E4", "E5"});
 
         env.undeployAll();
     }
@@ -132,21 +131,21 @@ public class RowRecogRepetition implements RegressionExecution {
             ")";
         env.compileDeploy("create variable int myvariable = 0");
 
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{}"),
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{}"),
             "Invalid match-recognize quantifier '{}', expecting an expression");
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{null}"),
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{null}"),
             "Pattern quantifier 'null' must return an integer-type value");
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{myvariable}"),
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{myvariable}"),
             "Pattern quantifier 'myvariable' must return a constant value");
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{prev(A)}"),
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{prev(A)}"),
             "Invalid match-recognize pattern expression 'prev(A)': Aggregation, sub-select, previous or prior functions are not supported in this context");
 
         String expected = "Invalid pattern quantifier value -1, expecting a minimum of 1";
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{-1}"), expected);
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{,-1}"), expected);
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{-1,10}"), expected);
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{-1,}"), expected);
-        SupportMessageAssertUtil.tryInvalidCompile(env, template.replaceAll("REPLACE", "A{5,3}"),
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1}"), expected);
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{,-1}"), expected);
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,10}"), expected);
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,}"), expected);
+        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{5,3}"),
             "Invalid pattern quantifier value 5, expecting a minimum of 1 and maximum of 3");
 
         env.undeployAll();
@@ -174,7 +173,7 @@ public class RowRecogRepetition implements RegressionExecution {
         SupportBean b6 = sendEvent("A6", 6, env);
         SupportBean b7 = sendEvent("A7", 7, env);
         SupportBean b8 = sendEvent("A9", 8, env);
-        env.assertPropsListenerNew("s0", "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
+        env.assertPropsNew("s0", "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
 
         env.undeployAll();
     }

@@ -27,7 +27,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
@@ -48,10 +47,10 @@ public class EPLDataflowCustomProperties {
             String epl;
 
             epl = "create dataflow MyGraph ABC { field: { a: a}}";
-            tryInvalidCompile(env, epl, "Incorrect syntax near 'a' at line 1 column 42 [");
+            env.tryInvalidCompile(epl, "Incorrect syntax near 'a' at line 1 column 42 [");
 
             epl = "create dataflow MyGraph ABC { field: { a:1x b:2 }}";
-            tryInvalidCompile(env, epl, "Incorrect syntax near 'x' at line 1 column 42 [");
+            env.tryInvalidCompile(epl, "Incorrect syntax near 'x' at line 1 column 42 [");
         }
     }
 

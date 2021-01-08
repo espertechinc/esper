@@ -13,9 +13,12 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.threadJoin;
 import static org.junit.Assert.assertNull;
@@ -27,8 +30,8 @@ public class MultithreadContextTemporalStartStop implements RegressionExecution 
     private static final Logger log = LoggerFactory.getLogger(MultithreadContextTemporalStartStop.class);
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

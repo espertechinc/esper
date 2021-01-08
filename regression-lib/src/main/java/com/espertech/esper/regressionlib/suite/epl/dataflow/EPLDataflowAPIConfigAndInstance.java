@@ -74,7 +74,7 @@ public class EPLDataflowAPIConfigAndInstance implements RegressionExecution {
         EPDataFlowInstance instance = dataFlowRuntime.instantiateSavedConfiguration("MyFirstFlow");
         env.compileDeploy("@name('s0') select * from MyEvent", path).addListener("s0");
         instance.run();
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"MyFirstFlow"}, dataFlowRuntime.getSavedConfigurations());
         assertNotNull(dataFlowRuntime.getSavedConfiguration("MyFirstFlow"));
 

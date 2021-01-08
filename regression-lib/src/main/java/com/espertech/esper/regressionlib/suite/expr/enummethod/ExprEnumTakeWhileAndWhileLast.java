@@ -23,7 +23,6 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertST0Id;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertValuesArrayScalar;
 
@@ -150,7 +149,7 @@ public class ExprEnumTakeWhileAndWhileLast {
             String epl;
 
             epl = "select strvals.takeWhile(x => null) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.takeWhile()': Failed to validate enumeration method 'takeWhile', expected a non-null result for expression parameter 0 but received a null-typed expression");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.takeWhile()': Failed to validate enumeration method 'takeWhile', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 }

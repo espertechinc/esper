@@ -48,7 +48,7 @@ public class InfraTableDocSamples {
             env.milestone(0);
 
             env.sendEventMap(Collections.singletonMap("value", 100L), "ValueEvent");
-            env.assertPropsListenerNew("s0", "value".split(","), new Object[]{100L});
+            env.assertPropsNew("s0", "value".split(","), new Object[]{100L});
 
             env.sendEventMap(Collections.singletonMap("value", 101L), "ValueEvent");
             env.sendEventMap(Collections.singletonMap("value", 103L), "ValueEvent");
@@ -58,12 +58,12 @@ public class InfraTableDocSamples {
             env.milestone(1);
 
             env.sendEventMap(Collections.singletonMap("value", 200L), "ValueEvent");
-            env.assertPropsListenerNew("s0", "value".split(","), new Object[]{200L});
+            env.assertPropsNew("s0", "value".split(","), new Object[]{200L});
 
             env.sendEventMap(Collections.singletonMap("value", 201L), "ValueEvent");
             env.sendEventMap(Collections.singletonMap("value", 260L), "ValueEvent");
             env.sendEventMap(Collections.singletonMap("value", 301L), "ValueEvent");
-            env.assertPropsListenerNew("s0", "value".split(","), new Object[]{301L});
+            env.assertPropsNew("s0", "value".split(","), new Object[]{301L});
 
             env.undeployAll();
         }

@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.support.autoname.two.MyAutoNameEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ClientCompileEventTypeAutoName {
@@ -46,7 +45,7 @@ public class ClientCompileEventTypeAutoName {
 
     public static class ClientCompileAutoNameAmbiguous implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "create schema SupportAmbigousEventType as SupportAmbigousEventType",
+            env.tryInvalidCompile("create schema SupportAmbigousEventType as SupportAmbigousEventType",
                 "Failed to resolve name 'SupportAmbigousEventType', the class was ambigously found both in package 'com.espertech.esper.regressionlib.support.autoname.one' and in package 'com.espertech.esper.regressionlib.support.autoname.two'");
         }
     }

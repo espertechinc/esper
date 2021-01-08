@@ -83,7 +83,7 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
         EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("s0"), "LocalEvent");
 
         sender.accept(eventType, new String[]{"a", "b"});
-        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"a", "b"});
+        env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"a", "b"});
 
         env.undeployAll();
     }

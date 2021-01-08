@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -43,53 +41,48 @@ public class ViewExternallyTimedWin {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1", 500));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E1"}}, null);
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2", 600));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E2"}}, null);
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3", 1500));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, new Object[][]{{"symbol", "E1"}});
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E3"}}, new Object[][]{{"symbol", "E1"}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E4", 1600));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E4"}}, new Object[][]{{"symbol", "E2"}});
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E4"}}, new Object[][]{{"symbol", "E2"}});
 
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("E5", 1700));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E5"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E5"}}, null);
 
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("E6", 1800));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E6"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E6"}}, null);
 
             env.milestone(6);
 
             env.sendEventBean(makeMarketDataEvent("E7", 1900));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E7"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E7"}}, null);
 
             env.milestone(7);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRow(events, fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}, {"E6"}, {"E7"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}, {"E6"}, {"E7"}});
 
             env.sendEventBean(makeMarketDataEvent("E8", 2700));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E8"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E8"}}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             env.milestone(8);
 
             env.sendEventBean(makeMarketDataEvent("E9", 3700));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E9"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E9"}}, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
 
             env.milestone(9);
 
@@ -107,36 +100,34 @@ public class ViewExternallyTimedWin {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBeanWLong(env, "E1", 1000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}});
             sendSupportBeanWLong(env, "E2", 5000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             sendSupportBeanWLong(env, "E3", 11000);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E3"}, new Object[]{"E1"});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3"}, new Object[]{"E1"});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBeanWLong(env, "E4", 14000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(4);
             env.milestone(5);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E2"}, {"E3"}, {"E4"}});
             sendSupportBeanWLong(env, "E5", 21000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E2"}, {"E3"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E5"}}, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBeanWLong(env, "E6", 24000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E4"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}}, new Object[][]{{"E4"}});
 
             env.undeployAll();
         }
@@ -150,11 +141,13 @@ public class ViewExternallyTimedWin {
             sendExtTimeEvent(env, 0);
 
             sendExtTimeEvent(env, 10 * 60 * 1000 - 1);
-            assertNull(env.listener("s0").getOldDataList().get(0));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getOldDataList().get(0));
+                listener.reset();
+            });
 
             sendExtTimeEvent(env, 10 * 60 * 1000 + 1);
-            assertEquals(1, env.listener("s0").getOldDataList().get(0).length);
+            env.assertListener("s0", listener -> assertEquals(1, listener.getOldDataList().get(0).length));
 
             env.undeployAll();
         }
@@ -170,7 +163,7 @@ public class ViewExternallyTimedWin {
             env.assertListenerNotInvoked("s0");
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -190,32 +183,29 @@ public class ViewExternallyTimedWin {
             String[] fields = new String[]{"symbol", "prev1", "prevTail0", "prevTail1", "prevCountSym", "prevWindowSym"};
 
             env.sendEventBean(makeMarketDataEvent("E1", 500));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{{"E1", null, "E1", null, 1L, new Object[]{"E1"}}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(env.listener("s0").getAndResetLastOldData());
+            });
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2", 600));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{{"E2", "E1", "E1", "E2", 2L, new Object[]{"E2", "E1"}}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3", 1500));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{{"E3", "E2", "E2", "E3", 2L, new Object[]{"E3", "E2"}}});
-            env.listener("s0").reset();
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E4", 1600));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields,
+            env.assertPropsPerRowNewFlattened("s0", fields,
                 new Object[][]{{"E4", "E3", "E3", "E4", 2L, new Object[]{"E4", "E3"}}});
-            env.listener("s0").reset();
 
             env.milestone(4);
 

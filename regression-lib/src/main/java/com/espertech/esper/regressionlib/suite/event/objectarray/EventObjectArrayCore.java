@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EventObjectArrayCore {
@@ -113,9 +112,9 @@ public class EventObjectArrayCore {
 
     private static class EventObjectArrayInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select XXX from MyObjectArrayEvent#length(5)", "skip");
-            tryInvalidCompile(env, "select myString * 2 from MyObjectArrayEvent#length(5)", "skip");
-            tryInvalidCompile(env, "select String.trim(myInt) from MyObjectArrayEvent#length(5)", "skip");
+            env.tryInvalidCompile("select XXX from MyObjectArrayEvent#length(5)", "skip");
+            env.tryInvalidCompile("select myString * 2 from MyObjectArrayEvent#length(5)", "skip");
+            env.tryInvalidCompile("select String.trim(myInt) from MyObjectArrayEvent#length(5)", "skip");
         }
     }
 

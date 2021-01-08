@@ -465,12 +465,12 @@ public class EPLSubselectAggregatedInExistsAnyAll {
 
     private static void sendVEAndAssert(RegressionEnvironment env, String[] fields, int value, Object[] expected) {
         env.sendEventBean(new SupportValueEvent(value));
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
     }
 
     private static void sendVEAndAssert(RegressionEnvironment env, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportValueEvent(-1));
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
     }
 
     private static void sendEventS0(RegressionEnvironment env, int id) {

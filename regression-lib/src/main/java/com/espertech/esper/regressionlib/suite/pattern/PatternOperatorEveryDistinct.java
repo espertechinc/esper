@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class PatternOperatorEveryDistinct {
@@ -88,7 +87,7 @@ public class PatternOperatorEveryDistinct {
             env.milestone(0);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
             sendSupportBean(env, "E1");
             env.assertListenerNotInvoked("s0");
 
@@ -97,7 +96,7 @@ public class PatternOperatorEveryDistinct {
             sendSupportBean(env, "E1");
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
@@ -111,7 +110,7 @@ public class PatternOperatorEveryDistinct {
             sendSupportBean(env, "E2");
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.undeployAll();
         }
@@ -131,7 +130,7 @@ public class PatternOperatorEveryDistinct {
             env.milestone(0);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
             sendSupportBean(env, "E1");
             env.assertListenerNotInvoked("s0");
 
@@ -142,7 +141,7 @@ public class PatternOperatorEveryDistinct {
             sendSupportBean(env, "E1");
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
@@ -155,7 +154,7 @@ public class PatternOperatorEveryDistinct {
             env.advanceTime(20000);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
             sendSupportBean(env, "E2");
             env.assertListenerNotInvoked("s0");
 
@@ -166,7 +165,7 @@ public class PatternOperatorEveryDistinct {
             sendSupportBean(env, "E2");
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.undeployAll();
         }
@@ -181,7 +180,7 @@ public class PatternOperatorEveryDistinct {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A1", 1));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A1"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A1"});
 
             env.milestone(1);
 
@@ -191,7 +190,7 @@ public class PatternOperatorEveryDistinct {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("A3", 2));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A3"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A3"});
 
             env.milestone(3);
 
@@ -204,9 +203,9 @@ public class PatternOperatorEveryDistinct {
             env.advanceTime(1000);
 
             env.sendEventBean(new SupportBean("A4", 1));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A4"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A4"});
             env.sendEventBean(new SupportBean("A5", 2));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A5"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A5"});
 
             env.milestone(5);
 
@@ -219,7 +218,7 @@ public class PatternOperatorEveryDistinct {
 
             env.advanceTime(2000);
             env.sendEventBean(new SupportBean("A7", 2));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A7"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A7"});
 
             env.undeployAll();
         }
@@ -507,7 +506,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B1", 10));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
 
             env.milestoneInc(milestone);
 
@@ -520,11 +519,11 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B3", 10));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B3"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B3"});
 
             env.sendEventBean(new SupportBean("A4", 1));
             env.sendEventBean(new SupportBean("B4", 20));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A4", "B4"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A4", "B4"});
 
             env.milestoneInc(milestone);
 
@@ -536,7 +535,7 @@ public class PatternOperatorEveryDistinct {
 
             env.sendEventBean(new SupportBean("A6", 2));
             env.sendEventBean(new SupportBean("B6", 20));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A6", "B6"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A6", "B6"});
 
             env.milestoneInc(milestone);
 
@@ -566,12 +565,12 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A1", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", null});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", null});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B1", 2));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B1"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B1"});
 
             env.milestoneInc(milestone);
 
@@ -584,12 +583,12 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B4", 3));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B4"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B4"});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B5", 4));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B5"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{null, "B5"});
 
             env.milestoneInc(milestone);
 
@@ -620,7 +619,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A1", 1));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A1"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A1"});
 
             env.milestoneInc(milestone);
 
@@ -630,7 +629,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A3", 2));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A3"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A3"});
 
             env.milestoneInc(milestone);
 
@@ -640,7 +639,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A4", 1));
-            env.assertPropsListenerNew("s0", "a.theString".split(","), new Object[]{"A4"});
+            env.assertPropsNew("s0", "a.theString".split(","), new Object[]{"A4"});
 
             env.milestoneInc(milestone);
 
@@ -670,7 +669,7 @@ public class PatternOperatorEveryDistinct {
             env.sendEventBean(new SupportBean("A1", 1));
             env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("B1", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
 
             env.milestoneInc(milestone);
 
@@ -691,7 +690,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B4", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A4", "B4"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A4", "B4"});
 
             env.sendEventBean(new SupportBean("A5", 3));
             env.sendEventBean(new SupportBean("B5", 0));
@@ -721,7 +720,7 @@ public class PatternOperatorEveryDistinct {
             env.sendEventBean(new SupportBean("B1", 0));
             env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("B2", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B2"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B2"});
 
             env.milestoneInc(milestone);
 
@@ -733,7 +732,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B3", 3));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B3"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B3"});
 
             env.milestoneInc(milestone);
 
@@ -743,7 +742,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B5", 2));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A2", "B5"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A2", "B5"});
 
             env.sendEventBean(new SupportBean("A5", 2));
             env.sendEventBean(new SupportBean("B6", 2));
@@ -753,7 +752,7 @@ public class PatternOperatorEveryDistinct {
 
             env.sendEventBean(new SupportBean("A6", 4));
             env.sendEventBean(new SupportBean("B7", 4));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A6", "B7"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A6", "B7"});
 
             env.undeployAll();
         }
@@ -780,9 +779,9 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B1", 0));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B1"});
             env.sendEventBean(new SupportBean("B2", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B2"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B2"});
 
             env.milestoneInc(milestone);
 
@@ -794,13 +793,13 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B4", 2));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B4"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A1", "B4"});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A3", 2));
             env.sendEventBean(new SupportBean("B5", 1));
-            env.assertPropsListenerNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B5"});
+            env.assertPropsNew("s0", "a.theString,b.theString".split(","), new Object[]{"A3", "B5"});
 
             env.milestoneInc(milestone);
 
@@ -840,7 +839,7 @@ public class PatternOperatorEveryDistinct {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.sendEventBean(new SupportBean("E1", 2));
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
@@ -852,7 +851,7 @@ public class PatternOperatorEveryDistinct {
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
 
             env.sendEventBean(new SupportBean("E1", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 4});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 4});
 
             env.undeployAll();
         }
@@ -867,7 +866,7 @@ public class PatternOperatorEveryDistinct {
     }
 
     private static void tryInvalid(RegressionEnvironment env, String statement, String message) {
-        tryInvalidCompile(env, "select * from pattern[" + statement + "]", message);
+        env.tryInvalidCompile("select * from pattern[" + statement + "]", message);
     }
 
     private static void sendTimer(long timeInMSec, RegressionEnvironment env) {

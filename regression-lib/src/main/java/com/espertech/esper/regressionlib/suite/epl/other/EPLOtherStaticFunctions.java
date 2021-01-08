@@ -25,7 +25,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportChainTop;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportTemperatureBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.io.Serializable;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertEquals;
 
@@ -107,7 +105,7 @@ public class EPLOtherStaticFunctions {
                 " from SupportBean").addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[]{10, 10, 10, 10});
+            env.assertPropsNew("s0", "c0,c1,c2,c3".split(","), new Object[]{10, 10, 10, 10});
 
             env.undeployAll();
         }
@@ -132,11 +130,11 @@ public class EPLOtherStaticFunctions {
 
             LevelOne.setField("v1");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"v1"});
+            env.assertPropsNew("s0", "val0".split(","), new Object[]{"v1"});
 
             LevelOne.setField("v2");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"v2"});
+            env.assertPropsNew("s0", "val0".split(","), new Object[]{"v2"});
 
             env.undeployAll();
         }
@@ -227,7 +225,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "IBM", 10d, 4L);
-            TestCase.assertNull(env.listener("s0").assertOneGetNewAndReset().get("value"));
+            assertNull(env.listener("s0").assertOneGetNewAndReset().get("value"));
 
             env.undeployAll();
         }
@@ -244,7 +242,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", "v1,v2,v3,v4".split(","), new Object[]{10, 10d, 10d, 10d});
+            env.assertPropsNew("s0", "v1,v2,v3,v4".split(","), new Object[]{10, 10d, 10d, 10d});
 
             env.undeployAll();
         }
@@ -274,7 +272,7 @@ public class EPLOtherStaticFunctions {
             assertEquals(expected, resultTwo[0]);
             env.undeployAll();
 
-            tryInvalidCompile(env, "select UnknownClass.invalidMethod() " + STREAM_MDB_LEN5,
+            env.tryInvalidCompile("select UnknownClass.invalidMethod() " + STREAM_MDB_LEN5,
                 "Failed to validate select-clause expression 'UnknownClass.invalidMethod()': Failed to resolve 'UnknownClass.invalidMethod' to a property, single-row function, aggregation function, script, stream or class name ");
         }
     }

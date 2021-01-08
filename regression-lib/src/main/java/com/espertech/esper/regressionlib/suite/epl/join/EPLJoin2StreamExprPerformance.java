@@ -13,11 +13,13 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertTrue;
@@ -25,8 +27,8 @@ import static org.junit.Assert.assertTrue;
 public class EPLJoin2StreamExprPerformance implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -95,7 +97,7 @@ public class EPLJoin2StreamExprPerformance implements RegressionExecution {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(theEvent);
-            env.assertPropsListenerNew("s0", fields, new Object[]{expected});
+            env.assertPropsNew("s0", fields, new Object[]{expected});
         }
         long delta = System.currentTimeMillis() - startTime;
         assertTrue("delta=" + delta, delta < 2000);

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -49,38 +48,37 @@ public class ViewExternallyTimedBatched {
             env.milestone(1);
 
             sendSupportBeanWLong(env, "E2", 5000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             sendSupportBeanWLong(env, "E3", 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
-                new Object[][]{{"E1"}, {"E2"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}}, null);
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E3"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E3"}});
             sendSupportBeanWLong(env, "E4", 0);
             env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E3"}, {"E4"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E3"}, {"E4"}});
             sendSupportBeanWLong(env, "E5", 21000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E3"}, {"E4"}}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(5);
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E5"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E5"}});
             sendSupportBeanWLong(env, "E6", 31000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E5"}}, new Object[][]{{"E3"}, {"E4"}});
             sendSupportBeanWLong(env, "E7", 41000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E6"}}, new Object[][]{{"E5"}});
 
             env.undeployAll();
@@ -104,7 +102,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(2);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E4", "8:01:00.000"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E1"}, {"E2"}, {"E3"}}, (Object[][]) null);
 
             env.milestone(3);
@@ -115,13 +113,13 @@ public class ViewExternallyTimedBatched {
             env.milestone(4);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E7", "8:02:00.000"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(5);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E8", "8:03:59.000"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E7"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E9", "8:03:59.000"));
@@ -130,13 +128,13 @@ public class ViewExternallyTimedBatched {
             env.milestone(6);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E10", "8:04:00.000"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E8"}, {"E9"}}, new Object[][]{{"E7"}});
 
             env.milestone(7);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E11", "8:06:30.000"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E10"}}, new Object[][]{{"E8"}, {"E9"}});
 
             env.milestone(8);
@@ -147,7 +145,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(9);
 
             env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E13", "8:07:00.001"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E11"}, {"E12"}}, new Object[][]{{"E10"}});
 
             env.undeployAll();
@@ -199,7 +197,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(2);
 
             sendMarketEvent(env, "D", 4, 10000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{
                     {"A", "A", 1d, null, null, null, null, "A", 1d, "B", 2d, 3L, splitDoubles("3d,2d,1d")},
                     {"B", "B", 2d, "A", 1d, null, null, "A", 1d, "B", 2d, 3L, splitDoubles("3d,2d,1d")},
@@ -210,7 +208,7 @@ public class ViewExternallyTimedBatched {
             env.milestone(3);
 
             sendMarketEvent(env, "E", 5, 20000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{
                     {"D", "D", 4d, null, null, null, null, "D", 4d, null, null, 1L, splitDoubles("4d")},
                 },
@@ -234,7 +232,7 @@ public class ViewExternallyTimedBatched {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E3", "8:00:05.000"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+        env.assertPropsPerRowIRPair("s0", fields,
             new Object[][]{{"E1"}, {"E2"}}, null);
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E4", "8:00:04.000"));
@@ -243,17 +241,17 @@ public class ViewExternallyTimedBatched {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E7", "8:01:05.000"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+        env.assertPropsPerRowIRPair("s0", fields,
             new Object[][]{{"E3"}, {"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}});
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E8", "8:03:55.000"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+        env.assertPropsPerRowIRPair("s0", fields,
             new Object[][]{{"E7"}}, new Object[][]{{"E3"}, {"E4"}, {"E5"}, {"E6"}});
 
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E9", "0:00:00.000"));
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E10", "8:04:04.999"));
         env.sendEventBean(SupportEventIdWithTimestamp.makeTime("E11", "8:04:05.000"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+        env.assertPropsPerRowIRPair("s0", fields,
             new Object[][]{{"E8"}, {"E9"}, {"E10"}}, new Object[][]{{"E7"}});
 
         env.undeployAll();
@@ -269,7 +267,7 @@ public class ViewExternallyTimedBatched {
             env.assertListenerNotInvoked("s0");
 
             sendExtTimeEvent(env, DateTime.parseDefaultMSec("2002-03-01T09:00:00.000"), "E3");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
         }

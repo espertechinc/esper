@@ -16,7 +16,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ClientExtendView implements RegressionExecution {
 
@@ -78,9 +78,9 @@ public class ClientExtendView implements RegressionExecution {
     }
 
     private void runAssertionInvalid(RegressionEnvironment env) {
-        tryInvalidCompile(env, "select * from SupportMarketDataBean.mynamespace:xxx()",
+        env.tryInvalidCompile("select * from SupportMarketDataBean.mynamespace:xxx()",
             "Failed to validate data window declaration: View name 'mynamespace:xxx' is not a known view name");
-        tryInvalidCompile(env, "select * from SupportMarketDataBean.mynamespace:invalid()",
+        env.tryInvalidCompile("select * from SupportMarketDataBean.mynamespace:invalid()",
             "Failed to validate data window declaration: Error casting view factory instance to " + ViewFactoryForge.class.getName() + " interface for view 'invalid'");
     }
 

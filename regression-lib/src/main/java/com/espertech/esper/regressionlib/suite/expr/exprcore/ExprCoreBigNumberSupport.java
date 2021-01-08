@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExprCoreBigNumberSupport {
     public static Collection<RegressionExecution> executions() {
@@ -51,19 +52,19 @@ public class ExprCoreBigNumberSupport {
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             sendBigNumEvent(env, -1, 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendBigNumEvent(env, -1, 2);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(2, 0, null, new BigDecimal(2), 0, 0));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(3, 0, null, new BigDecimal(2), 0, 0));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(0, 0, null, new BigDecimal(3d), 3d, 0));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(0, 0, null, new BigDecimal(3.9999d), 4d, 0));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // test equals BigInteger
             env.undeployAll();
@@ -71,19 +72,19 @@ public class ExprCoreBigNumberSupport {
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBeanNumeric(0, 0, BigInteger.valueOf(2), new BigDecimal(2), 0, 0));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(0, 0, BigInteger.valueOf(3), new BigDecimal(2), 0, 0));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(2, 0, BigInteger.valueOf(2), null, 0, 0));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(3, 0, BigInteger.valueOf(2), null, 0, 0));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(0, 0, BigInteger.valueOf(1), null, 0, 0));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(0, 0, BigInteger.valueOf(4), null, 0, 0));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -96,29 +97,29 @@ public class ExprCoreBigNumberSupport {
             env.compileDeploy(epl).addListener("s0");
 
             sendBigNumEvent(env, 10, 10);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 11, 9);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             epl = "@name('s0') select * from SupportBeanNumeric where bigdec < 10.0";
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendBigNumEvent(env, 0, 11);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(null, new BigDecimal(9.999)));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             // test float
             env.compileDeployAddListenerMile("@name('s0') select * from SupportBeanNumeric where floatOne < 10f and floatTwo > 10f", "s0", 1);
 
             env.sendEventBean(new SupportBeanNumeric(true, 1f, 20f));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.sendEventBean(new SupportBeanNumeric(true, 20f, 1f));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -130,16 +131,16 @@ public class ExprCoreBigNumberSupport {
             env.compileDeploy(epl).addListener("s0");
 
             sendBigNumEvent(env, 0, 9);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 0, 10);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 99, 0);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 100, 0);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -151,22 +152,22 @@ public class ExprCoreBigNumberSupport {
             env.compileDeploy(epl).addListener("s0");
 
             sendBigNumEvent(env, 0, 9);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 0, 10);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(null, new BigDecimal(20d)));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 99, 0);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 2, 0);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 3, 0);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -179,28 +180,28 @@ public class ExprCoreBigNumberSupport {
             env.compileDeploy(epl).addListener("s0");
 
             sendBigNumEvent(env, 50, 49);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 50, 50);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 0, 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 0, 2);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 0, 3);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 0, 0);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 3, 0);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendBigNumEvent(env, 4, 0);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             env.compileDeployAddListenerMile("@name('s0') select bigdec+bigint as v1, bigdec+2 as v2, bigdec+3d as v3, bigint+5L as v4, bigint+5d as v5 " +
@@ -281,15 +282,15 @@ public class ExprCoreBigNumberSupport {
             String[] fieldList = "v1,v2,v3,v4".split(",");
 
             sendBigNumEvent(env, 1, 2);
-            env.assertPropsListenerNew("s0", fieldList,
+            env.assertPropsNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(1), BigInteger.valueOf(1), new BigDecimal(10), new BigDecimal(100d)});
 
             sendBigNumEvent(env, 40, 300);
-            env.assertPropsListenerNew("s0", fieldList,
+            env.assertPropsNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(10), BigInteger.valueOf(10), new BigDecimal(300), new BigDecimal(300)});
 
             sendBigNumEvent(env, 250, 200);
-            env.assertPropsListenerNew("s0", fieldList,
+            env.assertPropsNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(10), BigInteger.valueOf(10), new BigDecimal(200), new BigDecimal(250)});
 
             env.undeployAll();
@@ -306,7 +307,7 @@ public class ExprCoreBigNumberSupport {
             env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 0, 4);
-            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(4)});
+            env.assertPropsNew("s0", fieldList, new Object[]{new BigDecimal(4)});
 
             env.undeployAll();
             env.compileDeployAddListenerMile("@name('s0') select bigdec from SupportBeanNumeric(bigdec = 4d)", "s0", 1);
@@ -315,7 +316,7 @@ public class ExprCoreBigNumberSupport {
             env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(BigInteger.valueOf(0), new BigDecimal(4d)));
-            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(4d)});
+            env.assertPropsNew("s0", fieldList, new Object[]{new BigDecimal(4d)});
 
             env.undeployAll();
             env.compileDeployAddListenerMile("@name('s0') select bigdec from SupportBeanNumeric(bigint = 4)", "s0", 2);
@@ -324,7 +325,7 @@ public class ExprCoreBigNumberSupport {
             env.assertListenerNotInvoked("s0");
 
             sendBigNumEvent(env, 4, 3);
-            env.assertPropsListenerNew("s0", fieldList, new Object[]{new BigDecimal(3)});
+            env.assertPropsNew("s0", fieldList, new Object[]{new BigDecimal(3)});
 
             env.undeployAll();
         }
@@ -343,7 +344,7 @@ public class ExprCoreBigNumberSupport {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanNumeric(BigInteger.valueOf(2), new BigDecimal(3d)));
-            env.assertPropsListenerNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3d)});
+            env.assertPropsNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3d)});
 
             env.undeployAll();
         }
@@ -356,7 +357,7 @@ public class ExprCoreBigNumberSupport {
 
             String[] fieldList = "v1,v2".split(",");
             sendBigNumEvent(env, 0, 2);
-            env.assertPropsListenerNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3.0)});
+            env.assertPropsNew("s0", fieldList, new Object[]{BigInteger.valueOf(2), new BigDecimal(3.0)});
 
             env.undeployAll();
         }

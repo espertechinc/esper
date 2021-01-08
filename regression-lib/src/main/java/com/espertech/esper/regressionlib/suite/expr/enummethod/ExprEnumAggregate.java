@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
 import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumAggregate {
 
@@ -41,11 +41,11 @@ public class ExprEnumAggregate {
 
             // invalid incompatible params
             epl = "select contained.aggregate(0, (result, item) => result || ',') from SupportBean_ST0_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.aggregate(0,)': Failed to validate enumeration method 'aggregate' parameter 1: Failed to validate declared expression body expression 'result||\",\"': Implicit conversion from datatype 'Integer' to string is not allowed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.aggregate(0,)': Failed to validate enumeration method 'aggregate' parameter 1: Failed to validate declared expression body expression 'result||\",\"': Implicit conversion from datatype 'Integer' to string is not allowed");
 
             // null-init-value for aggregate
             epl = "select contained.aggregate(null, (result, item) => result) from SupportBean_ST0_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.aggregate(null,)': Initialization value is null-typed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.aggregate(null,)': Initialization value is null-typed");
         }
     }
 

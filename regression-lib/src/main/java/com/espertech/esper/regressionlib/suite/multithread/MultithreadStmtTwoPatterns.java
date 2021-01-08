@@ -14,9 +14,12 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.TwoPatternRunnable;
 import com.espertech.esper.runtime.client.EPDeployment;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertFalse;
 
@@ -43,8 +46,8 @@ public class MultithreadStmtTwoPatterns implements RegressionExecutionWithConfig
     }
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

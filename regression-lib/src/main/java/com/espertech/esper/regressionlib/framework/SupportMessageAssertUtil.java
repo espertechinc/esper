@@ -38,24 +38,6 @@ public class SupportMessageAssertUtil {
         }
     }
 
-    public static void tryInvalidCompile(RegressionEnvironment env, String epl, String message) {
-        try {
-            env.compileWCheckedEx(epl);
-            fail();
-        } catch (EPCompileException ex) {
-            assertMessage(ex, message);
-        }
-    }
-
-    public static void tryInvalidCompile(RegressionEnvironment env, RegressionPath path, String epl, String message) {
-        try {
-            env.compileWCheckedEx(epl, path);
-            fail();
-        } catch (EPCompileException ex) {
-            assertMessage(ex, message);
-        }
-    }
-
     public static void assertMessageContains(Throwable ex, String message) {
         if (!ex.getMessage().contains(message)) {
             fail("Does not contain text: '" + message + "' in text \n text:" + ex.getMessage());

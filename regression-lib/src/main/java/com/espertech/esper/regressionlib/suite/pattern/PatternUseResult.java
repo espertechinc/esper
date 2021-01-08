@@ -376,7 +376,7 @@ public class PatternUseResult {
     private static void sendBeanAAssert(RegressionEnvironment env, String id, int intPrimitiveExpected, int numFiltersRemaining) {
         env.sendEventBean(new SupportBean_A(id));
         final String[] fields = "c0".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{intPrimitiveExpected});
+        env.assertPropsNew("s0", fields, new Object[]{intPrimitiveExpected});
         assertEquals(numFiltersRemaining, SupportFilterServiceHelper.getFilterSvcCount(env.statement("s0"), "SupportBean_A"));
     }
 

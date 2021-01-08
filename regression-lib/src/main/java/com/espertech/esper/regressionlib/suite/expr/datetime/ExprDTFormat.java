@@ -51,10 +51,10 @@ public class ExprDTFormat {
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf", "dtf_isodt", "dtf_isozdt");
-            env.assertPropsListenerNew("s0", fields, expected);
+            env.assertPropsNew("s0", fields, expected);
 
             env.sendEventBean(SupportDateTime.make(null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "sdf"), null, null, null, null, null});
 
             env.undeployAll();
         }
@@ -89,10 +89,10 @@ public class ExprDTFormat {
                 sdt.getLocaldate().format(dtf), sdt.getZoneddate().format(dtf),
                 SimpleDateFormat.getDateInstance().format(sdt.getUtildate()), sdt.getLocaldate().format(DateTimeFormatter.BASIC_ISO_DATE)
             };
-            env.assertPropsListenerNew("s0", fields, expected);
+            env.assertPropsNew("s0", fields, expected);
 
             env.sendEventBean(SupportDateTime.make(null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, null});
 
             env.undeployAll();
         }

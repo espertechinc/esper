@@ -74,7 +74,7 @@ public class EventJsonDocSamples {
                 "}";
             env.sendEventJson(json, "SensorEvent");
 
-            env.assertPropsListenerNew("s0", "entityId,temperature,status,entityName,vt,flags".split(","),
+            env.assertPropsNew("s0", "entityId,temperature,status,entityName,vt,flags".split(","),
                 new Object[]{"cd9f930e", 70, true, Collections.singletonMap("english", "Cooling Water Temperature"), new Object[]{"2014-08-20T15:30:23.524Z"},
                     null});
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "englishEntityName".split(","),
@@ -99,7 +99,7 @@ public class EventJsonDocSamples {
                 "}";
             env.sendEventJson(event, "CarLocUpdateEvent");
 
-            env.assertPropsListenerNew("s0", "carId,direction,cnt".split(","),
+            env.assertPropsNew("s0", "carId,direction,cnt".split(","),
                 new Object[]{"A123456", 1, 1L});
 
             env.undeployAll();
@@ -131,7 +131,7 @@ public class EventJsonDocSamples {
                 " }";
             env.sendEventJson(json, "BookEvent");
 
-            env.assertPropsListenerNew("s0", "isbn,authorName,editorName,primaryCategory".split(","),
+            env.assertPropsNew("s0", "isbn,authorName,editorName,primaryCategory".split(","),
                 new Object[]{"123-456-222", "Doe", "Smith", "Non-Fiction"});
 
             env.undeployAll();
@@ -173,7 +173,7 @@ public class EventJsonDocSamples {
                 "}";
             env.sendEventJson(json, "CakeEvent");
 
-            env.assertPropsListenerNew("s0", "name,firstBatterType,firstToppingType,batterMachine,countBatters,countToppings".split(","),
+            env.assertPropsNew("s0", "name,firstBatterType,firstToppingType,batterMachine,countBatters,countToppings".split(","),
                 new Object[]{"Cake", "Regular", "None", "machine A", 4, 4});
 
             env.undeployAll();

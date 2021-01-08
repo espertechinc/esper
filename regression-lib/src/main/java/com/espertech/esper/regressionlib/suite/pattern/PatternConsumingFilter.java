@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,20 +40,20 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 0));
             env.sendEventBean(new SupportBean("E4", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", "E4"});
 
             env.sendEventBean(new SupportBean("E5", 0));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E6", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E6"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", "E6"});
 
             env.undeployAll();
         }
@@ -67,7 +66,7 @@ public class PatternConsumingFilter {
             env.compileDeploy(pattern).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1"});
             env.undeployAll();
 
             pattern = "@name('s0') select a.theString as a, b.theString as b from pattern [every (a=SupportBean and b=SupportBean(intPrimitive=10)@consume(2))]";
@@ -75,7 +74,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E1"});
 
             env.sendEventBean(new SupportBean("E3", 1));
 
@@ -83,7 +82,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", "E5"});
             env.undeployAll();
 
             // test SODA
@@ -91,7 +90,7 @@ public class PatternConsumingFilter {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E1"});
 
             env.undeployAll();
         }
@@ -165,11 +164,11 @@ public class PatternConsumingFilter {
 
     private static class PatternInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[every a=SupportBean@consume()]",
+            env.tryInvalidCompile("select * from pattern[every a=SupportBean@consume()]",
                 "Incorrect syntax near ')' expecting any of the following tokens {IntegerLiteral, FloatingPointLiteral} but found a closing parenthesis ')' at line 1 column 50, please check the filter specification within the pattern expression within the from clause [select * from pattern[every a=SupportBean@consume()]]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[every a=SupportBean@consume(-1)]",
+            env.tryInvalidCompile("select * from pattern[every a=SupportBean@consume(-1)]",
                 "Incorrect syntax near '-' expecting any of the following tokens {IntegerLiteral, FloatingPointLiteral} but found a minus '-' at line 1 column 50, please check the filter specification within the pattern expression within the from clause [select * from pattern[every a=SupportBean@consume(-1)]]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[every a=SupportBean@xx]",
+            env.tryInvalidCompile("select * from pattern[every a=SupportBean@xx]",
                 "Unexpected pattern filter @ annotation, expecting 'consume' but received 'xx' [select * from pattern[every a=SupportBean@xx]]");
         }
     }
@@ -180,9 +179,9 @@ public class PatternConsumingFilter {
         env.sendEventBean(new SupportBean("E1", 10));
 
         if (expected instanceof Object[][]) {
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, (Object[][]) expected);
+            env.assertPropsPerRowLastNew("s0", fields, (Object[][]) expected);
         } else {
-            env.assertPropsListenerNew("s0", fields, (Object[]) expected);
+            env.assertPropsNew("s0", fields, (Object[]) expected);
         }
         env.undeployAll();
     }

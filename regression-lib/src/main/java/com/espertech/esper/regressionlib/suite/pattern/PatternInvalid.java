@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.fail;
 
 public class PatternInvalid {
@@ -49,7 +48,7 @@ public class PatternInvalid {
             env.compileDeploy(epl);
             env.sendEventBean(new SupportBean("E1", 100));
 
-            tryInvalidCompile(env, "select * from pattern[timer:interval((select waitTime from WaitWindow))]",
+            env.tryInvalidCompile("select * from pattern[timer:interval((select waitTime from WaitWindow))]",
                 "Subselects are not allowed within pattern observer parameters, please consider using a variable instead");
 
             env.undeployAll();

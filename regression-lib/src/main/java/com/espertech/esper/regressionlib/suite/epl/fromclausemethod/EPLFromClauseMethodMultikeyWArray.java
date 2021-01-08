@@ -19,7 +19,8 @@ import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class EPLFromClauseMethodMultikeyWArray {
     public static List<RegressionExecution> executions() {
@@ -96,7 +97,7 @@ public class EPLFromClauseMethodMultikeyWArray {
             runAssertion(env, epl);
 
             sendManyArray(env, "E3", new double[]{3, 4}, new int[]{30, 40}, 1000);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -111,7 +112,7 @@ public class EPLFromClauseMethodMultikeyWArray {
             runAssertion(env, epl);
 
             sendManyArray(env, "E3", new double[]{3, 4}, new int[]{30, 41}, 0);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -145,7 +146,7 @@ public class EPLFromClauseMethodMultikeyWArray {
         assertReceived(env, "E3", "DA2");
 
         sendManyArray(env, "E4", new double[]{1}, new int[]{30, 40}, 80);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendManyArray(RegressionEnvironment env, String id, double[] doubles, int[] ints, int value) {
@@ -162,7 +163,7 @@ public class EPLFromClauseMethodMultikeyWArray {
     }
 
     private static void assertReceived(RegressionEnvironment env, String idOne, String idTwo) {
-        env.assertPropsListenerNew("s0",
+        env.assertPropsNew("s0",
             "e.id,s.id".split(","), new Object[]{idOne, idTwo});
     }
 

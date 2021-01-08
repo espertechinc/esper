@@ -14,12 +14,10 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -68,16 +66,16 @@ public class InfraNamedWindowConsumer {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 30});
 
             env.sendEventBean(new SupportBean("E3", 25));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 45});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 45});
 
             env.sendEventBean(new SupportBean("E4", 26));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 51});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 51});
 
             env.undeployAll();
         }
@@ -85,8 +83,8 @@ public class InfraNamedWindowConsumer {
 
     public static class InfraNamedWindowConsumerWBatch implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

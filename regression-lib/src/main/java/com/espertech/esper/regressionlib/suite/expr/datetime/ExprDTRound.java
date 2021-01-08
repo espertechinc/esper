@@ -49,7 +49,7 @@ public class ExprDTRound {
             String startTime = "2002-05-30T09:01:02.003";
             String expectedTime = "2002-5-30T10:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
             env.undeployAll();
         }
@@ -82,7 +82,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }
@@ -115,7 +115,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }
@@ -148,7 +148,7 @@ public class ExprDTRound {
             };
             String startTime = "2002-05-30T15:30:02.550";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             // test rounding up/down
             env.undeployAll();
@@ -157,13 +157,13 @@ public class ExprDTRound {
             env.compileDeployAddListenerMile(eplFragment, "s0", 1);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:29.999"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
+            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.000"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.001"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.undeployAll();
         }

@@ -48,7 +48,7 @@ public class ExprDTWithMin {
             String startTime = "2002-05-30T09:00:00.000";
             String expectedTime = "2002-01-30T09:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
             env.undeployAll();
         }
@@ -84,7 +84,7 @@ public class ExprDTWithMin {
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
             //System.out.println("===> " + SupportDateTime.print(env.listener("s0").assertOneGetNew().get("val7")));
-            env.assertPropsListenerNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
+            env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();
         }

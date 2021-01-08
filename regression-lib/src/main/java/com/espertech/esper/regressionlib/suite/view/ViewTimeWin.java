@@ -72,21 +72,21 @@ public class ViewTimeWin {
             env.assertPropsPerRowIterator("s0", fields, null);
             env.advanceTime(1000);
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
             env.advanceTime(2000);
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             env.advanceTime(3000);
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
@@ -96,31 +96,31 @@ public class ViewTimeWin {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.advanceTime(11000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
+            env.assertPropsOld("s0", fields, new Object[]{"E1"});
 
             env.milestone(4);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
             env.advanceTime(12000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
+            env.assertPropsOld("s0", fields, new Object[]{"E2"});
 
             env.milestone(5);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}});
             sendSupportBean(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(6);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}});
             sendSupportBean(env, "E5");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(7);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
             env.advanceTime(13000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+            env.assertPropsOld("s0", fields, new Object[]{"E3"});
 
             env.milestone(8);
 
@@ -197,13 +197,13 @@ public class ViewTimeWin {
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             sendCurrentTimeWithMinus(env, "2002-03-15T09:00:00.000", 1);
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-15T09:00:00.000");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E2"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -276,13 +276,13 @@ public class ViewTimeWin {
 
             env.advanceTime(500);
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E1"}}, null);
 
             env.milestone(1);
 
             env.advanceTime(600);
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E2"}}, null);
 
             env.milestone(2);
 
@@ -290,12 +290,12 @@ public class ViewTimeWin {
             env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.advanceTime(1500);
-            env.assertNVListener("s0", null, new Object[][]{{"symbol", "E1"}}); // olddata
+            env.assertPropsNV("s0", null, new Object[][]{{"symbol", "E1"}}); // olddata
 
             env.milestone(3);
 
             env.advanceTime(1600);
-            env.assertNVListener("s0", null, new Object[][]{{"symbol", "E2"}}); // olddata
+            env.assertPropsNV("s0", null, new Object[][]{{"symbol", "E2"}}); // olddata
 
             env.milestone(4);
 
@@ -304,7 +304,7 @@ public class ViewTimeWin {
             env.milestone(5);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E3"}}, null);
 
             env.milestone(6);
 
@@ -405,7 +405,7 @@ public class ViewTimeWin {
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E6"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E6"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E6"}}, null);
 
             env.milestone(4);
 

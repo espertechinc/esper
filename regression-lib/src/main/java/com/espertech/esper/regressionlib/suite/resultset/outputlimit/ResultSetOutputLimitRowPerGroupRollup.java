@@ -335,7 +335,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 2, 50L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 110L}, {null, null, 150L}},
                 new Object[][]{{"E1", null, 110L}, {null, null, 150L}});
 
@@ -344,7 +344,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 170L}, {null, null, 210L}},
                 new Object[][]{{"E1", null, 170L}, {null, null, 210L}});
 
@@ -352,12 +352,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.advanceTime(3000);
 
             env.sendEventBean(makeEvent("E1", 1, 70L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 170L}, {"E1", null, 240L}, {null, null, 280L}},
                 new Object[][]{{"E1", 1, 170L}, {"E1", null, 240L}, {null, null, 280L}});
 
             env.advanceTime(4000); // removes the first 3 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 130L}, {"E1", null, 180L}, {null, null, 220L}},
                 new Object[][]{{"E1", 1, 130L}, {"E1", null, 180L}, {null, null, 220L}});
 
@@ -365,17 +365,17 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 210L}, {null, null, 210L}},
                 new Object[][]{{"E1", null, 210L}, {null, null, 210L}});
 
             env.sendEventBean(makeEvent("E1", 1, 90L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 300L}},
                 new Object[][]{{"E1", 1, 300L}});
 
             env.advanceTime(6000); // removes the third 1 event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}},
                 new Object[][]{{"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}});
 
@@ -411,14 +411,14 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E1", 1, 10L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 10L}, {"E1", null, 10L}, {null, null, 10L}},
                 new Object[][]{{"E1", 1, null}, {"E1", null, null}, {null, null, null}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E1", 2, 20L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 2, 20L}},
                 new Object[][]{{"E1", 2, null}});
 
@@ -430,14 +430,14 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", 1, 40L}, {"E2", null, 40L}, {null, null, 100L}},
                 new Object[][]{{"E2", 1, null}, {"E2", null, null}, {null, null, 60L}});
 
             env.milestone(3);
 
             env.sendEventBean(makeEvent("E1", 2, 50L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 2, 70L}, {"E1", null, 110L}},
                 new Object[][]{{"E1", 2, 20L}, {"E1", null, 60L}});
 
@@ -448,7 +448,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 100L}, {"E1", null, 170L}, {null, null, 210L}},
                 new Object[][]{{"E1", 1, 40L}, {"E1", null, 110L}, {null, null, 150L}});
 
@@ -458,12 +458,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.advanceTime(3000);
 
             env.sendEventBean(makeEvent("E1", 1, 70L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 170L}, {"E1", null, 240L}, {null, null, 280L}},
                 new Object[][]{{"E1", 1, 100L}, {"E1", null, 170L}, {null, null, 210L}});
 
             env.advanceTime(4000); // removes the first 3 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E1", null, 180L}, {null, null, 220L}},
                 new Object[][]{{"E1", 1, 170L}, {"E1", 2, 70L}, {"E1", null, 240L}, {null, null, 280L}});
 
@@ -473,7 +473,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E2", 1, null}, {"E1", 2, null}, {"E2", null, null},
                     {"E1", null, 210L}, {null, null, 210L}},
@@ -482,14 +482,14 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                     {"E1", null, 260L}, {null, null, 300L}});
 
             env.sendEventBean(makeEvent("E1", 1, 90L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 300L}},
                 new Object[][]{{"E1", 1, 210L}});
 
             env.milestone(7);
 
             env.advanceTime(6000); // removes the third 1 event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}},
                 new Object[][]{{"E1", 1, 300L}, {"E1", null, 300L}, {null, null, 300L}});
 
@@ -524,12 +524,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(new SupportBean_S0(1));
 
             env.sendEventBean(makeEvent("E1", 1, 10L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 10L}, {"E1", null, 10L}, {"E1", 1, 10L}},
                 new Object[][]{{null, null, null}, {"E1", null, null}, {"E1", 1, null}});
 
             env.sendEventBean(makeEvent("E1", 2, 20L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 2, 20L}},
                 new Object[][]{{"E1", 2, null}});
 
@@ -539,12 +539,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 100L}, {"E2", null, 40L}, {"E2", 1, 40L}},
                 new Object[][]{{null, null, 60L}, {"E2", null, null}, {"E2", 1, null}});
 
             env.sendEventBean(makeEvent("E1", 2, 50L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 110L}, {"E1", 2, 70L}},
                 new Object[][]{{"E1", null, 60L}, {"E1", 2, 20L}});
 
@@ -553,7 +553,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}},
                 new Object[][]{{null, null, 150L}, {"E1", null, 110L}, {"E1", 1, 40L}});
 
@@ -561,12 +561,12 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.advanceTime(3000);
 
             env.sendEventBean(makeEvent("E1", 1, 70L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 280L}, {"E1", null, 240L}, {"E1", 1, 170L}},
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}});
 
             env.advanceTime(4000); // removes the first 3 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 220L}, {"E1", null, 180L}, {"E1", 1, 130L}, {"E1", 2, 50L}},
                 new Object[][]{{null, null, 280L}, {"E1", null, 240L}, {"E1", 1, 170L}, {"E1", 2, 70L}});
 
@@ -574,19 +574,19 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(5000); // removes the second 2 events
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 2, null},
                     {"E2", null, null}, {"E2", 1, null}},
                 new Object[][]{{null, null, 300L}, {"E1", null, 260L}, {"E1", 2, 50L},
                     {"E2", null, 40L}, {"E2", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 90L));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 1, 300L}},
                 new Object[][]{{"E1", 1, 210L}});
 
             env.advanceTime(6000); // removes the third 1 event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 240L}, {"E1", null, 240L}, {"E1", 1, 240L}},
                 new Object[][]{{null, null, 300L}, {"E1", null, 300L}, {"E1", 1, 300L}});
 
@@ -623,7 +623,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E1", 2, 20L));
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 1, 10L}, {"E1", null, 10L}, {null, null, 10L},
                     {"E1", 2, 20L}, {"E1", null, 30L}, {null, null, 30L},
@@ -636,7 +636,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E2", 1, 40L));
             env.sendEventBean(makeEvent("E1", 2, 50L));
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E2", 1, 40L}, {"E2", null, 40L}, {null, null, 100L},
                     {"E1", 2, 70L}, {"E1", null, 110L}, {null, null, 150L}},
@@ -646,7 +646,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             env.advanceTime(3000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 1, 100L}, {"E1", null, 170L}, {null, null, 210L}},
                 new Object[][]{
@@ -654,7 +654,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 70L));    // removes the first 3 events
             env.advanceTimeSpan(4000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 1, 170L}, {"E1", null, 240L}, {null, null, 280L},
                     {"E1", 1, 130L}, {"E1", 2, 50L}, {"E1", null, 180L}, {null, null, 220L},
@@ -666,7 +666,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 80L));    // removes the second 2 events
             env.advanceTimeSpan(5000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 1, 210L}, {"E1", null, 260L}, {null, null, 300L},
                     {"E2", 1, null}, {"E1", 2, null}, {"E2", null, null}, {"E1", null, 210L}, {null, null, 210L},
@@ -678,7 +678,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 90L));    // removes the third 1 event
             env.advanceTimeSpan(6000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 1, 300L}, {"E1", null, 300L}, {null, null, 300L},
                     {"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}},
@@ -720,7 +720,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E1", 2, 20L));
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 10L}, {null, null, 30L}, {null, null, 60L},
                     {"E1", null, 10L}, {"E1", null, 30L}, {"E1", null, 60L},
@@ -733,7 +733,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E2", 1, 40L));
             env.sendEventBean(makeEvent("E1", 2, 50L));
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 100L}, {null, null, 150L},
                     {"E1", null, 110L}, {"E1", 2, 70L},
@@ -745,7 +745,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             env.advanceTime(3000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}},
                 new Object[][]{
@@ -753,7 +753,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 70L));    // removes the first 3 events
             env.advanceTimeSpan(4000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 280L}, {null, null, 220L},
                     {"E1", null, 240L}, {"E1", null, 180L},
@@ -765,7 +765,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 80L));    // removes the second 2 events
             env.advanceTimeSpan(5000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 300L}, {null, null, 210L},
                     {"E1", null, 260L}, {"E1", null, 210L},
@@ -777,7 +777,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             env.sendEventBean(makeEvent("E1", 1, 90L));    // removes the third 1 event
             env.advanceTimeSpan(6000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {null, null, 300L}, {null, null, 240L},
                     {"E1", null, 300L}, {"E1", null, 240L},
@@ -895,38 +895,38 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E1", 2, 20L));
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 60L}, {"E1", null, 60L}, {"E1", 1, 40L}, {"E1", 2, 20L}},
                 new Object[][]{{null, null, null}, {"E1", null, null}, {"E1", 1, null}, {"E1", 2, null}});
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
             env.sendEventBean(makeEvent("E1", 2, 50L));
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 150L}, {"E1", null, 110L}, {"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E2", 1, 40L}},
                 new Object[][]{{null, null, 60L}, {"E1", null, 60L}, {"E1", 1, 40L}, {"E1", 2, 20L}, {"E2", null, null}, {"E2", 1, null}});
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             env.advanceTime(3000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E2", 1, 40L}},
                 new Object[][]{{null, null, 150L}, {"E1", null, 110L}, {"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E2", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 70L));    // removes the first 3 events
             env.advanceTimeSpan(4000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 220L}, {"E1", null, 180L}, {"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", null, 40L}, {"E2", 1, 40L}},
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E2", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 80L));    // removes the second 2 events
             env.advanceTimeSpan(5000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}, {"E1", 2, null}, {"E2", null, null}, {"E2", 1, null}},
                 new Object[][]{{null, null, 220L}, {"E1", null, 180L}, {"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", null, 40L}, {"E2", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 90L));    // removes the third 1 event
             env.advanceTimeSpan(6000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 240L}, {"E1", null, 240L}, {"E1", 1, 240L}, {"E1", 2, null}, {"E2", null, null}, {"E2", 1, null}},
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}, {"E1", 2, null}, {"E2", null, null}, {"E2", 1, null}});
 
@@ -981,7 +981,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
         env.milestoneInc(milestone);
 
         env.advanceTime(1000);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertPropsPerRowIRPairFlattened("s0", fields,
             new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E1", null, 60L}, {null, null, 60L}},
             new Object[][]{{"E1", 1, null}, {"E1", 2, null}, {"E1", null, null}, {null, null, null}});
 
@@ -998,7 +998,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
         env.sendEventBean(makeEvent("E1", 1, 60L));
         env.advanceTime(3000);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertPropsPerRowIRPairFlattened("s0", fields,
             new Object[][]{{"E1", 1, 100L}, {"E1", null, 170L}, {null, null, 210L}},
             new Object[][]{{"E1", 1, 40L}, {"E1", null, 110L}, {null, null, 150L}});
 
@@ -1018,7 +1018,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
         env.sendEventBean(makeEvent("E1", 1, 90L));
         env.advanceTimeSpan(6000); // removes the third 1 event
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertPropsPerRowIRPairFlattened("s0", fields,
             new Object[][]{{"E1", 1, 240L}, {"E1", null, 240L}, {null, null, 240L}},
             new Object[][]{{"E1", 1, 210L}, {"E1", null, 210L}, {null, null, 210L}});
 
@@ -1051,38 +1051,38 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             env.sendEventBean(makeEvent("E1", 2, 20L));
             env.sendEventBean(makeEvent("E1", 1, 30L));
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 60L}, {"E1", null, 60L}, {"E1", 1, 40L}, {"E1", 2, 20L}},
                 new Object[][]{{null, null, null}, {"E1", null, null}, {"E1", 1, null}, {"E1", 2, null}});
 
             env.sendEventBean(makeEvent("E2", 1, 40L));
             env.sendEventBean(makeEvent("E1", 2, 50L));
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 150L}, {"E1", null, 110L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E2", 1, 40L}},
                 new Object[][]{{null, null, 60L}, {"E1", null, 60L}, {"E1", 2, 20L}, {"E2", null, null}, {"E2", 1, null}});
 
             env.sendEventBean(makeEvent("E1", 1, 60L));
             env.advanceTime(3000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}},
                 new Object[][]{{null, null, 150L}, {"E1", null, 110L}, {"E1", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 70L));    // removes the first 3 events
             env.advanceTimeSpan(4000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 220L}, {"E1", null, 180L}, {"E1", 1, 130L}, {"E1", 2, 50L}},
                 new Object[][]{{null, null, 210L}, {"E1", null, 170L}, {"E1", 1, 100L}, {"E1", 2, 70L}});
 
             env.sendEventBean(makeEvent("E1", 1, 80L));    // removes the second 2 events
             env.advanceTimeSpan(5000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}, {"E1", 2, null}, {"E2", null, null}, {"E2", 1, null}},
                 new Object[][]{{null, null, 220L}, {"E1", null, 180L}, {"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", null, 40L}, {"E2", 1, 40L}});
 
             env.sendEventBean(makeEvent("E1", 1, 90L));    // removes the third 1 event
             env.advanceTimeSpan(6000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 240L}, {"E1", null, 240L}, {"E1", 1, 240L}},
                 new Object[][]{{null, null, 210L}, {"E1", null, 210L}, {"E1", 1, 210L}});
 

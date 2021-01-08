@@ -18,9 +18,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class ResultSetOutputLimitFirstHaving {
 
     public static Collection<RegressionExecution> executions() {
@@ -63,7 +60,7 @@ public class ResultSetOutputLimitFirstHaving {
 
             env.advanceTime(1000);
             sendBeanEvent(env, 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{101d});
+            env.assertPropsNew("s0", fields, new Object[]{101d});
 
             sendBeanEvent(env, 1);
 
@@ -76,7 +73,7 @@ public class ResultSetOutputLimitFirstHaving {
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{114d});
+            env.assertPropsNew("s0", fields, new Object[]{114d});
 
             env.advanceTime(4999);
             sendBeanEvent(env, 0);
@@ -84,7 +81,7 @@ public class ResultSetOutputLimitFirstHaving {
 
             env.advanceTime(5000);
             sendBeanEvent(env, 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{102d});
+            env.assertPropsNew("s0", fields, new Object[]{102d});
 
             env.undeployAll();
         }
@@ -111,34 +108,34 @@ public class ResultSetOutputLimitFirstHaving {
     private static void tryAssertion2Events(RegressionEnvironment env) {
 
         sendBeanEvent(env, 1);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 2);
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendBeanEvent(env, 9);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 1);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 1);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 2);
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendBeanEvent(env, 1);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 2);
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         sendBeanEvent(env, 2);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, 2);
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
     }
 
     private static void sendBeanEvent(RegressionEnvironment env, double doublePrimitive) {

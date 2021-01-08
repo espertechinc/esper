@@ -62,10 +62,10 @@ public class InfraNWTableJoin {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("C2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"C2", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"C2", 1});
 
             env.sendEventBean(new SupportBean("C1", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"C1", 4});
+            env.assertPropsNew("s0", fields, new Object[]{"C1", 4});
 
             env.undeployAll();
         }

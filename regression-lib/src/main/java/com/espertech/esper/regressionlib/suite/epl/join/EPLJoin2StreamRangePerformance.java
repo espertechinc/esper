@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,8 +41,8 @@ public class EPLJoin2StreamRangePerformance {
 
     private static class EPLJoinPerfKeyAndRangeOuterJoin implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -89,8 +91,8 @@ public class EPLJoin2StreamRangePerformance {
 
     private static class EPLJoinPerfRelationalOp implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -134,8 +136,8 @@ public class EPLJoin2StreamRangePerformance {
 
     private static class EPLJoinPerfKeyAndRange implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -192,8 +194,8 @@ public class EPLJoin2StreamRangePerformance {
 
     private static class EPLJoinPerfKeyAndRangeInverted implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -231,8 +233,8 @@ public class EPLJoin2StreamRangePerformance {
 
     private static class EPLJoinPerfUnidirectionalRelOp implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -443,7 +445,7 @@ public class EPLJoin2StreamRangePerformance {
             //    log.info("At loop #" + i);
             //}
             env.sendEventBean(assertionCallback.getEvent(i));
-            env.assertPropsListenerNew("s0", fields, assertionCallback.getExpectedValue(i));
+            env.assertPropsNew("s0", fields, assertionCallback.getExpectedValue(i));
         }
         log.info("Done Querying");
         long endTime = System.currentTimeMillis();

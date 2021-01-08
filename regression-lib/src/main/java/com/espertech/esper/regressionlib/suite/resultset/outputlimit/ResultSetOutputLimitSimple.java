@@ -327,7 +327,7 @@ public class ResultSetOutputLimitSimple {
             env.sendEventBean(new SupportBean_S0(10, "a"));
             env.sendEventBean(new SupportBean_S0(20, "b"));
             env.sendEventBean(new SupportBean_S1(1000, "b"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, 1000});
+            env.assertPropsNew("s0", fields, new Object[]{20, 1000});
 
             env.sendEventBean(new SupportBean_S1(1001, "b"));
             env.sendEventBean(new SupportBean_S1(1002, "a"));
@@ -335,14 +335,14 @@ public class ResultSetOutputLimitSimple {
 
             env.advanceTime(60 * 1000);
             env.sendEventBean(new SupportBean_S1(1003, "a"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 1003});
+            env.assertPropsNew("s0", fields, new Object[]{10, 1003});
 
             env.sendEventBean(new SupportBean_S1(1004, "a"));
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(120 * 1000);
             env.sendEventBean(new SupportBean_S1(1005, "a"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 1005});
+            env.assertPropsNew("s0", fields, new Object[]{10, 1005});
 
             env.undeployAll();
         }
@@ -461,7 +461,7 @@ public class ResultSetOutputLimitSimple {
 
             // Output limit clause ignored when iterating, for both joins and no-join
             sendEvent(env, "CAT", 50);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"CAT", 50d}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"CAT", 50d}});
 
             sendEvent(env, "CAT", 60);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"CAT", 50d}, {"CAT", 60d}});
@@ -684,7 +684,7 @@ public class ResultSetOutputLimitSimple {
             // send event 1
             sendEvent(env, "IBM");
 
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
             assertNull(env.listener("s0").getLastOldData());
 
@@ -699,7 +699,7 @@ public class ResultSetOutputLimitSimple {
             // send event 2
             sendEvent(env, "MSFT");
 
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
             assertNull(env.listener("s0").getLastOldData());
 
@@ -712,7 +712,7 @@ public class ResultSetOutputLimitSimple {
             // send event 3
             sendEvent(env, "YAH");
 
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
             assertNull(env.listener("s0").getLastOldData());
 
@@ -735,7 +735,7 @@ public class ResultSetOutputLimitSimple {
             sendTimer(env, 1000);
             sendEvent(env, "IBM");
             sendEvent(env, "MSFT");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 2000);
             sendEvent(env, "YAH");
@@ -746,7 +746,7 @@ public class ResultSetOutputLimitSimple {
             sendTimer(env, 3000);
             sendEvent(env, "s4");
             sendEvent(env, "s5");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 10000);
             sendEvent(env, "s6");
@@ -798,14 +798,14 @@ public class ResultSetOutputLimitSimple {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 3));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E4", 4));
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E4"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E4"});
 
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 3));
@@ -830,7 +830,7 @@ public class ResultSetOutputLimitSimple {
             sendTimer(env, 1000);
             sendEvent(env, "s0");
             sendEvent(env, "s1");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 2000);
             sendEvent(env, "s2");
@@ -841,7 +841,7 @@ public class ResultSetOutputLimitSimple {
             sendTimer(env, 3000);
             sendEvent(env, "s4");
             sendEvent(env, "s5");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 10000);
             sendEvent(env, "s6");
@@ -891,10 +891,10 @@ public class ResultSetOutputLimitSimple {
 
             env.sendEventBean(new SupportBean("E1", 1));
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E1"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E1"}});
 
             env.undeployAll();
         }
@@ -908,16 +908,16 @@ public class ResultSetOutputLimitSimple {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 2));
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
             env.sendEventBean(new SupportBean("E3", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "theString".split(","), new Object[][]{{"E4"}});
+            env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E4"}});
 
             env.undeployAll();
         }
@@ -933,13 +933,13 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, 1);
 
         // check no update
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // send another event
         sendEvent(env, 2);
 
         // check update, only the last event present
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
         Assert.assertEquals(2L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
         assertNull(env.listener("s0").getLastOldData());
@@ -986,13 +986,13 @@ public class ResultSetOutputLimitSimple {
 
         // check that the listener hasn't been updated
         sendTimeEvent(env, timeToCallback - 1, currentTime);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // update the clock
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
         assertNull(env.listener("s0").getLastOldData());
 
@@ -1000,37 +1000,37 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, "MSFT");
 
         // check that the listener hasn't been updated
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // update the clock
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
         assertNull(env.listener("s0").getLastOldData());
 
         // don't send an event
         // check that the listener hasn't been updated
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // update the clock
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         assertNull(env.listener("s0").getLastNewData());
         assertNull(env.listener("s0").getLastOldData());
 
         // don't send an event
         // check that the listener hasn't been updated
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // update the clock
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         assertNull(env.listener("s0").getLastNewData());
         assertNull(env.listener("s0").getLastOldData());
 
@@ -1040,13 +1040,13 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, "s5");
 
         // check that the listener hasn't been updated
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // update the clock
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
         assertNull(env.listener("s0").getLastOldData());
 
@@ -1070,13 +1070,13 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, 1);
 
         // check no update
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // send another event
         sendEvent(env, 2);
 
         // check update, all events present
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
         Assert.assertEquals(1L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
         Assert.assertEquals(2L, env.listener("s0").getLastNewData()[1].get("longBoxed"));

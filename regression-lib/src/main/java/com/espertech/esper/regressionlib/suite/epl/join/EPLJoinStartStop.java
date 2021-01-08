@@ -18,7 +18,6 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
@@ -78,15 +77,15 @@ public class EPLJoinStartStop {
     private static class EPLJoinInvalidJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String invalidJoin = "select * from SupportBean_A, SupportBean_B";
-            tryInvalidCompile(env, invalidJoin,
+            env.tryInvalidCompile(invalidJoin,
                 "Joins require that at least one view is specified for each stream, no view was specified for SupportBean_A");
 
             invalidJoin = "select * from SupportBean_A#time(5 min), SupportBean_B";
-            tryInvalidCompile(env, invalidJoin,
+            env.tryInvalidCompile(invalidJoin,
                 "Joins require that at least one view is specified for each stream, no view was specified for SupportBean_B");
 
             invalidJoin = "select * from SupportBean_A#time(5 min), pattern[SupportBean_A->SupportBean_B]";
-            tryInvalidCompile(env, invalidJoin,
+            env.tryInvalidCompile(invalidJoin,
                 "Joins require that at least one view is specified for each stream, no view was specified for pattern event stream");
         }
     }

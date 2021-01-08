@@ -36,12 +36,12 @@ public class EventAvroJsonWithSchema implements RegressionExecution {
         String eventOneJson = "{\"name\": \"Jane\", \"favorite_number\": 256, \"favorite_color\": \"red\"}";
         GenericData.Record record = parse(schema, eventOneJson);
         env.sendEventAvro(record, "User");
-        env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"Jane", 256, "red"});
+        env.assertPropsNew("s0", fields.split(","), new Object[]{"Jane", 256, "red"});
 
         String eventTwoJson = "{\"name\": \"Hans\", \"favorite_number\": -1, \"favorite_color\": \"green\"}";
         record = parse(schema, eventTwoJson);
         env.sendEventAvro(record, "User");
-        env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"Hans", -1, "green"});
+        env.assertPropsNew("s0", fields.split(","), new Object[]{"Hans", -1, "green"});
 
         env.undeployAll();
     }

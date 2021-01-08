@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -125,7 +124,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        env.assertPropsListenerNew("s0", "myint,mystr,addprop".split(","), new Object[]{123, "abc", null});
+        env.assertPropsNew("s0", "myint,mystr,addprop".split(","), new Object[]{123, "abc", null});
         env.undeployModuleContaining("insert");
 
         // select underlying plus property
@@ -144,7 +143,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        env.assertPropsListenerNew("s0", "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
+        env.assertPropsNew("s0", "myint,mystr,addprop".split(","), new Object[]{456, "def", 1});
 
         env.undeployAll();
     }
@@ -188,11 +187,11 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         String message = !rep.isAvroEvent() ?
             "Type by name 'E1' in property 'myint' expected Integer but receives Long" :
             "Type by name 'E1' in property 'myint' expected schema '\"long\"' but received schema '\"int\"'";
-        SupportMessageAssertUtil.tryInvalidCompile(env, path, "insert into E1 select mysrc.* from Src as mysrc", message);
+        env.tryInvalidCompile(path, "insert into E1 select mysrc.* from Src as mysrc", message);
 
         // mismatch in column name
         env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE2.class) + "create schema E2 as (someprop long)", path);
-        SupportMessageAssertUtil.tryInvalidCompile(env, path, "insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc",
+        env.tryInvalidCompile(path, "insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc",
             "Failed to find column 'otherprop' in target type 'E2' [insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc]");
 
         env.undeployAll();
@@ -219,7 +218,7 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else {
             fail();
         }
-        env.assertPropsListenerNew("s0", fields.split(","), expected);
+        env.assertPropsNew("s0", fields.split(","), expected);
         env.undeployModuleContaining("s0");
     }
 

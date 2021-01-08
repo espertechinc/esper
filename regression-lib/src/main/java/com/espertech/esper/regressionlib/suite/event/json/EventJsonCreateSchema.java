@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EventJsonCreateSchema {
 
@@ -55,13 +55,13 @@ public class EventJsonCreateSchema {
 
     private static class EventJsonCreateSchemaInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "create objectarray schema InnerEvent();\n create json schema JsonEvent(innervent InnerEvent);\n",
+            env.tryInvalidCompile("create objectarray schema InnerEvent();\n create json schema JsonEvent(innervent InnerEvent);\n",
                     "Failed to validate event type 'InnerEvent', expected a Json or Map event type");
 
-            tryInvalidCompile(env, "create json schema InvalidDecl(int fieldname)",
+            env.tryInvalidCompile("create json schema InvalidDecl(int fieldname)",
                 "Nestable type configuration encountered an unexpected property type name 'fieldname' for property 'int', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
 
-            tryInvalidCompile(env, "create json schema InvalidDecl(comparable java.lang.Comparable)",
+            env.tryInvalidCompile("create json schema InvalidDecl(comparable java.lang.Comparable)",
                 "Unsupported type 'java.lang.Comparable' for property 'comparable' (use @JsonSchemaField to declare additional information)");
         }
     }

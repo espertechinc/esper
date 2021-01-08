@@ -32,7 +32,6 @@ import org.junit.Assert;
 import javax.naming.NamingException;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class ClientExtendVirtualDataWindow implements RegressionExecution, IndexBackingTableInfo {
@@ -68,10 +67,10 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         EPAssertionUtil.assertProps(env.statement("s0").iterator().next(), fields, new Object[]{100});
 
         env.sendEventBean(new SupportBean("E1", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{110});
+        env.assertPropsNew("s0", fields, new Object[]{110});
 
         env.sendEventBean(new SupportBean("E1", 20));
-        env.assertPropsListenerNew("s0", fields, new Object[]{130});
+        env.assertPropsNew("s0", fields, new Object[]{130});
 
         // assert events received for add-consumer and remove-consumer
         env.undeployModuleContaining("s0");
@@ -141,10 +140,10 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.compileDeploy("@name('s0') select sum(intPrimitive) as val0 from MyVDW", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 100));
-        env.assertPropsListenerNew("s0", fields, new Object[]{200});
+        env.assertPropsNew("s0", fields, new Object[]{200});
 
         env.sendEventBean(new SupportBean("E1", 50));
-        env.assertPropsListenerNew("s0", fields, new Object[]{250});
+        env.assertPropsNew("s0", fields, new Object[]{250});
 
         env.undeployAll();
     }
@@ -232,7 +231,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getLastRequestedLookup(), "", "");
 
         env.sendEventBean(new SupportBean_ST0("E1", 0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "S1", 100});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "S1", 100});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -244,7 +243,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, window.getLastAccessKeys());
         env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean_ST0("S1", 0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"S1", "S1", 100});
+        env.assertPropsNew("s0", fields, new Object[]{"S1", "S1", 100});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1"}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -255,7 +254,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getRequestedLookups().get(1), "theString=(String)|longPrimitive=(Long)", "intPrimitive[,](Integer)");
 
         env.sendEventBean(SupportBeanRange.makeKeyLong("S1", 50L, 80, 120));
-        env.assertPropsListenerNew("s0", "vdw.theString".split(","), new Object[]{"S1"});
+        env.assertPropsNew("s0", "vdw.theString".split(","), new Object[]{"S1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", 50L, new VirtualDataWindowKeyRange(80, 120)}, window.getLastAccessKeys());
 
         // destroy
@@ -276,7 +275,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getLastRequestedLookup(), "", "");
 
         env.sendEventBean(new SupportBean_ST0("E1", 0));
-        env.assertPropsListenerNew("s0", "col1".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "col1".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -285,10 +284,10 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getLastRequestedLookup(), "col1=(String)", "");
 
         env.sendEventBean(new SupportBean_ST0("E1", 0));
-        env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{null});
+        env.assertPropsNew("s0", "val0".split(","), new Object[]{null});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, window.getLastAccessKeys());
         env.sendEventBean(new SupportBean_ST0("key1", 0));
-        env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "val0".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1"}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -299,7 +298,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getLastRequestedLookup(), "col1=(String)|col2=(String)", "col3[,](Integer)");
 
         env.sendEventBean(new SupportBeanRange("key1", "key2", 5, 10));
-        env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "val0".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1", "key2", new VirtualDataWindowKeyRange(5, 10)}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -373,7 +372,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         // subquery - no context
         String eplSubqueryNoCtx = "select (select intPrimitive from MyWindow mw where mw.theString = s0.p00) as c0 "
             + "from SupportBean_S0 s0";
-        tryInvalidCompile(env, path, eplSubqueryNoCtx,
+        env.tryInvalidCompile(path, eplSubqueryNoCtx,
             "Failed to plan subquery number 1 querying MyWindow: Mismatch in context specification, the context for the named window 'MyWindow' is 'MyContext' and the query specifies no context  [select (select intPrimitive from MyWindow mw where mw.theString = s0.p00) as c0 from SupportBean_S0 s0]");
 
         SupportVirtualDW.setInitializationData(null);
@@ -426,7 +425,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertIndexSpec(window.getLastRequestedLookup(), "", "");
 
         env.sendEventBean(new SupportBean_ST0("E1", 0));
-        env.assertPropsListenerNew("s0", "col1".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "col1".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -438,7 +437,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, window.getLastAccessKeys());
         env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean_ST0("key1", 0));
-        env.assertPropsListenerNew("s0", "col1".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "col1".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1"}, window.getLastAccessKeys());
         env.undeployModuleContaining("s0");
 
@@ -453,7 +452,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         assertFalse(window.getLastRequestedLookup().isFireAndForget());
 
         env.sendEventBean(new SupportBeanRange("key1", "key2", 5, 10));
-        env.assertPropsListenerNew("s0", "col1".split(","), new Object[]{"key1"});
+        env.assertPropsNew("s0", "col1".split(","), new Object[]{"key1"});
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"key1", "key2", new VirtualDataWindowKeyRange(5, 10)}, window.getLastAccessKeys());
 
         env.undeployAll();
@@ -463,12 +462,12 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         String epl;
 
         epl = "create window ABC.invalid:invalid() as SupportBean";
-        tryInvalidCompile(env, epl, "Failed to validate data window declaration: Virtual data window forge class " + SupportBean.class.getName() + " does not implement the interface " + VirtualDataWindowForge.class.getName());
+        env.tryInvalidCompile(epl, "Failed to validate data window declaration: Virtual data window forge class " + SupportBean.class.getName() + " does not implement the interface " + VirtualDataWindowForge.class.getName());
 
         epl = "select * from SupportBean.test:vdw()";
-        tryInvalidCompile(env, epl, "Failed to validate data window declaration: Virtual data window requires use with a named window in the create-window syntax [select * from SupportBean.test:vdw()]");
+        env.tryInvalidCompile(epl, "Failed to validate data window declaration: Virtual data window requires use with a named window in the create-window syntax [select * from SupportBean.test:vdw()]");
 
-        tryInvalidCompile(env, "create window ABC.test:exceptionvdw() as SupportBean",
+        env.tryInvalidCompile("create window ABC.test:exceptionvdw() as SupportBean",
             "Failed to validate data window declaration: Validation exception initializing virtual data window 'ABC': This is a test exception [create window ABC.test:exceptionvdw() as SupportBean]");
     }
 
@@ -510,7 +509,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
             public void run() {
                 String[] fields = "vdw.theString,vdw.intPrimitive,ssb1.i1".split(",");
                 env.sendEventBean(new SupportSimpleBeanOne("S1", 1, 102, 103));
-                env.assertPropsListenerNew("s0", fields, new Object[]{"S1", 101, 1});
+                env.assertPropsNew("s0", fields, new Object[]{"S1", 101, 1});
             }
         };
 

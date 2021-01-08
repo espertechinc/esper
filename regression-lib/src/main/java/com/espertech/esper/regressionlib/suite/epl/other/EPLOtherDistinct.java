@@ -103,7 +103,7 @@ public class EPLOtherDistinct {
             sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
 
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne".split(","),
+            env.assertPropsPerRowLastNew("s0", "intOne".split(","),
                 new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
 
             env.sendEventBean(new SupportBean_S1(0));
@@ -188,7 +188,7 @@ public class EPLOtherDistinct {
 
             env.advanceTime(1000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne,intTwo".split(","),
+            env.assertPropsPerRowLastNew("s0", "intOne,intTwo".split(","),
                 new Object[][]{
                     {new int[]{1, 2}, new int[]{3, 4}},
                     {new int[]{3, 4}, new int[]{1, 2}},
@@ -213,7 +213,7 @@ public class EPLOtherDistinct {
 
             env.advanceTime(1000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "intOne".split(","),
+            env.assertPropsPerRowLastNew("s0", "intOne".split(","),
                 new Object[][]{{new int[]{1, 2}}, {new int[]{2, 1}}, {new int[]{2, 3}}});
 
             env.undeployAll();
@@ -333,13 +333,13 @@ public class EPLOtherDistinct {
 
             env.sendEventBean(new SupportBean_A("E1"));
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 2});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_A("E1"));
             env.sendEventBean(new SupportBean("E1", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 3});
 
             env.undeployAll();
         }
@@ -517,19 +517,19 @@ public class EPLOtherDistinct {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2", 2}, {"E1", 1}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 2}, {"E1", 1}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean("E2", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2", 3}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 3}});
 
             env.undeployAll();
 
@@ -543,7 +543,7 @@ public class EPLOtherDistinct {
             env.sendEventBean(new SupportBean("E2", 2));
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fieldsTwo, new Object[][]{{"E1", 1}, {"E2", 1}});
+            env.assertPropsPerRowLastNew("s0", fieldsTwo, new Object[][]{{"E1", 1}, {"E2", 1}});
 
             env.advanceTime(2000);
             env.assertListenerNotInvoked("s0");
@@ -596,7 +596,7 @@ public class EPLOtherDistinct {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(0);
 
@@ -638,31 +638,31 @@ public class EPLOtherDistinct {
     private static void tryAssertionSimpleColumn(RegressionEnvironment env, SupportListener listener, EPStatement stmt, String[] fields) {
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         env.sendEventBean(new SupportBean("E2", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 1});
 
         env.sendEventBean(new SupportBean("E1", 2));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 1}, {"E1", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 2});
 
         env.sendEventBean(new SupportBean("E2", 2));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 1}, {"E1", 2}, {"E2", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
         env.sendEventBean(new SupportBean("E2", 2));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 1}, {"E1", 2}, {"E2", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 1}, {"E1", 2}, {"E2", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
     }
 
     private static void tryAssertionSnapshotColumn(RegressionEnvironment env, SupportListener listener, EPStatement stmt, String[] fields) {

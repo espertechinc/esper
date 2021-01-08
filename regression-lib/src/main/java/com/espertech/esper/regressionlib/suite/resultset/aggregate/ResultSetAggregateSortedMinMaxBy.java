@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ResultSetAggregateSortedMinMaxBy {
@@ -122,21 +121,21 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{new Object[]{eventOne}});
 
             env.milestoneInc(milestone);
 
             SupportBean eventTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventTwo);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{new Object[]{eventTwo, eventOne}});
 
             env.milestoneInc(milestone);
 
             SupportBean eventThree = new SupportBean("E3", 0);
             env.sendEventBean(eventThree);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{new Object[]{eventTwo, eventThree}});
 
             env.undeployAll();
@@ -162,12 +161,12 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventOne = makeEvent("E1", 1, 10);
             env.sendEventBean(eventOne);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{eventOne, eventOne, 10L, "E1", 1, eventOne, 10L, "E1", 1, eventOne});
 
             SupportBean eventTwo = makeEvent("E2", 2, 20);
             env.sendEventBean(eventTwo);
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{eventTwo, eventOne, 20L, "E2", 2, eventTwo, 10L, "E1", 1, eventOne});
 
             env.milestone(0);
@@ -175,40 +174,40 @@ public class ResultSetAggregateSortedMinMaxBy {
             SupportBean eventThree = makeEvent("E3", 3, 5);
             env.sendEventBean(eventThree);
             Object[] resultThree = new Object[]{eventTwo, eventThree, 20L, "E2", 2, eventTwo, 5L, "E3", 3, eventThree};
-            env.assertPropsListenerNew("s0", fields, resultThree);
+            env.assertPropsNew("s0", fields, resultThree);
 
             SupportBean eventFour = makeEvent("E4", 4, 5);
             env.sendEventBean(eventFour); // same as E3
-            env.assertPropsListenerNew("s0", fields, resultThree);
+            env.assertPropsNew("s0", fields, resultThree);
 
             env.milestone(1);
 
             SupportBean eventFive = makeEvent("E5", 5, 20);
             env.sendEventBean(eventFive); // same as E2
-            env.assertPropsListenerNew("s0", fields, resultThree);
+            env.assertPropsNew("s0", fields, resultThree);
 
             SupportBean eventSix = makeEvent("E6", 6, 10);
             env.sendEventBean(eventSix); // expires E1
-            env.assertPropsListenerNew("s0", fields, resultThree);
+            env.assertPropsNew("s0", fields, resultThree);
 
             SupportBean eventSeven = makeEvent("E7", 7, 20);
             env.sendEventBean(eventSeven); // expires E2
             Object[] resultSeven = new Object[]{eventTwo, eventThree, 20L, "E5", 5, eventFive, 5L, "E3", 3, eventThree};
-            env.assertPropsListenerNew("s0", fields, resultSeven);
+            env.assertPropsNew("s0", fields, resultSeven);
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("E8", 8, 20)); // expires E3
             Object[] resultEight = new Object[]{eventTwo, eventThree, 20L, "E5", 5, eventFive, 5L, "E4", 4, eventFour};
-            env.assertPropsListenerNew("s0", fields, resultEight);
+            env.assertPropsNew("s0", fields, resultEight);
 
             env.sendEventBean(makeEvent("E9", 9, 19)); // expires E4
             Object[] resultNine = new Object[]{eventTwo, eventThree, 20L, "E5", 5, eventFive, 10L, "E6", 6, eventSix};
-            env.assertPropsListenerNew("s0", fields, resultNine);
+            env.assertPropsNew("s0", fields, resultNine);
 
             env.sendEventBean(makeEvent("E10", 10, 12)); // expires E5
             Object[] resultTen = new Object[]{eventTwo, eventThree, 20L, "E7", 7, eventSeven, 10L, "E6", 6, eventSix};
-            env.assertPropsListenerNew("s0", fields, resultTen);
+            env.assertPropsNew("s0", fields, resultTen);
 
             env.undeployAll();
         }
@@ -252,41 +251,41 @@ public class ResultSetAggregateSortedMinMaxBy {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeEvent("C", 10, 1L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L});
 
             env.sendEventBean(makeEvent("P", 5, 2L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 2L, 2L, 1L, 1L, 2L, 2L, 1L});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("G", 7, 3L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 2L, 2L, 1L, 1L, 2L, 2L, 1L});
 
             env.sendEventBean(makeEvent("A", 7, 4L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 2L, 2L, 4L, 1L, 2L, 2L, 4L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("G", 1, 5L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 2L, 5L, 4L, 1L, 2L, 5L, 4L});
 
             env.sendEventBean(makeEvent("X", 7, 6L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 6L, 5L, 4L, 1L, 6L, 5L, 4L});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("G", 100, 7L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{7L, 6L, 5L, 4L, 7L, 6L, 5L, 4L});
 
             env.sendEventBean(makeEvent("Z", 1000, 8L));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{8L, 8L, 5L, 4L, 8L, 8L, 5L, 4L});
 
             env.undeployAll();
@@ -310,7 +309,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventOne = new SupportBean("C", 10);
             env.sendEventBean(eventOne);
-            env.assertPropsListenerNew("s0", fields, new Object[][]{
+            env.assertPropsNew("s0", fields, new Object[][]{
                 new Object[]{eventOne},
                 new Object[]{eventOne},
                 new Object[]{eventOne},
@@ -320,7 +319,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventTwo = new SupportBean("D", 20);
             env.sendEventBean(eventTwo);
-            env.assertPropsListenerNew("s0", fields, new Object[][]{
+            env.assertPropsNew("s0", fields, new Object[][]{
                 new Object[]{eventTwo, eventOne},
                 new Object[]{eventOne, eventTwo},
                 new Object[]{eventOne, eventTwo},
@@ -328,7 +327,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventThree = new SupportBean("C", 15);
             env.sendEventBean(eventThree);
-            env.assertPropsListenerNew("s0", fields, new Object[][]{
+            env.assertPropsNew("s0", fields, new Object[][]{
                 new Object[]{eventTwo, eventThree, eventOne},
                 new Object[]{eventOne, eventThree, eventTwo},
                 new Object[]{eventOne, eventThree, eventTwo},
@@ -338,7 +337,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
             SupportBean eventFour = new SupportBean("D", 19);
             env.sendEventBean(eventFour);
-            env.assertPropsListenerNew("s0", fields, new Object[][]{
+            env.assertPropsNew("s0", fields, new Object[][]{
                 new Object[]{eventTwo, eventFour, eventThree, eventOne},
                 new Object[]{eventOne, eventThree, eventFour, eventTwo},
                 new Object[]{eventOne, eventThree, eventFour, eventTwo},
@@ -361,31 +360,31 @@ public class ResultSetAggregateSortedMinMaxBy {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeEvent("C", 10, 1L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L});
 
             env.sendEventBean(makeEvent("P", 5, 2L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{1L, 2L, 2L, 1L, 1L, 2L, 2L, 1L});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("C", 9, 3L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{1L, 2L, 2L, 3L, 1L, 2L, 2L, 3L});
 
             env.sendEventBean(makeEvent("C", 11, 4L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{4L, 2L, 2L, 3L, 4L, 2L, 2L, 3L});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("X", 11, 5L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{5L, 2L, 5L, 3L, 5L, 2L, 5L, 3L});
 
             env.sendEventBean(makeEvent("X", 0, 6L));
-            env.assertPropsListenerNew("s0", fieldsTwo,
+            env.assertPropsNew("s0", fieldsTwo,
                 new Object[]{5L, 6L, 5L, 3L, 5L, 6L, 5L, 3L});
 
             env.undeployAll();
@@ -404,18 +403,18 @@ public class ResultSetAggregateSortedMinMaxBy {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", "E1", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", "E1", "E1"});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E1", "E2", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E1", "E2", "E1"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3", "E2", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E3", "E2", "E3"});
 
             env.sendEventBean(new SupportBean("E4", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E3", "E4", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", "E3", "E4", "E3"});
 
             env.undeployAll();
         }
@@ -423,10 +422,10 @@ public class ResultSetAggregateSortedMinMaxBy {
 
     private static class ResultSetAggregateInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select maxBy(p00||p10) from SupportBean_S0#lastevent, SupportBean_S1#lastevent",
+            env.tryInvalidCompile("select maxBy(p00||p10) from SupportBean_S0#lastevent, SupportBean_S1#lastevent",
                 "Failed to validate select-clause expression 'maxby(p00||p10)': The 'maxby' aggregation function requires that any parameter expressions evaluate properties of the same stream");
 
-            tryInvalidCompile(env, "select sorted(p00) from SupportBean_S0",
+            env.tryInvalidCompile("select sorted(p00) from SupportBean_S0",
                 "Failed to validate select-clause expression 'sorted(p00)': The 'sorted' aggregation function requires that a data window is declared for the stream");
         }
     }
@@ -436,7 +435,7 @@ public class ResultSetAggregateSortedMinMaxBy {
         String[] fields = "c0,c1,c2,c3,c4,c5,c6".split(",");
         SupportBean eventOne = makeEvent("E1", 1, 1);
         env.sendEventBean(eventOne);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventOne},
                 new Object[]{eventOne},
@@ -447,7 +446,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventTwo = makeEvent("E2", 2, 1);
         env.sendEventBean(eventTwo);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventOne, eventTwo},
                 new Object[]{eventTwo, eventOne},
@@ -458,7 +457,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventThree = makeEvent("E3", 0, 1);
         env.sendEventBean(eventThree);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventOne, eventTwo, eventThree},
                 new Object[]{eventTwo, eventOne, eventThree},
@@ -469,7 +468,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventFour = makeEvent("E4", 3, 1);   // pushes out E1
         env.sendEventBean(eventFour);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventTwo, eventThree, eventFour},
                 new Object[]{eventFour, eventTwo, eventThree},
@@ -478,7 +477,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventFive = makeEvent("E5", -1, 2);   // group 2
         env.sendEventBean(eventFive);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventFive},
                 new Object[]{eventFive},
@@ -487,7 +486,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventSix = makeEvent("E6", -1, 1);   // pushes out E2
         env.sendEventBean(eventSix);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventThree, eventFour, eventSix},
                 new Object[]{eventFour, eventThree, eventSix},
@@ -498,7 +497,7 @@ public class ResultSetAggregateSortedMinMaxBy {
 
         SupportBean eventSeven = makeEvent("E7", 2, 2);   // group 2
         env.sendEventBean(eventSeven);
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{
                 new Object[]{eventFive, eventSeven},
                 new Object[]{eventSeven, eventFive},

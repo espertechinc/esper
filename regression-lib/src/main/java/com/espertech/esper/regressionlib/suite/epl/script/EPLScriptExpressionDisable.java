@@ -13,12 +13,12 @@ package com.espertech.esper.regressionlib.suite.epl.script;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EPLScriptExpressionDisable implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        tryInvalidCompile(env, "expression js:abc [ bla; ] select abc() from SupportBean",
+        env.tryInvalidCompile("expression js:abc [ bla; ] select abc() from SupportBean",
             "Failed to validate select-clause expression 'abc()': Script compilation has been disabled by configuration");
     }
 }

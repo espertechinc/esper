@@ -27,7 +27,6 @@ import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.dataflow.SupportDataFlowAssertionUtil.tryInvalidInstantiate;
 
 public class EPLDataflowInvalidGraph {
@@ -44,48 +43,48 @@ public class EPLDataflowInvalidGraph {
             String epl;
 
             // invalid syntax
-            tryInvalidCompile(env, "create dataflow MyGraph MySource -> select",
+            env.tryInvalidCompile("create dataflow MyGraph MySource -> select",
                 "Incorrect syntax near 'select' (a reserved keyword) at line 1 column 36 [");
 
-            tryInvalidCompile(env, "create dataflow MyGraph MySource -> myout",
+            env.tryInvalidCompile("create dataflow MyGraph MySource -> myout",
                 "Incorrect syntax near end-of-input expecting a left curly bracket '{' but found end-of-input at line 1 column 41 [");
 
             // duplicate data flow name
             epl = "create dataflow MyGraph Emitter -> outstream<?> {};\n" +
                 "create dataflow MyGraph Emitter -> outstream<?> {};\n";
-            tryInvalidCompile(env, epl, "A dataflow by name 'MyGraph' has already been declared [");
+            env.tryInvalidCompile(epl, "A dataflow by name 'MyGraph' has already been declared [");
 
             // type not found
-            tryInvalidCompile(env, "create dataflow MyGraph DefaultSupportSourceOp -> outstream<ABC> {}",
+            env.tryInvalidCompile("create dataflow MyGraph DefaultSupportSourceOp -> outstream<ABC> {}",
                 "Failed to find event type 'ABC'");
 
             // invalid schema (need not test all variants, same as create-schema)
-            tryInvalidCompile(env, "create dataflow MyGraph create schema DUMMY com.mycompany.DUMMY, " +
+            env.tryInvalidCompile("create dataflow MyGraph create schema DUMMY com.mycompany.DUMMY, " +
                     "DefaultSupportSourceOp -> outstream<?> {}",
                 "Could not load class by name 'com.mycompany.DUMMY', please check imports");
 
             // can't find op
-            tryInvalidCompile(env, "create dataflow MyGraph DummyOp {}",
+            env.tryInvalidCompile("create dataflow MyGraph DummyOp {}",
                 "Failed to resolve forge class for operator 'DummyOp': Could not load class by name 'DummyOpForge', please check imports");
 
             // op is some other class
-            tryInvalidCompile(env, "create dataflow MyGraph Random {}",
+            env.tryInvalidCompile("create dataflow MyGraph Random {}",
                 "Forge class for operator 'Random' does not implement interface 'DataFlowOperatorForge'");
 
             // input stream not found
-            tryInvalidCompile(env, "create dataflow MyGraph DefaultSupportCaptureOp(nostream) {}",
+            env.tryInvalidCompile("create dataflow MyGraph DefaultSupportCaptureOp(nostream) {}",
                 "Input stream 'nostream' consumed by operator 'DefaultSupportCaptureOp' could not be found");
 
             // failed op factory
-            tryInvalidCompile(env, "create dataflow MyGraph MyInvalidOp {}",
+            env.tryInvalidCompile("create dataflow MyGraph MyInvalidOp {}",
                 "Failed to obtain operator 'MyInvalidOp': Failed-Here");
 
             // inject properties: property not found
-            tryInvalidCompile(env, "create dataflow MyGraph DefaultSupportCaptureOp {dummy: 1}",
+            env.tryInvalidCompile("create dataflow MyGraph DefaultSupportCaptureOp {dummy: 1}",
                 "Failed to find writable property 'dummy' for class");
 
             // inject properties: property invalid type
-            tryInvalidCompile(env, "create dataflow MyGraph MyTestOp {theString: 1}",
+            env.tryInvalidCompile("create dataflow MyGraph MyTestOp {theString: 1}",
                 "Property 'theString' of class " + MyTestOp.class.getName() + " expects an String but receives a value of type Integer");
 
             // two incompatible input streams: different types
@@ -93,7 +92,7 @@ public class EPLDataflowInvalidGraph {
                 "DefaultSupportSourceOp -> out1<SupportBean_A> {}\n" +
                 "DefaultSupportSourceOp -> out2<SupportBean_B> {}\n" +
                 "MyTestOp((out1, out2) as ABC) {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'MyTestOp' stream 'out1' typed 'SupportBean_A' is not the same type as stream 'out2' typed 'SupportBean_B'");
 
             // two incompatible input streams: one is wildcard
@@ -101,7 +100,7 @@ public class EPLDataflowInvalidGraph {
                 "DefaultSupportSourceOp -> out1<?> {}\n" +
                 "DefaultSupportSourceOp -> out2<SupportBean_B> {}\n" +
                 "MyTestOp((out1, out2) as ABC) {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'MyTestOp' streams 'out1' and 'out2' have differing wildcard type information");
 
             // two incompatible input streams: underlying versus eventbean
@@ -109,24 +108,24 @@ public class EPLDataflowInvalidGraph {
                 "DefaultSupportSourceOp -> out1<Eventbean<SupportBean_B>> {}\n" +
                 "DefaultSupportSourceOp -> out2<SupportBean_B> {}\n" +
                 "MyTestOp((out1, out2) as ABC) {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'MyTestOp' streams 'out1' and 'out2' have differing underlying information");
 
             // output stream multiple type parameters
             epl = "create dataflow MyGraph " +
                 "DefaultSupportSourceOp -> out1<SupportBean_A, SupportBean_B> {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate operator 'DefaultSupportSourceOp': Multiple output types for a single stream 'out1' are not supported [");
 
             // same output stream declared twice
             epl = "create dataflow MyGraph " +
                 "DefaultSupportSourceOp -> out1<SupportBean_A>, out1<SupportBean_B> {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'DefaultSupportSourceOp' stream 'out1' typed 'SupportBean_A' is not the same type as stream 'out1' typed 'SupportBean_B'");
 
             epl = "create dataflow MyGraph " +
                 "DefaultSupportSourceOp -> out1<Eventbean<SupportBean_A>>, out1<Eventbean<SupportBean_B>> {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'DefaultSupportSourceOp' stream 'out1' typed 'SupportBean_A' is not the same type as stream 'out1' typed 'SupportBean_B'");
 
             // two incompatible output streams: underlying versus eventbean
@@ -134,14 +133,14 @@ public class EPLDataflowInvalidGraph {
                 "DefaultSupportSourceOp -> out1<SupportBean_A> {}\n" +
                 "DefaultSupportSourceOp -> out1<SupportBean_B> {}\n" +
                 "MyTestOp(out1) {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "For operator 'MyTestOp' stream 'out1' typed 'SupportBean_A' is not the same type as stream 'out1' typed 'SupportBean_B'");
 
             // same schema defined twice
             epl = "create dataflow MyGraph " +
                 "create schema ABC (c0 string), create schema ABC (c1 string), " +
                 "DefaultSupportSourceOp -> out1<SupportBean_A> {}";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Schema name 'ABC' is declared more then once [");
         }
     }

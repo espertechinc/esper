@@ -35,7 +35,6 @@ import org.apache.avro.generic.GenericData;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.*;
 
@@ -166,35 +165,35 @@ public class InfraNWTableOnMerge {
             env.compile(eplTable, path);
 
             // invalid property
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c1[0]=1",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set c1[0]=1",
                 "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set c('a')=1",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set c('a')=1",
                 "Failed to validate assignment expression 'c('a')=1': Property 'c('a')' is not available for write access");
 
             // index expression is not Integer
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set doublearray[null]=1",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set doublearray[null]=1",
                 "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set intarray[intPrimitive]='x'",
                 "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment to property 'intarray' component type 'int' from expression returning 'String'");
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set intarray[intPrimitive]=1L",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set intarray[intPrimitive]=1L",
                 "Failed to validate assignment expression 'intarray[intPrimitive]=1': Invalid assignment to property 'intarray' component type 'int' from expression returning 'long'");
 
             // not-an-array
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set notAnArray[intPrimitive]=1",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set notAnArray[intPrimitive]=1",
                 "Failed to validate assignment expression 'notAnArray[intPrimitive]=1': Property 'notAnArray' is not an array");
 
             // not found
-            tryInvalidCompile(env, path, "on SupportBean update MyInfra set dummy[intPrimitive]=1",
+            env.tryInvalidCompile(path, "on SupportBean update MyInfra set dummy[intPrimitive]=1",
                 "Failed to validate assignment expression 'dummy[intPrimitive]=1': Property 'dummy' could not be found");
 
             // property found in updating-event
-            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive]);\n" +
+            env.tryInvalidCompile(path, "create schema UpdateEvent(dummy int[primitive]);\n" +
                     "on UpdateEvent update MyInfra set dummy[10]=1;\n",
                 "Failed to validate assignment expression 'dummy[10]=1': Property 'dummy[10]' is not available for write access");
 
-            tryInvalidCompile(env, path, "create schema UpdateEvent(dummy int[primitive], position int);\n" +
+            env.tryInvalidCompile(path, "create schema UpdateEvent(dummy int[primitive], position int);\n" +
                     "on UpdateEvent update MyInfra set dummy[position]=1;\n",
                 "Failed to validate assignment expression 'dummy[position]=1': Property 'dummy' could not be found");
 
@@ -845,47 +844,47 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(epl, path);
 
             epl = "on SupportBean_A merge MergeInfra as windowevent where id = theString when not matched and exists(select * from MergeInfra mw where mw.theString = windowevent.theString) is not null then insert into ABC select '1'";
-            tryInvalidCompile(env, path, epl, "On-Merge not-matched filter expression may not use properties that are provided by the named window event [on SupportBean_A merge MergeInfra as windowevent where id = theString when not matched and exists(select * from MergeInfra mw where mw.theString = windowevent.theString) is not null then insert into ABC select '1']");
+            env.tryInvalidCompile(path, epl, "On-Merge not-matched filter expression may not use properties that are provided by the named window event [on SupportBean_A merge MergeInfra as windowevent where id = theString when not matched and exists(select * from MergeInfra mw where mw.theString = windowevent.theString) is not null then insert into ABC select '1']");
 
             epl = "on SupportBean_A as up merge ABCInfra as mv when not matched then insert (col) select 1";
             if (namedWindow) {
-                tryInvalidCompile(env, path, epl, "Validation failed in when-not-matched (clause 1): Event type named 'ABCInfra' has already been declared with differing column name or type information: The property 'val' is not provided but required [on SupportBean_A as up merge ABCInfra as mv when not matched then insert (col) select 1]");
+                env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Event type named 'ABCInfra' has already been declared with differing column name or type information: The property 'val' is not provided but required [on SupportBean_A as up merge ABCInfra as mv when not matched then insert (col) select 1]");
             } else {
-                tryInvalidCompile(env, path, epl, "Validation failed in when-not-matched (clause 1): Column 'col' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [");
+                env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Column 'col' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [");
             }
 
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then update set intPrimitive = 1";
-            tryInvalidCompile(env, path, epl, "Incorrect syntax near 'update' (a reserved keyword) expecting 'insert' but found 'update' at line 1 column 9");
+            env.tryInvalidCompile(path, epl, "Incorrect syntax near 'update' (a reserved keyword) expecting 'insert' but found 'update' at line 1 column 9");
 
             if (namedWindow) {
                 epl = "on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *";
-                tryInvalidCompile(env, path, epl, "Validation failed in when-not-matched (clause 1): Expression-returned event type 'SupportBean_A' with underlying type '" + SupportBean_A.class.getName() + "' cannot be converted to target event type 'MergeInfra' with underlying type '" + SupportBean.class.getName() + "' [on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *]");
+                env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Expression-returned event type 'SupportBean_A' with underlying type '" + SupportBean_A.class.getName() + "' cannot be converted to target event type 'MergeInfra' with underlying type '" + SupportBean.class.getName() + "' [on SupportBean_A as up merge MergeInfra as mv where mv.theString=id when matched then insert select *]");
             }
 
             epl = "on SupportBean as up merge MergeInfra as mv";
-            tryInvalidCompile(env, path, epl, "Unexpected end-of-input at line 1 column 4");
+            env.tryInvalidCompile(path, epl, "Unexpected end-of-input at line 1 column 4");
 
             epl = "on SupportBean as up merge MergeInfra as mv where a=b when matched";
-            tryInvalidCompile(env, path, epl, "Incorrect syntax near end-of-input ('matched' is a reserved keyword) expecting 'then' but found end-of-input at line 1 column 66 [");
+            env.tryInvalidCompile(path, epl, "Incorrect syntax near end-of-input ('matched' is a reserved keyword) expecting 'then' but found end-of-input at line 1 column 66 [");
 
             epl = "on SupportBean as up merge MergeInfra as mv where a=b when matched and then delete";
-            tryInvalidCompile(env, path, epl, "Incorrect syntax near 'then' (a reserved keyword) at line 1 column 71 [on SupportBean as up merge MergeInfra as mv where a=b when matched and then delete]");
+            env.tryInvalidCompile(path, epl, "Incorrect syntax near 'then' (a reserved keyword) at line 1 column 71 [on SupportBean as up merge MergeInfra as mv where a=b when matched and then delete]");
 
             epl = "on SupportBean as up merge MergeInfra as mv where boolPrimitive=true when not matched then insert select *";
-            tryInvalidCompile(env, path, epl, "Failed to validate where-clause expression 'boolPrimitive=true': Property named 'boolPrimitive' is ambiguous as is valid for more then one stream [on SupportBean as up merge MergeInfra as mv where boolPrimitive=true when not matched then insert select *]");
+            env.tryInvalidCompile(path, epl, "Failed to validate where-clause expression 'boolPrimitive=true': Property named 'boolPrimitive' is ambiguous as is valid for more then one stream [on SupportBean as up merge MergeInfra as mv where boolPrimitive=true when not matched then insert select *]");
 
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select intPrimitive";
-            tryInvalidCompile(env, path, epl, "Failed to validate select-clause expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select intPrimitive]");
+            env.tryInvalidCompile(path, epl, "Failed to validate select-clause expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select intPrimitive]");
 
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A'";
-            tryInvalidCompile(env, path, epl, "Failed to validate match where-clause expression 'theString=\"A\"': Property named 'theString' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A']");
+            env.tryInvalidCompile(path, epl, "Failed to validate match where-clause expression 'theString=\"A\"': Property named 'theString' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A']");
 
             epl = "create variable int myvariable;\n" +
                 "on SupportBean_A merge MergeInfra when matched then update set myvariable = 1;\n";
-            tryInvalidCompile(env, path, epl, "Left-hand-side does not allow variables for variable 'myvariable'");
+            env.tryInvalidCompile(path, epl, "Left-hand-side does not allow variables for variable 'myvariable'");
 
             epl = "on SupportBean_A merge MergeInfra when matched then update set theString[1][2] = 1;\n";
-            tryInvalidCompile(env, path, epl, "Unrecognized left-hand-side assignment 'theString[1][2]'");
+            env.tryInvalidCompile(path, epl, "Unrecognized left-hand-side assignment 'theString[1][2]'");
 
             env.undeployAll();
 
@@ -896,7 +895,7 @@ public class InfraNWTableOnMerge {
             env.compileDeploy("create map schema SomeOther as (c1 int)", path);
             env.compileDeploy("create map schema MyEvent as (so SomeOther)", path);
 
-            tryInvalidCompile(env, path, "on MyEvent as me update AInfra set c = me.so",
+            env.tryInvalidCompile(path, "on MyEvent as me update AInfra set c = me.so",
                 "Failed to validate assignment expression 'c=me.so': Invalid assignment to property 'c' event type 'Composite' from event type 'SomeOther' [on MyEvent as me update AInfra set c = me.so]");
 
             env.undeployAll();
@@ -1280,15 +1279,15 @@ public class InfraNWTableOnMerge {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 10d);
-            env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", namedWindow ? 0d : 10d});
+            env.assertPropsNew("s0", "event_name,status".split(","), new Object[]{"name1", namedWindow ? 0d : 10d});
 
             // for named windows we can send same-value keys now
             if (namedWindow) {
                 makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 11d);
-                env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", 10d});
+                env.assertPropsNew("s0", "event_name,status".split(","), new Object[]{"name1", 10d});
 
                 makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 12d);
-                env.assertPropsListenerNew("s0", "event_name,status".split(","), new Object[]{"name1", 11d});
+                env.assertPropsNew("s0", "event_name,status".split(","), new Object[]{"name1", 11d});
             }
 
             env.undeployAll();

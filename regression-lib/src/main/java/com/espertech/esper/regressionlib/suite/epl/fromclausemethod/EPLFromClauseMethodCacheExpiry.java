@@ -31,36 +31,36 @@ public class EPLFromClauseMethodCacheExpiry implements RegressionExecution {
         sendTimer(env, 1000);
         String[] fields = new String[]{"id", "p00", "theString"};
         sendBeanEvent(env, "E1", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, "|E1|", "E1"});
+        env.assertPropsNew("s0", fields, new Object[]{1, "|E1|", "E1"});
 
         sendTimer(env, 1500);
         sendBeanEvent(env, "E2", 2);
-        env.assertPropsListenerNew("s0", fields, new Object[]{2, "|E2|", "E2"});
+        env.assertPropsNew("s0", fields, new Object[]{2, "|E2|", "E2"});
 
         sendTimer(env, 2000);
         sendBeanEvent(env, "E3", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{3, "|E3|", "E3"});
+        env.assertPropsNew("s0", fields, new Object[]{3, "|E3|", "E3"});
         assertEquals(3, SupportStaticMethodInvocations.getInvocationSizeReset());
 
         // should be cached
         sendBeanEvent(env, "E3", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{3, "|E3|", "E3"});
+        env.assertPropsNew("s0", fields, new Object[]{3, "|E3|", "E3"});
         assertEquals(0, SupportStaticMethodInvocations.getInvocationSizeReset());
 
         sendTimer(env, 2100);
         // should not be cached
         sendBeanEvent(env, "E4", 4);
-        env.assertPropsListenerNew("s0", fields, new Object[]{4, "|E4|", "E4"});
+        env.assertPropsNew("s0", fields, new Object[]{4, "|E4|", "E4"});
         assertEquals(1, SupportStaticMethodInvocations.getInvocationSizeReset());
 
         // should be cached
         sendBeanEvent(env, "E2", 2);
-        env.assertPropsListenerNew("s0", fields, new Object[]{2, "|E2|", "E2"});
+        env.assertPropsNew("s0", fields, new Object[]{2, "|E2|", "E2"});
         assertEquals(0, SupportStaticMethodInvocations.getInvocationSizeReset());
 
         // should not be cached
         sendBeanEvent(env, "E1", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, "|E1|", "E1"});
+        env.assertPropsNew("s0", fields, new Object[]{1, "|E1|", "E1"});
         assertEquals(1, SupportStaticMethodInvocations.getInvocationSizeReset());
 
         env.undeployAll();

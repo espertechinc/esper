@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
@@ -93,7 +92,7 @@ public class ExprCoreAnyAllSome {
                 SupportBean bean = new SupportBean("E", testdata[i][0]);
                 bean.setIntBoxed(testdata[i][1]);
                 env.sendEventBean(bean);
-                env.assertPropsListenerNew("s0", fields, result[i]);
+                env.assertPropsNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -257,7 +256,7 @@ public class ExprCoreAnyAllSome {
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(3L);
             env.sendEventBean(arrayBean);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true});
 
             env.undeployAll();
         }
@@ -283,16 +282,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E3", null, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E4", 1, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEvent(env, "E5", null, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E6", 1, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true});
             sendEvent(env, "E7", 0, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
 
@@ -305,16 +304,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendEvent(env, "E3", null, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E4", 1, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEvent(env, "E5", null, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             sendEvent(env, "E6", 1, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true});
             sendEvent(env, "E7", 0, 1d, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -333,23 +332,23 @@ public class ExprCoreAnyAllSome {
             arrayBean.setIntCol(Arrays.asList(1, 2));
             arrayBean.setLongBoxed(1L);
             env.sendEventBean(arrayBean);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             arrayBean.setLongBoxed(2L);
             env.sendEventBean(arrayBean);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true});
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{2, 2});
             arrayBean.setIntCol(Arrays.asList(2, 1));
             arrayBean.setLongBoxed(1L);
             env.sendEventBean(arrayBean);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             arrayBean = new SupportBeanArrayCollMap(new int[]{1, 1});
             arrayBean.setIntCol(Arrays.asList(1, 1));
             arrayBean.setLongBoxed(0L);
             env.sendEventBean(arrayBean);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -377,7 +376,7 @@ public class ExprCoreAnyAllSome {
 
             for (int i = 0; i < 6; i++) {
                 env.sendEventBean(new SupportBean("E1", i));
-                env.assertPropsListenerNew("s0", fields, result[i]);
+                env.assertPropsNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -406,7 +405,7 @@ public class ExprCoreAnyAllSome {
 
             for (int i = 0; i < 6; i++) {
                 env.sendEventBean(new SupportBean("E1", i));
-                env.assertPropsListenerNew("s0", fields, result[i]);
+                env.assertPropsNew("s0", fields, result[i]);
             }
 
             env.undeployAll();
@@ -430,16 +429,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E3", null, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E4", 1, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
 
             sendEvent(env, "E5", null, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E6", 1, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, false, null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true, false, null, true});
             sendEvent(env, "E7", 0, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, null, null, true, null});
+            env.assertPropsNew("s0", fields, new Object[]{false, null, null, true, null});
 
             env.undeployAll();
 
@@ -455,16 +454,16 @@ public class ExprCoreAnyAllSome {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendEvent(env, "E3", null, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E4", 1, null, null);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
 
             sendEvent(env, "E5", null, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null});
             sendEvent(env, "E6", 1, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true, false, null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true, false, null, true});
             sendEvent(env, "E7", 0, null, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, null, null, true, null});
+            env.assertPropsNew("s0", fields, new Object[]{false, null, null, true, null});
 
             env.undeployAll();
         }
@@ -472,9 +471,9 @@ public class ExprCoreAnyAllSome {
 
     private static class ExprCoreAnyAllSomeInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select intArr = all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
+            env.tryInvalidCompile("select intArr = all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
                 "Failed to validate select-clause expression 'intArr=all(1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select intArr > all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
+            env.tryInvalidCompile("select intArr > all (1, 2, 3) as r1 from SupportBeanArrayCollMap",
                 "Failed to validate select-clause expression 'intArr>all(1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }

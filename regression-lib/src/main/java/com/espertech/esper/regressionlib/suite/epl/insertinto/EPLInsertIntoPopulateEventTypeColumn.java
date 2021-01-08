@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -130,19 +129,19 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
             // enumeration type is incompatible
             env.compileDeploy("create schema TypeOne(sbs SupportBean[])", path);
-            tryInvalidCompile(env, path, "insert into TypeOne select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
+            env.tryInvalidCompile(path, "insert into TypeOne select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
                 "Incompatible type detected attempting to insert into column 'sbs' type '" + SupportBean.class.getName() + "' compared to selected type 'SupportBean_S0'");
 
             env.compileDeploy("create schema TypeTwo(sbs SupportBean)", path);
-            tryInvalidCompile(env, path, "insert into TypeTwo select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
+            env.tryInvalidCompile(path, "insert into TypeTwo select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
                 "Incompatible type detected attempting to insert into column 'sbs' type '" + SupportBean.class.getName() + "' compared to selected type 'SupportBean_S0'");
 
             // typable - selected column type is incompatible
-            tryInvalidCompile(env, path, "insert into N1_2 select new {p0='a'} as p1 from SupportBean",
+            env.tryInvalidCompile(path, "insert into N1_2 select new {p0='a'} as p1 from SupportBean",
                 "Invalid assignment of column 'p0' of type 'String' to event property 'p0' typed as 'Integer', column and parameter types mismatch");
 
             // typable - selected column type is not matching anything
-            tryInvalidCompile(env, path, "insert into N1_2 select new {xxx='a'} as p1 from SupportBean",
+            env.tryInvalidCompile(path, "insert into N1_2 select new {xxx='a'} as p1 from SupportBean",
                 "Failed to find property 'xxx' among properties for target event type 'N1_1'");
 
             env.undeployAll();
@@ -183,16 +182,16 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         env.sendEventBean(new SupportBean_S0(1, "x1", "y1"));
         env.sendEventBean(new SupportBean("E1", 1));
         Object[] expected = filter ? new Object[]{null, null} : new Object[]{"x1", "y1"};
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
 
         env.sendEventBean(new SupportBean_S0(100, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"x2", "y2"});
+        env.assertPropsNew("s0", fields, new Object[]{"x2", "y2"});
 
         env.sendEventBean(new SupportBean_S0(2, "x3", "y3"));
         env.sendEventBean(new SupportBean("E3", 3));
         expected = filter ? new Object[]{null, null} : new Object[]{"x3", "y3"};
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
 
         env.undeployAll();
     }
@@ -220,7 +219,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(2, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "x1", "y1", "x2", "y2"});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "x1", "y1", "x2", "y2"});
 
         env.undeployAll();
     }
@@ -283,7 +282,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         env.sendEventBean(new SupportBean_S0(1, "x1"));
         env.sendEventBean(new SupportBean("E1", 1));
         Object[] expected = filter ? new Object[]{null} : new Object[]{"x1"};
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
 
         env.sendEventBean(new SupportBean_S0(100, "x2"));
         env.sendEventBean(new SupportBean("E2", 2));

@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTForge;
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTHandler;
@@ -30,6 +31,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.*;
 
@@ -52,8 +54,8 @@ public class ClientExtendAggregationMultiFunction {
     }
 
     private static class ClientExtendAggregationMFManagedWithTable implements RegressionExecution {
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -97,11 +99,11 @@ public class ClientExtendAggregationMultiFunction {
 
             SupportBean eventEnumOne = new SupportBean("E1", 1);
             env.sendEventBean(eventEnumOne);
-            env.assertPropsListenerNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne}, true, true});
+            env.assertPropsNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne}, true, true});
 
             SupportBean eventEnumTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventEnumTwo);
-            env.assertPropsListenerNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne, eventEnumTwo}, false, false});
+            env.assertPropsNew("s0", fieldsEnumEvent, new Object[]{new SupportBean[]{eventEnumOne, eventEnumTwo}, false, false});
 
             env.undeployAll();
         }
@@ -128,13 +130,13 @@ public class ClientExtendAggregationMultiFunction {
 
             SupportBean eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
-            env.assertPropsListenerNew("s0", fieldsSingleEvent, new Object[]{eventOne, true, true, "E1", 1});
+            env.assertPropsNew("s0", fieldsSingleEvent, new Object[]{eventOne, true, true, "E1", 1});
 
             env.milestone(0);
 
             SupportBean eventTwo = new SupportBean("E2", 2);
             env.sendEventBean(eventTwo);
-            env.assertPropsListenerNew("s0", fieldsSingleEvent, new Object[]{eventTwo, false, false, "E2", 2});
+            env.assertPropsNew("s0", fieldsSingleEvent, new Object[]{eventTwo, false, false, "E2", 2});
 
             env.undeployAll();
         }
@@ -160,12 +162,12 @@ public class ClientExtendAggregationMultiFunction {
             env.sendEventBean(new SupportBean("E1", 1));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            env.assertPropsListenerNew("s0", fieldsScalarColl, new Object[]{true, true});
+            env.assertPropsNew("s0", fieldsScalarColl, new Object[]{true, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1", "E2"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
             EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            env.assertPropsListenerNew("s0", fieldsScalarColl, new Object[]{false, false});
+            env.assertPropsNew("s0", fieldsScalarColl, new Object[]{false, false});
 
             env.undeployAll();
         }
@@ -188,11 +190,11 @@ public class ClientExtendAggregationMultiFunction {
             SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fieldsScalarArray, new Object[]{
+            env.assertPropsNew("s0", fieldsScalarArray, new Object[]{
                 new String[]{"E1"}, new Integer[]{1}, true, true});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fieldsScalarArray, new Object[]{
+            env.assertPropsNew("s0", fieldsScalarArray, new Object[]{
                 new String[]{"E1", "E2"}, new Integer[]{1, 2}, false, false});
 
             env.undeployAll();
@@ -208,19 +210,20 @@ public class ClientExtendAggregationMultiFunction {
             SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fieldsScalar, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fieldsScalar, new Object[]{"E1", 1});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fieldsScalar, new Object[]{"E2", 2});
+            env.assertPropsNew("s0", fieldsScalar, new Object[]{"E2", 2});
 
             env.undeployAll();
         }
     }
     private static class ClientExtendAggregationMFManagedSimpleState implements RegressionExecution {
-        public boolean excludeWhenInstrumented() {
-            return true;
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -304,7 +307,7 @@ public class ClientExtendAggregationMultiFunction {
         // group 1
         SupportBean eventOne = new SupportBean("E1", 1);
         env.sendEventBean(eventOne);
-        env.assertPropsListenerNew("s0", fields, new Object[]{eventOne, eventOne});
+        env.assertPropsNew("s0", fields, new Object[]{eventOne, eventOne});
         if (!SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().isEmpty()) {
             assertEquals(1, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
             SupportAggMFMultiRTSingleEventState context = SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().get(0);
@@ -314,7 +317,7 @@ public class ClientExtendAggregationMultiFunction {
         // group 2
         SupportBean eventTwo = new SupportBean("E2", 2);
         env.sendEventBean(eventTwo);
-        env.assertPropsListenerNew("s0", fields, new Object[]{eventTwo, eventTwo});
+        env.assertPropsNew("s0", fields, new Object[]{eventTwo, eventTwo});
         if (!SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().isEmpty()) {
             assertEquals(2, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
         }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.framework;
 
+import java.util.EnumSet;
+
 public interface RegressionExecution {
     default String name() {
         return this.getClass().getSimpleName();
@@ -21,7 +23,7 @@ public interface RegressionExecution {
 
     void run(RegressionEnvironment env);
 
-    default boolean excludeWhenInstrumented() {
-        return false;
+    default EnumSet<RegressionFlag> flags() {
+        return null;
     }
 }

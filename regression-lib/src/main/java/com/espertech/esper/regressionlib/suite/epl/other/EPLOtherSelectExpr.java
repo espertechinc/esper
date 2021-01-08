@@ -129,7 +129,7 @@ public class EPLOtherSelectExpr {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", new String[]{"field1", "field2", "unicodeA"}, new Object[]{"volume", "sleep", "A"});
+            env.assertPropsNew("s0", new String[]{"field1", "field2", "unicodeA"}, new Object[]{"volume", "sleep", "A"});
             env.undeployAll();
 
             tryStatementMatch(env, "John's", "select * from SupportBean(theString='John\\'s')");

@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.expr.clazz;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprClassDisable implements RegressionExecution {
 
@@ -22,6 +22,6 @@ public class ExprClassDisable implements RegressionExecution {
             "    public class MyClass {}\n" +
             "\"\"\" " +
             "select * from SupportBean\n";
-        tryInvalidCompile(env, epl, "Inlined-class compilation has been disabled by configuration");
+        env.tryInvalidCompile(epl, "Inlined-class compilation has been disabled by configuration");
     }
 }

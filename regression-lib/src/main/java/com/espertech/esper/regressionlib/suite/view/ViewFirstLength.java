@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -40,17 +39,17 @@ public class ViewFirstLength {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}});
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
             sendSupportBean(env, "E3");
             env.assertListenerNotInvoked("s0");
 
@@ -58,7 +57,7 @@ public class ViewFirstLength {
 
             sendSupportBean(env, "E4");
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
         }
@@ -70,19 +69,19 @@ public class ViewFirstLength {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E1"}}, null);
             env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}});
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E2"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E2"}}, null);
             env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E3"}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E3"}}, null);
             env.assertPropsPerRowIterator("s0", "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(3);

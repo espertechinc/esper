@@ -229,13 +229,13 @@ public class EPLContainedEventExample {
             String[] fields = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
             printRows(env, env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B001", "100001"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B001", "100001"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}});
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}});
 
             // count
             env.undeployAll();
@@ -244,10 +244,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{3L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{3L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
 
             // unidirectional count
             env.undeployAll();
@@ -255,10 +255,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{3L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{3L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{1L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1L}});
 
             env.undeployAll();
         }
@@ -279,11 +279,11 @@ public class EPLContainedEventExample {
 
             String[] fields = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
             printRows(env, env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
 
             // count
             env.undeployAll();
@@ -292,10 +292,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{6L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{6L}});
 
             // unidirectional count
             env.undeployAll();
@@ -303,10 +303,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{2L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{2L}});
 
             env.undeployAll();
         }
@@ -327,11 +327,11 @@ public class EPLContainedEventExample {
 
             String[] fields = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{null, "200003"}, {"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{null, "200003"}, {"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
             printRows(env, env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
 
             // count
             env.undeployAll();
@@ -340,10 +340,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{5L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{5L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{7L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{7L}});
 
             // unidirectional count
             env.undeployAll();
@@ -351,10 +351,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{2L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{2L}});
 
             env.undeployAll();
         }
@@ -367,10 +367,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportResponseEvent("svcOne", new SupportResponseSubEvent[]{new SupportResponseSubEvent(1000, "typeA"), new SupportResponseSubEvent(800, "typeB")}));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"svcOne", "typeA", 1000.0}, {"svcOne", "typeB", 800.0}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"svcOne", "typeA", 1000.0}, {"svcOne", "typeB", 800.0}});
 
             env.sendEventBean(new SupportResponseEvent("svcOne", new SupportResponseSubEvent[]{new SupportResponseSubEvent(400, "typeB"), new SupportResponseSubEvent(500, "typeA")}));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"svcOne", "typeA", 750.0}, {"svcOne", "typeB", 600.0}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"svcOne", "typeA", 750.0}, {"svcOne", "typeB", 600.0}});
 
             env.undeployAll();
         }

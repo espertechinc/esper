@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportBImpl;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunction;
 
@@ -124,7 +123,7 @@ public class ClientExtendUDFVarargs {
             // try Arrays.asList
             tryAssertionArraysAsList(env, milestone);
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select varargsOnlyInt(1, null) from SupportBean", "Failed to validate select-clause expression 'varargsOnlyInt(1,null)': Could not find static method");
+            env.tryInvalidCompile("select varargsOnlyInt(1, null) from SupportBean", "Failed to validate select-clause expression 'varargsOnlyInt(1,null)': Could not find static method");
 
             runVarargAssertion(env, milestone, makePair("varargsOnlyBoxedFloat(cast(1, byte), cast(2, short), null, 3)", "1.0,2.0,null,3.0"));
             runVarargAssertion(env, milestone, makePair("varargsOnlyBoxedShort(null, cast(1, byte))", "null,1"));

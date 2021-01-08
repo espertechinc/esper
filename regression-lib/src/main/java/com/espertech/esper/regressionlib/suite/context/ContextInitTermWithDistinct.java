@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import org.junit.Assert;
 
@@ -72,23 +71,23 @@ public class ContextInitTermWithDistinct {
     private static class ContextInitTermWithDistinctInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // require stream name assignment using 'as'
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context MyContext initiated by distinct(theString) SupportBean terminated after 15 seconds",
+            env.tryInvalidCompile("create context MyContext initiated by distinct(theString) SupportBean terminated after 15 seconds",
                 "Distinct-expressions require that a stream name is assigned to the stream using 'as' [create context MyContext initiated by distinct(theString) SupportBean terminated after 15 seconds]");
 
             // require stream
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context MyContext initiated by distinct(a.theString) pattern [a=SupportBean] terminated after 15 seconds",
+            env.tryInvalidCompile("create context MyContext initiated by distinct(a.theString) pattern [a=SupportBean] terminated after 15 seconds",
                 "Distinct-expressions require a stream as the initiated-by condition [create context MyContext initiated by distinct(a.theString) pattern [a=SupportBean] terminated after 15 seconds]");
 
             // invalid distinct-clause expression
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context MyContext initiated by distinct((select * from MyWindow)) SupportBean as sb terminated after 15 seconds",
+            env.tryInvalidCompile("create context MyContext initiated by distinct((select * from MyWindow)) SupportBean as sb terminated after 15 seconds",
                 "Invalid context distinct-clause expression 'subselect_0': Aggregation, sub-select, previous or prior functions are not supported in this context [create context MyContext initiated by distinct((select * from MyWindow)) SupportBean as sb terminated after 15 seconds]");
 
             // empty list of expressions
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context MyContext initiated by distinct() SupportBean terminated after 15 seconds",
+            env.tryInvalidCompile("create context MyContext initiated by distinct() SupportBean terminated after 15 seconds",
                 "Distinct-expressions have not been provided [create context MyContext initiated by distinct() SupportBean terminated after 15 seconds]");
 
             // non-overlapping context not allowed with distinct
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context MyContext start distinct(theString) SupportBean end after 15 seconds",
+            env.tryInvalidCompile("create context MyContext start distinct(theString) SupportBean end after 15 seconds",
                 "Incorrect syntax near 'distinct' (a reserved keyword) at line 1 column 31 [create context MyContext start distinct(theString) SupportBean end after 15 seconds]");
         }
     }
@@ -117,15 +116,15 @@ public class ContextInitTermWithDistinct {
             env.milestone(1);
 
             sendEvent(env, "A", 0, 12);   // allocate context
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 12L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 12L, 1L});
 
             sendEvent(env, "A", 0, 13);   // counts towards the existing context, not having a new one
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 13L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 13L, 2L});
 
             env.milestone(2);
 
             sendEvent(env, "A", -1, 14);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 14L, 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 14L, 3L});
 
             sendEvent(env, "A", 1, 15);   // context termination
             sendEvent(env, "A", -1, 16);
@@ -134,22 +133,22 @@ public class ContextInitTermWithDistinct {
             env.milestone(3);
 
             sendEvent(env, "A", 0, 17);   // allocate context
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 17L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 17L, 1L});
 
             env.milestone(4);
 
             sendEvent(env, "A", -1, 18);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 18L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 18L, 2L});
 
             env.milestone(5);
 
             sendEvent(env, "B", 0, 19);   // allocate context
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 19L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 19L, 1L});
 
             env.milestone(6);
 
             sendEvent(env, "B", -1, 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 20L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 20L, 2L});
 
             sendEvent(env, "A", 1, 21);   // context termination
 
@@ -164,12 +163,12 @@ public class ContextInitTermWithDistinct {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "A", 0, 25);   // allocate context
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 25L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 25L, 1L});
 
             env.milestone(9);
 
             sendEvent(env, "B", 0, 26);   // allocate context
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 26L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 26L, 1L});
 
             env.undeployAll();
         }
@@ -198,12 +197,12 @@ public class ContextInitTermWithDistinct {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A", "E1", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A", "E2", 2L});
 
             env.sendEventBean(new SupportBean_S1(-1)); // terminate all
             env.sendEventBean(new SupportBean_S0(1, "A", "E3"));
@@ -218,18 +217,18 @@ public class ContextInitTermWithDistinct {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(1, "A", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A", "E4", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A", "E4", 1L});
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E5", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{2, "B", "E5", 1L});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(1, "B", "E6"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "B", "E6", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1, "B", "E6", 1L});
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E7"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E7", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{2, "B", "E7", 2L});
 
             env.milestone(5);
 
@@ -242,12 +241,12 @@ public class ContextInitTermWithDistinct {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E9"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E9", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{2, "B", "E9", 1L});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean_S0(2, "B", "E10"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "B", "E10", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{2, "B", "E10", 2L});
 
             env.undeployAll();
         }

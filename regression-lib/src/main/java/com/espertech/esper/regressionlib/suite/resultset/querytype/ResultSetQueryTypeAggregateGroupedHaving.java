@@ -119,13 +119,13 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 20000, 54);
-        env.assertPropsListenerNew("s0", fields, new Object[]{SYMBOL_DELL, 20000L, 103d});
+        env.assertPropsNew("s0", fields, new Object[]{SYMBOL_DELL, 20000L, 103d});
 
         sendEvent(env, SYMBOL_IBM, 1000, 10);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_IBM, 5000, 20);
-        env.assertPropsListenerOld("s0", fields, new Object[]{SYMBOL_DELL, 10000L, 54d});
+        env.assertPropsOld("s0", fields, new Object[]{SYMBOL_DELL, 10000L, 54d});
 
         sendEvent(env, SYMBOL_IBM, 6000, 5);
         env.assertListenerNotInvoked("s0");

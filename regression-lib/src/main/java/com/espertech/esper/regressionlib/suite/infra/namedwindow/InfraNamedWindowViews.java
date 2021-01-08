@@ -34,7 +34,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.*;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidDeploy;
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.avro.SchemaBuilder.record;
@@ -313,7 +314,7 @@ public class InfraNamedWindowViews {
             }
 
             String epl = EventRepresentationChoice.AVRO.getAnnotationText() + " @name('create') create window MyWindowBC#keepall as (bean SupportBean_S0)";
-            tryInvalidCompile(env, epl, "Property 'bean' type '" + SupportBean_S0.class.getName() + "' does not have a mapping to an Avro type ");
+            env.tryInvalidCompile(epl, "Property 'bean' type '" + SupportBean_S0.class.getName() + "' does not have a mapping to an Avro type ");
         }
     }
 
@@ -327,10 +328,10 @@ public class InfraNamedWindowViews {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields, new Object[][]{{"E1"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}}, null);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields, new Object[][]{{"E2"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2"}}, null);
 
             env.sendEventBean(new SupportBean("E3", 2));
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").assertInvokedAndReset(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
@@ -458,19 +459,19 @@ public class InfraNamedWindowViews {
             sendTimer(env, 1000);
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}});
 
             sendTimer(env, 5000);
             sendSupportBean(env, "E2", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}});
 
             sendTimer(env, 10000);
             sendSupportBean(env, "E3", 3L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 3L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}, {"E3", 3L}});
 
             // Should push out the window
@@ -479,18 +480,18 @@ public class InfraNamedWindowViews {
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 11000);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsOld("s0", fields, new Object[]{"E1", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E2", 2L}, {"E3", 3L}});
 
             sendSupportBean(env, "E4", 4L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 4L});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 4L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E2", 2L}, {"E3", 3L}, {"E4", 4L}});
 
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E3", 3L}, {"E4", 4L}});
 
             // nothing pushed
@@ -504,13 +505,13 @@ public class InfraNamedWindowViews {
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 20000);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E3", 3L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3", 3L});
+            env.assertPropsOld("s0", fields, new Object[]{"E3", 3L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E4", 4L}});
 
             // delete E4
             sendMarketBean(env, "E4");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E4", 4L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E4", 4L});
+            env.assertPropsOld("s0", fields, new Object[]{"E4", 4L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
 
             sendTimer(env, 100000);
@@ -658,19 +659,19 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}});
 
             sendTimer(env, 5000);
             sendSupportBean(env, "E2", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}});
 
             sendTimer(env, 10000);
             sendSupportBean(env, "E3", 3L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 3L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}, {"E3", 3L}});
 
             // Should not push out the window
@@ -687,7 +688,7 @@ public class InfraNamedWindowViews {
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E3", 3L}});
 
             // nothing pushed
@@ -711,16 +712,16 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 1000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1000L}});
 
             sendSupportBean(env, "E2", 5000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 5000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 5000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 5000L});
 
             sendSupportBean(env, "E3", 10000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 10000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 10000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 10000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1000L}, {"E2", 5000L}, {"E3", 10000L}});
 
             // Should push out the window
@@ -736,7 +737,7 @@ public class InfraNamedWindowViews {
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 5000L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 5000L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 5000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E3", 10000L}, {"E4", 11000L}});
 
             // nothing pushed other then E5 (E2 is deleted)
@@ -869,31 +870,31 @@ public class InfraNamedWindowViews {
 
             env.advanceTime(1000);
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             env.advanceTime(2000);
             sendSupportBean_A(env, "E1");    // delete E1
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
+            env.assertPropsOld("s0", fields, new Object[]{"E1"});
 
             env.milestone(2);
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
 
             env.advanceTime(3000);
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.advanceTime(3000);
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
             sendSupportBean_A(env, "E3");    // delete E3
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+            env.assertPropsOld("s0", fields, new Object[]{"E3"});
 
             env.milestone(4);
 
@@ -902,7 +903,7 @@ public class InfraNamedWindowViews {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(13000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
+            env.assertPropsOld("s0", fields, new Object[]{"E2"});
 
             env.milestone(5);
 
@@ -925,29 +926,29 @@ public class InfraNamedWindowViews {
             sendTimer(env, 5000);
             sendSupportBean(env, "E1", 3000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 3000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 3000L});
 
             sendTimer(env, 6000);
             sendSupportBean(env, "E2", 2000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2000L});
 
             sendTimer(env, 10000);
             sendSupportBean(env, "E3", 1000L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 1000L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 1000L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 1000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E3", 1000L}, {"E2", 2000L}, {"E1", 3000L}});
 
             // Should push out the window
             sendTimer(env, 11000);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E3", 1000L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3", 1000L});
+            env.assertPropsOld("s0", fields, new Object[]{"E3", 1000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E2", 2000L}, {"E1", 3000L}});
 
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2000L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2000L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 3000L}});
 
             sendTimer(env, 12999);
@@ -956,7 +957,7 @@ public class InfraNamedWindowViews {
 
             sendTimer(env, 13000);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E1", 3000L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 3000L});
+            env.assertPropsOld("s0", fields, new Object[]{"E1", 3000L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
 
             sendTimer(env, 100000);
@@ -1098,26 +1099,26 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
 
             sendSupportBean(env, "E2", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L});
 
             sendSupportBean(env, "E3", 3L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 3L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}, {"E3", 3L}});
 
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E3", 3L}});
 
             sendSupportBean(env, "E4", 4L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 4L});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 4L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E3", 3L}, {"E4", 4L}});
 
             sendSupportBean(env, "E5", 5L);
@@ -1274,11 +1275,11 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
 
             sendSupportBean(env, "E2", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L});
 
             sendSupportBean(env, "E3", 3L);
             assertFalse(env.listener("create").isInvoked());
@@ -1287,12 +1288,12 @@ public class InfraNamedWindowViews {
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}});
 
             sendSupportBean(env, "E4", 4L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 4L});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 4L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E4", 4L}});
 
             sendSupportBean(env, "E5", 5L);
@@ -1318,28 +1319,28 @@ public class InfraNamedWindowViews {
             sendTimer(env, 1000);
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
 
             sendTimer(env, 5000);
             sendSupportBean(env, "E2", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L});
 
             sendTimer(env, 10000);
             sendSupportBean(env, "E3", 3L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 3L});
 
             sendTimer(env, 15000);
             sendSupportBean(env, "E4", 4L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 4L});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 4L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 2L}, {"E3", 3L}, {"E4", 4L}});
 
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E3", 3L}, {"E4", 4L}});
 
             // nothing pushed
@@ -1366,23 +1367,23 @@ public class InfraNamedWindowViews {
             sendTimer(env, 30000);
             sendSupportBean(env, "E5", 5L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E5", 5L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", 5L});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", 5L});
 
             sendTimer(env, 31000);
             sendSupportBean(env, "E6", 6L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E6", 6L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", 6L});
+            env.assertPropsNew("s0", fields, new Object[]{"E6", 6L});
 
             sendTimer(env, 38000);
             sendSupportBean(env, "E7", 7L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E7", 7L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E7", 7L});
+            env.assertPropsNew("s0", fields, new Object[]{"E7", 7L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E5", 5L}, {"E6", 6L}, {"E7", 7L}});
 
             // delete E7 - deleting the last should spit out the first 2 timely
             sendMarketBean(env, "E7");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E7", 7L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E7", 7L});
+            env.assertPropsOld("s0", fields, new Object[]{"E7", 7L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E5", 5L}, {"E6", 6L}});
 
             sendTimer(env, 40999);
@@ -1402,13 +1403,13 @@ public class InfraNamedWindowViews {
             sendTimer(env, 50000);
             sendSupportBean(env, "E8", 8L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E8", 8L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E8", 8L});
+            env.assertPropsNew("s0", fields, new Object[]{"E8", 8L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E8", 8L}});
 
             sendTimer(env, 55000);
             sendMarketBean(env, "E8");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E8", 8L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E8", 8L});
+            env.assertPropsOld("s0", fields, new Object[]{"E8", 8L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
 
             sendTimer(env, 100000);
@@ -2089,7 +2090,7 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 10L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10L});
 
             sendSupportBean(env, "E2", 20L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20L});
@@ -2454,35 +2455,35 @@ public class InfraNamedWindowViews {
             env.assertPropsPerRowIterator("s0", fields, null);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendSupportBean_A(env, "E1");
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
+            env.assertPropsOld("s0", fields, new Object[]{"E1"});
 
             env.milestone(2);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
 
             sendSupportBean_A(env, "E3");
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+            env.assertPropsOld("s0", fields, new Object[]{"E3"});
 
             env.milestone(4);
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}});
 
             sendSupportBean(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
             sendSupportBean(env, "E5");
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E5"}, new Object[]{"E2"});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5"}, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -2500,26 +2501,26 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E1", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L});
 
             sendSupportBean(env, "E2", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 1L});
 
             sendSupportBean(env, "E3", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 2L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E2", 1L}, {"E3", 2L}});
 
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 1L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 1L});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1L}, {"E3", 2L}});
 
             sendSupportBean(env, "E4", 1L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 1L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 1L});
 
             sendSupportBean(env, "E5", 1L);
             EPAssertionUtil.assertProps(env.listener("create").getLastNewData()[0], fields, new Object[]{"E5", 1L});
@@ -2531,16 +2532,16 @@ public class InfraNamedWindowViews {
 
             sendSupportBean(env, "E6", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E6", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E6", 2L});
 
             // delete E6
             sendMarketBean(env, "E6");
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E6", 2L});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E6", 2L});
+            env.assertPropsOld("s0", fields, new Object[]{"E6", 2L});
 
             sendSupportBean(env, "E7", 2L);
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E7", 2L});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E7", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E7", 2L});
 
             sendSupportBean(env, "E8", 2L);
             EPAssertionUtil.assertProps(env.listener("create").getLastNewData()[0], fields, new Object[]{"E8", 2L});
@@ -2603,7 +2604,7 @@ public class InfraNamedWindowViews {
             assertEquals(2, env.listener("s0").getNewDataList().size());   // listener to statement gets 1 individual event
             assertEquals(2, env.listener("create").getNewDataListFlattened().length);
             assertEquals(2, env.listener("s0").getNewDataListFlattened().length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E1", 11L}, {"E1", 12L}});
+            env.assertPropsPerRowNewFlattened("s0",  fields, new Object[][]{{"E1", 11L}, {"E1", 12L}});
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -2927,16 +2928,16 @@ public class InfraNamedWindowViews {
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("delete");
 
             sendSupportBean(env, "G1", 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"G1", 1L}});
 
             sendSupportBean(env, "G2", 20L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 20L});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 20L});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"G1", 1L}, {"G2", 20L}});
 
             // delete G2
             sendMarketBean(env, "G2");
-            env.assertPropsListenerOld("s0", fields, new Object[]{"G2", 20L});
+            env.assertPropsOld("s0", fields, new Object[]{"G2", 20L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"G1", 1L}});
 
             sendSupportBean(env, "G1", 2L);  // ignored
@@ -2944,7 +2945,7 @@ public class InfraNamedWindowViews {
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"G1", 1L}});
 
             sendSupportBean(env, "G2", 21L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 21L});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 21L});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
 
             sendSupportBean(env, "G2", 22L); // ignored
@@ -2952,7 +2953,7 @@ public class InfraNamedWindowViews {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"G1", 1L}, {"G2", 21L}});
 
             sendMarketBean(env, "G1");
-            env.assertPropsListenerOld("s0", fields, new Object[]{"G1", 1L});
+            env.assertPropsOld("s0", fields, new Object[]{"G1", 1L});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"G2", 21L}});
 
             env.undeployAll();
@@ -2970,7 +2971,7 @@ public class InfraNamedWindowViews {
             env.compileDeploy(epl).addListener("create").addListener("s0").addListener("delete");
 
             sendSupportBeanInt(env, "G1", 5);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 5});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 5});
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"G1", 5});
 
             sendSupportBeanInt(env, "G1", 15);
@@ -2983,14 +2984,14 @@ public class InfraNamedWindowViews {
 
             // send G2
             sendSupportBeanInt(env, "G2", 8);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 8});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 8});
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"G2", 8});
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"G1", 15}, {"G2", 8}});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"G2", 8}});
 
             // delete G2
             sendMarketBean(env, "G2");
-            env.assertPropsListenerOld("s0", fields, new Object[]{"G2", 8});
+            env.assertPropsOld("s0", fields, new Object[]{"G2", 8});
             EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"G2", 8});
 
             // send G3
@@ -3007,7 +3008,7 @@ public class InfraNamedWindowViews {
 
             sendSupportBeanInt(env, "G1", 6);
             sendSupportBeanInt(env, "G2", 7);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"G1", 6}, {"G2", 7}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"G1", 6}, {"G2", 7}});
 
             env.undeployAll();
         }
@@ -3183,24 +3184,24 @@ public class InfraNamedWindowViews {
 
     private static class InfraInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap",
+            env.tryInvalidCompile("create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap",
                     "Named windows require one or more child views that are data window views [create window MyWindowI1#groupwin(value)#uni(value) as MySimpleKeyValueMap]");
 
-            tryInvalidCompile(env, "create window MyWindowI2 as MySimpleKeyValueMap",
+            env.tryInvalidCompile("create window MyWindowI2 as MySimpleKeyValueMap",
                     "Named windows require one or more child views that are data window views [create window MyWindowI2 as MySimpleKeyValueMap]");
 
-            tryInvalidCompile(env, "on MySimpleKeyValueMap delete from dummy",
+            env.tryInvalidCompile("on MySimpleKeyValueMap delete from dummy",
                     "A named window or table 'dummy' has not been declared [on MySimpleKeyValueMap delete from dummy]");
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window SomeWindow#keepall as (a int)", path);
-            tryInvalidCompile(env, path, "update SomeWindow set a = 'a' where a = 'b'",
+            env.tryInvalidCompile(path, "update SomeWindow set a = 'a' where a = 'b'",
                     "Provided EPL expression is an on-demand query expression (not a continuous query)");
             tryInvalidFAFCompile(env, path, "update istream SomeWindow set a = 'a' where a = 'b'",
                     "Provided EPL expression is a continuous query expression (not an on-demand query)");
 
             // test model-after with no field
-            tryInvalidCompile(env, "create window MyWindowI3#keepall as select innermap.abc from OuterMap",
+            env.tryInvalidCompile("create window MyWindowI3#keepall as select innermap.abc from OuterMap",
                     "Failed to validate select-clause expression 'innermap.abc': Failed to resolve property 'innermap.abc' to a stream or nested property in a stream");
 
             env.undeployAll();
@@ -3220,7 +3221,7 @@ public class InfraNamedWindowViews {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window MyWindowCDW#keepall as MySimpleKeyValueMap", path);
-            tryInvalidCompile(env, path, "select key, value as value from MyWindowCDW#time(10 sec)",
+            env.tryInvalidCompile(path, "select key, value as value from MyWindowCDW#time(10 sec)",
                     "Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindowCDW#time(10 sec)]");
             env.undeployAll();
         }
@@ -3242,22 +3243,22 @@ public class InfraNamedWindowViews {
 
             // send events
             sendSupportBean(env, "E1", 1L);
-            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{null, null});
+            env.assertPropsNew("s0", fieldsPrior, new Object[]{null, null});
             EPAssertionUtil.assertProps(env.listener("s3").getLastNewData()[0], fieldsStat, new Object[]{1d});
             EPAssertionUtil.assertPropsPerRow(env.iterator("s3"), fieldsStat, new Object[][]{{1d}});
 
             sendSupportBean(env, "E2", 2L);
-            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"E1", null});
+            env.assertPropsNew("s0", fieldsPrior, new Object[]{"E1", null});
             EPAssertionUtil.assertProps(env.listener("s3").getLastNewData()[0], fieldsStat, new Object[]{1.5d});
             EPAssertionUtil.assertPropsPerRow(env.iterator("s3"), fieldsStat, new Object[][]{{1.5d}});
 
             sendSupportBean(env, "E3", 2L);
-            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"E2", "E1"});
+            env.assertPropsNew("s0", fieldsPrior, new Object[]{"E2", "E1"});
             EPAssertionUtil.assertProps(env.listener("s3").getLastNewData()[0], fieldsStat, new Object[]{5 / 3d});
             EPAssertionUtil.assertPropsPerRow(env.iterator("s3"), fieldsStat, new Object[][]{{5 / 3d}});
 
             sendSupportBean(env, "E4", 2L);
-            env.assertPropsListenerNew("s0", fieldsPrior, new Object[]{"E3", "E2"});
+            env.assertPropsNew("s0", fieldsPrior, new Object[]{"E3", "E2"});
             EPAssertionUtil.assertProps(env.listener("s3").getLastNewData()[0], fieldsStat, new Object[]{1.75});
             EPAssertionUtil.assertPropsPerRow(env.iterator("s3"), fieldsStat, new Object[][]{{1.75d}});
 
@@ -3385,13 +3386,13 @@ public class InfraNamedWindowViews {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "S1", 2L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"S1", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"S1", 2L});
 
             sendSupportBean(env, "S1", 3L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"S1", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"S1", 3L});
 
             sendSupportBean(env, "S2", 4L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"S2", 4L});
+            env.assertPropsNew("s0", fields, new Object[]{"S2", 4L});
 
             sendSupportBean(env, "S1", 1L);
             env.assertListenerNotInvoked("s0");
@@ -3425,7 +3426,7 @@ public class InfraNamedWindowViews {
             // delete E2
             sendMarketBean(env, "E2");
             EPAssertionUtil.assertPropsPerRow(env.listener("create").assertInvokedAndReset(), fields, null, new Object[][]{{"E2", 8000L}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields, null, new Object[][]{{"E2", 8000L}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E2", 8000L}});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1000L}, {"E3", 9999L}});
 
             env.milestone(3);
@@ -3433,7 +3434,7 @@ public class InfraNamedWindowViews {
             sendSupportBean(env, "E4", 10000L);
             EPAssertionUtil.assertPropsPerRow(env.listener("create").assertInvokedAndReset(), fields,
                     new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                     new Object[][]{{"E1", 1000L}, {"E3", 9999L}}, null);
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E4", 10000L}});
 
@@ -3442,7 +3443,7 @@ public class InfraNamedWindowViews {
             // delete E4
             sendMarketBean(env, "E4");
             EPAssertionUtil.assertPropsPerRow(env.listener("create").assertInvokedAndReset(), fields, null, new Object[][]{{"E4", 10000L}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), fields, null, new Object[][]{{"E4", 10000L}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E4", 10000L}});
             EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
 
             env.milestone(5);
@@ -3529,7 +3530,7 @@ public class InfraNamedWindowViews {
 
         // send events
         sendSupportBean(env, "E1", 10L);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 20L});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 20L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E1", 10L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E1", null});
         env.listener("s2").reset();
@@ -3539,7 +3540,7 @@ public class InfraNamedWindowViews {
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 20L}});
 
         sendSupportBean(env, "E2", 20L);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 40L});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 40L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E2", 20L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E2", null});
         env.listener("s2").reset();
@@ -3549,7 +3550,7 @@ public class InfraNamedWindowViews {
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 20L}, {"E2", 40L}});
 
         sendSupportBean(env, "E3", 5L);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 10L});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 10L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E3", 5L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E3", null});
         env.listener("s2").reset();
@@ -3562,7 +3563,7 @@ public class InfraNamedWindowViews {
 
         // send delete event
         sendMarketBean(env, "E1");
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 20L});
+        env.assertPropsOld("s0", fields, new Object[]{"E1", 20L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E1", null});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E1", 10L});
         env.listener("s2").reset();
@@ -3581,7 +3582,7 @@ public class InfraNamedWindowViews {
 
         // send delete event
         sendMarketBean(env, "E2");
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E2", 40L});
+        env.assertPropsOld("s0", fields, new Object[]{"E2", 40L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E2", null});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E2", 20L});
         env.listener("s2").reset();
@@ -3591,7 +3592,7 @@ public class InfraNamedWindowViews {
 
         // send delete event
         sendMarketBean(env, "E3");
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E3", 10L});
+        env.assertPropsOld("s0", fields, new Object[]{"E3", 10L});
         EPAssertionUtil.assertProps(env.listener("s2").getLastNewData()[0], fields, new Object[]{"E3", null});
         EPAssertionUtil.assertProps(env.listener("s2").getLastOldData()[0], fields, new Object[]{"E3", 5L});
         env.listener("s2").reset();

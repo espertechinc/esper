@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public class ResultSetAggregateFirstEverLastEver {
 
     private static class ResultSetAggregateFirstLastInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select countever(distinct intPrimitive) from SupportBean",
+            env.tryInvalidCompile("select countever(distinct intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'countever(distinct intPrimitive)': Aggregation function 'countever' does now allow distinct [");
         }
     }
@@ -49,28 +48,28 @@ public class ResultSetAggregateFirstEverLastEver {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 1L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2", 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E2", 2L});
 
             env.sendEventBean(new SupportBean("E3", 30));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_A("E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.sendEventBean(new SupportBean_A("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", 3L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3", 3L});
 
             env.undeployAll();
         }
@@ -102,22 +101,22 @@ public class ResultSetAggregateFirstEverLastEver {
             env.milestone(0);
 
             makeSendBean(env, "E1", 10, 100, true);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", "E1", "E1", 1L, 1L, 1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", "E1", "E1", 1L, 1L, 1L, 1L});
 
             env.milestone(1);
 
             makeSendBean(env, "E2", 11, null, true);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2", "E1", "E2", 2L, 1L, 2L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E2", "E1", "E2", 2L, 1L, 2L, 1L});
 
             env.milestone(2);
 
             makeSendBean(env, "E3", 12, 120, false);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3", "E2", "E3", 3L, 2L, 2L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3", "E2", "E3", 3L, 2L, 2L, 1L});
 
             env.milestone(3);
 
             makeSendBean(env, "E4", 13, 130, true);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E4", "E3", "E4", 4L, 3L, 3L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E4", "E3", "E4", 4L, 3L, 3L, 2L});
 
             env.undeployAll();
         }

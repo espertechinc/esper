@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -18,8 +17,8 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -46,74 +45,73 @@ public class ViewExpressionBatch {
         public void run(RegressionEnvironment env) {
 
             // try with include-trigger-event
+            AtomicInteger milestone = new AtomicInteger();
             String[] fields = new String[]{"theString"};
             String epl = "@name('s0') select irstream * from SupportBean#expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, false)";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
 
-            env.milestone(0);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 1));
             env.assertListenerNotInvoked("s0");
 
-            env.milestone(1);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
-                new Object[][]{{"E1"}, {"E2"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}}, null);
 
-            env.milestone(2);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
 
-            env.milestone(3);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E5", 3));
             env.sendEventBean(new SupportBean("E6", 3));
             env.assertListenerNotInvoked("s0");
 
-            env.milestone(4);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E7", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E3"}});
             env.undeployAll();
 
-            env.milestone(5);
+            env.milestoneInc(milestone);
 
             // try with include-trigger-event
             epl = "@name('s0') select irstream * from SupportBean#expr_batch(newest_event.intPrimitive != oldest_event.intPrimitive, true)";
-            env.compileDeployAddListenerMile(epl, "s0", 1);
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
-            env.milestone(6);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 1));
             env.assertListenerNotInvoked("s0");
 
-            env.milestone(7);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
-                new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
 
-            env.milestone(8);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 3));
             env.sendEventBean(new SupportBean("E5", 3));
 
-            env.milestone(9);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E6", 3));
             env.assertListenerNotInvoked("s0");
 
-            env.milestone(10);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E7", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPair("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.undeployAll();
@@ -133,7 +131,7 @@ public class ViewExpressionBatch {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(2);
 
@@ -144,8 +142,7 @@ public class ViewExpressionBatch {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E6", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.sendEventBean(new SupportBean("E7", 7));
 
@@ -157,8 +154,7 @@ public class ViewExpressionBatch {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E9", 9));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.undeployAll();
         }
@@ -183,7 +179,7 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
 
             env.sendEventBean(new SupportBean("E6", 6));
             env.advanceTime(5100);
@@ -192,8 +188,7 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E8", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -212,28 +207,28 @@ public class ViewExpressionBatch {
             env.sendEventBean(new SupportBean("E1", 1));
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "POST", true);
+            env.runtimeSetVariable("s0", "POST", true);
             env.advanceTime(1001);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}}, null);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E2"}}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2"}}, new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E3", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E3"}}, new Object[][]{{"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}}, new Object[][]{{"E2"}});
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "POST", false);
+            env.runtimeSetVariable("s0", "POST", false);
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 2));
             env.advanceTime(2000);
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "POST", true);
+            env.runtimeSetVariable("s0", "POST", true);
             env.advanceTime(2001);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E4"}, {"E5"}}, new Object[][]{{"E3"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}, {"E5"}}, new Object[][]{{"E3"}});
 
             env.sendEventBean(new SupportBean("E6", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E6"}}, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}}, new Object[][]{{"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -254,9 +249,9 @@ public class ViewExpressionBatch {
             env.sendEventBean(new SupportBean("E2", 0));
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "SIZE", 500);
+            env.runtimeSetVariable("s0", "SIZE", 500);
             env.advanceTime(1901);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}, {"E2"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}}, null);
 
             env.sendEventBean(new SupportBean("E3", 0));
             env.advanceTime(2300);
@@ -265,20 +260,20 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E5", 0));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}}, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}}, new Object[][]{{"E1"}, {"E2"}});
 
             env.advanceTime(3100);
             env.sendEventBean(new SupportBean("E6", 0));
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "SIZE", 999);
+            env.runtimeSetVariable("s0", "SIZE", 999);
             env.advanceTime(3700);
             env.sendEventBean(new SupportBean("E7", 0));
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(4100);
             env.sendEventBean(new SupportBean("E8", 0));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -291,17 +286,21 @@ public class ViewExpressionBatch {
 
             ViewExpressionWindow.LocalUDF.setResult(true);
             env.sendEventBean(new SupportBean("E1", 0));
-            assertEquals("E1", ViewExpressionWindow.LocalUDF.getKey());
-            assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
-            assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());
+            env.assertThis(() -> {
+                assertEquals("E1", ViewExpressionWindow.LocalUDF.getKey());
+                assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
+                assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());
+            });
 
             env.sendEventBean(new SupportBean("E2", 0));
 
             ViewExpressionWindow.LocalUDF.setResult(false);
             env.sendEventBean(new SupportBean("E3", 0));
-            assertEquals("E3", ViewExpressionWindow.LocalUDF.getKey());
-            assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
-            assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());
+            env.assertThis(() -> {
+                assertEquals("E3", ViewExpressionWindow.LocalUDF.getKey());
+                assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
+                assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());
+            });
 
             env.undeployAll();
         }
@@ -309,13 +308,13 @@ public class ViewExpressionBatch {
 
     private static class ViewExpressionBatchInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select * from SupportBean#expr_batch(1)",
+            env.tryInvalidCompile("select * from SupportBean#expr_batch(1)",
                 "Failed to validate data window declaration: Invalid return value for expiry expression, expected a boolean return value but received int [select * from SupportBean#expr_batch(1)]");
 
-            tryInvalidCompile(env, "select * from SupportBean#expr_batch((select * from SupportBean#lastevent))",
+            env.tryInvalidCompile("select * from SupportBean#expr_batch((select * from SupportBean#lastevent))",
                 "Failed to validate data window declaration: Invalid expiry expression: Sub-select, previous or prior functions are not supported in this context [select * from SupportBean#expr_batch((select * from SupportBean#lastevent))]");
 
-            tryInvalidCompile(env, "select * from SupportBean#expr_batch(null < 0)",
+            env.tryInvalidCompile("select * from SupportBean#expr_batch(null < 0)",
                 "Failed to validate data window declaration: Invalid parameter expression 0 for Expression-batch view: Failed to validate view parameter expression 'null<0': Null-type value is not allow for relational operator");
         }
     }
@@ -332,16 +331,16 @@ public class ViewExpressionBatch {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.sendEventBean(new SupportBean_A("E2"));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E3"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E3"}});
 
             env.sendEventBean(new SupportBean("E4", 4));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}, {"E3"}, {"E4"}, {"E5"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E3"}, {"E4"}, {"E5"}}, null);
 
             env.undeployAll();
         }
@@ -358,7 +357,7 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{null}, {"E1"}, {"E2"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{null}, {"E1"}, {"E2"}}, null);
 
             env.undeployAll();
         }
@@ -371,16 +370,16 @@ public class ViewExpressionBatch {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}}, null);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E2"}}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2"}}, new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E3", -1));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E4", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E3"}, {"E4"}}, new Object[][]{{"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}, {"E4"}}, new Object[][]{{"E2"}});
 
             env.undeployAll();
         }
@@ -400,12 +399,12 @@ public class ViewExpressionBatch {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E4", 101));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E4"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(3);
 
@@ -416,7 +415,7 @@ public class ViewExpressionBatch {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E7", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E5"}, {"E6"}, {"E7"}}, new Object[][]{{"E4"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E5"}, {"E6"}, {"E7"}}, new Object[][]{{"E4"}});
 
             env.undeployAll();
         }
@@ -437,23 +436,23 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E6", 2, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E2"}, {"E4"}, {"E5"}, {"E6"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2"}, {"E4"}, {"E5"}, {"E6"}}, null);
 
             sendEvent(env, "E7", 2, 50);
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E8", 1, 2);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}, {"E3"}, {"E8"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E3"}, {"E8"}}, null);
 
             sendEvent(env, "E9", 2, 50);
             sendEvent(env, "E10", 1, 101);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E10"}}, new Object[][]{{"E1"}, {"E3"}, {"E8"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E10"}}, new Object[][]{{"E1"}, {"E3"}, {"E8"}});
 
             sendEvent(env, "E11", 2, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E7"}, {"E9"}, {"E11"}}, new Object[][]{{"E2"}, {"E4"}, {"E5"}, {"E6"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}, {"E9"}, {"E11"}}, new Object[][]{{"E2"}, {"E4"}, {"E5"}, {"E6"}});
 
             sendEvent(env, "E12", 1, 102);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E12"}}, new Object[][]{{"E10"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E12"}}, new Object[][]{{"E10"}});
 
             env.undeployAll();
         }
@@ -476,7 +475,7 @@ public class ViewExpressionBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E4", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields, new Object[][]{{"E1"}, {"E3"}, {"E4"}}, null);
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E3"}, {"E4"}}, null);
 
             env.undeployAll();
         }

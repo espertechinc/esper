@@ -327,7 +327,7 @@ public class PatternObserverTimerInterval {
             env.milestone(0);
 
             sendTimer(15000, env);
-            env.assertPropsListenerNew("s0", "a0id,a1id".split(","), "E1,E2".split(","));
+            env.assertPropsNew("s0", "a0id,a1id".split(","), "E1,E2".split(","));
 
             env.undeployAll();
         }

@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
@@ -52,10 +51,10 @@ public class ExprCoreEqualsIs {
 
     private static class ExprCoreEqualsInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select intOne=booleanOne from SupportEventWithManyArray",
+            env.tryInvalidCompile("select intOne=booleanOne from SupportEventWithManyArray",
                 "Failed to validate select-clause expression 'intOne=booleanOne': Implicit conversion from datatype 'boolean[]' to 'int[]' is not allowed");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select objectOne=booleanOne from SupportEventWithManyArray",
+            env.tryInvalidCompile("select objectOne=booleanOne from SupportEventWithManyArray",
                 "skip");
         }
     }

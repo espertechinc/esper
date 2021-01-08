@@ -16,9 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportScheduleSimpleEvent;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class ResultSetOutputLimitParameterizedByContext implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -34,10 +31,10 @@ public class ResultSetOutputLimitParameterizedByContext implements RegressionExe
         env.sendEventBean(new SupportBean_S0(0));
 
         env.advanceTime(DateTime.parseDefaultMSec("2002-05-01T10:14:59.000"));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(DateTime.parseDefaultMSec("2002-05-01T10:15:00.000"));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

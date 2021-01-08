@@ -83,19 +83,19 @@ public class InfraTableAccessAggregationState {
             String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
             SupportBean b1 = makeSendBean(env, "E1", 10);
             env.sendEventBean(new SupportBean_S0(0));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{b1, new Object[]{b1}, b1, 10, new Integer[]{10}, 10});
 
             SupportBean b2 = makeSendBean(env, "E1", 20);
             env.sendEventBean(new SupportBean_S0(0));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{b2, new Object[]{b1, b2}, b1, 20, new Integer[]{10, 20}, 10});
 
             env.milestone(0);
 
             SupportBean b3 = makeSendBean(env, "E1", 30);
             env.sendEventBean(new SupportBean_S0(0));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{b3, new Object[]{b2, b3}, b2, 30, new Integer[]{20, 30}, 20});
 
             env.undeployAll();
@@ -127,7 +127,7 @@ public class InfraTableAccessAggregationState {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{new Object[]{b1}});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{new Object[]{b1}});
 
             SupportBean b2 = makeSendBean(env, "E2", 20);
             EPAssertionUtil.assertProps(env.listener("into").assertOneGetNewAndReset(), "mywin".split(","), new Object[]{new SupportBean[]{b1, b2}});
@@ -135,7 +135,7 @@ public class InfraTableAccessAggregationState {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(2));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{new Object[]{b1, b2}});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{new Object[]{b1, b2}});
 
             env.undeployAll();
         }
@@ -164,7 +164,7 @@ public class InfraTableAccessAggregationState {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1000.0, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1000.0, 1L});
 
             env.milestone(2);
 
@@ -173,7 +173,7 @@ public class InfraTableAccessAggregationState {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2001.0, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{2001.0, 2L});
 
             env.undeployAll();
         }
@@ -227,20 +227,20 @@ public class InfraTableAccessAggregationState {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{3L, 2L, new SupportBean[]{b1, b2, b3}, 303L});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S0(0, "E2"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{null, null, null, null});
 
             env.milestone(6);
 
             SupportBean b4 = makeSendBean(env, "E2", 20, 200);
             env.sendEventBean(new SupportBean_S0(0, "E2"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1L, 1L, new SupportBean[]{b4}, 200L});
 
             env.undeployAll();

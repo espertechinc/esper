@@ -14,7 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,7 +83,7 @@ public class ContextInitTermWithNow {
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.advanceTime(10000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
+            env.assertPropsNew("s0", fields, new Object[]{3L});
 
             env.milestone(2);
 
@@ -92,12 +91,12 @@ public class ContextInitTermWithNow {
             env.advanceTime(19999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(20000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
+            env.assertPropsNew("s0", fields, new Object[]{1L});
 
             env.milestone(3);
 
             env.advanceTime(30000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{0L});
+            env.assertPropsNew("s0", fields, new Object[]{0L});
 
             env.eplToModelCompileDeploy(streamExpr, path);
 
@@ -134,7 +133,7 @@ public class ContextInitTermWithNow {
             env.advanceTime(9999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(10000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
+            env.assertPropsNew("s0", fields, new Object[]{3L});
 
             env.milestone(2);
 
@@ -148,19 +147,19 @@ public class ContextInitTermWithNow {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(20000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{2L});
+            env.assertPropsNew("s0", fields, new Object[]{2L});
 
             env.milestone(4);
 
             env.advanceTime(30000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{0L});
+            env.assertPropsNew("s0", fields, new Object[]{0L});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E6", 6));
 
             env.advanceTime(40000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L});
+            env.assertPropsNew("s0", fields, new Object[]{1L});
 
             env.eplToModelCompileDeploy(streamExpr, path);
 
@@ -171,15 +170,15 @@ public class ContextInitTermWithNow {
     private static class ContextInitTermWNowInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // for overlapping contexts, @now without condition is not allowed
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context TimedImmediate initiated @now terminated after 10 seconds",
+            env.tryInvalidCompile("create context TimedImmediate initiated @now terminated after 10 seconds",
                 "Incorrect syntax near 'terminated' (a reserved keyword) expecting 'and' but found 'terminated' at line 1 column 45 [create context TimedImmediate initiated @now terminated after 10 seconds]");
 
             // for non-overlapping contexts, @now with condition is not allowed
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context TimedImmediate start @now and after 5 seconds end after 10 seconds",
+            env.tryInvalidCompile("create context TimedImmediate start @now and after 5 seconds end after 10 seconds",
                 "Incorrect syntax near 'and' (a reserved keyword) at line 1 column 41 [create context TimedImmediate start @now and after 5 seconds end after 10 seconds]");
 
             // for overlapping contexts, @now together with a filter condition is not allowed
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context TimedImmediate initiated @now and SupportBean terminated after 10 seconds",
+            env.tryInvalidCompile("create context TimedImmediate initiated @now and SupportBean terminated after 10 seconds",
                 "Invalid use of 'now' with initiated-by stream, this combination is not supported [create context TimedImmediate initiated @now and SupportBean terminated after 10 seconds]");
         }
     }

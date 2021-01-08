@@ -124,7 +124,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         SupportEventTypeAssertionUtil.assertConsistency(event);
 
         send.apply(typename, env, 10, 5, 50, 400);
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, true, 5, true, 50, true, 400, true});
+        env.assertPropsNew("s0", fields, new Object[]{10, true, 5, true, 50, true, 400, true});
 
         env.undeployModuleContaining("s0");
     }

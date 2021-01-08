@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -164,7 +163,7 @@ public class ExprCoreCoalesce {
 
     private static void tryCoalesceInvalid(RegressionEnvironment env, String coalesceExpr) {
         String epl = "select " + coalesceExpr + " as result from SupportBean";
-        tryInvalidCompile(env, epl, "skip");
+        env.tryInvalidCompile(epl, "skip");
     }
 
     private static void tryCoalesceLong(RegressionEnvironment env) {

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -93,9 +92,9 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("xx", 4));
             env.sendEventBean(new SupportRecogBean("E2", -4));
             env.sendEventBean(new SupportRecogBean("E3", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}});
 
             env.milestone(1);
@@ -106,23 +105,23 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("xx", -2));
             env.sendEventBean(new SupportRecogBean("E5", -1));
             env.sendEventBean(new SupportRecogBean("E6", -2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E5", "E6"}});
 
             env.milestone(2);
 
             // delete an PREV-referenced event: no effect as PREV is an order-of-arrival operator
             env.sendEventBean(new SupportBean("D1", 21));      // delete P4 of second batch
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E5", "E6"}});
 
             env.milestone(3);
 
             // delete an partial-match event
             env.sendEventBean(new SupportBean("D2", -1));      // delete E5 of second batch
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}});
 
             env.milestone(4);
@@ -157,9 +156,9 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("E2", 1));
             env.sendEventBean(new SupportBean("E2", 0));       // deletes E2
             env.sendEventBean(new SupportRecogBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", null, null, null, "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E1", null, null, null, "E3"}});
 
             env.milestone(0);
@@ -173,9 +172,9 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("E5", 1));
             env.sendEventBean(new SupportBean("E4", 0));       // deletes E4
             env.sendEventBean(new SupportRecogBean("E6", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", null, null, null, "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", null, null, null, "E6"}});
 
             env.milestone(2);
@@ -187,9 +186,9 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("E11", 2));
             env.sendEventBean(new SupportBean("E9", 0));       // deletes E9
             env.sendEventBean(new SupportRecogBean("E12", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E7", "E8", "E10", "E11", "E12"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", null, null, null, "E6"}, {"E7", "E8", "E10", "E11", "E12"}});    // note interranking among per-event result
 
             env.milestone(3);
@@ -204,7 +203,7 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportBean("E13", 0));       // deletes E17
             env.sendEventBean(new SupportRecogBean("E18", 3));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", null, null, null, "E6"}, {"E7", "E8", "E10", "E11", "E12"}});    // note interranking among per-event result
 
             env.undeployAll();
@@ -245,9 +244,9 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportBean("E4", 0));       // deletes E4
             env.sendEventBean(new SupportRecogBean("E6", 1));
             env.sendEventBean(new SupportRecogBean("E7", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}});
 
             env.undeployAll();

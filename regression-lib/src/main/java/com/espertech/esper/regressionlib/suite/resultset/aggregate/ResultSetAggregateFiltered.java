@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 
 public class ResultSetAggregateFiltered {
@@ -43,20 +42,20 @@ public class ResultSetAggregateFiltered {
             assertStatelessStmt(env, "s0", false);
 
             env.sendEventBean(makeSB(true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 0L, 1L, 1d});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 0L, 1L, 1d});
 
             env.milestone(0);
 
             env.sendEventBean(makeSB(false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 1L, 2L, 0.5d});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 1L, 2L, 0.5d});
 
             env.sendEventBean(makeSB(false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 2L, 3L, 1 / 3d});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 2L, 3L, 1 / 3d});
 
             env.milestone(1);
 
             env.sendEventBean(makeSB(false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0L, 3L, 3L, 0d});
+            env.assertPropsNew("s0", fields, new Object[]{0L, 3L, 3L, 0d});
 
             env.undeployAll();
 
@@ -76,27 +75,27 @@ public class ResultSetAggregateFiltered {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeBean(100, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 1L});
 
             env.milestone(0);
 
             env.sendEventBean(makeBean(100, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{2L, 1L});
 
             env.sendEventBean(makeBean(101, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{2L, 1L});
 
             env.sendEventBean(makeBean(102, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{2L, 2L});
 
             env.sendEventBean(makeBean(103, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 1L});
 
             env.sendEventBean(makeBean(104, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1L, 1L});
 
             env.sendEventBean(makeBean(105, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0L, 0L});
+            env.assertPropsNew("s0", fields, new Object[]{0L, 0L});
 
             env.undeployAll();
         }
@@ -123,23 +122,23 @@ public class ResultSetAggregateFiltered {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeBean(100, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null, null, null, null});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(10, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0.0d, 10.0, 10, 10.0, 10, null, 10, 10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{0.0d, 10.0, 10, 10.0, 10, null, 10, 10, 10});
 
             env.sendEventBean(makeBean(11, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0.0d, 10.0, 10, 10.0, 10, null, 10, 10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{0.0d, 10.0, 10, 10.0, 10, null, 10, 10, 10});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(20, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5.0d, 15.0, 20, 15.0, 10, 7.0710678118654755, 30, 20, 10});
+            env.assertPropsNew("s0", fields, new Object[]{5.0d, 15.0, 20, 15.0, 10, 7.0710678118654755, 30, 20, 10});
 
             env.sendEventBean(makeBean(30, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5.0d, 25.0, 30, 25.0, 20, 7.0710678118654755, 50, 30, 10});
+            env.assertPropsNew("s0", fields, new Object[]{5.0d, 25.0, 30, 25.0, 20, 7.0710678118654755, 50, 30, 10});
 
             // Test all remaining types of "sum"
             env.undeployAll();
@@ -155,18 +154,18 @@ public class ResultSetAggregateFiltered {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(2f, 3d, 4L, (short) 5, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null});
 
             env.sendEventBean(makeBean(3f, 4d, 5L, (short) 6, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3f, 4d, 5L, 6});
+            env.assertPropsNew("s0", fields, new Object[]{3f, 4d, 5L, 6});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(4f, 5d, 6L, (short) 7, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{7f, 9d, 11L, 13});
+            env.assertPropsNew("s0", fields, new Object[]{7f, 9d, 11L, 13});
 
             env.sendEventBean(makeBean(1f, 1d, 1L, (short) 1, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5f, 6d, 7L, 8});
+            env.assertPropsNew("s0", fields, new Object[]{5f, 6d, 7L, 8});
 
             // Test min/max-ever
             env.undeployAll();
@@ -179,24 +178,24 @@ public class ResultSetAggregateFiltered {
             assertStatelessStmt(env, "s0", false);
 
             env.sendEventBean(makeBean(10, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{10, 10});
 
             env.sendEventBean(makeBean(20, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, 10});
+            env.assertPropsNew("s0", fields, new Object[]{20, 10});
 
             env.sendEventBean(makeBean(8, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, 10});
+            env.assertPropsNew("s0", fields, new Object[]{20, 10});
 
             env.sendEventBean(makeBean(7, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, 7});
+            env.assertPropsNew("s0", fields, new Object[]{20, 7});
 
             env.sendEventBean(makeBean(30, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, 7});
+            env.assertPropsNew("s0", fields, new Object[]{20, 7});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(40, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{40, 7});
+            env.assertPropsNew("s0", fields, new Object[]{40, 7});
 
             // test big decimal big integer
             env.undeployAll();
@@ -209,18 +208,18 @@ public class ResultSetAggregateFiltered {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("10"), new BigDecimal(20)));
-            env.assertPropsListenerNew("s0", fields, new Object[]{new BigDecimal(20), new BigDecimal(20), new BigInteger("10")});
+            env.assertPropsNew("s0", fields, new Object[]{new BigDecimal(20), new BigDecimal(20), new BigInteger("10")});
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("101"), new BigDecimal(101)));
-            env.assertPropsListenerNew("s0", fields, new Object[]{new BigDecimal(20), new BigDecimal(20), new BigInteger("10")});
+            env.assertPropsNew("s0", fields, new Object[]{new BigDecimal(20), new BigDecimal(20), new BigInteger("10")});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("20"), new BigDecimal(40)));
-            env.assertPropsListenerNew("s0", fields, new Object[]{new BigDecimal(40), new BigDecimal(40), new BigInteger("20")});
+            env.assertPropsNew("s0", fields, new Object[]{new BigDecimal(40), new BigDecimal(40), new BigInteger("20")});
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("30"), new BigDecimal(50)));
-            env.assertPropsListenerNew("s0", fields, new Object[]{new BigDecimal(45), new BigDecimal(90), new BigInteger("50")});
+            env.assertPropsNew("s0", fields, new Object[]{new BigDecimal(45), new BigDecimal(90), new BigInteger("50")});
 
             env.undeployAll();
             epl = "@name('s0') select " +
@@ -250,23 +249,23 @@ public class ResultSetAggregateFiltered {
 
             String[] fields = "cavedev,cavg,cmax,cmedian,cmin,cstddev,csum".split(",");
             env.sendEventBean(makeBean(100, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0d, 100d, 100, 100d, 100, null, 100});
+            env.assertPropsNew("s0", fields, new Object[]{0d, 100d, 100, 100d, 100, null, 100});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(100, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0d, 100d, 100, 100d, 100, null, 100});
+            env.assertPropsNew("s0", fields, new Object[]{0d, 100d, 100, 100d, 100, null, 100});
 
             env.sendEventBean(makeBean(200, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{50d, 150d, 200, 150d, 100, 70.71067811865476, 300});
+            env.assertPropsNew("s0", fields, new Object[]{50d, 150d, 200, 150d, 100, 70.71067811865476, 300});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(200, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{50d, 150d, 200, 150d, 100, 70.71067811865476, 300});
+            env.assertPropsNew("s0", fields, new Object[]{50d, 150d, 200, 150d, 100, 70.71067811865476, 300});
 
             env.sendEventBean(makeBean(200, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{0d, 200d, 200, 200d, 200, null, 200});
+            env.assertPropsNew("s0", fields, new Object[]{0d, 200d, 200, 200d, 200, null, 200});
         }
     }
 
@@ -287,20 +286,20 @@ public class ResultSetAggregateFiltered {
             env.compileDeploy(soda, epl).addListener("s0");
 
             env.sendEventBean(makeBean(100, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, 0L});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, 0L});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(100, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 100, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{100, 100, 1L});
 
             env.sendEventBean(makeBean(200, true));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 200, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{100, 200, 2L});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeBean(201, false));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100, 200, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{100, 200, 2L});
 
             env.undeployAll();
         }
@@ -308,10 +307,10 @@ public class ResultSetAggregateFiltered {
 
     private static class ResultSetAggregateInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select count(*, intPrimitive) from SupportBean",
+            env.tryInvalidCompile("select count(*, intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'count(*,intPrimitive)': Invalid filter expression parameter to the aggregation function 'count' is expected to return a boolean value but returns Integer [select count(*, intPrimitive) from SupportBean]");
 
-            tryInvalidCompile(env, "select fmin(intPrimitive) from SupportBean",
+            env.tryInvalidCompile("select fmin(intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'min(intPrimitive)': MIN-filtered aggregation function must have a filter expression as a second parameter [select fmin(intPrimitive) from SupportBean]");
         }
     }

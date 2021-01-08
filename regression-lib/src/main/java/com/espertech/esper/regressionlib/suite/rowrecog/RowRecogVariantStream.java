@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -39,9 +38,9 @@ public class RowRecogVariantStream implements RegressionExecution {
 
         env.sendEventBean(new SupportBean_S0(1, "S0"));
         env.sendEventBean(new SupportBean_S1(2, "S1"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{1, 2}});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+        env.assertPropsPerRowIterator("s0", fields,
             new Object[][]{{1, 2}});
 
         String epl = "// Declare one sample type\n" +

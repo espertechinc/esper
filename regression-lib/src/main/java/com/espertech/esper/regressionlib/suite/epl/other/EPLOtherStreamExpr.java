@@ -21,15 +21,14 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class EPLOtherStreamExpr {
     public static List<RegressionExecution> executions() {
@@ -121,7 +120,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 0, 0L, null);
             env.sendEventBean(eventA);
-            env.assertPropsListenerNew("s0", new String[]{"symbol", "theString"}, new Object[]{"ACME", null});
+            env.assertPropsNew("s0", new String[]{"symbol", "theString"}, new Object[]{"ACME", null});
 
             env.undeployAll();
         }
@@ -139,7 +138,7 @@ public class EPLOtherStreamExpr {
             env.sendEventBean(eventA);
             EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
             EPAssertionUtil.assertProps(theEvent, new String[]{"symbol", "simpleprop"}, new Object[]{"ACME", null});
-            TestCase.assertNull(theEvent.get("def"));
+            assertNull(theEvent.get("def"));
 
             SupportBeanComplexProps eventComplexProps = SupportBeanComplexProps.makeDefaultBean();
             eventComplexProps.setSimpleProperty("ACME");
@@ -166,7 +165,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 99L, null);
             env.sendEventBean(eventA);
-            env.assertPropsListenerNew("s0", new String[]{"volume", "symbol", "pvf"}, new Object[]{99L, "ACME", 4d * 99L * 2});
+            env.assertPropsNew("s0", new String[]{"volume", "symbol", "pvf"}, new Object[]{99L, "ACME", 4d * 99L * 2});
 
             env.undeployAll();
         }
@@ -185,7 +184,7 @@ public class EPLOtherStreamExpr {
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 2L, null);
             env.sendEventBean(eventA);
-            env.assertPropsListenerNew("s0", new String[]{"s0.getVolume()", "s0.getPriceTimesVolume(3)"}, new Object[]{2L, 4d * 2L * 3d});
+            env.assertPropsNew("s0", new String[]{"s0.getVolume()", "s0.getPriceTimesVolume(3)"}, new Object[]{2L, 4d * 2L * 3d});
             env.undeployAll();
 
             // try instance method that accepts EventBean
@@ -197,7 +196,7 @@ public class EPLOtherStreamExpr {
             env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventBean(new MyTestEvent(10));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{10, 10});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{10, 10});
 
             env.undeployAll();
         }
@@ -225,7 +224,7 @@ public class EPLOtherStreamExpr {
 
             SupportBean eventB = new SupportBean();
             env.sendEventBean(eventB);
-            env.assertPropsListenerNew("s0", new String[]{"s0stream", "s1stream"}, new Object[]{eventA, eventB});
+            env.assertPropsNew("s0", new String[]{"s0stream", "s1stream"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
 
@@ -242,7 +241,7 @@ public class EPLOtherStreamExpr {
 
             env.sendEventBean(eventA);
             env.sendEventBean(eventB);
-            env.assertPropsListenerNew("s0", new String[]{"s0", "s1"}, new Object[]{eventA, eventB});
+            env.assertPropsNew("s0", new String[]{"s0", "s1"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
         }
@@ -260,7 +259,7 @@ public class EPLOtherStreamExpr {
 
             SupportBean eventB = new SupportBean("ACME", 1);
             env.sendEventBean(eventB);
-            env.assertPropsListenerNew("s0", new String[]{"e1", "e2"}, new Object[]{eventA, eventB});
+            env.assertPropsNew("s0", new String[]{"e1", "e2"}, new Object[]{eventA, eventB});
 
             env.undeployAll();
         }
@@ -268,13 +267,13 @@ public class EPLOtherStreamExpr {
 
     private static class EPLOtherInvalidSelect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select s0.getString(1,2,3) from SupportBean as s0",
+            env.tryInvalidCompile("select s0.getString(1,2,3) from SupportBean as s0",
                 "skip");
 
-            tryInvalidCompile(env, "select s0.abc() from SupportBean as s0",
+            env.tryInvalidCompile("select s0.abc() from SupportBean as s0",
                 "Failed to validate select-clause expression 's0.abc()': Failed to solve 'abc' to either an date-time or enumeration method, an event property or a method on the event underlying object: Failed to resolve method 'abc': Could not find enumeration method, date-time method, instance method or property named 'abc' in class '" + SupportBean.class.getName() + "' taking no parameters [");
 
-            tryInvalidCompile(env, "select s.theString from pattern [every [2] s=SupportBean] ee",
+            env.tryInvalidCompile("select s.theString from pattern [every [2] s=SupportBean] ee",
                 "Failed to validate select-clause expression 's.theString': Failed to resolve property 's.theString' (property 's' is an indexed property and requires an index or enumeration method to access values)");
         }
     }

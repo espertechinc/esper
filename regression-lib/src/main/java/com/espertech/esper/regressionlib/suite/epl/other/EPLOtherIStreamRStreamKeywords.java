@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertNull;
+
 public class EPLOtherIStreamRStreamKeywords {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
@@ -68,7 +70,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
 
             env.undeployAll();
         }
@@ -92,7 +94,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
 
             env.undeployAll();
         }
@@ -110,7 +112,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
 
             env.undeployAll();
         }
@@ -135,9 +137,9 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             TestCase.assertSame("a", env.listener("s0").getLastNewData()[0].get("theString"));    // receive 'a' as new data
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
             Assert.assertEquals("d", env.listener("ii").getLastNewData()[0].get("theString"));    // insert into unchanged
-            TestCase.assertNull(env.listener("ii").getLastOldData());  // receive no old data in insert into
+            assertNull(env.listener("ii").getLastOldData());  // receive no old data in insert into
 
             env.undeployAll();
         }
@@ -162,9 +164,9 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             TestCase.assertSame("a", env.listener("s0").getLastNewData()[0].get("theString"));    // receive 'a' as new data
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
             Assert.assertEquals("a", env.listener("ii").getLastNewData()[0].get("theString"));    // insert into unchanged
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no old data in insert into
+            assertNull(env.listener("s0").getLastOldData());  // receive no old data in insert into
 
             env.undeployAll();
         }
@@ -187,7 +189,7 @@ public class EPLOtherIStreamRStreamKeywords {
             sendEvent(env, "a", 3);
             Assert.assertEquals(1, env.listener("s0").getLastNewData()[0].get("aID"));    // receive 'a' as new data
             Assert.assertEquals(1, env.listener("s0").getLastNewData()[0].get("bID"));
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
 
             env.undeployAll();
         }
@@ -202,7 +204,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             theEvent = sendEvent(env, "b", 2);
             TestCase.assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());
-            TestCase.assertNull(env.listener("s0").getLastOldData()); // receive no old data, just istream events
+            assertNull(env.listener("s0").getLastOldData()); // receive no old data, just istream events
 
             env.undeployAll();
         }
@@ -224,9 +226,9 @@ public class EPLOtherIStreamRStreamKeywords {
             sendEvent(env, "b", 2);
             SupportListener listener = env.listener("s0");
             Assert.assertEquals("b", env.listener("s0").getLastNewData()[0].get("theString"));
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             Assert.assertEquals("a", env.listener("ii").getLastNewData()[0].get("theString"));
-            TestCase.assertNull(env.listener("ii").getLastOldData());
+            assertNull(env.listener("ii").getLastOldData());
 
             env.undeployAll();
         }
@@ -244,7 +246,7 @@ public class EPLOtherIStreamRStreamKeywords {
             sendEvent(env, "b", 1);
             Assert.assertEquals(1, env.listener("s0").getLastNewData()[0].get("aID"));    // receive 'a' as new data
             Assert.assertEquals(1, env.listener("s0").getLastNewData()[0].get("bID"));
-            TestCase.assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+            assertNull(env.listener("s0").getLastOldData());  // receive no more old data
             env.listener("s0").reset();
 
             sendEvent(env, "a", 2);

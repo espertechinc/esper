@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.render.XMLRenderingOptions;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRendererOne;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRendererThree;
 
@@ -89,8 +90,8 @@ public class EventRender {
 
     private static class EventRenderPOJOMap implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

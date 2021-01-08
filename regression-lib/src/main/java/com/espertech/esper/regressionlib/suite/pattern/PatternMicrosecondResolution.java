@@ -136,7 +136,7 @@ public class PatternMicrosecondResolution implements RegressionExecution {
         }
 
         env.advanceTime(Long.MAX_VALUE);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

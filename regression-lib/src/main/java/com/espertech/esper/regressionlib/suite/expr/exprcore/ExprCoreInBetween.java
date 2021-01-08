@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -29,6 +29,7 @@ import com.espertech.esper.runtime.client.DeploymentOptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -150,17 +151,17 @@ public class ExprCoreInBetween {
 
             String[] fields = "resOne, resTwo".split(",");
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new int[]{10, 20, 30}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new int[]{10, 1, 30}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new int[]{30}, new Long[]{20L, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new int[]{}, new Long[]{null, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(null, new Long[]{1L, 100L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(null, new Long[]{0L, 100L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             env.undeployAll();
         }
@@ -174,15 +175,15 @@ public class ExprCoreInBetween {
             env.compileDeploy(epl).addListener("s0");
 
             sendArrayCollMap(env, new SupportBeanArrayCollMap(true, new int[]{10, 20, 30}, null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(true, new int[]{10, 20, 1}, null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(true, new int[]{30}, new Long[]{20L, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(true, new int[]{}, new Long[]{null, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(true, null, new Long[]{1L, 100L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             env.undeployAll();
         }
@@ -190,8 +191,8 @@ public class ExprCoreInBetween {
 
     private static class ExprCoreInCollectionMaps implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -200,15 +201,15 @@ public class ExprCoreInBetween {
 
             String[] fields = "resOne, resTwo".split(",");
             sendArrayCollMap(env, new SupportBeanArrayCollMap(false, new int[]{10, 20, 30}, null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(false, new int[]{10, 20, 1}, null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(false, new int[]{30}, new Long[]{20L, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(false, new int[]{}, new Long[]{null, 1L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(false, null, new Long[]{1L, 100L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             env.undeployAll();
         }
@@ -222,17 +223,17 @@ public class ExprCoreInBetween {
 
             String[] fields = "resOne, resTwo".split(",");
             sendArrayCollMap(env, new SupportBeanArrayCollMap(1L, new int[0], new Long[0], new int[0]));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(2L, null, new Long[0], new int[0]));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
 
             sendArrayCollMap(env, new SupportBeanArrayCollMap(null, null, null, new int[]{3, 4, 5, 6, 7, 7, 7, 8, 8, 8, 1}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
 
             sendArrayCollMap(env, new SupportBeanArrayCollMap(-1L, null, new Long[]{1L}, new int[]{3, 4, 5, 6, 7, 7, 7, 8, 8}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(-1L, new int[]{1}, null, new int[]{}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
 
             env.undeployAll();
         }
@@ -245,13 +246,13 @@ public class ExprCoreInBetween {
             String[] fields = "resOne, resTwo".split(",");
 
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new Object[]{}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new Object[]{1, 2}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new Object[]{1d, 2L}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new Object[]{null, 2}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, true});
+            env.assertPropsNew("s0", fields, new Object[]{null, true});
 
             env.undeployAll();
         }
@@ -264,7 +265,7 @@ public class ExprCoreInBetween {
             String[] fields = "resOne, resTwo".split(",");
 
             sendArrayCollMap(env, new SupportBeanArrayCollMap(new Object[]{}));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false});
 
             env.undeployAll();
         }
@@ -494,19 +495,19 @@ public class ExprCoreInBetween {
             env.compileDeploy(eplOne).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false, true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false, true, true, true, true});
 
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, true, false, true, false, false, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, true, false, true, false, false, true});
 
             env.sendEventBean(new SupportBean("E1", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true, false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true, false, false, false, false});
 
             env.sendEventBean(new SupportBean("E1", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, true, false, true, true, false, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, true, false, true, true, false, true, false});
 
             env.sendEventBean(new SupportBean("E1", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false, true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false, true, true, true, true});
 
             env.undeployAll();
 
@@ -574,7 +575,7 @@ public class ExprCoreInBetween {
     private static class ExprCoreInBetweenInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "select intArr in (1, 2, 3) as r1 from SupportBeanArrayCollMap";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate select-clause expression 'intArr in (1,2,3)': Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }

@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -168,44 +167,44 @@ public class InfraTableCountMinSketch {
 
             // invalid "countMinSketch" declarations
             //
-            tryInvalidCompile(env, path, "select countMinSketch() from SupportBean",
+            env.tryInvalidCompile(path, "select countMinSketch() from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketch()': Count-min-sketch aggregation function 'countMinSketch' can only be used in create-table statements [");
-            tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch(5))",
+            env.tryInvalidCompile(path, "create table MyTable(cms countMinSketch(5))",
                 "Failed to validate table-column expression 'countMinSketch(5)': Count-min-sketch aggregation function 'countMinSketch'  expects either no parameter or a single json parameter object [");
-            tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({xxx:3}))",
+            env.tryInvalidCompile(path, "create table MyTable(cms countMinSketch({xxx:3}))",
                 "Failed to validate table-column expression 'countMinSketch({xxx=3})': Unrecognized parameter 'xxx' [");
-            tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({epsOfTotalCount:'a'}))",
+            env.tryInvalidCompile(path, "create table MyTable(cms countMinSketch({epsOfTotalCount:'a'}))",
                 "Failed to validate table-column expression 'countMinSketch({epsOfTotalCount=a})': Property 'epsOfTotalCount' expects an Double but receives a value of type String [");
-            tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({agent:'a'}))",
+            env.tryInvalidCompile(path, "create table MyTable(cms countMinSketch({agent:'a'}))",
                 "Failed to validate table-column expression 'countMinSketch({agent=a})': Failed to instantiate agent provider: Could not load class by name 'a', please check imports [");
-            tryInvalidCompile(env, path, "create table MyTable(cms countMinSketch({agent:'java.lang.String'}))",
+            env.tryInvalidCompile(path, "create table MyTable(cms countMinSketch({agent:'java.lang.String'}))",
                 "Failed to validate table-column expression 'countMinSketch({agent=java.lang.String})': Failed to instantiate agent provider: Class 'java.lang.String' does not implement interface 'com.espertech.esper.common.client.util.CountMinSketchAgentForge' [");
 
             // invalid "countMinSketchAdd" declarations
             //
-            tryInvalidCompile(env, path, "select countMinSketchAdd(theString) from SupportBean",
+            env.tryInvalidCompile(path, "select countMinSketchAdd(theString) from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchAdd(theString)': Count-min-sketch aggregation function 'countMinSketchAdd' can only be used with into-table");
-            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd() as wordcms from SupportBean",
+            env.tryInvalidCompile(path, "into table MyCMS select countMinSketchAdd() as wordcms from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchAdd()': Count-min-sketch aggregation function 'countMinSketchAdd' requires a single parameter expression");
-            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(body) as wordcms from SupportByteArrEventStringId",
+            env.tryInvalidCompile(path, "into table MyCMS select countMinSketchAdd(body) as wordcms from SupportByteArrEventStringId",
                 "Incompatible aggregation function for table 'MyCMS' column 'wordcms', expecting 'countMinSketch()' and received 'countMinSketchAdd(body)': Mismatching parameter return type, expected any of [class java.lang.String] but received byte[] [");
-            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(distinct 'abc') as wordcms from SupportByteArrEventStringId",
+            env.tryInvalidCompile(path, "into table MyCMS select countMinSketchAdd(distinct 'abc') as wordcms from SupportByteArrEventStringId",
                 "Failed to validate select-clause expression 'countMinSketchAdd(distinct \"abc\")': Count-min-sketch aggregation function 'countMinSketchAdd' is not supported with distinct [");
-            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchAdd(null) as wordcms from SupportByteArrEventStringId",
+            env.tryInvalidCompile(path, "into table MyCMS select countMinSketchAdd(null) as wordcms from SupportByteArrEventStringId",
                 "Failed to validate select-clause expression 'countMinSketchAdd(null)': Invalid null-type parameter");
 
             // invalid "countMinSketchFrequency" declarations
             //
-            tryInvalidCompile(env, path, "into table MyCMS select countMinSketchFrequency(theString) as wordcms from SupportBean",
+            env.tryInvalidCompile(path, "into table MyCMS select countMinSketchFrequency(theString) as wordcms from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchFrequency(theString)': Unknown single-row function, aggregation function or mapped or indexed property named 'countMinSketchFrequency' could not be resolved ");
-            tryInvalidCompile(env, path, "select countMinSketchFrequency() from SupportBean",
+            env.tryInvalidCompile(path, "select countMinSketchFrequency() from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchFrequency()': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchFrequency' could not be resolved");
 
             // invalid "countMinSketchTopk" declarations
             //
-            tryInvalidCompile(env, path, "select countMinSketchTopk() from SupportBean",
+            env.tryInvalidCompile(path, "select countMinSketchTopk() from SupportBean",
                 "Failed to validate select-clause expression 'countMinSketchTopk()': Unknown single-row function, expression declaration, script or aggregation function named 'countMinSketchTopk' could not be resolved");
-            tryInvalidCompile(env, path, "select MyCMS.wordcms.countMinSketchTopk(theString) from SupportBean",
+            env.tryInvalidCompile(path, "select MyCMS.wordcms.countMinSketchTopk(theString) from SupportBean",
                 "Failed to validate select-clause expression 'MyCMS.wordcms.countMinSketchTopk(th...(43 chars)': Count-min-sketch aggregation function 'countMinSketchTopk' requires a no parameter expressions [");
 
             env.undeployAll();

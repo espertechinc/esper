@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportCarEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportCarInfoEvent;
 import org.junit.Assert;
@@ -106,7 +105,7 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
         private static void tryAssertionDocSampleCarEvent(RegressionEnvironment env, AtomicInteger milestone) {
             String[] fields = new String[]{"name", "place", "sum(count)", "grouping(name)", "grouping(place)", "gid"};
             env.sendEventBean(new SupportCarEvent("skoda", "france", 100));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"skoda", "france", 100, 0, 0, 0},
                 {"skoda", null, 100, 0, 1, 1},
                 {null, "france", 100, 1, 0, 2},
@@ -115,7 +114,7 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportCarEvent("skoda", "germany", 75));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"skoda", "germany", 75, 0, 0, 0},
                 {"skoda", null, 175, 0, 1, 1},
                 {null, "germany", 75, 1, 0, 2},
@@ -155,12 +154,12 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
             env.compileDeploy(eplTwo).addListener("s0");
 
             env.sendEventBean(new SupportCarEvent("skoda", "france", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {null, null, "skoda", 10}, {null, null, null, 10}
             });
 
             env.sendEventBean(new SupportCarEvent("vw", "france", 15));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"skoda", "skoda", "vw", 15}, {"skoda", "skoda", null, 25}
             });
 
@@ -173,21 +172,21 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
 
             // invalid use of function
             String expected = "Failed to validate select-clause expression 'grouping(theString)': The grouping function requires the group-by clause to specify rollup, cube or grouping sets, and may only be used in the select-clause, having-clause or order-by-clause [select grouping(theString) from SupportBean]";
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select grouping(theString) from SupportBean", expected);
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive) from SupportBean(grouping(theString) = 1) group by rollup(theString)",
+            env.tryInvalidCompile("select grouping(theString) from SupportBean", expected);
+            env.tryInvalidCompile("select theString, sum(intPrimitive) from SupportBean(grouping(theString) = 1) group by rollup(theString)",
                 "Failed to validate filter expression 'grouping(theString)=1': The grouping function requires the group-by clause to specify rollup, cube or grouping sets, and may only be used in the select-clause, having-clause or order-by-clause [select theString, sum(intPrimitive) from SupportBean(grouping(theString) = 1) group by rollup(theString)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive) from SupportBean where grouping(theString) = 1 group by rollup(theString)",
+            env.tryInvalidCompile("select theString, sum(intPrimitive) from SupportBean where grouping(theString) = 1 group by rollup(theString)",
                 "Failed to validate filter expression 'grouping(theString)=1': The grouping function requires the group-by clause to specify rollup, cube or grouping sets, and may only be used in the select-clause, having-clause or order-by-clause [select theString, sum(intPrimitive) from SupportBean where grouping(theString) = 1 group by rollup(theString)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive) from SupportBean group by rollup(grouping(theString))",
+            env.tryInvalidCompile("select theString, sum(intPrimitive) from SupportBean group by rollup(grouping(theString))",
                 "The grouping function requires the group-by clause to specify rollup, cube or grouping sets, and may only be used in the select-clause, having-clause or order-by-clause [select theString, sum(intPrimitive) from SupportBean group by rollup(grouping(theString))]");
 
             // invalid parameters
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive), grouping(longPrimitive) from SupportBean group by rollup(theString)",
+            env.tryInvalidCompile("select theString, sum(intPrimitive), grouping(longPrimitive) from SupportBean group by rollup(theString)",
                 "Failed to find expression 'longPrimitive' among group-by expressions");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive), grouping(theString||'x') from SupportBean group by rollup(theString)",
+            env.tryInvalidCompile("select theString, sum(intPrimitive), grouping(theString||'x') from SupportBean group by rollup(theString)",
                 "Failed to find expression 'theString||\"x\"' among group-by expressions [select theString, sum(intPrimitive), grouping(theString||'x') from SupportBean group by rollup(theString)]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select theString, sum(intPrimitive), grouping_id(theString, theString) from SupportBean group by rollup(theString)",
+            env.tryInvalidCompile("select theString, sum(intPrimitive), grouping_id(theString, theString) from SupportBean group by rollup(theString)",
                 "Duplicate expression 'theString' among grouping function parameters [select theString, sum(intPrimitive), grouping_id(theString, theString) from SupportBean group by rollup(theString)]");
         }
     }

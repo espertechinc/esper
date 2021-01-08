@@ -21,7 +21,7 @@ public class ClientBasicSelectClause implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("E1", 10));
 
-        env.assertPropsListenerNew("s0", "intPrimitive".split(","), new Object[]{10});
+        env.assertPropsNew("s0", "intPrimitive".split(","), new Object[]{10});
 
         env.undeployAll();
     }

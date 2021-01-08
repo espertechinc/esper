@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.statement.resource.StatementResourceH
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 import org.junit.Assert;
@@ -90,7 +89,7 @@ public class ResultSetOutputLimitChangeSetOpt implements RegressionExecution {
 
         tryAssertion(env, currentTime, SupportOutputLimitOpt.DEFAULT, 0, "theString, intPrimitive, count(*)", "group by theString", null, "first", null);
 
-        SupportMessageAssertUtil.tryInvalidCompile(env, SupportOutputLimitOpt.ENABLED.getHint() + " select sum(intPrimitive) " +
+        env.tryInvalidCompile(SupportOutputLimitOpt.ENABLED.getHint() + " select sum(intPrimitive) " +
                 "from SupportBean output last every 4 events order by theString",
             "The ENABLE_OUTPUTLIMIT_OPT hint is not supported with order-by");
     }

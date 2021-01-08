@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,11 +54,11 @@ public class ClientExtendUDFReturnTypeIsEvents implements RegressionExecution {
     private static void tryAssertionReturnTypeIsEventsInvalid(RegressionEnvironment env) {
 
         env.compileDeploy("select myItemProducerInvalidNoType(theString) as c0 from SupportBean");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select myItemProducerInvalidNoType(theString).where(v => v.id='id1') as c0 from SupportBean",
+        env.tryInvalidCompile("select myItemProducerInvalidNoType(theString).where(v => v.id='id1') as c0 from SupportBean",
             "Failed to validate select-clause expression 'myItemProducerInvalidNoType(theStri...(68 chars)': Method 'myItemProducerEventBeanArray' returns EventBean-array but does not provide the event type name [");
 
         // test invalid: event type name invalid
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean",
+        env.tryInvalidCompile("select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean",
             "Failed to validate select-clause expression 'myItemProducerInvalidWrongType(theS...(74 chars)': Method 'myItemProducerEventBeanArray' returns event type 'dummy' and the event type cannot be found [select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean]");
 
         env.undeployAll();

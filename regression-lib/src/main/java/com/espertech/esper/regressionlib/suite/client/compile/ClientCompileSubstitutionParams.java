@@ -43,7 +43,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class ClientCompileSubstitutionParams {
@@ -278,7 +277,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{10, 11});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{10, 11});
 
             env.undeployAll();
         }
@@ -287,15 +286,15 @@ public class ClientCompileSubstitutionParams {
     private static class ClientCompileSubstParamInvalidUse implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // invalid mix or named and unnamed
-            tryInvalidCompile(env, "select ? as c0,?:a as c1 from SupportBean",
+            env.tryInvalidCompile("select ? as c0,?:a as c1 from SupportBean",
                 "Inconsistent use of substitution parameters, expecting all substitutions to either all provide a name or provide no name");
 
             // keyword used for name
-            tryInvalidCompile(env, "select ?:select from SupportBean",
+            env.tryInvalidCompile("select ?:select from SupportBean",
                 "Incorrect syntax near 'select' (a reserved keyword) at line 1 column 9");
 
             // invalid type incompatible
-            tryInvalidCompile(env, "select ?:p0:int as c0, ?:p0:long from SupportBean",
+            env.tryInvalidCompile("select ?:p0:int as c0, ?:p0:long from SupportBean",
                 "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
         }
     }
@@ -321,12 +320,12 @@ public class ClientCompileSubstitutionParams {
             SupportBean event = new SupportBean("E1", 10);
             event.setLongPrimitive(100);
             env.sendEventBean(event);
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{10});
 
             env.milestone(0);
 
             env.sendEventBean(event);
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{10});
 
             env.undeployAll();
         }
@@ -398,7 +397,7 @@ public class ClientCompileSubstitutionParams {
 
             env.sendEventBean(new SupportBean("e1", 10));
             assertFalse(env.listener("s1").isInvoked());
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -459,7 +458,7 @@ public class ClientCompileSubstitutionParams {
 
             env.sendEventBean(new SupportBean("e1", 10));
             assertFalse(env.listener("s1").isInvoked());
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -481,7 +480,7 @@ public class ClientCompileSubstitutionParams {
             env.addListener("s0");
 
             env.sendEventBean(new MyEventOne(lKey));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             // Test substitution parameter and concrete subclass in key matching
             epl = "select * from MyEventTwo where key = ?::MyObjectKeyConcrete";
@@ -522,7 +521,7 @@ public class ClientCompileSubstitutionParams {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("e1", 10));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }

@@ -10,22 +10,24 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 
 public class EPLJoin3StreamInKeywordPerformance implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -46,7 +48,7 @@ public class EPLJoin3StreamInKeywordPerformance implements RegressionExecution {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(new SupportBean_S2(1, "P00_6541"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{6541}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{6541}});
         }
         long delta = System.currentTimeMillis() - startTime;
         assertTrue("delta=" + delta, delta < 500);

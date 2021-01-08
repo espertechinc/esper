@@ -87,7 +87,7 @@ public class ClientCompileEnginePath {
             compileDeployWEnginePath(env, epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{10, "abc", 2, 5, "def"});
 
             env.undeployAll();

@@ -173,7 +173,7 @@ public class ContextSelectionAndFireAndForget {
             env.milestone(0);
 
             Object[][] expectedAll = new Object[][]{{"E1", 10}, {"E2", 41}};
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expectedAll);
+            env.assertPropsPerRowIterator("s0", fields, expectedAll);
 
             // test iterator ALL
             ContextPartitionSelector selector = ContextPartitionSelectorAll.INSTANCE;

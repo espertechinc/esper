@@ -167,16 +167,34 @@ public interface RegressionEnvironment {
 
     void assertPropsPerRowIterator(String statementName, String[] fields, Object[][] expecteds);
     void assertPropsPerRowIteratorAnyOrder(String statementName, String[] fields, Object[][] expecteds);
+
+    void assertPropsPerRowLastNew(String statementName, String[] fields, Object[][] expecteds);
     void assertPropsPerRowLastOld(String statementName, String[] fields, Object[][] expecteds);
     void assertPropsPerRowNewFlattened(String statementName, String[] fields, Object[][] expecteds);
     void assertPropsPerRowOldFlattened(String statementName, String[] fields, Object[][] expecteds);
-    void assertPropsListenerNew(String statementName, String[] fields, Object[] expecteds);
-    void assertPropsListenerOld(String statementName, String[] fields, Object[] expecteds);
+    void assertPropsPerRowIRPair(String statementName, String[] fields, Object[][] newExpected, Object[][] oldExpected);
+    void assertPropsPerRowIRPairFlattened(String statementName, String[] fields, Object[][] newExpected, Object[][] oldExpected);
+
+    void assertPropsNew(String statementName, String[] fields, Object[] expecteds);
+    void assertPropsOld(String statementName, String[] fields, Object[] expecteds);
+    void assertPropsIRPair(String statementName, String[] fields, Object[] newExpected, Object[] oldExpected);
+    void assertPropsNV(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream);
+
     void assertListenerInvoked(String statementName);
     void assertListenerNotInvoked(String statementName);
-    void assertNVListener(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream);
+    void assertListenerInvokedFlag(String statementName, boolean expected);
     void assertStatement(String statementName, Consumer<EPStatement> assertor);
     void assertListener(String statementName, Consumer<SupportListener> assertor);
+    void assertEventNew(String statementName, Consumer<EventBean> assertor);
+    void assertEventOld(String statementName, Consumer<EventBean> assertor);
+    void assertIterator(String statementName, Consumer<Iterator<EventBean>> assertor);
     void assertEqualsNew(String statementName, String fieldName, Object expected);
-    void runtimeSetVariable(String deploymentId, String variableName, Object value);
+    void assertRuntime(Consumer<EPRuntime> assertor);
+    void assertThis(Runnable runnable);
+    void listenerReset(String statementName);
+
+    void runtimeSetVariable(String statementNameOfDeployment, String variableName, Object value);
+
+    void tryInvalidCompile(String epl, String message);
+    void tryInvalidCompile(RegressionPath path, String epl, String message);
 }

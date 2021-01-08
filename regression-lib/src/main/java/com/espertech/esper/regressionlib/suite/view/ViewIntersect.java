@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSensorEvent;
 import org.junit.Assert;
@@ -26,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 public class ViewIntersect {
 
@@ -114,13 +113,13 @@ public class ViewIntersect {
         }
 
         private void assertReceived(RegressionEnvironment env, Object expected) {
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
     private static class ViewIntersectUniqueAndFirstLength implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            AtomicInteger milestone = new AtomicInteger();
+            AtomicInteger milestone = new AtomicInteger(1);
 
             String epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#firstlength(3)#unique(theString)";
             env.compileDeployAddListenerMileZero(epl, "s0");
@@ -130,7 +129,7 @@ public class ViewIntersect {
             env.undeployAll();
 
             epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#unique(theString)#firstlength(3)";
-            env.compileDeployAddListenerMile(epl, "s0", 1);
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             tryAssertionUniqueAndFirstLength(env, milestone);
 
@@ -140,15 +139,16 @@ public class ViewIntersect {
 
     private static class ViewIntersectFirstUniqueAndFirstLength implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#firstunique(theString)#firstlength(3)";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.incrementAndGet());
 
             tryAssertionFirstUniqueAndLength(env);
 
             env.undeployAll();
 
             epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#firstlength(3)#firstunique(theString)";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.incrementAndGet());
 
             tryAssertionFirstUniqueAndLength(env);
 
@@ -168,7 +168,7 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             sendEvent(env, "E1", 99);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
@@ -176,15 +176,15 @@ public class ViewIntersect {
 
             sendEvent(env, "E2", 2);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E2", 2}});
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsOld("s0", fields, new Object[]{"E1", 1});
 
             sendEvent(env, "E1", 3);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 3});
 
             sendEvent(env, "E1", 99);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}});
@@ -192,7 +192,7 @@ public class ViewIntersect {
 
             sendEvent(env, "E3", 3);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}, {"E3", 3}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 3});
 
             sendEvent(env, "E3", 98);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}, {"E3", 3}});
@@ -253,7 +253,7 @@ public class ViewIntersect {
             tryAssertionTimeBatchAndUnique(env, 100000, milestone);
             env.undeployAll();
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean#time_batch(1)#length_batch(10)",
+            env.tryInvalidCompile("select * from SupportBean#time_batch(1)#length_batch(10)",
                     "Failed to validate data window declaration: Cannot combined multiple batch data windows into an intersection [");
         }
     }
@@ -267,15 +267,15 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1, 10, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(100d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100d});
+            env.assertPropsNew("s0", fields, new Object[]{100d});
 
             sendEvent(env, "E2", 2, 20, 50d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(150d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{150d});
+            env.assertPropsNew("s0", fields, new Object[]{150d});
 
             sendEvent(env, "E3", 1, 20, 20d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(20d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20d});
+            env.assertPropsNew("s0", fields, new Object[]{20d});
 
             env.undeployAll();
         }
@@ -290,64 +290,54 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E2", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendEvent(env, "E3", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             sendEvent(env, "E4", 1, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4"}, new Object[]{"E1"});
 
             env.milestone(4);
 
             sendEvent(env, "E5", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4", "E5"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5"}, new Object[]{"E2"});
 
             env.milestone(5);
 
             sendEvent(env, "E6", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E3"});
 
             env.milestone(6);
 
             sendEvent(env, "E7", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E5", "E6", "E7"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E4"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E7"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E7"}, new Object[]{"E4"});
 
             env.milestone(7);
 
             sendEvent(env, "E8", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E6", "E7", "E8"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E8"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E8"}, new Object[]{"E5"});
 
             env.undeployAll();
 
             // another combination
-            env.compileDeployAddListenerMile("@name('s0') select * from SupportBean#groupwin(theString)#time(.0083 sec)#firstevent", "s0", 1);
+            env.compileDeployAddListenerMile("@name('s0') select * from SupportBean#groupwin(theString)#time(.0083 sec)#firstevent", "s0", 8);
             env.undeployAll();
         }
     }
@@ -367,25 +357,25 @@ public class ViewIntersect {
             sendEvent(env, "E5", 1); // throws out E3
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(1, "E2"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(1, "E3"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(1, "E4"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "E5"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -400,44 +390,42 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1, 10, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 
             sendEvent(env, "E2", 2, 10, 200d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E2"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2"}, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E3", 2, 20, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E3"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3"}, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendEvent(env, "E4", 1, 30, 300d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(3);
 
             sendEvent(env, "E5", 3, 40, 400d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(4);
 
             sendEvent(env, "E6", 3, 40, 300d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E6"));
-            Object[] result = {env.listener("s0").getLastOldData()[0].get("theString"), env.listener("s0").getLastOldData()[1].get("theString")};
-            EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E4", "E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
+                EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E4", "E5"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E6"});
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -453,22 +441,21 @@ public class ViewIntersect {
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.sendEventBean(new SupportBean_S1(2, "E2"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1E2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(10, "E3"));
             env.sendEventBean(new SupportBean_S1(20, "E4"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1E2", "E3E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3E4"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1, "E5"));
             env.sendEventBean(new SupportBean_S1(2, "E6"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3E4", "E5E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5E6"});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5E6"}, new Object[]{"E1E2"});
 
             env.undeployAll();
         }
@@ -483,71 +470,61 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             sendEvent(env, "E2", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E2"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2"}, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E3", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             sendEvent(env, "E4", 3, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4"}, new Object[]{"E3"});
 
             env.milestone(2);
 
             sendEvent(env, "E5", 2, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5"}, new Object[]{"E2"});
 
             env.milestone(3);
 
             sendEvent(env, "E6", 3, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E5", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E4"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E4"});
 
             env.milestone(4);
 
             sendEvent(env, "E7", 3, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E7"));
-            Assert.assertEquals(2, env.listener("s0").getLastOldData().length);
-            Object[] result = {env.listener("s0").getLastOldData()[0].get("theString"), env.listener("s0").getLastOldData()[1].get("theString")};
-            EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E7"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getLastOldData().length);
+                Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
+                EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E7"});
+                listener.reset();
+            });
 
             env.milestone(5);
 
             sendEvent(env, "E8", 4, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E7", "E8"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E8"});
+            env.assertPropsNew("s0", fields, new Object[]{"E8"});
 
             sendEvent(env, "E9", 3, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E8", "E9"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E7"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E9"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E9"}, new Object[]{"E7"});
 
             env.milestone(6);
 
             sendEvent(env, "E10", 2, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E8", "E10"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E9"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E10"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E10"}, new Object[]{"E9"});
 
             env.undeployAll();
         }
@@ -562,46 +539,42 @@ public class ViewIntersect {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 
             sendEvent(env, "E2", 2, 9);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(1);
 
             sendEvent(env, "E3", 0, 0);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3"));
-            Object[] result = {env.listener("s0").getLastOldData()[0].get("theString"), env.listener("s0").getLastOldData()[1].get("theString")};
-            EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E1", "E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E3"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
+                EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E1", "E2"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E3"});
+                listener.reset();
+            });
 
             env.milestone(2);
 
             sendEvent(env, "E4", -1, -1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(3);
 
             sendEvent(env, "E5", 1, 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
-            Assert.assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5"}, new Object[]{"E5"});
 
             env.milestone(4);
 
             sendEvent(env, "E6", 0, 0);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E6"));
-            Assert.assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E3"});
 
             env.undeployAll();
         }
@@ -670,17 +643,17 @@ public class ViewIntersect {
             env.advanceTime(1000);
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 
             env.advanceTime(2000);
             sendEvent(env, "E2", 2, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.sendEventBean(new SupportBean_S0(20));
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
+            env.assertPropsOld("s0", fields, new Object[]{"E2"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
 
             env.milestone(1);
@@ -688,24 +661,20 @@ public class ViewIntersect {
             env.advanceTime(3000);
             sendEvent(env, "E3", 3, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
             sendEvent(env, "E4", 3, 40);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4"}, new Object[]{"E3"});
 
             env.milestone(2);
 
             env.advanceTime(4000);
             sendEvent(env, "E5", 4, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
             sendEvent(env, "E6", 4, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E4", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E5"});
 
             env.milestone(3);
 
@@ -714,7 +683,7 @@ public class ViewIntersect {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(50));
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E6"});
+            env.assertPropsOld("s0", fields, new Object[]{"E6"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E4"));
 
             env.milestone(4);
@@ -722,7 +691,7 @@ public class ViewIntersect {
             env.advanceTime(10999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(11000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
+            env.assertPropsOld("s0", fields, new Object[]{"E1"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4"));
 
             env.milestone(5);
@@ -730,7 +699,7 @@ public class ViewIntersect {
             env.advanceTime(12999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(13000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E4"});
+            env.assertPropsOld("s0", fields, new Object[]{"E4"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr());
 
             env.milestone(6);
@@ -747,12 +716,12 @@ public class ViewIntersect {
             String text = "@name('s0') select irstream symbol, price from SupportMarketDataBean#length(1)#unique(symbol)";
             env.compileDeployAddListenerMileZero(text, "s0");
             env.sendEventBean(makeMarketDataEvent("S1", 100));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"price", 100.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"price", 100.0}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("S1", 5));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"price", 5.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"price", 5.0}},
                     new Object[][]{{"symbol", "S1"}, {"price", 100.0}});
 
             env.undeployAll();
@@ -774,12 +743,17 @@ public class ViewIntersect {
             beans[0] = makeEvent(symbolCsco, 50);
             env.sendEventBean(beans[0]);
 
-            Object[] result = toObjectArray(env.statement("s0").iterator());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[0]}, result);
-            assertTrue(env.listener("s0").isInvoked());
-            EPAssertionUtil.assertEqualsExactOrder((Object[]) null, env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[0]}, new Object[]{env.listener("s0").getLastNewData()[0].getUnderlying()});
-            env.listener("s0").reset();
+            env.assertIterator("s0", iterator -> {
+                Object[] result = toObjectArray(iterator);
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[0]}, result);
+            });
+            env.assertListener("s0", listener -> {
+                assertTrue(listener.isInvoked());
+                EPAssertionUtil.assertEqualsExactOrder((Object[]) null, listener.getLastOldData());
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[0]}, new Object[]{listener.getLastNewData()[0].getUnderlying()});
+                listener.reset();
+            });
+
 
             beans[1] = makeEvent(symbolCsco, 20);
             beans[2] = makeEvent(symbolIbm, 50);
@@ -793,8 +767,10 @@ public class ViewIntersect {
             env.sendEventBean(beans[4]);
             env.sendEventBean(beans[5]);
 
-            result = toObjectArray(env.statement("s0").iterator());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[3], beans[4]}, result);
+            env.assertIterator("s0", iterator -> {
+                Object[] result = toObjectArray(iterator);
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[3], beans[4]}, result);
+            });
 
             beans[6] = makeEvent(symbolCsco, 110);
             beans[7] = makeEvent(symbolC, 30);
@@ -804,8 +780,10 @@ public class ViewIntersect {
             env.sendEventBean(beans[7]);
             env.sendEventBean(beans[8]);
 
-            result = toObjectArray(env.statement("s0").iterator());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[3], beans[8]}, result);
+            env.assertIterator("s0", iterator -> {
+                Object[] result = toObjectArray(iterator);
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{beans[3], beans[8]}, result);
+            });
 
             env.undeployAll();
         }
@@ -818,17 +796,17 @@ public class ViewIntersect {
 
             SupportSensorEvent eventOne = new SupportSensorEvent(1, "Temperature", "Device1", 5.0, 96.5);
             env.sendEventBean(eventOne);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new Object[]{eventOne}, null);
+            assertUnderlying(env, new Object[]{eventOne}, null);
 
             SupportSensorEvent eventTwo = new SupportSensorEvent(2, "Temperature", "Device2", 7.0, 98.5);
             env.sendEventBean(eventTwo);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new Object[]{eventTwo}, new Object[]{eventOne});
+            assertUnderlying(env, new Object[]{eventTwo}, new Object[]{eventOne});
 
             SupportSensorEvent eventThree = new SupportSensorEvent(3, "Temperature", "Device2", 4.0, 99.5);
             env.sendEventBean(eventThree);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new Object[]{eventThree}, new Object[]{eventThree, eventTwo});
+            assertUnderlying(env, new Object[]{eventThree}, new Object[]{eventThree, eventTwo});
 
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", iterator -> assertFalse(iterator.hasNext()));
 
             env.undeployAll();
         }
@@ -843,40 +821,29 @@ public class ViewIntersect {
             String[] fields = new String[]{"symbol", "price", "volume"};
 
             sendMDEvent(env, "IBM", 10, 1L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", 10.0, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", 10.0, 1L});
 
             sendMDEvent(env, "IBM", 11, 2L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", 11.0, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"IBM", 11.0, 2L});
 
             sendMDEvent(env, "IBM", 10, 3L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"IBM", 10.0, 3L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 10.0, 1L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"IBM", 10.0, 3L}, new Object[]{"IBM", 10.0, 1L});
 
             sendMDEvent(env, "IBM", 11, 4L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"IBM", 11.0, 4L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 11.0, 2L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"IBM", 11.0, 4L}, new Object[]{"IBM", 11.0, 2L});
 
             env.advanceTime(2000);
             sendMDEvent(env, null, 11, 5L);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, 11.0, 5L});
+            env.assertPropsNew("s0", fields, new Object[]{null, 11.0, 5L});
 
             env.advanceTime(3000);
-            assertEquals(2, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 10.0, 3L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"IBM", 11.0, 4L});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][] {{"IBM", 10.0, 3L}, new Object[]{"IBM", 11.0, 4L}});
 
             sendMDEvent(env, null, 11, 6L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{null, 11.0, 6L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{null, 11.0, 5L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{null, 11.0, 6L}, new Object[]{null, 11.0, 5L});
 
             env.advanceTime(6000);
-            assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{null, 11.0, 6L});
-            env.listener("s0").reset();
+            env.assertPropsOld("s0", fields, new Object[]{null, 11.0, 6L});
 
             env.undeployAll();
         }
@@ -888,34 +855,30 @@ public class ViewIntersect {
         env.advanceTime(1000);
         sendEvent(env, "E1", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+        env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
         env.milestone(1);
 
         env.advanceTime(2000);
         sendEvent(env, "E2", 2);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+        env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
         env.milestone(2);
 
         env.advanceTime(3000);
         sendEvent(env, "E3", 1);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E3"});
-        env.listener("s0").reset();
+        env.assertPropsIRPair("s0", fields, new Object[]{"E3"}, new Object[]{"E1"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3"));
 
         env.milestone(3);
 
         env.advanceTime(4000);
         sendEvent(env, "E4", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+        env.assertPropsNew("s0", fields, new Object[]{"E4"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3", "E4"));
         sendEvent(env, "E5", 3);
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E4"});
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5"});
-        env.listener("s0").reset();
+        env.assertPropsIRPair("s0", fields, new Object[]{"E5"}, new Object[]{"E4"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3", "E5"));
 
         env.milestone(4);
@@ -923,7 +886,7 @@ public class ViewIntersect {
         env.advanceTime(11999);
         env.assertListenerNotInvoked("s0");
         env.advanceTime(12000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
+        env.assertPropsOld("s0", fields, new Object[]{"E2"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E5"));
 
         env.milestone(5);
@@ -931,7 +894,7 @@ public class ViewIntersect {
         env.advanceTime(12999);
         env.assertListenerNotInvoked("s0");
         env.advanceTime(13000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+        env.assertPropsOld("s0", fields, new Object[]{"E3"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E5"));
 
         env.milestone(6);
@@ -939,7 +902,7 @@ public class ViewIntersect {
         env.advanceTime(13999);
         env.assertListenerNotInvoked("s0");
         env.advanceTime(14000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E5"});
+        env.assertPropsOld("s0", fields, new Object[]{"E5"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr());
     }
 
@@ -951,21 +914,21 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("A3", 12));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3L, 10 + 11 + 12});
+        env.assertPropsNew("s0", fields, new Object[]{3L, 10 + 11 + 12});
 
         env.sendEventBean(new SupportBean("A1", 13));
         env.sendEventBean(new SupportBean("A2", 14));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("A3", 15));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3L, 13 + 14 + 15});
+        env.assertPropsNew("s0", fields, new Object[]{3L, 13 + 14 + 15});
 
         env.sendEventBean(new SupportBean("A1", 16));
         env.sendEventBean(new SupportBean("A2", 17));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("A3", 18));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3L, 16 + 17 + 18});
+        env.assertPropsNew("s0", fields, new Object[]{3L, 16 + 17 + 18});
 
         env.sendEventBean(new SupportBean("A1", 19));
         env.sendEventBean(new SupportBean("A1", 20));
@@ -974,7 +937,7 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("A3", 23));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3L, 20 + 22 + 23});
+        env.assertPropsNew("s0", fields, new Object[]{3L, 20 + 22 + 23});
     }
 
     private static void tryAssertionUniqueAndBatch(RegressionEnvironment env, AtomicInteger milestone) {
@@ -992,8 +955,7 @@ public class ViewIntersect {
 
         sendEvent(env, "E3", 3);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-        assertNull(env.listener("s0").getAndResetLastOldData());
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
 
         sendEvent(env, "E4", 4);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4"));
@@ -1015,9 +977,7 @@ public class ViewIntersect {
 
         sendEvent(env, "E8", 6);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
         sendEvent(env, "E8", 7);
         sendEvent(env, "E9", 9);
@@ -1029,9 +989,7 @@ public class ViewIntersect {
 
         sendEvent(env, "E10", 11);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E10"}, {"E8"}, {"E9"}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E10"}, {"E8"}, {"E9"}}, new Object[][]{{"E6"}, {"E7"}, {"E8"}});
     }
 
     private static void tryAssertionUniqueAndFirstLength(RegressionEnvironment env, AtomicInteger milestone) {
@@ -1039,24 +997,21 @@ public class ViewIntersect {
 
         sendEvent(env, "E1", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         sendEvent(env, "E2", 2);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
         env.milestoneInc(milestone);
 
         sendEvent(env, "E1", 3);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E1", 3});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1", 1});
-        env.listener("s0").reset();
+        env.assertPropsIRPair("s0", fields, new Object[]{"E1", 3}, new Object[]{"E1", 1});
 
         sendEvent(env, "E3", 30);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}, {"E3", 30}});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E3", 30});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 30});
 
         env.milestoneInc(milestone);
 
@@ -1071,11 +1026,11 @@ public class ViewIntersect {
 
         sendEvent(env, "E1", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         sendEvent(env, "E2", 2);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
         sendEvent(env, "E2", 10);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
@@ -1083,7 +1038,7 @@ public class ViewIntersect {
 
         sendEvent(env, "E3", 3);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 3});
 
         sendEvent(env, "E4", 4);
         sendEvent(env, "E4", 5);
@@ -1095,7 +1050,6 @@ public class ViewIntersect {
 
     private static void tryAssertionTimeBatchAndUnique(RegressionEnvironment env, long startTime, AtomicInteger milestone) {
         String[] fields = "theString,intPrimitive".split(",");
-        env.listener("s0").reset();
 
         sendEvent(env, "E1", 1);
         sendEvent(env, "E2", 2);
@@ -1103,8 +1057,7 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(startTime + 1000);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 2}, {"E1", 3}});
-        assertNull(env.listener("s0").getAndResetLastOldData());
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2", 2}, {"E1", 3}}, null);
 
         sendEvent(env, "E3", 3);
         sendEvent(env, "E3", 4);
@@ -1114,8 +1067,7 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(startTime + 2000);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4", 6}, {"E3", 7}});
-        assertNull(env.listener("s0").getAndResetLastOldData());
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4", 6}, {"E3", 7}}, null);
     }
 
     private static void tryAssertionLengthBatchAndFirstUnique(RegressionEnvironment env, AtomicInteger milestone) {
@@ -1127,8 +1079,7 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E3", 4);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
-        assertNull(env.listener("s0").getAndResetLastOldData());
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}}, null);
 
         sendEvent(env, "E1", 5);
         sendEvent(env, "E4", 7);
@@ -1136,9 +1087,7 @@ public class ViewIntersect {
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E5", 9);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 5}, {"E4", 7}, {"E5", 9}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1", 5}, {"E4", 7}, {"E5", 9}}, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
     }
 
     private static void sendEvent(RegressionEnvironment env, String theString, int intPrimitive, int intBoxed, double doublePrimitive) {
@@ -1193,5 +1142,11 @@ public class ViewIntersect {
             result.add(theEvent.getUnderlying());
         }
         return result.toArray();
+    }
+
+    private static void assertUnderlying(RegressionEnvironment env, Object[] newUnd, Object[] oldUnd) {
+        env.assertListener("s0", listener -> {
+            EPAssertionUtil.assertUnderlyingPerRow(listener.assertInvokedAndReset(), newUnd, oldUnd);
+        });
     }
 }

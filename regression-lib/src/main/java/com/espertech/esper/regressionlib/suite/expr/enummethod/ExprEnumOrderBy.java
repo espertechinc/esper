@@ -23,7 +23,6 @@ import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertST0Id;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertValuesArrayScalar;
 
@@ -175,10 +174,10 @@ public class ExprEnumOrderBy {
             String epl;
 
             epl = "select contained.orderBy() from SupportBean_ST0_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.orderBy()': Invalid input for built-in enumeration method 'orderBy' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean_ST0.class.getName() + "'");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.orderBy()': Invalid input for built-in enumeration method 'orderBy' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean_ST0.class.getName() + "'");
 
             epl = "select strvals.orderBy(v => null) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.orderBy()': Null-type is not allowed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.orderBy()': Null-type is not allowed");
         }
     }
 }

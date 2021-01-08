@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.epl.database;
 
 import com.espertech.esper.common.client.hook.type.*;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -45,7 +44,7 @@ public class EPLDatabaseHintHook {
             env.compileDeploy(stmtText);
 
             Assert.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("myint"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{false}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{false}});
 
             // assert contexts
             SQLColumnTypeContext type = SupportSQLColumnTypeConversion.getTypeContexts().get(0);
@@ -78,7 +77,7 @@ public class EPLDatabaseHintHook {
             env.compileDeploy(stmtText);
 
             env.runtime().getVariableService().setVariableValue(null, "myvariableIPC", "x60");    // greater 50 turns true
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{true}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{true}});
 
             SQLInputParameterContext param = SupportSQLColumnTypeConversion.getParamContexts().get(0);
             Assert.assertEquals(1, param.getParameterNumber());
@@ -98,7 +97,7 @@ public class EPLDatabaseHintHook {
             env.compileDeploy(stmtText);
 
             Assert.assertEquals(SupportBean.class, env.statement("s0").getEventType().getUnderlyingType());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{">10<", 99010}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{">10<", 99010}});
 
             SQLOutputRowTypeContext type = SupportSQLOutputRowConversion.getTypeContexts().get(0);
             Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
@@ -109,10 +108,10 @@ public class EPLDatabaseHintHook {
             Assert.assertEquals(10, val.getValues().get("myint"));
 
             env.runtime().getVariableService().setVariableValue(null, "myvariableORC", 60);    // greater 50 turns true
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{">60<", 99060}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{">60<", 99060}});
 
             env.runtime().getVariableService().setVariableValue(null, "myvariableORC", 90);    // greater 50 turns true
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             env.undeployAll();
         }

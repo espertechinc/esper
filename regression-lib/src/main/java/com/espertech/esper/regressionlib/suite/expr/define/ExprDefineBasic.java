@@ -32,8 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.espertech.esper.common.client.type.EPTypePremade.*;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ExprDefineBasic {
 
@@ -112,10 +111,10 @@ public class ExprDefineBasic {
             env.compileDeploy("@name('s0') select F3(myevent) as c0 from SupportBean as myevent", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20});
+            env.assertPropsNew("s0", fields, new Object[]{20});
 
             env.sendEventBean(new SupportBean("E1", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{22});
+            env.assertPropsNew("s0", fields, new Object[]{22});
 
             env.undeployAll();
         }
@@ -130,7 +129,7 @@ public class ExprDefineBasic {
             env.compileDeploy(eplNonJoin).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", "c0, c1".split(","), new Object[]{2, 4});
+            env.assertPropsNew("s0", "c0, c1".split(","), new Object[]{2, 4});
             env.undeployAll();
 
             String eplPattern = "@name('s0') expression abc { x => intPrimitive * 2} " +
@@ -139,7 +138,7 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean("E1", 2));
             env.sendEventBean(new SupportBean("E2", 4));
-            env.assertPropsListenerNew("s0", "a.theString, b.theString".split(","), new Object[]{"E1", "E2"});
+            env.assertPropsNew("s0", "a.theString, b.theString".split(","), new Object[]{"E1", "E2"});
 
             env.undeployAll();
         }
@@ -227,7 +226,7 @@ public class ExprDefineBasic {
             assertEquals("s0", env.statement("s0").getName());
 
             env.sendEventBean(new SupportBean_ST0("E1", 1));
-            env.assertPropsListenerNew("s0", "scalar()".split(","), new Object[]{1});
+            env.assertPropsNew("s0", "scalar()".split(","), new Object[]{1});
 
             env.undeployAll();
         }
@@ -270,12 +269,12 @@ public class ExprDefineBasic {
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 5));
             env.sendEventBean(new SupportBean_ST0("ST0", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2 / 10d, 2 / 5d});
+            env.assertPropsNew("s0", fields, new Object[]{2 / 10d, 2 / 5d});
 
             env.sendEventBean(new SupportBean("E3", 20));
             env.sendEventBean(new SupportBean("E4", 2));
             env.sendEventBean(new SupportBean_ST0("ST0", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4 / 20d, 4 / 2d});
+            env.assertPropsNew("s0", fields, new Object[]{4 / 20d, 4 / 2d});
 
             env.undeployAll();
         }
@@ -304,12 +303,12 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null});
+            env.assertPropsNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("ST0", 20));
 
             env.sendEventBean(new SupportBean_ST1("x", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"ST0"});
+            env.assertPropsNew("s0", fields, new Object[]{"ST0"});
 
             env.undeployAll();
         }
@@ -329,7 +328,7 @@ public class ExprDefineBasic {
                 "expression subq alias for {(select intPrimitive from SupportBean#keepall where theString = pcommon) }" +
                 "select subq as val1, subq as val2 " +
                 "from SupportBean_ST0#lastevent as one, SupportBean_ST1#lastevent as two";
-            tryInvalidCompile(env, eplAlias,
+            env.tryInvalidCompile(eplAlias,
                 "Failed to plan subquery number 1 querying SupportBean: Failed to validate filter expression 'theString=pcommon': Property named 'pcommon' is ambiguous as is valid for more then one stream");
         }
 
@@ -341,14 +340,14 @@ public class ExprDefineBasic {
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.sendEventBean(new SupportBean("E0", 10));
             env.sendEventBean(new SupportBean_ST1("ST1", 0, "E0"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, 10});
+            env.assertPropsNew("s0", fields, new Object[]{null, 10});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0, "E0"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{10, 10});
 
             env.undeployAll();
         }
@@ -374,18 +373,18 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E0", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E0", null});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 100));
             env.sendEventBean(new SupportBean("E1", 99));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null});
 
             env.sendEventBean(new SupportBean("E2", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "ST0"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "ST0"});
 
             env.sendEventBean(new SupportBean_ST0("ST1", 100));
             env.sendEventBean(new SupportBean("E3", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", null});
 
             env.undeployAll();
         }
@@ -410,15 +409,15 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E0", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E0", null});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean("E1", 99));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "ST0"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "ST0"});
 
             env.sendEventBean(new SupportBean_ST0("ST1", 0));
             env.sendEventBean(new SupportBean("E2", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "ST1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "ST1"});
 
             env.undeployAll();
         }
@@ -566,10 +565,10 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType()});
 
             env.sendEventBean(getSupportBean(5, 6));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, 6, 5 / 6d, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{5, 6, 5 / 6d, 1L});
 
             env.sendEventBean(getSupportBean(8, 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5 + 8, 6 + 10, (5 + 8) / (6d + 10d), 2L});
+            env.assertPropsNew("s0", fields, new Object[]{5 + 8, 6 + 10, (5 + 8) / (6d + 10d), 2L});
 
             env.undeployAll();
         }
@@ -613,10 +612,10 @@ public class ExprDefineBasic {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 30});
+            env.assertPropsNew("s0", fields, new Object[]{10, 30});
 
             env.sendEventBean(new SupportBean("E2", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{15, 45});
+            env.assertPropsNew("s0", fields, new Object[]{15, 45});
 
             env.undeployAll();
         }
@@ -659,10 +658,10 @@ public class ExprDefineBasic {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBeanObject("X"));
-            env.assertPropsListenerNew("s0", props, new Object[]{0L});
+            env.assertPropsNew("s0", props, new Object[]{0L});
 
             env.sendEventBean(new SupportBeanObject(1));
-            env.assertPropsListenerNew("s0", props, new Object[]{1L});
+            env.assertPropsNew("s0", props, new Object[]{1L});
 
             env.undeployAll();
         }
@@ -799,7 +798,7 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 5});
+            env.assertPropsNew("s0", fields, new Object[]{1, 5});
 
             env.undeployAll();
         }
@@ -829,11 +828,11 @@ public class ExprDefineBasic {
             SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, 20, 40});
+            env.assertPropsNew("s0", fields, new Object[]{2, 20, 40});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myvar", 3);
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 30, 90});
+            env.assertPropsNew("s0", fields, new Object[]{3, 30, 90});
 
             env.undeployAll();
         }
@@ -852,12 +851,12 @@ public class ExprDefineBasic {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             SupportBean theEvent = new SupportBean();
             theEvent.setBoolPrimitive(true);
             env.sendEventBean(theEvent);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -867,40 +866,40 @@ public class ExprDefineBasic {
         public void run(RegressionEnvironment env) {
 
             String epl = "expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=intPrimitive)} select abc() from SupportBean";
-            tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=intPrimitive)} select abc() from SupportBean]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=intPrimitive)} select abc() from SupportBean]");
 
             epl = "expression abc {x=>strvals.where(x=> x != 'E1')} select abc(str) from SupportCollection str";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc(str)': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'strvals.where()': Failed to validate enumeration method 'where', the lambda-parameter name 'x' has already been declared in this context [expression abc {x=>strvals.where(x=> x != 'E1')} select abc(str) from SupportCollection str]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc(str)': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'strvals.where()': Failed to validate enumeration method 'where', the lambda-parameter name 'x' has already been declared in this context [expression abc {x=>strvals.where(x=> x != 'E1')} select abc(str) from SupportCollection str]");
 
             epl = "expression abc {avg(intPrimitive)} select abc() from SupportBean";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'avg(intPrimitive)': Property named 'intPrimitive' is not valid in any stream [expression abc {avg(intPrimitive)} select abc() from SupportBean]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'avg(intPrimitive)': Property named 'intPrimitive' is not valid in any stream [expression abc {avg(intPrimitive)} select abc() from SupportBean]");
 
             epl = "expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb";
-            tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=sb.intPrimitive': Failed to find a stream named 'sb' (did you mean 'st0'?) [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean_ST0: Failed to validate filter expression 'p00=sb.intPrimitive': Failed to find a stream named 'sb' (did you mean 'st0'?) [expression abc {(select * from SupportBean_ST0#lastevent as st0 where p00=sb.intPrimitive)} select abc() from SupportBean sb]");
 
             epl = "expression abc {window(*)} select abc() from SupportBean";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'window(*)': The 'window' aggregation function requires that at least one stream is provided [expression abc {window(*)} select abc() from SupportBean]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'window(*)': The 'window' aggregation function requires that at least one stream is provided [expression abc {window(*)} select abc() from SupportBean]");
 
             epl = "expression abc {x => intPrimitive} select abc() from SupportBean";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc()': Parameter count mismatches for declared expression 'abc', expected 1 parameters but received 0 parameters [expression abc {x => intPrimitive} select abc() from SupportBean]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc()': Parameter count mismatches for declared expression 'abc', expected 1 parameters but received 0 parameters [expression abc {x => intPrimitive} select abc() from SupportBean]");
 
             epl = "expression abc {intPrimitive} select abc(sb) from SupportBean sb";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc(sb)': Parameter count mismatches for declared expression 'abc', expected 0 parameters but received 1 parameters [expression abc {intPrimitive} select abc(sb) from SupportBean sb]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc(sb)': Parameter count mismatches for declared expression 'abc', expected 0 parameters but received 1 parameters [expression abc {intPrimitive} select abc(sb) from SupportBean sb]");
 
             epl = "expression abc {x=>} select abc(sb) from SupportBean sb";
-            tryInvalidCompile(env, epl, "Incorrect syntax near '}' at line 1 column 19 near reserved keyword 'select' [expression abc {x=>} select abc(sb) from SupportBean sb]");
+            env.tryInvalidCompile(epl, "Incorrect syntax near '}' at line 1 column 19 near reserved keyword 'select' [expression abc {x=>} select abc(sb) from SupportBean sb]");
 
             epl = "expression abc {intPrimitive} select abc() from SupportBean sb";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {intPrimitive} select abc() from SupportBean sb]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'abc()': Failed to validate expression declaration 'abc': Failed to validate declared expression body expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream [expression abc {intPrimitive} select abc() from SupportBean sb]");
 
             epl = "expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)";
-            tryInvalidCompile(env, epl, "Filter expression not returning a boolean value: 'abc(sb)' [expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)]");
+            env.tryInvalidCompile(epl, "Filter expression not returning a boolean value: 'abc(sb)' [expression abc {x=>intPrimitive} select * from SupportBean sb where abc(sb)]");
 
             epl = "expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)";
-            tryInvalidCompile(env, epl, "Failed to validate expression: Failed to validate filter expression 'abc(*)': Expression 'abc' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead [expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)]");
+            env.tryInvalidCompile(epl, "Failed to validate expression: Failed to validate filter expression 'abc(*)': Expression 'abc' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead [expression abc {x=>x.intPrimitive = 0} select * from SupportBean#lastevent sb1, SupportBean#lastevent sb2 where abc(*)]");
 
             epl = "expression ABC alias for {1} select ABC(t) from SupportBean as t";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'ABC': Expression 'ABC is an expression-alias and does not allow parameters [expression ABC alias for {1} select ABC(t) from SupportBean as t]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'ABC': Expression 'ABC is an expression-alias and does not allow parameters [expression ABC alias for {1} select ABC(t) from SupportBean as t]");
         }
     }
 

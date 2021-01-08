@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.junit.Assert;
 
 import java.time.Instant;
@@ -53,39 +51,39 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEvent(env, "2002-05-02T8:59:59.999");
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEvent(env, "2002-05-02T9:00:00.000");
-            Assert.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendTimeEvent(env, "2002-05-03T8:59:59.999");
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendTimeEvent(env, "2002-05-03T9:00:00.000");
-            Assert.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(4);
 
             sendTimeEvent(env, "2002-05-04T8:59:59.999");
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
             sendTimeEvent(env, "2002-05-04T9:00:00.000");
-            Assert.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(6);
 
             env.milestone(7);
 
             sendTimeEvent(env, "2002-05-30T9:00:00.000");
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -154,37 +152,37 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:59.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEventWithZone(env, "2012-10-01T5:52:00.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendTimeEventWithZone(env, "2012-10-01T5:52:01.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendTimeEventWithZone(env, "2012-10-01T5:52:02.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(4);
 
             sendTimeEventWithZone(env, "2012-10-01T5:52:03.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
             sendTimeEventWithZone(env, "2012-10-01T5:52:04.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(6);
 
             sendTimeEventWithZone(env, "2012-10-01T5:53:00.000GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -202,17 +200,17 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEventWithZone(env, "2012-10-01T23:59:59.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEventWithZone(env, "2012-10-02T0:0:00.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendTimeEventWithZone(env, "2012-10-10T0:0:00.000GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -230,12 +228,12 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:59.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEventWithZone(env, "2012-10-02T5:52:00.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -253,12 +251,12 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEventWithZone(env, "2012-10-02T23:59:59.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEventWithZone(env, "2012-10-03T0:0:00.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -275,32 +273,32 @@ public class PatternObserverTimerSchedule {
             env.milestone(0);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:0.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:1.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:1.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:2.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(4);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:2.999GMT-0:00");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(5);
 
             sendTimeEventWithZone(env, "2012-10-01T5:51:3.000GMT-0:00");
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -351,7 +349,7 @@ public class PatternObserverTimerSchedule {
         SupportBean b3 = makeSendEvent(env, "E3");
 
         sendCurrentTime(env, "2012-10-01T05:51:30.000GMT-0:00");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "sb".split(","), new Object[][]{{b2}, {b3}});
+        env.assertPropsPerRowLastNew("s0", "sb".split(","), new Object[][]{{b2}, {b3}});
 
         env.undeployAll();
     }
@@ -359,23 +357,23 @@ public class PatternObserverTimerSchedule {
     private static void runAssertionInvalid(RegressionEnvironment env) {
 
         // the ISO 8601 parse tests reside with the parser
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[every timer:schedule(iso: 'x')]",
+        env.tryInvalidCompile("select * from pattern[every timer:schedule(iso: 'x')]",
             "Invalid parameter for pattern observer 'timer:schedule(iso:\"x\")': Failed to parse 'x': Exception parsing date 'x', the date is not a supported ISO 8601 date");
 
         // named parameter tests: absence, typing, etc.
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule()]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule()]",
             "Invalid parameter for pattern observer 'timer:schedule()': No parameters provided");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(x:1)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(x:1)]",
             "Invalid parameter for pattern observer 'timer:schedule(x:1)': Unexpected named parameter 'x', expecting any of the following: [iso, repetitions, date, period]");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(period:1)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(period:1)]",
             "Invalid parameter for pattern observer 'timer:schedule(period:1)': Failed to validate named parameter 'period', expected a single expression returning a TimePeriod-typed value");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(repetitions:'a', period:1 seconds)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(repetitions:'a', period:1 seconds)]",
             "Invalid parameter for pattern observer 'timer:schedule(repetitions:\"a\",period:1 seconds)': Failed to validate named parameter 'repetitions', expected a single expression returning any of the following types: int,long");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(date:1 seconds)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(date:1 seconds)]",
             "Invalid parameter for pattern observer 'timer:schedule(date:1 seconds)': Failed to validate named parameter 'date', expected a single expression returning any of the following types: string,Calendar,Date,long");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(repetitions:1)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(repetitions:1)]",
             "Invalid parameter for pattern observer 'timer:schedule(repetitions:1)': Either the date or period parameter is required");
-        SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[timer:schedule(iso: 'R/1980-01-01T00:00:00Z/PT15S', repetitions:1)]",
+        env.tryInvalidCompile("select * from pattern[timer:schedule(iso: 'R/1980-01-01T00:00:00Z/PT15S', repetitions:1)]",
             "Invalid parameter for pattern observer 'timer:schedule(iso:\"R/1980-01-01T00:00:00Z/PT15S\",repetitions:1)': The 'iso' parameter is exclusive of other parameters");
     }
 

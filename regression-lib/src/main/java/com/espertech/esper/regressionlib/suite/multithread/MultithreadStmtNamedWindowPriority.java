@@ -17,12 +17,14 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowPriorityCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import com.espertech.esper.runtime.client.EPStatement;
 
+import java.util.EnumSet;
 import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
@@ -39,8 +41,8 @@ public class MultithreadStmtNamedWindowPriority implements RegressionExecutionWi
     }
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

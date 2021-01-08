@@ -26,7 +26,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static java.time.DayOfWeek.THURSDAY;
 import static org.junit.Assert.assertEquals;
 
@@ -51,10 +50,10 @@ public class ExprDTDataSources {
             String[] fields = "c0,c1".split(",");
 
             sendBean(env, 20000, 20000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             sendBean(env, 19000, 20000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true});
 
             env.undeployAll();
         }
@@ -101,7 +100,7 @@ public class ExprDTDataSources {
             }
 
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, new Object[]{
+            env.assertPropsNew("s0", fields, new Object[]{
                 1, 4, 30, 5, 150, 1, 9, 3, 2, 22, 2002, 9, 9, 9, 9, 9
             });
 
@@ -170,11 +169,11 @@ public class ExprDTDataSources {
                 "create schema T2 as (startTSOne long, endTSOne long) starttimestamp startTSOne endtimestamp endTSOne;\n";
             env.compileDeployWBusPublicType(eplT1T2, path);
 
-            tryInvalidCompile(env, path, "create schema T12 as () inherits T1,T2",
+            env.tryInvalidCompile(path, "create schema T12 as () inherits T1,T2",
                 "Event type declares start timestamp as property 'startTS' however inherited event type 'T2' declares start timestamp as property 'startTSOne'");
-            tryInvalidCompile(env, path, "create schema T12 as (startTSOne long, endTSXXX long) inherits T2 starttimestamp startTSOne endtimestamp endTSXXX",
+            env.tryInvalidCompile(path, "create schema T12 as (startTSOne long, endTSXXX long) inherits T2 starttimestamp startTSOne endtimestamp endTSXXX",
                 "Event type declares end timestamp as property 'endTSXXX' however inherited event type 'T2' declares end timestamp as property 'endTSOne'");
-            tryInvalidCompile(env, path, "create schema T12 as (startTSOne null, endTSXXX long) starttimestamp startTSOne endtimestamp endTSXXX",
+            env.tryInvalidCompile(path, "create schema T12 as (startTSOne null, endTSXXX long) starttimestamp startTSOne endtimestamp endTSXXX",
                 "Declared start timestamp property 'startTSOne' is expected to return a Date, Calendar or long-typed value but returns 'null'");
 
             env.undeployAll();
@@ -200,7 +199,7 @@ public class ExprDTDataSources {
         env.sendEventBean(sdt);
 
         boolean java8date = field.equals("zoneddate") || field.equals("localdate");
-        env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10".split(","), new Object[]{
+        env.assertPropsNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10".split(","), new Object[]{
             1, java8date ? 5 : 4, 30, java8date ? THURSDAY : 5, 150, 1, 9, 3, 2, 22, 2002
         });
 

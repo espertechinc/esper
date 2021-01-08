@@ -22,7 +22,6 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
@@ -114,7 +113,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "thesum".split(","), new Object[] {21});
+            env.assertPropsNew("s0", "thesum".split(","), new Object[] {21});
 
             env.compileExecuteFAF("insert into MyInfraPC values('E3', {1, 2}, 21)", path);
             env.compileExecuteFAF("insert into MyInfraPC values('E4', {1}, 22)", path);
@@ -656,13 +655,13 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 "create table MyInfraInvalid (theString string, intPrimitive int)";
             env.compileDeploy(stmtTextCreate, path);
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "on SupportBean_A select * from MyInfraInvalid where sum(intPrimitive) > 100",
+            env.tryInvalidCompile(path, "on SupportBean_A select * from MyInfraInvalid where sum(intPrimitive) > 100",
                 "Failed to validate expression: An aggregate function may not appear in a WHERE clause (use the HAVING clause) [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "on SupportBean_A insert into MyStream select * from DUMMY",
+            env.tryInvalidCompile(path, "on SupportBean_A insert into MyStream select * from DUMMY",
                 "A named window or table 'DUMMY' has not been declared [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "on SupportBean_A select prev(1, theString) from MyInfraInvalid",
+            env.tryInvalidCompile(path, "on SupportBean_A select prev(1, theString) from MyInfraInvalid",
                 "Failed to validate select-clause expression 'prev(1,theString)': Previous function cannot be used in this context [");
 
             env.undeployAll();
@@ -863,9 +862,9 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "ssb2.s2,ssb1.s1,ssb1.i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 50, 21, 22));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 20});
+                    env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 20});
                     env.sendEventBean(new SupportSimpleBeanTwo("E1", 60, 11, 12));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10});
+                    env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10});
                 }
             };
 
@@ -953,7 +952,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "ssb2.s2,ssb1.s1,ssb1.i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("EX", 0, 0, 0));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E1", 10});
+                    env.assertPropsNew("s0", fields, new Object[]{"EX", "E1", 10});
                 }
             };
             assertIndexChoice(env, namedWindow, new String[0], preloadedEventsRelOp, "win:keepall()",

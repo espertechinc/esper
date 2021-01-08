@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumMostLeastFrequent {
 
@@ -118,7 +118,7 @@ public class ExprEnumMostLeastFrequent {
             String epl;
 
             epl = "select strvals.mostFrequent(v => null) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.mostFrequent()': Null-type is not allowed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.mostFrequent()': Null-type is not allowed");
         }
     }
 }

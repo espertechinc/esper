@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ClientCompileVisibility {
@@ -76,8 +75,8 @@ public class ClientCompileVisibility {
     private static class ClientVisibilityBusRequiresPublic implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String message = "Event type 'ABC' with bus-visibility requires the public access modifier for the event type";
-            tryInvalidCompile(env, "@Private @BusEventType create schema ABC()", message);
-            tryInvalidCompile(env, "@BusEventType create schema ABC()", message);
+            env.tryInvalidCompile("@Private @BusEventType create schema ABC()", message);
+            env.tryInvalidCompile("@BusEventType create schema ABC()", message);
 
             tryInvalidCompileWConfigure(env, config -> config.getCompiler().getByteCode().setBusModifierEventType(EventTypeBusModifier.BUS),
                 "@private create schema ABC()", message);
@@ -165,11 +164,11 @@ public class ClientCompileVisibility {
 
     private static class ClientVisibilityAnnotationInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "@protected @private create schema abc()",
+            env.tryInvalidCompile("@protected @private create schema abc()",
                 "Encountered both the @private and the @protected annotation");
-            tryInvalidCompile(env, "@public @private create schema abc()",
+            env.tryInvalidCompile("@public @private create schema abc()",
                 "Encountered both the @private and the @public annotation");
-            tryInvalidCompile(env, "@public @protected create schema abc()",
+            env.tryInvalidCompile("@public @protected create schema abc()",
                 "Encountered both the @protected and the @public annotation");
         }
     }
@@ -201,7 +200,7 @@ public class ClientCompileVisibility {
             path.add(compiled);
             env.compile("module a.b.c;\n" + USER_EPL, path);
 
-            tryInvalidCompile(env, path, "module a.b.d;\n" + USER_EPL, FIRST_MESSAGE);
+            env.tryInvalidCompile(path, "module a.b.d;\n" + USER_EPL, FIRST_MESSAGE);
         }
     }
 
@@ -252,21 +251,21 @@ public class ClientCompileVisibility {
             RegressionPath path = new RegressionPath();
             path.add(modOne);
             path.add(modTwo);
-            tryInvalidCompile(env, path, "select abc from SupportBean",
+            env.tryInvalidCompile(path, "select abc from SupportBean",
                 "The variable by name 'abc' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "select 1 from MySchema",
+            env.tryInvalidCompile(path, "select 1 from MySchema",
                 "The event type by name 'MySchema' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "context MyContext select * from SupportBean",
+            env.tryInvalidCompile(path, "context MyContext select * from SupportBean",
                 "The context by name 'MyContext' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "select * from MyWindow",
+            env.tryInvalidCompile(path, "select * from MyWindow",
                 "The named window by name 'MyWindow' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "select * from MyTable",
+            env.tryInvalidCompile(path, "select * from MyTable",
                 "The table by name 'MyTable' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "select MyExpr() from SupportBean",
+            env.tryInvalidCompile(path, "select MyExpr() from SupportBean",
                 "The declared-expression by name 'MyExpr' is ambiguous as it exists for multiple modules");
-            tryInvalidCompile(env, path, "select myscript('a') from SupportBean",
+            env.tryInvalidCompile(path, "select myscript('a') from SupportBean",
                 "The script by name 'myscript' is ambiguous as it exists for multiple modules: A script by name 'myscript (1 parameters)' is exported by multiple modules");
-            tryInvalidCompile(env, path, "select MyClass.doIt() from SupportBean",
+            env.tryInvalidCompile(path, "select MyClass.doIt() from SupportBean",
                 "Failed to validate select-clause expression 'MyClass.doIt()': The application-inlined class by name 'MyClass' is ambiguous as it exists for multiple modules: An application-inlined class by name 'MyClass' is exported by multiple modules");
         }
     }
@@ -287,9 +286,9 @@ public class ClientCompileVisibility {
             }
             path.add(compiled);
 
-            tryInvalidCompile(env, path, "select preconfigured_variable from SupportBean",
+            env.tryInvalidCompile(path, "select preconfigured_variable from SupportBean",
                 "The variable by name 'preconfigured_variable' is ambiguous as it exists in both the path space and the preconfigured space");
-            tryInvalidCompile(env, path, "select 'test' from SupportBean_S1",
+            env.tryInvalidCompile(path, "select 'test' from SupportBean_S1",
                 "The event type by name 'SupportBean_S1' is ambiguous as it exists in both the path space and the preconfigured space");
         }
     }
@@ -310,16 +309,16 @@ public class ClientCompileVisibility {
             env.deploy(compiledSelect).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 30});
 
             env.sendEventBean(new SupportBean("E3", 25));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 45});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 45});
 
             env.sendEventBean(new SupportBean("E4", 26));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 51});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 51});
 
             env.undeployAll();
         }
@@ -328,21 +327,21 @@ public class ClientCompileVisibility {
     private static void tryInvalidNotVisible(RegressionEnvironment env, EPCompiled compiled) {
         RegressionPath path = new RegressionPath();
         path.add(compiled);
-        tryInvalidCompile(env, path, "select 1 from MySchema",
+        env.tryInvalidCompile(path, "select 1 from MySchema",
             "Failed to resolve event type, named window or table by name 'MySchema'");
-        tryInvalidCompile(env, path, "select abc from SupportBean",
+        env.tryInvalidCompile(path, "select abc from SupportBean",
             "Failed to validate select-clause expression 'abc': Property named 'abc' is not valid in any stream");
-        tryInvalidCompile(env, path, "context MyContext select * from SupportBean",
+        env.tryInvalidCompile(path, "context MyContext select * from SupportBean",
             "Context by name 'MyContext' could not be found");
-        tryInvalidCompile(env, path, "on SupportBean update MyWindow set theString = 'a'",
+        env.tryInvalidCompile(path, "on SupportBean update MyWindow set theString = 'a'",
             "A named window or table 'MyWindow' has not been declared");
-        tryInvalidCompile(env, path, "into table MyTable select count(*) as c from SupportBean",
+        env.tryInvalidCompile(path, "into table MyTable select count(*) as c from SupportBean",
             "Invalid into-table clause: Failed to find table by name 'MyTable'");
-        tryInvalidCompile(env, path, "select MyExpr() from SupportBean",
+        env.tryInvalidCompile(path, "select MyExpr() from SupportBean",
             "Failed to validate select-clause expression 'MyExpr()': Unknown single-row function, expression declaration, script or aggregation function named 'MyExpr' could not be resolved");
-        tryInvalidCompile(env, path, "select myscript(1) from SupportBean",
+        env.tryInvalidCompile(path, "select myscript(1) from SupportBean",
             "Failed to validate select-clause expression 'myscript(1)': Unknown single-row function, aggregation function or mapped or indexed property named 'myscript' could not be resolved");
-        tryInvalidCompile(env, path, "select MyClass.doIt() from SupportBean",
+        env.tryInvalidCompile(path, "select MyClass.doIt() from SupportBean",
             "Failed to validate select-clause expression 'MyClass.doIt()': Failed to resolve 'MyClass.doIt' to a property, single-row function, aggregation function, script, stream or class name");
     }
 

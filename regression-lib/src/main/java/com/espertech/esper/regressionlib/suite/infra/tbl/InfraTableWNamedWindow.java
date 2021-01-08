@@ -36,7 +36,7 @@ public class InfraTableWNamedWindow implements RegressionExecution {
         env.milestone(0);
 
         env.sendEventBean(new SupportBean_S0(0, "E1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
         env.undeployAll();
     }

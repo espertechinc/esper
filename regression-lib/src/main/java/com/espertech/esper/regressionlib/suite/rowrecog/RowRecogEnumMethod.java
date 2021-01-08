@@ -41,7 +41,7 @@ public class RowRecogEnumMethod implements RegressionExecution {
         env.milestone(1);
 
         sendEvent(env, "E2", 12, 12);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 12});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 12});
 
         env.undeployAll();
     }

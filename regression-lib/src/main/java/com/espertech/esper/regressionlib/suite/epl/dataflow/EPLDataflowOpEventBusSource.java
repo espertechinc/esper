@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib.sleep;
 import static org.junit.Assert.*;
 
@@ -53,11 +52,11 @@ public class EPLDataflowOpEventBusSource {
             runAssertionAllTypes(env, "MyOAEvent", DefaultSupportGraphEventUtil.getOAEventsSendable());
 
             // invalid: no output stream
-            tryInvalidCompile(env, "create dataflow DF1 EventBusSource {}",
+            env.tryInvalidCompile("create dataflow DF1 EventBusSource {}",
                 "Failed to obtain operator 'EventBusSource': EventBusSource operator requires one output stream but produces 0 streams");
 
             // invalid: type not found
-            tryInvalidCompile(env, "create dataflow DF1 EventBusSource -> ABC {}",
+            env.tryInvalidCompile("create dataflow DF1 EventBusSource -> ABC {}",
                 "Failed to obtain operator 'EventBusSource': EventBusSource operator requires an event type declated for the output stream");
 
             // test doc samples

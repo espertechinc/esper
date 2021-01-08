@@ -38,7 +38,7 @@ public class ExprCoreBigNumberSupportMathContext {
             assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("c0"));
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{BigDecimal.valueOf(2, 0)});
+            env.assertPropsNew("s0", fields, new Object[]{BigDecimal.valueOf(2, 0)});
 
             env.undeployAll();
         }

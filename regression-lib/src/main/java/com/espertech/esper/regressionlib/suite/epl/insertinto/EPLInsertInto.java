@@ -31,10 +31,7 @@ import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.Schema;
@@ -44,7 +41,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static junit.framework.TestCase.*;
 import static org.apache.avro.SchemaBuilder.record;
@@ -210,7 +206,7 @@ public class EPLInsertInto {
         public void run(RegressionEnvironment env) {
             String stmtText = "insert into Event_1W (delta, product) " +
                 "select * from SupportBean#length(100)";
-            tryInvalidCompile(env, stmtText, "Wildcard not allowed when insert-into specifies column order");
+            env.tryInvalidCompile(stmtText, "Wildcard not allowed when insert-into specifies column order");
 
             // test insert wildcard to wildcard
             String stmtSelectText = "@name('i0') insert into ABCStream select * from SupportBean";
@@ -401,14 +397,14 @@ public class EPLInsertInto {
             // invalid wrapper types
             String epl = "insert into MyStream select * from pattern[a=SupportBean];\n" +
                 "insert into MyStream select * from pattern[a=SupportBean_S0];\n";
-            tryInvalidCompile(env, epl, "Event type named 'MyStream' has already been declared with differing column name or type information: Type by name 'stmt0_pat_0_0' in property 'a' expected event type 'SupportBean' but receives event type 'SupportBean_S0'");
+            env.tryInvalidCompile(epl, "Event type named 'MyStream' has already been declared with differing column name or type information: Type by name 'stmt0_pat_0_0' in property 'a' expected event type 'SupportBean' but receives event type 'SupportBean_S0'");
         }
     }
 
     private static class EPLInsertIntoMultiBeanToMulti implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -519,10 +515,10 @@ public class EPLInsertInto {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{20, null});
+            env.assertPropsNew("s0", fields, new Object[]{20, null});
 
             env.sendEventBean(new SupportBean("E2", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{5, "E2"});
 
             env.undeployAll();
         }
@@ -731,7 +727,7 @@ public class EPLInsertInto {
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "E1"}, {"val", 3}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "E1"}, {"val", 3}}, null);
 
             env.undeployAll();
         }

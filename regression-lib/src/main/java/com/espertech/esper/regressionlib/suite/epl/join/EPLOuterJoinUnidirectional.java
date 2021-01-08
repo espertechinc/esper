@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.support.bean.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 
@@ -40,12 +39,12 @@ public class EPLOuterJoinUnidirectional {
             // all: unidirectional and full-outer-join
 
             // no-view-declared
-            tryInvalidCompile(env,
+            env.tryInvalidCompile(
                 "select * from SupportBean_A unidirectional full outer join SupportBean_B#keepall unidirectional",
                 "The unidirectional keyword requires that no views are declared onto the stream (applies to stream 1)");
 
             // not-all-unidirectional
-            tryInvalidCompile(env,
+            env.tryInvalidCompile(
                 "select * from SupportBean_A unidirectional full outer join SupportBean_B unidirectional full outer join SupportBean_C#keepall",
                 "The unidirectional keyword must either apply to a single stream or all streams in a full outer join");
 
@@ -179,16 +178,16 @@ public class EPLOuterJoinUnidirectional {
 
     private static void assertReceived2Stream(RegressionEnvironment env, String a, String b) {
         String[] fields = "aid,bid".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{a, b});
+        env.assertPropsNew("s0", fields, new Object[]{a, b});
     }
 
     private static void assertReceived3Stream(RegressionEnvironment env, String a, String b, String c) {
         String[] fields = "a.id,b.id,c.id".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{a, b, c});
+        env.assertPropsNew("s0", fields, new Object[]{a, b, c});
     }
 
     private static void assertReceived3StreamMixed(RegressionEnvironment env, String a, String b, String c, String d) {
         String[] fields = "aid,bid,cid,did".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{a, b, c, d});
+        env.assertPropsNew("s0", fields, new Object[]{a, b, c, d});
     }
 }

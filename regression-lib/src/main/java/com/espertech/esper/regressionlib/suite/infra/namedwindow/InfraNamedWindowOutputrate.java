@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -36,22 +35,22 @@ public class InfraNamedWindowOutputrate implements RegressionExecution {
 
         env.advanceTime(1000);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 2L}, {"B", 1L}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A", 2L}, {"B", 1L}});
 
         env.sendEventBean(new SupportBean("B", 5));
         env.advanceTime(2000);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 2L}, {"B", 2L}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A", 2L}, {"B", 2L}});
 
         env.advanceTime(3000);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 2L}, {"B", 2L}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A", 2L}, {"B", 2L}});
 
         env.sendEventBean(new SupportBean("A", 5));
         env.sendEventBean(new SupportBean("C", 1));
         env.advanceTime(4000);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 3L}, {"B", 2L}, {"C", 1L}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A", 3L}, {"B", 2L}, {"C", 1L}});
 
         env.undeployAll();
     }

@@ -75,33 +75,33 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E1", 1, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", "H01", "H11"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H11"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", "H01", "H11"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H11"}});
 
             sendBeanInt(env, "E2", 2, 0);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             env.milestone(0);
 
             sendBeanInt(env, "E3", 0, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E3", 2, 2);
             Object[][] result = new Object[][]{{"E3", "H01", "H11"}, {"E3", "H01", "H12"}, {"E3", "H02", "H11"}, {"E3", "H02", "H12"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+            env.assertPropsPerRowLastNew("s0", fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
             env.milestone(0);
 
             sendBeanInt(env, "E4", 2, 1);
             result = new Object[][]{{"E4", "H01", "H11"}, {"E4", "H02", "H11"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+            env.assertPropsPerRowLastNew("s0", fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
             env.undeployAll();
         }
@@ -130,19 +130,19 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E1", 20, 20, 3);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", "H03", "H13"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H03", "H13"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", "H03", "H13"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H03", "H13"}});
 
             sendBeanInt(env, "E2", 20, 20, 21);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H03", "H13"}});
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H03", "H13"}});
 
             sendBeanInt(env, "E3", 4, 4, 2);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E3", "H02", "H12"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H03", "H13"}, {"E3", "H02", "H12"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E3", "H02", "H12"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H03", "H13"}, {"E3", "H02", "H12"}});
 
             env.undeployAll();
         }
@@ -172,26 +172,26 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E1", 1, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", "H01", "H011"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H011"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", "H01", "H011"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H011"}});
 
             sendBeanInt(env, "E2", 0, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H011"}});
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H011"}});
 
             env.milestoneInc(milestone);
 
             sendBeanInt(env, "E3", 1, 0);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H011"}});
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H011"}});
 
             sendBeanInt(env, "E4", 2, 2);
             Object[][] result = {{"E4", "H01", "H011"}, {"E4", "H01", "H012"}, {"E4", "H02", "H021"}, {"E4", "H02", "H022"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(result, new Object[][]{{"E1", "H01", "H011"}}));
+            env.assertPropsPerRowLastNew("s0", fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, EPAssertionUtil.concatenateArray2Dim(result, new Object[][]{{"E1", "H01", "H011"}}));
 
             env.undeployAll();
         }
@@ -222,16 +222,16 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1,valh2".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E1", 1, 1, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", "H01", "H11", "H21"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H11", "H21"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", "H01", "H11", "H21"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H11", "H21"}});
 
             sendBeanInt(env, "E2", 1, 1, 2);
             Object[][] result = new Object[][]{{"E2", "H01", "H11", "H21"}, {"E2", "H01", "H11", "H22"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+            env.assertPropsPerRowLastNew("s0", fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
             env.undeployAll();
         }
@@ -262,15 +262,15 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1,valh2".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E1", 2, 2, 2, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}});
 
             sendBeanInt(env, "E2", 4, 4, 4, 3);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2", "H03", "H13", "H03H23"}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}, {"E2", "H03", "H13", "H03H23"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", "H03", "H13", "H03H23"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", "H01", "H11", "H01H21"}, {"E2", "H03", "H13", "H03H23"}});
 
             env.undeployAll();
         }
@@ -289,19 +289,19 @@ public class EPLFromClauseMethodNStream {
             env.compileDeploy(expression).addListener("s0");
 
             String[] fields = "id,valh0,valh1,valh2".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "E2", 4, 4, 4, 3);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2", "H03", "H03H13", "H03H13H23"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", "H03", "H03H13", "H03H13H23"}});
 
             sendBeanInt(env, "E2", 4, 4, 4, 5);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
+            env.assertPropsPerRowLastNew("s0", fields, null);
 
             env.milestone(0);
 
             sendBeanInt(env, "E2", 4, 4, 0, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E2", "H03", "H03H13", "H03H13H23"}});
+            env.assertPropsPerRowLastNew("s0", fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E2", "H03", "H03H13", "H03H13H23"}});
 
             env.undeployAll();
         }
@@ -319,25 +319,25 @@ public class EPLFromClauseMethodNStream {
 
             String[] fields = "ids0,ids1,valh0,valh1".split(",");
             sendBeanInt(env, "S00", 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
             env.assertListenerNotInvoked("s0");
 
             sendBeanInt(env, "S10", 1);
             Object[][] resultOne = new Object[][]{{"S00", "S10", "S00H11", "S10H21"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultOne);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, resultOne);
+            env.assertPropsPerRowLastNew("s0", fields, resultOne);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, resultOne);
 
             sendBeanInt(env, "S01", 1);
             Object[][] resultTwo = new Object[][]{{"S01", "S10", "S01H11", "S10H21"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultTwo);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultOne, resultTwo));
+            env.assertPropsPerRowLastNew("s0", fields, resultTwo);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, EPAssertionUtil.concatenateArray2Dim(resultOne, resultTwo));
 
             env.milestone(0);
 
             sendBeanInt(env, "S11", 1);
             Object[][] resultThree = new Object[][]{{"S00", "S11", "S00H11", "S11H21"}, {"S01", "S11", "S01H11", "S11H21"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultThree);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultThree));
+            env.assertPropsPerRowLastNew("s0", fields, resultThree);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, EPAssertionUtil.concatenateArray2Dim(resultThree));
 
             env.undeployAll();
         }
@@ -356,25 +356,25 @@ public class EPLFromClauseMethodNStream {
             String[] fields = "ids0,ids1,ids2,valh0".split(",");
             sendBeanInt(env, "S00", 2);
             sendBeanInt(env, "S10", 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
             env.assertListenerNotInvoked("s0");
 
             sendBeanInt(env, "S20", 1);
             Object[][] resultOne = new Object[][]{{"S00", "S10", "S20", "S10S20H11"}, {"S00", "S10", "S20", "S10S20H12"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultOne);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, resultOne);
+            env.assertPropsPerRowLastNew("s0", fields, resultOne);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, resultOne);
 
             sendBeanInt(env, "S01", 1);
             Object[][] resultTwo = new Object[][]{{"S01", "S10", "S20", "S10S20H11"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultTwo);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultOne, resultTwo));
+            env.assertPropsPerRowLastNew("s0", fields, resultTwo);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, EPAssertionUtil.concatenateArray2Dim(resultOne, resultTwo));
 
             env.milestone(0);
 
             sendBeanInt(env, "S21", 1);
             Object[][] resultThree = new Object[][]{{"S00", "S10", "S21", "S10S21H11"}, {"S00", "S10", "S21", "S10S21H12"}, {"S01", "S10", "S21", "S10S21H11"}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, resultThree);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, EPAssertionUtil.concatenateArray2Dim(resultThree));
+            env.assertPropsPerRowLastNew("s0", fields, resultThree);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, EPAssertionUtil.concatenateArray2Dim(resultThree));
 
             env.undeployAll();
         }
@@ -407,22 +407,22 @@ public class EPLFromClauseMethodNStream {
             String[] fields = "valh0,valh1,valh2".split(",");
 
             sendBeanInt(env, "S00", 1, 1, 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H11", "H21"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H11", "H21"}});
 
             sendBeanInt(env, "S01", 0, 1, 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             env.milestoneInc(milestone);
 
             sendBeanInt(env, "S02", 1, 1, 0);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "S03", 1, 1, 2);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H11", "H21"}, {"H01", "H11", "H22"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H11", "H21"}, {"H01", "H11", "H22"}});
 
             sendBeanInt(env, "S04", 2, 2, 1);
             Object[][] result = new Object[][]{{"H01", "H11", "H21"}, {"H02", "H11", "H21"}, {"H01", "H12", "H21"}, {"H02", "H12", "H21"}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
             env.undeployModuleContaining("s0");
         }
@@ -454,20 +454,20 @@ public class EPLFromClauseMethodNStream {
             String[] fields = "valh0,valh1,valh2".split(",");
 
             sendBeanInt(env, "S00", 1, 1, 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H11", "H01-H21"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H11", "H01-H21"}});
 
             sendBeanInt(env, "S01", 0, 1, 1);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "S02", 1, 1, 0);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendBeanInt(env, "S03", 1, 1, 2);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H11", "H01-H21"}, {"H01", "H11", "H01-H22"}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H11", "H01-H21"}, {"H01", "H11", "H01-H22"}});
 
             sendBeanInt(env, "S04", 2, 2, 1);
             Object[][] result = new Object[][]{{"H01", "H11", "H01-H21"}, {"H02", "H11", "H02-H21"}, {"H01", "H12", "H01-H21"}, {"H02", "H12", "H02-H21"}};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
             env.undeployModuleContaining("s0");
         }
@@ -501,22 +501,22 @@ public class EPLFromClauseMethodNStream {
         String[] fields = "valh0,valh1,valh2".split(",");
 
         sendBeanInt(env, "S00", 1, 1, 1);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H01-H11", "H01-H11-H21"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H01-H11", "H01-H11-H21"}});
 
         sendBeanInt(env, "S01", 0, 1, 1);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         env.milestoneInc(milestone);
 
         sendBeanInt(env, "S02", 1, 1, 0);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         sendBeanInt(env, "S03", 1, 1, 2);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"H01", "H01-H11", "H01-H11-H21"}, {"H01", "H01-H11", "H01-H11-H22"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"H01", "H01-H11", "H01-H11-H21"}, {"H01", "H01-H11", "H01-H11-H22"}});
 
         sendBeanInt(env, "S04", 2, 2, 1);
         Object[][] result = new Object[][]{{"H01", "H01-H11", "H01-H11-H21"}, {"H02", "H02-H11", "H02-H11-H21"}, {"H01", "H01-H12", "H01-H12-H21"}, {"H02", "H02-H12", "H02-H12-H21"}};
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, result);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
         env.undeployModuleContaining("s0");
     }

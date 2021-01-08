@@ -100,7 +100,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventMap(makeMapEvent(), "MapEvent");
         env.sendEventBean(new SupportBean("keyOne", 1));
-        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 
@@ -109,7 +109,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventObjectArray(new Object[]{Collections.singletonMap("keyOne", "valueOne"), new int[]{1, 2}}, "ObjectArrayEvent");
         env.sendEventBean(new SupportBean("keyOne", 1));
-        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 
@@ -118,7 +118,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
 
         env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
         env.sendEventBean(new SupportBean("keyOne", 1));
-        env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
+        env.assertPropsNew("s0", "val0,val1".split(","), new Object[]{"valueOne", 2});
         env.undeployModuleContaining("s0");
     }
 

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -95,7 +94,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 10, 100L},
                     {"E2", 20, 600L},
@@ -110,7 +109,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
 
             env.sendEventBean(makeEvent("E1", 10, 1));
             env.sendEventBean(new SupportBean_S0(2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 10, 101L},
                     {"E2", 20, 600L},
@@ -154,11 +153,11 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("E1", 11, 500));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, null, 1500L}});
 
             env.sendEventBean(makeEvent("E2", 20, 600));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 20, 1200L}, {"E2", null, 1200L}, {null, null, 2100L}});
             env.undeployAll();
 
@@ -181,18 +180,18 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 20));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fieldsC0C1,
+            env.assertPropsPerRowLastNew("s0", fieldsC0C1,
                 new Object[][]{{null, 120}});
 
             env.sendEventBean(new SupportBean("E3", -300));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 200));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fieldsC0C1,
+            env.assertPropsPerRowLastNew("s0", fieldsC0C1,
                 new Object[][]{{"E1", 250}});
 
             env.sendEventBean(new SupportBean("E2", 500));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fieldsC0C1,
+            env.assertPropsPerRowLastNew("s0", fieldsC0C1,
                 new Object[][]{{"E2", 570}, {null, 520}});
 
             env.undeployAll();
@@ -237,7 +236,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.milestone(1);
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 1000L},
                     {"E1", null, 900L},
                     {"E1", 10, 300L},
@@ -261,7 +260,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.milestone(2);
 
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 1800L},
                     {"E1", null, 1800L},
                     {"E1", 10, 600L},
@@ -310,7 +309,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E2", 10, 100L},
                     {"E2", null, 100L},
@@ -337,7 +336,7 @@ public class ResultSetQueryTypeRollupHavingAndOrderBy {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E2", 10, null},
                     {"E2", null, null},

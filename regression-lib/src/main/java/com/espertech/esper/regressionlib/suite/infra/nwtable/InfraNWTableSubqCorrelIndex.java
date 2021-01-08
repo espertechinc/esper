@@ -189,9 +189,9 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "s2,ssb1[0].s1,ssb1[0].i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 50, 21, 22));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 20});
+                    env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 20});
                     env.sendEventBean(new SupportSimpleBeanTwo("E1", 60, 11, 12));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10});
+                    env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10});
                 }
             };
             IndexAssertionEventSend noAssertion = new IndexAssertionEventSend() {
@@ -254,9 +254,9 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                 public void run() {
                     String[] fields = "s2,ssb1[0].s1,ssb1[0].i1".split(",");
                     env.sendEventBean(new SupportSimpleBeanTwo("E2", 50, 21, 22));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 20});
+                    env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 20});
                     env.sendEventBean(new SupportSimpleBeanTwo("E1", 60, 11, 12));
-                    env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10});
+                    env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10});
                 }
             };
 
@@ -482,20 +482,20 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean("E3", 30));
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{1, "E1", 10});
 
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{2, "E2", 20});
 
             // test late start
             env.undeployModuleContaining("s0");
             env.compileDeploy(consumeEpl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{1, "E1", 10});
 
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{2, "E2", 20});
 
             env.undeployModuleContaining("s0");
             if (env.statement("index") != null) {

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
@@ -42,9 +41,9 @@ public class RowRecogGreedyness {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportRecogBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "E1"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, "E1"}});
 
             env.milestone(0);
@@ -72,7 +71,7 @@ public class RowRecogGreedyness {
             env.sendEventBean(new SupportRecogBean("E2", 1));
             env.sendEventBean(new SupportRecogBean("E3", 1));
             env.sendEventBean(new SupportRecogBean("E4", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", "E2", null, "E3", "E4"}});
 
             env.milestone(0);
@@ -82,20 +81,20 @@ public class RowRecogGreedyness {
             env.sendEventBean(new SupportRecogBean("E13", 1));
             env.sendEventBean(new SupportRecogBean("E14", 1));
             env.sendEventBean(new SupportRecogBean("E15", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E11", "E12", "E13", "E14", "E15"}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E16", 1));
             env.sendEventBean(new SupportRecogBean("E17", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, null, null, "E16", "E17"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E18", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, null, null, null, "E18"}});
 
             env.undeployAll();
@@ -121,7 +120,7 @@ public class RowRecogGreedyness {
             env.sendEventBean(new SupportRecogBean("E2", 1));
             env.sendEventBean(new SupportRecogBean("E3", 1));
             env.sendEventBean(new SupportRecogBean("E4", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", "E2", null, "E3", "E4"}});
 
             env.milestone(0);
@@ -131,12 +130,12 @@ public class RowRecogGreedyness {
             env.sendEventBean(new SupportRecogBean("E13", 1));
             env.sendEventBean(new SupportRecogBean("E14", 1));
             env.sendEventBean(new SupportRecogBean("E15", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E11", "E12", "E13", "E14", "E15"}});
 
             env.sendEventBean(new SupportRecogBean("E16", 1));
             env.sendEventBean(new SupportRecogBean("E17", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E16", null, null, null, "E17"}});
 
             env.milestone(1);

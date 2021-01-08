@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -74,30 +73,30 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             sendEventSB(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, 10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, 10, 10});
 
             env.milestone(2);
 
             sendEventSB(env, "E2", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10 + 100, 10, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10 + 100, 10, 100});
 
             env.milestone(3);
 
             sendEventSB(env, "E3", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 10 + 100 + 11, 10, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 10 + 100 + 11, 10, 100});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendEventSB(env, "E4", 9);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 10 + 100 + 11 + 9, 9, 100});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 10 + 100 + 11 + 9, 9, 100});
 
             sendEventSB(env, "E5", 120);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", 10 + 100 + 11 + 9 + 120, 9, 120});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", 10 + 100 + 11 + 9 + 120, 9, 120});
 
             sendEventSB(env, "E6", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E6", 10 + 100 + 11 + 9 + 120 + 100, 9, 120});
+            env.assertPropsNew("s0", fields, new Object[]{"E6", 10 + 100 + 11 + 9 + 120 + 100, 9, 120});
 
             env.undeployAll();
         }
@@ -115,24 +114,24 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             Object e1 = sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, new Object[]{e1}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, new Object[]{e1}});
 
             env.milestone(1);
 
             Object e2 = sendSupportBean(env, "E2", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10 + 100, new Object[]{e1, e2}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10 + 100, new Object[]{e1, e2}});
 
             env.milestone(2);
 
             Object e3 = sendSupportBean(env, "E3", 11);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E3", 100 + 11, new Object[]{e2, e3}}, new Object[]{"E1", 100 + 11, new Object[]{e2, e3}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3", 100 + 11, new Object[]{e2, e3}}, new Object[]{"E1", 100 + 11, new Object[]{e2, e3}});
 
             env.milestone(3);
 
             env.milestone(4);
 
             Object e4 = sendSupportBean(env, "E4", 9);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E4", 11 + 9, new Object[]{e3, e4}}, new Object[]{"E2", 11 + 9, new Object[]{e3, e4}});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4", 11 + 9, new Object[]{e3, e4}}, new Object[]{"E2", 11 + 9, new Object[]{e3, e4}});
 
             env.undeployAll();
         }
@@ -157,7 +156,7 @@ public class ResultSetQueryTypeRowForAll {
 
             env.sendEventBean(makeMarketDataEvent(100));
 
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgPrice", 100d},
                     {"sumPrice", 100d},
@@ -185,7 +184,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(200));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgPrice", (100 + 200) / 2.0},
                     {"sumPrice", 100 + 200d},
@@ -213,7 +212,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(150));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"avgPrice", (150 + 100 + 200) / 3.0},
                     {"sumPrice", 150 + 100 + 200d},
@@ -253,7 +252,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             env.sendEventBean(makeMarketDataEvent(100));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"minPrice", 100d},
                     {"maxPrice", 100d},
@@ -267,7 +266,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent(200));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"minPrice", 100d},
                     {"maxPrice", 200d},
@@ -281,7 +280,7 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent(150));
-            env.assertNVListener("s0",
+            env.assertPropsNV("s0",
                 new Object[][]{
                     {"minPrice", 150d},
                     {"maxPrice", 200d},
@@ -374,7 +373,7 @@ public class ResultSetQueryTypeRowForAll {
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
             assertTrue(env.listener("s0").getLastNewData()[0].getUnderlying() instanceof SupportMarketDataBean);
 
@@ -388,7 +387,7 @@ public class ResultSetQueryTypeRowForAll {
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
 
             env.undeployAll();
@@ -402,13 +401,13 @@ public class ResultSetQueryTypeRowForAll {
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.undeployAll();
@@ -422,18 +421,18 @@ public class ResultSetQueryTypeRowForAll {
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(3.0, env.listener("s0").getLastNewData()[0].get("aprice"));
             sendEvent(env, "A", 3);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
@@ -441,7 +440,7 @@ public class ResultSetQueryTypeRowForAll {
 
             sendEvent(env, "A", 10);
             sendEvent(env, "A", 20);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(1, env.listener("s0").getLastNewData().length);
             assertEquals(15.0, env.listener("s0").getLastNewData()[0].get("aprice"));
 
@@ -499,34 +498,34 @@ public class ResultSetQueryTypeRowForAll {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", new Integer[]{10}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", new Integer[]{10}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", new Integer[]{10, 100}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", new Integer[]{10, 100}});
 
             env.milestone(2);
 
             sendSupportBean_A(env, "E2");    // delete E2
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2", new Integer[]{10}});
+            env.assertPropsOld("s0", fields, new Object[]{"E2", new Integer[]{10}});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 50);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", new Integer[]{10, 50}});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", new Integer[]{10, 50}});
 
             env.milestone(4);
 
             env.milestone(5);  // no change
 
             sendSupportBean_A(env, "E1");    // delete E1
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E1", new Integer[]{50}});
+            env.assertPropsOld("s0", fields, new Object[]{"E1", new Integer[]{50}});
 
             env.milestone(6);
 
             sendSupportBean(env, "E4", -1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", new Integer[]{50, -1}});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", new Integer[]{50, -1}});
 
             env.undeployAll();
         }

@@ -24,7 +24,6 @@ import org.junit.Assert;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EPLOtherSelectWildcardWAdditional {
@@ -192,7 +191,7 @@ public class EPLOtherSelectWildcardWAdditional {
     private static class EPLOtherInvalidRepeatedProperties implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String text = "select *, myString||myString as myString from SupportBeanSimple#length(5)";
-            tryInvalidCompile(env, text, "skip");
+            env.tryInvalidCompile(text, "skip");
         }
     }
 

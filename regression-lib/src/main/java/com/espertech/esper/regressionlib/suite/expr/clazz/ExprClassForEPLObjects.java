@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.expr.clazz;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -24,7 +23,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -72,25 +70,25 @@ public class ExprClassForEPLObjects {
             // test Annotation
             String eplAnnotation = escapeClass("public @interface MyAnnotation{}") +
                 "@MyAnnotation @name('s0') select * from SupportBean\n";
-            tryInvalidCompile(env, eplAnnotation, "Failed to process statement annotations: Failed to resolve @-annotation class: Could not load annotation class by name 'MyAnnotation', please check imports");
+            env.tryInvalidCompile(eplAnnotation, "Failed to process statement annotations: Failed to resolve @-annotation class: Could not load annotation class by name 'MyAnnotation', please check imports");
 
             // test Create-Schema for bean type
             String eplBeanEventType = escapeClass("public class MyEventBean {}") +
                 "create schema MyEvent as MyEventBean\n";
-            tryInvalidCompile(env, eplBeanEventType, "Could not load class by name 'MyEventBean', please check imports");
+            env.tryInvalidCompile(eplBeanEventType, "Could not load class by name 'MyEventBean', please check imports");
 
             // test Create-Schema for property type
             String eplPropertyType = escapeClass("public class MyEventBean {}") +
                 "create schema MyEvent as (field1 MyEventBean)\n";
-            tryInvalidCompile(env, eplPropertyType, "Nestable type configuration encountered an unexpected property type name");
+            env.tryInvalidCompile(eplPropertyType, "Nestable type configuration encountered an unexpected property type name");
 
             String eplNamedWindow = escapeClass("public class MyType {}") +
                 "create window MyWindow(myfield MyType)\n";
-            tryInvalidCompile(env, eplNamedWindow, "Nestable type configuration encountered an unexpected property type name");
+            env.tryInvalidCompile(eplNamedWindow, "Nestable type configuration encountered an unexpected property type name");
 
             String eplTable = escapeClass("public class MyType {}") +
                 "create table MyTable(myfield MyType)\n";
-            tryInvalidCompile(env, eplTable, "skip");
+            env.tryInvalidCompile(eplTable, "skip");
         }
     }
 
@@ -148,7 +146,7 @@ public class ExprClassForEPLObjects {
             env.deploy(compiled).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "c0".split(","), new Object[][]{{1}, {2}});
+            env.assertPropsPerRowLastNew("s0", "c0".split(","), new Object[][]{{1}, {2}});
 
             env.undeployAll();
         }

@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import org.junit.Assert;
 
@@ -44,12 +43,12 @@ public class PatternGuardWhile {
             env.milestone(0);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             sendSupportBean(env, "X");
             env.assertListenerNotInvoked("s0");
@@ -139,9 +138,9 @@ public class PatternGuardWhile {
 
     private static class PatternInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [every SupportBean while ('abc')]",
+            env.tryInvalidCompile("select * from pattern [every SupportBean while ('abc')]",
                 "Invalid parameter for pattern guard 'SupportBean while (\"abc\")': Expression pattern guard requires a single expression as a parameter returning a true or false (boolean) value [select * from pattern [every SupportBean while ('abc')]]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern [every SupportBean while (abc)]",
+            env.tryInvalidCompile("select * from pattern [every SupportBean while (abc)]",
                 "Failed to validate pattern guard expression 'abc': Property named 'abc' is not valid in any stream [select * from pattern [every SupportBean while (abc)]]");
         }
     }

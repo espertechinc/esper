@@ -34,7 +34,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -183,18 +184,18 @@ public class InfraTableAccessCore {
             env.sendEventBean(new SupportBean_S0(0));
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(0));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 2));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 3));
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -326,7 +327,7 @@ public class InfraTableAccessCore {
                 "@name('s0') insert into AggBean select windowAndTotalTLRUG as val0 from SupportBean_S0;\n", path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            env.assertPropsListenerNew("s0", "val0.thewindow,val0.thetotal".split(","), new Object[]{new Object[][]{e2, e3}, 50});
+            env.assertPropsNew("s0", "val0.thewindow,val0.thetotal".split(","), new Object[]{new Object[][]{e2, e3}, 50});
 
             env.undeployAll();
         }
@@ -356,7 +357,7 @@ public class InfraTableAccessCore {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_S0(0, "E2"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{2});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{2});
 
             env.undeployAll();
         }
@@ -374,7 +375,7 @@ public class InfraTableAccessCore {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_S0(0, "E2"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{2});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{2});
 
             env.undeployAll();
         }
@@ -396,14 +397,14 @@ public class InfraTableAccessCore {
             env.compileDeploy("@name('s0') select " + fields + " from SupportBean_S0", path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{10, 1000d, 10000f, 100L});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{10, 1000d, 10000f, 100L});
 
             env.milestoneInc(milestone);
 
             makeSendBean(env, "E1", 11, 101L, 1001d, 10001f);
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{21, 2001d, 20001f, 201L});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{21, 2001d, 20001f, 201L});
 
             env.undeployAll();
         }
@@ -427,14 +428,14 @@ public class InfraTableAccessCore {
 
             String[] fields = "c0,c1".split(",");
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{100L, 1L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
             env.sendEventBean(new SupportBean_S0(10, "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.undeployAll();
         }
@@ -461,14 +462,14 @@ public class InfraTableAccessCore {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1000.0, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{1000.0, 1L});
 
             env.milestone(1);
 
             makeSendBean(env, "E1", 10, 100, 1001);
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2001.0, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{2001.0, 2L});
 
             env.undeployAll();
         }
@@ -557,7 +558,7 @@ public class InfraTableAccessCore {
             EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{c0, total});
 
             env.sendEventBean(new SupportBean(c0, 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{c0, total});
+            env.assertPropsNew("s0", fields, new Object[]{c0, total});
         }
 
         private static void tryAssertionMultiStmtContributingDifferentAggs(RegressionEnvironment env, boolean grouped, AtomicInteger milestone) {
@@ -593,7 +594,7 @@ public class InfraTableAccessCore {
             EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fieldsTwo, new Object[]{10, 1L, new Object[]{s1Bean1}});
 
             env.sendEventBean(new SupportBean("G1", 0));
-            env.assertPropsListenerNew("s0", fieldsSelect,
+            env.assertPropsNew("s0", fieldsSelect,
                 new Object[]{null, 0L, null, 10, 1L, new Object[]{s1Bean1}});
 
             env.milestoneInc(milestone);
@@ -603,7 +604,7 @@ public class InfraTableAccessCore {
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsOne, new Object[]{20, 1L, new Object[]{s0Bean1}});
 
             env.sendEventBean(new SupportBean("G1", 0));
-            env.assertPropsListenerNew("s0", fieldsSelect,
+            env.assertPropsNew("s0", fieldsSelect,
                 new Object[]{20, 1L, new Object[]{s0Bean1}, 10, 1L, new Object[]{s1Bean1}});
 
             // contribute S1 and S0
@@ -613,7 +614,7 @@ public class InfraTableAccessCore {
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsOne, new Object[]{41, 2L, new Object[]{s0Bean1, s0Bean2}});
 
             env.sendEventBean(new SupportBean("G1", 0));
-            env.assertPropsListenerNew("s0", fieldsSelect,
+            env.assertPropsNew("s0", fieldsSelect,
                 new Object[]{41, 2L, new Object[]{s0Bean1, s0Bean2}, 21, 2L, new Object[]{s1Bean1, s1Bean2}});
 
             env.milestoneInc(milestone);
@@ -625,7 +626,7 @@ public class InfraTableAccessCore {
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsOne, new Object[]{43, 2L, new Object[]{s0Bean2, s0Bean3}});
 
             env.sendEventBean(new SupportBean("G1", 0));
-            env.assertPropsListenerNew("s0", fieldsSelect,
+            env.assertPropsNew("s0", fieldsSelect,
                 new Object[]{43, 2L, new Object[]{s0Bean2, s0Bean3}, 23, 2L, new Object[]{s1Bean2, s1Bean3}});
 
             env.undeployAll();
@@ -833,11 +834,11 @@ public class InfraTableAccessCore {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0, "E1"));
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{3L, 2L, new SupportBean[]{b1, b2, b3}, 303L});
 
         env.sendEventBean(new SupportBean_S0(0, "E2"));
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{null, null, null, null});
 
         SupportBean b4 = makeSendBean(env, "E2", 20, 200);
@@ -845,7 +846,7 @@ public class InfraTableAccessCore {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0, "E2"));
-        env.assertPropsListenerNew("s0", fields,
+        env.assertPropsNew("s0", fields,
             new Object[]{1L, 1L, new SupportBean[]{b4}, 200L});
 
         env.undeployAll();
@@ -867,19 +868,19 @@ public class InfraTableAccessCore {
         int count = 0;
         for (String p00 : "A,B,C,D".split(",")) {
             env.sendEventBean(new SupportBean_S0(0, p00));
-            env.assertPropsListenerNew("s0", fields, new Object[]{p00, expected[count]});
+            env.assertPropsNew("s0", fields, new Object[]{p00, expected[count]});
             count++;
         }
 
         env.sendEventBean(new SupportBean_S0(0, "A"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A", 21});
+        env.assertPropsNew("s0", fields, new Object[]{"A", 21});
     }
 
     private static void sendEventsAndAssert(RegressionEnvironment env, String theString, int intPrimitive, String p00, int total) {
         String[] fields = "c0,c1".split(",");
         env.sendEventBean(new SupportBean(theString, intPrimitive));
         env.sendEventBean(new SupportBean_S0(0, p00));
-        env.assertPropsListenerNew("s0", fields, new Object[]{p00, total});
+        env.assertPropsNew("s0", fields, new Object[]{p00, total});
     }
 
     private static SupportBean makeSendBean(RegressionEnvironment env, String theString, int intPrimitive, long longPrimitive) {
@@ -967,7 +968,7 @@ public class InfraTableAccessCore {
             new Object[]{15, 150L, new Object[]{e1, e2}, new Object[]{e2, e1}});
 
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fieldsSelect,
+        env.assertPropsNew("s0", fieldsSelect,
             new Object[]{15, 150L, new Object[]{e1, e2}, new Object[]{e2, e1}});
 
         env.milestoneInc(milestone);
@@ -977,7 +978,7 @@ public class InfraTableAccessCore {
             new Object[]{17, 170L, new Object[]{e2, e3}, new Object[]{e2, e3}});
 
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fieldsSelect,
+        env.assertPropsNew("s0", fieldsSelect,
             new Object[]{17, 170L, new Object[]{e2, e3}, new Object[]{e2, e3}});
 
         env.undeployAll();

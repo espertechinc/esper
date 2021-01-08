@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -37,10 +36,10 @@ public class EPLOtherInvalid {
 
     private static class EPLOtherInvalidFuncParams implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select count(theString, theString, theString) from SupportBean",
+            env.tryInvalidCompile("select count(theString, theString, theString) from SupportBean",
                 "Failed to validate select-clause expression 'count(theString,theString,theString)': The 'count' function expects at least 1 and up to 2 parameters");
 
-            tryInvalidCompile(env, "select leaving(theString) from SupportBean",
+            env.tryInvalidCompile("select leaving(theString) from SupportBean",
                 "Failed to validate select-clause expression 'leaving(theString)': The 'leaving' function expects no parameters");
         }
     }
@@ -53,7 +52,7 @@ public class EPLOtherInvalid {
             exceptionText = getSyntaxExceptionEPL(env, "select * from SupportBean a where a.intPrimitive between r.start and r.end");
             assertEquals("Incorrect syntax near 'start' (a reserved keyword) at line 1 column 59, please check the where clause [select * from SupportBean a where a.intPrimitive between r.start and r.end]", exceptionText);
 
-            tryInvalidCompile(env, "select * from SupportBean(1=2=3)",
+            env.tryInvalidCompile("select * from SupportBean(1=2=3)",
                 "Failed to validate filter expression '1=2': Invalid use of equals, expecting left-hand side and right-hand side but received 3 expressions");
         }
     }

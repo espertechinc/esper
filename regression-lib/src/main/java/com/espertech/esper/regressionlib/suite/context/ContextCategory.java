@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import junit.framework.TestCase;
@@ -89,7 +88,7 @@ public class ContextCategory {
             if (expected == null) {
                 env.assertListenerNotInvoked("s0");
             } else {
-                env.assertPropsListenerNew("s0", FIELDS, new Object[]{expected, categoryName});
+                env.assertPropsNew("s0", FIELDS, new Object[]{expected, categoryName});
             }
         }
     }
@@ -107,28 +106,28 @@ public class ContextCategory {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1, "cat1", "CtxCategory", 0});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 1, "cat1", "CtxCategory", 0});
             assertPartitionInfo(env);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", -2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", -2, "cat2", "CtxCategory", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", -2, "cat2", "CtxCategory", 1});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 4, "cat1", "CtxCategory", 0});
+            env.assertPropsNew("s0", fields, new Object[]{"G3", 4, "cat1", "CtxCategory", 0});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("G4", -4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G4", -6, "cat2", "CtxCategory", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"G4", -6, "cat2", "CtxCategory", 1});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("G5", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G5", 9, "cat1", "CtxCategory", 0});
+            env.assertPropsNew("s0", fields, new Object[]{"G5", 9, "cat1", "CtxCategory", 0});
 
             env.undeployAll();
         }
@@ -245,17 +244,17 @@ public class ContextCategory {
 
             // invalid filter spec
             epl = "create context ACtx group theString is not null as cat1 from SupportBean(dummy = 1)";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate filter expression 'dummy=1': Property named 'dummy' is not valid in any stream [");
+            env.tryInvalidCompile(epl, "Failed to validate filter expression 'dummy=1': Property named 'dummy' is not valid in any stream [");
 
             // not a boolean expression
             epl = "create context ACtx group intPrimitive as grp1 from SupportBean";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Filter expression not returning a boolean value: 'intPrimitive' [");
+            env.tryInvalidCompile(epl, "Filter expression not returning a boolean value: 'intPrimitive' [");
 
             // validate statement not applicable filters
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create context ACtx group intPrimitive < 10 as cat1 from SupportBean", path);
             epl = "context ACtx select * from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, epl, "Category context 'ACtx' requires that any of the events types that are listed in the category context also appear in any of the filter expressions of the statement [");
+            env.tryInvalidCompile(path, epl, "Category context 'ACtx' requires that any of the events types that are listed in the category context also appear in any of the filter expressions of the statement [");
 
             env.undeployAll();
         }
@@ -282,31 +281,31 @@ public class ContextCategory {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 5));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 5});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{ctx, "cat1", 5}, {ctx, "cat2", null}, {ctx, "cat3", null}});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 5});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{ctx, "cat1", 5}, {ctx, "cat2", null}, {ctx, "cat3", null}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 9});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 9});
 
             env.sendEventBean(new SupportBean("E3", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat2", 11});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat2", 11});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 25));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat3", 25});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat3", 25});
 
             env.sendEventBean(new SupportBean("E5", 25));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat3", 50});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat3", 50});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E6", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 12});
+            env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 12});
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
 
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
             assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
@@ -347,7 +346,7 @@ public class ContextCategory {
 
         String[] fields = "c0,c1,c2".split(",");
         env.sendEventBean(new SupportBean("E1", 5));
-        env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", null});
+        env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", null});
 
         env.milestoneInc(milestone);
 
@@ -357,7 +356,7 @@ public class ContextCategory {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E1", 4));
-        env.assertPropsListenerNew("s0", fields, new Object[]{ctx, "cat1", 5});
+        env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 5});
 
         assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
         env.undeployAll();
@@ -398,12 +397,12 @@ public class ContextCategory {
 
             String[] fields = "c0,c1,c2".split(",");
             env.sendEventBean(new SupportBean("E1", -2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"n", "xnx", "n"});
+            env.assertPropsNew("s0", fields, new Object[]{"n", "xnx", "n"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"p", "xpx", "p"});
+            env.assertPropsNew("s0", fields, new Object[]{"p", "xpx", "p"});
 
             env.undeployAll();
         }
@@ -418,7 +417,7 @@ public class ContextCategory {
     private static void sendAssertBooleanExprFilter(RegressionEnvironment env, String theString, String groupExpected, long countExpected) {
         String[] fields = "c0,c1".split(",");
         env.sendEventBean(new SupportBean(theString, 1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{groupExpected, countExpected});
+        env.assertPropsNew("s0", fields, new Object[]{groupExpected, countExpected});
     }
 
     private static class MySelectorFilteredCategory implements ContextPartitionSelectorFiltered {

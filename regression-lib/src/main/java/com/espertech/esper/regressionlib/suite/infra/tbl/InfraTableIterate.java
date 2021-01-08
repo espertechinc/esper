@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -53,7 +52,7 @@ public class InfraTableIterate implements RegressionExecution {
     private static void runUnaggregatedUngroupedSelectStar(RegressionEnvironment env, RegressionPath path, boolean useTable) {
         String epl = "@name('s0') select * from " + (useTable ? "MyTable" : METHOD_NAME);
         env.compileDeploy(epl, path);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), "pkey0,pkey1,c0".split(","), new Object[][]{{"E1", 10, 100L}, {"E2", 20, 200L}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", "pkey0,pkey1,c0".split(","), new Object[][]{{"E1", 10, 100L}, {"E2", 20, 200L}});
         env.undeployModuleContaining("s0");
     }
 
@@ -71,7 +70,7 @@ public class InfraTableIterate implements RegressionExecution {
         String epl = "@name('s0') select pkey0, count(*) as thecnt from " + (useTable ? "MyTable" : METHOD_NAME);
         env.compileDeploy(epl, path);
         for (int i = 0; i < 2; i++) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), "pkey0,thecnt".split(","), new Object[][]{{"E1", 2L}, {"E2", 2L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", "pkey0,thecnt".split(","), new Object[][]{{"E1", 2L}, {"E2", 2L}});
         }
         env.undeployModuleContaining("s0");
     }
@@ -80,7 +79,7 @@ public class InfraTableIterate implements RegressionExecution {
         String epl = "@name('s0') select pkey0, count(*) as thecnt from " + (useTable ? "MyTable" : METHOD_NAME) + " group by pkey0";
         env.compileDeploy(epl, path);
         for (int i = 0; i < 2; i++) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), "pkey0,thecnt".split(","), new Object[][]{{"E1", 1L}, {"E2", 1L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", "pkey0,thecnt".split(","), new Object[][]{{"E1", 1L}, {"E2", 1L}});
         }
         env.undeployModuleContaining("s0");
     }
@@ -89,7 +88,7 @@ public class InfraTableIterate implements RegressionExecution {
         String epl = "@name('s0') select pkey0, pkey1, count(*) as thecnt from " + (useTable ? "MyTable" : METHOD_NAME) + " group by pkey0";
         env.compileDeploy(epl, path);
         for (int i = 0; i < 2; i++) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), "pkey0,pkey1,thecnt".split(","), new Object[][]{{"E1", 10, 1L}, {"E2", 20, 1L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", "pkey0,pkey1,thecnt".split(","), new Object[][]{{"E1", 10, 1L}, {"E2", 20, 1L}});
         }
         env.undeployModuleContaining("s0");
     }
@@ -98,7 +97,7 @@ public class InfraTableIterate implements RegressionExecution {
         String epl = "@name('s0') select pkey0, pkey1, count(*) as thecnt from " + (useTable ? "MyTable" : METHOD_NAME) + " group by rollup (pkey0, pkey1)";
         env.compileDeploy(epl, path);
         for (int i = 0; i < 2; i++) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), "pkey0,pkey1,thecnt".split(","), new Object[][]{
+            env.assertPropsPerRowIteratorAnyOrder("s0", "pkey0,pkey1,thecnt".split(","), new Object[][]{
                 {"E1", 10, 1L},
                 {"E2", 20, 1L},
                 {"E1", null, 1L},

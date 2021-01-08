@@ -13,7 +13,7 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class RowRecogInvalid implements RegressionExecution {
 
@@ -24,7 +24,7 @@ public class RowRecogInvalid implements RegressionExecution {
             " pattern (A+ B)" +
             " define" +
             " A as A.theString = B.theString)";
-        tryInvalidCompile(env, text, "Failed to validate condition expression for variable 'A': Failed to validate match-recognize define expression 'A.theString=B.theString': Failed to find a stream named 'B' (did you mean 'A'?) ");
+        env.tryInvalidCompile(text, "Failed to validate condition expression for variable 'A': Failed to validate match-recognize define expression 'A.theString=B.theString': Failed to find a stream named 'B' (did you mean 'A'?) ");
 
         // invalid after syntax
         text = "select * from SupportRecogBean#keepall " +
@@ -35,7 +35,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Match-recognize AFTER clause must be either AFTER MATCH SKIP TO LAST ROW or AFTER MATCH SKIP TO NEXT ROW or AFTER MATCH SKIP TO CURRENT ROW ");
+        env.tryInvalidCompile(text, "Match-recognize AFTER clause must be either AFTER MATCH SKIP TO LAST ROW or AFTER MATCH SKIP TO NEXT ROW or AFTER MATCH SKIP TO CURRENT ROW ");
 
         // property cannot resolve
         text = "select * from SupportRecogBean#keepall " +
@@ -45,7 +45,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Failed to validate match-recognize measure expression 'D.theString': Failed to resolve property 'D.theString' to a stream or nested property in a stream");
+        env.tryInvalidCompile(text, "Failed to validate match-recognize measure expression 'D.theString': Failed to resolve property 'D.theString' to a stream or nested property in a stream");
 
         // property not named
         text = "select * from SupportRecogBean#keepall " +
@@ -55,7 +55,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "The measures clause requires that each expression utilizes the AS keyword to assign a column name");
+        env.tryInvalidCompile(text, "The measures clause requires that each expression utilizes the AS keyword to assign a column name");
 
         // grouped property not indexed
         text = "select * from SupportRecogBean#keepall " +
@@ -65,7 +65,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Failed to validate match-recognize measure expression 'B.theString': Failed to resolve property 'B.theString' (property 'B' is an indexed property and requires an index or enumeration method to access values)");
+        env.tryInvalidCompile(text, "Failed to validate match-recognize measure expression 'B.theString': Failed to resolve property 'B.theString' (property 'B' is an indexed property and requires an index or enumeration method to access values)");
 
         // define twice
         text = "select * from SupportRecogBean#keepall " +
@@ -76,7 +76,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "    A as A.theString like 'A%'," +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Variable 'A' has already been defined");
+        env.tryInvalidCompile(text, "Variable 'A' has already been defined");
 
         // define for not used variable
         text = "select * from SupportRecogBean#keepall " +
@@ -86,7 +86,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    X as X.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Variable 'X' does not occur in pattern");
+        env.tryInvalidCompile(text, "Variable 'X' does not occur in pattern");
 
         // define mentions another variable
         text = "select * from SupportRecogBean#keepall " +
@@ -96,7 +96,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as B.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Failed to validate condition expression for variable 'A': Failed to validate match-recognize define expression 'B.theString like \"A%\"': Failed to find a stream named 'B' (did you mean 'A'?)");
+        env.tryInvalidCompile(text, "Failed to validate condition expression for variable 'A': Failed to validate match-recognize define expression 'B.theString like \"A%\"': Failed to find a stream named 'B' (did you mean 'A'?)");
 
         // aggregation over multiple groups
         text = "select * from SupportRecogBean#keepall " +
@@ -106,7 +106,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Aggregation functions in the measure-clause must only refer to properties of exactly one group variable returning multiple events");
+        env.tryInvalidCompile(text, "Aggregation functions in the measure-clause must only refer to properties of exactly one group variable returning multiple events");
 
         // aggregation over no groups
         text = "select * from SupportRecogBean#keepall " +
@@ -116,7 +116,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Aggregation functions in the measure-clause must refer to one or more properties of exactly one group variable returning multiple events");
+        env.tryInvalidCompile(text, "Aggregation functions in the measure-clause must refer to one or more properties of exactly one group variable returning multiple events");
 
         // aggregation in define
         text = "select * from SupportRecogBean#keepall " +
@@ -126,7 +126,7 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as sum(A.value + A.value) > 3000" +
             ")";
-        tryInvalidCompile(env, text, "Failed to validate condition expression for variable 'A': An aggregate function may not appear in a DEFINE clause");
+        env.tryInvalidCompile(text, "Failed to validate condition expression for variable 'A': An aggregate function may not appear in a DEFINE clause");
 
         // join disallowed
         text = "select * from SupportRecogBean#keepall, SupportRecogBean#keepall " +
@@ -136,6 +136,6 @@ public class RowRecogInvalid implements RegressionExecution {
             "  define " +
             "    A as A.theString like 'A%'" +
             ")";
-        tryInvalidCompile(env, text, "Joins are not allowed when using match-recognize");
+        env.tryInvalidCompile(text, "Joins are not allowed when using match-recognize");
     }
 }

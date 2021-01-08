@@ -24,7 +24,6 @@ import com.espertech.esper.regressionlib.support.bean.*;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.*;
 
 public class EventVariantStream {
@@ -82,7 +81,7 @@ public class EventVariantStream {
 
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", new String[]{"sb.theString", "s0.id"}, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", new String[]{"sb.theString", "s0.id"}, new Object[]{"E1", 10});
 
             env.undeployAll();
         }
@@ -97,7 +96,7 @@ public class EventVariantStream {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", new String[]{"theString", "field"}, new Object[]{"E1", "a"});
+            env.assertPropsNew("s0", new String[]{"theString", "field"}, new Object[]{"E1", "a"});
 
             env.undeployAll();
         }
@@ -124,13 +123,13 @@ public class EventVariantStream {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_B("E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(3);
@@ -214,18 +213,18 @@ public class EventVariantStream {
 
             // coerces to the higher resolution type, accepts boxed versus not boxed
             env.sendEventBean(new SupportBeanVariantStream("s1", true, 1, 20, 30, SupportEnum.ENUM_VALUE_1));
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"s1", true, 1, 20L, 30d, SupportEnum.ENUM_VALUE_1});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{"s1", true, 1, 20L, 30d, SupportEnum.ENUM_VALUE_1});
 
             bean = new SupportBean("s2", 99);
             bean.setLongPrimitive(33);
             bean.setDoublePrimitive(50);
             bean.setEnumValue(SupportEnum.ENUM_VALUE_3);
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{"s2", null, 99, 33L, 50d, SupportEnum.ENUM_VALUE_3});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{"s2", null, 99, 33L, 50d, SupportEnum.ENUM_VALUE_3});
             env.undeployModuleContaining("s0");
 
             // make sure a property is not known since the property is not found on SupportBeanVariantStream
-            tryInvalidCompile(env, "select charBoxed from MyVariantTwoTypedSB",
+            env.tryInvalidCompile("select charBoxed from MyVariantTwoTypedSB",
                 "Failed to validate select-clause expression 'charBoxed': Property named 'charBoxed' is not valid in any stream");
 
             // try dynamic property: should exists but not show up as a declared property
@@ -237,10 +236,10 @@ public class EventVariantStream {
             bean.setCharBoxed('a');
             bean.setDoubleBoxed(Double.NaN);
             env.sendEventBean(bean);
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{33L, 'a', Double.NaN});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{33L, 'a', Double.NaN});
 
             env.sendEventBean(new SupportBeanVariantStream("s2"));
-            env.assertPropsListenerNew("s0", fields.split(","), new Object[]{null, null, null});
+            env.assertPropsNew("s0", fields.split(","), new Object[]{null, null, null});
 
             env.undeployAll();
         }
@@ -281,11 +280,11 @@ public class EventVariantStream {
 
             SupportBeanVariantOne ev1 = new SupportBeanVariantOne();
             env.sendEventBean(ev1);
-            env.assertPropsListenerNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{1, 2, "val1", ev1.getInneritem(), ev1.getInneritem().getVal()});
+            env.assertPropsNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{1, 2, "val1", ev1.getInneritem(), ev1.getInneritem().getVal()});
 
             SupportBeanVariantTwo ev2 = new SupportBeanVariantTwo();
             env.sendEventBean(ev2);
-            env.assertPropsListenerNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{10, 20, "val2", ev2.getInneritem(), ev2.getInneritem().getVal()});
+            env.assertPropsNew("s0", "p6,p7,p8,p9,p10".split(","), new Object[]{10, 20, "val2", ev2.getInneritem(), ev2.getInneritem().getVal()});
 
             env.undeployAll();
         }
@@ -344,7 +343,7 @@ public class EventVariantStream {
             Object[] events = {new SupportBean("E1", -1), new SupportBeanVariantStream("E2")};
             env.sendEventBean(events[0]);
             env.sendEventBean(events[1]);
-            env.assertPropsListenerNew("s0", "a,b".split(","), events);
+            env.assertPropsNew("s0", "a,b".split(","), events);
             env.undeployModuleContaining("s0");
 
             // test subquery
@@ -366,10 +365,10 @@ public class EventVariantStream {
 
     private static class EventVariantInvalidInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "insert into MyVariantStreamFive select * from SupportBean_A",
+            env.tryInvalidCompile("insert into MyVariantStreamFive select * from SupportBean_A",
                 "Selected event type is not a valid event type of the variant stream 'MyVariantStreamFive'");
 
-            tryInvalidCompile(env, "insert into MyVariantStreamFive select intPrimitive as k0 from SupportBean",
+            env.tryInvalidCompile("insert into MyVariantStreamFive select intPrimitive as k0 from SupportBean",
                 "Selected event type is not a valid event type of the variant stream 'MyVariantStreamFive' ");
         }
     }
@@ -435,16 +434,16 @@ public class EventVariantStream {
 
             String[] fields = "theString,id,intPrimitive".split(",");
             env.sendEventBean(new SupportBeanVariantStream("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null, null});
 
             env.sendEventBean(new SupportBean("E2", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", null, 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", null, 10});
 
             env.sendEventBean(new SupportBean_A("E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, "E3", null});
+            env.assertPropsNew("s0", fields, new Object[]{null, "E3", null});
 
             env.sendEventBean(new SupportMarketDataBean("s1", 100, 1000L, "f1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"s1", "f1", 1000L});
+            env.assertPropsNew("s0", fields, new Object[]{"s1", "f1", 1000L});
 
             env.undeployAll();
         }

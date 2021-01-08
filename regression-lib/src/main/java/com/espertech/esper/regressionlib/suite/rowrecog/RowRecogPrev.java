@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
@@ -74,9 +73,9 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("xx", 4));
             env.sendEventBean(new SupportRecogBean("E2", -1));
             env.sendEventBean(new SupportRecogBean("E3", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}});
 
             env.milestone(3);
@@ -92,25 +91,25 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("xx", -2));
             env.sendEventBean(new SupportRecogBean("E5", -1));
             env.sendEventBean(new SupportRecogBean("E6", -2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E5", "E6"}});
 
             env.milestone(5);
 
             sendTimer(8500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E5", "E6"}});
 
             sendTimer(9500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6"}});
 
             env.milestone(6);
 
             sendTimer(10500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6"}});
 
             sendTimer(11500, env);
@@ -164,9 +163,9 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("xx", "c1", 4));
             env.sendEventBean(new SupportRecogBean("E2", "c1", -1));
             env.sendEventBean(new SupportRecogBean("E3", "c1", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"c1", "E2", "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"c1", "E2", "E3"}});
 
             env.milestone(3);
@@ -182,25 +181,25 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("xx", "c2", -2));
             env.sendEventBean(new SupportRecogBean("E5", "c2", -1));
             env.sendEventBean(new SupportRecogBean("E6", "c2", -2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"c2", "E5", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"c1", "E2", "E3"}, {"c2", "E5", "E6"}});
 
             env.milestone(5);
 
             sendTimer(8500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"c1", "E2", "E3"}, {"c2", "E5", "E6"}});
 
             sendTimer(9500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"c2", "E5", "E6"}});
 
             env.milestone(6);
 
             sendTimer(10500, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"c2", "E5", "E6"}});
 
             sendTimer(11500, env);
@@ -242,36 +241,36 @@ public class RowRecogPrev {
 
             sendTimer(6200, env);
             env.sendEventBean(new SupportRecogBean("E4", "S1", 101));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4"}});
 
             env.milestone(3);
 
             sendTimer(6500, env);
             env.sendEventBean(new SupportRecogBean("E5", "S3", 101));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}});
 
             env.milestone(4);
 
             sendTimer(7000, env);
             env.sendEventBean(new SupportRecogBean("E6", "S1", 102));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.milestone(5);
 
             sendTimer(10000, env);
             env.sendEventBean(new SupportRecogBean("E7", "S2", 103));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}});
 
             env.sendEventBean(new SupportRecogBean("E8", "S2", 102));
@@ -283,17 +282,17 @@ public class RowRecogPrev {
             env.milestone(6);
 
             sendTimer(11199, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}});
 
             env.milestone(7);
 
             sendTimer(11200, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5"}, {"E6"}, {"E7"}});
 
             sendTimer(11600, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E6"}, {"E7"}});
 
             env.milestone(8);
@@ -340,9 +339,9 @@ public class RowRecogPrev {
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("S1", "T1", 9));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S1", "T1", 7, 9}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", "T1", 7, 9}});
 
             env.milestone(3);
@@ -351,24 +350,24 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("S2", "T1", 109));
             env.sendEventBean(new SupportRecogBean("S1", "T2", 25));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", "T1", 7, 9}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportRecogBean("S2", "T2", 1002));
             env.sendEventBean(new SupportRecogBean("S2", "T2", 1003));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S2", "T2", 1002, 1003}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", "T1", 7, 9}, {"S2", "T2", 1002, 1003}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportRecogBean("S1", "T2", 28));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S1", "T2", 25, 28}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", "T1", 7, 9}, {"S1", "T2", 25, 28}, {"S2", "T2", 1002, 1003}});
 
             env.undeployAll();
@@ -395,32 +394,32 @@ public class RowRecogPrev {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E3", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E4", 4));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E5", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}, {"E5"}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportRecogBean("E6", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}, {"E5"}, {"E6"}});
 
             env.milestone(4);
@@ -431,7 +430,7 @@ public class RowRecogPrev {
 
             env.sendEventBean(new SupportRecogBean("E8", 4));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}, {"E5"}, {"E6"}});
 
             env.undeployModuleContaining("s0");
@@ -454,9 +453,9 @@ public class RowRecogPrev {
             env.milestone(6);
 
             env.sendEventBean(new SupportRecogBean("E3", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}});
 
             env.milestone(7);
@@ -466,23 +465,23 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("E5", 5));
             env.sendEventBean(new SupportRecogBean("E6", 5));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}});
 
             env.milestone(8);
 
             env.sendEventBean(new SupportRecogBean("E7", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}, {"E7"}});
 
             env.milestone(9);
 
             env.sendEventBean(new SupportRecogBean("E8", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E8"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E3"}, {"E7"}, {"E8"}});
 
             env.undeployAll();

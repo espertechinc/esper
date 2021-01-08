@@ -546,7 +546,7 @@ public class EventJsonTypingClassParseWrite {
                 "  }\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            env.assertPropsListenerNew("s0", "local".split(","), new Object[]{new MyLocalEvent("abc", 10)});
+            env.assertPropsNew("s0", "local".split(","), new Object[]{new MyLocalEvent("abc", 10)});
 
             env.milestone(0);
 

@@ -22,7 +22,6 @@ import com.espertech.esper.runtime.client.util.EPObjectType;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ClientExtendAggregationInlinedClass {
@@ -145,20 +144,20 @@ public class ClientExtendAggregationInlinedClass {
         public void run(RegressionEnvironment env) {
             String eplTwiceLocal = INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeOne") + INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeTwo") +
                 "select concat(theString) from SupportBean";
-            tryInvalidCompile(env, eplTwiceLocal,
+            env.tryInvalidCompile(eplTwiceLocal,
                 "The plug-in aggregation function 'concat' occurs multiple times");
 
             String eplTwiceCreate = "create " + INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeOne") + ";\n" +
                 "create " + INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeTwo") + ";\n" +
                 "select concat(theString) from SupportBean";
-            tryInvalidCompile(env, eplTwiceCreate,
+            env.tryInvalidCompile(eplTwiceCreate,
                 "The plug-in aggregation function 'concat' occurs multiple times");
 
             RegressionPath path = new RegressionPath();
             env.compile("@public create " + INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeOne"), path);
             env.compile("@public create " + INLINEDCLASS_CONCAT.replace("ConcatAggForge", "ConcatAggForgeTwo"), path);
             String eplTwiceInPath = "select concat(theString) from SupportBean";
-            tryInvalidCompile(env, path, eplTwiceInPath,
+            env.tryInvalidCompile(path, eplTwiceInPath,
                 "The plug-in aggregation function 'concat' occurs multiple times");
         }
     }

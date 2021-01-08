@@ -25,7 +25,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanWriteOnly;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertEquals;
 
@@ -79,11 +78,11 @@ public class EventBeanPropertyResolutionWDefaults {
             defValues.put("children's books", new int[]{50, 51});
             defValues.put("my <> map", Collections.singletonMap("xx", "abc"));
             env.sendEventMap(defValues, "MyType");
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","), new Object[]{"Enders Game", "book", 100, 50, "abc"});
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4".split(","), new Object[]{"Enders Game", "book", 100, 50, "abc"});
             env.undeployAll();
 
-            tryInvalidCompile(env, "select `select` from SupportBean", "Failed to validate select-clause expression 'select': Property named '`select`' is not valid in any stream [");
-            tryInvalidCompile(env, "select `ab cd` from SupportBean", "Failed to validate select-clause expression 'ab cd': Property named '`ab cd`' is not valid in any stream [");
+            env.tryInvalidCompile("select `select` from SupportBean", "Failed to validate select-clause expression 'select': Property named '`select`' is not valid in any stream [");
+            env.tryInvalidCompile("select `ab cd` from SupportBean", "Failed to validate select-clause expression 'ab cd': Property named '`ab cd`' is not valid in any stream [");
 
             // test resolution as nested property
             RegressionPath path = new RegressionPath();
@@ -141,7 +140,7 @@ public class EventBeanPropertyResolutionWDefaults {
             assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
 
             env.undeployAll();
-            tryInvalidCompile(env, "select MyProperty from SupportBeanDupProperty",
+            env.tryInvalidCompile("select MyProperty from SupportBeanDupProperty",
                 "Failed to validate select-clause expression 'MyProperty': Property named 'MyProperty' is not valid in any stream (did you mean 'MYPROPERTY'?)");
         }
     }

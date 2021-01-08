@@ -25,7 +25,6 @@ import com.espertech.esper.regressionlib.support.dataflow.DefaultSupportCaptureO
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -42,15 +41,15 @@ public class EPLDataflowOpFilter {
         public void run(RegressionEnvironment env) {
 
             // invalid: no filter
-            tryInvalidCompile(env, "create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) -> abc {}",
+            env.tryInvalidCompile("create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) -> abc {}",
                 "Failed to obtain operator 'Filter': Required parameter 'filter' providing the filter expression is not provided");
 
             // invalid: too many output streams
-            tryInvalidCompile(env, "create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) -> abc,def,efg { filter : true }",
+            env.tryInvalidCompile("create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) -> abc,def,efg { filter : true }",
                 "Failed to obtain operator 'Filter': Filter operator requires one or two output stream(s) but produces 3 streams");
 
             // invalid: too few output streams
-            tryInvalidCompile(env, "create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) { filter : true }",
+            env.tryInvalidCompile("create dataflow DF1 BeaconSource -> instream<SupportBean> {} Filter(instream) { filter : true }",
                 "Failed to obtain operator 'Filter': Filter operator requires one or two output stream(s) but produces 0 streams");
 
             // invalid filter expressions
@@ -115,7 +114,7 @@ public class EPLDataflowOpFilter {
             "DefaultSupportSourceOp -> instream<SupportBean>{}\n" +
             "Filter(instream as ME) -> outstream {filter: " + filter + "}\n" +
             "DefaultSupportCaptureOp(outstream) {}";
-        tryInvalidCompile(env, graph, message);
+        env.tryInvalidCompile(graph, message);
     }
 
     private static void runAssertionAllTypes(RegressionEnvironment env, String typeName, Object[] events) {

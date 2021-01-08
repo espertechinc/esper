@@ -12,10 +12,12 @@ package com.espertech.esper.regressionlib.suite.multithread;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPRuntime;
 
+import java.util.EnumSet;
 import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
@@ -26,8 +28,8 @@ import static org.junit.Assert.assertTrue;
 public class MultithreadStmtNamedWindowMultiple implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

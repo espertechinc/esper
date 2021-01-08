@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 
@@ -90,17 +89,17 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{21});
+            env.assertPropsNew("s0", "subq".split(","), new Object[]{21});
 
             env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{33});
+            env.assertPropsNew("s0", "subq".split(","), new Object[]{33});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "subq".split(","), new Object[]{null});
+            env.assertPropsNew("s0", "subq".split(","), new Object[]{null});
 
             env.undeployAll();
         }
@@ -112,21 +111,21 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             String epl;
             // not fully aggregated
             epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall group by intPrimitive) from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires non-aggregated properties in the select-clause to also appear in the group-by clause [select (select theString, sum(longPrimitive) from SupportBean#keepall group by intPrimitive) from SupportBean_S0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires non-aggregated properties in the select-clause to also appear in the group-by clause [select (select theString, sum(longPrimitive) from SupportBean#keepall group by intPrimitive) from SupportBean_S0]");
 
             // correlated group-by not allowed
             epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall group by theString, s0.id) from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (property 'id' is not) [select (select theString, sum(longPrimitive) from SupportBean#keepall group by theString, s0.id) from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (property 'id' is not) [select (select theString, sum(longPrimitive) from SupportBean#keepall group by theString, s0.id) from SupportBean_S0 as s0]");
             epl = "select (select theString, sum(longPrimitive) from SupportBean#keepall group by theString, s0.getP00()) from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (expression 's0.getP00()' against stream 1 is not)");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Subselect with group-by requires that group-by properties are provided by the subselect stream only (expression 's0.getP00()' against stream 1 is not)");
 
             // aggregations not allowed in group-by
             epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by sum(intPrimitive)) from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have an aggregation function [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by sum(intPrimitive)) from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have an aggregation function [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by sum(intPrimitive)) from SupportBean_S0 as s0]");
 
             // "prev" not allowed in group-by
             epl = "select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by prev(1, intPrimitive)) from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have a function that requires view resources (prior, prev) [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by prev(1, intPrimitive)) from SupportBean_S0 as s0]");
+            env.tryInvalidCompile(epl, "Failed to plan subquery number 1 querying SupportBean: Group-by expressions in a subselect may not have a function that requires view resources (prior, prev) [select (select intPrimitive, sum(longPrimitive) from SupportBean#keepall group by prev(1, intPrimitive)) from SupportBean_S0 as s0]");
         }
     }
 

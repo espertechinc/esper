@@ -26,7 +26,7 @@ import static com.espertech.esper.common.client.type.EPTypePremade.INTEGERBOXED;
 import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumMinMaxBy {
 
@@ -104,7 +104,7 @@ public class ExprEnumMinMaxBy {
             String epl;
 
             epl = "select contained.minBy(x => null) from SupportBean_ST0_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.minBy()': Null-type is not allowed");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.minBy()': Null-type is not allowed");
         }
     }
 }

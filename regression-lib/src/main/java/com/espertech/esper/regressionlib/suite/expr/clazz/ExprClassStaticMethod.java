@@ -18,13 +18,11 @@ import com.espertech.esper.compiler.client.option.InlinedClassInspectionOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ExprClassStaticMethod {
@@ -227,28 +225,28 @@ public class ExprClassStaticMethod {
             env.compile("inlined_class \"\"\" \"\"\" select * from SupportBean");
 
             // invalid class
-            tryInvalidCompile(env, "inlined_class \"\"\" x \"\"\" select * from SupportBean",
+            env.tryInvalidCompile("inlined_class \"\"\" x \"\"\" select * from SupportBean",
                     "Failed to compile class: Line 1, Column 2: One of 'class enum interface @' expected instead of 'x' for class [\"\"\" x \"\"\"]");
 
             // invalid already deployed
             RegressionPath path = new RegressionPath();
             String createClassEPL = "create inlined_class \"\"\" public class MyClass {}\"\"\"";
             env.compile(createClassEPL, path);
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, createClassEPL,
+            env.tryInvalidCompile(path, createClassEPL,
                 "Class 'MyClass' has already been declared");
 
             // duplicate local class
             String eplDuplLocal = "inlined_class \"\"\" class MyDuplicate{} \"\"\" inlined_class \"\"\" class MyDuplicate{} \"\"\" select * from SupportBean";
-            tryInvalidCompile(env, eplDuplLocal, "Duplicate class by name 'MyDuplicate'");
+            env.tryInvalidCompile(eplDuplLocal, "Duplicate class by name 'MyDuplicate'");
 
             // duplicate local class and create-class class
             String eplDuplLocalAndCreate = "inlined_class \"\"\" class MyDuplicate{} \"\"\" create inlined_class \"\"\" class MyDuplicate{} \"\"\"";
-            tryInvalidCompile(env, eplDuplLocalAndCreate, "Duplicate class by name 'MyDuplicate'");
+            env.tryInvalidCompile(eplDuplLocalAndCreate, "Duplicate class by name 'MyDuplicate'");
 
             // duplicate create-class class
             String eplDuplCreate = "create inlined_class \"\"\" public class MyDuplicate{} \"\"\";\n" +
                 "create inlined_class \"\"\" public class MyDuplicate{} \"\"\";\n";
-            tryInvalidCompile(env, eplDuplCreate, "Class 'MyDuplicate' has already been declared");
+            env.tryInvalidCompile(eplDuplCreate, "Class 'MyDuplicate' has already been declared");
         }
     }
 

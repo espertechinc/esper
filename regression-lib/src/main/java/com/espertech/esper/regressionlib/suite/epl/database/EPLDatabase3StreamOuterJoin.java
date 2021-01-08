@@ -43,11 +43,11 @@ public class EPLDatabase3StreamOuterJoin {
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -1));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.sendEventBean(new SupportBean("T3", -1));
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }
@@ -66,17 +66,17 @@ public class EPLDatabase3StreamOuterJoin {
 
             env.sendEventBean(new SupportBeanTwo("T1", 2));
             env.sendEventBean(new SupportBean("T1", 3));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T1", "T1", null});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T1", "T1", null});
 
             env.sendEventBean(new SupportBeanTwo("T2", 30));
             env.sendEventBean(new SupportBean("T2", -2));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T2", "T2", 30});
 
             env.sendEventBean(new SupportBean("T3", -1));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", null, null});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", null, null});
 
             env.sendEventBean(new SupportBeanTwo("T3", 40));
-            env.assertPropsListenerNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
+            env.assertPropsNew("s0", "sb.theString,sbt.stringTwo,s1.myint".split(","), new Object[]{"T3", "T3", 40});
 
             env.undeployAll();
         }

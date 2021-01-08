@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class PatternConsumingPattern {
 
@@ -46,15 +46,15 @@ public class PatternConsumingPattern {
     private static class PatternInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            tryInvalidCompile(env, path, "select * from pattern @XX [SupportIdEventA]",
+            env.tryInvalidCompile(path, "select * from pattern @XX [SupportIdEventA]",
                 "Unrecognized pattern-level annotation 'XX' [select * from pattern @XX [SupportIdEventA]]");
 
             String expected = "Discard-partials and suppress-matches is not supported in a joins, context declaration and on-action ";
-            tryInvalidCompile(env, path, "select * from pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA]#keepall, A#keepall",
+            env.tryInvalidCompile(path, "select * from pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA]#keepall, A#keepall",
                 expected + "[select * from pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [SupportIdEventA]#keepall, A#keepall]");
 
             env.compileDeploy("create window AWindow#keepall as SupportIdEventA", path);
-            tryInvalidCompile(env, path, "on pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA] select * from AWindow",
+            env.tryInvalidCompile(path, "on pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA] select * from AWindow",
                 expected + "[on pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [SupportIdEventA] select * from AWindow]");
 
             env.undeployAll();
@@ -124,7 +124,7 @@ public class PatternConsumingPattern {
             env.milestone(1);
 
             sendTime(env, 1000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1"});
+            env.assertPropsNew("s0", fields, new Object[]{"A2", "B1"});
 
             env.milestone(2);
 
@@ -160,7 +160,7 @@ public class PatternConsumingPattern {
             sendAEvent(env, "A2", 1); // 1 sec
             sendBEvent(env, "B1");
             sendTime(env, 1000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A2"});
 
             sendCEvent(env, "C1", null);
             sendTime(env, 5000);
@@ -199,7 +199,7 @@ public class PatternConsumingPattern {
             env.milestone(1);
 
             sendCEvent(env, "C1", "y");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+            env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
             env.milestone(2);
 
@@ -245,7 +245,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -253,7 +253,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -270,7 +270,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B1");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A1", "B1"});
 
         env.milestoneInc(milestone);
 
@@ -282,7 +282,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B3");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B3"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B3"});
 
         env.milestoneInc(milestone);
 
@@ -301,7 +301,7 @@ public class PatternConsumingPattern {
 
         sendAEvent(env, "E1");
         sendAEvent(env, "E2");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "E2"});
 
         env.milestoneInc(milestone);
 
@@ -309,13 +309,13 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E3"});
         }
 
         env.milestoneInc(milestone);
 
         sendAEvent(env, "E4");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "E4"});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", "E4"});
 
         env.milestoneInc(milestone);
 
@@ -323,11 +323,11 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", "E5"});
         }
 
         sendAEvent(env, "E6");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E5", "E6"});
+        env.assertPropsNew("s0", fields, new Object[]{"E5", "E6"});
 
         env.undeployAll();
     }
@@ -342,11 +342,11 @@ public class PatternConsumingPattern {
         sendAEvent(env, "A2", "y");
         sendBEvent(env, "B1");
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         sendCEvent(env, "C2", "x");
         if (target == TargetEnum.SUPPRESS_ONLY || target == TargetEnum.NONE) {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         } else {
             env.assertListenerNotInvoked("s0");
         }
@@ -372,7 +372,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendBEvent(env, "B2", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "B2"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "B2"});
 
         env.milestoneInc(milestone);
 
@@ -380,7 +380,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "B3"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "B3"});
         }
         env.undeployAll();
     }
@@ -403,7 +403,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -411,7 +411,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();
@@ -432,7 +432,7 @@ public class PatternConsumingPattern {
         sendTime(env, 1000);
         sendAEvent(env, "A2");
         sendTime(env, 10000);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2"});
+        env.assertPropsNew("s0", fields, new Object[]{"A1", "A2"});
 
         env.milestoneInc(milestone);
 
@@ -453,7 +453,7 @@ public class PatternConsumingPattern {
         sendBEvent(env, "B1");
 
         if (target == TargetEnum.SUPPRESS_ONLY || target == TargetEnum.DISCARD_AND_SUPPRESS) {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "A2", "B1"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "A2", "B1"});
         } else {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
                 new Object[][]{{"A1", "A2", "B1"}, {"A2", null, "B1"}});
@@ -480,7 +480,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -488,7 +488,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -515,7 +515,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -523,7 +523,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();
@@ -547,7 +547,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -555,7 +555,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
         env.undeployAll();
     }
@@ -575,7 +575,7 @@ public class PatternConsumingPattern {
         env.milestoneInc(milestone);
 
         sendCEvent(env, "C1", "y");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B1", "C1"});
+        env.assertPropsNew("s0", fields, new Object[]{"A2", "B1", "C1"});
 
         env.milestoneInc(milestone);
 
@@ -583,7 +583,7 @@ public class PatternConsumingPattern {
         if (matchDiscard) {
             env.assertListenerNotInvoked("s0");
         } else {
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "C2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "C2"});
         }
 
         env.undeployAll();

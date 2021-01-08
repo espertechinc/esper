@@ -16,8 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.junit.Assert;
 
-import static org.junit.Assert.assertFalse;
-
 public class EPLOtherComments implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         String lineSeparator = System.getProperty("line.separator");
@@ -39,7 +37,7 @@ public class EPLOtherComments implements RegressionExecution {
         env.listener("s0").reset();
 
         env.sendEventBean(new SupportBean("e1", -1));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

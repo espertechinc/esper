@@ -16,16 +16,19 @@ import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTimestamp;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSensorEvent;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import com.espertech.esper.runtime.client.EPStatement;
 
+import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ViewGroup {
     private final static String SYMBOL_CISCO = "CSCO.O";
@@ -68,6 +71,11 @@ public class ViewGroup {
                 "having count(1) >= 5;\n";
             env.compileDeploy(epl).undeployAll();
         }
+
+        @Override
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(SERDEREQUIRED);
+        }
     }
 
     private static class ViewGroupInvalid implements RegressionExecution {
@@ -75,30 +83,31 @@ public class ViewGroup {
             String epl;
 
             epl = "select * from SupportBean#groupwin(theString)#length(1)#groupwin(theString)#uni(intPrimitive)";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate data window declaration: Multiple groupwin-declarations are not supported");
 
             epl = "select avg(price), symbol from SupportMarketDataBean#length(100)#groupwin(symbol)";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate data window declaration: Invalid use of the 'groupwin' view, the view requires one or more child views to group, or consider using the group-by clause");
 
             epl = "select * from SupportBean#keepall#groupwin(theString)#length(2)";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate data window declaration: The 'groupwin' declaration must occur in the first position");
 
             epl = "select * from SupportBean#groupwin(theString)#length(2)#merge(theString)#keepall";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate data window declaration: The 'merge' declaration cannot be used in conjunction with multiple data windows");
 
             epl = "create schema MyEvent(somefield null);\n" +
                 "select * from MyEvent#groupwin(somefield)#length(2)";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate data window declaration: Group-window received a null-typed criteria expression");
         }
     }
 
     private static class ViewGroupMultiProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            final String[] fields = "symbol,feed,volume,size".split(",");
             final String symbolMsft = "MSFT";
             final String symbolGe = "GE";
             final String feedInfo = "INFO";
@@ -109,24 +118,10 @@ public class ViewGroup {
                 "from SupportMarketDataBean#groupwin(symbol, feed, volume)#uni(price) order by symbol, feed, volume";
             env.compileDeploy(epl).addListener("s0");
 
-            ArrayList<Map<String, Object>> mapList = new ArrayList<>();
-
-            // Set up a map of expected values
-
-            Map<String, Object>[] expectedValues = new HashMap[10];
-            for (int i = 0; i < expectedValues.length; i++) {
-                expectedValues[i] = new HashMap<>();
-            }
-
-            // Send one event, check results
             sendEvent(env, symbolGe, feedInfo, 1);
-
-            populateMap(expectedValues[0], symbolGe, feedInfo, 1L, 0);
-            mapList.add(expectedValues[0]);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), mapList);
-            populateMap(expectedValues[0], symbolGe, feedInfo, 1L, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), mapList);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), mapList);
+            Object[] row0GEOld = new Object[] {symbolGe, feedInfo, 1L, 0L};
+            Object[] row0GENew = new Object[] {symbolGe, feedInfo, 1L, 1L};
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][] {row0GENew}, new Object[][] {row0GEOld});
 
             env.milestone(0);
 
@@ -140,22 +135,16 @@ public class ViewGroup {
             sendEvent(env, symbolGe, feedReu, 99);
             sendEvent(env, symbolMsft, feedInfo, 100);
 
-            populateMap(expectedValues[1], symbolMsft, feedInfo, 100, 0);
-            mapList.clear();
-            mapList.add(expectedValues[1]);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), mapList);
-            populateMap(expectedValues[1], symbolMsft, feedInfo, 100, 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), mapList);
+            Object[] row1GENew = new Object[] {symbolGe, feedReu, 99L, 1L};
+            Object[] row1GEOld = new Object[] {symbolGe, feedReu, 99L, 0L};
+            Object[] row1MSOld = new Object[] {symbolMsft, feedInfo, 100L, 0L};
+            Object[] row1MSNew = new Object[] {symbolMsft, feedInfo, 100L, 1L};
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][] {row1GENew, row1MSNew}, new Object[][] {row1GEOld, row1MSOld});
 
-            populateMap(expectedValues[0], symbolGe, feedInfo, 1, 3);
-            populateMap(expectedValues[2], symbolGe, feedInfo, 2, 1);
-            populateMap(expectedValues[3], symbolGe, feedReu, 99, 1);
-            mapList.clear();
-            mapList.add(expectedValues[0]);
-            mapList.add(expectedValues[2]);
-            mapList.add(expectedValues[3]);
-            mapList.add(expectedValues[1]);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s0"), mapList);
+            row0GENew = new Object[] {symbolGe, feedInfo, 1L, 3L};
+            Object[] row2GENew = new Object[] {symbolGe, feedInfo, 2L, 1L};
+            Object[] row3GENew = new Object[] {symbolGe, feedReu, 99L, 1L};
+            env.assertPropsPerRowIterator("s0", fields, new Object[][] {row0GENew, row2GENew, row3GENew, row1MSNew});
 
             env.undeployAll();
         }
@@ -173,7 +162,7 @@ public class ViewGroup {
             env.advanceTime(10000);
             env.advanceTime(11000);
 
-            assertFalse(env.listener("out_null").isInvoked());
+            env.assertListenerNotInvoked("out_null");
 
             env.undeployAll();
         }
@@ -186,18 +175,18 @@ public class ViewGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{"A", 10}, "OAEventStringInt");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 10});
 
             env.sendEventObjectArray(new Object[]{"B", 11}, "OAEventStringInt");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"B", 21});
+            env.assertPropsNew("s0", fields, new Object[]{"B", 21});
 
             env.milestone(0);
 
             env.sendEventObjectArray(new Object[]{"A", 12}, "OAEventStringInt");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 33});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 33});
 
             env.sendEventObjectArray(new Object[]{"A", 13}, "OAEventStringInt");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", 36});
+            env.assertPropsNew("s0", fields, new Object[]{"A", 36});
 
             env.undeployAll();
         }
@@ -216,25 +205,25 @@ public class ViewGroup {
                 env.sendEventBean(theEvent);
             }
 
-            assertEquals(10, SupportScheduleHelper.scheduleCount(env.statement("s0")));
+            env.assertStatement("s0", statement -> assertEquals(10, SupportScheduleHelper.scheduleCount(statement)));
 
             env.milestone(0);
 
             env.advanceTime(1000000);
             env.sendEventBean(new SupportBean("E1", 1));
 
-            assertEquals(1, SupportScheduleHelper.scheduleCount(env.statement("s0")));
+            env.assertStatement("s0", statement -> assertEquals(1, SupportScheduleHelper.scheduleCount(statement)));
 
             env.undeployAll();
 
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            env.assertRuntime(rt -> assertEquals(0, SupportScheduleHelper.scheduleCountOverall(rt)));
         }
     }
 
     private static class ViewGroupReclaimAgedHint implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -254,15 +243,19 @@ public class ViewGroup {
 
             env.milestone(0);
 
-            EventBean[] iterator = EPAssertionUtil.iteratorToArray(env.statement("s0").iterator());
-            assertTrue(iterator.length <= 6 * maxEventsPerSlot);
+            env.assertIterator("s0", iterator -> {
+                EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
+                assertTrue(events.length <= 6 * maxEventsPerSlot);
+            });
 
             env.sendEventBean(new SupportBean("E0", 1));
 
             env.milestone(1);
 
-            iterator = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            assertEquals(6 * maxEventsPerSlot + 1, iterator.length);
+            env.assertIterator("s0", iterator -> {
+                EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
+                assertEquals(6 * maxEventsPerSlot + 1, events.length);
+            });
 
             env.undeployAll();
         }
@@ -296,26 +289,26 @@ public class ViewGroup {
             sendEvent(env, SYMBOL_IBM, 10.5, 8200);
             sendEvent(env, SYMBOL_GE, 88, 1000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceLast3Stats").getLastNewData(), makeMap(SYMBOL_GE, 88));
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceAllStats").getLastNewData(), makeMap(SYMBOL_GE, 88));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeLast3Stats").getLastNewData(), makeMap(SYMBOL_GE, 1000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeAllStats").getLastNewData(), makeMap(SYMBOL_GE, 1000));
+            assertLastNewRow(env, "priceLast3Stats", SYMBOL_GE, 88);
+            assertLastNewRow(env, "priceAllStats", SYMBOL_GE, 88);
+            assertLastNewRow(env, "volumeLast3Stats", SYMBOL_GE, 1000);
+            assertLastNewRow(env, "volumeAllStats", SYMBOL_GE, 1000);
 
             sendEvent(env, SYMBOL_CISCO, 27, 70000);
             sendEvent(env, SYMBOL_CISCO, 28, 80000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceAllStats").getLastNewData(), makeMap(SYMBOL_CISCO, 26.5d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeAllStats").getLastNewData(), makeMap(SYMBOL_CISCO, 65000d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceLast3Stats").getLastNewData(), makeMap(SYMBOL_CISCO, 27d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeLast3Stats").getLastNewData(), makeMap(SYMBOL_CISCO, 70000d));
+            assertLastNewRow(env, "priceAllStats", SYMBOL_CISCO, 26.5d);
+            assertLastNewRow(env, "volumeAllStats", SYMBOL_CISCO, 65000d);
+            assertLastNewRow(env, "priceLast3Stats", SYMBOL_CISCO, 27d);
+            assertLastNewRow(env, "volumeLast3Stats", SYMBOL_CISCO, 70000d);
 
             sendEvent(env, SYMBOL_IBM, 11, 8700);
             sendEvent(env, SYMBOL_IBM, 12, 8900);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceAllStats").getLastNewData(), makeMap(SYMBOL_IBM, 10.875d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeAllStats").getLastNewData(), makeMap(SYMBOL_IBM, 8450d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceLast3Stats").getLastNewData(), makeMap(SYMBOL_IBM, 11d + 1 / 6d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeLast3Stats").getLastNewData(), makeMap(SYMBOL_IBM, 8600d));
+            assertLastNewRow(env, "priceAllStats", SYMBOL_IBM, 10.875d);
+            assertLastNewRow(env, "volumeAllStats", SYMBOL_IBM, 8450d);
+            assertLastNewRow(env, "priceLast3Stats", SYMBOL_IBM, 11d + 1 / 6d);
+            assertLastNewRow(env, "volumeLast3Stats", SYMBOL_IBM, 8600d);
 
             sendEvent(env, SYMBOL_GE, 85.5, 950);
             sendEvent(env, SYMBOL_GE, 85.75, 900);
@@ -324,27 +317,15 @@ public class ViewGroup {
             sendEvent(env, SYMBOL_GE, 85, 1150);
 
             double averageGE = (88d + 85.5d + 85.75d + 89d + 86d + 85d) / 6d;
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceAllStats").getLastNewData(), makeMap(SYMBOL_GE, averageGE));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeAllStats").getLastNewData(), makeMap(SYMBOL_GE, 1075d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("priceLast3Stats").getLastNewData(), makeMap(SYMBOL_GE, 86d + 2d / 3d));
-            EPAssertionUtil.assertPropsPerRow(env.listener("volumeLast3Stats").getLastNewData(), makeMap(SYMBOL_GE, 1200d));
+            assertLastNewRow(env, "priceAllStats", SYMBOL_GE, averageGE);
+            assertLastNewRow(env, "volumeAllStats", SYMBOL_GE, 1075d);
+            assertLastNewRow(env, "priceLast3Stats", SYMBOL_GE, 86d + 2d / 3d);
+            assertLastNewRow(env, "volumeLast3Stats", SYMBOL_GE, 1200d);
 
             // Check iterator results
-            expectedList.get(0).put("symbol", SYMBOL_CISCO);
-            expectedList.get(0).put("average", 26.5d);
-            expectedList.get(1).put("symbol", SYMBOL_GE);
-            expectedList.get(1).put("average", averageGE);
-            expectedList.get(2).put("symbol", SYMBOL_IBM);
-            expectedList.get(2).put("average", 10.875d);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("priceAllStats"), expectedList);
-
-            expectedList.get(0).put("symbol", SYMBOL_CISCO);
-            expectedList.get(0).put("average", 27d);
-            expectedList.get(1).put("symbol", SYMBOL_GE);
-            expectedList.get(1).put("average", 86d + 2d / 3d);
-            expectedList.get(2).put("symbol", SYMBOL_IBM);
-            expectedList.get(2).put("average", 11d + 1 / 6d);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("priceLast3Stats"), expectedList);
+            String[] fields = new String[]{"symbol", "average"};
+            env.assertPropsPerRowIterator("priceAllStats", fields, new Object[][] {{SYMBOL_CISCO, 26.5d}, {SYMBOL_GE, averageGE}, {SYMBOL_IBM, 10.875d}});
+            env.assertPropsPerRowIterator("priceLast3Stats", fields, new Object[][] {{SYMBOL_CISCO, 27d}, {SYMBOL_GE, 86d + 2d / 3d}, {SYMBOL_IBM, 11d + 1 / 6d}});
 
             env.undeployAll();
         }
@@ -358,7 +339,9 @@ public class ViewGroup {
             env.sendEventBean(new SupportBeanTimestamp("E1", DateTime.parseDefaultMSec("2002-01-01T09:0:00.000")));
             env.sendEventBean(new SupportBeanTimestamp("E2", DateTime.parseDefaultMSec("2002-01-08T09:0:00.000")));
             env.sendEventBean(new SupportBeanTimestamp("E3", DateTime.parseDefaultMSec("2002-01-015T09:0:00.000")));
-            assertEquals(1, env.listener("s0").getDataListsFlattened().getSecond().length);
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getDataListsFlattened().getSecond().length);
+            });
 
             env.undeployAll();
         }
@@ -370,23 +353,25 @@ public class ViewGroup {
             String epl = "@name('s0') select * from SupportMarketDataBean#groupwin(symbol)#length(1000000)#correl(price, volume, feed)";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("correlation"));
+            env.assertStatement("s0", statement -> {
+                assertEquals(Double.class, statement.getEventType().getPropertyType("correlation"));
+            });
 
             String[] fields = new String[]{"symbol", "correlation", "feed"};
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 10.0, 1000L, "f1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", Double.NaN, "f1"});
+            env.assertPropsNew("s0", fields, new Object[]{"ABC", Double.NaN, "f1"});
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 1.0, 2L, "f2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", Double.NaN, "f2"});
+            env.assertPropsNew("s0", fields, new Object[]{"DEF", Double.NaN, "f2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 2.0, 4L, "f3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", 1.0, "f3"});
+            env.assertPropsNew("s0", fields, new Object[]{"DEF", 1.0, "f3"});
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 20.0, 2000L, "f4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", 1.0, "f4"});
+            env.assertPropsNew("s0", fields, new Object[]{"ABC", 1.0, "f4"});
 
             env.undeployAll();
         }
@@ -398,61 +383,64 @@ public class ViewGroup {
             String epl = "@name('s0') select * from SupportMarketDataBean#groupwin(symbol)#length(1000000)#linest(price, volume, feed)";
             env.compileDeploy(epl).addListener("s0");
 
-            EPStatement statement = env.statement("s0");
-            assertEquals(Double.class, statement.getEventType().getPropertyType("slope"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YIntercept"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("XAverage"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("XStandardDeviationPop"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("XStandardDeviationSample"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("XSum"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("XVariance"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YAverage"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YStandardDeviationPop"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YStandardDeviationSample"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YSum"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("YVariance"));
-            assertEquals(Long.class, statement.getEventType().getPropertyType("dataPoints"));
-            assertEquals(Long.class, statement.getEventType().getPropertyType("n"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("sumX"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("sumXSq"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("sumXY"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("sumY"));
-            assertEquals(Double.class, statement.getEventType().getPropertyType("sumYSq"));
+            env.assertStatement("s0", statement -> {
+                assertEquals(Double.class, statement.getEventType().getPropertyType("slope"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YIntercept"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("XAverage"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("XStandardDeviationPop"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("XStandardDeviationSample"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("XSum"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("XVariance"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YAverage"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YStandardDeviationPop"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YStandardDeviationSample"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YSum"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("YVariance"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("dataPoints"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("n"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("sumX"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("sumXSq"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("sumXY"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("sumY"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("sumYSq"));
+            });
 
             String[] fields = new String[]{"symbol", "slope", "YIntercept", "feed"};
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 10.0, 50000L, "f1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", Double.NaN, Double.NaN, "f1"});
+            env.assertPropsNew("s0", fields, new Object[]{"ABC", Double.NaN, Double.NaN, "f1"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 1.0, 1L, "f2"));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, fields, new Object[]{"DEF", Double.NaN, Double.NaN, "f2"});
-            assertEquals(1d, theEvent.get("XAverage"));
-            assertEquals(0d, theEvent.get("XStandardDeviationPop"));
-            assertEquals(Double.NaN, theEvent.get("XStandardDeviationSample"));
-            assertEquals(1d, theEvent.get("XSum"));
-            assertEquals(Double.NaN, theEvent.get("XVariance"));
-            assertEquals(1d, theEvent.get("YAverage"));
-            assertEquals(0d, theEvent.get("YStandardDeviationPop"));
-            assertEquals(Double.NaN, theEvent.get("YStandardDeviationSample"));
-            assertEquals(1d, theEvent.get("YSum"));
-            assertEquals(Double.NaN, theEvent.get("YVariance"));
-            assertEquals(1L, theEvent.get("dataPoints"));
-            assertEquals(1L, theEvent.get("n"));
-            assertEquals(1d, theEvent.get("sumX"));
-            assertEquals(1d, theEvent.get("sumXSq"));
-            assertEquals(1d, theEvent.get("sumXY"));
-            assertEquals(1d, theEvent.get("sumY"));
-            assertEquals(1d, theEvent.get("sumYSq"));
-            // above computed values tested in more detail in RegressionBean test
+            env.assertEventNew("s0", theEvent -> {
+                EPAssertionUtil.assertProps(theEvent, fields, new Object[]{"DEF", Double.NaN, Double.NaN, "f2"});
+                assertEquals(1d, theEvent.get("XAverage"));
+                assertEquals(0d, theEvent.get("XStandardDeviationPop"));
+                assertEquals(Double.NaN, theEvent.get("XStandardDeviationSample"));
+                assertEquals(1d, theEvent.get("XSum"));
+                assertEquals(Double.NaN, theEvent.get("XVariance"));
+                assertEquals(1d, theEvent.get("YAverage"));
+                assertEquals(0d, theEvent.get("YStandardDeviationPop"));
+                assertEquals(Double.NaN, theEvent.get("YStandardDeviationSample"));
+                assertEquals(1d, theEvent.get("YSum"));
+                assertEquals(Double.NaN, theEvent.get("YVariance"));
+                assertEquals(1L, theEvent.get("dataPoints"));
+                assertEquals(1L, theEvent.get("n"));
+                assertEquals(1d, theEvent.get("sumX"));
+                assertEquals(1d, theEvent.get("sumXSq"));
+                assertEquals(1d, theEvent.get("sumXY"));
+                assertEquals(1d, theEvent.get("sumY"));
+                assertEquals(1d, theEvent.get("sumYSq"));
+                // above computed values tested in more detail in RegressionBean test
+            });
+
 
             env.sendEventBean(new SupportMarketDataBean("DEF", 2.0, 2L, "f3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"DEF", 1.0, 0.0, "f3"});
+            env.assertPropsNew("s0", fields, new Object[]{"DEF", 1.0, 0.0, "f3"});
 
             env.sendEventBean(new SupportMarketDataBean("ABC", 11.0, 50100L, "f4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"ABC", 100.0, 49000.0, "f4"});
+            env.assertPropsNew("s0", fields, new Object[]{"ABC", 100.0, 49000.0, "f4"});
 
             env.undeployAll();
         }
@@ -460,8 +448,8 @@ public class ViewGroup {
 
     public static class ViewGroupLengthWinWeightAvg implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(EXCLUDEWHENINSTRUMENTED, PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -491,11 +479,6 @@ public class ViewGroup {
                 int modulo = 1;
                 String type = "A" + modulo;
                 env.sendEventBean(new SupportSensorEvent(0, type, "1", (double) i, (double) i));
-
-                if (i % 1000 == 0) {
-                    //System.out.println("Send " + i + " events");
-                    env.listener("s0");
-                }
             }
             long endTime = System.nanoTime();
             double delta = (endTime - startTime) / 1000d / 1000d / 1000d;
@@ -520,17 +503,23 @@ public class ViewGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertCount(env.statement("s0"), 1);
+            env.assertStatement("s0", statement -> {
+                assertCount(statement, 1);
+            });
 
             env.advanceTime(flipTime - 1);
             env.sendEventBean(new SupportBean("E2", 0));
-            assertCount(env.statement("s0"), 2);
+            env.assertStatement("s0", statement -> {
+                assertCount(statement, 2);
+            });
 
             env.milestone(0);
 
             env.advanceTime(flipTime);
             env.sendEventBean(new SupportBean("E3", 0));
-            assertCount(env.statement("s0"), 2);
+            env.assertStatement("s0", statement -> {
+                assertCount(statement, 2);
+            });
 
             env.undeployAll();
         }
@@ -539,6 +528,7 @@ public class ViewGroup {
     public static class ViewGroupTimeAccum implements RegressionExecution {
 
         public void run(RegressionEnvironment env) {
+            String[] fields = "price".split(",");
             env.advanceTime(1000);
 
             String text = "@name('s0') select irstream * from  SupportMarketDataBean#groupwin(symbol)#time_accum(10 sec)";
@@ -547,34 +537,29 @@ public class ViewGroup {
             // 1st event S1 group
             env.advanceTime(1000);
             sendEvent(env, "S1", 10);
-            assertEquals(10d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 10d);
 
             env.milestone(1);
 
             // 2nd event S1 group
             env.advanceTime(5000);
             sendEvent(env, "S1", 20);
-            assertEquals(20d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 20d);
 
             env.milestone(2);
 
             // 1st event S2 group
             env.advanceTime(10000);
             sendEvent(env, "S2", 30);
-            assertEquals(30d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 30d);
+
             env.milestone(3);
 
             env.advanceTime(15000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{10d}, {20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{10d}, {20d}});
 
             env.advanceTime(20000);
-            assertNull(env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{30d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{30d}});
 
             env.undeployAll();
         }
@@ -582,7 +567,7 @@ public class ViewGroup {
 
     public static class ViewGroupTimeBatch implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-
+            String[] fields = "price".split(",");
             env.advanceTime(1000);
 
             String text = "@name('s0') select irstream * from  SupportMarketDataBean#groupwin(symbol)#time_batch(10 sec)";
@@ -613,26 +598,17 @@ public class ViewGroup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
-            assertNull(env.listener("s0").getLastOldData());
-            EventBean[] newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"price"}, new Object[][]{{10d}, {20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{10d}, {20d}}, null);
 
             env.milestone(4);
 
             env.advanceTime(20000);
-            assertNull(env.listener("s0").getLastOldData());
-            newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"price"}, new Object[][]{{30d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{30d}}, null);
 
             env.milestone(5);
 
             env.advanceTime(21000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{10d}, {20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{10d}, {20d}});
 
             env.undeployAll();
         }
@@ -640,6 +616,7 @@ public class ViewGroup {
 
     public static class ViewGroupTimeOrder implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "id".split(",");
             env.advanceTime(1000);
 
             String text = "@name('s0') select irstream * from SupportBeanTimestamp#groupwin(groupId)#time_order(timestamp, 10 sec)";
@@ -648,28 +625,28 @@ public class ViewGroup {
             // 1st event
             env.advanceTime(1000);
             sendEventTS(env, "E1", "G1", 3000);
-            assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            assertId(env, "E1");
 
             env.milestone(1);
 
             // 2nd event
             env.advanceTime(2000);
             sendEventTS(env, "E2", "G2", 2000);
-            assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            assertId(env, "E2");
 
             env.milestone(2);
 
             // 3rd event
             env.advanceTime(3000);
             sendEventTS(env, "E3", "G2", 3000);
-            assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            assertId(env, "E3");
 
             env.milestone(3);
 
             // 4th event
             env.advanceTime(4000);
             sendEventTS(env, "E4", "G1", 2500);
-            assertEquals("E4", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            assertId(env, "E4");
 
             env.milestone(4);
 
@@ -677,10 +654,7 @@ public class ViewGroup {
             env.advanceTime(11999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(12000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"id"}, new Object[][]{{"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E2"}});
 
             env.milestone(5);
 
@@ -688,10 +662,7 @@ public class ViewGroup {
             env.advanceTime(12499);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(12500);
-            assertNull(env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"id"}, new Object[][]{{"E4"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E4"}});
 
             env.milestone(6);
 
@@ -701,6 +672,7 @@ public class ViewGroup {
 
     public static class ViewGroupTimeLengthBatch implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "price".split(",");
             env.advanceTime(1000);
 
             String text = "@name('s0') select irstream * from  SupportMarketDataBean#groupwin(symbol)#time_length_batch(10 sec, 100)";
@@ -731,26 +703,17 @@ public class ViewGroup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
-            assertNull(env.listener("s0").getLastOldData());
-            EventBean[] newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"price"}, new Object[][]{{10d}, {20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{10d}, {20d}}, null);
 
             env.milestone(4);
 
             env.advanceTime(20000);
-            assertNull(env.listener("s0").getLastOldData());
-            newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"price"}, new Object[][]{{30d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{30d}}, null);
 
             env.milestone(5);
 
             env.advanceTime(21000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{10d}, {20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{10d}, {20d}});
 
             env.undeployAll();
         }
@@ -759,7 +722,8 @@ public class ViewGroup {
     public static class ViewGroupLengthBatch implements RegressionExecution {
 
         public void run(RegressionEnvironment env) {
-            String text = "@name('s0') select irstream * from  SupportMarketDataBean#groupwin(symbol)#length_batch(3) order by symbol asc";
+            String[] fields = "symbol,price".split(",");
+            String text = "@name('s0') select irstream * from SupportMarketDataBean#groupwin(symbol)#length_batch(3) order by symbol asc";
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("S1", 1));
@@ -780,14 +744,10 @@ public class ViewGroup {
             env.milestone(4);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRow(events, new String[]{"price"}, new Object[][]{{1.0}, {2.0}, {20.0}, {21.0}});
+            env.assertPropsPerRowIterator("s0", new String[]{"price"}, new Object[][]{{1.0}, {2.0}, {20.0}, {21.0}});
 
             env.sendEventBean(makeMarketDataEvent("S2", 22));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "price".split(","), new Object[][]{{20.0}, {21.0}, {22.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"S2"}, {"S2"}, {"S2"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"S2", 20.0}, {"S2", 21.0}, {"S2", 22.0}}, null);
 
             env.milestone(5);
 
@@ -797,10 +757,7 @@ public class ViewGroup {
             env.milestone(6);
 
             env.sendEventBean(makeMarketDataEvent("S1", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "price".split(","), new Object[][]{{1.0}, {2.0}, {3.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"S1"}, {"S1"}, {"S1"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"S1", 1.0}, {"S1", 2.0}, {"S1", 3.0}}, null);
 
             env.milestone(7);
 
@@ -810,11 +767,7 @@ public class ViewGroup {
             env.milestone(8);
 
             env.sendEventBean(makeMarketDataEvent("S2", 25));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "price".split(","), new Object[][]{{23.0}, {24.0}, {25.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"S2"}, {"S2"}, {"S2"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "price".split(","), new Object[][]{{20.0}, {21.0}, {22.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "symbol".split(","), new Object[][]{{"S2"}, {"S2"}, {"S2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"S2", 23.0}, {"S2", 24.0}, {"S2", 25.0}}, new Object[][]{{"S2", 20.0}, {"S2", 21.0}, {"S2", 22.0}});
 
             env.milestone(9);
 
@@ -825,11 +778,7 @@ public class ViewGroup {
             env.milestone(10);
 
             env.sendEventBean(makeMarketDataEvent("S1", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "price".split(","), new Object[][]{{4.0}, {5.0}, {6.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"S1"}, {"S1"}, {"S1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "price".split(","), new Object[][]{{1.0}, {2.0}, {3.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "symbol".split(","), new Object[][]{{"S1"}, {"S1"}, {"S1"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"S1", 4.0}, {"S1", 5.0}, {"S1", 6.0}}, new Object[][]{{"S1", 1.0}, {"S1", 2.0}, {"S1", 3.0}});
 
             env.milestone(11);
 
@@ -839,6 +788,7 @@ public class ViewGroup {
 
     public static class ViewGroupTimeWin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "price".split(",");
             env.advanceTime(1000);
 
             String text = "@name('s0') select irstream * from  SupportMarketDataBean#groupwin(symbol)#time(10 sec)";
@@ -847,21 +797,21 @@ public class ViewGroup {
             // 1st event S1 group
             env.advanceTime(1000);
             sendEvent(env, "S1", 10);
-            assertEquals(10d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 10d);
 
             env.milestone(1);
 
             // 2nd event S1 group
             env.advanceTime(5000);
             sendEvent(env, "S1", 20);
-            assertEquals(20d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 20d);
 
             env.milestone(2);
 
             // 1st event S2 group
             env.advanceTime(10000);
             sendEvent(env, "S2", 30);
-            assertEquals(30d, env.listener("s0").assertOneGetNewAndReset().get("price"));
+            assertPrice(env, 30d);
 
             env.milestone(3);
 
@@ -869,26 +819,17 @@ public class ViewGroup {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(11000);
-            assertNull(env.listener("s0").getLastNewData());
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{10d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{10d}});
 
             env.milestone(4);
 
             env.advanceTime(15000);
-            assertNull(env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{20d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{20d}});
 
             env.milestone(5);
 
             env.advanceTime(20000);
-            assertNull(env.listener("s0").getLastNewData());
-            oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"price"}, new Object[][]{{30d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{30d}});
 
             env.undeployAll();
         }
@@ -908,13 +849,13 @@ public class ViewGroup {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
             sendSupportBean(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
 
             env.milestone(3);
 
@@ -922,22 +863,21 @@ public class ViewGroup {
             sendSupportBean(env, "E2", 21);
             sendSupportBean(env, "E2", 22);
             sendSupportBean(env, "E1", 3);
-            assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E1", 2}, {"E2", 21}, {"E2", 22}, {"E1", 3}});
+            env.assertPropsPerRowNewFlattened("s0", fields, new Object[][]{{"E1", 2}, {"E2", 21}, {"E2", 22}, {"E1", 3}});
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E1", 3}, {"E2", 20}, {"E2", 21}, {"E2", 22}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E1", 3}, {"E2", 20}, {"E2", 21}, {"E2", 22}});
             sendSupportBean(env, "E2", 23);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E2", 23}, new Object[]{"E2", 20});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2", 23}, new Object[]{"E2", 20});
 
             env.milestone(5);
 
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E1", 3}, {"E2", 23}, {"E2", 21}, {"E2", 22}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E1", 3}, {"E2", 23}, {"E2", 21}, {"E2", 22}});
             sendSupportBean(env, "E1", -1);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E1", -1}, new Object[]{"E1", 1});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E1", -1}, new Object[]{"E1", 1});
 
             env.undeployAll();
         }
@@ -954,36 +894,6 @@ public class ViewGroup {
     private static void sendEvent(RegressionEnvironment env, String symbol, double price, long volume) {
         SupportMarketDataBean theEvent = new SupportMarketDataBean(symbol, price, volume, "");
         env.sendEventBean(theEvent);
-    }
-
-    private static List<Map<String, Object>> makeMap(String symbol, double average) {
-        Map<String, Object> result = new HashMap<>();
-
-        result.put("symbol", symbol);
-        result.put("average", average);
-
-        ArrayList<Map<String, Object>> vec = new ArrayList<>();
-        vec.add(result);
-
-        return vec;
-    }
-
-    private static void sendProductNew(RegressionEnvironment env, String product, int size) {
-        Map<String, Object> theEvent = new HashMap<>();
-        theEvent.put("product", product);
-        theEvent.put("productsize", size);
-        env.sendEventMap(theEvent, "Product");
-    }
-
-    private static void sendTimer(RegressionEnvironment env, long timeInMSec) {
-        env.advanceTime(timeInMSec);
-    }
-
-    private static void populateMap(Map<String, Object> map, String symbol, String feed, long volume, long size) {
-        map.put("symbol", symbol);
-        map.put("feed", feed);
-        map.put("volume", volume);
-        map.put("size", size);
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, String feed, long volume) {
@@ -1005,7 +915,21 @@ public class ViewGroup {
         return new SupportMarketDataBean(symbol, price, 0L, null);
     }
 
-    public static class EventWithTags {
+    private static void assertLastNewRow(RegressionEnvironment env, String statementName, String symbol, double average) {
+        final String[] fields = "symbol,average".split(",");
+        env.assertListener(statementName, listener -> EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{symbol, average}}));
+    }
+
+    private static void assertId(RegressionEnvironment env, String expected) {
+        env.assertEqualsNew("s0", "id", expected);
+    }
+
+    private static void assertPrice(RegressionEnvironment env, double expected) {
+        env.assertEqualsNew("s0", "price", expected);
+    }
+
+    public static class EventWithTags implements Serializable {
+        private static final long serialVersionUID = -8159216554607296223L;
         private String name;
         private Map<String, String> tags;
 

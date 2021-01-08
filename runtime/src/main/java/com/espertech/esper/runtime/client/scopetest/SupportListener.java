@@ -146,13 +146,6 @@ public interface SupportListener extends UpdateListener {
     EventBean assertOneGetOldAndReset();
 
     /**
-     * Asserts that there is exactly one insert-stream event and one remove-stream event available and resets.
-     *
-     * @return pair of insert-stream event and remove-stream event
-     */
-    UniformPair<EventBean> assertGetAndResetIRPair();
-
-    /**
      * Returns a pair of last-invocation insert and remove stream events and resets
      *
      * @return pair of events

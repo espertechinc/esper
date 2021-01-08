@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtMgmtCallable;
 import com.espertech.esper.regressionlib.support.multithread.StmtMgmtCallablePair;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 
+import java.util.EnumSet;
 import java.util.concurrent.*;
 
 /**
@@ -43,8 +45,8 @@ public class MultithreadStmtMgmt implements RegressionExecution {
         "select a.* from pattern[every a=" + EVENT_NAME + "(symbol='IBM', feed='RT')]"};
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -20,8 +19,6 @@ import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertFalse;
 
 public class RowRecogInterval {
     public static Collection<RegressionExecution> executions() {
@@ -67,13 +64,13 @@ public class RowRecogInterval {
 
             sendTimer(10999, env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}});
 
             env.milestoneInc(milestone);
 
             sendTimer(11000, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", null, null, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", null, null, null}});
 
             env.milestoneInc(milestone);
 
@@ -95,8 +92,8 @@ public class RowRecogInterval {
             env.milestoneInc(milestone);
 
             sendTimer(23000, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", "B1", null, "B1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A2", "B1", null, "B1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}, {"A2", "B1", null, "B1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A2", "B1", null, "B1"}});
 
             env.milestoneInc(milestone);
 
@@ -119,8 +116,8 @@ public class RowRecogInterval {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(35000, env);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", "B1", null, "B1"}, {"A3", "B2", "B3", "B4"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A3", "B2", "B3", "B4"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}, {"A2", "B1", null, "B1"}, {"A3", "B2", "B3", "B4"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B2", "B3", "B4"}});
         }
     }
 
@@ -165,7 +162,7 @@ public class RowRecogInterval {
             env.sendEventBean(new SupportRecogBean("B2", "C1", 6));
             env.sendEventBean(new SupportRecogBean("B3", "C1", 7));
             env.sendEventBean(new SupportRecogBean("B4", "C4", 7));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{
                 {"A1", "B2", "B3", "B3"}, {"A2", null, null, null}, {"A3", "B1", null, "B1"}, {"A4", "B4", null, "B4"}});
 
             env.milestone(4);
@@ -176,7 +173,7 @@ public class RowRecogInterval {
             env.milestone(5);
 
             sendTimer(11000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B2", "B3", "B3"}, {"A2", null, null, null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B2", "B3", "B3"}, {"A2", null, null, null}});
 
             sendTimer(11999, env);
             env.assertListenerNotInvoked("s0");
@@ -184,10 +181,10 @@ public class RowRecogInterval {
             env.milestone(6);
 
             sendTimer(12000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A3", "B1", null, "B1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B1", null, "B1"}});
 
             sendTimer(13000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A4", "B4", null, "B4"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A4", "B4", null, "B4"}});
 
             env.undeployAll();
         }
@@ -223,17 +220,17 @@ public class RowRecogInterval {
 
             sendTimer(10999, env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", null, null, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}, {"A2", null, null, null}});
 
             env.milestone(2);
 
             sendTimer(11000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", null, null, null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", null, null, null}});
 
             env.milestone(3);
 
             sendTimer(15000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A2", null, null, null}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A2", null, null, null}});
 
             env.milestone(4);
 
@@ -257,13 +254,13 @@ public class RowRecogInterval {
             env.milestone(6);
 
             sendTimer(31000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A3", null, null, null}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"A1", null, null, null}, {"A2", null, null, null}, {"A3", null, null, null}, {"A4", "B1", "B2", "B4"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", null, null, null}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"A1", null, null, null}, {"A2", null, null, null}, {"A3", null, null, null}, {"A4", "B1", "B2", "B4"}});
 
             env.milestone(7);
 
             sendTimer(32000, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A4", "B1", "B2", "B4"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A4", "B1", "B2", "B4"}});
 
             env.undeployAll();
         }
@@ -287,12 +284,12 @@ public class RowRecogInterval {
             env.sendEventBean(new SupportBean("A1", 0));
             env.sendEventBean(new SupportBean("B1", 0));
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "a,b0,b1".split(","),
+            env.assertPropsPerRowLastNew("s0", "a,b0,b1".split(","),
                 new Object[][]{{"A1", "B1", null}});
 
             env.undeployAll();

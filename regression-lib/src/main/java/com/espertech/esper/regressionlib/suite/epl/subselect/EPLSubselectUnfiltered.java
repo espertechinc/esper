@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
@@ -191,34 +190,34 @@ public class EPLSubselectUnfiltered {
 
     private static class EPLSubselectInvalidSubselect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select id from SupportBean_S1) from SupportBean_S0",
+            env.tryInvalidCompile("select (select id from SupportBean_S1) from SupportBean_S0",
                 "Failed to plan subquery number 1 querying SupportBean_S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window (applies to correlated or non-fully-aggregated subqueries) [");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select dummy from SupportBean_S1#lastevent) as idS1 from SupportBean_S0",
+            env.tryInvalidCompile("select (select dummy from SupportBean_S1#lastevent) as idS1 from SupportBean_S0",
                 "Failed to plan subquery number 1 querying SupportBean_S1: Failed to validate select-clause expression 'dummy': Property named 'dummy' is not valid in any stream [select (select dummy from SupportBean_S1#lastevent) as idS1 from SupportBean_S0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select (select id from SupportBean_S1#lastevent) id from SupportBean_S1#lastevent) as idS1 from SupportBean_S0",
+            env.tryInvalidCompile("select (select (select id from SupportBean_S1#lastevent) id from SupportBean_S1#lastevent) as idS1 from SupportBean_S0",
                 "Invalid nested subquery, subquery-within-subquery is not supported [select (select (select id from SupportBean_S1#lastevent) id from SupportBean_S1#lastevent) as idS1 from SupportBean_S0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select id from SupportBean_S1#lastevent where (sum(id) = 5)) as idS1 from SupportBean_S0",
+            env.tryInvalidCompile("select (select id from SupportBean_S1#lastevent where (sum(id) = 5)) as idS1 from SupportBean_S0",
                 "Failed to plan subquery number 1 querying SupportBean_S1: Aggregation functions are not supported within subquery filters, consider using a having-clause or insert-into instead [select (select id from SupportBean_S1#lastevent where (sum(id) = 5)) as idS1 from SupportBean_S0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean_S0(id=5 and (select id from SupportBean_S1))",
+            env.tryInvalidCompile("select * from SupportBean_S0(id=5 and (select id from SupportBean_S1))",
                 "Failed to validate subquery number 1 querying SupportBean_S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from SupportBean_S0(id=5 and (select id from SupportBean_S1))]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean_S0 group by id + (select id from SupportBean_S1)",
+            env.tryInvalidCompile("select * from SupportBean_S0 group by id + (select id from SupportBean_S1)",
                 "Subselects not allowed within group-by [select * from SupportBean_S0 group by id + (select id from SupportBean_S1)]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean_S0 order by (select id from SupportBean_S1) asc",
+            env.tryInvalidCompile("select * from SupportBean_S0 order by (select id from SupportBean_S1) asc",
                 "Subselects not allowed within order-by clause [select * from SupportBean_S0 order by (select id from SupportBean_S1) asc]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select id from SupportBean_S1#lastevent where 'a') from SupportBean_S0",
+            env.tryInvalidCompile("select (select id from SupportBean_S1#lastevent where 'a') from SupportBean_S0",
                 "Failed to plan subquery number 1 querying SupportBean_S1: Subselect filter expression must return a boolean value [select (select id from SupportBean_S1#lastevent where 'a') from SupportBean_S0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select id from SupportBean_S1#lastevent where id = p00) from SupportBean_S0",
+            env.tryInvalidCompile("select (select id from SupportBean_S1#lastevent where id = p00) from SupportBean_S0",
                 "Failed to plan subquery number 1 querying SupportBean_S1: Failed to validate filter expression 'id=p00': Property named 'p00' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [select (select id from SupportBean_S1#lastevent where id = p00) from SupportBean_S0]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0",
+            env.tryInvalidCompile("select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0",
                 "Failed to validate select-clause expression subquery number 1 querying SupportBean_S1: Implicit conversion from datatype '" + SupportBean_S1.class.getName() + "' to 'Integer' is not allowed [select id in (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0]");
         }
     }
@@ -365,24 +364,24 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(11, "S01"));
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "S01"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "S01"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", "S01"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", "S01"});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(12, "S02"));
             env.sendEventBean(new SupportBean("E4", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "S02"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", "S02"});
 
             env.undeployAll();
         }

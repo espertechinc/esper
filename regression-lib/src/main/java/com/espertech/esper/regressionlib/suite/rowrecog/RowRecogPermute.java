@@ -64,13 +64,13 @@ public class RowRecogPermute implements RegressionExecution {
 
         env.sendEventObjectArray(new Object[]{"E1", 1, 99d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "E2"});
 
         env.milestone(0);
 
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E4", 1, 99d}, "TemperatureSensorEvent");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E4", "E3"});
+        env.assertPropsNew("s0", fields, new Object[]{"E4", "E3"});
 
         env.sendEventObjectArray(new Object[]{"E5", 1, 98d}, "TemperatureSensorEvent");
         env.assertListenerNotInvoked("s0");
@@ -109,7 +109,7 @@ public class RowRecogPermute implements RegressionExecution {
             }
             count++;
 
-            env.assertPropsListenerNew("s0", fields, expected);
+            env.assertPropsNew("s0", fields, expected);
         }
 
         env.undeployAll();

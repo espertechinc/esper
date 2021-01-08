@@ -29,7 +29,6 @@ import com.espertech.esper.common.internal.util.TypeWidenerSPI;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithLocalDateTime;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -62,7 +61,7 @@ public class EventAvroHook {
         public void run(RegressionEnvironment env) {
 
             // invalid without explicit conversion
-            SupportMessageAssertUtil.tryInvalidCompile(env, "insert into MyEvent(isodate) select zdt from SupportEventWithZonedDateTime",
+            env.tryInvalidCompile("insert into MyEvent(isodate) select zdt from SupportEventWithZonedDateTime",
                 "Invalid assignment of column 'isodate' of type 'java.time.ZonedDateTime' to event property 'isodate' typed as 'java.lang.CharSequence', column and parameter types mismatch");
 
             // with hook

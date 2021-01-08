@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -266,7 +265,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             }
 
             env.sendEventBean(new SupportBean_S1(10, "a", "x"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "s0.id".split(","), new Object[][]{{1}, {2}});
+            env.assertPropsPerRowLastNew("s0", "s0.id".split(","), new Object[][]{{1}, {2}});
 
             env.undeployAll();
         }

@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.expr.enummethod;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -37,13 +36,13 @@ public class ExprEnumAllOfAnyOf {
         public void run(RegressionEnvironment env) {
             String epl;
             epl = "select contained.allOf(x => 1) from SupportBean_ST0_Container";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.allOf()': Failed to validate enumeration method 'allOf', expected a boolean-type result for expression parameter 0 but received int");
 
             epl = "select contained.anyOf(x => 1) from SupportBean_ST0_Container";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a boolean-type result for expression parameter 0 but received int");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a boolean-type result for expression parameter 0 but received int");
 
             epl = "select contained.anyOf(x => null) from SupportBean_ST0_Container";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.anyOf()': Failed to validate enumeration method 'anyOf', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 

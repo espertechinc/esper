@@ -16,7 +16,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EPLDataflowOpLogSink implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -30,7 +30,7 @@ public class EPLDataflowOpLogSink implements RegressionExecution {
         runAssertion(env, "json", true, null, "JSON_HERE", true);
 
         // invalid: output stream
-        tryInvalidCompile(env, "create dataflow DF1 LogSink -> s1 {}",
+        env.tryInvalidCompile("create dataflow DF1 LogSink -> s1 {}",
             "Failed to obtain operator 'LogSink': LogSink operator does not provide an output stream");
 
         String docSmple = "@name('flow') create dataflow MyDataFlow\n" +

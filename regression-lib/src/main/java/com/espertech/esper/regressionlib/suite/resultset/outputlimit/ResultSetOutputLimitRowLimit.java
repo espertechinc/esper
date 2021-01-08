@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ResultSetOutputLimitRowLimit {
 
@@ -140,24 +140,24 @@ public class ResultSetOutputLimitRowLimit {
 
             String[] fields = "theString".split(",");
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E1", 90);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E2", 5);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E3", 60);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
             sendEvent(env, "E4", 99);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}, {"E4"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E4"}});
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E5", 6);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3"}, {"E1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E3"}, {"E1"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E3"}, {"E1"}});
 
             env.undeployAll();
         }
@@ -193,22 +193,22 @@ public class ResultSetOutputLimitRowLimit {
 
             String[] fields = "theString,mysum".split(",");
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E1", 90);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 90}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 90}});
 
             sendEvent(env, "E2", 5);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 5}, {"E1", 90}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2", 5}, {"E1", 90}});
 
             sendEvent(env, "E3", 60);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 5}, {"E3", 60}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2", 5}, {"E3", 60}});
 
             sendEvent(env, "E3", 40);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2", 5}, {"E1", 90}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2", 5}, {"E1", 90}});
 
             sendEvent(env, "E2", 1000);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1", 90}, {"E3", 100}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1", 90}, {"E3", 100}});
 
             env.undeployAll();
         }
@@ -222,7 +222,7 @@ public class ResultSetOutputLimitRowLimit {
 
             String[] fields = "theString,mysum".split(",");
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E1", 10);
             sendEvent(env, "E2", 5);
@@ -244,7 +244,7 @@ public class ResultSetOutputLimitRowLimit {
 
             String[] fields = "theString,mysum".split(",");
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E1", 10);
             sendEvent(env, "E2", 5);
@@ -266,7 +266,7 @@ public class ResultSetOutputLimitRowLimit {
 
             String[] fields = "theString,mysum".split(",");
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "E1", 10);
             sendEvent(env, "E2", 5);
@@ -284,13 +284,13 @@ public class ResultSetOutputLimitRowLimit {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create variable string myrows = 'abc'", path);
-            tryInvalidCompile(env, path, "select * from SupportBean limit myrows",
+            env.tryInvalidCompile(path, "select * from SupportBean limit myrows",
                 "Limit clause requires a variable of numeric type [select * from SupportBean limit myrows]");
-            tryInvalidCompile(env, path, "select * from SupportBean limit 1, myrows",
+            env.tryInvalidCompile(path, "select * from SupportBean limit 1, myrows",
                 "Limit clause requires a variable of numeric type [select * from SupportBean limit 1, myrows]");
-            tryInvalidCompile(env, path, "select * from SupportBean limit dummy",
+            env.tryInvalidCompile(path, "select * from SupportBean limit dummy",
                 "Limit clause variable by name 'dummy' has not been declared [select * from SupportBean limit dummy]");
-            tryInvalidCompile(env, path, "select * from SupportBean limit 1,dummy",
+            env.tryInvalidCompile(path, "select * from SupportBean limit 1,dummy",
                 "Limit clause variable by name 'dummy' has not been declared [select * from SupportBean limit 1,dummy]");
             env.undeployAll();
         }
@@ -303,106 +303,106 @@ public class ResultSetOutputLimitRowLimit {
     private static void tryAssertionVariable(RegressionEnvironment env) {
         String[] fields = "theString".split(",");
 
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendEvent(env, "E1", 1);
         sendEvent(env, "E2", 2);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}});
 
         sendEvent(env, "E3", 3);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
 
         sendEvent(env, "E4", 4);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E5", 5);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E2"}, {"E3"}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2"}, {"E3"}});
 
         sendEvent(env, "E6", 6);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E3"}, {"E4"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}});
         env.assertListenerNotInvoked("s0");
 
         // change variable values
         env.sendEventBean(new SupportBeanNumeric(2, 3));
         sendEvent(env, "E7", 7);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E6"}, {"E7"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}});
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(-1, 0));
         sendEvent(env, "E8", 8);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}, {"E8"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}, {"E8"}});
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(10, 0));
         sendEvent(env, "E9", 9);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E5"}, {"E6"}, {"E7"}, {"E8"}, {"E9"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5"}, {"E6"}, {"E7"}, {"E8"}, {"E9"}});
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBeanNumeric(6, 3));
         sendEvent(env, "E10", 10);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E9"}, {"E10"}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E9"}, {"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E9"}, {"E10"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E9"}, {"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric(1, 1));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E7"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E7"}});
 
         env.sendEventBean(new SupportBeanNumeric(2, 1));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E7"}, {"E8"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E7"}, {"E8"}});
 
         env.sendEventBean(new SupportBeanNumeric(1, 2));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E8"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E8"}});
 
         env.sendEventBean(new SupportBeanNumeric(6, 6));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         env.sendEventBean(new SupportBeanNumeric(1, 4));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric((Integer) null, null));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}, {"E9"}, {"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}, {"E9"}, {"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric(null, 2));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E8"}, {"E9"}, {"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E8"}, {"E9"}, {"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric(2, null));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E6"}, {"E7"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}});
 
         env.sendEventBean(new SupportBeanNumeric(-1, 4));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric(-1, 0));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}, {"E9"}, {"E10"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}, {"E9"}, {"E10"}});
 
         env.sendEventBean(new SupportBeanNumeric(0, 0));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
     }
 
     private static void tryAssertion(RegressionEnvironment env) {
         String[] fields = "theString".split(",");
 
         sendEvent(env, "E1", 1);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
         sendEvent(env, "E2", 2);
         env.assertListenerNotInvoked("s0");
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}});
 
         sendEvent(env, "E3", 3);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIterator("s0", fields, null);
 
         sendEvent(env, "E4", 4);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}});
 
         sendEvent(env, "E5", 5);
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, new Object[][]{{"E4"}});
+        env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}});
 
         sendEvent(env, "E6", 6);
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4"}});
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"E1"}});
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields, null);
+        env.assertPropsPerRowIterator("s0", fields, null);
     }
 
     private static void sendEvent(RegressionEnvironment env, String theString, int intPrimitive) {
@@ -415,7 +415,7 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, theString, 0);
         }
         env.sendEventBean(new SupportBean_S1(0));
-        env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{expected});
+        env.assertPropsNew("s0", "theString".split(","), new Object[]{expected});
     }
 
     private static void sendSBSequenceAndAssert(RegressionEnvironment env, String expectedString, int expectedInt, Object[][] rows) {
@@ -424,6 +424,6 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, row[0].toString(), (Integer) row[1]);
         }
         env.sendEventBean(new SupportBean_S1(0));
-        env.assertPropsListenerNew("s0", "theString,intPrimitive".split(","), new Object[]{expectedString, expectedInt});
+        env.assertPropsNew("s0", "theString,intPrimitive".split(","), new Object[]{expectedString, expectedInt});
     }
 }

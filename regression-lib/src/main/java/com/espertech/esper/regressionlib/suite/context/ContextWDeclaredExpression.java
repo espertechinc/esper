@@ -82,7 +82,7 @@ public class ContextWDeclaredExpression {
 
             env.sendEventBean(new SupportBean("x", 1));
             env.sendEventBean(new SupportBean("y", 2));
-            env.assertPropsListenerNew("s0", "e1.intPrimitive,e2.intPrimitive".split(","), new Object[]{1, 2});
+            env.assertPropsNew("s0", "e1.intPrimitive,e2.intPrimitive".split(","), new Object[]{1, 2});
 
             env.undeployAll();
         }
@@ -91,9 +91,9 @@ public class ContextWDeclaredExpression {
     private static void tryAssertionExpression(RegressionEnvironment env) {
         String[] fields = "c0,c1,c2".split(",");
         env.sendEventBean(new SupportBean("E1", -2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"n", "xnx", "n"});
+        env.assertPropsNew("s0", fields, new Object[]{"n", "xnx", "n"});
 
         env.sendEventBean(new SupportBean("E2", 1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"p", "xpx", "p"});
+        env.assertPropsNew("s0", fields, new Object[]{"p", "xpx", "p"});
     }
 }

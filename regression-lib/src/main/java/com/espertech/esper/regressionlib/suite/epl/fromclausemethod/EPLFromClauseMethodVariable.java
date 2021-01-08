@@ -22,7 +22,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EPLFromClauseMethodVariable {
 
@@ -40,18 +40,18 @@ public class EPLFromClauseMethodVariable {
     private static class EPLFromClauseMethodVariableInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // invalid footprint
-            tryInvalidCompile(env, "select * from method:MyConstantServiceVariable.fetchABean() as h0",
+            env.tryInvalidCompile("select * from method:MyConstantServiceVariable.fetchABean() as h0",
                 "Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find enumeration method, date-time method, instance method or property named 'fetchABean' in class '" + MyConstantServiceVariable.class.getName() + "' taking no parameters (nearest match found was 'fetchABean' taking type(s) 'int') [");
 
             // null variable value and metadata is instance method
-            tryInvalidCompile(env, "select field1, field2 from method:MyNullMap.getMapData()",
+            env.tryInvalidCompile("select field1, field2 from method:MyNullMap.getMapData()",
                 "Failed to access variable method invocation metadata: The variable value is null and the metadata method is an instance method");
 
             // variable with context and metadata is instance method
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create context BetweenStartAndEnd start SupportBean end SupportBean", path);
             env.compileDeploy("context BetweenStartAndEnd create variable " + MyMethodHandlerMap.class.getName() + " themap", path);
-            tryInvalidCompile(env, path, "context BetweenStartAndEnd select field1, field2 from method:themap.getMapData()",
+            env.tryInvalidCompile(path, "context BetweenStartAndEnd select field1, field2 from method:themap.getMapData()",
                 "Failed to access variable method invocation metadata: The variable value is null and the metadata method is an instance method");
 
             env.undeployAll();
@@ -103,10 +103,10 @@ public class EPLFromClauseMethodVariable {
             sendEventAssert(env, "E2", 2, "_2_b");
 
             // invalid context
-            tryInvalidCompile(env, path, "select * from method:var.fetchABean(intPrimitive) as h0",
+            env.tryInvalidCompile(path, "select * from method:var.fetchABean(intPrimitive) as h0",
                 "Variable by name 'var' has been declared for context 'MyContext' and can only be used within the same context");
             env.compileDeploy("create context ABC start @now end after 1 minute", path);
-            tryInvalidCompile(env, path, "context ABC select * from method:var.fetchABean(intPrimitive) as h0",
+            env.tryInvalidCompile(path, "context ABC select * from method:var.fetchABean(intPrimitive) as h0",
                 "Variable by name 'var' has been declared for context 'MyContext' and can only be used within the same context");
 
             env.undeployAll();
@@ -170,7 +170,7 @@ public class EPLFromClauseMethodVariable {
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String expected) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        env.assertPropsListenerNew("s0", fields, new Object[]{expected});
+        env.assertPropsNew("s0", fields, new Object[]{expected});
     }
 
     public static class MyConstantServiceVariable implements Serializable {

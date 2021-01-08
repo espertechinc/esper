@@ -45,10 +45,10 @@ public class ExprCoreDotExpressionDuckTyping implements RegressionExecution {
         String[] fields = "strval,intval,commonstrval,commonintval,commondoubleval".split(",");
 
         env.sendEventBean(new SupportBeanDuckTypeOne("x"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"x", null, null, -1, 12.9876d});
+        env.assertPropsNew("s0", fields, new Object[]{"x", null, null, -1, 12.9876d});
 
         env.sendEventBean(new SupportBeanDuckTypeTwo(-10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, -10, "mytext", null, 11.1234d});
+        env.assertPropsNew("s0", fields, new Object[]{null, -10, "mytext", null, 11.1234d});
 
         env.undeployAll();
     }

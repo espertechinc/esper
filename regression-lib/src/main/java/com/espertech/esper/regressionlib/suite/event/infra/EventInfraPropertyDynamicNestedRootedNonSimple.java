@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDynRoot;
@@ -25,10 +26,7 @@ import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.twoEntryMap;
@@ -46,8 +44,8 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
     public final static String JSONPROVIDED_TYPENAME = EventInfraPropertyDynamicNestedRootedNonSimple.class.getSimpleName() + "JsonProvided";
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

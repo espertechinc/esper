@@ -68,29 +68,29 @@ public class InfraTableInsertInto {
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
 
             sendSupportBean(env, "E1", 10, 100); // insert E1
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[][]{{"E1", 10, 100L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 10, 100L}});
             env.sendEventBean(new SupportBean_S0(10, "E1")); // delete E1
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 11, 101); // insert E1 again
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[][]{{"E1", 11, 101L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 11, 101L}});
 
             sendSupportBean(env, "E2", 20, 200); // insert E2
 
             env.milestone(5);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[][]{{"E1", 11, 101L}, {"E2", 20, 200L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 11, 101L}, {"E2", 20, 200L}});
             env.sendEventBean(new SupportBean_S0(20, "E2")); // delete E2
 
             env.milestone(6);
@@ -98,11 +98,11 @@ public class InfraTableInsertInto {
             env.sendEventBean(new SupportBean_S0(11, "E1")); // delete E1
 
             env.milestone(7);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
 
             sendSupportBean(env, "E1", 12, 102); // insert E1
             sendSupportBean(env, "E2", 21, 201); // insert E2
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("S0"), fields, new Object[][]{{"E1", 12, 102L}, {"E2", 21, 201L}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 12, 102L}, {"E2", 21, 201L}});
 
             env.undeployAll();
         }

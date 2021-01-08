@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST1;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST2;
@@ -64,25 +63,25 @@ public class EPLSubselectAggregatedSingleValue {
             String stmtText;
 
             stmtText = "select (select sum(s0.id) from SupportBean_S1#length(3) as s1) as value from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect aggregation functions cannot aggregate across correlated properties");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect aggregation functions cannot aggregate across correlated properties");
 
             stmtText = "select (select s1.id + sum(s1.id) from SupportBean_S1#length(3) as s1) as value from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect properties must all be within aggregation functions");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect properties must all be within aggregation functions");
 
             stmtText = "select (select sum(s0.id + s1.id) from SupportBean_S1#length(3) as s1) as value from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect aggregation functions cannot aggregate across correlated properties");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean_S1: Subselect aggregation functions cannot aggregate across correlated properties");
 
             // having-clause cannot aggregate over properties from other streams
             stmtText = "select (select theString from SupportBean#keepall having sum(s0.p00) = 1) as c0 from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean: Failed to validate having-clause expression '(sum(s0.p00))=1': Implicit conversion from datatype 'String' to numeric is not allowed for aggregation function 'sum' [");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean: Failed to validate having-clause expression '(sum(s0.p00))=1': Implicit conversion from datatype 'String' to numeric is not allowed for aggregation function 'sum' [");
 
             // having-clause properties must be aggregated
             stmtText = "select (select theString from SupportBean#keepall having sum(intPrimitive) = intPrimitive) as c0 from SupportBean_S0 as s0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean: Subselect having-clause requires that all properties are under aggregation, consider using the 'first' aggregation function instead");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean: Subselect having-clause requires that all properties are under aggregation, consider using the 'first' aggregation function instead");
 
             // having-clause not returning boolean
             stmtText = "select (select theString from SupportBean#keepall having sum(intPrimitive)) as c0 from SupportBean_S0";
-            SupportMessageAssertUtil.tryInvalidCompile(env, stmtText, "Failed to plan subquery number 1 querying SupportBean: Subselect having-clause expression must return a boolean value ");
+            env.tryInvalidCompile(stmtText, "Failed to plan subquery number 1 querying SupportBean: Subselect having-clause expression must return a boolean value ");
         }
     }
 
@@ -261,15 +260,15 @@ public class EPLSubselectAggregatedSingleValue {
             String[] fields = "c0,c1".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null});
 
             env.sendEventBean(new SupportBean("", 10));
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10});
 
             env.sendEventBean(new SupportBean("", 20));
             env.sendEventBean(new SupportBean_S0(3, "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 30});
 
             env.undeployAll();
         }
@@ -303,35 +302,35 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "G1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 0L});
+            env.assertPropsNew("s0", fields, new Object[]{1, 0L});
 
             env.sendEventBean(new SupportBean_S1(200, "G2"));
             env.sendEventBean(new SupportBean_S0(2, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{2, 1L});
 
             env.sendEventBean(new SupportBean_S1(201, "G2"));
             env.sendEventBean(new SupportBean_S0(3, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{3, 2L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(4, "G1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, 0L});
+            env.assertPropsNew("s0", fields, new Object[]{4, 0L});
 
             env.sendEventBean(new SupportBean_S0(5, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{5, 2L});
 
             env.sendEventBean(new SupportBean_S0(6, "G3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{6, 0L});
+            env.assertPropsNew("s0", fields, new Object[]{6, 0L});
 
             env.sendEventBean(new SupportBean_S1(202, "G2"));
             env.sendEventBean(new SupportBean_S0(7, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{7, 3L});
+            env.assertPropsNew("s0", fields, new Object[]{7, 3L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(8, "G2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{8, 3L});
+            env.assertPropsNew("s0", fields, new Object[]{8, 3L});
 
             env.undeployAll();
         }
@@ -350,23 +349,23 @@ public class EPLSubselectAggregatedSingleValue {
             String[] fields = "p00,sump00".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "T1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"T1", null});
 
             env.sendEventBean(new SupportBean("T1", 10));
             env.sendEventBean(new SupportBean_S0(2, "T1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"T1", 10});
 
             env.sendEventBean(new SupportBean("T1", 11));
             env.sendEventBean(new SupportBean_S0(3, "T1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T1", 21});
+            env.assertPropsNew("s0", fields, new Object[]{"T1", 21});
 
             env.sendEventBean(new SupportBean_S0(4, "T2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T2", null});
+            env.assertPropsNew("s0", fields, new Object[]{"T2", null});
 
             env.sendEventBean(new SupportBean("T2", -2));
             env.sendEventBean(new SupportBean("T2", -7));
             env.sendEventBean(new SupportBean_S0(5, "T2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T2", -9});
+            env.assertPropsNew("s0", fields, new Object[]{"T2", -9});
             env.undeployAll();
 
             // test distinct
@@ -380,16 +379,16 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1L, 1L, 1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1L, 1L, 1L, 1L});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1L, 1L, 1L, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 1L, 1L, 1L, 1L});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2L, 2L, 2L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2L, 2L, 2L, 2L});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 3L, 2L, 3L, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 3L, 2L, 3L, 2L});
 
             env.undeployAll();
         }
@@ -727,14 +726,14 @@ public class EPLSubselectAggregatedSingleValue {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(11, "T1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"T1"});
+        env.assertPropsNew("s0", fields, new Object[]{"T1"});
 
         env.sendEventBean(new SupportBean("T1", 11));
         env.sendEventBean(new SupportBean_S0(21, "T1"));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(22, "T1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"T1"});
+        env.assertPropsNew("s0", fields, new Object[]{"T1"});
     }
 
     private static void sendEventS0(RegressionEnvironment env, int id) {
@@ -779,6 +778,6 @@ public class EPLSubselectAggregatedSingleValue {
 
     private static void sendEventS0Assert(RegressionEnvironment env, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportBean_S0(1));
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
     }
 }

@@ -206,16 +206,22 @@ public class ViewMultikeyWArray {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertEqualsAnyOrder((String[]) env.listener("s0").assertOneGetNewAndReset().get("c0"), "E0,E1,E3,E4".split(","));
+            assertStrings(env, "E0,E1,E3,E4");
 
             env.sendEventBean(new SupportEventWithLongArray("E10", new long[] {1, 2}));
             env.sendEventBean(new SupportEventWithLongArray("E13", new long[] {}));
             env.sendEventBean(new SupportEventWithLongArray("E14", new long[] {1}));
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertEqualsAnyOrder((String[]) env.listener("s0").assertOneGetNewAndReset().get("c0"), "E10,E1,E13,E14".split(","));
+            assertStrings(env, "E10,E1,E13,E14");
 
             env.undeployAll();
+        }
+
+        private void assertStrings(RegressionEnvironment env, String expecteds) {
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertEqualsAnyOrder((String[]) event.get("c0"), expecteds.split(","));
+            });
         }
     }
 
@@ -464,15 +470,17 @@ public class ViewMultikeyWArray {
     private static SupportEventWithLongArray sendAssertLongArrayIStream(RegressionEnvironment env, boolean expected, String id, boolean isNull, long... array) {
         SupportEventWithLongArray event = new SupportEventWithLongArray(id, isNull ? null : array);
         env.sendEventBean(event);
-        assertEquals(expected, env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvokedFlag("s0", expected);
         return event;
     }
 
     private static void sendAssertLongArrayIdWindow(RegressionEnvironment env, String id, long[] array, String expectedCSV) {
         SupportEventWithLongArray event = new SupportEventWithLongArray(id, array);
         env.sendEventBean(event);
-        String[] ids = (String[]) env.listener("s0").assertOneGetNewAndReset().get("ids");
-        EPAssertionUtil.assertEqualsAnyOrder(expectedCSV.split(","), ids);
+        env.assertEventNew("s0", received -> {
+            String[] ids = (String[]) received.get("ids");
+            EPAssertionUtil.assertEqualsAnyOrder(expectedCSV.split(","), ids);
+        });
     }
 
     private static SupportObjectArrayOneDim sendAssertObjectArray(RegressionEnvironment env, SupportObjectArrayOneDim expectedRemove, String id, boolean isNull, Object... array) {
@@ -525,23 +533,27 @@ public class ViewMultikeyWArray {
     private static void sendAssertTwoArrayIterate(RegressionEnvironment env, String id, int[] one, int[] two, String iterateCSV) {
         EventTwoArrayOfPrimitive event = new EventTwoArrayOfPrimitive(id, one, two);
         env.sendEventBean(event);
-        Object[] ids = EPAssertionUtil.iteratorToObjectArr(env.iterator("s0"), "id");
-        EPAssertionUtil.assertEqualsAnyOrder(iterateCSV.split(","), ids);
+        env.assertIterator("s0", iterator -> {
+            Object[] ids = EPAssertionUtil.iteratorToObjectArr(iterator, "id");
+            EPAssertionUtil.assertEqualsAnyOrder(iterateCSV.split(","), ids);
+        });
     }
 
     private static void sendSBAssertFilter(RegressionEnvironment env, boolean received) {
         env.sendEventBean(new SupportBean());
-        assertEquals(received, env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void assertExpectedRemove(RegressionEnvironment env, Object expectedRemove) {
-        EventBean[] old = env.listener("s0").getLastOldData();
-        if (expectedRemove != null) {
-            assertEquals(1, old.length);
-            assertEquals(expectedRemove, old[0].getUnderlying());
-        } else {
-            assertNull(old);
-        }
+        env.assertListener("s0", listener -> {
+            EventBean[] old = listener.getLastOldData();
+            if (expectedRemove != null) {
+                assertEquals(1, old.length);
+                assertEquals(expectedRemove, old[0].getUnderlying());
+            } else {
+                assertNull(old);
+            }
+        });
     }
 
     private static void runAssertionLongArray(RegressionEnvironment env) {

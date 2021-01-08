@@ -11,22 +11,21 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import junit.framework.TestCase;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -62,20 +61,20 @@ public class ExprCorePrior {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("E0"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1"}, new Object[][]{{null}});
+            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{null}});
             env.listener("s0").reset();
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1"}, new Object[][]{{"E0"}});
+            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{"E0"}});
             env.listener("s0").reset();
 
             env.milestone(2);
 
             for (int i = 2; i < 9; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1"}, new Object[][]{{"E" + (i - 1)}});
+                env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{"E" + (i - 1)}});
                 env.listener("s0").reset();
 
                 if (i % 3 == 0) {
@@ -98,27 +97,27 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null, null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10, null});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 12);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 11, 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 11, 10});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendSupportBean(env, "E4", 13);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", 12, 11});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", 12, 11});
 
             sendSupportBean(env, "E5", 14);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", 13, 12});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", 13, 12});
 
             env.undeployAll();
         }
@@ -133,27 +132,27 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null, null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10, null});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 12);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E3", 11, 10}, new Object[]{"E1", null, null});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3", 11, 10}, new Object[]{"E1", null, null});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendSupportBean(env, "E4", 13);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E4", 12, 11}, new Object[]{"E2", 10, null});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4", 12, 11}, new Object[]{"E2", 10, null});
 
             sendSupportBean(env, "E5", 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E5", 13, 12}, new Object[]{"E3", 11, 10});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5", 13, 12}, new Object[]{"E3", 11, 10});
 
             env.undeployAll();
         }
@@ -171,27 +170,27 @@ public class ExprCorePrior {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", null});
 
             env.milestone(2);
 
             sendSupportBean(env, "E2", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 10});
 
             env.milestone(3);
 
             sendSupportBean(env, "E3", 12);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E3", 11}, new Object[]{"E1", null});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3", 11}, new Object[]{"E1", null});
 
             env.milestone(4);
 
             env.milestone(5);
 
             sendSupportBean(env, "E4", 13);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E4", 12}, new Object[]{"E2", 10});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4", 12}, new Object[]{"E2", 10});
 
             sendSupportBean(env, "E5", 14);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E5", 13}, new Object[]{"E3", 11});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5", 13}, new Object[]{"E3", 11});
 
             env.undeployAll();
         }
@@ -227,7 +226,7 @@ public class ExprCorePrior {
 
             // must be a constant-value expression
             env.compileDeploy("create variable int NUM_PRIOR_NONCONST = 1", path);
-            tryInvalidCompile(env, path, "@name('s0') select prior(NUM_PRIOR_NONCONST, s0) as result from SupportBean_S0#length(2) as s0",
+            env.tryInvalidCompile(path, "@name('s0') select prior(NUM_PRIOR_NONCONST, s0) as result from SupportBean_S0#length(2) as s0",
                 "Failed to validate select-clause expression 'prior(NUM_PRIOR_NONCONST,s0)': Prior function requires a constant-value integer-typed index expression as the first parameter");
 
             env.undeployAll();
@@ -306,7 +305,7 @@ public class ExprCorePrior {
             // release batch
             sendTimer(env, 150000);
             EventBean[] oldData = env.listener("s0").getLastOldData();
-            TestCase.assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastNewData());
             assertEquals(5, oldData.length);
             assertEvent(oldData[0], "D7", "D5", 5d);
             assertEvent(oldData[1], "D8", "D6", 6d);
@@ -400,7 +399,7 @@ public class ExprCorePrior {
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
             assertEvent(env.listener("s0").getLastNewData()[0], "A", null, null);
             assertEvent(env.listener("s0").getLastNewData()[1], "B", null, null);
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 80000);
@@ -489,8 +488,8 @@ public class ExprCorePrior {
 
     private static class ExprCorePriorLongRunningSingle implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -519,8 +518,8 @@ public class ExprCorePrior {
 
     private static class ExprCorePriorLongRunningUnbound implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -550,8 +549,8 @@ public class ExprCorePrior {
 
     private static class ExprCorePriorLongRunningMultiple implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -649,26 +648,26 @@ public class ExprCorePrior {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("E0"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1", "prior2"}, new Object[][]{{null, null}});
+            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{null, null}});
             env.listener("s0").reset();
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1", "prior2"}, new Object[][]{{"E0", null}});
+            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{"E0", null}});
             env.listener("s0").reset();
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1", "prior2"}, new Object[][]{{"E1", "E0"}});
+            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{"E1", "E0"}});
             env.listener("s0").reset();
 
             env.milestone(3);
 
             for (int i = 3; i < 9; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), new String[]{"prior1", "prior2"},
+                env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"},
                     new Object[][]{{"E" + (i - 1), "E" + (i - 2)}});
                 env.listener("s0").reset();
 
@@ -752,7 +751,7 @@ public class ExprCorePrior {
             Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
             assertEvent(env.listener("s0").getLastNewData()[0], "X1", null, null);
             assertEvent(env.listener("s0").getLastNewData()[1], "X1", null, 1d);
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendMarketEvent(env, "C1", 11);

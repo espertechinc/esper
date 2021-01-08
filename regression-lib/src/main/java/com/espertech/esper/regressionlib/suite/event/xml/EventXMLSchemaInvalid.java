@@ -13,12 +13,12 @@ package com.espertech.esper.regressionlib.suite.event.xml;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class EventXMLSchemaInvalid implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        tryInvalidCompile(env, "select element1 from XMLSchemaConfigTwo#length(100)",
+        env.tryInvalidCompile("select element1 from XMLSchemaConfigTwo#length(100)",
             "Failed to validate select-clause expression 'element1': Property named 'element1' is not valid in any stream [");
     }
 }

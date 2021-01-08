@@ -105,19 +105,19 @@ public class PatternObserverTimerAt {
             env.milestone(0);
 
             sendTimeEvent("2002-05-30T9:00:59.999", env);
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             sendTimeEvent("2002-05-30T9:01:00.000", env);
-            Assert.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendTimeEvent("2002-05-30T9:01:59.999", env);
-            Assert.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             sendTimeEvent("2002-05-30T9:02:00.000", env);
-            Assert.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -381,10 +381,10 @@ public class PatternObserverTimerAt {
             env.sendEventBean(new SupportBean("E1", 20));
 
             sendTimeEvent("2008-08-3T06:39:59.000", env);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimeEvent("2008-08-3T06:40:00.000", env);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             // test SODA
@@ -398,10 +398,10 @@ public class PatternObserverTimerAt {
                 env.compileDeploy("@name('s0') select * from pattern [timer:at(0, 5, 4, 1, *, 0, 'PST')]").addListener("s0");
 
                 sendTimeEvent("2008-01-4T07:59:59.999", env);
-                assertFalse(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerNotInvoked("s0");
 
                 sendTimeEvent("2008-01-4T08:00:00.000", env);
-                assertTrue(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvoked("s0");
             }
             env.compileDeploy("select * from pattern [timer:at(0, 5, 4, 8, *, 0, 'xxx')]");
             env.compileDeploy("select * from pattern [timer:at(0, 5, 4, 8, *, 0, *)]");

@@ -345,20 +345,6 @@ public class SupportUpdateListener implements UpdateListener, SupportListener {
         return listeners;
     }
 
-    public UniformPair<EventBean> assertGetAndResetIRPair() {
-        assertTrue(isInvoked);
-        assertEquals(1, newDataList.size());
-        assertEquals(1, oldDataList.size());
-        assertNotNull(newDataList.get(0));
-        assertEquals(1, newDataList.get(0).length);
-        assertNotNull(oldDataList.get(0));
-        assertEquals(1, oldDataList.get(0).length);
-        EventBean newEvent = newDataList.get(0)[0];
-        EventBean oldEvent = oldDataList.get(0)[0];
-        reset();
-        return new UniformPair<EventBean>(newEvent, oldEvent);
-    }
-
     public UniformPair<EventBean[]> getAndResetIRPair() {
         EventBean[] newData = lastNewData;
         EventBean[] oldData = lastOldData;

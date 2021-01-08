@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ClientExtendAggregationFunction {
@@ -184,14 +183,14 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy(textTwo).addListener("s0");
 
             env.sendEventBean(new SupportBean("d", -1));
-            env.assertPropsListenerNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1)"});
+            env.assertPropsNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1)"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("e", 2));
-            env.assertPropsListenerNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1) SupportBean(e, 2)"});
+            env.assertPropsNew("s0", "val".split(","), new Object[]{"SupportBean(d, -1) SupportBean(e, 2)"});
 
-            tryInvalidCompile(env, "select concatstring(*) as val from SupportBean#lastevent, SupportBean unidirectional",
+            env.tryInvalidCompile("select concatstring(*) as val from SupportBean#lastevent, SupportBean unidirectional",
                 "Failed to validate select-clause expression 'concatstring(*)': The 'concatstring' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead");
             env.undeployAll();
 
@@ -227,10 +226,10 @@ public class ClientExtendAggregationFunction {
             env.compileDeploy("@name('s0') select (myagg(id)).getTheString() as val0, (myagg(id)).getIntPrimitive() as val1 from SupportBean_A").addListener("s0");
 
             env.sendEventBean(new SupportBean_A("A1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"XX", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"XX", 1});
 
             env.sendEventBean(new SupportBean_A("A2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"XX", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"XX", 2});
 
             assertEquals(1, SupportSupportBeanAggregationFunctionFactory.getInstanceCount());
 
@@ -307,22 +306,22 @@ public class ClientExtendAggregationFunction {
     }
     private static class ClientExtendAggregationFailedValidation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select concatstring(1) from SupportBean",
+            env.tryInvalidCompile("select concatstring(1) from SupportBean",
                 "Failed to validate select-clause expression 'concatstring(1)': Plug-in aggregation function 'concatstring' failed validation: Invalid parameter type '");
         }
     }
     private static class ClientExtendAggregationInvalidUse implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select * from SupportBean group by invalidAggFuncForge(1)",
+            env.tryInvalidCompile("select * from SupportBean group by invalidAggFuncForge(1)",
                 "Error resolving aggregation: Class by name 'java.lang.String' does not implement the AggregationFunctionForge interface");
 
-            tryInvalidCompile(env, "select * from SupportBean group by nonExistAggFuncForge(1)",
+            env.tryInvalidCompile("select * from SupportBean group by nonExistAggFuncForge(1)",
                 "Error resolving aggregation: Could not load aggregation factory class by name 'com.NoSuchClass'");
         }
     }
     private static class ClientExtendAggregationInvalidCannotResolve implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select zzz(theString) from SupportBean",
+            env.tryInvalidCompile("select zzz(theString) from SupportBean",
                 "Failed to validate select-clause expression 'zzz(theString)': Unknown single-row function, aggregation function or mapped or indexed property named 'zzz' could not be resolved");
         }
     }

@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -154,23 +153,23 @@ public class InfraTableInvalid {
     private static class InfraInvalidAnnotations implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // unknown marker
-            tryInvalidCompile(env, "create table v1 (abc window(*) @unknown)",
+            env.tryInvalidCompile("create table v1 (abc window(*) @unknown)",
                 "For column 'abc' unrecognized annotation 'unknown' [");
 
             // no type provided
-            tryInvalidCompile(env, "create table v1 (abc window(*) @type)",
+            env.tryInvalidCompile("create table v1 (abc window(*) @type)",
                 "For column 'abc' no value provided for annotation 'type', expected a value [");
 
             // multiple value
-            tryInvalidCompile(env, "create table v1 (abc window(*) @type(SupportBean) @type(SupportBean))",
+            env.tryInvalidCompile("create table v1 (abc window(*) @type(SupportBean) @type(SupportBean))",
                 "For column 'abc' multiple annotations provided named 'type' [");
 
             // wrong value
-            tryInvalidCompile(env, "create table v1 (abc window(*) @type(1))",
+            env.tryInvalidCompile("create table v1 (abc window(*) @type(1))",
                 "For column 'abc' string value expected for annotation 'type' [");
 
             // unknown type provided
-            tryInvalidCompile(env, "create table v1 (abc window(*) @type(xx))",
+            env.tryInvalidCompile("create table v1 (abc window(*) @type(xx))",
                 "For column 'abc' failed to find event type 'xx' [");
         }
     }
@@ -194,142 +193,142 @@ public class InfraTableInvalid {
             //
             //
             // constant
-            tryInvalidCompile(env, path, "create constant variable aggvar_ungrouped (total count(*))",
+            env.tryInvalidCompile(path, "create constant variable aggvar_ungrouped (total count(*))",
                 "Incorrect syntax near '(' expecting an identifier but found an opening parenthesis '(' at line 1 column 42 [");
             // invalid type
-            tryInvalidCompile(env, path, "create table aggvar_notright as (total sum(abc))",
+            env.tryInvalidCompile(path, "create table aggvar_notright as (total sum(abc))",
                 "Failed to resolve type 'abc': Could not load class by name 'abc', please check imports [");
             // invalid non-aggregation
-            tryInvalidCompile(env, path, "create table aggvar_wrongtoo as (total singlerow(1))",
+            env.tryInvalidCompile(path, "create table aggvar_wrongtoo as (total singlerow(1))",
                 "Expression 'singlerow(1)' is not an aggregation [");
             // can only declare "sorted()" or "window" aggregation function
             // this is to make sure future compatibility when optimizing queries
-            tryInvalidCompile(env, path, "create table aggvar_invalid as (mywindow window(intPrimitive) @type(SupportBean))",
+            env.tryInvalidCompile(path, "create table aggvar_invalid as (mywindow window(intPrimitive) @type(SupportBean))",
                 "Failed to validate table-column expression 'window(intPrimitive)': For tables columns, the window aggregation function requires the 'window(*)' declaration [");
-            tryInvalidCompile(env, path, "create table aggvar_invalid as (mywindow last(*)@type(SupportBean))", "skip");
-            tryInvalidCompile(env, path, "create table aggvar_invalid as (mywindow window(sb.*)@type(SupportBean)", "skip");
-            tryInvalidCompile(env, path, "create table aggvar_invalid as (mymax maxBy(intPrimitive) @type(SupportBean))",
+            env.tryInvalidCompile(path, "create table aggvar_invalid as (mywindow last(*)@type(SupportBean))", "skip");
+            env.tryInvalidCompile(path, "create table aggvar_invalid as (mywindow window(sb.*)@type(SupportBean)", "skip");
+            env.tryInvalidCompile(path, "create table aggvar_invalid as (mymax maxBy(intPrimitive) @type(SupportBean))",
                 "Failed to validate table-column expression 'maxby(intPrimitive)': For tables columns, the aggregation function requires the 'sorted(*)' declaration [");
             // same column multiple times
-            tryInvalidCompile(env, path, "create table aggvar_invalid as (mycount count(*),mycount count(*))",
+            env.tryInvalidCompile(path, "create table aggvar_invalid as (mycount count(*),mycount count(*))",
                 "Column 'mycount' is listed more than once [create table aggvar_invalid as (mycount count(*),mycount count(*))]");
             // already a variable of the same name
-            tryInvalidCompile(env, path, "create table myvariable as (mycount count(*))",
+            env.tryInvalidCompile(path, "create table myvariable as (mycount count(*))",
                 "A variable by name 'myvariable' has already been declared [");
-            tryInvalidCompile(env, path, "create table aggvar_ungrouped as (total count(*))",
+            env.tryInvalidCompile(path, "create table aggvar_ungrouped as (total count(*))",
                 "A table by name 'aggvar_ungrouped' has already been declared [");
             // invalid primary key use
-            tryInvalidCompile(env, path, "create table abc as (total count(*) primary key)",
+            env.tryInvalidCompile(path, "create table abc as (total count(*) primary key)",
                 "Column 'total' may not be tagged as primary key, an expression cannot become a primary key column [");
-            tryInvalidCompile(env, path, "create table abc as (arr SupportBean primary key)",
+            env.tryInvalidCompile(path, "create table abc as (arr SupportBean primary key)",
                 "Column 'arr' may not be tagged as primary key, received unexpected event type 'SupportBean' [");
-            tryInvalidCompile(env, path, "create table abc as (mystr string prim key)",
+            env.tryInvalidCompile(path, "create table abc as (mystr string prim key)",
                 "Invalid keyword 'prim' encountered, expected 'primary key' [");
-            tryInvalidCompile(env, path, "create table abc as (mystr string primary keys)",
+            env.tryInvalidCompile(path, "create table abc as (mystr string primary keys)",
                 "Invalid keyword 'keys' encountered, expected 'primary key' [");
-            tryInvalidCompile(env, path, "create table SomeSchema as (mystr string)",
+            env.tryInvalidCompile(path, "create table SomeSchema as (mystr string)",
                 "An event type by name 'SomeSchema' has already been declared");
 
             // invalid-into
             //
             //
             // table-not-found
-            tryInvalidCompile(env, path, "into table xxx select count(*) as total from SupportBean group by intPrimitive",
+            env.tryInvalidCompile(path, "into table xxx select count(*) as total from SupportBean group by intPrimitive",
                 "Invalid into-table clause: Failed to find table by name 'xxx' [");
             // group-by key type and count of group-by expressions
-            tryInvalidCompile(env, path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by intPrimitive",
+            env.tryInvalidCompile(path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by intPrimitive",
                 "Incompatible type returned by a group-by expression for use with table 'aggvar_grouped_string', the group-by expression 'intPrimitive' returns 'Integer' but the table expects 'String' [");
-            tryInvalidCompile(env, path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by theString, intPrimitive",
+            env.tryInvalidCompile(path, "into table aggvar_grouped_string select count(*) as total from SupportBean group by theString, intPrimitive",
                 "Incompatible number of group-by expressions for use with table 'aggvar_grouped_string', the table expects 1 group-by expressions and provided are 2 group-by expressions [");
-            tryInvalidCompile(env, path, "into table aggvar_ungrouped select count(*) as total from SupportBean group by theString",
+            env.tryInvalidCompile(path, "into table aggvar_ungrouped select count(*) as total from SupportBean group by theString",
                 "Incompatible number of group-by expressions for use with table 'aggvar_ungrouped', the table expects no group-by expressions and provided are 1 group-by expressions [");
-            tryInvalidCompile(env, path, "into table aggvar_grouped_string select count(*) as total from SupportBean",
+            env.tryInvalidCompile(path, "into table aggvar_grouped_string select count(*) as total from SupportBean",
                 "Incompatible number of group-by expressions for use with table 'aggvar_grouped_string', the table expects 1 group-by expressions and provided are no group-by expressions [");
-            tryInvalidCompile(env, path, "into table aggvarctx select count(*) as total from SupportBean",
+            env.tryInvalidCompile(path, "into table aggvarctx select count(*) as total from SupportBean",
                 "Table by name 'aggvarctx' has been declared for context 'MyContext' and can only be used within the same context [into table aggvarctx select count(*) as total from SupportBean]");
-            tryInvalidCompile(env, path, "context MyOtherContext into table aggvarctx select count(*) as total from SupportBean",
+            env.tryInvalidCompile(path, "context MyOtherContext into table aggvarctx select count(*) as total from SupportBean",
                 "Table by name 'aggvarctx' has been declared for context 'MyContext' and can only be used within the same context [context MyOtherContext into table aggvarctx select count(*) as total from SupportBean]");
-            tryInvalidCompile(env, path, "into table aggvar_ungrouped select count(*) as total, aggvar_ungrouped from SupportBean",
+            env.tryInvalidCompile(path, "into table aggvar_ungrouped select count(*) as total, aggvar_ungrouped from SupportBean",
                 "Invalid use of table 'aggvar_ungrouped', aggregate-into requires write-only, the expression 'aggvar_ungrouped' is not allowed [into table aggvar_ungrouped select count(*) as total, aggvar_ungrouped from SupportBean]");
             // unidirectional join not supported
-            tryInvalidCompile(env, path, "into table aggvar_ungrouped select count(*) as total from SupportBean unidirectional, SupportBean_S0#keepall",
+            env.tryInvalidCompile(path, "into table aggvar_ungrouped select count(*) as total from SupportBean unidirectional, SupportBean_S0#keepall",
                 "Into-table does not allow unidirectional joins [");
             // requires aggregation
-            tryInvalidCompile(env, path, "into table aggvar_ungrouped select * from SupportBean",
+            env.tryInvalidCompile(path, "into table aggvar_ungrouped select * from SupportBean",
                 "Into-table requires at least one aggregation function [");
 
             // invalid consumption
             //
 
             // invalid access keys type and count
-            tryInvalidCompile(env, path, "select aggvar_ungrouped['a'].total from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_ungrouped['a'].total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_ungrouped[\"a\"].total': Incompatible number of key expressions for use with table 'aggvar_ungrouped', the table expects no key expressions and provided are 1 key expressions [select aggvar_ungrouped['a'].total from SupportBean]");
-            tryInvalidCompile(env, path, "select aggvar_grouped_string.total from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_grouped_string.total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_string.total': Failed to resolve property 'aggvar_grouped_string.total' to a stream or nested property in a stream");
-            tryInvalidCompile(env, path, "select aggvar_grouped_string[5].total from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_grouped_string[5].total from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_string[5].total': Incompatible type returned by a key expression for use with table 'aggvar_grouped_string', the key expression '5' returns 'Integer' but the table expects 'String' [select aggvar_grouped_string[5].total from SupportBean]");
 
             // top-level variable use without "keys" function
-            tryInvalidCompile(env, path, "select aggvar_grouped_string.something() from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_grouped_string.something() from SupportBean",
                 "Invalid use of table 'aggvar_grouped_string', unrecognized use of function 'something', expected 'keys()'");
-            tryInvalidCompile(env, path, "select dummy[intPrimitive] from SupportBean",
+            env.tryInvalidCompile(path, "select dummy[intPrimitive] from SupportBean",
                 "Failed to validate select-clause expression 'dummy[intPrimitive]': Failed to resolve 'dummy' to a property, single-row function, aggregation function, script, stream or class name");
-            tryInvalidCompile(env, path, "select aggvarctx.dummy from SupportBean",
+            env.tryInvalidCompile(path, "select aggvarctx.dummy from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.dummy': A column 'dummy' could not be found for table 'aggvarctx' [select aggvarctx.dummy from SupportBean]");
-            tryInvalidCompile(env, path, "select aggvarctx_ungrouped_window.win.dummy(123) from SupportBean",
+            env.tryInvalidCompile(path, "select aggvarctx_ungrouped_window.win.dummy(123) from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx_ungrouped_window.win.dumm...(41 chars)': Failed to resolve 'aggvarctx_ungrouped_window.win.dummy' to a property, single-row function, aggregation function, script, stream or class name [select aggvarctx_ungrouped_window.win.dummy(123) from SupportBean]");
-            tryInvalidCompile(env, path, "context MyOtherContext select aggvarctx.total from SupportBean",
+            env.tryInvalidCompile(path, "context MyOtherContext select aggvarctx.total from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.total': Table by name 'aggvarctx' has been declared for context 'MyContext' and can only be used within the same context [context MyOtherContext select aggvarctx.total from SupportBean]");
-            tryInvalidCompile(env, path, "context MyOtherContext select aggvarctx.total from SupportBean",
+            env.tryInvalidCompile(path, "context MyOtherContext select aggvarctx.total from SupportBean",
                 "Failed to validate select-clause expression 'aggvarctx.total': Table by name 'aggvarctx' has been declared for context 'MyContext' and can only be used within the same context [context MyOtherContext select aggvarctx.total from SupportBean]");
-            tryInvalidCompile(env, path, "select aggvar_grouped_int[0].a.b from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_grouped_int[0].a.b from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_int[0].a.b': A column 'a' could not be found for table 'aggvar_grouped_int'");
 
             // invalid use in non-contextual evaluation
-            tryInvalidCompile(env, path, "select * from SupportBean#time(aggvar_ungrouped.total sec)",
+            env.tryInvalidCompile(path, "select * from SupportBean#time(aggvar_ungrouped.total sec)",
                 "Failed to validate data window declaration: Error in view 'time', Invalid parameter expression 0 for Time view: Failed to validate view parameter expression 'aggvar_ungrouped.total seconds': Invalid use of table access expression, expression 'aggvar_ungrouped' is not allowed here");
             // indexed property expression but not an aggregtion-type variable
             env.compileDeploy("create objectarray schema MyEvent(abc int[])");
             // view use
-            tryInvalidCompile(env, path, "select * from aggvar_grouped_string#time(30)",
+            env.tryInvalidCompile(path, "select * from aggvar_grouped_string#time(30)",
                 "Views are not supported with tables");
-            tryInvalidCompile(env, path, "select (select * from aggvar_ungrouped#keepall) from SupportBean",
+            env.tryInvalidCompile(path, "select (select * from aggvar_ungrouped#keepall) from SupportBean",
                 "Views are not supported with tables [");
             // contained use
-            tryInvalidCompile(env, path, "select * from aggvar_grouped_string[books]",
+            env.tryInvalidCompile(path, "select * from aggvar_grouped_string[books]",
                 "Contained-event expressions are not supported with tables");
             // join invalid
-            tryInvalidCompile(env, path, "select aggvar_grouped_int[1].total.countMinSketchFrequency(theString) from SupportBean",
+            env.tryInvalidCompile(path, "select aggvar_grouped_int[1].total.countMinSketchFrequency(theString) from SupportBean",
                 "Failed to validate select-clause expression 'aggvar_grouped_int[1].total.countMi...(62 chars)': Failed to resolve method 'countMinSketchFrequency': Could not find enumeration method, date-time method, instance method or property named 'countMinSketchFrequency' in class 'Long' with matching parameter number and expected parameter type(s) 'String' ");
-            tryInvalidCompile(env, path, "select total.countMinSketchFrequency(theString) from aggvar_grouped_int, SupportBean unidirectional",
+            env.tryInvalidCompile(path, "select total.countMinSketchFrequency(theString) from aggvar_grouped_int, SupportBean unidirectional",
                 "Failed to validate select-clause expression 'total.countMinSketchFrequency(theString)': Failed to resolve method 'countMinSketchFrequency': Could not find");
             // cannot be marked undirectional
-            tryInvalidCompile(env, path, "select * from aggvar_grouped_int unidirectional, SupportBean",
+            env.tryInvalidCompile(path, "select * from aggvar_grouped_int unidirectional, SupportBean",
                 "Tables cannot be marked as unidirectional [");
             // cannot be marked with retain
-            tryInvalidCompile(env, path, "select * from aggvar_grouped_int retain-union",
+            env.tryInvalidCompile(path, "select * from aggvar_grouped_int retain-union",
                 "Tables cannot be marked with retain [");
             // cannot be used in on-action
-            tryInvalidCompile(env, path, "on aggvar_ungrouped select * from aggvar_ungrouped",
+            env.tryInvalidCompile(path, "on aggvar_ungrouped select * from aggvar_ungrouped",
                 "Tables cannot be used in an on-action statement triggering stream [");
             // cannot be used in match-recognize
-            tryInvalidCompile(env, path, "select * from aggvar_ungrouped " +
+            env.tryInvalidCompile(path, "select * from aggvar_ungrouped " +
                     "match_recognize ( measures a.theString as a pattern (A) define A as true)",
                 "Tables cannot be used with match-recognize [");
             // cannot be used in update-istream
-            tryInvalidCompile(env, path, "update istream aggvar_grouped_string set key = 'a'",
+            env.tryInvalidCompile(path, "update istream aggvar_grouped_string set key = 'a'",
                 "Tables cannot be used in an update-istream statement [");
             // cannot be used in create-context
-            tryInvalidCompile(env, path, "create context InvalidCtx as start aggvar_ungrouped end after 5 seconds",
+            env.tryInvalidCompile(path, "create context InvalidCtx as start aggvar_ungrouped end after 5 seconds",
                 "Tables cannot be used in a context declaration [");
             // cannot be used in patterns
-            tryInvalidCompile(env, path, "select * from pattern[aggvar_ungrouped]",
+            env.tryInvalidCompile(path, "select * from pattern[aggvar_ungrouped]",
                 "Tables cannot be used in pattern filter atoms [");
             // schema by the same name
-            tryInvalidCompile(env, path, "create schema aggvar_ungrouped as SupportBean",
+            env.tryInvalidCompile(path, "create schema aggvar_ungrouped as SupportBean",
                 "A table by name 'aggvar_ungrouped' already exists [");
             // cannot use null-type key
-            tryInvalidCompile(env, path, "create table MyTable(somefield null primary key, id string)",
+            env.tryInvalidCompile(path, "create table MyTable(somefield null primary key, id string)",
                 "Incorrect syntax near 'null' (a reserved keyword)");
 
             env.undeployAll();

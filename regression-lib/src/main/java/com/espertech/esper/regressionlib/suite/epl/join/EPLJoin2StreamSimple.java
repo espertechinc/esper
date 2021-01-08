@@ -30,7 +30,7 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.milestone(1);
 
         env.sendEventBean(makeMarketDataEvent("S1", 20, 1));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+        env.assertPropsPerRowNewFlattened("s0",
             new String[]{"s0.price", "s1.price"},
             new Object[][]{{100.0, 20.0}});
         assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
@@ -39,7 +39,7 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.milestone(2);
 
         env.sendEventBean(makeMarketDataEvent("S1", 21, 1));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(),
+        env.assertPropsPerRowNewFlattened("s0",
             new String[]{"s0.price", "s1.price"},
             new Object[][]{{100.0, 21.0}});
         assertEquals(0, env.listener("s0").getOldDataListFlattened().length);

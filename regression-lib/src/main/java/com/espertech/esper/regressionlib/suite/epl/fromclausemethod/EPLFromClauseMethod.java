@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
@@ -91,7 +90,7 @@ public class EPLFromClauseMethod {
             assertStatelessStmt(env, "s0", false);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
+            env.assertPropsNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
 
             env.undeployAll();
         }
@@ -104,7 +103,7 @@ public class EPLFromClauseMethod {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
+            env.assertPropsNew("s0", "s.p00,s.p01,s.p02".split(","), new Object[]{"somevalue", "E1", "s0"});
 
             env.undeployAll();
         }
@@ -144,7 +143,7 @@ public class EPLFromClauseMethod {
             tryAssertionEventBeanArray(env, path, "eventBeanCollectionForString", false);
             tryAssertionEventBeanArray(env, path, "eventBeanIteratorForString", false);
 
-            tryInvalidCompile(env, path, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchResult12(0) @type(ItemEvent)",
+            env.tryInvalidCompile(path, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchResult12(0) @type(ItemEvent)",
                 "The @type annotation is only allowed when the invocation target returns EventBean instances");
 
             env.undeployAll();
@@ -165,7 +164,7 @@ public class EPLFromClauseMethod {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "col1,col2".split(","), new Object[]{expectedFirst, expectedSecond});
+            env.assertPropsNew("s0", "col1,col2".split(","), new Object[]{expectedFirst, expectedSecond});
 
             env.undeployAll();
         }
@@ -183,10 +182,10 @@ public class EPLFromClauseMethod {
             assertStatelessStmt(env, "s0", false);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{9}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{9}});
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{9}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{9}});
 
             env.undeployAll();
         }
@@ -205,11 +204,11 @@ public class EPLFromClauseMethod {
 
             String[] fields = "intPrimitive,intBoxed,col1,col2".split(",");
             env.compileDeploy(stmtText).addListener("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendSupportBeanEvent(env, 2, 4);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{2, 4, 2, 4}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{2, 4, 2, 4}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{2, 4, 2, 4}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{2, 4, 2, 4}});
 
             env.undeployAll();
         }
@@ -256,7 +255,7 @@ public class EPLFromClauseMethod {
                 "left outer join " +
                 "method:" + className + ".fetchResult23(0) as s1 on s0.value = s1.value";
             env.compileDeploy(stmtText).addListener("s0");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, null}, {2, 2}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, null}, {2, 2}});
             env.undeployAll();
 
             stmtText = "@name('s0') select s0.value as valueOne, s1.value as valueTwo from " +
@@ -264,7 +263,7 @@ public class EPLFromClauseMethod {
                 "right outer join " +
                 "method:" + className + ".fetchResult12(0) as s0 on s0.value = s1.value";
             env.compileDeploy(stmtText);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, null}, {2, 2}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, null}, {2, 2}});
             env.undeployAll();
 
             stmtText = "@name('s0') select s0.value as valueOne, s1.value as valueTwo from " +
@@ -272,7 +271,7 @@ public class EPLFromClauseMethod {
                 "full outer join " +
                 "method:" + className + ".fetchResult12(0) as s0 on s0.value = s1.value";
             env.compileDeploy(stmtText);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, null}, {2, 2}, {null, 3}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, null}, {2, 2}, {null, 3}});
             env.undeployAll();
 
             stmtText = "@name('s0') select s0.value as valueOne, s1.value as valueTwo from " +
@@ -280,7 +279,7 @@ public class EPLFromClauseMethod {
                 "full outer join " +
                 "method:" + className + ".fetchResult23(0) as s1 on s0.value = s1.value";
             env.compileDeploy(stmtText);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, null}, {2, 2}, {null, 3}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, null}, {2, 2}, {null, 3}});
 
             env.undeployAll();
         }
@@ -346,18 +345,18 @@ public class EPLFromClauseMethod {
             String stmtText = "@name('s0') select value from method:" + className + ".fetchBetween(lower, upper)";
             env.compileDeploy(stmtText, path).addListener("s0");
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"value"}, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"value"}, null);
 
             sendSupportBeanEvent(env, 5, 10);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"value"}, new Object[][]{{5}, {6}, {7}, {8}, {9}, {10}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"value"}, new Object[][]{{5}, {6}, {7}, {8}, {9}, {10}});
 
             env.milestone(0);
 
             sendSupportBeanEvent(env, 10, 5);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"value"}, null);
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"value"}, null);
 
             sendSupportBeanEvent(env, 4, 4);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), new String[]{"value"}, new Object[][]{{4}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"value"}, new Object[][]{{4}});
 
             env.assertListenerNotInvoked("s0");
             env.undeployAll();
@@ -418,10 +417,10 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"1", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"1", "E1"});
 
             sendBeanEvent(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"1", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"1", "E2"});
 
             env.undeployAll();
         }
@@ -469,7 +468,7 @@ public class EPLFromClauseMethod {
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E3", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"A", "E3"});
 
             sendBeanEvent(env, "E4", 2);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E4"}, {"B", "E4"}});
@@ -504,12 +503,12 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"2", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"2", "E1"});
 
             env.milestone(0);
 
             sendBeanEvent(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"2", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"2", "E2"});
 
             env.undeployAll();
         }
@@ -525,13 +524,13 @@ public class EPLFromClauseMethod {
             String[] fields = new String[]{"id", "theString"};
 
             sendBeanEvent(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"|E1|", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"|E1|", "E1"});
 
             sendBeanEvent(env, null);
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"|E2|", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"|E2|", "E2"});
 
             env.undeployAll();
         }
@@ -558,55 +557,55 @@ public class EPLFromClauseMethod {
 
     private static class EPLFromClauseMethodInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchArrayGen()",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchArrayGen()",
                 "Method footprint does not match the number or type of expression parameters, expecting no parameters in method: Could not find static method named 'fetchArrayGen' in class '" + SupportStaticMethodLib.class.getName() + "' taking no parameters (nearest match found was 'fetchArrayGen' taking type(s) 'int') [");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:.abc where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:.abc where 1=2",
                 "Incorrect syntax near '.' at line 1 column 34, please check the method invocation join within the from clause [select * from SupportBean, method:.abc where 1=2]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchObjectAndSleep(1)",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchObjectAndSleep(1)",
                 "Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed 'int': Could not find static method named 'fetchObjectAndSleep' in class '" + SupportStaticMethodLib.class.getName() + "' with matching parameter number and expected parameter type(s) 'int' (nearest match found was 'fetchObjectAndSleep' taking type(s) 'String, int, long') [");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".sleep(100) where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".sleep(100) where 1=2",
                 "Invalid return type for static method 'sleep' of class '" + SupportStaticMethodLib.class.getName() + "', expecting a Java class [select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".sleep(100) where 1=2]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:AClass. where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:AClass. where 1=2",
                 "Incorrect syntax near 'where' (a reserved keyword) expecting an identifier but found 'where' at line 1 column 42, please check the view specifications within the from clause [select * from SupportBean, method:AClass. where 1=2]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:Dummy.abc where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:Dummy.abc where 1=2",
                 "Could not load class by name 'Dummy', please check imports [select * from SupportBean, method:Dummy.abc where 1=2]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:Math where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:Math where 1=2",
                 "A function named 'Math' is not defined");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2",
                 "Method data joins do not allow views onto the data, view 'length' is not valid in this context [select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".dummy where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".dummy where 1=2",
                 "Could not find public static method named 'dummy' in class '" + SupportStaticMethodLib.class.getName() + "' [");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".minusOne(10) where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".minusOne(10) where 1=2",
                 "Invalid return type for static method 'minusOne' of class '" + SupportStaticMethodLib.class.getName() + "', expecting a Java class [");
 
-            tryInvalidCompile(env, "select * from SupportBean, xyz:" + SupportStaticMethodLib.class.getName() + ".fetchArrayNoArg() where 1=2",
+            env.tryInvalidCompile("select * from SupportBean, xyz:" + SupportStaticMethodLib.class.getName() + ".fetchArrayNoArg() where 1=2",
                 "Expecting keyword 'method', found 'xyz' [select * from SupportBean, xyz:" + SupportStaticMethodLib.class.getName() + ".fetchArrayNoArg() where 1=2]");
 
-            tryInvalidCompile(env, "select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s1.value, s1.value) as s0, method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s1",
+            env.tryInvalidCompile("select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s1.value, s1.value) as s0, method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s1",
                 "Circular dependency detected between historical streams [");
 
-            tryInvalidCompile(env, "select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s0, method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s1",
+            env.tryInvalidCompile("select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s0, method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s1",
                 "Parameters for historical stream 0 indicate that the stream is subordinate to itself as stream parameters originate in the same stream [");
 
-            tryInvalidCompile(env, "select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s0",
+            env.tryInvalidCompile("select * from method:" + SupportStaticMethodLib.class.getName() + ".fetchBetween(s0.value, s0.value) as s0",
                 "Parameters for historical stream 0 indicate that the stream is subordinate to itself as stream parameters originate in the same stream [");
 
-            tryInvalidCompile(env, "select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()",
+            env.tryInvalidCompile("select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()",
                 "Could not find getter method for method invocation, expected a method by name 'readRowNoMetadataMetadata' accepting no parameters [select * from method:SupportMethodInvocationJoinInvalid.readRowNoMetadata()]");
 
-            tryInvalidCompile(env, "select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()",
+            env.tryInvalidCompile("select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()",
                 "Getter method 'readRowWrongMetadataMetadata' does not return java.util.Map [select * from method:SupportMethodInvocationJoinInvalid.readRowWrongMetadata()]");
 
-            tryInvalidCompile(env, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".invalidOverloadForJoin(null)",
+            env.tryInvalidCompile("select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".invalidOverloadForJoin(null)",
                 "Method by name 'invalidOverloadForJoin' is overloaded in class '" + SupportStaticMethodLib.class.getName() + "' and overloaded methods do not return the same type");
         }
     }
@@ -615,7 +614,7 @@ public class EPLFromClauseMethod {
         env.compileDeploy("@name('s0') select id from SupportBean, method:" + methodName, path).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "id".split(","), new Object[][]{{"id1"}, {"id3"}});
+        env.assertPropsPerRowLastNew("s0", "id".split(","), new Object[][]{{"id1"}, {"id3"}});
 
         env.undeployModuleContaining("s0");
     }
@@ -625,7 +624,7 @@ public class EPLFromClauseMethod {
         env.compileDeploy(soda, epl, path).addListener("s0");
 
         env.sendEventBean(new SupportBean("a,b", 0));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "p0".split(","), new Object[][]{{"a"}, {"b"}});
+        env.assertPropsPerRowLastNew("s0", "p0".split(","), new Object[][]{{"a"}, {"b"}});
 
         env.undeployModuleContaining("s0");
     }
@@ -662,7 +661,7 @@ public class EPLFromClauseMethod {
     private static void assertJoinHistoricalSubordinateOuter(RegressionEnvironment env, String expression) {
         String[] fields = "valueOne,valueTwo".split(",");
         env.compileDeploy("@name('s0') " + expression).addListener("s0");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, null}, {2, 2}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, null}, {2, 2}});
         env.undeployAll();
     }
 
@@ -670,19 +669,19 @@ public class EPLFromClauseMethod {
         env.compileDeploy("@name('s0') " + expression, path).addListener("s0");
 
         String[] fields = "value,result".split(",");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         sendSupportBeanEvent(env, 5, 5);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{5, "|5|"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{5, "|5|"}});
 
         sendSupportBeanEvent(env, 1, 2);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, "|1|"}, {2, "|2|"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, "|1|"}, {2, "|2|"}});
 
         sendSupportBeanEvent(env, 0, -1);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         sendSupportBeanEvent(env, 4, 6);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{4, "|4|"}, {5, "|5|"}, {6, "|6|"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4, "|4|"}, {5, "|5|"}, {6, "|6|"}});
 
         SupportListener listener = env.listener("s0");
         env.undeployModuleContaining("s0");
@@ -695,16 +694,16 @@ public class EPLFromClauseMethod {
         env.compileDeploy("@name('s0') " + expression, path).addListener("s0");
 
         String[] fields = "valueOne,valueTwo".split(",");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         sendSupportBeanEvent(env, 5, 5);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{5, "5"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{5, "5"}});
 
         sendSupportBeanEvent(env, 1, 2);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{1, "1"}, {1, "2"}, {2, "1"}, {2, "2"}});
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1, "1"}, {1, "2"}, {2, "1"}, {2, "2"}});
 
         sendSupportBeanEvent(env, 0, -1);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         SupportListener listener = env.listener("s0");
         env.undeployModuleContaining("s0");
@@ -722,13 +721,13 @@ public class EPLFromClauseMethod {
         String[] fields = new String[]{"theString", "intPrimitive", "mapstring", "mapint"};
 
         sendBeanEvent(env, "E1", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1, "|E1|", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1, "|E1|", 2});
 
         sendBeanEvent(env, "E2", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 3, "|E2|", 4});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 3, "|E2|", 4});
 
         sendBeanEvent(env, "E3", 0);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 0, null, null});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 0, null, null});
 
         sendBeanEvent(env, "E4", -1);
         env.assertListenerNotInvoked("s0");
@@ -754,7 +753,7 @@ public class EPLFromClauseMethod {
         env.assertPropsPerRowIterator("s0", fields, null);
 
         sendBeanEvent(env, "E3", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 1, "|E3_0|", 100});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 1, "|E3_0|", 100});
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100}});
 
         sendBeanEvent(env, "E4", 2);

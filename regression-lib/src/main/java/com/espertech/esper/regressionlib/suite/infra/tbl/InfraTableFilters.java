@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import static org.junit.Assert.assertEquals;
 
@@ -52,7 +51,7 @@ public class InfraTableFilters implements RegressionExecution {
         env.undeployModuleContaining("subq");
 
         // test join
-        SupportMessageAssertUtil.tryInvalidCompile(env, path, "select col0 from SupportBean_S0, MyTable(pkey='E4')",
+        env.tryInvalidCompile(path, "select col0 from SupportBean_S0, MyTable(pkey='E4')",
             "Joins with tables do not allow table filter expressions, please add table filters to the where-clause instead [");
 
         env.undeployAll();

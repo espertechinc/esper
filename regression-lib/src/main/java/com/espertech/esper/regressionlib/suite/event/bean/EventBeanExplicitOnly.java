@@ -15,7 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportLegacyBean;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EventBeanExplicitOnly implements RegressionExecution {
@@ -37,7 +36,7 @@ public class EventBeanExplicitOnly implements RegressionExecution {
         assertEquals(legacyBean.fieldNested.readNestedValue(), env.listener("s0").getLastNewData()[0].get("fnested"));
         assertEquals(legacyBean.fieldNested.readNestedValue(), env.listener("s0").getLastNewData()[0].get("mnested"));
 
-        tryInvalidCompile(env, "select intPrimitive from MySupportBean#length(5)", "skip");
+        env.tryInvalidCompile("select intPrimitive from MySupportBean#length(5)", "skip");
 
         env.undeployAll();
     }

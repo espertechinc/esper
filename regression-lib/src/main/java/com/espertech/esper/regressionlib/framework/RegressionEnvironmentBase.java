@@ -529,16 +529,24 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         EPAssertionUtil.assertPropsPerRowAnyOrder(iterator(statementName), fields, expecteds);
     }
 
-    public void assertPropsListenerNew(String statementName, String[] fields, Object[] expecteds) {
+    public void assertPropsNew(String statementName, String[] fields, Object[] expecteds) {
         EPAssertionUtil.assertProps(listener(statementName).assertOneGetNewAndReset(), fields, expecteds);
     }
 
-    public void assertPropsListenerOld(String statementName, String[] fields, Object[] expecteds) {
+    public void assertPropsOld(String statementName, String[] fields, Object[] expecteds) {
         EPAssertionUtil.assertProps(listener(statementName).assertOneGetOldAndReset(), fields, expecteds);
+    }
+
+    public void assertPropsPerRowLastNew(String statementName, String[] fields, Object[][] expecteds) {
+        EPAssertionUtil.assertPropsPerRow(listener(statementName).getAndResetLastNewData(), fields, expecteds);
     }
 
     public void assertPropsPerRowLastOld(String statementName, String[] fields, Object[][] expecteds) {
         EPAssertionUtil.assertPropsPerRow(listener(statementName).getAndResetLastOldData(), fields, expecteds);
+    }
+
+    public void assertPropsIRPair(String statementName, String[] fields, Object[] newExpected, Object[] oldExpected) {
+        EPAssertionUtil.assertProps(listener(statementName).assertPairGetIRAndReset(), fields, newExpected, oldExpected);
     }
 
     public void assertListenerInvoked(String statementName) {
@@ -549,7 +557,31 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertFalse(listener(statementName).isInvoked());
     }
 
-    public void assertNVListener(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream) {
+    public void assertListenerInvokedFlag(String statementName, boolean expected) {
+        assertEquals(expected, listener(statementName).getIsInvokedAndReset());
+    }
+
+    public void listenerReset(String statementName) {
+        listener(statementName).reset();
+    }
+
+    public void assertPropsPerRowIRPair(String statementName, String[] fields, Object[][] newExpected, Object[][] oldExpected) {
+        SupportListener listener = listener("s0");
+        assertEquals(1, listener.getNewDataList().size());
+        assertEquals(1, listener.getOldDataList().size());
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, newExpected);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), fields, oldExpected);
+        listener.reset();
+    }
+
+    public void assertPropsPerRowIRPairFlattened(String statementName, String[] fields, Object[][] newExpected, Object[][] oldExpected) {
+        SupportListener listener = listener("s0");
+        EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, newExpected);
+        EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, oldExpected);
+        listener.reset();
+    }
+
+    public void assertPropsNV(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream) {
         SupportListener listener = listener(statementName);
         assertEquals(1, listener.getNewDataList().size());
         assertEquals(1, listener.getOldDataList().size());
@@ -562,8 +594,28 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertor.accept(statement(statementName));
     }
 
+    public void assertThis(Runnable runnable) {
+        runnable.run();
+    }
+
+    public void assertRuntime(Consumer<EPRuntime> assertor) {
+        assertor.accept(runtime);
+    }
+
     public void assertListener(String statementName, Consumer<SupportListener> assertor) {
         assertor.accept(listener(statementName));
+    }
+
+    public void assertIterator(String statementName, Consumer<Iterator<EventBean>> assertor) {
+        assertor.accept(iterator(statementName));
+    }
+
+    public void assertEventNew(String statementName, Consumer<EventBean> assertor) {
+        assertor.accept(listener(statementName).assertOneGetNewAndReset());
+    }
+
+    public void assertEventOld(String statementName, Consumer<EventBean> assertor) {
+        assertor.accept(listener(statementName).assertOneGetOldAndReset());
     }
 
     public void assertPropsPerRowNewFlattened(String statementName, String[] fields, Object[][] expecteds) {
@@ -582,7 +634,26 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertEquals(expected, listener(statementName).assertOneGetNewAndReset().get(fieldName));
     }
 
-    public void runtimeSetVariable(String deploymentId, String variableName, Object value) {
+    public void tryInvalidCompile(String epl, String message) {
+        try {
+            compileWCheckedEx(epl);
+            fail();
+        } catch (EPCompileException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, message);
+        }
+    }
+
+    public void tryInvalidCompile(RegressionPath path, String epl, String message) {
+        try {
+            compileWCheckedEx(epl, path);
+            fail();
+        } catch (EPCompileException ex) {
+            SupportMessageAssertUtil.assertMessage(ex, message);
+        }
+    }
+
+    public void runtimeSetVariable(String statementNameOfDeployment, String variableName, Object value) {
+        String deploymentId = statementNameOfDeployment == null ? null : deploymentId(statementNameOfDeployment);
         runtime().getVariableService().setVariableValue(deploymentId, variableName, value);
     }
 

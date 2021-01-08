@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.assertEquals;
 
@@ -108,25 +107,25 @@ public class EPLSubselectIn {
             env.sendEventBean(new SupportBean_S1(10));
 
             env.sendEventBean(new SupportBean_S0(10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(11));
             env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
             env.sendEventBean(new SupportBean_S0(11));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(11));
             env.sendEventBean(new SupportBean_S0(11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11});
+            env.assertPropsNew("s0", fields, new Object[]{11});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11});
+            env.assertPropsNew("s0", fields, new Object[]{11});
 
             env.sendEventBean(new SupportBean_S1(12));   //pushing 10 out
 
@@ -135,9 +134,9 @@ public class EPLSubselectIn {
             env.sendEventBean(new SupportBean_S0(10));
             env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean_S0(11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11});
+            env.assertPropsNew("s0", fields, new Object[]{11});
             env.sendEventBean(new SupportBean_S0(12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{12});
+            env.assertPropsNew("s0", fields, new Object[]{12});
 
             env.undeployAll();
         }
@@ -463,7 +462,7 @@ public class EPLSubselectIn {
 
     private static class EPLSubselectInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "@name('s0') select intArr in (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap",
+            env.tryInvalidCompile("@name('s0') select intArr in (select intPrimitive from SupportBean#keepall) as r1 from SupportBeanArrayCollMap",
                 "Failed to validate select-clause expression subquery number 1 querying SupportBean: Collection or array comparison and null-type values are not allowed for the IN, ANY, SOME or ALL keywords");
         }
     }

@@ -91,13 +91,13 @@ public class ContextKeySegmentedInfra {
             String[] fields = new String[]{"theString", "intPrimitive"};
             env.sendEventBean(new SupportBean("G1", 10));
             EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 20));
             EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 20});
 
             env.milestone(1);
 
@@ -347,7 +347,7 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean("G1", 1));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G1", 1});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G1", 1});
         } else {
             env.assertListenerNotInvoked("s0");
         }
@@ -362,24 +362,24 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean_S0(0, "G1"));
         if (namedWindow) {
-            env.assertPropsListenerOld("s0", fieldsNW, new Object[]{"G1", 1});
+            env.assertPropsOld("s0", fieldsNW, new Object[]{"G1", 1});
         }
 
         env.sendEventBean(new SupportBean("G2", 20));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G2", 20});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G2", 20});
         }
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("G3", 3));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G3", 3});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G3", 3});
         }
 
         env.sendEventBean(new SupportBean("G2", 21));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G2", 21});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G2", 21});
         }
 
         env.milestoneInc(milestone);
@@ -397,7 +397,7 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean("G4", 4));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G4", 4});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G4", 4});
         }
 
         env.sendEventBean(new SupportBean_S0(0, "G0"));
@@ -419,7 +419,7 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean("G5", 5));
         if (namedWindow) {
-            env.assertPropsListenerNew("s0", fieldsNW, new Object[]{"G5", 5});
+            env.assertPropsNew("s0", fieldsNW, new Object[]{"G5", 5});
         }
 
         env.sendEventBean(new SupportBean_S0(0, "G5"));
@@ -453,15 +453,15 @@ public class ContextKeySegmentedInfra {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0, "E2"));
-        env.assertPropsListenerNew("s0", "mymax".split(","), new Object[]{20});
+        env.assertPropsNew("s0", "mymax".split(","), new Object[]{20});
 
         env.sendEventBean(new SupportBean_S0(0, "E1"));
-        env.assertPropsListenerNew("s0", "mymax".split(","), new Object[]{10});
+        env.assertPropsNew("s0", "mymax".split(","), new Object[]{10});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0, "E3"));
-        env.assertPropsListenerNew("s0", "mymax".split(","), new Object[]{null});
+        env.assertPropsNew("s0", "mymax".split(","), new Object[]{null});
 
         env.undeployAll();
     }

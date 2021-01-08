@@ -14,15 +14,17 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
+import java.util.EnumSet;
 import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
 
 public class EPLSubselectCorrelatedAggregationPerformance implements RegressionExecution {
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -46,7 +48,7 @@ public class EPLSubselectCorrelatedAggregationPerformance implements RegressionE
         for (int i = 0; i < 10000; i++) {
             int index = random.nextInt(max);
             env.sendEventBean(new SupportBean_S0(0, "T" + index));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"T" + index, -index + 10});
+            env.assertPropsNew("s0", fields, new Object[]{"T" + index, -index + 10});
         }
         long end = System.currentTimeMillis();
         long delta = end - start;

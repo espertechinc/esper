@@ -16,9 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
-import static org.junit.Assert.assertTrue;
-
 public class ClientExtendPatternGuard implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -36,7 +33,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
 
         for (int i = 0; i < 10; i++) {
             env.sendEventBean(new SupportBean());
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
         }
 
         env.sendEventBean(new SupportBean());
@@ -56,7 +53,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
 
         for (int i = 0; i < 3; i++) {
             env.sendEventBean(new SupportBean());
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
         }
 
         env.sendEventBean(new SupportBean());
@@ -66,7 +63,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
     }
 
     private void runAssertionInvalid(RegressionEnvironment env) {
-        tryInvalidCompile(env, "select * from pattern [every SupportBean where namespace:name(10)]",
+        env.tryInvalidCompile("select * from pattern [every SupportBean where namespace:name(10)]",
             "Failed to resolve pattern guard 'SupportBean where namespace:name(10)': Error casting guard forge instance to " + GuardForge.class.getName() + " interface for guard 'name'");
     }
 }

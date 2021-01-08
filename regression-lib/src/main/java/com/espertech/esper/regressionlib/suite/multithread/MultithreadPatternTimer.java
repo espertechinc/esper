@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportByteArrEventLongId;
 import com.espertech.esper.regressionlib.support.util.SupportCountListener;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,8 +35,8 @@ public class MultithreadPatternTimer implements RegressionExecutionWithConfigure
     private final static Logger log = LoggerFactory.getLogger(MultithreadPatternTimer.class);
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void configure(Configuration configuration) {

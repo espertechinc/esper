@@ -109,7 +109,7 @@ public class InfraTableSubquery {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{10});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{10});
 
             env.undeployAll();
         }
@@ -166,6 +166,6 @@ public class InfraTableSubquery {
     private static void assertSubselect(RegressionEnvironment env, String string, Integer expectedSum) {
         String[] fields = "c0".split(",");
         env.sendEventBean(new SupportBean(string, -1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{expectedSum});
+        env.assertPropsNew("s0", fields, new Object[]{expectedSum});
     }
 }

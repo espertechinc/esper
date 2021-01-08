@@ -256,7 +256,7 @@ public class PatternOperatorNot {
 
             sendTimer(40000, env);
             String[] fields = new String[]{"theString"};
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -296,15 +296,15 @@ public class PatternOperatorNot {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             sendSupportBean(env, "E2", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E3", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             sendSupportBean(env, "E4", -1);
             env.assertListenerNotInvoked("s0");

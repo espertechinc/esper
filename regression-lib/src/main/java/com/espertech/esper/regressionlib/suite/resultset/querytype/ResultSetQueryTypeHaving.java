@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeHaving {
     private final static String SYMBOL_DELL = "DELL";
@@ -63,13 +64,13 @@ public class ResultSetQueryTypeHaving {
 
             env.sendEventBean(new SupportBean("E3", 1));
             env.sendEventBean(new SupportBean("E4", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 0));
             env.sendEventBean(new SupportBean("E4", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

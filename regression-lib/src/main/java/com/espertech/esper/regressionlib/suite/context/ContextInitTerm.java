@@ -24,7 +24,6 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionUtil;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
@@ -221,20 +220,20 @@ public class ContextInitTerm {
 
             env.undeployAll();
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "context MyContext select context.ender.starter from SupportBean_S0",
+            env.tryInvalidCompile(path, "context MyContext select context.ender.starter from SupportBean_S0",
                 "Failed to validate select-clause expression 'context.ender.starter': Context property 'ender.starter' is not a known property, known properties are [name, id, startTime, endTime, starter, ender]");
 
             String eplInvalidTagProvidedByFilter = "create context MyContext as start SupportBean_S1(id=0) as starter " +
                 "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
-            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByFilter, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+            env.tryInvalidCompile(eplInvalidTagProvidedByFilter, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
 
             String eplInvalidTagProvidedByPatternUnnamed = "create context MyContext as start pattern[starter=SupportBean_S1(id=0)] " +
                 "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
-            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByPatternUnnamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+            env.tryInvalidCompile(eplInvalidTagProvidedByPatternUnnamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
 
             String eplInvalidTagProvidedByPatternNamed = "create context MyContext as start pattern[s1=SupportBean_S1(id=0)] as starter " +
                 "end pattern [starter=SupportBean_S1(id=1) or timer:interval(30)] as ender";
-            SupportMessageAssertUtil.tryInvalidCompile(env, eplInvalidTagProvidedByPatternNamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
+            env.tryInvalidCompile(eplInvalidTagProvidedByPatternNamed, "Tag 'starter' for event 'SupportBean_S1' is already assigned");
         }
 
         public String name() {
@@ -359,19 +358,19 @@ public class ContextInitTerm {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{"E1", 1});
 
             env.milestone(0);
 
             env.advanceTime(59999);
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E2", 2});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{"E2", 2});
 
             env.milestone(1);
 
             env.advanceTime(60000);
             env.sendEventBean(new SupportBean("E3", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -388,13 +387,13 @@ public class ContextInitTerm {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{"E1", 10});
 
             env.milestone(0);
 
             env.advanceTime(120000 + 59999);
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fieldsOne, new Object[]{"E2", 30});
+            env.assertPropsNew("s0", fieldsOne, new Object[]{"E2", 30});
 
             env.milestone(1);
 
@@ -403,7 +402,7 @@ public class ContextInitTerm {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
@@ -436,7 +435,7 @@ public class ContextInitTerm {
             env.advanceTime(9999);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(10000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 3});
 
             env.milestone(3);
 
@@ -448,7 +447,7 @@ public class ContextInitTerm {
             env.milestone(4);
 
             env.advanceTime(11000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 4});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 4});
 
             env.milestone(5);
 
@@ -461,14 +460,14 @@ public class ContextInitTerm {
             env.milestone(6);
 
             env.advanceTime(20100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 5});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 5});
 
             env.milestone(7);
 
             env.advanceTime(26100 - 1);
             env.assertListenerNotInvoked("s0");
             env.advanceTime(26100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 6});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 6});
 
             env.undeployAll();
             path.clear();
@@ -517,7 +516,7 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10, 10, 10d});
+            env.assertPropsNew("s0", fields, new Object[]{10, 10, 10, 10d});
 
             env.milestone(2);
 
@@ -544,7 +543,7 @@ public class ContextInitTerm {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 11, 21, 10.5d});
+            env.assertPropsNew("s0", fields, new Object[]{10, 11, 21, 10.5d});
 
             env.undeployAll();
 
@@ -653,19 +652,19 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2});
+            env.assertPropsNew("s0", fields, new Object[]{2});
 
             env.sendEventBean(new SupportBean_S0(11, "S0_2"));  // initiate another
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{5}, {3}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{5}, {3}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{9}, {7}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{9}, {7}});
 
             env.sendEventBean(new SupportBean_S1(1, "S1_1"));  // terminate all
 
@@ -704,12 +703,12 @@ public class ContextInitTerm {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S1(200, "GX"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S1(200, "G1"));  // terminate
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 5});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 5});
 
             env.sendEventBean(new SupportBean_S0(101, "G2"));    // starts new one
             env.sendEventBean(new SupportBean("E4", 4));
@@ -727,12 +726,12 @@ public class ContextInitTerm {
             env.milestone(6);
 
             env.sendEventBean(new SupportBean_S1(0, "G2"));  // terminate G2
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 15});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 15});
 
             env.milestone(7);
 
             env.sendEventBean(new SupportBean_S1(0, "G3"));  // terminate G3
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 11});
+            env.assertPropsNew("s0", fields, new Object[]{"G3", 11});
 
             env.undeployAll();
         }
@@ -899,10 +898,10 @@ public class ContextInitTerm {
             env.compileDeploy("@name('s0') select * from SupportBean#time(30)");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployModuleContaining("s0");
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             // test initiated
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
@@ -913,29 +912,29 @@ public class ContextInitTerm {
             env.compileDeploy(eplCtx, path);
 
             env.compileDeploy("context EverySupportBean select * from SupportBean_S0#time(2 min) sb0", path);
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(0, "S0_1"));
-            Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.milestone(2);
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
 
             env.undeployAll();
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
             Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
         }
     }
@@ -960,7 +959,7 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, 2, "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{null, 2, "E1"});
 
             env.milestone(1);
 
@@ -969,7 +968,7 @@ public class ContextInitTerm {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{null, 2, "E2"}, {3, null, "E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{null, 2, "E2"}, {3, null, "E2"}});
 
             env.undeployAll();
             path.clear();
@@ -996,25 +995,25 @@ public class ContextInitTerm {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEvent("I1", 2, 4L)); // counts towards stuff
-            env.assertPropsListenerNew("s0", fields, new Object[]{4L});
+            env.assertPropsNew("s0", fields, new Object[]{4L});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 2, 3L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{7L});
+            env.assertPropsNew("s0", fields, new Object[]{7L});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("I2", 3, 14L)); // counts towards stuff
-            env.assertPropsListenerNew("s0", fields, new Object[]{14L});
+            env.assertPropsNew("s0", fields, new Object[]{14L});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("E3", 2, 2L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{9L});
+            env.assertPropsNew("s0", fields, new Object[]{9L});
 
             env.sendEventBean(makeEvent("E4", 3, 15L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{29L});
+            env.assertPropsNew("s0", fields, new Object[]{29L});
 
             env.milestone(3);
 
@@ -1133,7 +1132,7 @@ public class ContextInitTerm {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2, "S01"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2, "S01"});
 
             env.sendEventBean(new SupportBean_S0(3, "S02"));
 
@@ -1169,7 +1168,7 @@ public class ContextInitTerm {
             env.compileDeploy(eplGrouped, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("G1", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(0);
 
@@ -1178,12 +1177,12 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 2, "SB01"});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 2, "SB01"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 5, "SB01"});
+            env.assertPropsNew("s0", fields, new Object[]{"G3", 5, "SB01"});
 
             env.milestone(3);
 
@@ -1192,12 +1191,12 @@ public class ContextInitTerm {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("G4", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"G4", 9, "SB01"}, {"G4", 4, "SB02"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"G4", 9, "SB01"}, {"G4", 4, "SB02"}});
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("G5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"G5", 14, "SB01"}, {"G5", 9, "SB02"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"G5", 14, "SB01"}, {"G5", 9, "SB02"}});
 
             env.milestone(6);
 
@@ -1206,7 +1205,7 @@ public class ContextInitTerm {
             env.milestone(7);
 
             env.sendEventBean(new SupportBean("G6", 6));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // clean up
             env.undeployModuleContaining("s0");
@@ -1238,13 +1237,13 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:01:59.999");
             env.sendEventBean(new SupportBean("E3", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(1);
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
-            env.assertPropsListenerNew("s0", fields, new Object[]{1 + 2 + 3});
+            env.assertPropsNew("s0", fields, new Object[]{1 + 2 + 3});
 
             env.milestone(2);
 
@@ -1252,13 +1251,13 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean("E4", 4));
             env.sendEventBean(new SupportBean("E5", 5));
             env.sendEventBean(new SupportBean("E6", 6));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(3);
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-            env.assertPropsListenerNew("s0", fields, new Object[]{4 + 5 + 6});
+            env.assertPropsNew("s0", fields, new Object[]{4 + 5 + 6});
 
             env.undeployModuleContaining("s0");
 
@@ -1278,7 +1277,7 @@ public class ContextInitTerm {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E13", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{7});
+            env.assertPropsNew("s0", fields, new Object[]{7});
 
             env.milestone(5);
 
@@ -1312,47 +1311,47 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:01:10.000");
             env.sendEventBean(new SupportBean("E1", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 1 + 2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1 + 2}});
 
             env.milestone(1);
 
             sendTimeEvent(env, "2002-05-1T08:01:59.999");
             env.sendEventBean(new SupportBean("E2", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 1 + 2}, {"E2", 3}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1 + 2}, {"E2", 3}});
 
             sendTimeEvent(env, "2002-05-1T08:02:01.000");
             env.sendEventBean(new SupportBean("E4", 4));
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4", 4}, {"E5", 5}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4", 4}, {"E5", 5}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E6", 6));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E4", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
 
             env.milestone(5);
 
             // terminate
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4", 14}, {"E5", 5}, {"E6", 6}});
 
             env.sendEventBean(new SupportBean("E1", -1));
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("E6", -2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", -1}, {"E6", -2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", -1}, {"E6", -2}});
 
             env.undeployAll();
         }
@@ -1379,19 +1378,19 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(1);
 
             sendTimeEvent(env, "2002-05-1T08:01:59.999");
             env.sendEventBean(new SupportBean("E3", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E3"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E3"}});
 
             sendTimeEvent(env, "2002-05-1T08:02:10.000");
             env.sendEventBean(new SupportBean("E4", 4));
@@ -1400,7 +1399,7 @@ public class ContextInitTerm {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4"}, {"E5"}});
 
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
             env.assertListenerNotInvoked("s0");
@@ -1438,7 +1437,7 @@ public class ContextInitTerm {
 
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
 
@@ -1473,10 +1472,10 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             env.sendEventBean(new SupportBean("E3", 3));
             assertEquals(1, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendTimeEvent(env, "2002-05-1T08:02:00.000"); // terminate, new context partition
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             assertEquals(2, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar"));
 
             env.undeployModuleContaining("s0");
@@ -1516,7 +1515,7 @@ public class ContextInitTerm {
 
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4"}});
             Assert.assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar"));
 
             assertSODA(env, path, eplTwo);
@@ -1537,10 +1536,10 @@ public class ContextInitTerm {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             env.milestone(0);
 
@@ -1552,8 +1551,8 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E2", 5));
             Object[][] expected = new Object[][]{{"E2", 5}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:01:59.999");
 
@@ -1563,11 +1562,11 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E3", 6));
             expected = new Object[][]{{"E3", 11}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
 
@@ -1577,8 +1576,8 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E4", 7));
             expected = new Object[][]{{"E4", 18}, {"E4", 7}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:02:59.999");
 
@@ -1588,8 +1587,8 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E5", 8));
             expected = new Object[][]{{"E5", 26}, {"E5", 15}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
 
@@ -1599,8 +1598,8 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E6", 9));
             expected = new Object[][]{{"E6", 35}, {"E6", 24}, {"E6", 9}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:04:00.000");
 
@@ -1610,8 +1609,8 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E7", 10));
             expected = new Object[][]{{"E7", 34}, {"E7", 19}, {"E7", 10}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:05:00.000");
 
@@ -1621,22 +1620,22 @@ public class ContextInitTerm {
             AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E8", 11));
             expected = new Object[][]{{"E8", 30}, {"E8", 21}, {"E8", 11}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             // assert certain keywords are valid: last keyword, timezone
             env.compileDeploy("create context CtxMonthly1 start (0, 0, 1, *, *, 0) end(59, 23, last, *, *, 59)");
             env.compileDeploy("create context CtxMonthly2 start (0, 0, 1, *, *) end(59, 23, last, *, *)");
             env.compileDeploy("create context CtxMonthly3 start (0, 0, 1, *, *, 0, 'GMT-5') end(59, 23, last, *, *, 59, 'GMT-8')");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context CtxMonthly4 start (0) end(*,*,*,*,*)",
+            env.tryInvalidCompile("create context CtxMonthly4 start (0) end(*,*,*,*,*)",
                 "Invalid schedule specification: Invalid number of crontab parameters, expecting between 5 and 7 parameters, received 1 [create context CtxMonthly4 start (0) end(*,*,*,*,*)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context CtxMonthly4 start (*,*,*,*,*) end(*,*,*,*,*,*,*,*)",
+            env.tryInvalidCompile("create context CtxMonthly4 start (*,*,*,*,*) end(*,*,*,*,*,*,*,*)",
                 "Invalid schedule specification: Invalid number of crontab parameters, expecting between 5 and 7 parameters, received 8 [create context CtxMonthly4 start (*,*,*,*,*) end(*,*,*,*,*,*,*,*)]");
 
             // test invalid -after
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context CtxMonthly4 start after 1 second end after -1 seconds",
+            env.tryInvalidCompile("create context CtxMonthly4 start after 1 second end after -1 seconds",
                 "Invalid negative time period expression '-1 seconds' [create context CtxMonthly4 start after 1 second end after -1 seconds]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create context CtxMonthly4 start after -1 second end after 1 seconds",
+            env.tryInvalidCompile("create context CtxMonthly4 start after -1 second end after 1 seconds",
                 "Invalid negative time period expression '-1 seconds' [create context CtxMonthly4 start after -1 second end after 1 seconds]");
 
             env.undeployAll();
@@ -1655,19 +1654,19 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(1);
 
             sendCurrentTimeWithMinus(env, "2002-03-01T09:00:00.000", 1);
             env.sendEventBean(new SupportBean("E2", 2));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(2);
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             env.sendEventBean(new SupportBean("E3", 3));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -1704,27 +1703,27 @@ public class ContextInitTerm {
             env.milestone(2);
 
             sendSummedEvent(env, "CP2", "G1", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 100});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 100});
 
             env.milestone(3);
 
             sendSummedEvent(env, "CP1", "G1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 10});
 
             env.milestone(4);
 
             sendSummedEvent(env, "CP1", "G2", 5);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 5});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 5});
 
             env.milestone(5);
 
             sendSummedEvent(env, "CP2", "G1", 101);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 201});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 201});
 
             env.milestone(6);
 
             sendSummedEvent(env, "CP1", "G1", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 21});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 21});
 
             env.milestone(7);
 
@@ -1743,7 +1742,7 @@ public class ContextInitTerm {
 
             sendInitEvent(env, "CP1");
             sendSummedEvent(env, "CP1", "G1", 1000);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 1000});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 1000});
 
             env.undeployAll();
             env.milestone(10);
@@ -1793,20 +1792,20 @@ public class ContextInitTerm {
             SupportBean event1 = new SupportBean("E1", 1);
             env.sendEventBean(event1);
             Object[][] expected = new Object[][]{{null, new SupportBean[]{event1}, "E1", null, 1}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             env.milestone(1);
 
             SupportBean event2 = new SupportBean("E2", 2);
             env.sendEventBean(event2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", new SupportBean[]{event2, event1}, "E1", "E1", 3});
 
             env.milestone(2);
 
             // now gone
             sendTimeEvent(env, "2002-05-1T17:00:00.000");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, null);
+            env.assertPropsPerRowIterator("s0", fields, null);
 
             env.milestone(3);
 
@@ -1823,8 +1822,8 @@ public class ContextInitTerm {
             SupportBean event3 = new SupportBean("E3", 9);
             env.sendEventBean(event3);
             expected = new Object[][]{{null, new SupportBean[]{event3}, "E3", null, 9}};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), env.statement("s0").safeIterator(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
+            env.assertPropsPerRowIterator("s0", fields, expected);
 
             env.undeployAll();
         }
@@ -1852,12 +1851,12 @@ public class ContextInitTerm {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10, "P2"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, 200, 5L, null});
+        env.assertPropsNew("s0", fields, new Object[]{10, 200, 5L, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(20, "P1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{20, 100, 5L, null});
+        env.assertPropsNew("s0", fields, new Object[]{20, 100, 5L, null});
 
         env.undeployAll();
     }
@@ -1885,7 +1884,7 @@ public class ContextInitTerm {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(20, "P1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{20, 100, 5L, null});
+        env.assertPropsNew("s0", fields, new Object[]{20, 100, 5L, null});
 
         env.undeployAll();
     }

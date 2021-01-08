@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogPartitionStateRepoGroup;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -62,35 +61,35 @@ public class RowRecogOps {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E3", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E4", 4));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}});
 
             env.sendEventBean(new SupportRecogBean("E5", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4", "E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E6", 10));
             env.assertListenerNotInvoked("s0");      // E5-E6 not a match since "skip past last row"
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}});
 
             env.sendEventBean(new SupportRecogBean("E7", 9));
             env.sendEventBean(new SupportRecogBean("E8", 4));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", "E3"}, {"E4", "E5"}});
 
             env.undeployModuleContaining("s0");
@@ -124,9 +123,9 @@ public class RowRecogOps {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.sendEventBean(new SupportRecogBean("E3", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", null, null, null, "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, null, null, "E3"}});
 
             env.milestone(0);
@@ -134,13 +133,13 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E4", 10));
             env.sendEventBean(new SupportRecogBean("E5", 12));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, null, null, "E3"}});
 
             env.sendEventBean(new SupportRecogBean("E6", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4", "E5", null, null, "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, null, null, "E3"}, {"E4", "E5", null, null, "E6"}});
 
             env.milestone(1);
@@ -150,9 +149,9 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E9", 12));
             env.sendEventBean(new SupportRecogBean("E10", 12));
             env.sendEventBean(new SupportRecogBean("E11", 9));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E7", "E8", "E9", "E10", "E11"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, null, null, "E3"}, {"E4", "E5", null, null, "E6"}, {"E7", "E8", "E9", "E10", "E11"}});
 
             env.undeployModuleContaining("s0");
@@ -203,9 +202,9 @@ public class RowRecogOps {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.sendEventBean(new SupportRecogBean("E6", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4", "E5", null, null, "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4", "E5", null, null, "E6"}});
 
             env.milestone(1);
@@ -215,9 +214,9 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E9", 12));
             env.sendEventBean(new SupportRecogBean("E10", 12));
             env.sendEventBean(new SupportRecogBean("E11", 9));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E7", "E8", "E9", "E10", "E11"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4", "E5", null, null, "E6"}, {"E7", "E8", "E9", "E10", "E11"}});
 
             env.undeployModuleContaining("s0");
@@ -250,9 +249,9 @@ public class RowRecogOps {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E3", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", null, "E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, "E3"}});
 
             env.milestone(1);
@@ -260,13 +259,13 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E4", 10));
             env.sendEventBean(new SupportRecogBean("E5", 12));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, "E3"}});
 
             env.sendEventBean(new SupportRecogBean("E6", 8));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4", "E5", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, "E3"}, {"E4", "E5", "E6"}});
 
             env.milestone(2);
@@ -276,7 +275,7 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E9", 12));
             env.sendEventBean(new SupportRecogBean("E11", 9));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2", null, "E3"}, {"E4", "E5", "E6"}});
 
             env.undeployModuleContaining("s0");
@@ -326,22 +325,22 @@ public class RowRecogOps {
             assertFalse(env.statement("s0").iterator().hasNext());
 
             env.sendEventBean(new SupportRecogBean("S1", 6));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S1", 4, 6}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("S4", 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S4", -1, 10}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S4", -1, 10}});
 
             env.sendEventBean(new SupportRecogBean("S4", 11));
             env.assertListenerNotInvoked("s0");      // since skip past last row
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S4", -1, 10}});
 
             env.milestone(2);
@@ -351,19 +350,19 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("S3", 2));
             env.sendEventBean(new SupportRecogBean("S1", 4));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S4", -1, 10}});
 
             env.sendEventBean(new SupportRecogBean("S1", 7));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S1", 4, 7}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S1", 4, 7}, {"S4", -1, 10}});
 
             env.sendEventBean(new SupportRecogBean("S4", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S4", -2, 12}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S1", 4, 7}, {"S4", -1, 10}, {"S4", -2, 12}});
 
             env.milestone(3);
@@ -375,9 +374,9 @@ public class RowRecogOps {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportRecogBean("S2", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"S2", 4, 5}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"S1", 4, 6}, {"S1", 4, 7}, {"S2", 4, 5}, {"S4", -1, 10}, {"S4", -2, 12}});
 
             env.undeployAll();
@@ -401,7 +400,7 @@ public class RowRecogOps {
             for (int i = 0; i < 5 * RowRecogPartitionStateRepoGroup.INITIAL_COLLECTION_MIN; i++) {
                 env.sendEventBean(new SupportRecogBean("A", i));
                 env.sendEventBean(new SupportRecogBean("B", i));
-                assertTrue(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvoked("s0");
             }
 
             env.milestone(0);
@@ -409,10 +408,10 @@ public class RowRecogOps {
             for (int i = 0; i < 5 * RowRecogPartitionStateRepoGroup.INITIAL_COLLECTION_MIN; i++) {
                 env.sendEventBean(new SupportRecogBean("A", i + 100000));
             }
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             for (int i = 0; i < 5 * RowRecogPartitionStateRepoGroup.INITIAL_COLLECTION_MIN; i++) {
                 env.sendEventBean(new SupportRecogBean("B", i + 100000));
-                assertTrue(env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvoked("s0");
             }
 
             env.undeployAll();
@@ -444,9 +443,9 @@ public class RowRecogOps {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E5", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, null, "E4", "E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, null, "E4", "E5"}});
 
             env.milestone(1);
@@ -454,9 +453,9 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E1", 1));
             env.sendEventBean(new SupportRecogBean("E1", 1));
             env.sendEventBean(new SupportRecogBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", "E2", null, null}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, null, "E4", "E5"}, {"E1", "E2", null, null}});
 
             env.undeployModuleContaining("s0");
@@ -490,18 +489,18 @@ public class RowRecogOps {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E6", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", null, "E6", null}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", null, "E6", null}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E7", 2));
             env.sendEventBean(new SupportRecogBean("E8", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "E7", "E8", null}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", null, "E6", null}, {null, "E7", "E8", null}});
 
             env.undeployAll();
@@ -534,9 +533,9 @@ public class RowRecogOps {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E7", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}});
 
             env.milestone(1);
@@ -544,14 +543,14 @@ public class RowRecogOps {
             env.sendEventBean(new SupportRecogBean("E8", 2));
             env.sendEventBean(new SupportRecogBean("E9", 1));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}});
 
             env.sendEventBean(new SupportRecogBean("E10", 2));
             env.sendEventBean(new SupportRecogBean("E11", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E9", "E10", "E11"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E5", "E6", "E7"}, {"E9", "E10", "E11"}});
 
             env.undeployAll();

@@ -53,7 +53,7 @@ public class ExprDTBetween {
             env.sendEventBean(bean);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:01:02.003"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false, false});
 
             bean = new SupportBean();
             bean.setLongPrimitive(0);
@@ -61,7 +61,7 @@ public class ExprDTBetween {
             env.sendEventBean(bean);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:01:02.003"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true, true});
 
             env.undeployAll();
         }
@@ -89,22 +89,22 @@ public class ExprDTBetween {
             SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsCurrentTs, EPTypePremade.BOOLEANBOXED.getEPType());
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{true, false, false, false, false, false, false, false, false});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{true, false, false, false, false, false, false, false, false});
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 1));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{true, true, true, true, true, true, true, true, true});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{true, true, true, true, true, true, true, true, true});
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 100));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{true, true, true, true, true, true, true, true, true});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{true, true, true, true, true, true, true, true, true});
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T09:00:00.000", 0));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{false, true, true, true, true, true, true, true, true});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{false, true, true, true, true, true, true, true, true});
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T09:00:00.000", 100));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{false, true, true, true, true, true, true, true, true});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{false, true, true, true, true, true, true, true, true});
 
             env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T09:00:00.001", 100));
-            env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{false, false, false, false, false, false, false, false, false});
+            env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{false, false, false, false, false, false, false, false, false});
             env.undeployAll();
 
             // test calendar field and constants
@@ -182,7 +182,7 @@ public class ExprDTBetween {
         EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fieldsCurrentTs, false);
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 1));
-        env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{true, false, true, false, true, false, true, false});
+        env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{true, false, true, false, true, false, true, false});
 
         env.milestoneInc(milestone);
 
@@ -190,7 +190,7 @@ public class ExprDTBetween {
         EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fieldsCurrentTs, true);
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T09:00:00.000", 1));
-        env.assertPropsListenerNew("s0", fieldsCurrentTs, new Object[]{true, true, false, false, true, true, false, false});
+        env.assertPropsNew("s0", fieldsCurrentTs, new Object[]{true, true, false, false, true, true, false, false});
 
         env.undeployModuleContaining("s0");
 
@@ -206,24 +206,24 @@ public class ExprDTBetween {
         SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fieldsConstants, EPTypePremade.BOOLEANBOXED.getEPType());
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", "2002-05-30T08:59:59.999", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{false, false, false, false});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{false, false, false, false});
 
         env.sendEventBean(SupportTimeStartEndA.make("E2", "2002-05-30T09:00:00.000", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{true, true, false, false});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{true, true, false, false});
 
         env.sendEventBean(SupportTimeStartEndA.make("E2", "2002-05-30T09:00:05.000", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{true, true, true, true});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{true, true, true, true});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(SupportTimeStartEndA.make("E2", "2002-05-30T09:00:59.999", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{true, true, true, true});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{true, true, true, true});
 
         env.sendEventBean(SupportTimeStartEndA.make("E2", "2002-05-30T09:01:00.000", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{true, false, true, false});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{true, false, true, false});
 
         env.sendEventBean(SupportTimeStartEndA.make("E2", "2002-05-30T09:01:00.001", 0));
-        env.assertPropsListenerNew("s0", fieldsConstants, new Object[]{false, false, false, false});
+        env.assertPropsNew("s0", fieldsConstants, new Object[]{false, false, false, false});
 
         env.undeployModuleContaining("s0");
     }

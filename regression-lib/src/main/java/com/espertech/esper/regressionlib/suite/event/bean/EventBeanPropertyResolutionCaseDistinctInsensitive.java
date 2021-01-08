@@ -15,7 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDupProperty;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,7 +29,7 @@ public class EventBeanPropertyResolutionCaseDistinctInsensitive implements Regre
         assertEquals("lower", result.get("myproperty"));
         assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
 
-        tryInvalidCompile(env, "select MyProperty from SupportBeanDupProperty",
+        env.tryInvalidCompile("select MyProperty from SupportBeanDupProperty",
             "Unable to determine which property to use for \"MyProperty\" because more than one property matched [");
 
         env.undeployAll();

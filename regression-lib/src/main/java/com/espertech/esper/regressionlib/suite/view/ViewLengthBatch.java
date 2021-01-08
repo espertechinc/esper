@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
@@ -42,6 +41,7 @@ public class ViewLengthBatch {
 
     private static class ViewLengthBatchSceneOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "symbol".split(",");
             String text = "@name('s0') select irstream * from SupportMarketDataBean#length_batch(3)";
             env.compileDeployAddListenerMileZero(text, "s0");
 
@@ -54,11 +54,7 @@ public class ViewLengthBatch {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            EventBean[] newEvents = env.listener("s0").getNewDataListFlattened();
-            EPAssertionUtil.assertPropsPerRow(newEvents, new String[]{"symbol"},
-                new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
 
             env.milestone(3);
 
@@ -71,13 +67,10 @@ public class ViewLengthBatch {
             env.milestone(5);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRow(events, new String[]{"symbol"}, new Object[][]{{"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", new String[]{"symbol"}, new Object[][]{{"E4"}, {"E5"}});
 
             env.sendEventBean(makeMarketDataEvent("E6"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"E4"}, {"E5"}, {"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "symbol".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(6);
 
@@ -90,9 +83,7 @@ public class ViewLengthBatch {
             env.milestone(8);
 
             env.sendEventBean(makeMarketDataEvent("E9"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "symbol".split(","), new Object[][]{{"E7"}, {"E8"}, {"E9"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), "symbol".split(","), new Object[][]{{"E4"}, {"E5"}, {"E6"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.milestone(9);
 
@@ -112,27 +103,27 @@ public class ViewLengthBatch {
 
             sendEvent(events[0], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[0]});
 
             sendEvent(events[1], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[0], events[1]}, null);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[0], events[1]}, null);
+            assertUnderlyingIterator(env, null);
 
             sendEvent(events[2], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[2]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[2]});
 
             sendEvent(events[3], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[2], events[3]}, new SupportBean[]{events[0], events[1]});
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[2], events[3]}, new SupportBean[]{events[0], events[1]});
+            assertUnderlyingIterator(env, null);
 
             sendEvent(events[4], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[4]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[4]});
 
             sendEvent(events[5], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[4], events[5]}, new SupportBean[]{events[2], events[3]});
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[4], events[5]}, new SupportBean[]{events[2], events[3]});
+            assertUnderlyingIterator(env, null);
 
             env.undeployAll();
         }
@@ -145,16 +136,16 @@ public class ViewLengthBatch {
             SupportBean[] events = get10Events();
 
             sendEvent(events[0], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[0]}, null);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[0]}, null);
+            assertUnderlyingIterator(env, null);
 
             sendEvent(events[1], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[1]}, new SupportBean[]{events[0]});
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[1]}, new SupportBean[]{events[0]});
+            assertUnderlyingIterator(env, null);
 
             sendEvent(events[2], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[2]}, new SupportBean[]{events[1]});
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[2]}, new SupportBean[]{events[1]});
+            assertUnderlyingIterator(env, null);
 
             env.undeployAll();
         }
@@ -168,27 +159,27 @@ public class ViewLengthBatch {
 
             sendEvent(events[0], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[0]});
 
             sendEvent(events[1], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[0], events[1]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[0], events[1]});
 
             sendEvent(events[2], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[0], events[1], events[2]}, null);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[0], events[1], events[2]}, null);
+            assertUnderlyingIterator(env, null);
 
             sendEvent(events[3], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[3]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[3]});
 
             sendEvent(events[4], env);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new SupportBean[]{events[3], events[4]}, env.statement("s0").iterator());
+            assertUnderlyingIterator(env, new SupportBean[]{events[3], events[4]});
 
             sendEvent(events[5], env);
-            EPAssertionUtil.assertUnderlyingPerRow(env.listener("s0").assertInvokedAndReset(), new SupportBean[]{events[3], events[4], events[5]}, new SupportBean[]{events[0], events[1], events[2]});
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(null, env.statement("s0").iterator());
+            assertUnderlyingPerRow(env, new SupportBean[]{events[3], events[4], events[5]}, new SupportBean[]{events[0], events[1], events[2]});
+            assertUnderlyingIterator(env, null);
 
             env.undeployAll();
         }
@@ -196,7 +187,7 @@ public class ViewLengthBatch {
 
     private static class ViewLengthBatchInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportMarketDataBean#length_batch(0)",
+            env.tryInvalidCompile("select * from SupportMarketDataBean#length_batch(0)",
                 "Failed to validate data window declaration: Error in view 'length_batch', Length-Batch view requires a positive integer for size but received 0");
         }
     }
@@ -219,12 +210,14 @@ public class ViewLengthBatch {
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E3"));
-            EventBean[] newEvents = env.listener("s0").getNewDataListFlattened();
-            Object[] win = new Object[]{"E3", "E2", "E1"};
-            EPAssertionUtil.assertPropsPerRow(newEvents, fields,
-                new Object[][]{{"E1", null, "E1", "E2", 3L, win}, {"E2", "E1", "E1", "E2", 3L, win}, {"E3", "E2", "E1", "E2", 3L, win}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getNewDataListFlattened();
+                Object[] win = new Object[]{"E3", "E2", "E1"};
+                EPAssertionUtil.assertPropsPerRow(newEvents, fields,
+                    new Object[][]{{"E1", null, "E1", "E2", 3L, win}, {"E2", "E1", "E1", "E2", 3L, win}, {"E3", "E2", "E1", "E2", 3L, win}});
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -269,8 +262,7 @@ public class ViewLengthBatch {
             sendSupportBean(env, "E4");
             env.assertListenerNotInvoked("s0");
             sendSupportBean(env, "E5");
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E2"}, {"E4"}, {"E5"}}, null);
 
             env.milestone(5);
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
@@ -283,7 +275,7 @@ public class ViewLengthBatch {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E6"}, {"E7"}});
 
             sendSupportBean(env, "E8");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E2"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E6"}, {"E7"}, {"E8"}}, new Object[][]{{"E2"}, {"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -332,11 +324,13 @@ public class ViewLengthBatch {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             sendSupportBean(env, "E3");
-            assertNull(env.listener("s0").getLastOldData());
-            if (runType == ViewLengthBatchNormalRunType.VIEW) {
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "prevString".split(","), new Object[][]{{null}, {"E1"}, {"E2"}});
-            }
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastOldData());
+                if (runType == ViewLengthBatchNormalRunType.VIEW) {
+                    EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), "prevString".split(","), new Object[][]{{null}, {"E1"}, {"E2"}});
+                }
+                EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+            });
 
             env.milestone(4);
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
@@ -349,7 +343,8 @@ public class ViewLengthBatch {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}, {"E5"}});
 
             sendSupportBean(env, "E6");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
+
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(6);
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
@@ -361,7 +356,7 @@ public class ViewLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "E9");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetIRPair(), fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}, {"E8"}, {"E9"}}, new Object[][]{{"E4"}, {"E5"}, {"E6"}});
 
             env.undeployAll();
         }
@@ -402,5 +397,17 @@ public class ViewLengthBatch {
 
     private static SupportMarketDataBean makeMarketDataEvent(String symbol) {
         return new SupportMarketDataBean(symbol, 0, 0L, null);
+    }
+
+    private static void assertUnderlyingIterator(RegressionEnvironment env, SupportBean[] supportBeans) {
+        env.assertIterator("s0", iterator -> {
+            EPAssertionUtil.assertEqualsExactOrderUnderlying(supportBeans, iterator);
+        });
+    }
+
+    private static void assertUnderlyingPerRow(RegressionEnvironment env, SupportBean[] newData, SupportBean[] oldData) {
+        env.assertListener("s0", listener -> {
+            EPAssertionUtil.assertUnderlyingPerRow(listener.assertInvokedAndReset(), newData, oldData);
+        });
     }
 }

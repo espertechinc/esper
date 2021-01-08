@@ -20,7 +20,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 
 public class ResultSetAggregateRate {
@@ -53,9 +53,9 @@ public class ResultSetAggregateRate {
 
             env.undeployAll();
 
-            tryInvalidCompile(env, "select rate() from SupportBean",
+            env.tryInvalidCompile("select rate() from SupportBean",
                 "Failed to validate select-clause expression 'rate(*)': The rate aggregation function minimally requires a numeric constant or expression as a parameter. [select rate() from SupportBean]");
-            tryInvalidCompile(env, "select rate(true) from SupportBean",
+            env.tryInvalidCompile("select rate(true) from SupportBean",
                 "Failed to validate select-clause expression 'rate(true)': The rate aggregation function requires a numeric constant or time period as the first parameter in the constant-value notation [select rate(true) from SupportBean]");
         }
     }
@@ -87,11 +87,11 @@ public class ResultSetAggregateRate {
             sendEvent(env, 2000, 11);
             assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
 
-            tryInvalidCompile(env, "select rate(longPrimitive) as myrate from SupportBean",
+            env.tryInvalidCompile("select rate(longPrimitive) as myrate from SupportBean",
                 "Failed to validate select-clause expression 'rate(longPrimitive)': The rate aggregation function in the timestamp-property notation requires data windows [select rate(longPrimitive) as myrate from SupportBean]");
-            tryInvalidCompile(env, "select rate(current_timestamp) as myrate from SupportBean#time(20)",
+            env.tryInvalidCompile("select rate(current_timestamp) as myrate from SupportBean#time(20)",
                 "Failed to validate select-clause expression 'rate(current_timestamp())': The rate aggregation function does not allow the current runtime timestamp as a parameter [select rate(current_timestamp) as myrate from SupportBean#time(20)]");
-            tryInvalidCompile(env, "select rate(theString) as myrate from SupportBean#time(20)",
+            env.tryInvalidCompile("select rate(theString) as myrate from SupportBean#time(20)",
                 "Failed to validate select-clause expression 'rate(theString)': The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation [select rate(theString) as myrate from SupportBean#time(20)]");
 
             env.undeployAll();

@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportObjectCtor;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
@@ -264,34 +263,34 @@ public class ExprCoreNewInstance {
         public void run(RegressionEnvironment env) {
             // Dimension-provided
             //
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[] from SupportBean",
+            env.tryInvalidCompile("select new double[] from SupportBean",
                 "Incorrect syntax near 'from' (a reserved keyword) expecting a left curly bracket '{' but found 'from' at line 1 column 20");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1, 2, 3] from SupportBean",
+            env.tryInvalidCompile("select new double[1, 2, 3] from SupportBean",
                 "Incorrect syntax near ',' expecting a right angle bracket ']'");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double['a'] from SupportBean",
+            env.tryInvalidCompile("select new double['a'] from SupportBean",
                 "Failed to validate select-clause expression 'new double[\"a\"]': New-keyword with an array-type result requires an Integer-typed dimension but received type 'String'");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[1]['a'] from SupportBean", "skip");
+            env.tryInvalidCompile("select new double[1]['a'] from SupportBean", "skip");
 
             // Initializers-provided
             //
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new double[] {null} from SupportBean",
+            env.tryInvalidCompile("select new double[] {null} from SupportBean",
                 "Failed to validate select-clause expression 'new double[] {null}': Array element type mismatch: Expecting type double but received null");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {1} from SupportBean",
+            env.tryInvalidCompile("select new String[] {1} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {1}': Array element type mismatch: Expecting type String but received type int");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {intPrimitive} from SupportBean",
+            env.tryInvalidCompile("select new String[] {intPrimitive} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {intPrimitive}': Array element type mismatch: Expecting type String but received type Integer");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {intPrimitive} from SupportBean",
+            env.tryInvalidCompile("select new String[][] {intPrimitive} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {intPrimitive}': Two-dimensional array element does not allow element expression 'intPrimitive'");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[][] {{intPrimitive}} from SupportBean",
+            env.tryInvalidCompile("select new String[][] {{intPrimitive}} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {{intPrimitive}}': Array element type mismatch: Expecting type String but received type Integer");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new String[] {{'x'}} from SupportBean",
+            env.tryInvalidCompile("select new String[] {{'x'}} from SupportBean",
                 "Failed to validate select-clause expression 'new String[] {{\"x\"}}': Array element type mismatch: Expecting type String but received type String[]");
 
             // Runtime null handling
@@ -326,10 +325,10 @@ public class ExprCoreNewInstance {
             env.compileDeploy("create constant variable java.util.concurrent.atomic.AtomicInteger cnt = new java.util.concurrent.atomic.AtomicInteger(1)");
 
             // try shallow invalid cases
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new Dummy() from SupportBean",
+            env.tryInvalidCompile("select new Dummy() from SupportBean",
                 "Failed to validate select-clause expression 'new Dummy()': Failed to resolve type parameter 'Dummy'");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select new SupportPrivateCtor() from SupportBean",
+            env.tryInvalidCompile("select new SupportPrivateCtor() from SupportBean",
                 "Failed to validate select-clause expression 'new SupportPrivateCtor()': Failed to find a suitable constructor for class ");
 
             env.undeployAll();

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ExprCoreLikeRegexp {
@@ -126,7 +125,7 @@ public class ExprCoreLikeRegexp {
             tryInvalidExpr(env, "boolPrimitive regexp string");
             tryInvalidExpr(env, "string regexp intPrimitive");
 
-            tryInvalidCompile(env, "select theString regexp \"*any*\" from SupportBean",
+            env.tryInvalidCompile("select theString regexp \"*any*\" from SupportBean",
                 "Failed to validate select-clause expression 'theString regexp \"*any*\"': Failed to compile regex pattern '*any*': Dangling meta character '*' near index 0");
         }
     }
@@ -249,7 +248,7 @@ public class ExprCoreLikeRegexp {
 
     private static void tryInvalidExpr(RegressionEnvironment env, String expr) {
         String statement = "select " + expr + " from SupportBean";
-        tryInvalidCompile(env, statement, "skip");
+        env.tryInvalidCompile(statement, "skip");
     }
 
     private static SupportBean makeSupportBeanEvent(Integer intBoxed, Double doubleBoxed) {

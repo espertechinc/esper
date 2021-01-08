@@ -154,13 +154,13 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(makeEventOne());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{3L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{3L});
 
             env.sendEventBean(makeEventTwo());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{1L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{1L});
 
             env.sendEventBean(makeEventThree());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{1L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{1L});
 
             env.sendEventBean(makeEventFour());
             env.assertListenerNotInvoked("s0");
@@ -179,22 +179,22 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(makeEventOne());
-            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
+            env.assertPropsNew("s0", fields, new Object[]{3L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{3L}});
 
             env.sendEventBean(makeEventTwo());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{4L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{4L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{4L}});
 
             env.sendEventBean(makeEventThree());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{5L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{5L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{5L}});
 
             env.sendEventBean(makeEventFour());
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(makeEventOne());
-            env.assertPropsListenerNew("s0", "count(*)".split(","), new Object[]{8L});
+            env.assertPropsNew("s0", "count(*)".split(","), new Object[]{8L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{8L}});
 
             env.undeployAll();
@@ -241,11 +241,11 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(makeEventOne());
-            env.assertPropsListenerNew("s0", fields, new Object[]{3L});
+            env.assertPropsNew("s0", fields, new Object[]{3L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{3L}});
 
             env.sendEventBean(makeEventFour());
-            env.assertPropsListenerNew("s0", fields, new Object[]{5L});
+            env.assertPropsNew("s0", fields, new Object[]{5L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{5L}});
 
             env.undeployAll();
@@ -309,7 +309,7 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SentenceEvent("I am testing this"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}});
 
             env.undeployAll();
         }
@@ -321,7 +321,7 @@ public class EPLContainedEventSimple {
             env.compileDeploy("create objectarray schema ContainedId(id string)", path);
             env.compileDeploy("@name('s0') select * from SupportStringBeanWithArray[select topId, * from containedIds @type(ContainedId)]", path).addListener("s0");
             env.sendEventBean(new SupportStringBeanWithArray("A", "one,two,three".split(",")));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "topId,id".split(","),
+            env.assertPropsPerRowLastNew("s0", "topId,id".split(","),
                 new Object[][]{{"A", "one"}, {"A", "two"}, {"A", "three"}});
             env.undeployAll();
         }

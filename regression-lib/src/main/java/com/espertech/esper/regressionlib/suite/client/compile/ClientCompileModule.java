@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class ClientCompileModule {
@@ -319,7 +318,7 @@ public class ClientCompileModule {
 
     private static void tryInvalidControlCharacters(RegressionEnvironment env) {
         String epl = "select * \u008F from SupportBean";
-        tryInvalidCompile(env, epl, "Failed to parse: Unrecognized control characters found in text, failed to parse text ");
+        env.tryInvalidCompile(epl, "Failed to parse: Unrecognized control characters found in text, failed to parse text ");
     }
 
     private static void tryInvalidIO(RegressionEnvironment env, String resource, String message) {

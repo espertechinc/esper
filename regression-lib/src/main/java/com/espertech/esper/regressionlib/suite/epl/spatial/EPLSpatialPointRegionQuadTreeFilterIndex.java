@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.filterspec.FilterOperator;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialPoint;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
@@ -24,10 +25,7 @@ import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.support.util.SupportSpatialUtil.*;
@@ -79,8 +77,8 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
     private static class EPLSpatialPRFilterIndexPerfStatement implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -111,8 +109,8 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
     private static class EPLSpatialPRFilterIndexPerfPattern implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -129,8 +127,8 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
     private static class EPLSpatialPRFilterIndexPerfContextPartition implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -191,8 +189,8 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
         private final static int NUM_ITERATIONS = 3;
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

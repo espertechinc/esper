@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ResultSetAggregateFirstLastWindow {
@@ -80,32 +79,32 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "theString,firststring,firstint,laststring,lastint,allint".split(",");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 10, new Integer[]{10}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 10, new Integer[]{10}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 11, new Integer[]{11}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 11, new Integer[]{11}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 12, new Integer[]{10, 12}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 12, new Integer[]{10, 12}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 13));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 13, new Integer[]{11, 13}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 13, new Integer[]{11, 13}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E2", 14));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 14, new Integer[]{11, 13, 14}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 14, new Integer[]{11, 13, 14}});
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E1", 15));  // push out E1/10
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 12, "E1", 15, new Integer[]{12, 15}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 12, "E1", 15, new Integer[]{12, 15}});
 
             env.milestone(5);
 
@@ -136,22 +135,22 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "firststring,firstint,laststring,lastint,allint".split(",");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, "E1", 10, new Integer[]{10}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, "E1", 10, new Integer[]{10}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, "E2", 11, new Integer[]{10, 11}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, "E2", 11, new Integer[]{10, 11}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E3", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 11, "E3", 12, new Integer[]{11, 12}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 11, "E3", 12, new Integer[]{11, 12}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E4", 13));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 12, "E4", 13, new Integer[]{12, 13}});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 12, "E4", 13, new Integer[]{12, 13}});
 
             env.undeployAll();
         }
@@ -163,7 +162,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportEventPropertyWithMethod("p1"));
-            env.assertPropsListenerNew("s0", "val0,val1".split(","), new Object[]{"p1", "abc"});
+            env.assertPropsNew("s0", "val0,val1".split(","), new Object[]{"p1", "abc"});
 
             env.undeployAll();
         }
@@ -180,25 +179,25 @@ public class ResultSetAggregateFirstLastWindow {
 
             env.sendEventBean(new SupportBean("A1", 10));
             env.sendEventBean(new SupportBean("B1", -1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{10, 10});
 
             env.milestone(0);
 
             for (int i = 11; i < 20; i++) {
                 env.sendEventBean(new SupportBean("A1", i));
                 env.sendEventBean(new SupportBean("Bx", -1));
-                env.assertPropsListenerNew("s0", fields, new Object[]{i, i});
+                env.assertPropsNew("s0", fields, new Object[]{i, i});
             }
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("A1", 1));
             env.sendEventBean(new SupportBean("B1", -1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, 19});
+            env.assertPropsNew("s0", fields, new Object[]{1, 19});
 
             env.sendEventBean(new SupportBean("A1", 2));
             env.sendEventBean(new SupportBean("B1", -1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, 19});
+            env.assertPropsNew("s0", fields, new Object[]{2, 19});
 
             env.undeployAll();
         }
@@ -222,20 +221,20 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "p0,p1,p2,n0,n1,n2,l1,l2,l3".split(",");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, null, null, 10, null, null, 10, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{10, null, null, 10, null, null, 10, null, null});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 11));
-            env.assertPropsListenerNew("s0", fields, new Object[]{11, 10, null, 11, 10, null, 11, 10, null});
+            env.assertPropsNew("s0", fields, new Object[]{11, 10, null, 11, 10, null, 11, 10, null});
 
             env.sendEventBean(new SupportBean("E3", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{12, 11, 10, 12, 11, 10, 12, 11, 10});
+            env.assertPropsNew("s0", fields, new Object[]{12, 11, 10, 12, 11, 10, 12, 11, 10});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E4", 13));
-            env.assertPropsListenerNew("s0", fields, new Object[]{13, 12, 11, 13, 12, 11, 13, 12, 11});
+            env.assertPropsNew("s0", fields, new Object[]{13, 12, 11, 13, 12, 11, 13, 12, 11});
 
             env.undeployAll();
         }
@@ -282,14 +281,14 @@ public class ResultSetAggregateFirstLastWindow {
             env.listener("s0").reset();
 
             env.sendEventBean(new SupportBean("E1", 12));
-            env.assertPropsListenerNew("s0", fields, new Object[]{12});
+            env.assertPropsNew("s0", fields, new Object[]{12});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "indexvar", 0);
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 13));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
             env.undeployAll();
 
             // test as part of function
@@ -300,32 +299,32 @@ public class ResultSetAggregateFirstLastWindow {
 
     private static class ResultSetAggregateInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select window(distinct intPrimitive) from SupportBean",
+            env.tryInvalidCompile("select window(distinct intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'window(intPrimitive)': The 'window' aggregation function requires");
 
-            tryInvalidCompile(env, "select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb",
+            env.tryInvalidCompile("select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb",
                 "Failed to validate select-clause expression 'window(sa.intPrimitive+sb.intPrimitive)': The 'window' aggregation function requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead [select window(sa.intPrimitive + sb.intPrimitive) from SupportBean#lastevent sa, SupportBean#lastevent sb]");
 
-            tryInvalidCompile(env, "select last(*) from SupportBean#lastevent sa, SupportBean#lastevent sb",
+            env.tryInvalidCompile("select last(*) from SupportBean#lastevent sa, SupportBean#lastevent sb",
                 "Failed to validate select-clause expression 'last(*)': The 'last' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select last(*) from SupportBean#lastevent sa, SupportBean#lastevent sb]");
 
-            tryInvalidCompile(env, "select theString, (select first(*) from SupportBean#lastevent sa) from SupportBean#lastevent sb",
+            env.tryInvalidCompile("select theString, (select first(*) from SupportBean#lastevent sa) from SupportBean#lastevent sb",
                 "Failed to plan subquery number 1 querying SupportBean: Failed to validate select-clause expression 'first(*)': The 'first' aggregation function requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead [select theString, (select first(*) from SupportBean#lastevent sa) from SupportBean#lastevent sb]");
 
-            tryInvalidCompile(env, "select window(x.*) from SupportBean#lastevent",
+            env.tryInvalidCompile("select window(x.*) from SupportBean#lastevent",
                 "Failed to validate select-clause expression 'window(x.*)': Stream by name 'x' could not be found among all streams [select window(x.*) from SupportBean#lastevent]");
 
-            tryInvalidCompile(env, "select window(*) from SupportBean x",
+            env.tryInvalidCompile("select window(*) from SupportBean x",
                 "Failed to validate select-clause expression 'window(*)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(*) from SupportBean x]");
-            tryInvalidCompile(env, "select window(x.*) from SupportBean x",
+            env.tryInvalidCompile("select window(x.*) from SupportBean x",
                 "Failed to validate select-clause expression 'window(x.*)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(x.*) from SupportBean x]");
-            tryInvalidCompile(env, "select window(x.intPrimitive) from SupportBean x",
+            env.tryInvalidCompile("select window(x.intPrimitive) from SupportBean x",
                 "Failed to validate select-clause expression 'window(x.intPrimitive)': The 'window' aggregation function requires that the aggregated events provide a remove stream; Please define a data window onto the stream or use 'firstever', 'lastever' or 'nth' instead [select window(x.intPrimitive) from SupportBean x]");
 
-            tryInvalidCompile(env, "select window(x.intPrimitive, 10) from SupportBean#keepall x",
+            env.tryInvalidCompile("select window(x.intPrimitive, 10) from SupportBean#keepall x",
                 "Failed to validate select-clause expression 'window(x.intPrimitive,10)': The 'window' aggregation function does not accept an index expression; Use 'first' or 'last' instead [");
 
-            tryInvalidCompile(env, "select first(x.*, 10d) from SupportBean#lastevent as x",
+            env.tryInvalidCompile("select first(x.*, 10d) from SupportBean#lastevent as x",
                 "Failed to validate select-clause expression 'first(x.*,10.0)': The 'first' aggregation function requires an index expression that returns an integer value [select first(x.*, 10d) from SupportBean#lastevent as x]");
         }
     }
@@ -338,25 +337,25 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "id,w".split(",");
 
             env.sendEventBean(new SupportBean_A("A1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", null});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", null});
 
             env.milestone(0);
 
             SupportBean beanOne = sendEvent(env, "E1", 0, 1);
             env.sendEventBean(new SupportBean_A("A2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", new Object[]{beanOne}});
+            env.assertPropsNew("s0", fields, new Object[]{"A2", new Object[]{beanOne}});
 
             env.milestone(1);
 
             SupportBean beanTwo = sendEvent(env, "E2", 0, 1);
             env.sendEventBean(new SupportBean_A("A3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A3", new Object[]{beanOne, beanTwo}});
+            env.assertPropsNew("s0", fields, new Object[]{"A3", new Object[]{beanOne, beanTwo}});
 
             env.milestone(2);
 
             SupportBean beanThree = sendEvent(env, "E2", 0, 1);
             env.sendEventBean(new SupportBean_A("A4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A4", new Object[]{beanTwo, beanThree}});
+            env.assertPropsNew("s0", fields, new Object[]{"A4", new Object[]{beanTwo, beanThree}});
 
             env.undeployAll();
         }
@@ -372,17 +371,17 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "si,wi".split(",");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, intArray(1)});
+            env.assertPropsNew("s0", fields, new Object[]{1, intArray(1)});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, intArray(1, 2)});
+            env.assertPropsNew("s0", fields, new Object[]{3, intArray(1, 2)});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, intArray(2, 3)});
+            env.assertPropsNew("s0", fields, new Object[]{5, intArray(2, 3)});
 
             env.milestoneInc(milestone);
 
@@ -392,18 +391,18 @@ public class ResultSetAggregateFirstLastWindow {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, intArray(1)});
+            env.assertPropsNew("s0", fields, new Object[]{1, intArray(1)});
 
             env.sendEventBean(new SupportBean("E2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, intArray(2)});
+            env.assertPropsNew("s0", fields, new Object[]{2, intArray(2)});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, intArray(2, 3)});
+            env.assertPropsNew("s0", fields, new Object[]{5, intArray(2, 3)});
 
             env.sendEventBean(new SupportBean("E1", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, intArray(1, 4)});
+            env.assertPropsNew("s0", fields, new Object[]{5, intArray(1, 4)});
 
             env.undeployAll();
         }
@@ -418,7 +417,7 @@ public class ResultSetAggregateFirstLastWindow {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {1, intArray(1)},
                 {3, intArray(1, 2)},
             });
@@ -427,7 +426,7 @@ public class ResultSetAggregateFirstLastWindow {
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {6, intArray(1, 2, 3)},
                 {10, intArray(1, 2, 3, 4)},
             });
@@ -494,7 +493,7 @@ public class ResultSetAggregateFirstLastWindow {
 
             SupportBean beanOne = sendEvent(env, "E1", 10d, 100);
             Object[] expected = new Object[]{110d, 100, new Object[]{beanOne}, beanOne};
-            env.assertPropsListenerNew("s0", fields, expected);
+            env.assertPropsNew("s0", fields, expected);
             if (isCheckStatic) {
                 Object[] parameters = SupportStaticMethodLib.getInvocations().get(0);
                 SupportStaticMethodLib.getInvocations().clear();
@@ -524,7 +523,7 @@ public class ResultSetAggregateFirstLastWindow {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A1", "B1", "A1", split("A1"), "A1", "B1", split("B1"), "B1"});
+            env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", "A1", split("A1"), "A1", "B1", split("B1"), "B1"});
 
             env.milestone(0);
 
@@ -590,11 +589,11 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "aid,bid,fb,wb,lb".split(",");
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S1(1, "A"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{1, 1, "A", split("A"), "A"});
 
             env.milestone(0);
@@ -603,7 +602,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(2, "A"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{2, 2, "A", split("A,B"), "B"});
 
             env.milestone(1);
@@ -612,7 +611,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(3, "C"));
-            env.assertPropsListenerNew("s0", fields,
+            env.assertPropsNew("s0", fields,
                 new Object[]{3, 3, "A", split("A,B,C"), "C"});
 
             env.undeployAll();
@@ -680,7 +679,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.sendEventBean(new SupportBean("E3", 31));
             env.assertListenerNotInvoked("s0");
             env.sendEventBean(new SupportBean("E1", 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"E1", 10, intArray(10, 11, 12), 12},
                 {"E2", 20, intArray(20), 20},
                 {"E3", 30, intArray(30, 31), 31}
@@ -726,7 +725,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E3", 30));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1,E2,E3"), "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1,E2,E3"), "E3"});
 
             env.milestone(1);
 
@@ -748,42 +747,42 @@ public class ResultSetAggregateFirstLastWindow {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1"), "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1"), "E1"});
 
             env.sendEventBean(new SupportBean("E2", 20));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1,E2"), "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1,E2"), "E2"});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 30));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1,E2,E3"), "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1,E2,E3"), "E3"});
 
             env.sendEventBean(new SupportBean_A("E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1,E3"), "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1,E3"), "E3"});
 
             env.sendEventBean(new SupportBean_A("E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", split("E1"), "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", split("E1"), "E1"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null});
 
             env.sendEventBean(new SupportBean("E4", 40));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", split("E4"), "E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", split("E4"), "E4"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E5", 50));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4", split("E4,E5"), "E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4", split("E4,E5"), "E5"});
 
             env.sendEventBean(new SupportBean_A("E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", split("E5"), "E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", split("E5"), "E5"});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E6", 60));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5", split("E5,E6"), "E6"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5", split("E5,E6"), "E6"});
 
             env.undeployAll();
         }
@@ -874,17 +873,17 @@ public class ResultSetAggregateFirstLastWindow {
             env.milestone(0);
 
             sendSupportBean(env, "E1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E1"});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E2"});
 
             env.milestone(2);
 
             sendSupportBean(env, "E3");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", "E3"});
 
             env.undeployAll();
         }
@@ -905,17 +904,17 @@ public class ResultSetAggregateFirstLastWindow {
             String[] fields = "f1,f2,f3,l1,l2,l3".split(",");
 
             SupportBean beanOne = sendEvent(env, "E1", 1d, 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E1", beanOne, beanOne});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E1", beanOne, beanOne});
 
             env.milestone(0);
 
             SupportBean beanTwo = sendEvent(env, "E2", 2d, 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E2", beanTwo, beanTwo});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E2", beanTwo, beanTwo});
 
             env.milestone(1);
 
             SupportBean beanThree = sendEvent(env, "E3", 3d, 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E3", beanThree, beanThree});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", beanOne, beanOne, "E3", beanThree, beanThree});
 
             env.undeployAll();
         }
@@ -1019,38 +1018,38 @@ public class ResultSetAggregateFirstLastWindow {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, new Integer[]{10}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, new Integer[]{10}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 100);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, new Integer[]{100}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 100, new Integer[]{100}});
 
             env.milestone(2);
 
             sendSupportBean_S0(env, 100);    // delete E2 group
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", null, null});
 
             env.milestone(3);
 
             sendSupportBean(env, "E1", 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10 + 11, new Integer[]{10, 11}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10 + 11, new Integer[]{10, 11}});
 
             env.milestone(4);
 
             sendSupportBean_S0(env, 10);    // delete from E1 group
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 11, new Integer[]{11}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 11, new Integer[]{11}});
 
             env.milestone(5);
 
             env.milestone(6);  // no change
 
             sendSupportBean(env, "E2", 101);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 101, new Integer[]{101}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 101, new Integer[]{101}});
             sendSupportBean(env, "E2", 102);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 101 + 102, new Integer[]{101, 102}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 101 + 102, new Integer[]{101, 102}});
             sendSupportBean(env, "E1", 12);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 11 + 12, new Integer[]{11, 12}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 11 + 12, new Integer[]{11, 12}});
 
             env.undeployAll();
         }
@@ -1068,27 +1067,27 @@ public class ResultSetAggregateFirstLastWindow {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 10, 5);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, new Long[]{5 * 10L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, new Long[]{5 * 10L}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 100, 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, new Long[]{20 * 100L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 100, new Long[]{20 * 100L}});
 
             env.milestone(2);
 
             sendSupportBean(env, "E1", 15, 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10 + 15, new Long[]{5 * 10L, 2 * 15L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10 + 15, new Long[]{5 * 10L, 2 * 15L}});
 
             env.milestone(3);
 
             sendSupportBean(env, "E1", 18, 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 15 + 18, new Long[]{2 * 15L, 3 * 18L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 15 + 18, new Long[]{2 * 15L, 3 * 18L}});
 
             env.milestone(4);
 
             sendSupportBean(env, "E1", 19, 4); // pushed out E2
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(),
+            env.assertPropsPerRowLastNew("s0",
                 fields, new Object[][]{{"E1", 15 + 18 + 19, new Long[]{2 * 15L, 3 * 18L, 4 * 19L}}, {"E2", null, null}});
 
             env.milestone(5);
@@ -1096,9 +1095,9 @@ public class ResultSetAggregateFirstLastWindow {
             env.milestone(6);
 
             sendSupportBean(env, "E1", 17, -1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 18 + 19 + 17, new Long[]{3 * 18L, 4 * 19L, -1 * 17L}});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 18 + 19 + 17, new Long[]{3 * 18L, 4 * 19L, -1 * 17L}});
             sendSupportBean(env, "E2", 1, 1000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(),
+            env.assertPropsPerRowLastNew("s0",
                 fields, new Object[][]{new Object[]{"E1", 19 + 17, new Long[]{4 * 19L, -1 * 17L}}, {"E2", 1, new Long[]{1 * 1000L}}});
 
             env.undeployAll();
@@ -1109,26 +1108,26 @@ public class ResultSetAggregateFirstLastWindow {
         String[] fields = "theString,firststring,firstint,laststring,lastint,allint".split(",");
 
         env.sendEventBean(new SupportBean("E1", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 10, new Integer[]{10}});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 10, new Integer[]{10}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 11));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 11, new Integer[]{11}});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 11, new Integer[]{11}});
 
         env.sendEventBean(new SupportBean("E1", 12));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 12, new Integer[]{10, 12}});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 10, "E1", 12, new Integer[]{10, 12}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 13));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 13, new Integer[]{11, 13}});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 13, new Integer[]{11, 13}});
 
         env.sendEventBean(new SupportBean("E2", 14));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 14, new Integer[]{11, 13, 14}});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", "E2", 11, "E2", 14, new Integer[]{11, 13, 14}});
 
         env.sendEventBean(new SupportBean("E1", 15));  // push out E1/10
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", "E1", 12, "E1", 15, new Integer[]{12, 15}});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", "E1", 12, "E1", 15, new Integer[]{12, 15}});
 
         env.milestoneInc(milestone);
 
@@ -1144,20 +1143,20 @@ public class ResultSetAggregateFirstLastWindow {
     private static void tryAssertionFirstLastIndexed(RegressionEnvironment env, AtomicInteger milestone) {
         String[] fields = "f0,f1,f2,f3,l0,l1,l2,l3".split(",");
         env.sendEventBean(new SupportBean("E1", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, null, null, null, 10, null, null, null});
+        env.assertPropsNew("s0", fields, new Object[]{10, null, null, null, 10, null, null, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 11));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, 11, null, null, 11, 10, null, null});
+        env.assertPropsNew("s0", fields, new Object[]{10, 11, null, null, 11, 10, null, null});
 
         env.sendEventBean(new SupportBean("E3", 12));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, 11, 12, null, 12, 11, 10, null});
+        env.assertPropsNew("s0", fields, new Object[]{10, 11, 12, null, 12, 11, 10, null});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E4", 13));
-        env.assertPropsListenerNew("s0", fields, new Object[]{11, 12, 13, null, 13, 12, 11, null});
+        env.assertPropsNew("s0", fields, new Object[]{11, 12, 13, null, 13, 12, 11, null});
     }
 
     private static void tryAssertionStar(RegressionEnvironment env, AtomicInteger milestone) {
@@ -1166,21 +1165,21 @@ public class ResultSetAggregateFirstLastWindow {
         Object beanE1 = new SupportBean("E1", 10);
         env.sendEventBean(beanE1);
         Object[] window = new Object[]{beanE1};
-        env.assertPropsListenerNew("s0", fields, new Object[]{beanE1, beanE1, beanE1, beanE1, window, window, beanE1, beanE1});
+        env.assertPropsNew("s0", fields, new Object[]{beanE1, beanE1, beanE1, beanE1, window, window, beanE1, beanE1});
 
         env.milestoneInc(milestone);
 
         Object beanE2 = new SupportBean("E2", 20);
         env.sendEventBean(beanE2);
         window = new Object[]{beanE1, beanE2};
-        env.assertPropsListenerNew("s0", fields, new Object[]{beanE1, beanE1, beanE2, beanE2, window, window, beanE1, beanE2});
+        env.assertPropsNew("s0", fields, new Object[]{beanE1, beanE1, beanE2, beanE2, window, window, beanE1, beanE2});
 
         env.milestoneInc(milestone);
 
         Object beanE3 = new SupportBean("E3", 30);
         env.sendEventBean(beanE3);
         window = new Object[]{beanE2, beanE3};
-        env.assertPropsListenerNew("s0", fields, new Object[]{beanE2, beanE2, beanE3, beanE3, window, window, beanE1, beanE3});
+        env.assertPropsNew("s0", fields, new Object[]{beanE2, beanE2, beanE3, beanE3, window, window, beanE1, beanE3});
 
         env.milestoneInc(milestone);
     }
@@ -1189,20 +1188,20 @@ public class ResultSetAggregateFirstLastWindow {
         String[] fields = "firststring,firstint,laststring,lastint,allint".split(",");
 
         env.sendEventBean(new SupportBean("E1", 10));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, "E1", 10, new Integer[]{10}});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 10, "E1", 10, new Integer[]{10}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 11));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, "E2", 11, new Integer[]{10, 11}});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 10, "E2", 11, new Integer[]{10, 11}});
 
         env.sendEventBean(new SupportBean("E3", 12));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 11, "E3", 12, new Integer[]{11, 12}});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 11, "E3", 12, new Integer[]{11, 12}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E4", 13));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 12, "E4", 13, new Integer[]{12, 13}});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 12, "E4", 13, new Integer[]{12, 13}});
     }
 
     private static Object split(String s) {

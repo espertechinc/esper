@@ -20,10 +20,7 @@ import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescOn
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescSubquery;
 import com.espertech.esper.common.internal.epl.spatial.quadtree.core.BoundingBox;
 import com.espertech.esper.common.internal.epl.spatial.quadtree.core.QuadrantEnum;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.SupportEventRectangleWithOffset;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialAABB;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialDualPoint;
@@ -84,8 +81,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     private static class EPLSpatialPREventIndexNWFireAndForgetPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -173,8 +170,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     private static class EPLSpatialPREventIndexPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -536,8 +533,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     public static class EPLSpatialPREventIndexEdgeSubdivide implements RegressionExecution {
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -669,8 +666,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         private final static int[] CHECKPOINT_REMAINING = new int[]{100, 300, 700}; // must be sorted
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -740,8 +737,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         private final static int SIZE = 1000;
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -826,8 +823,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         private final static int[] CHECKPOINT_AT = new int[]{500, 3000, 4000};
 
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {

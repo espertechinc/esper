@@ -146,17 +146,17 @@ public class InfraTableAccessDotMethod {
         String[] fields = "c0,c1,c2".split(",");
         makeSendBean(env, "E1", 10, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, 1, Collections.singletonList(10)});
+        env.assertPropsNew("s0", fields, new Object[]{10, 1, Collections.singletonList(10)});
 
         makeSendBean(env, "E1", 20, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{20, 2, Collections.singletonList(10)});
+        env.assertPropsNew("s0", fields, new Object[]{20, 2, Collections.singletonList(10)});
 
         env.milestoneInc(milestone);
 
         makeSendBean(env, "E1", 30, 0);
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{30, 2, Collections.singletonList(20)});
+        env.assertPropsNew("s0", fields, new Object[]{30, 2, Collections.singletonList(20)});
 
         env.undeployAll();
     }
@@ -196,13 +196,13 @@ public class InfraTableAccessDotMethod {
         String[] fields = "c0,c1".split(",");
         makeSendBean(env, "E1", 10, 100);
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{false, 1});
+        env.assertPropsNew("s0", fields, new Object[]{false, 1});
 
         env.milestoneInc(milestone);
 
         makeSendBean(env, "E1", 20, 200);
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", fields, new Object[]{true, 2});
+        env.assertPropsNew("s0", fields, new Object[]{true, 2});
 
         env.undeployAll();
     }

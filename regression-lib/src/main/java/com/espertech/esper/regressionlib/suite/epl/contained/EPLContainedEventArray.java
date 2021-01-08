@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -56,7 +55,7 @@ public class EPLContainedEventArray {
             if (expected == null) {
                 assertFalse(env.listener("s0").getIsInvokedAndReset());
             } else {
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "id".split(","), expected);
+                env.assertPropsPerRowLastNew("s0", "id".split(","), expected);
             }
         }
     }

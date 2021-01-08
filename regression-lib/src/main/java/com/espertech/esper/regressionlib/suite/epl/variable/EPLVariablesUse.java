@@ -31,7 +31,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EPLVariablesUse {
@@ -168,7 +167,7 @@ public class EPLVariablesUse {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{"hello", "hello"});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"hello", "hello"});
 
             env.undeployAll();
         }
@@ -222,9 +221,9 @@ public class EPLVariablesUse {
             env.eplToModelCompileDeploy(epl);
 
             // test invalid
-            tryInvalidCompile(env, path, "on SupportBean set MYCONST = 10",
+            env.tryInvalidCompile(path, "on SupportBean set MYCONST = 10",
                 "Failed to validate assignment expression 'MYCONST=10': Variable by name 'MYCONST' is declared constant and may not be set [on SupportBean set MYCONST = 10]");
-            tryInvalidCompile(env, path, "select * from SupportBean output when true then set MYCONST=1",
+            env.tryInvalidCompile(path, "select * from SupportBean output when true then set MYCONST=1",
                 "Failed to validate the output rate limiting clause: Failed to validate assignment expression 'MYCONST=1': Variable by name 'MYCONST' is declared constant and may not be set [select * from SupportBean output when true then set MYCONST=1]");
 
             // assure no update via API
@@ -257,7 +256,7 @@ public class EPLVariablesUse {
             env.compileDeploy("create constant variable int[]  var_intstwo = {9}", path);
             tryOperator(env, path, "intBoxed in (var_ints, var_intstwo)", new Object[][]{{11, false}, {10, true}, {9, true}, {8, true}});
 
-            tryInvalidCompile(env, "create constant variable SupportBean[] var_beans",
+            env.tryInvalidCompile("create constant variable SupportBean[] var_beans",
                 "Cannot create variable 'var_beans', type 'SupportBean' cannot be declared as an array type and cannot receive type parameters as it is an event type");
 
             // test array of primitives
@@ -446,7 +445,7 @@ public class EPLVariablesUse {
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a", "b"});
 
             sendSupportBean(env, "a", 2);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"a", 2});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"a", 2});
 
             sendSupportBean(env, null, 1);
             env.assertListenerNotInvoked("s0");
@@ -454,7 +453,7 @@ public class EPLVariablesUse {
             env.milestone(1);
 
             sendSupportBean(env, "b", 3);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"b", 3});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"b", 3});
 
             sendSupportBean(env, "c", 4);
             env.assertListenerNotInvoked("s0");
@@ -465,10 +464,10 @@ public class EPLVariablesUse {
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"e", "c"});
 
             sendSupportBean(env, "c", 5);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"c", 5});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"c", 5});
 
             sendSupportBean(env, "e", 6);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"e", 6});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"e", 6});
 
             env.undeployAll();
         }
@@ -493,7 +492,7 @@ public class EPLVariablesUse {
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a"});
 
             sendSupportBean(env, "a", 2);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"a", 2});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"a", 2});
 
             env.milestone(0);
 
@@ -509,7 +508,7 @@ public class EPLVariablesUse {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBean(env, "e", 6);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{"e", 6});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{"e", 6});
 
             env.undeployAll();
         }

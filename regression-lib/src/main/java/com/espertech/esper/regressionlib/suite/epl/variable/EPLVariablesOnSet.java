@@ -26,7 +26,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EPLVariablesOnSet {
@@ -94,13 +93,13 @@ public class EPLVariablesOnSet {
                     "  }\n" +
                     "\"\"\"\n" +
                     "@name('s0') on SupportBean set Helper.swap(VARONE, VARTWO);\n";
-            tryInvalidCompile(env, eplInvalid, "Failed to validate assignment expression 'Helper.swap(VARONE,VARTWO)': Assignment expression must receive a single variable value");
+            env.tryInvalidCompile(eplInvalid, "Failed to validate assignment expression 'Helper.swap(VARONE,VARTWO)': Assignment expression must receive a single variable value");
 
             String eplConstant =
                 "import " + MyLocalVariable.class.getName() + ";\n" +
                     "@name('var') create constant variable MyLocalVariable VAR = new MyLocalVariable(1, 10);\n" +
                     "@name('s0') on SupportBean set VAR.reset();\n";
-            tryInvalidCompile(env, eplConstant, "Failed to validate assignment expression 'VAR.reset()': Variable by name 'VAR' is declared constant and may not be set");
+            env.tryInvalidCompile(eplConstant, "Failed to validate assignment expression 'VAR.reset()': Variable by name 'VAR' is declared constant and may not be set");
         }
 
         private void assertVariable(RegressionEnvironment env, int aExpected, int bExpected) {
@@ -134,19 +133,19 @@ public class EPLVariablesOnSet {
             env.compile(eplVariables, path);
 
             // invalid property
-            tryInvalidCompile(env, path, "on SupportBean set xxx[intPrimitive]=1d",
+            env.tryInvalidCompile(path, "on SupportBean set xxx[intPrimitive]=1d",
                 "Failed to validate assignment expression 'xxx[intPrimitive]=1.0': Variable by name 'xxx' has not been created or configured");
 
             // index expression is not Integer
-            tryInvalidCompile(env, path, "on SupportBean set doublearray[null]=1d",
+            env.tryInvalidCompile(path, "on SupportBean set doublearray[null]=1d",
                 "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
-            tryInvalidCompile(env, path, "on SupportBean set intarray[intPrimitive]='x'",
+            env.tryInvalidCompile(path, "on SupportBean set intarray[intPrimitive]='x'",
                 "Failed to validate assignment expression 'intarray[intPrimitive]=\"x\"': Invalid assignment of column '\"x\"' of type 'String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
 
             // not-an-array
-            tryInvalidCompile(env, path, "on SupportBean set notAnArray[intPrimitive]=1",
+            env.tryInvalidCompile(path, "on SupportBean set notAnArray[intPrimitive]=1",
                 "Failed to validate assignment expression 'notAnArray[intPrimitive]=1': Variable 'notAnArray' is not an array");
 
             path.clear();
@@ -369,7 +368,7 @@ public class EPLVariablesOnSet {
 
             String[] fieldsSelect = new String[]{"var1OM", "var2OM", "id"};
             sendSupportBean_A(env, "E1");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{10d, 11L, "E1"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{10d, 11L, "E1"});
 
             model = new EPStatementObjectModel();
             model.setOnExpr(OnClause.createOnSet(Expressions.eq(Expressions.property("var1OM"), Expressions.property("intPrimitive"))).addAssignment(Expressions.eq(Expressions.property("var2OM"), Expressions.property("intBoxed"))));
@@ -392,7 +391,7 @@ public class EPLVariablesOnSet {
             EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3d, 4L}});
 
             sendSupportBean_A(env, "E2");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
 
             env.undeployModuleContaining("set");
             env.undeployModuleContaining("s0");
@@ -478,7 +477,7 @@ public class EPLVariablesOnSet {
 
             String[] fieldsSelect = new String[]{"var1C", "var2C", "id"};
             sendSupportBean_A(env, "E1");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{10d, 11L, "E1"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{10d, 11L, "E1"});
 
             String stmtTextSet = "@name('set') on SupportBean set var1C=intPrimitive, var2C=intBoxed";
             env.eplToModelCompileDeploy(stmtTextSet).addListener("set");
@@ -496,7 +495,7 @@ public class EPLVariablesOnSet {
             EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3d, 4L}});
 
             sendSupportBean_A(env, "E2");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
 
             env.undeployModuleContaining("set");
             env.undeployModuleContaining("s0");
@@ -511,12 +510,12 @@ public class EPLVariablesOnSet {
 
             String[] fieldsSelect = new String[]{"var1RTC", "theString"};
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{10, "E1"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{10, "E1"});
 
             env.milestone(0);
 
             sendSupportBean(env, "E2", 2);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{10, "E2"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{10, "E2"});
 
             String stmtTextSet = "@name('set') on SupportBean(theString like 'S%') set var1RTC = intPrimitive";
             env.compileDeploy(stmtTextSet).addListener("set");
@@ -536,14 +535,14 @@ public class EPLVariablesOnSet {
             env.milestone(0);
 
             sendSupportBean(env, "E3", 4);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{3, "E3"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{3, "E3"});
 
             sendSupportBean(env, "S2", -1);
             EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{-1});
             EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1}});
 
             sendSupportBean(env, "E4", 5);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{-1, "E4"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{-1, "E4"});
 
             env.undeployAll();
         }
@@ -581,7 +580,7 @@ public class EPLVariablesOnSet {
             env.milestone(1);
 
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{-1, -2, "E1"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{-1, -2, "E1"});
             EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1, -2}});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{-1, -2, "E1"}});
 
@@ -591,7 +590,7 @@ public class EPLVariablesOnSet {
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{11, 12, "E1"}});
 
             sendSupportBean(env, "E2", 2);
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{11, 12, "E2"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{11, 12, "E2"});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{11, 12, "E2"}});
 
             env.undeployAll();
@@ -648,7 +647,7 @@ public class EPLVariablesOnSet {
             env.assertPropsPerRowIterator("s0", fieldsSelect, null);
 
             sendSupportBean_A(env, "A1");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{null, null, null, "A1"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{null, null, null, "A1"});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{null, null, null, "A1"}});
 
             sendSupportBean(env, "S1", 1, 2);
@@ -658,7 +657,7 @@ public class EPLVariablesOnSet {
             env.milestone(0);
 
             sendSupportBean_A(env, "A2");
-            env.assertPropsListenerNew("s0", fieldsSelect, new Object[]{1f, 1d, 2L, "A2"});
+            env.assertPropsNew("s0", fieldsSelect, new Object[]{1f, 1d, 2L, "A2"});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{1f, 1d, 2L, "A1"}, {1f, 1d, 2L, "A2"}});
 
             sendSupportBean(env, "S1", 10, 20);
@@ -677,22 +676,22 @@ public class EPLVariablesOnSet {
     private static class EPLVariableOnSetInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            tryInvalidCompile(env, "on SupportBean set dummy = 100",
+            env.tryInvalidCompile("on SupportBean set dummy = 100",
                 "Failed to validate assignment expression 'dummy=100': Variable by name 'dummy' has not been created or configured");
 
-            tryInvalidCompile(env, "on SupportBean set var1IS = 1",
+            env.tryInvalidCompile("on SupportBean set var1IS = 1",
                 "Failed to validate assignment expression 'var1IS=1': Variable 'var1IS' of declared type String cannot be assigned a value of type int");
 
-            tryInvalidCompile(env, "on SupportBean set var3IS = 'abc'",
+            env.tryInvalidCompile("on SupportBean set var3IS = 'abc'",
                 "Failed to validate assignment expression 'var3IS=\"abc\"': Variable 'var3IS' of declared type Integer cannot be assigned a value of type String");
 
-            tryInvalidCompile(env, "on SupportBean set var3IS = doublePrimitive",
+            env.tryInvalidCompile("on SupportBean set var3IS = doublePrimitive",
                 "Failed to validate assignment expression 'var3IS=doublePrimitive': Variable 'var3IS' of declared type Integer cannot be assigned a value of type Double");
 
-            tryInvalidCompile(env, "on SupportBean set var2IS = 'false'", "skip");
-            tryInvalidCompile(env, "on SupportBean set var3IS = 1.1", "skip");
-            tryInvalidCompile(env, "on SupportBean set var3IS = 22222222222222", "skip");
-            tryInvalidCompile(env, "on SupportBean set var3IS", "Failed to validate assignment expression 'var3IS': Missing variable assignment expression in assignment number 0");
+            env.tryInvalidCompile("on SupportBean set var2IS = 'false'", "skip");
+            env.tryInvalidCompile("on SupportBean set var3IS = 1.1", "skip");
+            env.tryInvalidCompile("on SupportBean set var3IS = 22222222222222", "skip");
+            env.tryInvalidCompile("on SupportBean set var3IS", "Failed to validate assignment expression 'var3IS': Missing variable assignment expression in assignment number 0");
         }
     }
 

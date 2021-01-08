@@ -19,7 +19,6 @@ import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStringDate;
 import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStringPoint;
 
@@ -71,16 +70,16 @@ public class EventJsonAdapter {
 
     private static class EventJsonAdapterInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter=x) create json schema JsonEvent(mydate Date)",
+            env.tryInvalidCompile("@JsonSchemaField(name=mydate, adapter=x) create json schema JsonEvent(mydate Date)",
                 "Failed to resolve Json schema field adapter class: Could not load class by name 'x', please check imports");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter='java.lang.String') create json schema JsonEvent(mydate Date)",
+            env.tryInvalidCompile("@JsonSchemaField(name=mydate, adapter='java.lang.String') create json schema JsonEvent(mydate Date)",
                 "Json schema field adapter class does not implement interface 'JsonFieldAdapterString");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter='" + InvalidAdapterJSONDate.class.getName() + "') create json schema JsonEvent(mydate Date)",
+            env.tryInvalidCompile("@JsonSchemaField(name=mydate, adapter='" + InvalidAdapterJSONDate.class.getName() + "') create json schema JsonEvent(mydate Date)",
                 "Json schema field adapter class '" + InvalidAdapterJSONDate.class.getName() + "' does not have a default constructor");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@JsonSchemaField(name=mydate, adapter='" + SupportJsonFieldAdapterStringDate.class.getSimpleName() + "') create json schema JsonEvent(mydate String)",
+            env.tryInvalidCompile("@JsonSchemaField(name=mydate, adapter='" + SupportJsonFieldAdapterStringDate.class.getSimpleName() + "') create json schema JsonEvent(mydate String)",
                 "Json schema field adapter class '" + SupportJsonFieldAdapterStringDate.class.getName() + "' mismatches the return type of the parse method, expected 'String' but found 'Date'");
         }
     }
@@ -131,7 +130,7 @@ public class EventJsonAdapter {
     }
 
     private static void doAssert(RegressionEnvironment env, String json, Object[] expected) {
-        env.assertPropsListenerNew("s0", "point,mydate".split(","), expected);
+        env.assertPropsNew("s0", "point,mydate".split(","), expected);
 
         JsonEventObject event = (JsonEventObject) env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         assertEquals(json, event.toString());

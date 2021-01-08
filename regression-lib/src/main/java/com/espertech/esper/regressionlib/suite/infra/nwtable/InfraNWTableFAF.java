@@ -932,7 +932,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.compileExecuteFAF("delete from MyInfra", path);
             final String[] fields = new String[]{"theString", "intPrimitive"};
             if (namedWindow) {
-                env.assertPropsListenerNew("s0", fields, new Object[]{"E0", 0});
+                env.assertPropsNew("s0", fields, new Object[]{"E0", 0});
             } else {
                 env.assertListenerNotInvoked("s0");
             }
@@ -1019,7 +1019,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.compileDeploy("@name('s0') select irstream * from MyInfra", path).addListener("s0");
             env.compileExecuteFAF("update MyInfra set intPrimitive=1000 where theString = 'E0'", path);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("s0").assertPairGetIRAndReset(), fields, new Object[]{"E0", 1000}, new Object[]{"E0", 0});
+                env.assertPropsIRPair("s0", fields, new Object[]{"E0", 1000}, new Object[]{"E0", 0});
             }
 
             // test update via UDF and setter

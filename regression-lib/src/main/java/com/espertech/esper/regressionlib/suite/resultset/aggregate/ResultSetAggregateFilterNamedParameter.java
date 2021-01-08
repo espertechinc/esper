@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -126,34 +125,34 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             sendEventWLong(env, "X1", 1000, 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "X2", 1200, 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.milestone(0);
 
             sendEventWLong(env, "X2", 1300, 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A1", 1000, 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.milestone(1);
 
             sendEventWLong(env, "A2", 1200, 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A3", 1300, 0);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEventWLong(env, "A4", 1500, 14);
-            env.assertPropsListenerNew("s0", fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
+            env.assertPropsNew("s0", fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
 
             env.milestone(2);
 
             sendEventWLong(env, "A5", 2000, 11);
-            env.assertPropsListenerNew("s0", fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
+            env.assertPropsNew("s0", fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
 
             env.undeployAll();
         }
@@ -257,23 +256,23 @@ public class ResultSetAggregateFilterNamedParameter {
     private static class ResultSetAggregateFilterNamedParamInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // invalid filter expression name parameter: multiple values
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select sum(intPrimitive, filter:(intPrimitive, doublePrimitive)) from SupportBean",
+            env.tryInvalidCompile("select sum(intPrimitive, filter:(intPrimitive, doublePrimitive)) from SupportBean",
                 "Failed to validate select-clause expression 'sum(intPrimitive,filter:(intPrimiti...(55 chars)': Filter named parameter requires a single expression returning a boolean-typed value");
 
             // multiple filter expressions
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select sum(intPrimitive, intPrimitive > 0, filter:intPrimitive < 0) from SupportBean",
+            env.tryInvalidCompile("select sum(intPrimitive, intPrimitive > 0, filter:intPrimitive < 0) from SupportBean",
                 "Failed to validate select-clause expression 'sum(intPrimitive,intPrimitive>0,fil...(54 chars)': Only a single filter expression can be provided");
 
             // invalid filter expression name parameter: not returning boolean
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select sum(intPrimitive, filter:intPrimitive) from SupportBean",
+            env.tryInvalidCompile("select sum(intPrimitive, filter:intPrimitive) from SupportBean",
                 "Failed to validate select-clause expression 'sum(intPrimitive,filter:intPrimitive)': Filter named parameter requires a single expression returning a boolean-typed value");
 
             // create-table does not allow filters
-            SupportMessageAssertUtil.tryInvalidCompile(env, "create table MyTable(totals sum(int, filter:true))",
+            env.tryInvalidCompile("create table MyTable(totals sum(int, filter:true))",
                 "Failed to validate table-column expression 'sum(int,filter:true)': The 'group_by' and 'filter' parameter is not allowed in create-table statements");
 
             // invalid correlated subquery
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select (select sum(intPrimitive, filter:s0.p00='a') from SupportBean) from SupportBean_S0 as s0",
+            env.tryInvalidCompile("select (select sum(intPrimitive, filter:s0.p00='a') from SupportBean) from SupportBean_S0 as s0",
                 "Failed to plan subquery number 1 querying SupportBean: Subselect aggregation functions cannot aggregate across correlated properties");
         }
     }
@@ -397,35 +396,35 @@ public class ResultSetAggregateFilterNamedParameter {
             env.milestone(0);
 
             SupportBean b1 = sendEvent(env, "B1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, "B1", "B1", new SupportBean[]{b1}});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, "B1", "B1", new SupportBean[]{b1}});
 
             SupportBean a10 = sendEvent(env, "A10", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B1", "B1", new SupportBean[]{b1}});
+            env.assertPropsNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B1", "B1", new SupportBean[]{b1}});
 
             env.milestone(1);
 
             SupportBean b2 = sendEvent(env, "B2", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B2", "B1", new SupportBean[]{b1, b2}});
+            env.assertPropsNew("s0", fields, new Object[]{"A10", "A10", new SupportBean[]{a10}, "B2", "B1", new SupportBean[]{b1, b2}});
 
             SupportBean a5 = sendEvent(env, "A5", 5);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A10", "A5", new SupportBean[]{a5, a10}, "B2", "B1", new SupportBean[]{b1, b2}});
+            env.assertPropsNew("s0", fields, new Object[]{"A10", "A5", new SupportBean[]{a5, a10}, "B2", "B1", new SupportBean[]{b1, b2}});
 
             SupportBean a15 = sendEvent(env, "A15", 15);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a10, a15}, "B2", "B2", new SupportBean[]{b2}});
+            env.assertPropsNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a10, a15}, "B2", "B2", new SupportBean[]{b2}});
 
             sendEvent(env, "X3", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, "B2", "B2", new SupportBean[]{b2}});
+            env.assertPropsNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, "B2", "B2", new SupportBean[]{b2}});
 
             env.milestone(2);
 
             sendEvent(env, "X4", 4);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"A15", "A5", new SupportBean[]{a5, a15}, null, null, null});
 
             sendEvent(env, "X5", 5);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A15", "A15", new SupportBean[]{a15}, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"A15", "A15", new SupportBean[]{a15}, null, null, null});
 
             sendEvent(env, "X6", 6);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null, null, null, null, null});
 
             env.undeployAll();
         }
@@ -447,18 +446,18 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean b1 = sendEvent(env, "B1", 1, 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, new SupportBean[]{b1}});
+            env.assertPropsNew("s0", fields, new Object[]{null, new SupportBean[]{b1}});
 
             SupportBean a1 = sendEvent(env, "A1", 100, 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b1}});
+            env.assertPropsNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b1}});
 
             env.milestone(0);
 
             SupportBean b2 = sendEvent(env, "B2", 1, 4);
-            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b2, b1}});
+            env.assertPropsNew("s0", fields, new Object[]{new SupportBean[]{a1}, new SupportBean[]{b2, b1}});
 
             SupportBean a2 = sendEvent(env, "A2", 100, 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a1, a2}, new SupportBean[]{b2, b1}});
+            env.assertPropsNew("s0", fields, new Object[]{new SupportBean[]{a1, a2}, new SupportBean[]{b2, b1}});
 
             env.undeployAll();
         }
@@ -617,15 +616,15 @@ public class ResultSetAggregateFilterNamedParameter {
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean x1 = sendEvent(env, "X1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, new SupportBean[]{x1}, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, new SupportBean[]{x1}, null});
 
             SupportBean a2 = sendEvent(env, "A2", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2}, null});
+            env.assertPropsNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2}, null});
 
             env.milestone(0);
 
             SupportBean b3 = sendEvent(env, "B3", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2, b3}, new SupportBean[]{b3}});
+            env.assertPropsNew("s0", fields, new Object[]{new SupportBean[]{a2}, new SupportBean[]{x1, a2, b3}, new SupportBean[]{b3}});
 
             env.undeployAll();
         }
@@ -763,12 +762,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String[] fields, Object[] expected) {
         sendEvent(env, theString, intPrimitive);
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
     }
 
     private static void sendEventAssertIsolated(RegressionEnvironment env, String theString, int intPrimitive, String[] fields, Object[] expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        env.assertPropsListenerNew("s0", fields, expected);
+        env.assertPropsNew("s0", fields, expected);
     }
 
     private static SupportBean sendEvent(RegressionEnvironment env, String theString, int intPrimitive) {
@@ -784,12 +783,12 @@ public class ResultSetAggregateFilterNamedParameter {
 
     private static void sendEventAssertInfoTable(RegressionEnvironment env, Object ta, Object tb, Object wa, Object wb, Object sa, Object sb) {
         env.sendEventBean(new SupportBean_S0(0));
-        env.assertPropsListenerNew("s0", "ta,tb,wa,wb,sa,sb".split(","), new Object[]{ta, tb, wa, wb, sa, sb});
+        env.assertPropsNew("s0", "ta,tb,wa,wb,sa,sb".split(","), new Object[]{ta, tb, wa, wb, sa, sb});
     }
 
     private static void sendEventAssertCount(RegressionEnvironment env, String p00, Object expected) {
         env.sendEventBean(new SupportBean_S0(0, p00));
-        env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{expected});
+        env.assertPropsNew("s0", "c0".split(","), new Object[]{expected});
     }
 
     private static void sendEventWLong(RegressionEnvironment env, String theString, long longPrimitive, int intPrimitive) {

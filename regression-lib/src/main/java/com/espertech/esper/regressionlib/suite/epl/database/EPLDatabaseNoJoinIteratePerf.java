@@ -10,19 +10,21 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 
 public class EPLDatabaseNoJoinIteratePerf implements RegressionExecution {
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {
@@ -39,7 +41,7 @@ public class EPLDatabaseNoJoinIteratePerf implements RegressionExecution {
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{4L, true}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, true}});
         }
         long end = System.currentTimeMillis();
         long delta = end - start;

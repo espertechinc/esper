@@ -77,7 +77,7 @@ public class EventInfraPropertyNestedNestedEscaped implements RegressionExecutio
                 " from " + eventTypeName, path).addListener("s0");
 
         sendEvent.apply(eventTypeName, env, "v2", "v2dyn", "v3");
-        env.assertPropsListenerNew("s0", "c0,c1,c2,c3".split(","), new Object[] {"v2", "v3", "v3", "v2dyn"});
+        env.assertPropsNew("s0", "c0,c1,c2,c3".split(","), new Object[] {"v2", "v3", "v3", "v2dyn"});
 
         env.undeployModuleContaining("s0");
     }

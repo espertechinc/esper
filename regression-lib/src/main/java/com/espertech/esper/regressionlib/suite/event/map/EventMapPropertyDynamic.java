@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EventMapPropertyDynamic implements RegressionExecution {
@@ -129,9 +128,9 @@ public class EventMapPropertyDynamic implements RegressionExecution {
     }
 
     private void runAssertionMapWithinMap2LevelsInvalid(RegressionEnvironment env) {
-        tryInvalidCompile(env, "select innermap.int as t0 from MyLevel2#length(5)", "skip");
-        tryInvalidCompile(env, "select innermap.int.inner2? as t0 from MyLevel2#length(5)", "skip");
-        tryInvalidCompile(env, "select innermap.int.inner2? as t0 from MyLevel2#length(5)", "skip");
+        env.tryInvalidCompile("select innermap.int as t0 from MyLevel2#length(5)", "skip");
+        env.tryInvalidCompile("select innermap.int.inner2? as t0 from MyLevel2#length(5)", "skip");
+        env.tryInvalidCompile("select innermap.int.inner2? as t0 from MyLevel2#length(5)", "skip");
     }
 
     private void assertResults(EventBean theEvent, Object[] result) {

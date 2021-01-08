@@ -48,14 +48,14 @@ public class RowRecogClausePresence implements RegressionExecution {
         env.sendEventBean(beans[0]);
         env.assertListenerNotInvoked("s0");
         env.sendEventBean(beans[1]);
-        env.assertPropsListenerNew("s0", fields, new Object[]{beans[0], beans[1]});
+        env.assertPropsNew("s0", fields, new Object[]{beans[0], beans[1]});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(beans[2]);
         env.assertListenerNotInvoked("s0");
         env.sendEventBean(beans[3]);
-        env.assertPropsListenerNew("s0", fields, new Object[]{beans[2], beans[3]});
+        env.assertPropsNew("s0", fields, new Object[]{beans[2], beans[3]});
 
         env.undeployAll();
     }

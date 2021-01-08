@@ -33,7 +33,6 @@ import java.util.List;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.toObjectArray;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.client.AnnotationAssertUtil.sortAlpha;
 import static junit.framework.TestCase.*;
 
@@ -342,12 +341,12 @@ public class ClientRuntimeStatementAnnotation {
 
             // try invalid annotation not yet imported
             String epl = "@MyAnnotationValueEnumTwo(supportEnum = SupportEnum.ENUM_VALUE_1) select * from SupportBean";
-            tryInvalidCompile(env, epl, "Failed to process statement annotations: Failed to resolve @-annotation");
+            env.tryInvalidCompile(epl, "Failed to process statement annotations: Failed to resolve @-annotation");
 
             // try invalid use : these are annotation-specific imports of an annotation and an enum
-            tryInvalidCompile(env, "select * from MyAnnotationValueEnumTwo",
+            env.tryInvalidCompile("select * from MyAnnotationValueEnumTwo",
                 "Failed to resolve event type, named window or table by name 'MyAnnotationValueEnumTwo'");
-            tryInvalidCompile(env, "select SupportEnum.ENUM_VALUE_1 from SupportBean",
+            env.tryInvalidCompile("select SupportEnum.ENUM_VALUE_1 from SupportBean",
                 "Failed to validate select-clause expression 'SupportEnum.ENUM_VALUE_1'");
 
             env.undeployAll();

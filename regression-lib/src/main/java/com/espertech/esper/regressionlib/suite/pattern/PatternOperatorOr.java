@@ -47,7 +47,7 @@ public class PatternOperatorOr {
             env.milestone(0);
 
             sendSupportBean(env, "EB", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{null, "EB"});
+            env.assertPropsNew("s0", fields, new Object[]{null, "EB"});
 
             env.milestone(1);
 

@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,11 +41,11 @@ public class InfraTableContext {
             env.compileDeploy("create context SimpleCtx start after 1 sec end after 1 sec", path);
             env.compileDeploy("context SimpleCtx create table MyTable(pkey string primary key, thesum sum(int), col0 string)", path);
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "select * from MyTable",
+            env.tryInvalidCompile(path, "select * from MyTable",
                 "Table by name 'MyTable' has been declared for context 'SimpleCtx' and can only be used within the same context [");
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "select (select * from MyTable) from SupportBean",
+            env.tryInvalidCompile(path, "select (select * from MyTable) from SupportBean",
                 "Failed to plan subquery number 1 querying MyTable: Mismatch in context specification, the context for the table 'MyTable' is 'SimpleCtx' and the query specifies no context  [select (select * from MyTable) from SupportBean]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "insert into MyTable select theString as pkey from SupportBean",
+            env.tryInvalidCompile(path, "insert into MyTable select theString as pkey from SupportBean",
                 "Table by name 'MyTable' has been declared for context 'SimpleCtx' and can only be used within the same context [");
 
             env.undeployAll();

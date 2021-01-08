@@ -13,11 +13,9 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.hook.condition.ConditionHandlerContext;
 import com.espertech.esper.common.client.hook.condition.ConditionHandlerFactoryContext;
 import com.espertech.esper.common.client.hook.condition.ConditionPatternSubexpressionMax;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
@@ -47,9 +45,9 @@ public class PatternOperatorFollowedByMax {
 
     private static class PatternOperatorFollowedByMaxInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[a=SupportBean_A -[a.intPrimitive]> SupportBean_B]",
+            env.tryInvalidCompile("select * from pattern[a=SupportBean_A -[a.intPrimitive]> SupportBean_B]",
                 "Invalid maximum expression in followed-by, event properties are not allowed within the expression [select * from pattern[a=SupportBean_A -[a.intPrimitive]> SupportBean_B]]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from pattern[a=SupportBean_A -[false]> SupportBean_B]",
+            env.tryInvalidCompile("select * from pattern[a=SupportBean_A -[false]> SupportBean_B]",
                 "Invalid maximum expression in followed-by, the expression must return an integer value [select * from pattern[a=SupportBean_A -[false]> SupportBean_B]]");
         }
     }
@@ -77,7 +75,7 @@ public class PatternOperatorFollowedByMax {
 
             env.sendEventBean(new SupportBean_C("C1"));
             assertTrue(handler.getContexts().isEmpty());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}, {"A3", "B2", "C1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}, {"A3", "B2", "C1"}});
 
             env.undeployAll();
         }
@@ -117,7 +115,7 @@ public class PatternOperatorFollowedByMax {
 
             env.sendEventBean(new SupportBean_C("C1"));
             assertTrue(handler.getContexts().isEmpty());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}});
         }
     }
 
@@ -142,7 +140,7 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("A4"));
             env.sendEventBean(new SupportBean_B("B1"));
             assertTrue(handler.getContexts().isEmpty());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
 
             env.sendEventBean(new SupportBean_A("A5"));
             env.sendEventBean(new SupportBean_A("A6"));
@@ -163,7 +161,7 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("A4"));
             env.sendEventBean(new SupportBean_B("B1"));
             assertTrue(handler.getContexts().isEmpty());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
 
             env.sendEventBean(new SupportBean_A("A5"));
             env.sendEventBean(new SupportBean_A("A6"));
@@ -180,16 +178,16 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("2"));
 
             env.sendEventBean(new SupportBean_B("1"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"1", "1"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"1", "1"}});
 
             env.sendEventBean(new SupportBean_B("2"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"2", "2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"2", "2"}});
 
             env.sendEventBean(new SupportBean_C("1"));
 
             env.sendEventBean(new SupportBean_A("3"));
             env.sendEventBean(new SupportBean_B("3"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"3", "3"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"3", "3"}});
 
             env.undeployAll();
         }
@@ -234,11 +232,11 @@ public class PatternOperatorFollowedByMax {
         assertContext(env, handler.getContexts(), 2);
 
         env.sendEventBean(new SupportBean_B("B1"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}});
 
         env.sendEventBean(new SupportBean_A("A4"));
         env.sendEventBean(new SupportBean_B("B2"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A4", "B2"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A4", "B2"}});
         assertTrue(handler.getContexts().isEmpty());
 
         for (int i = 5; i < 9; i++) {
@@ -249,7 +247,7 @@ public class PatternOperatorFollowedByMax {
         }
 
         env.sendEventBean(new SupportBean_B("B3"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A5", "B3"}, {"A6", "B3"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A5", "B3"}, {"A6", "B3"}});
 
         env.sendEventBean(new SupportBean_B("B4"));
         env.assertListenerNotInvoked("s0");
@@ -257,7 +255,7 @@ public class PatternOperatorFollowedByMax {
         env.sendEventBean(new SupportBean_A("A20"));
         env.sendEventBean(new SupportBean_A("A21"));
         env.sendEventBean(new SupportBean_B("B5"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A20", "B5"}, {"A21", "B5"}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A20", "B5"}, {"A21", "B5"}});
         assertTrue(handler.getContexts().isEmpty());
     }
 

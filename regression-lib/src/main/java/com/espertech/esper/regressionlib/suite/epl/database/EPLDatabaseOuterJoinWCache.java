@@ -14,9 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class EPLDatabaseOuterJoinWCache implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -29,13 +26,13 @@ public class EPLDatabaseOuterJoinWCache implements RegressionExecution {
         env.compileDeploy(stmtText).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", -1));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 10));
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

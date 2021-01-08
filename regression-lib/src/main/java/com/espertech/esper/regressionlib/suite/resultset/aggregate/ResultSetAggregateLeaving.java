@@ -16,7 +16,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ResultSetAggregateLeaving implements RegressionExecution {
 
@@ -35,7 +35,7 @@ public class ResultSetAggregateLeaving implements RegressionExecution {
 
         env.undeployAll();
 
-        tryInvalidCompile(env, "select leaving(1) from SupportBean",
+        env.tryInvalidCompile("select leaving(1) from SupportBean",
             "Failed to validate select-clause expression 'leaving(1)': The 'leaving' function expects no parameters");
     }
 
@@ -43,24 +43,24 @@ public class ResultSetAggregateLeaving implements RegressionExecution {
         String[] fields = "val".split(",");
 
         env.sendEventBean(new SupportBean("E1", 1));
-        env.assertPropsListenerNew("s0", fields, new Object[]{false});
+        env.assertPropsNew("s0", fields, new Object[]{false});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 2));
-        env.assertPropsListenerNew("s0", fields, new Object[]{false});
+        env.assertPropsNew("s0", fields, new Object[]{false});
 
         env.sendEventBean(new SupportBean("E3", 3));
-        env.assertPropsListenerNew("s0", fields, new Object[]{false});
+        env.assertPropsNew("s0", fields, new Object[]{false});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E4", 4));
-        env.assertPropsListenerNew("s0", fields, new Object[]{true});
+        env.assertPropsNew("s0", fields, new Object[]{true});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E5", 5));
-        env.assertPropsListenerNew("s0", fields, new Object[]{true});
+        env.assertPropsNew("s0", fields, new Object[]{true});
     }
 }

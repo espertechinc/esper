@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.fromclausemethod;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanInt;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 
@@ -34,8 +35,8 @@ public class EPLFromClauseMethodJoinPerformance {
 
     private static class EPLFromClauseMethod1Stream2HistInnerJoinPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -55,7 +56,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 sendBeanInt(env, "E1", num);
 
                 Object[][] result = new Object[][]{{"E1", "H0" + num, "H1" + num}};
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
+                env.assertPropsPerRowLastNew("s0", fields, result);
             }
             long end = System.currentTimeMillis();
             long delta = end - start;
@@ -66,8 +67,8 @@ public class EPLFromClauseMethodJoinPerformance {
 
     private static class EPLFromClauseMethod1Stream2HistOuterJoinPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -90,7 +91,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 sendBeanInt(env, "E1", num);
 
                 Object[][] result = new Object[][]{{"E1", "H0" + num, "H1" + num}};
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
+                env.assertPropsPerRowLastNew("s0", fields, result);
             }
             long end = System.currentTimeMillis();
             long delta = end - start;
@@ -101,8 +102,8 @@ public class EPLFromClauseMethodJoinPerformance {
 
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryIdenticalIndex implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -123,7 +124,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 sendBeanInt(env, "F1", num);
 
                 Object[][] result = new Object[][]{{"E1", "F1", "H0" + num}};
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
+                env.assertPropsPerRowLastNew("s0", fields, result);
 
                 // send reset events to avoid duplicate matches
                 sendBeanInt(env, "E1", 0);
@@ -139,8 +140,8 @@ public class EPLFromClauseMethodJoinPerformance {
 
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryMixedIndex implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -161,7 +162,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 sendBeanInt(env, "H0" + num, num);
 
                 Object[][] result = new Object[][]{{"E1", "H0" + num, "H0" + num, num}};
-                EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, result);
+                env.assertPropsPerRowLastNew("s0", fields, result);
 
                 // send reset events to avoid duplicate matches
                 sendBeanInt(env, "E1", 0);

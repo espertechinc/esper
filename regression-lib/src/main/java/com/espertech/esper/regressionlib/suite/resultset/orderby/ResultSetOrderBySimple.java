@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -463,19 +462,19 @@ public class ResultSetOrderBySimple {
                 "SupportMarketDataBean#length(5) " +
                 "output every 6 events " +
                 "order by sum(price)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
 
             epl = "@name('s0') select sum(price) from " +
                 "SupportMarketDataBean#length(5) " +
                 "output every 6 events " +
                 "order by sum(price + 6)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
 
             epl = "@name('s0') select sum(price + 6) from " +
                 "SupportMarketDataBean#length(5) " +
                 "output every 6 events " +
                 "order by sum(price)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
 
             epl = "@name('s0') select symbol from " +
                 "SupportMarketDataBean#length(10) as one, " +
@@ -483,7 +482,7 @@ public class ResultSetOrderBySimple {
                 "where one.symbol = two.theString " +
                 "output every 6 events " +
                 "order by sum(price)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
 
             epl = "@name('s0') select sum(price) from " +
                 "SupportMarketDataBean#length(10) as one, " +
@@ -491,7 +490,7 @@ public class ResultSetOrderBySimple {
                 "where one.symbol = two.theString " +
                 "output every 6 events " +
                 "order by sum(price + 6)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
 
             epl = "@name('s0') select sum(price + 6) from " +
                 "SupportMarketDataBean#length(10) as one, " +
@@ -499,7 +498,7 @@ public class ResultSetOrderBySimple {
                 "where one.symbol = two.theString " +
                 "output every 6 events " +
                 "order by sum(price)";
-            tryInvalidCompile(env, epl, message);
+            env.tryInvalidCompile(epl, message);
         }
     }
 

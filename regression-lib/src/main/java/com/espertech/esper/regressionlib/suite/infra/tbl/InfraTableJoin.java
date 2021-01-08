@@ -66,10 +66,10 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             env.compileExecuteFAF("insert into MyTable select 'a' as p0, 10 as p1", path);
 
             env.sendEventBean(new SupportBean("a", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"a", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"a", 10});
 
             env.sendEventBean(new SupportBean("b", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"b", null});
+            env.assertPropsNew("s0", fields, new Object[]{"b", null});
 
             env.undeployAll();
         }
@@ -120,7 +120,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             IndexAssertionEventSend eventSendAssertionHash = new IndexAssertionEventSend() {
                 public void run() {
                     env.sendEventBean(new SupportBean_S0(10, "G1"));
-                    EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "value".split(","),
+                    env.assertPropsPerRowNewFlattened("s0",  "value".split(","),
                         new Object[][]{{1000L}});
                     env.listener("s0").reset();
                 }
@@ -276,7 +276,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             env.compileExecuteFAF("insert into SecondTable values ('a1', 10)", path);
             env.compileDeploy("@name('s0')select a, b from SecondTable, SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", "a,b".split(","), new Object[]{"a1", 10});
+            env.assertPropsNew("s0", "a,b".split(","), new Object[]{"a1", 10});
 
             env.undeployAll();
         }

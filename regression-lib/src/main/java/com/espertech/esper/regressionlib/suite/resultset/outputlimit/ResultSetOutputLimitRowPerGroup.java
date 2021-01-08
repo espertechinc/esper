@@ -30,8 +30,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ResultSetOutputLimitRowPerGroup {
     private final static String SYMBOL_DELL = "DELL";
@@ -104,7 +103,7 @@ public class ResultSetOutputLimitRowPerGroup {
             env.milestone(0);
 
             env.advanceTime(10000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"A", 0L, 22}, {"B", 1L, 24}});
 
             env.undeployAll();
@@ -179,7 +178,7 @@ public class ResultSetOutputLimitRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10});
+            env.assertPropsNew("s0", fields, new Object[]{10});
 
             env.milestone(0);
 
@@ -232,7 +231,7 @@ public class ResultSetOutputLimitRowPerGroup {
             env.compileDeploy(epl).addListener("s0");
 
             sendBeanEvent(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
             sendTimer(env, 2 * 60 * 1000 - 1);
             sendBeanEvent(env, "E1", 11);
@@ -240,10 +239,10 @@ public class ResultSetOutputLimitRowPerGroup {
 
             sendTimer(env, 2 * 60 * 1000);
             sendBeanEvent(env, "E1", 12);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 33});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 33});
 
             sendBeanEvent(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
 
             sendBeanEvent(env, "E2", 21);
             sendTimer(env, 4 * 60 * 1000 - 1);
@@ -253,9 +252,9 @@ public class ResultSetOutputLimitRowPerGroup {
 
             sendTimer(env, 4 * 60 * 1000);
             sendBeanEvent(env, "E2", 23);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 86});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 86});
             sendBeanEvent(env, "E1", 14);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 60});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 60});
 
             env.undeployAll();
         }
@@ -279,14 +278,14 @@ public class ResultSetOutputLimitRowPerGroup {
 
             env.runtime().getVariableService().setVariableValue(null, "varoutone", true);
             sendBeanEvent(env, "E1", 12);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 33});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 33});
             assertEquals(false, env.runtime().getVariableService().getVariableValue(null, "varoutone"));
 
             env.milestone(1);
 
             env.runtime().getVariableService().setVariableValue(null, "varoutone", true);
             sendBeanEvent(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
             Assert.assertEquals(false, env.runtime().getVariableService().getVariableValue(null, "varoutone"));
 
             sendBeanEvent(env, "E1", 13);
@@ -310,28 +309,28 @@ public class ResultSetOutputLimitRowPerGroup {
             env.compileDeploy(epl, path).addListener("s0");
 
             sendBeanEvent(env, "E1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10});
 
             sendBeanEvent(env, "E1", 12);
             sendBeanEvent(env, "E1", 11);
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E1", 13);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 46});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 46});
 
             sendMDEvent(env, "S1", 12);
             sendMDEvent(env, "S1", 11);
             env.assertListenerNotInvoked("s0");
 
             sendMDEvent(env, "S1", 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 13});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 13});
 
             sendBeanEvent(env, "E1", 14);
             sendBeanEvent(env, "E1", 15);
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
             env.undeployModuleContaining("s0");
 
             // test variable
@@ -340,10 +339,10 @@ public class ResultSetOutputLimitRowPerGroup {
             env.addListener("s0");
 
             sendBeanEvent(env, "E3", 10);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E3", 10}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E3", 10}});
 
             sendBeanEvent(env, "E1", 5);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 47}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 47}});
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myvar_local", 2);
 
@@ -351,13 +350,13 @@ public class ResultSetOutputLimitRowPerGroup {
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E1", 7);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 60}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 60}});
 
             sendBeanEvent(env, "E1", 1);
             env.assertListenerNotInvoked("s0");
 
             sendBeanEvent(env, "E1", 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1", 62}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 62}});
 
             env.undeployAll();
         }
@@ -672,12 +671,12 @@ public class ResultSetOutputLimitRowPerGroup {
             sendTimer(env, 500);
             sendMDEvent(env, "IBM", 16);
             sendMDEvent(env, "ABC", 14);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "minprice"};
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 14d}, {"IBM", 16d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 1500);
@@ -686,18 +685,18 @@ public class ResultSetOutputLimitRowPerGroup {
 
             sendTimer(env, 10000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 14d}, {"IBM", 16d}, {"MSFT", 30d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"IBM", 18d}, {"MSFT", 30d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 12000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -722,12 +721,12 @@ public class ResultSetOutputLimitRowPerGroup {
             sendTimer(env, 500);
             sendMDEvent(env, "IBM", 16);
             sendMDEvent(env, "ABC", 14);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "minprice"};
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 14d}, {"IBM", 16d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 1500);
@@ -736,20 +735,20 @@ public class ResultSetOutputLimitRowPerGroup {
 
             sendTimer(env, 10000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 14d}, {"IBM", 16d}, {"MSFT", 30d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 10500);
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"IBM", 18d}, {"MSFT", 30d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 11500);
             sendTimer(env, 12000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -770,7 +769,7 @@ public class ResultSetOutputLimitRowPerGroup {
             sendMDEvent(env, "IBM", 3D);
             sendMDEvent(env, "MAC", 1D);
 
-            TestCase.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             EventBean[] newData = env.listener("s0").getLastNewData();
             assertEquals(3, newData.length);
             EPAssertionUtil.assertPropsPerRowAnyOrder(newData, fields, new Object[][]{
@@ -797,7 +796,7 @@ public class ResultSetOutputLimitRowPerGroup {
             sendMDEvent(env, "IBM", 3D);
             sendMDEvent(env, "MAC", 1D);
 
-            TestCase.assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             EventBean[] newData = env.listener("s0").getLastNewData();
             EventBean[] oldData = env.listener("s0").getLastOldData();
             assertEquals(5, newData.length);
@@ -1029,24 +1028,24 @@ public class ResultSetOutputLimitRowPerGroup {
         env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, "E2", 5);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 25});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 25});
 
         sendBeanEvent(env, "E2", -6);    // to 19, does not count toward condition
         sendBeanEvent(env, "E2", 2);    // to 21, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 22});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 22});
 
         sendBeanEvent(env, "E2", 1);    // to 23, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 1);     // to 24
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 24});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 24});
 
         sendBeanEvent(env, "E2", -10);    // to 14
         sendBeanEvent(env, "E2", 10);    // to 24, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 0);    // to 24, counts toward condition
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 24});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 24});
 
         sendBeanEvent(env, "E2", -10);    // to 14
         sendBeanEvent(env, "E2", 1);     // to 15
@@ -1056,19 +1055,19 @@ public class ResultSetOutputLimitRowPerGroup {
         env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, "E2", 0);    // to 21
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 21});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 21});
 
         // remove events
         sendMDEvent(env, "E2", 0);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 21});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 21});
 
         // remove events
         sendMDEvent(env, "E2", -10);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 41});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 41});
 
         // remove events
         sendMDEvent(env, "E2", -6);  // since there is 3*-10 we output the next one
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 47});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 47});
 
         sendMDEvent(env, "E2", 2);
         env.assertListenerNotInvoked("s0");

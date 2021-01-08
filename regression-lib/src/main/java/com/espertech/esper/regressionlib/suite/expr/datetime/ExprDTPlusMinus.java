@@ -60,26 +60,26 @@ public class ExprDTPlusMinus {
                 LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null,
+            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null,
                 SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
 
             Object[] expectedPlus = SupportDateTime.getArrayCoerced(startTime, "long", "util", "long", "cal", "ldt", "zdt");
             Object[] expectedMinus = SupportDateTime.getArrayCoerced(startTime, "long", "util", "long", "cal", "ldt", "zdt");
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
+            env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "varmsec", 1000);
             env.sendEventBean(SupportDateTime.make(startTime));
             //System.out.println("===> " + SupportDateTime.print(env.listener("s0").assertOneGetNew().get("val4")));
             expectedPlus = SupportDateTime.getArrayCoerced("2002-05-30T09:00:01.000", "long", "util", "long", "cal", "ldt", "zdt");
             expectedMinus = SupportDateTime.getArrayCoerced("2002-05-30T08:59:59.000", "long", "util", "long", "cal", "ldt", "zdt");
-            env.assertPropsListenerNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
+            env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "varmsec", 2 * 24 * 60 * 60 * 1000);
             env.sendEventBean(SupportDateTime.make(startTime));
             expectedMinus = SupportDateTime.getArrayCoerced("2002-05-28T09:00:00.000", "long", "util", "long", "cal", "ldt", "zdt");
             expectedPlus = SupportDateTime.getArrayCoerced("2002-06-1T09:00:00.000", "long", "util", "long", "cal", "ldt", "zdt");
-            env.assertPropsListenerNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
+            env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
             env.undeployAll();
         }
@@ -113,12 +113,12 @@ public class ExprDTPlusMinus {
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expectedPlus = SupportDateTime.getArrayCoerced("2002-05-30T010:00:10.020", "long", "util", "long", "cal", "ldt", "zdt");
             Object[] expectedMinus = SupportDateTime.getArrayCoerced("2002-05-30T07:59:49.980", "long", "util", "long", "cal", "ldt", "zdt");
-            env.assertPropsListenerNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
+            env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
             env.sendEventBean(SupportDateTime.make(null));
             expectedPlus = SupportDateTime.getArrayCoerced("2002-05-30T010:00:10.020", "long", "null", "null", "null", "null", "null");
             expectedMinus = SupportDateTime.getArrayCoerced("2002-05-30T07:59:49.980", "long", "null", "null", "null", "null", "null");
-            env.assertPropsListenerNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
+            env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
             env.undeployAll();
         }

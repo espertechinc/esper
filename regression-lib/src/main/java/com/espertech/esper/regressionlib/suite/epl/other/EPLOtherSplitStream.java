@@ -21,7 +21,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
@@ -88,13 +87,13 @@ public class EPLOtherSplitStream {
 
     private static class EPLOtherSplitStreamInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "on SupportBean select * where intPrimitive=1 insert into BStream select * where 1=2",
+            env.tryInvalidCompile("on SupportBean select * where intPrimitive=1 insert into BStream select * where 1=2",
                 "Required insert-into clause is not provided, the clause is required for split-stream syntax");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "on SupportBean insert into AStream select * where intPrimitive=1 group by string insert into BStream select * where 1=2",
+            env.tryInvalidCompile("on SupportBean insert into AStream select * where intPrimitive=1 group by string insert into BStream select * where 1=2",
                 "A group-by clause, having-clause or order-by clause is not allowed for the split stream syntax");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "on SupportBean insert into AStream select * where intPrimitive=1 insert into BStream select avg(intPrimitive) where 1=2",
+            env.tryInvalidCompile("on SupportBean insert into AStream select * where intPrimitive=1 insert into BStream select avg(intPrimitive) where 1=2",
                 "Aggregation functions are not allowed in this context");
         }
     }
@@ -196,7 +195,7 @@ public class EPLOtherSplitStream {
             env.compileDeploy("@name('s1') select * from BStreamSub", path).addListener("s1");
 
             sendSupportBean(env, "E1", 1);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             assertNull(env.listener("s1").assertOneGetNewAndReset().get("string"));
 
             env.sendEventBean(new SupportBean_S0(10, "x", "y"));
@@ -206,7 +205,7 @@ public class EPLOtherSplitStream {
             assertFalse(env.listener("s1").getAndClearIsInvoked());
 
             sendSupportBean(env, "E3", 9);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             assertEquals("y", env.listener("s1").assertOneGetNewAndReset().get("string"));
 
             env.undeployAll();

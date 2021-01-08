@@ -12,10 +12,13 @@ package com.espertech.esper.regressionlib.suite.multithread;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.wordexample.SentenceEvent;
 import com.espertech.esper.runtime.client.EPRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.threadJoin;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -29,8 +32,8 @@ public class MultithreadStmtStateless implements RegressionExecution {
     }
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     private static void trySend(RegressionEnvironment env, int numThreads, int numRepeats) {

@@ -17,14 +17,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherForGroupDelivery {
     public static List<RegressionExecution> executions() {
@@ -92,25 +91,25 @@ public class EPLOtherForGroupDelivery {
 
     private static class EPLOtherInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for ",
+            env.tryInvalidCompile("select * from SupportBean for ",
                 "Incorrect syntax near end-of-input ('for' is a reserved keyword) expecting an identifier but found end-of-input at line 1 column 29");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for other_keyword",
+            env.tryInvalidCompile("select * from SupportBean for other_keyword",
                 "Expected any of the [grouped_delivery, discrete_delivery] for-clause keywords after reserved keyword 'for'");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for grouped_delivery",
+            env.tryInvalidCompile("select * from SupportBean for grouped_delivery",
                 "The for-clause with the grouped_delivery keyword requires one or more grouping expressions");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for grouped_delivery()",
+            env.tryInvalidCompile("select * from SupportBean for grouped_delivery()",
                 "The for-clause with the grouped_delivery keyword requires one or more grouping expressions");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for grouped_delivery(dummy)",
+            env.tryInvalidCompile("select * from SupportBean for grouped_delivery(dummy)",
                 "Failed to validate for-clause expression 'dummy': Property named 'dummy' is not valid in any stream");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for discrete_delivery(dummy)",
+            env.tryInvalidCompile("select * from SupportBean for discrete_delivery(dummy)",
                 "The for-clause with the discrete_delivery keyword does not allow grouping expressions");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean for discrete_delivery for grouped_delivery(intPrimitive)",
+            env.tryInvalidCompile("select * from SupportBean for discrete_delivery for grouped_delivery(intPrimitive)",
                 "Incorrect syntax near 'for' (a reserved keyword) at line 1 column 48 ");
         }
     }
@@ -173,9 +172,9 @@ public class EPLOtherForGroupDelivery {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new Object(), "ObjectEvent");
             sendTimer(env, 2000);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             sendTimer(env, 3000);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }

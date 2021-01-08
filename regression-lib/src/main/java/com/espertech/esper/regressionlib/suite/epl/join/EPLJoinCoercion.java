@@ -46,13 +46,13 @@ public class EPLJoinCoercion {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, "R1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 100, "R1"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R2", "G", 90L, 100L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 100, "R2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 100, "R2"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R3", "G", 1L, 99L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 10, "R3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 10, "R3"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R4", "G", 2000L, 3000L));
             env.sendEventBean(new SupportBean("E1", 1000));
@@ -69,13 +69,13 @@ public class EPLJoinCoercion {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G", 101));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G", 101, "R1"});
+            env.assertPropsNew("s0", fields, new Object[]{"G", 101, "R1"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R2", "G", 90L, 102L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G", 101, "R2"});
+            env.assertPropsNew("s0", fields, new Object[]{"G", 101, "R2"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R3", "G", 1L, 99L));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G", 10, "R3"});
+            env.assertPropsNew("s0", fields, new Object[]{"G", 10, "R3"});
 
             env.sendEventBean(SupportBeanRange.makeLong("R4", "G", 2000L, 3000L));
             env.sendEventBean(new SupportBean("G", 1000));

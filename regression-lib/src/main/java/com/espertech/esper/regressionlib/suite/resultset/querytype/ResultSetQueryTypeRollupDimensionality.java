@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportThreeArrayEvent;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
@@ -168,23 +167,23 @@ public class ResultSetQueryTypeRollupDimensionality {
             String[] fields = "c0,c1".split(",");
 
             env.sendEventBean(makeEvent("E1", 1, 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{10L, 1}, {null, 1}});
 
             env.sendEventBean(makeEvent("E2", 2, 11));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{11L, 3}, {null, 3}});
 
             env.sendEventBean(makeEvent("E3", 5, -10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{-10L, 5}, {null, 8}});
 
             env.sendEventBean(makeEvent("E4", 6, -11));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{-11L, 11}, {null, 14}});
 
             env.sendEventBean(makeEvent("E5", 3, 12));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{12L, 6}, {null, 17}});
 
             env.undeployAll();
@@ -201,17 +200,17 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E1", 1, 10));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 1, 10L}, {"E1", null, 10L}, {null, null, 10L}});
 
             env.sendEventBean(makeEvent("E1", 2, 20));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 2, 20L}, {"E1", null, 30L}, {null, null, 30L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E2", 1, 25));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 1, 25L}, {"E2", null, 25L}, {null, null, 25L}});
 
             env.undeployAll();
@@ -234,12 +233,12 @@ public class ResultSetQueryTypeRollupDimensionality {
             }
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E0", 18, 4L}, {"E1", 12, 3L}, {"E2", 15, 3L}, {null, 18 + 12 + 15, 10L}});
 
             env.sendEventBean(new SupportBean("E1", 6));
             env.sendEventBean(new SupportBean_S0(2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E0", 18, 4L}, {"E1", 12 + 6, 4L}, {"E2", 15, 3L}, {null, 18 + 12 + 15 + 6, 11L}});
 
             env.undeployAll();
@@ -285,23 +284,23 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeEvent("E1", 10, 100, 1000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, 100L, 1000d}, {"E1", 10, null, 1000d}, {"E1", null, 100L, 1000d}, {"E1", null, null, 1000d}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E1", 10, 200, 2000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, 200L, 2000d}, {"E1", 10, null, 3000d}, {"E1", null, 200L, 2000d}, {"E1", null, null, 3000d}});
 
             env.sendEventBean(makeEvent("E1", 20, 100, 4000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 20, 100L, 4000d}, {"E1", 20, null, 4000d}, {"E1", null, 100L, 5000d}, {"E1", null, null, 7000d}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 10, 100, 5000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 10, 100L, 5000d}, {"E2", 10, null, 5000d}, {"E2", null, 100L, 5000d}, {"E2", null, null, 5000d}});
 
             env.undeployAll();
@@ -326,19 +325,19 @@ public class ResultSetQueryTypeRollupDimensionality {
             assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c2"));
 
             env.sendEventBean(makeEvent("E1", 10, 100, 1000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, null, 1000d}, {"E1", null, 100L, 1000d}});
 
             env.sendEventBean(makeEvent("E1", 20, 200, 2000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 20, null, 2000d}, {"E1", null, 200L, 2000d}});
 
             env.sendEventBean(makeEvent("E1", 10, 200, 3000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, null, 4000d}, {"E1", null, 200L, 5000d}});
 
             env.sendEventBean(makeEvent("E1", 20, 100, 4000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 20, null, 6000d}, {"E1", null, 100L, 5000d}});
 
             env.undeployAll();
@@ -356,31 +355,31 @@ public class ResultSetQueryTypeRollupDimensionality {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 100L}, {null, 10, 100L}},
                 new Object[][]{{"E1", null, null}, {null, 10, null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 20, 200));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", null, 200L}, {null, 20, 200L}},
                 new Object[][]{{"E2", null, null}, {null, 20, null}});
 
             env.sendEventBean(makeEvent("E1", 20, 300));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", null, 400L}, {null, 20, 500L}},
                 new Object[][]{{"E1", null, 100L}, {null, 20, 200L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E2", 10, 400));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", null, 600L}, {null, 10, 500L}},
                 new Object[][]{{"E2", null, 200L}, {null, 10, 100L}});
 
             env.sendEventBean(makeEvent("E2", 20, 500));   // removes E1/10/100
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", null, 1100L}, {"E1", null, 300L}, {null, 20, 1000L}, {null, 10, 400L}},
                 new Object[][]{{"E2", null, 600L}, {"E1", null, 400L}, {null, 20, 500L}, {null, 10, 500L}});
 
@@ -399,24 +398,24 @@ public class ResultSetQueryTypeRollupDimensionality {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 100L}, {"E1", 10, 100L}},
                 new Object[][]{{null, null, null}, {"E1", 10, null}});
 
             env.sendEventBean(makeEvent("E1", 10, 200));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 300L}, {"E1", 10, 300L}},
                 new Object[][]{{null, null, 100L}, {"E1", 10, 100L}});
 
             env.sendEventBean(makeEvent("E2", 20, 300));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 600L}, {"E2", 20, 300L}},
                 new Object[][]{{null, null, 300L}, {"E2", 20, null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E1", 10, 400));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{null, null, 1000L}, {"E1", 10, 700L}},
                 new Object[][]{{null, null, 600L}, {"E1", 10, 300L}});
 
@@ -437,7 +436,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("c3"));
 
             env.sendEventBean(makeEvent("E1", 1, 10, 100, 1000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 1, 10L, 100d, 1000},  // {0, 1, 2, 3}
                     {"E1", 1, 10L, null, 1000},  // {0, 1, 2}
@@ -460,7 +459,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 1, 20, 100, 2000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 1, 20L, 100d, 2000},  // {0, 1, 2, 3}
                     {"E2", 1, 20L, null, 2000},  // {0, 1, 2}
@@ -483,7 +482,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E1", 2, 10, 100, 4000));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 2, 10L, 100d, 4000},  // {0, 1, 2, 3}
                     {"E1", 2, 10L, null, 4000},  // {0, 1, 2}
@@ -548,31 +547,31 @@ public class ResultSetQueryTypeRollupDimensionality {
             String[] fields = "c0,c1,c2".split(",");
 
             env.sendEventBean(makeEvent(0, "E1", 10, 100));    // insert event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, 10, 100L}, {null, null, 100L}},
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, 10, null}, {null, null, null}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent(0, "E1", 11, 200));    // insert event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 11, 200L}, {"E1", null, 300L}, {null, 11, 200L}, {null, null, 300L}},
                 new Object[][]{{"E1", 11, null}, {"E1", null, 100L}, {null, 11, null}, {null, null, 100L}});
 
             env.sendEventBean(makeEvent(0, "E1", 10, 300));    // insert event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 600L}, {null, 10, 400L}, {null, null, 600L}},
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 300L}, {null, 10, 100L}, {null, null, 300L}});
 
             env.sendEventBean(makeEvent(0, "E2", 11, 400));    // insert event
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", 11, 400L}, {"E2", null, 400L}, {null, 11, 600L}, {null, null, 1000L}},
                 new Object[][]{{"E2", 11, null}, {"E2", null, null}, {null, 11, 200L}, {null, null, 600L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent(3, null, -1, -1));    // delete-all
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, null}, {"E1", 11, null}, {"E2", 11, null},
                     {"E1", null, null}, {"E2", null, null}, {null, 10, null}, {null, 11, null}, {null, null, null}},
                 new Object[][]{{"E1", 10, 400L}, {"E1", 11, 200L}, {"E2", 11, 400L},
@@ -607,33 +606,33 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(makeEvent(0, "E1", 10, 100));    // insert event intBoxed=0
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, null, 100L}},
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(1, "E1", 10, 100));   // delete (intBoxed = 1)
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}},
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, null, 100L}});
 
             env.sendEventBean(makeEvent(0, "E1", 10, 200));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 200L}, {"E1", null, 200L}, {null, null, 200L}},
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(0, "E2", 20, 300));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", 20, 300L}, {"E2", null, 300L}, {null, null, 500L}},
                 new Object[][]{{"E2", 20, null}, {"E2", null, null}, {null, null, 200L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(3, null, 0, 0));   // delete all
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 10, null}, {"E2", 20, null},
                     {"E1", null, null}, {"E2", null, null},
@@ -644,29 +643,29 @@ public class ResultSetQueryTypeRollupDimensionality {
                     {null, null, 500L}});
 
             env.sendEventBean(makeEvent(0, "E1", 10, 400));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 400L}, {null, null, 400L}},
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}});
 
             env.sendEventBean(makeEvent(0, "E1", 20, 500));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 20, 500L}, {"E1", null, 900L}, {null, null, 900L}},
                 new Object[][]{{"E1", 20, null}, {"E1", null, 400L}, {null, null, 400L}});
 
             env.sendEventBean(makeEvent(0, "E2", 20, 600));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", 20, 600L}, {"E2", null, 600L}, {null, null, 1500L}},
                 new Object[][]{{"E2", 20, null}, {"E2", null, null}, {null, null, 900L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(0, "E1", 10, 700));   // insert
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 1100L}, {"E1", null, 1600L}, {null, null, 2200L}},
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 900L}, {null, null, 1500L}});
 
             env.sendEventBean(makeEvent(3, null, 0, 0));   // delete all
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{
                     {"E1", 10, null}, {"E1", 20, null}, {"E2", 20, null},
                     {"E1", null, null}, {"E2", null, null},
@@ -683,12 +682,12 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.listener("s0").reset();
 
             env.sendEventBean(makeEvent(1, "E1", 20, -1));   // delete (intBoxed = 1)
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 20, null}, {"E1", null, 400L}, {null, null, 400L}},
                 new Object[][]{{"E1", 20, 600L}, {"E1", null, 1000L}, {null, null, 1000L}});
 
             env.sendEventBean(makeEvent(1, "E1", 10, -1));   // delete (intBoxed = 1)
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}},
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 400L}, {null, null, 400L}});
 
@@ -703,31 +702,31 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.listener("s0").reset();
 
             env.sendEventBean(makeEvent(2, "E1", 10, 200));   // delete specific (intBoxed = 2)
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 800L}, {null, null, 1300L}},
                 new Object[][]{{"E1", 10, 600L}, {"E1", null, 1000L}, {null, null, 1500L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(2, "E1", 10, 300));   // delete specific
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 500L}, {null, null, 1000L}},
                 new Object[][]{{"E1", 10, 400L}, {"E1", null, 800L}, {null, null, 1300L}});
 
             env.sendEventBean(makeEvent(2, "E1", 20, 400));   // delete specific
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 20, null}, {"E1", null, 100L}, {null, null, 600L}},
                 new Object[][]{{"E1", 20, 400L}, {"E1", null, 500L}, {null, null, 1000L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(2, "E2", 20, 500));   // delete specific
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E2", 20, null}, {"E2", null, null}, {null, null, 100L}},
                 new Object[][]{{"E2", 20, 500L}, {"E2", null, 500L}, {null, null, 600L}});
 
             env.sendEventBean(makeEvent(2, "E1", 10, 100));   // delete specific
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, null, null}},
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, null, 100L}});
 
@@ -753,23 +752,23 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.sendEventBean(new SupportBean_S0(1));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, null, 100L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 20, 200));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 20, 200L}, {"E2", null, 200L}, {null, null, 300L}});
 
             env.sendEventBean(makeEvent("E1", 11, 300));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 11, 300L}, {"E1", null, 400L}, {null, null, 600L}});
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 20, 400));   // expires {theString="E1", intPrimitive=10, longPrimitive=100}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 20, 600L}, {"E1", 10, null},
                     {"E2", null, 600L}, {"E1", null, 300L},
@@ -778,14 +777,14 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 20, 500));   // expires {theString="E2", intPrimitive=20, longPrimitive=200}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 20, 900L},
                     {"E2", null, 900L},
                     {null, null, 1200L}});
 
             env.sendEventBean(makeEvent("E2", 21, 600));   // expires {theString="E1", intPrimitive=11, longPrimitive=300}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 21, 600L}, {"E1", 11, null},
                     {"E2", null, 1500L}, {"E1", null, null},
@@ -794,14 +793,14 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 21, 700));   // expires {theString="E2", intPrimitive=20, longPrimitive=400}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 21, 1300L}, {"E2", 20, 500L},
                     {"E2", null, 1800L},
                     {null, null, 1800L}});
 
             env.sendEventBean(makeEvent("E2", 21, 800));   // expires {theString="E2", intPrimitive=20, longPrimitive=500}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 21, 2100L}, {"E2", 20, null},
                     {"E2", null, 2100L},
@@ -810,14 +809,14 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E1", 10, 900));   // expires {theString="E2", intPrimitive=21, longPrimitive=600}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 10, 900L}, {"E2", 21, 1500L},
                     {"E1", null, 900L}, {"E2", null, 1500L},
                     {null, null, 2400L}});
 
             env.sendEventBean(makeEvent("E1", 11, 1000));   // expires {theString="E2", intPrimitive=21, longPrimitive=700}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E1", 11, 1000L}, {"E2", 21, 800L},
                     {"E1", null, 1900L}, {"E2", null, 800L},
@@ -826,7 +825,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent("E2", 20, 1100));   // expires {theString="E2", intPrimitive=21, longPrimitive=800}
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{
                     {"E2", 20, 1100L}, {"E2", 21, null},
                     {"E2", null, 1100L},
@@ -847,33 +846,33 @@ public class ResultSetQueryTypeRollupDimensionality {
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, null, 100L}});
 
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 20, 200));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 20, 200L}, {"E2", null, 200L}, {null, null, 300L}});
 
             env.sendEventBean(makeEvent("E1", 11, 300));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 11, 300L}, {"E1", null, 400L}, {null, null, 600L}});
 
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E2", 20, 400));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E2", 20, 600L}, {"E2", null, 600L}, {null, null, 1000L}});
 
             env.sendEventBean(makeEvent("E1", 11, 500));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 11, 800L}, {"E1", null, 900L}, {null, null, 1500L}});
 
             env.milestone(2);
 
             env.sendEventBean(makeEvent("E1", 10, 600));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E1", 10, 700L}, {"E1", null, 1500L}, {null, null, 2100L}});
 
             env.undeployAll();
@@ -905,7 +904,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestone(0);
 
             env.sendEventBean(makeEvent("E2", 20, 400));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 10, 100L}, {"E2", 20, 600L}, {"E1", 11, 300L},
                     {"E1", null, 400L}, {"E2", null, 600L},
                     {null, null, 1000L}},
@@ -962,24 +961,24 @@ public class ResultSetQueryTypeRollupDimensionality {
 
             Object eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{1, null, new Object[]{eventOne}}, {1, "E1", new Object[]{eventOne}}});
 
             Object eventTwo = new SupportBean("E1", 2);
             env.sendEventBean(eventTwo);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{3, null, new Object[]{eventOne, eventTwo}}, {3, "E1", new Object[]{eventOne, eventTwo}}});
 
             env.milestone(0);
 
             Object eventThree = new SupportBean("E2", 3);
             env.sendEventBean(eventThree);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{5, null, new Object[]{eventTwo, eventThree}}, {2, "E1", new Object[]{eventTwo}}, {3, "E2", new Object[]{eventThree}}});
 
             Object eventFour = new SupportBean("E1", 4);
             env.sendEventBean(eventFour);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{7, null, new Object[]{eventThree, eventFour}}, {4, "E1", new Object[]{eventFour}}});
 
             env.undeployAll();
@@ -1014,34 +1013,34 @@ public class ResultSetQueryTypeRollupDimensionality {
             String prefix = "select theString, sum(intPrimitive) from SupportBean group by ";
 
             // invalid rollup expressions
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup()",
+            env.tryInvalidCompile(prefix + "rollup()",
                 "Incorrect syntax near ')' at line 1 column 69, please check the group-by clause [select theString, sum(intPrimitive) from SupportBean group by rollup()]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup(theString, theString)",
+            env.tryInvalidCompile(prefix + "rollup(theString, theString)",
                 "Failed to validate the group-by clause, found duplicate specification of expressions (theString) [select theString, sum(intPrimitive) from SupportBean group by rollup(theString, theString)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup(x)",
+            env.tryInvalidCompile(prefix + "rollup(x)",
                 "Failed to validate group-by-clause expression 'x': Property named 'x' is not valid in any stream [select theString, sum(intPrimitive) from SupportBean group by rollup(x)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup(longPrimitive)",
+            env.tryInvalidCompile(prefix + "rollup(longPrimitive)",
                 "Group-by with rollup requires a fully-aggregated query, the query is not full-aggregated because of property 'theString' [select theString, sum(intPrimitive) from SupportBean group by rollup(longPrimitive)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup((theString, longPrimitive), (theString, longPrimitive))",
+            env.tryInvalidCompile(prefix + "rollup((theString, longPrimitive), (theString, longPrimitive))",
                 "Failed to validate the group-by clause, found duplicate specification of expressions (theString, longPrimitive) [select theString, sum(intPrimitive) from SupportBean group by rollup((theString, longPrimitive), (theString, longPrimitive))]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "rollup((theString, longPrimitive), (longPrimitive, theString))",
+            env.tryInvalidCompile(prefix + "rollup((theString, longPrimitive), (longPrimitive, theString))",
                 "Failed to validate the group-by clause, found duplicate specification of expressions (theString, longPrimitive) [select theString, sum(intPrimitive) from SupportBean group by rollup((theString, longPrimitive), (longPrimitive, theString))]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "grouping sets((theString, theString))",
+            env.tryInvalidCompile(prefix + "grouping sets((theString, theString))",
                 "Failed to validate the group-by clause, found duplicate specification of expressions (theString) [select theString, sum(intPrimitive) from SupportBean group by grouping sets((theString, theString))]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "grouping sets(theString, theString)",
+            env.tryInvalidCompile(prefix + "grouping sets(theString, theString)",
                 "Failed to validate the group-by clause, found duplicate specification of expressions (theString) [select theString, sum(intPrimitive) from SupportBean group by grouping sets(theString, theString)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "grouping sets((), ())",
+            env.tryInvalidCompile(prefix + "grouping sets((), ())",
                 "Failed to validate the group-by clause, found duplicate specification of the overall grouping '()' [select theString, sum(intPrimitive) from SupportBean group by grouping sets((), ())]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, prefix + "grouping sets(())",
+            env.tryInvalidCompile(prefix + "grouping sets(())",
                 "Failed to validate the group-by clause, the overall grouping '()' cannot be the only grouping [select theString, sum(intPrimitive) from SupportBean group by grouping sets(())]");
 
             // invalid select clause for this type of query
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportBean group by grouping sets(theString)",
+            env.tryInvalidCompile("select * from SupportBean group by grouping sets(theString)",
                 "Group-by with rollup requires that the select-clause does not use wildcard [select * from SupportBean group by grouping sets(theString)]");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select sb.* from SupportBean sb group by grouping sets(theString)",
+            env.tryInvalidCompile("select sb.* from SupportBean sb group by grouping sets(theString)",
                 "Group-by with rollup requires that the select-clause does not use wildcard [select sb.* from SupportBean sb group by grouping sets(theString)]");
 
-            SupportMessageAssertUtil.tryInvalidCompile(env, "@Hint('disable_reclaim_group') select theString, count(*) from SupportBean sb group by grouping sets(theString)",
+            env.tryInvalidCompile("@Hint('disable_reclaim_group') select theString, count(*) from SupportBean sb group by grouping sets(theString)",
                 "Reclaim hints are not available with rollup [@Hint('disable_reclaim_group') select theString, count(*) from SupportBean sb group by grouping sets(theString)]");
         }
     }
@@ -1064,7 +1063,7 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), "c0,c1".split(","),
+        env.assertPropsPerRowLastNew("s0", "c0,c1".split(","),
             new Object[][]{{"E1", 4}, {"E2", 2}, {null, 6}});
 
         env.sendEventBean(new SupportBean_S0(1));
@@ -1104,7 +1103,7 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(makeEvent("E1", 1, 10, 100));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{
                 {"E1", 1, 10L, 1L, 100d, 0, 0, 0, 0},  // {0, 1, 2}
                 {"E1", 1, null, 1L, 100d, 0, 0, 1, 1},  // {0, 1}
@@ -1118,7 +1117,7 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E2", 1, 20, 200));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{
                 {"E2", 1, 20L, 1L, 200d, 0, 0, 0, 0},
                 {"E2", 1, null, 1L, 200d, 0, 0, 1, 1},
@@ -1130,7 +1129,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 {null, null, null, 2L, 300d, 1, 1, 1, 7}});
 
         env.sendEventBean(makeEvent("E1", 2, 10, 300));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{
                 {"E1", 2, 10L, 1L, 300d, 0, 0, 0, 0},
                 {"E1", 2, null, 1L, 300d, 0, 0, 1, 1},
@@ -1144,7 +1143,7 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E2", 2, 20, 400));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{
                 {"E2", 2, 20L, 1L, 400d, 0, 0, 0, 0},
                 {"E2", 2, null, 1L, 400d, 0, 0, 1, 1},
@@ -1159,7 +1158,7 @@ public class ResultSetQueryTypeRollupDimensionality {
 
         // expiring/removing ("E1", 1, 10, 100)
         env.sendEventBean(makeEvent("E2", 1, 10, 500));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{
                 {"E2", 1, 10L, 1L, 500d, 0, 0, 0, 0},
                 {"E1", 1, 10L, 0L, null, 0, 0, 0, 0},
@@ -1189,23 +1188,23 @@ public class ResultSetQueryTypeRollupDimensionality {
         assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c2"));
 
         env.sendEventBean(makeEvent("E1", 10, 100, 1000));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 10, 100L, 1000d}, {"E1", 10, null, 1000d}, {"E1", null, null, 1000d}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 10, 200, 2000));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 10, 200L, 2000d}, {"E1", 10, null, 3000d}, {"E1", null, null, 3000d}});
 
         env.sendEventBean(makeEvent("E1", 20, 100, 3000));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 20, 100L, 3000d}, {"E1", 20, null, 3000d}, {"E1", null, null, 6000d}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 10, 100, 4000));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 10, 100L, 5000d}, {"E1", 10, null, 7000d}, {"E1", null, null, 10000d}});
 
         env.undeployAll();
@@ -1221,23 +1220,23 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 10));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 10}, {null, 10}});
 
         env.sendEventBean(new SupportBean("E2", 20));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E2", 20}, {null, 30}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E1", 30));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 40}, {null, 60}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 40));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E2", 60}, {null, 100}});
 
         env.undeployAll();
@@ -1256,33 +1255,33 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.sendEventBean(new SupportBean_S0(1));
 
         env.sendEventBean(makeEvent("E1", 1, 10, 100));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 1, 10L, 1L, 100d}, {"E1", 1, null, 1L, 100d}, {"E1", null, null, 1L, 100d}, {null, null, null, 1L, 100d}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 1, 11, 200));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 1, 11L, 1L, 200d}, {"E1", 1, null, 2L, 300d}, {"E1", null, null, 2L, 300d}, {null, null, null, 2L, 300d}});
 
         env.sendEventBean(makeEvent("E1", 2, 10, 300));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 2, 10L, 1L, 300d}, {"E1", 2, null, 1L, 300d}, {"E1", null, null, 3L, 600d}, {null, null, null, 3L, 600d}});
 
         env.sendEventBean(makeEvent("E2", 1, 10, 400));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E2", 1, 10L, 1L, 400d}, {"E2", 1, null, 1L, 400d}, {"E2", null, null, 1L, 400d}, {null, null, null, 4L, 1000d}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 1, 10, 500));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 1, 10L, 2L, 600d}, {"E1", 1, null, 3L, 800d}, {"E1", null, null, 4L, 1100d}, {null, null, null, 5L, 1500d}});
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 1, 11, 600));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E1", 1, 11L, 2L, 800d}, {"E1", 1, null, 4L, 1400d}, {"E1", null, null, 5L, 1700d}, {null, null, null, 6L, 2100d}});
 
         env.undeployAll();

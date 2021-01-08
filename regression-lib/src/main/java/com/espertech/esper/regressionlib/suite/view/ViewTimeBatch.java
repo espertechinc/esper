@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
 
 public class ViewTimeBatch {
 
@@ -73,9 +72,11 @@ public class ViewTimeBatch {
             env.milestone(5);
 
             sendTimer(env, 2500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E1"}, {"E2"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, new Object[][]{{"E1"}, {"E2"}});
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             env.milestone(6);
 
@@ -90,26 +91,28 @@ public class ViewTimeBatch {
             env.milestone(8);
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.statement("s0").iterator());
-            EPAssertionUtil.assertPropsPerRow(events, fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             sendTimer(env, 3500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+                EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, new Object[][]{{"E1"}, {"E2"}});
+                listener.reset();
+            });
 
             env.milestone(9);
 
             sendTimer(env, 4500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, null);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, null);
+                EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
+                listener.reset();
+            });
 
             env.milestone(10);
 
             sendTimer(env, 5500);
             env.assertListenerNotInvoked("s0");
-            env.listener("s0").reset();
 
             env.milestone(11);
 
@@ -118,16 +121,20 @@ public class ViewTimeBatch {
             env.milestone(12);
 
             sendTimer(env, 6500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, new Object[][]{{"E6"}});
+                EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, null);
+                listener.reset();
+            });
 
             env.milestone(13);
 
             sendTimer(env, 7500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, null);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, new Object[][]{{"E6"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, null);
+                EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, new Object[][]{{"E6"}});
+                listener.reset();
+            });
 
             env.milestone(14);
 
@@ -136,9 +143,11 @@ public class ViewTimeBatch {
             env.milestone(15);
 
             sendTimer(env, 8500);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), fields, new Object[][]{{"E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(), fields, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), fields, new Object[][]{{"E7"}});
+                EPAssertionUtil.assertPropsPerRow(listener.getOldDataListFlattened(), fields, null);
+                listener.reset();
+            });
 
             env.milestone(16);
 
@@ -176,7 +185,7 @@ public class ViewTimeBatch {
             env.milestone(3);
 
             sendTimer(env, 11000);   // push a batch
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(4);
 
@@ -188,14 +197,12 @@ public class ViewTimeBatch {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3"}});
             sendTimer(env, 21000);   // push a batch
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E3"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(6);
 
             sendTimer(env, 31000);   // push a batch
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, null);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E3"}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E3"}});
 
             env.milestone(7);
 
@@ -217,18 +224,18 @@ public class ViewTimeBatch {
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             env.sendEventBean(new SupportBean("E2", 1));
             sendCurrentTimeWithMinus(env, "2002-04-01T09:00:00.000", 1);
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-04-01T09:00:00.000");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E2"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E2"});
 
             env.sendEventBean(new SupportBean("E3", 1));
             sendCurrentTime(env, "2002-05-01T09:00:00.000");
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E3"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E3"});
 
             env.undeployAll();
         }
@@ -242,35 +249,35 @@ public class ViewTimeBatch {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendTimer(env, 1999);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 2000);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendTimer(env, 2999);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 3000);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
-            env.listener("s0").reset();
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 4000);
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E1"});
 
             sendTimer(env, 5000);
-            env.assertPropsListenerOld("s0", "theString".split(","), new Object[]{"E1"});
+            env.assertPropsOld("s0", "theString".split(","), new Object[]{"E1"});
 
             sendTimer(env, 5999);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 6000);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             sendTimer(env, 7000);
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -297,16 +304,12 @@ public class ViewTimeBatch {
             env.milestone(1);
 
             sendTimer(env, 3000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"symbol"},
-                new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(2);
 
             sendTimer(env, 4000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), new String[]{"symbol"},
-                new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastOld("s0", new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
 
             sendTimer(env, 5000);
             env.assertListenerInvoked("s0");
@@ -380,14 +383,12 @@ public class ViewTimeBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}}, null);
 
             env.milestone(5);
 
             sendTimer(env, 21000);
-            assertNull(env.listener("s0").getLastNewData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
 
             env.milestone(6);
 
@@ -402,8 +403,7 @@ public class ViewTimeBatch {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E5"}});
 
             sendTimer(env, 41000);
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E5"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E5"}}, null);
 
             env.undeployAll();
         }
@@ -425,7 +425,7 @@ public class ViewTimeBatch {
             env.milestone(0);
 
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             sendSupportBean(env, "E3");
             sendSupportBean(env, "E4");
@@ -433,8 +433,7 @@ public class ViewTimeBatch {
             env.milestone(1);
 
             sendTimer(env, 21000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E3"}, {"E4"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}, {"E4"}}, new Object[][]{{"E1"}, {"E2"}});
 
             sendSupportBean(env, "E5");
             sendSupportBean(env, "E6");
@@ -442,8 +441,7 @@ public class ViewTimeBatch {
             env.milestone(2);
 
             sendTimer(env, 31000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E5"}, {"E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E3"}, {"E4"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E5"}, {"E6"}}, new Object[][]{{"E3"}, {"E4"}});
 
             env.milestone(3);
 
@@ -451,13 +449,12 @@ public class ViewTimeBatch {
             sendSupportBean(env, "E8");
             sendTimer(env, 41000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E7"}, {"E8"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E5"}, {"E6"}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}, {"E8"}}, new Object[][]{{"E5"}, {"E6"}});
 
             env.milestone(4);
 
             sendTimer(env, 51000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"E7"}, {"E8"}});
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E7"}, {"E8"}});
 
             sendTimer(env, 61000);
             env.assertListenerNotInvoked("s0");

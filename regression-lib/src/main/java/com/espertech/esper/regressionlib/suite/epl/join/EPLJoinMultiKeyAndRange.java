@@ -67,7 +67,7 @@ public class EPLJoinMultiKeyAndRange {
 
         private void assertReceived(RegressionEnvironment env, Object[][] expected) {
             final String[] fields = "s0.id,s1.id".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
         }
 
         private void sendS0(RegressionEnvironment env, int id, String p00, String p01, String p02) {
@@ -163,7 +163,7 @@ public class EPLJoinMultiKeyAndRange {
 
         private void assertReceived(RegressionEnvironment env, Object[][] expected) {
             final String[] fields = "si.id,sm.id".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, expected);
+            env.assertPropsPerRowLastNew("s0", fields, expected);
         }
 
         private void sendManyArray(RegressionEnvironment env, String id, int[] ints) {
@@ -258,10 +258,10 @@ public class EPLJoinMultiKeyAndRange {
             env.milestone(0);
 
             sendSupportBean(env, "AX", 2, 100);
-            env.assertPropsListenerNew("s0", fields, new Object[] {"AX", "B1"});
+            env.assertPropsNew("s0", fields, new Object[] {"AX", "B1"});
 
             sendSupportBean(env, "BX", 1, 100);
-            env.assertPropsListenerNew("s0", fields, new Object[] {"A0", "BX"});
+            env.assertPropsNew("s0", fields, new Object[] {"A0", "BX"});
 
             env.undeployAll();
         }

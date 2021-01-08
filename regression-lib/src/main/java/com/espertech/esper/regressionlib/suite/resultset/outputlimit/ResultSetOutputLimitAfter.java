@@ -82,7 +82,7 @@ public class ResultSetOutputLimitAfter {
 
             sendCurrentTime(env, "2002-03-01T09:00:00.000");
             env.sendEventBean(new SupportBean("E3", 3));
-            env.assertPropsListenerNew("s0", "theString".split(","), new Object[]{"E3"});
+            env.assertPropsNew("s0", "theString".split(","), new Object[]{"E3"});
 
             env.undeployAll();
         }
@@ -105,10 +105,10 @@ public class ResultSetOutputLimitAfter {
             env.milestone(1);
 
             sendEvent(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             sendEvent(env, "E5");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.undeployAll();
 
@@ -127,10 +127,10 @@ public class ResultSetOutputLimitAfter {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             sendEvent(env, "E5");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             model = env.eplToModel("select theString from SupportBean#keepall output after 3 events");
             Assert.assertEquals("select theString from SupportBean#keepall output after 3 events ", model.toEPL());
@@ -166,11 +166,11 @@ public class ResultSetOutputLimitAfter {
 
             sendTimer(env, 20000);
             sendEvent(env, "E4");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             sendTimer(env, 21000);
             sendEvent(env, "E5");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.undeployAll();
         }
@@ -286,7 +286,7 @@ public class ResultSetOutputLimitAfter {
         env.milestoneInc(milestone);
 
         sendTimer(env, 30000);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E6"});
+        env.assertPropsNew("s0", fields, new Object[]{"E6"});
     }
 
     private static void runAssertionAfterWithOutputLast(RegressionEnvironment env, SupportOutputLimitOpt opt) {
@@ -309,7 +309,7 @@ public class ResultSetOutputLimitAfter {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E6", 60));
-        env.assertPropsListenerNew("s0", "thesum".split(","), new Object[]{210});
+        env.assertPropsNew("s0", "thesum".split(","), new Object[]{210});
 
         env.undeployAll();
     }

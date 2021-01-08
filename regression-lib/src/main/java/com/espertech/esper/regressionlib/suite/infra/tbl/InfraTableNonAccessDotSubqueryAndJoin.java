@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -94,7 +93,7 @@ public class InfraTableNonAccessDotSubqueryAndJoin implements RegressionExecutio
         SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedTypeUnnamed, env.statement("s1").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
 
         // invalid: ambiguous resolution
-        SupportMessageAssertUtil.tryInvalidCompile(env, path, "" +
+        env.tryInvalidCompile(path, "" +
                 "select col0 from SupportBean#lastevent, MyTable, MyTable",
             "Failed to validate select-clause expression 'col0': Ambiguous table column 'col0' should be prefixed by a stream name [");
 

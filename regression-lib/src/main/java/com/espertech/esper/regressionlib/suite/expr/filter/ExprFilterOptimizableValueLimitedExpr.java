@@ -138,7 +138,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
                 assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
             }
             env.sendEventBean(new SupportBean("E1", 2));
-            env.assertPropsListenerNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
+            env.assertPropsNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
             env.undeployAll();
         }
     }

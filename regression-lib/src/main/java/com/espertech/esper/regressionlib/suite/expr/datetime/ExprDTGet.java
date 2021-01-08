@@ -48,7 +48,7 @@ public class ExprDTGet {
 
             String startTime = "2002-05-30T09:00:00.000";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, 4, 4, 5, 5});
+            env.assertPropsNew("s0", fields, new Object[]{4, 4, 4, 5, 5});
 
             env.undeployAll();
 
@@ -57,7 +57,7 @@ public class ExprDTGet {
             env.compileDeployAddListenerMile(epl, "s0", 1);
 
             env.sendEventBean(SupportTimeStartEndA.make("A0", startTime, 0));
-            env.assertPropsListenerNew("s0", "val0".split(","), new Object[]{4});
+            env.assertPropsNew("s0", "val0".split(","), new Object[]{4});
 
             env.undeployAll();
 
@@ -65,7 +65,7 @@ public class ExprDTGet {
             epl = "@name('s0') select e.get() as c0, e.get('abc') as c1 from SupportEventWithJustGet as e";
             env.compileDeployAddListenerMile(epl, "s0", 1);
             env.sendEventBean(new SupportEventWithJustGet());
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{1, 2});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{1, 2});
 
             env.undeployAll();
         }
@@ -90,7 +90,7 @@ public class ExprDTGet {
 
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, 2, 1, 9, 30, 4, 2002, 22});
+            env.assertPropsNew("s0", fields, new Object[]{3, 2, 1, 9, 30, 4, 2002, 22});
 
             env.undeployAll();
         }

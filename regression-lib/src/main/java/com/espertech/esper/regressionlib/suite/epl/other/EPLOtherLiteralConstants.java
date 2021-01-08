@@ -26,7 +26,7 @@ public class EPLOtherLiteralConstants implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("e1", 100));
 
-        env.assertPropsListenerNew("s0",
+        env.assertPropsNew("s0",
             "mybyte,myunicode,zero8,zero9,zeroZero8".split(","),
             new Object[]{(byte) 35, "A", 8, 9, 8});
 

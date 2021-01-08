@@ -19,7 +19,8 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ViewTimeLengthBatch {
 
@@ -40,6 +41,7 @@ public class ViewTimeLengthBatch {
 
     public static class ViewTimeLengthBatchSceneOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[] {"symbol"};
             sendTimer(env, 1000);
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time_length_batch(10 sec, 3)";
@@ -59,9 +61,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
-            EventBean[] newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(3);
 
@@ -73,11 +73,7 @@ public class ViewTimeLengthBatch {
 
             sendTimer(env, 15000);
             sendEvent(env, "E5");
-            newData = env.listener("s0").getLastNewData();
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(5);
 
@@ -86,11 +82,7 @@ public class ViewTimeLengthBatch {
 
             // wait 10 second, check call
             sendTimer(env, 25000);
-            newData = env.listener("s0").getLastNewData();
-            oldData = env.listener("s0").getLastOldData();
-            assertNull(newData);
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             // wait 10 second, check no call received, no events
             sendTimer(env, 35000);
@@ -117,9 +109,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[2]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[0], events[1], events[2]}, new Object[0]);
 
             // Send another 3 events in batch
             env.sendEventBean(events[3]);
@@ -127,22 +117,14 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[5]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[3], events[4], events[5]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[3], events[4], events[5]}, new Object[]{events[0], events[1], events[2]});
 
             // Expire the last 3 events by moving time
             sendTimer(env, startTime + 9999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[3], events[4], events[5]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[]{events[3], events[4], events[5]});
 
             sendTimer(env, startTime + 10001);
             env.assertListenerNotInvoked("s0");
@@ -156,11 +138,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 20000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[6]}, new Object[]{});
 
             sendTimer(env, startTime + 20001);
             env.assertListenerNotInvoked("s0");
@@ -175,11 +153,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 30000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[7], events[8]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[7], events[8]}, new Object[]{events[6]});
 
             // Send three events, the the 3 events batch
             sendTimer(env, startTime + 30001);
@@ -193,11 +167,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[11]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[7], events[8]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[9], events[10], events[11]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[9], events[10], events[11]}, new Object[]{events[7], events[8]});
 
             // Send 1 event, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 9999);
@@ -207,11 +177,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 10000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[9], events[10], events[11]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[12]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[12]}, new Object[]{events[9], events[10], events[11]});
 
             sendTimer(env, startTime + 39000 + 10001);
             env.assertListenerNotInvoked("s0");
@@ -221,11 +187,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 20000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[12]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[]{events[12]});
 
             sendTimer(env, startTime + 39000 + 20001);
             env.assertListenerNotInvoked("s0");
@@ -251,11 +213,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 100000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[13]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[13]}, new Object[0]);
 
             env.undeployAll();
         }
@@ -263,6 +221,7 @@ public class ViewTimeLengthBatch {
 
     public static class ViewTimeLengthBatchForceOutputOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[] {"symbol"};
             sendTimer(env, 1000);
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time_length_batch(10 sec, 3, 'force_update')";
@@ -282,9 +241,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
-            EventBean[] newData = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}}, null);
 
             env.milestone(3);
 
@@ -296,11 +253,7 @@ public class ViewTimeLengthBatch {
 
             sendTimer(env, 15000);
             sendEvent(env, "E5");
-            newData = env.listener("s0").getLastNewData();
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E3"}, {"E4"}, {"E5"}}, new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(5);
 
@@ -309,19 +262,13 @@ public class ViewTimeLengthBatch {
 
             // wait 10 second, check call
             sendTimer(env, 25000);
-            newData = env.listener("s0").getLastNewData();
-            oldData = env.listener("s0").getLastOldData();
-            assertNull(newData);
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E3"}, {"E4"}, {"E5"}});
 
             env.milestone(6);
 
             // wait 10 second, check call, should receive event
             sendTimer(env, 35000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
+            env.assertPropsPerRowIRPair("s0", fields, null, null);
 
             env.undeployAll();
         }
@@ -344,9 +291,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[2]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[0], events[1], events[2]}, new Object[0]);
 
             // Send another 3 events in batch
             env.sendEventBean(events[3]);
@@ -354,22 +299,14 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[5]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[0], events[1], events[2]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[3], events[4], events[5]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[3], events[4], events[5]}, new Object[]{events[0], events[1], events[2]});
 
             // Expire the last 3 events by moving time
             sendTimer(env, startTime + 9999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[3], events[4], events[5]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[]{events[3], events[4], events[5]});
 
             sendTimer(env, startTime + 10001);
             env.assertListenerNotInvoked("s0");
@@ -383,11 +320,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 20000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[6]}, new Object[0]);
 
             sendTimer(env, startTime + 20001);
             env.assertListenerNotInvoked("s0");
@@ -402,11 +335,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 30000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[6]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[7], events[8]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[7], events[8]}, new Object[]{events[6]});
 
             // Send three events, the the 3 events batch
             sendTimer(env, startTime + 30001);
@@ -420,11 +349,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(events[11]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[7], events[8]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[9], events[10], events[11]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[9], events[10], events[11]}, new Object[]{events[7], events[8]});
 
             // Send 1 event, let the timer to do the batch
             sendTimer(env, startTime + 39000 + 9999);
@@ -434,11 +359,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 10000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[9], events[10], events[11]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[12]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[12]}, new Object[]{events[9], events[10], events[11]});
 
             sendTimer(env, startTime + 39000 + 10001);
             env.assertListenerNotInvoked("s0");
@@ -448,11 +369,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 20000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[12]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[]{events[12]});
 
             sendTimer(env, startTime + 39000 + 20001);
             env.assertListenerNotInvoked("s0");
@@ -462,11 +379,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 30000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getOldDataList().size());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[0]);
 
             sendTimer(env, startTime + 39000 + 30001);
             env.assertListenerNotInvoked("s0");
@@ -476,9 +389,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 39000 + 40000);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[0]);
 
             sendTimer(env, startTime + 39000 + 40001);
             env.assertListenerNotInvoked("s0");
@@ -494,9 +405,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 89000);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[13]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[13]}, new Object[0]);
 
             // Send 3 more events
             sendTimer(env, startTime + 90000);
@@ -506,18 +415,14 @@ public class ViewTimeLengthBatch {
 
             sendTimer(env, startTime + 92000);
             env.sendEventBean(events[16]);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[13]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[14], events[15], events[16]}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[]{events[14], events[15], events[16]}, new Object[]{events[13]});
 
             // Send no events, let the timer do a batch
             sendTimer(env, startTime + 101999);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 102000);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{events[14], events[15], events[16]}, env.listener("s0").getOldDataListFlattened());
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{}, env.listener("s0").getNewDataListFlattened());
-            env.listener("s0").reset();
+            assertUnderlyingIR(env, new Object[0], new Object[]{events[14], events[15], events[16]});
 
             env.undeployAll();
         }
@@ -537,20 +442,16 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 10000);
-            assertEquals(10.0, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, 10.0);
 
             sendTimer(env, startTime + 20000);
-            assertEquals(null, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, null);
 
             sendTimer(env, startTime + 30000);
-            assertEquals(null, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, null);
 
             sendTimer(env, startTime + 40000);
-            assertEquals(null, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, null);
 
             env.undeployAll();
         }
@@ -558,6 +459,7 @@ public class ViewTimeLengthBatch {
 
     public static class ViewTimeLengthBatchStartEager implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[] {"symbol"};
             sendTimer(env, 1000);
 
             String text = "@name('s0') select irstream * from SupportMarketDataBean#time_length_batch(10 sec, 3, 'start_eager')";
@@ -567,10 +469,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, null);
 
             env.milestone(1);
 
@@ -579,10 +478,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 21000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, null);
 
             // 3 events in batch
             sendTimer(env, 22000);
@@ -593,10 +489,7 @@ public class ViewTimeLengthBatch {
 
             sendTimer(env, 25000);
             sendEvent(env, "E3");
-            EventBean[] newData = env.listener("s0").getLastNewData();
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}}, null);
 
             env.milestone(3);
 
@@ -605,10 +498,7 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 35000);
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            EPAssertionUtil.assertPropsPerRow(oldData, new String[]{"symbol"}, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
-            assertNull(env.listener("s0").getLastNewData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, null, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(4);
 
@@ -619,10 +509,7 @@ public class ViewTimeLengthBatch {
             env.milestone(5);
 
             sendTimer(env, 45000);
-            newData = env.listener("s0").getLastNewData();
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(newData, new String[]{"symbol"}, new Object[][]{{"E4"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}}, null);
 
             env.undeployAll();
         }
@@ -643,19 +530,16 @@ public class ViewTimeLengthBatch {
 
             // Send batch off
             sendTimer(env, startTime + 10000);
-            assertEquals(null, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, null);
 
             // Send batch off
             sendTimer(env, startTime + 20000);
-            assertEquals(null, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, null);
 
             env.sendEventBean(events[11]);
             env.sendEventBean(events[12]);
             sendTimer(env, startTime + 30000);
-            assertEquals(23.0, env.listener("s0").getLastNewData()[0].get("sum(price)"));
-            env.listener("s0").reset();
+            assertPrice(env, 23.0);
 
             env.undeployAll();
         }
@@ -696,12 +580,14 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(premades[2]);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            EventBean[] events = env.listener("s0").getLastNewData();
-            assertData(events[0], 0, null, null);
-            assertData(events[1], 1.0, 0.0, 0.0);
-            assertData(events[2], 2.0, 1.0, 1.0);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                EventBean[] events = listener.getLastNewData();
+                assertData(events[0], 0, null, null);
+                assertData(events[1], 1.0, 0.0, 0.0);
+                assertData(events[2], 2.0, 1.0, 1.0);
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -719,10 +605,12 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 6000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            EventBean[] events = env.listener("s0").getLastNewData();
-            assertNull(events);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                EventBean[] events = listener.getLastNewData();
+                assertNull(events);
+                listener.reset();
+            });
 
             sendTimer(env, startTime + 7000);
             env.sendEventBean(new SupportMarketDataBean("S1", "e1", 10d));
@@ -737,14 +625,16 @@ public class ViewTimeLengthBatch {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, startTime + 11000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            events = env.listener("s0").getLastNewData();
-            assertEquals(2, events.length);
-            assertEquals("S1", events[0].get("symbol"));
-            assertEquals(11d, events[0].get("s"));
-            assertEquals("S2", events[1].get("symbol"));
-            assertEquals(77d, events[1].get("s"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                EventBean[] events = listener.getLastNewData();
+                assertEquals(2, events.length);
+                assertEquals("S1", events[0].get("symbol"));
+                assertEquals(11d, events[0].get("s"));
+                assertEquals("S2", events[1].get("symbol"));
+                assertEquals(77d, events[1].get("s"));
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -772,5 +662,19 @@ public class ViewTimeLengthBatch {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, 0, 0L, null);
         env.sendEventBean(bean);
         return bean;
+    }
+
+    private static void assertUnderlyingIR(RegressionEnvironment env, Object[] newUnd, Object[] oldUnd) {
+        env.assertListener("s0", listener -> {
+            assertEquals(1, listener.getNewDataList().size());
+            assertEquals(1, listener.getOldDataList().size());
+            EPAssertionUtil.assertEqualsExactOrderUnderlying(newUnd, listener.getNewDataListFlattened());
+            EPAssertionUtil.assertEqualsExactOrderUnderlying(oldUnd, listener.getOldDataListFlattened());
+            listener.reset();
+        });
+    }
+
+    private static void assertPrice(RegressionEnvironment env, Double v) {
+        env.assertEqualsNew("s0", "sum(price)", v);
     }
 }

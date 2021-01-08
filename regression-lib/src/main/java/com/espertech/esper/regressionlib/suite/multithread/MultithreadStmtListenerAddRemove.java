@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtListenerAddRemoveCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import com.espertech.esper.runtime.client.EPStatement;
 
+import java.util.EnumSet;
 import java.util.concurrent.*;
 
 /**
@@ -26,8 +28,8 @@ import java.util.concurrent.*;
  */
 public class MultithreadStmtListenerAddRemove implements RegressionExecutionWithConfigure {
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void configure(Configuration configuration) {

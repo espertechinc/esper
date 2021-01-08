@@ -110,7 +110,7 @@ public class ClientStageAdvanceTime {
             env.milestone(3);
 
             advanceTime(env, "ST", "2002-05-30T09:00:20.000");
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             advanceTime(env, "2002-05-30T09:00:20.000");
             assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2"}});
 

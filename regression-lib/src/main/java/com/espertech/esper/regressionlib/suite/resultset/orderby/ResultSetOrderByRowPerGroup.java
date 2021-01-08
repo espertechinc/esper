@@ -214,14 +214,14 @@ public class ResultSetOrderByRowPerGroup {
             sendEvent(env, "IBM", 49);
             sendEvent(env, "CAT", 15);
             sendEvent(env, "IBM", 100);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{
                     {"CAT", 65d},
                     {"IBM", 149d},
                 });
 
             sendEvent(env, "KGB", 75);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields,
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{
                     {"CAT", 65d},
                     {"IBM", 149d},

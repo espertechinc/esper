@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
+import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
@@ -31,8 +31,8 @@ public class SupportScheduleHelper {
         return visitor.getCount();
     }
 
-    public static int scheduleCountOverall(RegressionEnvironment env) {
-        EPRuntimeSPI spi = (EPRuntimeSPI) env.runtime();
+    public static int scheduleCountOverall(EPRuntime runtime) {
+        EPRuntimeSPI spi = (EPRuntimeSPI) runtime;
         ScheduleVisitorAll visitor = new ScheduleVisitorAll();
         spi.getServicesContext().getSchedulingService().visitSchedules(visitor);
         return visitor.getCount();

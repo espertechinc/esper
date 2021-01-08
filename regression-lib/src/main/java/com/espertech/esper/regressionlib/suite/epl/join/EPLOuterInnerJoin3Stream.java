@@ -108,30 +108,30 @@ public class EPLOuterInnerJoin3Stream {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(200, "A_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, 100, "A_1", 200, "A_1"});
+        env.assertPropsNew("s0", fields, new Object[]{null, null, 100, "A_1", 200, "A_1"});
 
         env.sendEventBean(new SupportBean_S0(0, "A_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{0, "A_1", 100, "A_1", 200, "A_1"});
+        env.assertPropsNew("s0", fields, new Object[]{0, "A_1", 100, "A_1", 200, "A_1"});
 
         // s1, s0, s2
         env.sendEventBean(new SupportBean_S1(103, "D_1"));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(203, "D_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, 103, "D_1", 203, "D_1"});
+        env.assertPropsNew("s0", fields, new Object[]{null, null, 103, "D_1", 203, "D_1"});
 
         env.sendEventBean(new SupportBean_S0(3, "D_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3, "D_1", 103, "D_1", 203, "D_1"});
+        env.assertPropsNew("s0", fields, new Object[]{3, "D_1", 103, "D_1", 203, "D_1"});
 
         // s2, s1, s0
         env.sendEventBean(new SupportBean_S2(201, "B_1"));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(101, "B_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, null, 101, "B_1", 201, "B_1"});
+        env.assertPropsNew("s0", fields, new Object[]{null, null, 101, "B_1", 201, "B_1"});
 
         env.sendEventBean(new SupportBean_S0(1, "B_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, "B_1", 101, "B_1", 201, "B_1"});
+        env.assertPropsNew("s0", fields, new Object[]{1, "B_1", 101, "B_1", 201, "B_1"});
 
         // s2, s0, s1
         env.sendEventBean(new SupportBean_S2(202, "C_1"));
@@ -141,7 +141,7 @@ public class EPLOuterInnerJoin3Stream {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(102, "C_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{2, "C_1", 102, "C_1", 202, "C_1"});
+        env.assertPropsNew("s0", fields, new Object[]{2, "C_1", 102, "C_1", 202, "C_1"});
 
         // s0, s1, s2
         env.sendEventBean(new SupportBean_S0(4, "E_1"));
@@ -151,7 +151,7 @@ public class EPLOuterInnerJoin3Stream {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S2(204, "E_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{4, "E_1", 104, "E_1", 204, "E_1"});
+        env.assertPropsNew("s0", fields, new Object[]{4, "E_1", 104, "E_1", 204, "E_1"});
 
         // s0, s2, s1
         env.sendEventBean(new SupportBean_S0(5, "F_1"));
@@ -161,7 +161,7 @@ public class EPLOuterInnerJoin3Stream {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(105, "F_1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{5, "F_1", 105, "F_1", 205, "F_1"});
+        env.assertPropsNew("s0", fields, new Object[]{5, "F_1", 105, "F_1", 205, "F_1"});
 
         env.undeployAll();
     }

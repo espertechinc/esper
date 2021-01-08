@@ -101,7 +101,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.sendEventBean(new SupportBean("E1", 3));
             env.advanceTime(1000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), new String[]{"theString", "intp"}, new Object[][]{{"E1", 3}, {"E2", 21}, {"E3", 31}});
+            env.assertPropsPerRowLastNew("s0", new String[]{"theString", "intp"}, new Object[][]{{"E1", 3}, {"E2", 21}, {"E3", 31}});
 
             env.sendEventBean(new SupportBean("E3", 31));
             env.sendEventBean(new SupportBean("E1", 5));
@@ -111,7 +111,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.sendEventBean(new SupportBean("E3", 33));
             env.advanceTime(2000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), new String[]{"theString", "intp"}, new Object[][]{{"E1", 5}, {"E3", 33}});
+            env.assertPropsPerRowLastNew("s0", new String[]{"theString", "intp"}, new Object[][]{{"E1", 5}, {"E3", 33}});
 
             env.undeployAll();
         }
@@ -228,7 +228,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(0);
 
@@ -236,7 +236,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 3));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 3});
 
             env.milestone(1);
 
@@ -245,7 +245,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E3", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 4});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 4});
 
             env.sendEventBean(new SupportBean("E2", 5));
             env.assertListenerNotInvoked("s0");
@@ -258,7 +258,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 7));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 7});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 7});
 
             env.sendEventBean(new SupportBean("E1", 8));
             env.assertListenerNotInvoked("s0");
@@ -266,7 +266,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("E2", 9));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 9});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 9});
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 11));
@@ -578,7 +578,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendTimer(env, 500);
             sendEvent(env, "IBM", 2, 16);
             sendEvent(env, "s0", 3, 14);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "volume", "sumprice"};
@@ -634,7 +634,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendTimer(env, 500);
             sendEvent(env, "IBM", 2, 16);
             sendEvent(env, "ABC", 3, 14);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "volume", "sumprice"};
@@ -855,7 +855,7 @@ public class ResultSetOutputLimitAggregateGrouped {
 
         sendEvent(env, "IBM", 3, -3);
         String[] fields = "symbol,volume,sumprice".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"IBM", 2L, 11.0});
+        env.assertPropsNew("s0", fields, new Object[]{"IBM", 2L, 11.0});
 
         sendTimer(env, 5000);
         sendEvent(env, "IBM", 4, 10);
@@ -884,7 +884,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         String[] fields = "symbol,volume,mySum".split(",");
@@ -901,7 +901,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.listener("s0").reset();
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 40000, 45);
         events = env.listener("s0").getDataListsFlattened();
@@ -918,7 +918,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         String[] fields = "symbol,volume,mySum".split(",");
@@ -934,7 +934,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.listener("s0").reset();
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 40000, 45);
         events = env.listener("s0").getDataListsFlattened();
@@ -951,7 +951,7 @@ public class ResultSetOutputLimitAggregateGrouped {
     private static void tryAssertionLast(RegressionEnvironment env) {
         String[] fields = "symbol,volume,mySum".split(",");
         sendEvent(env, SYMBOL_DELL, 10000, 51);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
         UniformPair<EventBean[]> events = env.listener("s0").getDataListsFlattened();
@@ -961,7 +961,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.listener("s0").reset();
 
         sendEvent(env, SYMBOL_DELL, 30000, 70);
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_IBM, 10000, 20);
         events = env.listener("s0").getDataListsFlattened();
@@ -999,26 +999,26 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.milestoneInc(milestone);
 
         sendBeanEvent(env, "E2", 105, 5);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 105L, 25});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 105L, 25});
 
         sendBeanEvent(env, "E2", 106, -6);    // to 19, does not count toward condition
         sendBeanEvent(env, "E2", 107, 2);    // to 21, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 108, 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 108L, 22});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 108L, 22});
 
         env.milestoneInc(milestone);
 
         sendBeanEvent(env, "E2", 109, 1);    // to 23, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 110, 1);     // to 24
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 110L, 24});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 110L, 24});
 
         sendBeanEvent(env, "E2", 111, -10);    // to 14
         sendBeanEvent(env, "E2", 112, 10);    // to 24, counts toward condition
         env.assertListenerNotInvoked("s0");
         sendBeanEvent(env, "E2", 113, 0);    // to 24, counts toward condition
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 113L, 24});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 113L, 24});
 
         env.milestoneInc(milestone);
 
@@ -1030,23 +1030,23 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.assertListenerNotInvoked("s0");
 
         sendBeanEvent(env, "E2", 119, 0);    // to 21
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 119L, 21});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 119L, 21});
 
         // remove events
         sendMDEvent(env, "E2", 0);   // remove 113, 117, 119 (any order of delete!)
-        env.assertPropsListenerNew("s0", fieldsLimited, new Object[]{"E2", 21});
+        env.assertPropsNew("s0", fieldsLimited, new Object[]{"E2", 21});
 
         env.milestoneInc(milestone);
 
         // remove events
         sendMDEvent(env, "E2", -10); // remove 111, 114
-        env.assertPropsListenerNew("s0", fieldsLimited, new Object[]{"E2", 41});
+        env.assertPropsNew("s0", fieldsLimited, new Object[]{"E2", 41});
 
         env.milestoneInc(milestone);
 
         // remove events
         sendMDEvent(env, "E2", -6);  // since there is 3*0 we output the next one
-        env.assertPropsListenerNew("s0", fieldsLimited, new Object[]{"E2", 47});
+        env.assertPropsNew("s0", fieldsLimited, new Object[]{"E2", 47});
 
         sendMDEvent(env, "E2", 2);
         env.assertListenerNotInvoked("s0");

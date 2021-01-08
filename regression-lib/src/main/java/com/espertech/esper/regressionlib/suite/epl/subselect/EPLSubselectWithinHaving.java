@@ -62,7 +62,7 @@ public class EPLSubselectWithinHaving {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G2", 2));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G2", 21});
+            env.assertPropsNew("s0", fields, new Object[]{"G2", 21});
 
             env.sendEventBean(new SupportBean("G2", 18));
             env.sendEventBean(new SupportBean("G1", 4));
@@ -70,10 +70,10 @@ public class EPLSubselectWithinHaving {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G3", 29));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 31});
+            env.assertPropsNew("s0", fields, new Object[]{"G3", 31});
 
             env.sendEventBean(new SupportBean("G3", 4));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G3", 33});
+            env.assertPropsNew("s0", fields, new Object[]{"G3", 33});
 
             env.sendEventBean(new SupportBean("G1", 6));
             env.sendEventBean(new SupportBean("G2", 2));
@@ -81,10 +81,10 @@ public class EPLSubselectWithinHaving {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("G1", 99));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 105});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 105});
 
             env.sendEventBean(new SupportBean("G1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"G1", 100});
+            env.assertPropsNew("s0", fields, new Object[]{"G1", 100});
 
             env.undeployAll();
         }

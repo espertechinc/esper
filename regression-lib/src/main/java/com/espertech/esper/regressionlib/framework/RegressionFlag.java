@@ -8,18 +8,11 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.regressionlib.suite.event.bean;
+package com.espertech.esper.regressionlib.framework;
 
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-
-public class EventBeanPrivateClass implements RegressionExecution {
-
-    public void run(RegressionEnvironment env) {
-        env.tryInvalidCompile("create schema MyPrivateEvent as " + MyPrivateEvent.class.getName(),
-            "Event class '" + MyPrivateEvent.class.getName() + "' does not have public visibility");
-    }
-
-    private static class MyPrivateEvent {
-    }
+public enum RegressionFlag {
+    EXCLUDEWHENINSTRUMENTED,
+    SERDEREQUIRED,
+    PERFORMANCE,
+    INVALIDITY
 }

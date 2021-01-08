@@ -46,7 +46,7 @@ public class EventMapProperties {
             Map<String, Object> theEvent = EventMapCore.makeMap(new Object[][]{{"p0", p0}, {"p1", beans}});
             env.sendEventMap(theEvent, "MyArrayMap");
 
-            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
+            env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
             EventType eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -61,7 +61,7 @@ public class EventMapProperties {
             Map<String, Object> eventOuter = EventMapCore.makeMap(new Object[][]{{"outer", theEvent}});
             env.sendEventMap(eventOuter, "MyArrayMapOuter");
 
-            env.assertPropsListenerNew("s0", "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
+            env.assertPropsNew("s0", "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
             eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -84,7 +84,7 @@ public class EventMapProperties {
             Map<String, Object> theEvent = EventMapCore.makeMap(new Object[][]{{"p0", eventVal}});
             env.sendEventMap(theEvent, "MyMappedPropertyMap");
 
-            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"v1"});
+            env.assertPropsNew("s0", "a".split(","), new Object[]{"v1"});
             assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
             env.undeployAll();
 
@@ -94,7 +94,7 @@ public class EventMapProperties {
             Map<String, Object> eventOuter = EventMapCore.makeMap(new Object[][]{{"outer", theEvent}});
             env.sendEventMap(eventOuter, "MyMappedPropertyMapOuter");
 
-            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"v1"});
+            env.assertPropsNew("s0", "a".split(","), new Object[]{"v1"});
             assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
             env.undeployModuleContaining("s0");
 
@@ -105,7 +105,7 @@ public class EventMapProperties {
             Map<String, Object> eventOuterTwo = EventMapCore.makeMap(new Object[][]{{"outerTwo", SupportBeanComplexProps.makeDefaultBean()}});
             env.sendEventMap(eventOuterTwo, "MyMappedPropertyMapOuterTwo");
 
-            env.assertPropsListenerNew("s0", "a".split(","), new Object[]{"yOne"});
+            env.assertPropsNew("s0", "a".split(","), new Object[]{"yOne"});
             assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("a"));
 
             env.undeployAll();
@@ -125,7 +125,7 @@ public class EventMapProperties {
             Map<String, Object> eventOuter = EventMapCore.makeMap(new Object[][]{{"outer", theEvent}});
             env.sendEventMap(eventOuter, "MyArrayMapTwo");
 
-            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
+            env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
             EventType eventType = env.statement("s0").getEventType();
             assertEquals(Integer.class, eventType.getPropertyType("a"));
             assertEquals(Integer.class, eventType.getPropertyType("b"));
@@ -139,7 +139,7 @@ public class EventMapProperties {
 
             env.sendEventMap(eventOuter, "MyArrayMapTwo");
 
-            env.assertPropsListenerNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
+            env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
             assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("a"));
 
             env.undeployAll();

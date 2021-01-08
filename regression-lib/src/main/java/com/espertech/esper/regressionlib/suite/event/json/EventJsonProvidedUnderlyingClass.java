@@ -28,7 +28,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EventJsonProvidedUnderlyingClass {
@@ -113,24 +112,24 @@ public class EventJsonProvidedUnderlyingClass {
             String epl;
 
             epl = "@JsonSchema(dynamic=true, className='" + SupportClientsEvent.class.getName() + "') create json schema Clients()";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "The dynamic flag is not supported when used with a provided JSON event class");
 
             epl = "create json schema ABC();\n" +
                 "@JsonSchema(className='" + SupportClientsEvent.class.getName() + "') create json schema Clients() inherits ABC";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Specifying a supertype is not supported with a provided JSON event class");
 
             epl = "@JsonSchema(className='" + MyLocalNonPublicInvalid.class.getName() + "') create json schema Clients()";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Provided JSON event class is not public");
 
             epl = "@JsonSchema(className='" + MyLocalNoDefaultCtorInvalid.class.getName() + "') create json schema Clients()";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Provided JSON event class does not have a public default constructor or is a non-static inner class");
 
             epl = "@JsonSchema(className='" + MyLocalInstanceInvalid.class.getName() + "') create json schema Clients()";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Provided JSON event class does not have a public default constructor or is a non-static inner class");
         }
     }
@@ -348,7 +347,7 @@ public class EventJsonProvidedUnderlyingClass {
     }
 
     private static void tryInvalidSchema(RegressionEnvironment env, String epl, Class provided, String message) {
-        tryInvalidCompile(env, epl, message.replace("%CLASS%", provided.getName()));
+        env.tryInvalidCompile(epl, message.replace("%CLASS%", provided.getName()));
     }
 
     private static String getUsersJson() {

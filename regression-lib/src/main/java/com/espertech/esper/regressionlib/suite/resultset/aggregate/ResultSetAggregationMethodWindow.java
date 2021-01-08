@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.suite.resultset.aggregate.ResultSetAggregationMethodSorted.assertType;
 import static org.junit.Assert.assertEquals;
 
@@ -77,7 +76,7 @@ public class ResultSetAggregationMethodWindow {
             makeSendBean(env, "E3", 30);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            env.assertPropsListenerNew("s0", "c0,c1,c2".split(","), new Object[]{10, 30, 3});
+            env.assertPropsNew("s0", "c0,c1,c2".split(","), new Object[]{10, 30, 3});
 
             env.milestone(0);
 
@@ -113,7 +112,7 @@ public class ResultSetAggregationMethodWindow {
         private void sendAssert(RegressionEnvironment env, SupportBean first, SupportBean last) {
             final String[] fields = "c0,c1".split(",");
             env.sendEventBean(new SupportBean_S0(-1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{first, last});
+            env.assertPropsNew("s0", fields, new Object[]{first, last});
         }
     }
 
@@ -126,22 +125,22 @@ public class ResultSetAggregationMethodWindow {
             assertType(env, new EPTypeClass(SupportBean.class), "c0,c1");
 
             SupportBean sb1 = makeSendBean(env, "A", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", sb1, sb1});
+            env.assertPropsNew("s0", fields, new Object[]{"A", sb1, sb1});
 
             SupportBean sb2 = makeSendBean(env, "A", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", sb1, sb2});
+            env.assertPropsNew("s0", fields, new Object[]{"A", sb1, sb2});
 
             SupportBean sb3 = makeSendBean(env, "A", 3);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", sb1, sb3});
+            env.assertPropsNew("s0", fields, new Object[]{"A", sb1, sb3});
 
             SupportBean sb4 = makeSendBean(env, "A", 4);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", sb2, sb4});
+            env.assertPropsNew("s0", fields, new Object[]{"A", sb2, sb4});
 
             SupportBean sb5 = makeSendBean(env, "B", 5);
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B", sb5, sb5}, {"A", sb3, sb4}});
 
             SupportBean sb6 = makeSendBean(env, "A", 6);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A", sb4, sb6});
+            env.assertPropsNew("s0", fields, new Object[]{"A", sb4, sb6});
 
             env.milestone(0);
 
@@ -154,10 +153,10 @@ public class ResultSetAggregationMethodWindow {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create table MyTable(windowcol window(*) @type('SupportBean'));\n", path);
 
-            tryInvalidCompile(env, path, "select MyTable.windowcol.first(id) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.windowcol.first(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.windowcol.first(id)': Failed to validate aggregation function parameter expression 'id': Property named 'id' is not valid in any stream");
 
-            tryInvalidCompile(env, path, "select MyTable.windowcol.listReference(intPrimitive) from SupportBean_S0",
+            env.tryInvalidCompile(path, "select MyTable.windowcol.listReference(intPrimitive) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.windowcol.listReference(int...(45 chars)': Invalid number of parameters");
 
             env.undeployAll();

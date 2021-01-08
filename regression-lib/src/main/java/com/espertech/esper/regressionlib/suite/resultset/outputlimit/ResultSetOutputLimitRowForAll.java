@@ -29,7 +29,8 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetOutputLimitRowForAll {
     private final static String CATEGORY = "Fully-Aggregated and Un-grouped";
@@ -492,7 +493,7 @@ public class ResultSetOutputLimitRowForAll {
             sendTimer(env, 500);
             sendEvent(env, "s1", 1);
             sendEvent(env, "s2", -1);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{2L}});
@@ -502,7 +503,7 @@ public class ResultSetOutputLimitRowForAll {
             sendTimer(env, 1500);
             sendEvent(env, "s4", 2);
             sendEvent(env, "s5", 3);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 2000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{4L}});
@@ -510,7 +511,7 @@ public class ResultSetOutputLimitRowForAll {
             env.listener("s0").reset();
 
             sendEvent(env, "s5", 4);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 9000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{5L}});
@@ -523,7 +524,7 @@ public class ResultSetOutputLimitRowForAll {
             env.listener("s0").reset();
 
             sendTimer(env, 10999);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{3L}});
@@ -553,7 +554,7 @@ public class ResultSetOutputLimitRowForAll {
             sendTimer(env, 500);
             sendEvent(env, "s1", 1);
             sendEvent(env, "s2", -1);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{2L}});
@@ -563,7 +564,7 @@ public class ResultSetOutputLimitRowForAll {
             sendTimer(env, 1500);
             sendEvent(env, "s4", 2);
             sendEvent(env, "s5", 3);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 2000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{4L}});
@@ -571,7 +572,7 @@ public class ResultSetOutputLimitRowForAll {
             env.listener("s0").reset();
 
             sendEvent(env, "s5", 4);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 9000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{5L}});
@@ -585,7 +586,7 @@ public class ResultSetOutputLimitRowForAll {
             env.listener("s0").reset();
 
             sendTimer(env, 10999);
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"cnt"}, new Object[][]{{3L}});
@@ -638,7 +639,7 @@ public class ResultSetOutputLimitRowForAll {
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean("E2", 20));
-        env.assertPropsListenerNew("s0", "thesum".split(","), new Object[]{30});
+        env.assertPropsNew("s0", "thesum".split(","), new Object[]{30});
 
         env.undeployAll();
     }

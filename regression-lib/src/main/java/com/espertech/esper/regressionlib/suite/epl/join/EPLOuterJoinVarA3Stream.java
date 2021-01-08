@@ -24,7 +24,6 @@ import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class EPLOuterJoinVarA3Stream {
@@ -57,25 +56,25 @@ public class EPLOuterJoinVarA3Stream {
             env.assertListenerNotInvoked("s0");
 
             sendMapEvent(env, "Type1", "b1", "a1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"b1", "a1", null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"b1", "a1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "a1", "a1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"a1", "a1", null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"a1", "a1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "b1", "b1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"b1", "b1", null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"b1", "b1", null, null, null, null});
 
             sendMapEvent(env, "Type1", "a1", "b1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"a1", "b1", "a1", "b1", null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"a1", "b1", "a1", "b1", null, null});
 
             sendMapEvent(env, "Type3", "c1", "b1");
             env.assertListenerNotInvoked("s0");
 
             sendMapEvent(env, "Type1", "d1", "b1");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"d1", "b1", null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{"d1", "b1", null, null, null, null});
 
             sendMapEvent(env, "Type3", "d1", "bx");
-            env.assertPropsListenerNew("s0", fields, new Object[]{"d1", "b1", null, null, "d1", "bx"});
+            env.assertPropsNew("s0", fields, new Object[]{"d1", "b1", null, null, "d1", "bx"});
 
             env.assertListenerNotInvoked("s0");
             env.undeployAll();
@@ -105,19 +104,19 @@ public class EPLOuterJoinVarA3Stream {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "A_3", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{1, "A_3", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(2, "A_1", "B_3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{2, "A_1", "B_3", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(3, "A_3", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
+            env.assertPropsNew("s0", fields, new Object[]{3, "A_3", "B_1", null, null, null, null, null, null});
 
             env.sendEventBean(new SupportBean_S0(4, "A_2", "B_2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
+            env.assertPropsNew("s0", fields, new Object[]{4, "A_2", "B_2", 13, "A_2", "B_2", 23, "A_2", "B_2"});
 
             env.sendEventBean(new SupportBean_S0(5, "A_2", "B_1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
+            env.assertPropsNew("s0", fields, new Object[]{5, "A_2", "B_1", 11, "A_2", "B_1", 21, "A_2", "B_1"});
 
             env.undeployAll();
         }
@@ -218,14 +217,14 @@ public class EPLOuterJoinVarA3Stream {
                 "SupportBean_S0#length(1000) as s0 " +
                 " left outer join SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
                 " left outer join SupportBean_S2#length(1000) as s2 on s0.p00 = s2.p20 and s1.p11 = s2.p21";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate outer-join expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause");
 
             epl = "@name('s0') select * from " +
                 "SupportBean_S0#length(1000) as s0 " +
                 " left outer join SupportBean_S1#length(1000) as s1 on s0.p00 = s1.p10 and s0.p01 = s1.p11" +
                 " left outer join SupportBean_S2#length(1000) as s2 on s2.p20 = s0.p00 and s2.p20 = s1.p11";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Failed to validate outer-join expression: Outer join ON-clause columns must refer to properties of the same joined streams when using multiple columns in the on-clause [");
         }
     }

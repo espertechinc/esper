@@ -37,15 +37,15 @@ public class EPLSpatialMXCIFQuadTreeInvalid {
             // invalid index for filter
             String epl = "expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialEventRectangle(rectangle(10, 20, 5, 6, filterindex:myindex).intersects(rectangle(x, y, width, height)))";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate filter expression 'rectangle(10,20,5,6,filterindex:myi...(82 chars)': Invalid index type 'pointregionquadtree', expected 'mxcifquadtree'");
+            env.tryInvalidCompile(epl, "Failed to validate filter expression 'rectangle(10,20,5,6,filterindex:myi...(82 chars)': Invalid index type 'pointregionquadtree', expected 'mxcifquadtree'");
         }
     }
 
     private static class EPLSpatialInvalidMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportSpatialEventRectangle(rectangle('a', 0).inside(rectangle(0, 0, 0, 0)))",
+            env.tryInvalidCompile("select * from SupportSpatialEventRectangle(rectangle('a', 0).inside(rectangle(0, 0, 0, 0)))",
                 "Failed to validate filter expression 'rectangle(\"a\",0).inside(rectangle(0...(43 chars)': Failed to validate method-chain parameter expression 'rectangle(0,0,0,0)': Unknown single-row function, expression declaration, script or aggregation function named 'rectangle' could not be resolved (did you mean 'rectangle.intersects')");
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select * from SupportSpatialEventRectangle(rectangle(0).intersects(rectangle(0, 0, 0, 0)))",
+            env.tryInvalidCompile("select * from SupportSpatialEventRectangle(rectangle(0).intersects(rectangle(0, 0, 0, 0)))",
                 "Failed to validate filter expression 'rectangle(0).intersects(rectangle(0...(43 chars)': Failed to validate left-hand-side method 'rectangle', expected 4 parameters but received 1 parameters");
         }
     }
@@ -80,13 +80,13 @@ public class EPLSpatialMXCIFQuadTreeInvalid {
             env.compileDeploy("create window MyWindow#keepall as SupportSpatialEventRectangle", path);
 
             // invalid number of columns
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index MyIndex on MyWindow(x mxcifquadtree(0, 0, 100, 100))",
+            env.tryInvalidCompile(path, "create index MyIndex on MyWindow(x mxcifquadtree(0, 0, 100, 100))",
                 "Index of type 'mxcifquadtree' requires 4 expressions as index columns but received 1");
 
             // same index twice, by-columns
             env.compileDeploy("create window SomeWindow#keepall as SupportSpatialEventRectangle", path);
             env.compileDeploy("create index SomeWindowIdx1 on SomeWindow((x, y, width, height) mxcifquadtree(0, 0, 1, 1))", path);
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "create index SomeWindowIdx2 on SomeWindow((x, y, width, height) mxcifquadtree(0, 0, 1, 1))",
+            env.tryInvalidCompile(path, "create index SomeWindowIdx2 on SomeWindow((x, y, width, height) mxcifquadtree(0, 0, 1, 1))",
                 "An index for the same columns already exists");
 
             env.undeployAll();

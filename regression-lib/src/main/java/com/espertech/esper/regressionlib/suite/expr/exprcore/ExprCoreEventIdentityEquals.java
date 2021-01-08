@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertNotNull;
 
 public class ExprCoreEventIdentityEquals {
@@ -87,20 +86,20 @@ public class ExprCoreEventIdentityEquals {
 
     public static class ExprCoreEventIdentityEqualsInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select event_identity_equals(e) from SupportBean as e",
+            env.tryInvalidCompile("select event_identity_equals(e) from SupportBean as e",
                 "Failed to validate select-clause expression 'event_identity_equals(e)': event_identity_equalsrequires two parameters");
 
-            tryInvalidCompile(env, "select event_identity_equals(e, 1) from SupportBean as e",
+            env.tryInvalidCompile("select event_identity_equals(e, 1) from SupportBean as e",
                 "Failed to validate select-clause expression 'event_identity_equals(e,1)': event_identity_equals requires a parameter that resolves to an event but received '1'");
 
-            tryInvalidCompile(env, "select event_identity_equals(e, s0) from SupportBean#lastevent as e, SupportBean_S0#lastevent as s0",
+            env.tryInvalidCompile("select event_identity_equals(e, s0) from SupportBean#lastevent as e, SupportBean_S0#lastevent as s0",
                 "Failed to validate select-clause expression 'event_identity_equals(e,s0)': event_identity_equals received two different event types as parameter, type 'SupportBean' is not the same as type 'SupportBean_S0'");
         }
     }
 
     private static void sendAssert(RegressionEnvironment env, String theString, int intPrimitive, int expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        env.assertPropsListenerNew("s0", "theString,c0".split(","), new Object[]{theString, expected});
+        env.assertPropsNew("s0", "theString,c0".split(","), new Object[]{theString, expected});
     }
 
     private static void sendAssertNotReceived(RegressionEnvironment env, String theString) {

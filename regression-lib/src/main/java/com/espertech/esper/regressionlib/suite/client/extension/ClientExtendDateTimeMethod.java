@@ -28,7 +28,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ClientExtendDateTimeMethod {
     public static Collection<RegressionExecution> executions() {
@@ -42,19 +42,19 @@ public class ClientExtendDateTimeMethod {
     private static class ClientExtendDateTimeMethodInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // validate factory returns no forge
-            tryInvalidCompile(env, "select caldate.someDTMInvalidNoOp() from SupportDateTime",
+            env.tryInvalidCompile("select caldate.someDTMInvalidNoOp() from SupportDateTime",
                 "Failed to validate select-clause expression 'caldate.someDTMInvalidNoOp()': Plug-in datetime method provider class");
 
             // validate pre-made argument test
-            tryInvalidCompile(env, "select caldate.dtmInvalidMethodNotExists('x') from SupportDateTime",
+            env.tryInvalidCompile("select caldate.dtmInvalidMethodNotExists('x') from SupportDateTime",
                 "Failed to validate select-clause expression 'caldate.dtmInvalidMethodNotExists('x')': Failed to resolve enumeration method, date-time method or mapped property 'caldate.dtmInvalidMethodNotExists('x')': Failed to validate date-time method 'dtmInvalidMethodNotExists', expected a Integer-type result for expression parameter 0 but received String");
 
             // validate static method not matching
-            tryInvalidCompile(env, "select localdate.dtmInvalidMethodNotExists(1) from SupportDateTime",
+            env.tryInvalidCompile("select localdate.dtmInvalidMethodNotExists(1) from SupportDateTime",
                 "Failed to validate select-clause expression 'localdate.dtmInvalidMethodNotExists(1)': Failed to find static method for date-time method extension: Unknown method ArrayList.dtmInvalidMethod");
 
             // validate not provided
-            tryInvalidCompile(env, "select caldate.dtmInvalidNotProvided() from SupportDateTime",
+            env.tryInvalidCompile("select caldate.dtmInvalidNotProvided() from SupportDateTime",
                 "Failed to validate select-clause expression 'caldate.dtmInvalidNotProvided()': Plugin datetime method does not provide a forge for input type java.util.Calendar");
         }
     }
@@ -75,7 +75,7 @@ public class ClientExtendDateTimeMethod {
             calExpected.roll(Calendar.DATE, true);
 
             env.sendEventBean(event);
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{calExpected, calExpected.getTimeInMillis(), calExpected.getTime(), event.getLocaldate().plusDays(1), event.getZoneddate().plusDays(1)});
 
             env.undeployAll();
@@ -97,7 +97,7 @@ public class ClientExtendDateTimeMethod {
 
             env.sendEventBean(event);
             String[] expected = "30,5,2002".split(",");
-            env.assertPropsListenerNew("s0", "c0,c1,c2,c3,c4".split(","),
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4".split(","),
                 new Object[]{expected, expected, expected, expected, expected});
 
             env.undeployAll();

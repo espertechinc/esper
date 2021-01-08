@@ -62,7 +62,7 @@ public class RowRecogDataWin {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportRecogBean("s1", 7));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"s1", 7}});
             assertFalse(env.statement("s0").iterator().hasNext());
 
@@ -128,9 +128,9 @@ public class RowRecogDataWin {
 
             sendTimer(11500, env);
             env.sendEventBean(new SupportRecogBean("E6", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{"E4", "E5", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E4", "E5", "E6"}});
 
             env.milestone(6);
@@ -181,13 +181,13 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("C2", "002", 5));
             env.sendEventBean(new SupportRecogBean("B3", "003", -1));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, "B2", "C1"}});
 
             env.milestone(2);
 
             sendTimer(5050, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "B2", "C1"}});
             assertFalse(env.statement("s0").iterator().hasNext());
 
@@ -213,13 +213,13 @@ public class RowRecogDataWin {
             env.sendEventBean(new SupportRecogBean("C5", "002", 0));
             env.sendEventBean(new SupportRecogBean("C6", "003", 10));
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{null, "B4", "C6"}, {"A2", null, "C5"}});
 
             env.milestone(6);
 
             sendTimer(15050, env);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "B4", "C6"}, {"A2", null, "C5"}});
             assertFalse(env.statement("s0").iterator().hasNext());
 
@@ -307,7 +307,7 @@ public class RowRecogDataWin {
             env.milestone(1);
 
             env.advanceTime(5050);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "B2", "C1"}});
             assertFalse(env.iterator("s0").hasNext());
 
@@ -339,7 +339,7 @@ public class RowRecogDataWin {
             env.milestone(5);
 
             env.advanceTime(15050);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNew("s0", fields,
                 new Object[][]{{null, "B4", "C6"}, {"A2", null, "C5"}});
             assertFalse(env.iterator("s0").hasNext());
 

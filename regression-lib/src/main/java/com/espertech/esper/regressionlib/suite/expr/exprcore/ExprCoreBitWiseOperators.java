@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -52,7 +51,7 @@ public class ExprCoreBitWiseOperators {
 
     private static class ExprCoreBitWiseInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select * from SupportBean(theString = 'a' | 'x')",
+            env.tryInvalidCompile("select * from SupportBean(theString = 'a' | 'x')",
                 "Failed to validate filter expression 'theString=\"a\"|\"x\"': Invalid datatype for binary operator, String is not allowed");
         }
     }

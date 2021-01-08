@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class ExprDefineAliasFor {
@@ -77,7 +76,7 @@ public class ExprDefineAliasFor {
             env.compileDeploy("@name('s0') select F3 as c0 from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{30});
+            env.assertPropsNew("s0", fields, new Object[]{30});
 
             env.undeployAll();
         }
@@ -95,7 +94,7 @@ public class ExprDefineAliasFor {
             }
 
             env.sendEventBean(new SupportBean("E1", 10));
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, 11});
+            env.assertPropsNew("s0", fields, new Object[]{10, 11});
 
             env.undeployAll();
         }
@@ -122,15 +121,15 @@ public class ExprDefineAliasFor {
 
     private static class ExprDefineInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "expression total alias for {sum(xxx)} select total+1 from SupportBean",
+            env.tryInvalidCompile("expression total alias for {sum(xxx)} select total+1 from SupportBean",
                 "Failed to validate select-clause expression 'total+1': Failed to validate expression alias 'total': Failed to validate alias expression body expression 'sum(xxx)': Property named 'xxx' is not valid in any stream [expression total alias for {sum(xxx)} select total+1 from SupportBean]");
-            tryInvalidCompile(env, "expression total xxx for {1} select total+1 from SupportBean",
+            env.tryInvalidCompile("expression total xxx for {1} select total+1 from SupportBean",
                 "For expression alias 'total' expecting 'alias' keyword but received 'xxx' [expression total xxx for {1} select total+1 from SupportBean]");
-            tryInvalidCompile(env, "expression total(a) alias for {1} select total+1 from SupportBean",
+            env.tryInvalidCompile("expression total(a) alias for {1} select total+1 from SupportBean",
                 "For expression alias 'total' expecting no parameters but received 'a' [expression total(a) alias for {1} select total+1 from SupportBean]");
-            tryInvalidCompile(env, "expression total alias for {a -> 1} select total+1 from SupportBean",
+            env.tryInvalidCompile("expression total alias for {a -> 1} select total+1 from SupportBean",
                 "For expression alias 'total' expecting an expression without parameters but received 'a ->' [expression total alias for {a -> 1} select total+1 from SupportBean]");
-            tryInvalidCompile(env, "expression total alias for ['some text'] select total+1 from SupportBean",
+            env.tryInvalidCompile("expression total alias for ['some text'] select total+1 from SupportBean",
                 "For expression alias 'total' expecting an expression but received a script [expression total alias for ['some text'] select total+1 from SupportBean]");
         }
     }

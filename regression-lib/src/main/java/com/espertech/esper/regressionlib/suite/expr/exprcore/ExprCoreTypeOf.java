@@ -18,8 +18,8 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.ISupportABCImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -32,7 +32,8 @@ import java.util.*;
 
 import static com.espertech.esper.common.internal.support.EventRepresentationChoice.MAP;
 import static com.espertech.esper.common.internal.support.EventRepresentationChoice.values;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ExprCoreTypeOf {
 
@@ -48,7 +49,7 @@ public class ExprCoreTypeOf {
 
     private static class ExprCoreTypeOfInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportMessageAssertUtil.tryInvalidCompile(env, "select typeof(xx) from SupportBean",
+            env.tryInvalidCompile("select typeof(xx) from SupportBean",
                 "Failed to validate select-clause expression 'typeof(xx)': Property named 'xx' is not valid in any stream [select typeof(xx) from SupportBean]");
         }
     }
@@ -77,8 +78,8 @@ public class ExprCoreTypeOf {
 
     private static class ExprCoreTypeOfVariantStream implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         public void run(RegressionEnvironment env) {
@@ -193,7 +194,7 @@ public class ExprCoreTypeOf {
         } else {
             fail();
         }
-        assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }
@@ -218,7 +219,7 @@ public class ExprCoreTypeOf {
         } else {
             fail();
         }
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, null});
+        env.assertPropsNew("s0", fields, new Object[]{null, null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{new Object[2], null}, "MySchema");
@@ -239,7 +240,7 @@ public class ExprCoreTypeOf {
             fail();
         }
 
-        env.assertPropsListenerNew("s0", fields, new Object[]{"InnerSchema", null});
+        env.assertPropsNew("s0", fields, new Object[]{"InnerSchema", null});
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{null, new Object[2][]}, "MySchema");
@@ -259,7 +260,7 @@ public class ExprCoreTypeOf {
             fail();
         }
 
-        env.assertPropsListenerNew("s0", fields, new Object[]{null, "InnerSchema[]"});
+        env.assertPropsNew("s0", fields, new Object[]{null, "InnerSchema[]"});
 
         env.undeployAll();
     }

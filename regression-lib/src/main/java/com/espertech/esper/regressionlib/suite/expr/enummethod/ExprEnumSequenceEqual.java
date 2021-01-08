@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
+
 
 public class ExprEnumSequenceEqual {
 
@@ -98,7 +98,7 @@ public class ExprEnumSequenceEqual {
             String epl;
 
             epl = "select window(*).sequenceEqual(strvals) from SupportCollection#lastevent";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'window(*).sequenceEqual(strvals)': Invalid input for built-in enumeration method 'sequenceEqual' and 1-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'SupportCollection'");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'window(*).sequenceEqual(strvals)': Invalid input for built-in enumeration method 'sequenceEqual' and 1-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type 'SupportCollection'");
         }
     }
 }

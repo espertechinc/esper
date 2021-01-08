@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
@@ -57,7 +56,7 @@ public class RowRecogIterateOnly {
             env.sendEventBean(new SupportRecogBean("E2", 2));
             env.runtime().getVariableService().setVariableValue(null, "mySleepDuration", 0);
             env.assertListenerNotInvoked("s0");
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2"}});
 
             env.undeployAll();
@@ -90,13 +89,13 @@ public class RowRecogIterateOnly {
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E6", 4));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E6"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E7", 2));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E7"}});
             env.assertListenerNotInvoked("s0");
 
@@ -131,13 +130,13 @@ public class RowRecogIterateOnly {
             env.milestone(1);
 
             env.sendEventBean(new SupportRecogBean("E6", "A", 1));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E6", "A"}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportRecogBean("E7", "B", 3));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), fields,
+            env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E7", "B"}});
             env.assertListenerNotInvoked("s0");
 

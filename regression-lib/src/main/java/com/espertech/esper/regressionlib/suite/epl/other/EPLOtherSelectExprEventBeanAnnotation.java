@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertTrue;
 
 public class EPLOtherSelectExprEventBeanAnnotation {
@@ -122,19 +121,19 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             eventOne = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
         assertTrue(((Map) env.listener("insert").assertOneGetNewAndReset().getUnderlying()).get("c0") instanceof EventBean);
-        env.assertPropsListenerNew("s0", fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
+        env.assertPropsNew("s0", fields, new Object[]{eventOne, "E1", new Object[]{eventOne}, "E1", new Object[]{eventOne}, "E1"});
 
         Object eventTwo = sendEvent(env, rep, "E2");
         if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             eventTwo = env.listener("s1").assertOneGetNewAndReset().getUnderlying();
         }
-        env.assertPropsListenerNew("s0", fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
+        env.assertPropsNew("s0", fields, new Object[]{eventTwo, "E2", new Object[]{eventOne, eventTwo}, "E2", new Object[]{eventOne, eventTwo}, "E2"});
 
         // test SODA
         env.eplToModelCompileDeploy(eplInsert, path);
 
         // test invalid
-        tryInvalidCompile(env, path, "@name('s0') select last(*) @xxx from MyEvent",
+        env.tryInvalidCompile(path, "@name('s0') select last(*) @xxx from MyEvent",
             "Failed to recognize select-expression annotation 'xxx', expected 'eventbean' in text 'last(*) @xxx'");
 
         env.undeployAll();

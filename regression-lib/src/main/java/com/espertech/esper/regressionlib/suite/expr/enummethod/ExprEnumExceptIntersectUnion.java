@@ -25,7 +25,6 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertST0Id;
 import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertValuesArrayScalar;
 import static org.junit.Assert.assertEquals;
@@ -186,16 +185,16 @@ public class ExprEnumExceptIntersectUnion {
             String epl;
 
             epl = "select contained.union(true) from SupportBean_ST0_Container";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.union(true)': Enumeration method 'union' requires an expression yielding a collection of events of type");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.union(true)': Enumeration method 'union' requires an expression yielding a collection of events of type");
 
             epl = "select contained.union(prevwindow(s1)) from SupportBean_ST0_Container#lastevent, SupportBean#keepall s1";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'contained.union(prevwindow(s1))': Enumeration method 'union' expects event type '" + SupportBean_ST0.class.getName() + "' but receives event type 'SupportBean'");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'contained.union(prevwindow(s1))': Enumeration method 'union' expects event type '" + SupportBean_ST0.class.getName() + "' but receives event type 'SupportBean'");
 
             epl = "select (select * from SupportBean#keepall).union(strvals) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'subselect_1.union(strvals)': Enumeration method 'union' requires an expression yielding a collection of events of type 'SupportBean' as input parameter");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'subselect_1.union(strvals)': Enumeration method 'union' requires an expression yielding a collection of events of type 'SupportBean' as input parameter");
 
             epl = "select strvals.union((select * from SupportBean#keepall)) from SupportCollection";
-            tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.union(subselect_1)': Enumeration method 'union' requires an expression yielding a collection of values of type 'String' as input parameter");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.union(subselect_1)': Enumeration method 'union' requires an expression yielding a collection of values of type 'String' as input parameter");
         }
     }
 

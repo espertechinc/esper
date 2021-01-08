@@ -34,7 +34,6 @@ import org.w3c.dom.Node;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.apache.avro.SchemaBuilder.record;
@@ -205,45 +204,45 @@ public class EPLInsertIntoPopulateUnderlying {
         public void run(RegressionEnvironment env) {
 
             String text = "insert into SupportBeanCtorOne select 1 from SupportBean";
-            tryInvalidCompile(env, text, "Failed to find a suitable constructor for class '" + SupportBeanCtorOne.class.getName() + "': Could not find constructor in class '" + SupportBeanCtorOne.class.getName() + "' with matching parameter number and expected parameter type(s) 'int'");
+            env.tryInvalidCompile(text, "Failed to find a suitable constructor for class '" + SupportBeanCtorOne.class.getName() + "': Could not find constructor in class '" + SupportBeanCtorOne.class.getName() + "' with matching parameter number and expected parameter type(s) 'int'");
 
             text = "insert into SupportBean(intPrimitive) select 1L from SupportBean";
-            tryInvalidCompile(env, text, "Invalid assignment of column 'intPrimitive' of type 'long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into SupportBean(intPrimitive) select 1L from SupportBean]");
+            env.tryInvalidCompile(text, "Invalid assignment of column 'intPrimitive' of type 'long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [insert into SupportBean(intPrimitive) select 1L from SupportBean]");
 
             text = "insert into SupportBean(intPrimitive) select null from SupportBean";
-            tryInvalidCompile(env, text, "Invalid assignment of column 'intPrimitive' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [insert into SupportBean(intPrimitive) select null from SupportBean]");
+            env.tryInvalidCompile(text, "Invalid assignment of column 'intPrimitive' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [insert into SupportBean(intPrimitive) select null from SupportBean]");
 
             text = "insert into SupportBeanReadOnly select 'a' as geom from SupportBean";
-            tryInvalidCompile(env, text, "Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly select 'a' as geom from SupportBean]");
+            env.tryInvalidCompile(text, "Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly select 'a' as geom from SupportBean]");
 
             text = "insert into SupportBean select 3 as dummyField from SupportBean";
-            tryInvalidCompile(env, text, "Column 'dummyField' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 as dummyField from SupportBean]");
+            env.tryInvalidCompile(text, "Column 'dummyField' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 as dummyField from SupportBean]");
 
             text = "insert into SupportBean select 3 from SupportBean";
-            tryInvalidCompile(env, text, "Column '3' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 from SupportBean]");
+            env.tryInvalidCompile(text, "Column '3' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean select 3 from SupportBean]");
 
             text = "insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap";
-            tryInvalidCompile(env, text, "Invalid assignment of column 'isa' of type '" + ISupportBImpl.class.getName() + "' to event property 'isa' typed as '" + ISupportA.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap]");
+            env.tryInvalidCompile(text, "Invalid assignment of column 'isa' of type '" + ISupportBImpl.class.getName() + "' to event property 'isa' typed as '" + ISupportA.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isa) select isbImpl from MyMap]");
 
             text = "insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap";
-            tryInvalidCompile(env, text, "Invalid assignment of column 'isg' of type '" + ISupportBaseABImpl.class.getName() + "' to event property 'isg' typed as '" + ISupportAImplSuperG.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap]");
+            env.tryInvalidCompile(text, "Invalid assignment of column 'isg' of type '" + ISupportBaseABImpl.class.getName() + "' to event property 'isg' typed as '" + ISupportAImplSuperG.class.getName() + "', column and parameter types mismatch [insert into SupportBeanInterfaceProps(isg) select isabImpl from MyMap]");
 
             text = "insert into SupportBean(dummy) select 3 from SupportBean";
-            tryInvalidCompile(env, text, "Column 'dummy' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean(dummy) select 3 from SupportBean]");
+            env.tryInvalidCompile(text, "Column 'dummy' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [insert into SupportBean(dummy) select 3 from SupportBean]");
 
             text = "insert into SupportBeanReadOnly(side) select 'E1' from MyMap";
-            tryInvalidCompile(env, text, "Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly(side) select 'E1' from MyMap]");
+            env.tryInvalidCompile(text, "Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly(side) select 'E1' from MyMap]");
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("insert into ABCStream select *, 1+1 from SupportBean", path);
             text = "insert into ABCStream(string) select 'E1' from MyMap";
-            tryInvalidCompile(env, path, text, "Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is '" + Pair.class.getName() + "') [insert into ABCStream(string) select 'E1' from MyMap]");
+            env.tryInvalidCompile(path, text, "Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is '" + Pair.class.getName() + "') [insert into ABCStream(string) select 'E1' from MyMap]");
 
             text = "insert into xmltype select 1 from SupportBean";
-            tryInvalidCompile(env, text, "Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is '" + Node.class.getName() + "') [insert into xmltype select 1 from SupportBean]");
+            env.tryInvalidCompile(text, "Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is '" + Node.class.getName() + "') [insert into xmltype select 1 from SupportBean]");
 
             text = "insert into MyMap(dummy) select 1 from SupportBean";
-            tryInvalidCompile(env, text, "Event type named 'MyMap' has already been declared with differing column name or type information: Type by name 'MyMap' expects 10 properties but receives 1 properties [insert into MyMap(dummy) select 1 from SupportBean]");
+            env.tryInvalidCompile(text, "Event type named 'MyMap' has already been declared with differing column name or type information: Type by name 'MyMap' expects 10 properties but receives 1 properties [insert into MyMap(dummy) select 1 from SupportBean]");
 
             // setter throws exception
             String stmtTextOne = "@name('s0') insert into SupportBeanErrorTestingTwo(value) select 'E1' from MyMap";
@@ -343,7 +342,7 @@ public class EPLInsertIntoPopulateUnderlying {
             vals.put("intBoxed", 4);
             vals.put("floatBoxed", 0f);
             env.sendEventMap(vals, "MyMap");
-            env.assertPropsListenerNew("s0", "longBoxed,doubleBoxed".split(","), new Object[]{4L, 0d});
+            env.assertPropsNew("s0", "longBoxed,doubleBoxed".split(","), new Object[]{4L, 0d});
             env.undeployAll();
 
             // test new-to-map conversion
@@ -370,7 +369,7 @@ public class EPLInsertIntoPopulateUnderlying {
             vals.put("boolPrimitive", true);
 
             env.sendEventMap(vals, "MySupportMap");
-            env.assertPropsListenerNew("s0",
+            env.assertPropsNew("s0",
                 "intPrimitive,longBoxed,theString,boolPrimitive".split(","),
                 new Object[]{4, 100L, "E1", true});
 
@@ -491,7 +490,7 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextOne).addListener("s0");
 
             env.sendEventMap(new HashMap(), "MyMap");
-            env.assertPropsListenerNew("s0", "id,type,device,measurement,confidence".split(","), new Object[]{2, "A01", "DHC1000", 100.0, 5.0});
+            env.assertPropsNew("s0", "id,type,device,measurement,confidence".split(","), new Object[]{2, "A01", "DHC1000", 100.0, 5.0});
 
             try {
                 SupportBeanString.class.newInstance();
@@ -545,12 +544,12 @@ public class EPLInsertIntoPopulateUnderlying {
             // Test invalid case of non-array destination insert
             String invalidEpl = "INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
                 "every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]";
-            tryInvalidCompile(env, path, invalidEpl, "Invalid assignment of column 'endEvent' of type '" + SupportBean.class.getName() + "[]' to event property 'endEvent' typed as '" + SupportBean.class.getName() + "', column and parameter types mismatch [INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]");
+            env.tryInvalidCompile(path, invalidEpl, "Invalid assignment of column 'endEvent' of type '" + SupportBean.class.getName() + "[]' to event property 'endEvent' typed as '" + SupportBean.class.getName() + "', column and parameter types mismatch [INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]");
 
             // Test invalid case of array destination insert from non-array var
             String invalidEplTwo = "INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
                 "every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]";
-            tryInvalidCompile(env, path, invalidEplTwo, "Invalid assignment of column 'startEvent' of type '" + SupportBean_S0.class.getName() + "' to event property 'startEvent' typed as '" + SupportBean_S0.class.getName() + "[]', column and parameter types mismatch [INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]");
+            env.tryInvalidCompile(path, invalidEplTwo, "Invalid assignment of column 'startEvent' of type '" + SupportBean_S0.class.getName() + "' to event property 'startEvent' typed as '" + SupportBean_S0.class.getName() + "[]', column and parameter types mismatch [INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [every s=SupportBean_S0 -> e=SupportBean(theString=s.p00) until timer:interval(10 sec)]]");
 
             env.undeployAll();
         }
@@ -808,7 +807,7 @@ public class EPLInsertIntoPopulateUnderlying {
         bean.setDoubleBoxed(1001d);
         env.sendEventBean(bean);
 
-        env.assertPropsListenerNew("s0", "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
+        env.assertPropsNew("s0", "intVal,stringVal,doubleVal".split(","), new Object[]{1000, "E1", 1001d});
         env.undeployAll();
     }
 

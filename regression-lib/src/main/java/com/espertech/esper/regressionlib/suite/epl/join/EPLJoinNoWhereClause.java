@@ -39,7 +39,7 @@ public class EPLJoinNoWhereClause {
             sendEvent(env, "A2", 2);
             sendEvent(env, "A3", 3);
             sendEvent(env, "B2", 2);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"A2", "B2"});
+            env.assertPropsNew("s0", fields, new Object[]{"A2", "B2"});
 
             env.undeployAll();
         }

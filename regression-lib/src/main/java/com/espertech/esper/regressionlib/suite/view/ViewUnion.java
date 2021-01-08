@@ -16,14 +16,11 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ViewUnion {
 
@@ -58,29 +55,27 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(0);
 
             sendEvent(env, "E1", 99);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 99}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 99});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 99});
 
             sendEvent(env, "E2", 2);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 99}, {"E2", 2}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 2});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 2});
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E2", 2}});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], "theString".split(","), new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], "theString".split(","), new Object[]{"E1"});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", "theString".split(","), null, new Object[][]{{"E1"}, {"E1"}});
 
             env.milestone(1);
 
             sendEvent(env, "E1", 3);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 3}, {"E2", 2}});
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 3});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 3});
 
             env.undeployAll();
         }
@@ -88,15 +83,16 @@ public class ViewUnion {
 
     private static class ViewUnionFirstUniqueAndFirstLength implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#firstlength(3)#firstunique(theString) retain-union";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             tryAssertionFirstUniqueAndFirstLength(env);
 
             env.undeployAll();
 
             epl = "@name('s0') select irstream theString, intPrimitive from SupportBean#firstunique(theString)#firstlength(3) retain-union";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             tryAssertionFirstUniqueAndFirstLength(env);
 
@@ -113,41 +109,39 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             sendEvent(env, "E2", 2);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             sendEvent(env, "E3", 3);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             sendEvent(env, "E4", 4);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             sendEvent(env, "E5", 4);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             sendEvent(env, "E6", 4);     // remove stream is E1, E2, E3
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5", "E6"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E6"});
+            env.assertPropsNew("s0", fields, new Object[]{"E6"});
 
             sendEvent(env, "E7", 5);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5", "E6", "E7"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E7"});
+            env.assertPropsNew("s0", fields, new Object[]{"E7"});
 
             sendEvent(env, "E8", 6);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E5", "E4", "E6", "E7", "E8"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E8"});
+            env.assertPropsNew("s0", fields, new Object[]{"E8"});
 
             sendEvent(env, "E9", 7);     // remove stream is E4, E5, E6; E4 and E5 get removed as their
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E6", "E7", "E8", "E9"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"E4"}, {"E5"}});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E9"});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E9"}}, new Object[][]{{"E4"}, {"E5"}});
 
             env.undeployAll();
         }
@@ -162,15 +156,15 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1, 10, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(100d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100d});
+            env.assertPropsNew("s0", fields, new Object[]{100d});
 
             sendEvent(env, "E2", 2, 20, 50d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(150d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{150d});
+            env.assertPropsNew("s0", fields, new Object[]{150d});
 
             sendEvent(env, "E3", 1, 20, 20d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr(170d));
-            env.assertPropsListenerNew("s0", fields, new Object[]{170d});
+            env.assertPropsNew("s0", fields, new Object[]{170d});
 
             env.undeployAll();
         }
@@ -185,53 +179,47 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E2", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendEvent(env, "E3", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             sendEvent(env, "E4", 1, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(4);
 
             sendEvent(env, "E5", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(5);
 
             sendEvent(env, "E6", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E4", "E5", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E3"});
 
             sendEvent(env, "E7", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E4", "E5", "E6", "E7"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E7"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E7"}, new Object[]{"E1"});
 
             env.milestone(6);
 
             sendEvent(env, "E8", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E6", "E7", "E8"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E8"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E8"}, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -252,25 +240,25 @@ public class ViewUnion {
             sendEvent(env, "E5", 1); // retains E3
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(1, "E2"));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "E3"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(1, "E4"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.milestone(4);
 
             env.sendEventBean(new SupportBean_S0(1, "E5"));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -285,27 +273,25 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1, 10, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 
             sendEvent(env, "E2", 2, 10, 200d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(1);
 
             sendEvent(env, "E3", 2, 20, 100d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(2);
 
             sendEvent(env, "E4", 1, 30, 300d);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4"}, new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -321,22 +307,21 @@ public class ViewUnion {
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.sendEventBean(new SupportBean_S1(2, "E2"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1E2"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(10, "E3"));
             env.sendEventBean(new SupportBean_S1(20, "E4"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1E2", "E3E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3E4"});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(1, "E5"));
             env.sendEventBean(new SupportBean_S1(2, "E6"));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3E4", "E5E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5E6"});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E5E6"}, new Object[]{"E1E2"});
 
             env.undeployAll();
         }
@@ -351,73 +336,61 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E2", 2, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendEvent(env, "E3", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E3"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3"}, new Object[]{"E1"});
 
             env.milestone(3);
 
             sendEvent(env, "E4", 1, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E4"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E4"}, new Object[]{"E3"});
 
             env.milestone(4);
 
             sendEvent(env, "E5", 2, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             env.milestone(5);
 
             sendEvent(env, "E6", 3, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E6"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E6"}, new Object[]{"E2"});
 
             env.milestone(6);
 
             sendEvent(env, "E7", 3, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E6", "E7"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E7"});
+            env.assertPropsNew("s0", fields, new Object[]{"E7"});
 
             env.milestone(7);
 
             sendEvent(env, "E8", 4, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E7", "E8"));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E6"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E8"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E8"}, new Object[]{"E6"});
 
             env.milestone(8);
 
             sendEvent(env, "E9", 3, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E5", "E7", "E8", "E9"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E9"});
+            env.assertPropsNew("s0", fields, new Object[]{"E9"});
 
             env.milestone(9);
 
             sendEvent(env, "E10", 2, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E8", "E9", "E10"));
-            Assert.assertEquals(2, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"E7"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E10"});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][] {{"E10"}}, new Object[][] {{"E5"}, {"E7"}});
 
             env.undeployAll();
         }
@@ -432,47 +405,53 @@ public class ViewUnion {
 
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             sendEvent(env, "E2", 2, 9);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(2);
 
             sendEvent(env, "E3", 0, 0);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
             env.milestone(3);
 
             sendEvent(env, "E4", -1, -1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
-            Assert.assertEquals(2, env.listener("s0").getLastOldData().length);
-            Object[] result = {env.listener("s0").getLastOldData()[0].get("theString"), env.listener("s0").getLastOldData()[1].get("theString")};
-            EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E1", "E2"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E4"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getLastOldData().length);
+                Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
+                EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E1", "E2"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E4"});
+                listener.reset();
+            });
 
             env.milestone(4);
 
             sendEvent(env, "E5", 1, 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
-            Assert.assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E5"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E5"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(1, listener.getLastOldData().length);
+                EPAssertionUtil.assertProps(listener.assertOneGetOld(), fields, new Object[]{"E5"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E5"});
+                listener.reset();
+            });
 
             env.milestone(5);
 
             sendEvent(env, "E6", 0, 0);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E6"));
-            Assert.assertEquals(1, env.listener("s0").getLastOldData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetOld(), fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{"E6"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(1, listener.getLastOldData().length);
+                EPAssertionUtil.assertProps(listener.assertOneGetOld(), fields, new Object[]{"E3"});
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E6"});
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -529,19 +508,19 @@ public class ViewUnion {
             env.advanceTime(1000);
             sendEvent(env, "E1", 1, 10);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.milestone(0);
 
             env.advanceTime(2000);
             sendEvent(env, "E2", 2, 20);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(20));
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E2"});
+            env.assertPropsOld("s0", fields, new Object[]{"E2"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
 
             env.milestone(2);
@@ -549,20 +528,20 @@ public class ViewUnion {
             env.advanceTime(3000);
             sendEvent(env, "E3", 3, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+            env.assertPropsNew("s0", fields, new Object[]{"E3"});
             sendEvent(env, "E4", 3, 40);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3", "E4"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+            env.assertPropsNew("s0", fields, new Object[]{"E4"});
 
             env.milestone(3);
 
             env.advanceTime(4000);
             sendEvent(env, "E5", 4, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3", "E4", "E5"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+            env.assertPropsNew("s0", fields, new Object[]{"E5"});
             sendEvent(env, "E6", 4, 50);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3", "E4", "E5", "E6"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E6"});
+            env.assertPropsNew("s0", fields, new Object[]{"E6"});
 
             env.milestone(4);
 
@@ -573,10 +552,12 @@ public class ViewUnion {
             env.milestone(5);
 
             env.sendEventBean(new SupportBean_S0(50));
-            Assert.assertEquals(2, env.listener("s0").getLastOldData().length);
-            Object[] result = {env.listener("s0").getLastOldData()[0].get("theString"), env.listener("s0").getLastOldData()[1].get("theString")};
-            EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getLastOldData().length);
+                Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
+                EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
+                listener.reset();
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E3", "E4"));
 
             env.milestone(6);
@@ -587,7 +568,7 @@ public class ViewUnion {
             env.milestone(7);
 
             env.advanceTime(13000);
-            env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+            env.assertPropsOld("s0", fields, new Object[]{"E3"});
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E4"));
 
             env.advanceTime(10000000);
@@ -603,46 +584,46 @@ public class ViewUnion {
         env.advanceTime(1000);
         sendEvent(env, "E1", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+        env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
         env.milestone(1);
 
         env.advanceTime(2000);
         sendEvent(env, "E2", 2);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+        env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
         env.advanceTime(3000);
         sendEvent(env, "E3", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3"});
+        env.assertPropsNew("s0", fields, new Object[]{"E3"});
 
         env.milestone(2);
 
         env.advanceTime(4000);
         sendEvent(env, "E4", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E4"});
+        env.assertPropsNew("s0", fields, new Object[]{"E4"});
         sendEvent(env, "E5", 1);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E5"});
+        env.assertPropsNew("s0", fields, new Object[]{"E5"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5"));
         sendEvent(env, "E6", 3);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E6"});
+        env.assertPropsNew("s0", fields, new Object[]{"E6"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5", "E6"));
 
         env.milestone(3);
 
         env.advanceTime(5000);
         sendEvent(env, "E7", 4);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E7"});
+        env.assertPropsNew("s0", fields, new Object[]{"E7"});
         sendEvent(env, "E8", 4);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E8"});
+        env.assertPropsNew("s0", fields, new Object[]{"E8"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"));
 
         env.milestone(4);
 
         env.advanceTime(6000);
         sendEvent(env, "E9", 4);
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E9"});
+        env.assertPropsNew("s0", fields, new Object[]{"E9"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9"));
 
         env.advanceTime(10999);
@@ -651,27 +632,25 @@ public class ViewUnion {
         env.milestone(5);
 
         env.advanceTime(11000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E1"});
+        env.assertPropsOld("s0", fields, new Object[]{"E1"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9"));
 
         env.advanceTime(12999);
         env.assertListenerNotInvoked("s0");
         env.advanceTime(13000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E3"});
+        env.assertPropsOld("s0", fields, new Object[]{"E3"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E4", "E5", "E6", "E7", "E8", "E9"));
 
         env.milestone(6);
 
         env.advanceTime(14000);
-        env.assertPropsListenerOld("s0", fields, new Object[]{"E4"});
+        env.assertPropsOld("s0", fields, new Object[]{"E4"});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E5", "E6", "E7", "E8", "E9"));
 
         env.milestone(7);
 
         env.advanceTime(15000);
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E7"});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"E8"});
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPair("s0", fields, null, new Object[][] {{"E7"}, {"E8"}});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E2", "E5", "E6", "E9"));
 
         env.advanceTime(1000000);
@@ -684,10 +663,10 @@ public class ViewUnion {
             String text = null;
 
             text = "select theString from SupportBean#groupwin(theString)#unique(theString)#merge(intPrimitive) retain-union";
-            SupportMessageAssertUtil.tryInvalidCompile(env, text, "Failed to validate data window declaration: Mismatching parameters between 'group' and 'merge'");
+            env.tryInvalidCompile(text, "Failed to validate data window declaration: Mismatching parameters between 'group' and 'merge'");
 
             text = "select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union";
-            SupportMessageAssertUtil.tryInvalidCompile(env, text, "Failed to validate data window declaration: Multiple groupwin-declarations are not supported [select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union]");
+            env.tryInvalidCompile(text, "Failed to validate data window declaration: Multiple groupwin-declarations are not supported [select theString from SupportBean#groupwin(theString)#groupwin(intPrimitive)#unique(theString)#unique(intPrimitive) retain-union]");
         }
     }
 
@@ -696,27 +675,27 @@ public class ViewUnion {
 
         sendEvent(env, "E1", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
         sendEvent(env, "E1", 2);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 2});
+        env.assertPropsNew("s0", fields, new Object[]{"E1", 2});
 
         sendEvent(env, "E2", 1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 1}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 1});
+        env.assertPropsNew("s0", fields, new Object[]{"E2", 1});
 
         sendEvent(env, "E2", 3);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 1}});
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "E3", 3);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 1}, {"E3", 3}});
-        env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 3});
+        env.assertPropsNew("s0", fields, new Object[]{"E3", 3});
 
         sendEvent(env, "E3", 4);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 1}, {"E3", 3}});
-        assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, String theString, int intPrimitive, int intBoxed, double doublePrimitive) {

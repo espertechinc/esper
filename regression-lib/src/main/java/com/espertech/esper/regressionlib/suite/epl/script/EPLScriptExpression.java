@@ -29,7 +29,6 @@ import com.espertech.esper.regressionlib.support.script.MyImportedClass;
 import java.util.*;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.*;
 
@@ -160,7 +159,7 @@ public class EPLScriptExpression {
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create schema ItemEvent(id string)", path);
-            tryInvalidCompile(env, path, "expression double @type(ItemEvent) fib(num) [] select fib(1) from SupportBean",
+            env.tryInvalidCompile(path, "expression double @type(ItemEvent) fib(num) [] select fib(1) from SupportBean",
                 "Failed to validate select-clause expression 'fib(1)': The @type annotation is only allowed when the invocation target returns EventBean instances");
             env.undeployAll();
         }
@@ -230,35 +229,35 @@ public class EPLScriptExpression {
     private static class EPLScriptInvalidRegardlessDialect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // parameter defined twice
-            tryInvalidCompile(env, "expression js:abc(p1, p1) [/* text */] select * from SupportBean",
+            env.tryInvalidCompile("expression js:abc(p1, p1) [/* text */] select * from SupportBean",
                 "Invalid script parameters for script 'abc', parameter 'p1' is defined more then once [expression js:abc(p1, p1) [/* text */] select * from SupportBean]");
 
             // invalid dialect
-            tryInvalidCompile(env, "expression dummy:abc() [10] select * from SupportBean",
+            env.tryInvalidCompile("expression dummy:abc() [10] select * from SupportBean",
                 "Failed to obtain script runtime for dialect 'dummy' for script 'abc' [expression dummy:abc() [10] select * from SupportBean]");
 
             // not found
-            tryInvalidCompile(env, "select abc() from SupportBean",
+            env.tryInvalidCompile("select abc() from SupportBean",
                 "Failed to validate select-clause expression 'abc()': Unknown single-row function, expression declaration, script or aggregation function named 'abc' could not be resolved [select abc() from SupportBean]");
 
             // test incorrect number of parameters
-            tryInvalidCompile(env, "expression js:abc() [10] select abc(1) from SupportBean",
+            env.tryInvalidCompile("expression js:abc() [10] select abc(1) from SupportBean",
                 "Failed to validate select-clause expression 'abc(1)': Invalid number of parameters for script 'abc', expected 0 parameters but received 1 parameters [expression js:abc() [10] select abc(1) from SupportBean]");
 
             // test expression name overlap
-            tryInvalidCompile(env, "expression js:abc() [10] expression js:abc() [10] select abc() from SupportBean",
+            env.tryInvalidCompile("expression js:abc() [10] expression js:abc() [10] select abc() from SupportBean",
                 "Script name 'abc' has already been defined with the same number of parameters [expression js:abc() [10] expression js:abc() [10] select abc() from SupportBean]");
 
             // test expression name overlap with parameters
-            tryInvalidCompile(env, "expression js:abc(p1) [10] expression js:abc(p2) [10] select abc() from SupportBean",
+            env.tryInvalidCompile("expression js:abc(p1) [10] expression js:abc(p2) [10] select abc() from SupportBean",
                 "Script name 'abc' has already been defined with the same number of parameters [expression js:abc(p1) [10] expression js:abc(p2) [10] select abc() from SupportBean]");
 
             // test script name overlap with expression declaration
-            tryInvalidCompile(env, "expression js:abc() [10] expression abc {10} select abc() from SupportBean",
+            env.tryInvalidCompile("expression js:abc() [10] expression abc {10} select abc() from SupportBean",
                 "Script name 'abc' overlaps with another expression of the same name [expression js:abc() [10] expression abc {10} select abc() from SupportBean]");
 
             // fails to resolve return type
-            tryInvalidCompile(env, "expression dummy js:abc() [10] select abc() from SupportBean",
+            env.tryInvalidCompile("expression dummy js:abc() [10] select abc() from SupportBean",
                 "Failed to validate select-clause expression 'abc()': Failed to resolve return type 'dummy' specified for script 'abc' [expression dummy js:abc() [10] select abc() from SupportBean]");
         }
     }
@@ -280,7 +279,7 @@ public class EPLScriptExpression {
                     "Invalid return statement");
             }
 
-            tryInvalidCompile(env, "expression js:abc[] select * from SupportBean",
+            env.tryInvalidCompile("expression js:abc[] select * from SupportBean",
                 "Incorrect syntax near ']' at line 1 column 18 near reserved keyword 'select' [expression js:abc[] select * from SupportBean]");
 
             // empty script
@@ -327,11 +326,11 @@ public class EPLScriptExpression {
             }
 
             // mvel return type check
-            tryInvalidCompile(env, "expression java.lang.String mvel:abc[10] select * from SupportBean where abc()",
+            env.tryInvalidCompile("expression java.lang.String mvel:abc[10] select * from SupportBean where abc()",
                 "Failed to validate filter expression 'abc()': Return type and declared type not compatible for script 'abc', known return type is java.lang.Integer versus declared return type java.lang.String [expression java.lang.String mvel:abc[10] select * from SupportBean where abc()]");
 
             // undeclared variable
-            tryInvalidCompile(env, "expression mvel:abc[dummy;] select * from SupportBean",
+            env.tryInvalidCompile("expression mvel:abc[dummy;] select * from SupportBean",
                 "For script 'abc' the variable 'dummy' has not been declared and is not a parameter [expression mvel:abc[dummy;] select * from SupportBean]");
 
             // invalid assignment
@@ -343,7 +342,7 @@ public class EPLScriptExpression {
                 "unable to resolve method using strict-mode");
 
             // empty brackets
-            tryInvalidCompile(env, "expression mvel:abc[] select * from SupportBean",
+            env.tryInvalidCompile("expression mvel:abc[] select * from SupportBean",
                 "Incorrect syntax near ']' at line 1 column 20 near reserved keyword 'select' [expression mvel:abc[] select * from SupportBean]");
 
             // empty script

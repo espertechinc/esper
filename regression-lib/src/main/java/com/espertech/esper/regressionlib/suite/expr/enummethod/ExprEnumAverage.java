@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -127,13 +126,13 @@ public class ExprEnumAverage {
             String epl;
 
             epl = "select strvals.average() from SupportCollection";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of numeric values as input, received java.util.Collection<String> [select strvals.average() from SupportCollection]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of numeric values as input, received java.util.Collection<String> [select strvals.average() from SupportCollection]");
 
             epl = "select beans.average() from SupportBean_Container";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'beans.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean.class.getName() + "'");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'beans.average()': Invalid input for built-in enumeration method 'average' and 0-parameter footprint, expecting collection of values (typically scalar values) as input, received collection of events of type '" + SupportBean.class.getName() + "'");
 
             epl = "select strvals.average(v => null) from SupportCollection";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl, "Failed to validate select-clause expression 'strvals.average()': Failed to validate enumeration method 'average', expected a non-null result for expression parameter 0 but received a null-typed expression");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'strvals.average()': Failed to validate enumeration method 'average', expected a non-null result for expression parameter 0 but received a null-typed expression");
         }
     }
 

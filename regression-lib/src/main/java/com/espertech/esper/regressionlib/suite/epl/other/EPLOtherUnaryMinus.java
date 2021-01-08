@@ -24,7 +24,7 @@ public class EPLOtherUnaryMinus implements RegressionExecution {
         env.sendEventBean(new SupportBean("E1", 10));
 
         assertEquals(1d, env.runtime().getVariableService().getVariableValue(env.deploymentId("s0"), "v"));
-        env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{-10, -1d});
+        env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{-10, -1d});
 
         env.undeployAll();
     }

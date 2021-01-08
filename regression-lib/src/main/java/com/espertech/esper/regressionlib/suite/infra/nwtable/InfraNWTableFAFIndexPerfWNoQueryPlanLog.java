@@ -16,11 +16,13 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,8 +48,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
     private static class InfraFAFKeyBTreePerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         private final boolean namedWindow;
@@ -106,8 +108,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
     private static class InfraFAFKeyAndRangePerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         private final boolean namedWindow;
@@ -167,8 +169,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
     private static class InfraFAFRangePerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         private final boolean namedWindow;
@@ -227,8 +229,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
     private static class InfraFAFKeyPerformance implements RegressionExecution {
         @Override
-        public boolean excludeWhenInstrumented() {
-            return true;
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
         }
 
         private final boolean namedWindow;

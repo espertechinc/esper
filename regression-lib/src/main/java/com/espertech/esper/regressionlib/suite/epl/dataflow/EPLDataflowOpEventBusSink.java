@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -50,7 +49,7 @@ public class EPLDataflowOpEventBusSink {
             runAssertionAllTypes(env, DefaultSupportGraphEventUtil.EVENTTYPENAME, DefaultSupportGraphEventUtil.getPOJOEvents());
 
             // invalid: output stream
-            tryInvalidCompile(env, "create dataflow DF1 EventBusSink -> s1 {}",
+            env.tryInvalidCompile("create dataflow DF1 EventBusSink -> s1 {}",
                 "Failed to obtain operator 'EventBusSink': EventBusSink operator does not provide an output stream");
 
             RegressionPath path = new RegressionPath();
@@ -89,7 +88,7 @@ public class EPLDataflowOpEventBusSink {
         EPDataFlowInstance instance = env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyGraph", options);
         instance.run();
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataListFlattened(), "myDouble,myInt,myString".split(","), new Object[][]{{1.1d, 1, "one"}, {2.2d, 2, "two"}});
+        env.assertPropsPerRowNewFlattened("s0",  "myDouble,myInt,myString".split(","), new Object[][]{{1.1d, 1, "one"}, {2.2d, 2, "two"}});
 
         env.undeployAll();
     }
@@ -151,7 +150,7 @@ public class EPLDataflowOpEventBusSink {
 
             env.listener("s0").waitForInvocation(3000, 1);
             env.listener("s1").waitForInvocation(3000, 1);
-            env.assertPropsListenerNew("s0", "p0,p1".split(","), new Object[]{100, "abc"});
+            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{100, "abc"});
             EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "f0,f1".split(","), new Object[]{"GE", -1});
 
             env.undeployAll();

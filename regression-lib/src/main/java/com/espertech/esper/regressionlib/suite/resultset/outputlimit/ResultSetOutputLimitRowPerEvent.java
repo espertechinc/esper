@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetOutputLimitRowPerEvent {
     private static final String EVENT_NAME = SupportMarketDataBean.class.getSimpleName();
@@ -384,12 +385,12 @@ public class ResultSetOutputLimitRowPerEvent {
             sendTimer(env, 500);
             sendEvent(env, "IBM", 16);
             sendEvent(env, "MSFT", 14);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "sumprice"};
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 50d}, {"IBM", 50d}, {"MSFT", 50d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 1500);
@@ -398,24 +399,24 @@ public class ResultSetOutputLimitRowPerEvent {
 
             sendTimer(env, 10000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 98d}, {"IBM", 98d}, {"MSFT", 98d}, {"YAH", 98d}, {"s4", 98d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"YAH", 48d}, {"s4", 48d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 12000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 13000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -441,12 +442,12 @@ public class ResultSetOutputLimitRowPerEvent {
             sendTimer(env, 500);
             sendEvent(env, "IBM", 16);
             sendEvent(env, "MSFT", 14);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "sumprice"};
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 50d}, {"IBM", 50d}, {"MSFT", 50d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 1500);
@@ -455,26 +456,26 @@ public class ResultSetOutputLimitRowPerEvent {
 
             sendTimer(env, 10000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 98d}, {"IBM", 98d}, {"MSFT", 98d}, {"YAH", 98d}, {"s4", 98d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 10500);
             sendTimer(env, 11000);
             EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"YAH", 48d}, {"s4", 48d}});
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 11500);
             sendTimer(env, 12000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             sendTimer(env, 13000);
             TestCase.assertTrue(env.listener("s0").isInvoked());
-            TestCase.assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertNull(env.listener("s0").getLastOldData());
+            assertNull(env.listener("s0").getLastNewData());
+            assertNull(env.listener("s0").getLastOldData());
             env.listener("s0").reset();
 
             env.undeployAll();
@@ -604,11 +605,11 @@ public class ResultSetOutputLimitRowPerEvent {
             // Send another event, not the first, for aggregation
             // update only, no output
             sendMarketDataEvent(env, 20L);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Update time
             sendTimeEventRelative(env, 3000, currentTime);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send first event of the next batch, should be output.
             // The aggregate value is computed over all events
@@ -618,11 +619,11 @@ public class ResultSetOutputLimitRowPerEvent {
 
             // Send the next event of the batch, no output
             sendMarketDataEvent(env, 40L);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Update time
             sendTimeEventRelative(env, 3000, currentTime);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send first event of third batch
             sendMarketDataEvent(env, 1L);
@@ -630,12 +631,12 @@ public class ResultSetOutputLimitRowPerEvent {
 
             // Update time
             sendTimeEventRelative(env, 3000, currentTime);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Update time: no first event this batch, so a callback
             // is made at the end of the interval
             sendTimeEventRelative(env, 3000, currentTime);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -655,12 +656,12 @@ public class ResultSetOutputLimitRowPerEvent {
             // Send the second event of the batch, not output, used
             // for updating the aggregate value only
             sendEventLong(env, 20L);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // Send the third event of the batch, still not output,
             // but should reset the batch
             sendEventLong(env, 30L);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // First event, next batch, aggregate value should be
             // 10 + 20 + 30 + 40 = 100
@@ -669,7 +670,7 @@ public class ResultSetOutputLimitRowPerEvent {
 
             // Next event again not output
             sendEventLong(env, 50L);
-            TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -688,19 +689,19 @@ public class ResultSetOutputLimitRowPerEvent {
         sendEvent(env, 1);
 
         // check no update
-        TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // send another event
         sendEvent(env, 2);
 
         // check update, all events present
-        TestCase.assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
         Assert.assertEquals(1L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
         Assert.assertEquals(1L, env.listener("s0").getLastNewData()[0].get("result"));
         Assert.assertEquals(2L, env.listener("s0").getLastNewData()[1].get("longBoxed"));
         Assert.assertEquals(3L, env.listener("s0").getLastNewData()[1].get("result"));
-        TestCase.assertNull(env.listener("s0").getLastOldData());
+        assertNull(env.listener("s0").getLastOldData());
 
         env.undeployAll();
     }
@@ -871,7 +872,7 @@ public class ResultSetOutputLimitRowPerEvent {
 
         sendTimer(env, 1000);
         String[] fields = "symbol,avgPrice".split(",");
-        env.assertPropsListenerNew("s0", fields, new Object[]{"SYM1", 10.5});
+        env.assertPropsNew("s0", fields, new Object[]{"SYM1", 10.5});
 
         sendEvent(env, "SYM1", 13d);
         sendEvent(env, "SYM1", 10d);
@@ -879,7 +880,7 @@ public class ResultSetOutputLimitRowPerEvent {
         sendTimer(env, 2000);
 
         Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
-        TestCase.assertNull(env.listener("s0").getLastOldData());
+        assertNull(env.listener("s0").getLastOldData());
         EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
             new Object[][]{{"SYM1", 43 / 4.0}, {"SYM1", 53.0 / 5.0}, {"SYM1", 62 / 6.0}});
 
@@ -891,17 +892,17 @@ public class ResultSetOutputLimitRowPerEvent {
         sendEvent(env, 1);
 
         // check no update
-        TestCase.assertFalse(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s0");
 
         // send another event
         sendEvent(env, 2);
 
         // check update, all events present
-        TestCase.assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
         Assert.assertEquals(2L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
         Assert.assertEquals(3L, env.listener("s0").getLastNewData()[0].get("result"));
-        TestCase.assertNull(env.listener("s0").getLastOldData());
+        assertNull(env.listener("s0").getLastOldData());
 
         env.undeployAll();
     }
@@ -934,7 +935,7 @@ public class ResultSetOutputLimitRowPerEvent {
     }
 
     private static void assertEvent(RegressionEnvironment env, long volume) {
-        TestCase.assertTrue(env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvoked("s0");
         assertTrue(env.listener("s0").getLastNewData() != null);
         Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
         Assert.assertEquals(volume, env.listener("s0").getLastNewData()[0].get("sum(volume)"));

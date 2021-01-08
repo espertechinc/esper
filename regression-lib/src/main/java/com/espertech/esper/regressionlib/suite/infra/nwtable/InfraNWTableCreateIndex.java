@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -92,33 +91,33 @@ public class InfraNWTableCreateIndex {
             env.compileDeploy(eplCreateWContext, path);
 
             // invalid context
-            tryInvalidCompile(env, path, "create unique index IndexTwo on MyInfraCtx(f1)",
+            env.tryInvalidCompile(path, "create unique index IndexTwo on MyInfraCtx(f1)",
                 (namedWindow ? "Named window" : "Table") + " by name 'MyInfraCtx' has been declared for context 'ContextOne' and can only be used within the same context");
-            tryInvalidCompile(env, path, "context ContextTwo create unique index IndexTwo on MyInfraCtx(f1)",
+            env.tryInvalidCompile(path, "context ContextTwo create unique index IndexTwo on MyInfraCtx(f1)",
                 (namedWindow ? "Named window" : "Table") + " by name 'MyInfraCtx' has been declared for context 'ContextOne' and can only be used within the same context");
 
-            tryInvalidCompile(env, path, "create index MyInfraIndex on MyInfraOne(f1)",
+            env.tryInvalidCompile(path, "create index MyInfraIndex on MyInfraOne(f1)",
                 "An index by name 'MyInfraIndex' already exists [");
 
-            tryInvalidCompile(env, path, "create index IndexTwo on MyInfraOne(fx)",
+            env.tryInvalidCompile(path, "create index IndexTwo on MyInfraOne(fx)",
                 "Property named 'fx' not found");
 
-            tryInvalidCompile(env, path, "create index IndexTwo on MyInfraOne(f1, f1)",
+            env.tryInvalidCompile(path, "create index IndexTwo on MyInfraOne(f1, f1)",
                 "Property named 'f1' has been declared more then once [create index IndexTwo on MyInfraOne(f1, f1)]");
 
-            tryInvalidCompile(env, path, "create index IndexTwo on MyWindowX(f1, f1)",
+            env.tryInvalidCompile(path, "create index IndexTwo on MyWindowX(f1, f1)",
                 "A named window or table by name 'MyWindowX' does not exist [create index IndexTwo on MyWindowX(f1, f1)]");
 
-            tryInvalidCompile(env, path, "create index IndexTwo on MyInfraOne(f1 bubu, f2)",
+            env.tryInvalidCompile(path, "create index IndexTwo on MyInfraOne(f1 bubu, f2)",
                 "Unrecognized advanced-type index 'bubu'");
 
-            tryInvalidCompile(env, path, "create gugu index IndexTwo on MyInfraOne(f2)",
+            env.tryInvalidCompile(path, "create gugu index IndexTwo on MyInfraOne(f2)",
                 "Invalid keyword 'gugu' in create-index encountered, expected 'unique' [create gugu index IndexTwo on MyInfraOne(f2)]");
 
-            tryInvalidCompile(env, path, "create unique index IndexTwo on MyInfraOne(f2 btree)",
+            env.tryInvalidCompile(path, "create unique index IndexTwo on MyInfraOne(f2 btree)",
                 "Combination of unique index with btree (range) is not supported [create unique index IndexTwo on MyInfraOne(f2 btree)]");
 
-            tryInvalidCompile(env, path, "create schema MyMap(somefield null);\n" +
+            env.tryInvalidCompile(path, "create schema MyMap(somefield null);\n" +
                     "create window MyWindow#keepall as MyMap;\n" +
                     "create unique index MyIndex on MyWindow(somefield)",
                 "Property named 'somefield' is null-typed");
@@ -143,7 +142,7 @@ public class InfraNWTableCreateIndex {
 
             if (!namedWindow) {
                 env.compileDeploy("create table MyTable (p0 string, sumint sum(int))", path);
-                tryInvalidCompile(env, path, "create index MyIndex on MyTable(p0)",
+                env.tryInvalidCompile(path, "create index MyIndex on MyTable(p0)",
                     "Tables without primary key column(s) do not allow creating an index [");
             }
 
@@ -180,7 +179,7 @@ public class InfraNWTableCreateIndex {
             assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
 
             env.sendEventBean(new SupportBean_S0(1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             // create second identical statement
             env.compileDeploy("@name('stmtTwo') on SupportBean_S0 s0 select nw.f1 as f1, nw.f2 as f2 from MyInfraONR nw where nw.f2 = s0.id", path);
@@ -685,7 +684,7 @@ public class InfraNWTableCreateIndex {
             if (expected[i] == null) {
                 env.assertListenerNotInvoked("s0");
             } else {
-                env.assertPropsListenerNew("s0", "col0,col1".split(","), expected[i]);
+                env.assertPropsNew("s0", "col0,col1".split(","), expected[i]);
             }
         }
     }

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class InfraTableResetAggregationState {
@@ -63,17 +62,17 @@ public class InfraTableResetAggregationState {
             String prefix = "@name('table') create table MyTable(asum sum(int));\n";
 
             String invalidSelectAggReset = prefix + "on SupportBean_S0 merge MyTable when matched then insert into MyStream select asum.reset()";
-            tryInvalidCompile(env, invalidSelectAggReset, "Failed to validate select-clause expression 'asum.reset()': The table aggregation'reset' method is only available for the on-merge update action");
+            env.tryInvalidCompile(invalidSelectAggReset, "Failed to validate select-clause expression 'asum.reset()': The table aggregation'reset' method is only available for the on-merge update action");
 
             String invalidSelectRowReset = prefix + "on SupportBean_S0 merge MyTable as mt when matched then insert into MyStream select mt.reset()";
-            tryInvalidCompile(env, invalidSelectRowReset, "Failed to validate select-clause expression 'mt.reset()'");
+            env.tryInvalidCompile(invalidSelectRowReset, "Failed to validate select-clause expression 'mt.reset()'");
 
             String invalidAggResetWParams = prefix + "on SupportBean_S0 merge MyTable as mt when matched then update set asum.reset(1)";
-            tryInvalidCompile(env, invalidAggResetWParams,
+            env.tryInvalidCompile(invalidAggResetWParams,
                 "Failed to validate update assignment expression 'asum.reset(1)': The table aggregation 'reset' method does not allow parameters");
 
             String invalidRowResetWParams = prefix + "on SupportBean_S0 merge MyTable as mt when matched then update set mt.reset(1)";
-            tryInvalidCompile(env, invalidRowResetWParams,
+            env.tryInvalidCompile(invalidRowResetWParams,
                 "Failed to validate update assignment expression 'mt.reset(1)': The table aggregation 'reset' method does not allow parameters");
         }
     }

@@ -26,7 +26,6 @@ import com.espertech.esper.regressionlib.support.schedule.SupportDateTimeFieldTy
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -64,7 +63,7 @@ public class ExprDTIntervalOps {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{false});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{false});
 
             env.undeployAll();
         }
@@ -89,7 +88,7 @@ public class ExprDTIntervalOps {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            env.assertPropsListenerNew("s0", "c0".split(","), new Object[]{false});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{false});
 
             env.undeployAll();
         }
@@ -113,10 +112,10 @@ public class ExprDTIntervalOps {
             env.sendEventBean(bean);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T09:00:00.000"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{true, true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, true, true, true, true});
 
             env.sendEventBean(SupportDateTime.make("2003-05-30T08:00:00.000"));
-            env.assertPropsListenerNew("s0", fields, new Object[]{false, false, false, false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false, false, false, false});
 
             env.undeployAll();
         }
@@ -162,73 +161,73 @@ public class ExprDTIntervalOps {
     private static class ExprDTIntervalInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // wrong 1st parameter - string
-            tryInvalidCompile(env, "select a.before('x') from SupportTimeStartEndA as a",
+            env.tryInvalidCompile("select a.before('x') from SupportTimeStartEndA as a",
                 "Failed to validate select-clause expression 'a.before('x')': Failed to resolve enumeration method, date-time method or mapped property 'a.before('x')': For date-time method 'before' the first parameter expression returns 'String', however requires a Date, Calendar, Long-type return value or event (with timestamp)");
 
             // wrong 1st parameter - event not defined with timestamp expression
-            tryInvalidCompile(env, "select a.before(b) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select a.before(b) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(b)': For date-time method 'before' the first parameter is event type 'SupportBean', however no timestamp property has been defined for this event type");
 
             // wrong 1st parameter - boolean
-            tryInvalidCompile(env, "select a.before(true) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select a.before(true) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(true)': For date-time method 'before' the first parameter expression returns 'boolean', however requires a Date, Calendar, Long-type return value or event (with timestamp)");
 
             // wrong zero parameters
-            tryInvalidCompile(env, "select a.before() from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select a.before() from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'a.before()': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives no parameters");
 
             // wrong target
-            tryInvalidCompile(env, "select theString.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select theString.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'theString.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property but received String");
-            tryInvalidCompile(env, "select b.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select b.before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'b.before(a)': Date-time enumeration method 'before' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property");
-            tryInvalidCompile(env, "select a.get('month').before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
+            env.tryInvalidCompile("select a.get('month').before(a) from SupportTimeStartEndA#lastevent as a, SupportBean#lastevent as b",
                 "Failed to validate select-clause expression 'a.get(\"month\").before(a)': Failed to resolve method 'get': Could not find enumeration method, date-time method, instance method or property named 'get'");
 
             // test before/after
-            tryInvalidCompile(env, "select a.before(b, 'abc') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.before(b, 'abc') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(b,\"abc\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 1 but received String ");
-            tryInvalidCompile(env, "select a.before(b, 1, 'def') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.before(b, 1, 'def') from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(b,1,\"def\")': Failed to validate date-time method 'before', expected a time-period expression or a numeric-type result for expression parameter 2 but received String ");
-            tryInvalidCompile(env, "select a.before(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.before(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.before(b,1,2,3)': Parameters mismatch for date-time method 'before', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing interval start value, or an expression providing timestamp or timestamped-event and an expression providing interval start value and an expression providing interval finishes value, but receives 4 expressions ");
 
             // test coincides
-            tryInvalidCompile(env, "select a.coincides(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.coincides(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.coincides(b,1,2,3)': Parameters mismatch for date-time method 'coincides', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing threshold for start and end value, or an expression providing timestamp or timestamped-event and an expression providing threshold for start value and an expression providing threshold for end value, but receives 4 expressions ");
-            tryInvalidCompile(env, "select a.coincides(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.coincides(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.coincides(b,-1)': The coincides date-time method does not allow negative start and end values ");
 
             // test during+interval
-            tryInvalidCompile(env, "select a.during(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.during(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.during(b,1,2,3)': Parameters mismatch for date-time method 'during', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance start and an expression providing maximum distance start and an expression providing minimum distance end and an expression providing maximum distance end, but receives 4 expressions ");
 
             // test finishes+finished-by
-            tryInvalidCompile(env, "select a.finishes(b, 1, 2) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.finishes(b, 1, 2) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.finishes(b,1,2)': Parameters mismatch for date-time method 'finishes', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between end timestamps, but receives 3 expressions ");
-            tryInvalidCompile(env, "select a.finishes(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.finishes(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.finishes(b,-1)': The finishes date-time method does not allow negative threshold value ");
-            tryInvalidCompile(env, "select a.finishedby(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.finishedby(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.finishedby(b,-1)': The finishedby date-time method does not allow negative threshold value ");
 
             // test meets+met-by
-            tryInvalidCompile(env, "select a.meets(b, 1, 2) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.meets(b, 1, 2) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.meets(b,1,2)': Parameters mismatch for date-time method 'meets', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start and end timestamps, but receives 3 expressions ");
-            tryInvalidCompile(env, "select a.meets(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.meets(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.meets(b,-1)': The meets date-time method does not allow negative threshold value ");
-            tryInvalidCompile(env, "select a.metBy(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.metBy(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.metBy(b,-1)': The metBy date-time method does not allow negative threshold value ");
 
             // test overlaps+overlapped-by
-            tryInvalidCompile(env, "select a.overlaps(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.overlaps(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.overlaps(b,1,2,3)': Parameters mismatch for date-time method 'overlaps', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance interval both start and end, or an expression providing timestamp or timestamped-event and an expression providing minimum distance interval both start and end and an expression providing maximum distance interval both start and end, but receives 4 expressions ");
 
             // test start/startedby
-            tryInvalidCompile(env, "select a.starts(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.starts(b, 1, 2, 3) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.starts(b,1,2,3)': Parameters mismatch for date-time method 'starts', the method has multiple footprints accepting an expression providing timestamp or timestamped-event, or an expression providing timestamp or timestamped-event and an expression providing maximum distance between start timestamps, but receives 4 expressions ");
-            tryInvalidCompile(env, "select a.starts(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.starts(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.starts(b,-1)': The starts date-time method does not allow negative threshold value ");
-            tryInvalidCompile(env, "select a.startedBy(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
+            env.tryInvalidCompile("select a.startedBy(b, -1) from SupportTimeStartEndA#lastevent as a, SupportTimeStartEndB#lastevent as b",
                 "Failed to validate select-clause expression 'a.startedBy(b,-1)': The startedBy date-time method does not allow negative threshold value ");
         }
     }

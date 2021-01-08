@@ -34,7 +34,7 @@ public class EPLJoinUniqueIndex implements RegressionExecution, IndexBackingTabl
                 env.sendEventBean(new SupportSimpleBeanTwo("E2", 1, 2, 0));
                 env.sendEventBean(new SupportSimpleBeanTwo("E3", 1, 3, 9));
                 env.sendEventBean(new SupportSimpleBeanOne("EX", 1, 3, 9));
-                env.assertPropsListenerNew("s0", fields, new Object[]{"EX", "E3"});
+                env.assertPropsNew("s0", fields, new Object[]{"EX", "E3"});
             }
         };
 

@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.assertTrue;
 
 public class EPLOtherSelectExprStreamSelector {
@@ -58,7 +57,7 @@ public class EPLOtherSelectExprStreamSelector {
 
     private static class EPLOtherInvalidSelectWildcardProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select simpleProperty.* as a from SupportBeanComplexProps as s0",
+            env.tryInvalidCompile("select simpleProperty.* as a from SupportBeanComplexProps as s0",
                 "The property wildcard syntax must be used without column name");
         }
     }
@@ -198,7 +197,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             Object theEvent = sendBeanEvent(env, "E1", 15);
             String[] fields = new String[]{"theString", "intPrimitive", "s0"};
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 15, theEvent});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 15, theEvent});
 
             env.undeployAll();
         }
@@ -245,7 +244,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             Object theEvent = sendBeanEvent(env, "E1", 12);
             String[] fields = new String[]{"s0", "s1", "a", "b"};
-            env.assertPropsListenerNew("s0", fields, new Object[]{theEvent, theEvent, 12, 12});
+            env.assertPropsNew("s0", fields, new Object[]{theEvent, theEvent, 12, 12});
 
             env.undeployAll();
         }
@@ -294,7 +293,7 @@ public class EPLOtherSelectExprStreamSelector {
 
             sendBeanEvent(env, "E1", 10);
             String[] fields = new String[]{"a", "theString", "intPrimitive", "b"};
-            env.assertPropsListenerNew("s0", fields, new Object[]{10, "E1", 10, 10});
+            env.assertPropsNew("s0", fields, new Object[]{10, "E1", 10, 10});
 
             env.undeployAll();
         }
@@ -435,16 +434,16 @@ public class EPLOtherSelectExprStreamSelector {
 
     private static class EPLOtherInvalidSelect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select theString.* as theString, theString from SupportBean#length(3) as theString",
+            env.tryInvalidCompile("select theString.* as theString, theString from SupportBean#length(3) as theString",
                 "Column name 'theString' appears more then once in select clause");
 
-            tryInvalidCompile(env, "select s1.* as abc from SupportBean#length(3) as s0",
+            env.tryInvalidCompile("select s1.* as abc from SupportBean#length(3) as s0",
                 "Stream selector 's1.*' does not match any stream name in the from clause [");
 
-            tryInvalidCompile(env, "select s0.* as abc, s0.* as abc from SupportBean#length(3) as s0",
+            env.tryInvalidCompile("select s0.* as abc, s0.* as abc from SupportBean#length(3) as s0",
                 "Column name 'abc' appears more then once in select clause");
 
-            tryInvalidCompile(env, "select s0.*, s1.* from SupportBean#keepall as s0, SupportBean#keepall as s1",
+            env.tryInvalidCompile("select s0.*, s1.* from SupportBean#keepall as s0, SupportBean#keepall as s1",
                 "A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation");
         }
     }

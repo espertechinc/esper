@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.*;
 
 public class EventMapCore {
@@ -127,9 +126,9 @@ public class EventMapCore {
 
     private static class EventMapCoreInvalidStatement implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryInvalidCompile(env, "select XXX from myMapEvent#length(5)", "skip");
-            tryInvalidCompile(env, "select myString * 2 from myMapEvent#length(5)", "skip");
-            tryInvalidCompile(env, "select String.trim(myInt) from myMapEvent#length(5)", "skip");
+            env.tryInvalidCompile("select XXX from myMapEvent#length(5)", "skip");
+            env.tryInvalidCompile("select myString * 2 from myMapEvent#length(5)", "skip");
+            env.tryInvalidCompile("select String.trim(myInt) from myMapEvent#length(5)", "skip");
         }
     }
 

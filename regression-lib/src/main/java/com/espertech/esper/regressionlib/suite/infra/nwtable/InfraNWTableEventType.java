@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,12 +61,12 @@ public class InfraNWTableEventType {
             // name cannot be the same as an existing event type
             epl = "create schema SchemaOne as (p0 string);\n" +
                 "create window SchemaOne#keepall as SchemaOne;\n";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "Error starting statement: An event type or schema by name 'SchemaOne' already exists");
 
             epl = "create schema SchemaTwo as (p0 string);\n" +
                 "create table SchemaTwo(c0 int);\n";
-            SupportMessageAssertUtil.tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "An event type by name 'SchemaTwo' has already been declared");
         }
     }

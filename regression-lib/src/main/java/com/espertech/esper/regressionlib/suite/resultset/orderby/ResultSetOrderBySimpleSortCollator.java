@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -61,7 +60,7 @@ public class ResultSetOrderBySimpleSortCollator implements RegressionExecution {
         env.milestone(0);
 
         env.sendEventBean(new SupportBean(frenchForFruit, 1));
-        EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(), "theString".split(","), new Object[][]{{sortedFrench[0]}, {sortedFrench[1]}});
+        env.assertPropsPerRowIterator("s0", "theString".split(","), new Object[][]{{sortedFrench[0]}, {sortedFrench[1]}});
         env.undeployAll();
 
         // test sort view

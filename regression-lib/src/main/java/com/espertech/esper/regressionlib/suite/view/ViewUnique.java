@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -50,33 +48,32 @@ public class ViewUnique {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("S1", 100));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"price", 100.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"price", 100.0}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("S2", 5));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S2"}, {"price", 5.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S2"}, {"price", 5.0}}, null);
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("S1", 101));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"price", 101.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"price", 101.0}},
                 new Object[][]{{"symbol", "S1"}, {"price", 100.0}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("S1", 102));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"price", 102.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"price", 102.0}},
                 new Object[][]{{"symbol", "S1"}, {"price", 101.0}});
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRow(events, new String[]{"price"}, new Object[][]{{102.0}, {5.0}});
+            env.assertPropsPerRowIterator("s0", new String[]{"price"}, new Object[][]{{102.0}, {5.0}});
 
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("S2", 6));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S2"}, {"price", 6.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S2"}, {"price", 6.0}},
                 new Object[][]{{"symbol", "S2"}, {"price", 5.0}});
 
             env.undeployAll();
@@ -98,37 +95,35 @@ public class ViewUnique {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("S1", "F1", 100));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F1"}, {"price", 100.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F1"}, {"price", 100.0}}, null);
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("S2", "F1", 5));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S2"}, {"feed", "F1"}, {"price", 5.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S2"}, {"feed", "F1"}, {"price", 5.0}}, null);
 
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("S1", "F1", 101));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F1"}, {"price", 101.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F1"}, {"price", 101.0}},
                 new Object[][]{{"symbol", "S1"}, {"feed", "F1"}, {"price", 100.0}});
 
             env.milestone(3);
 
             env.sendEventBean(makeMarketDataEvent("S2", "F1", 102));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S2"}, {"feed", "F1"}, {"price", 102.0}},
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S2"}, {"feed", "F1"}, {"price", 102.0}},
                 new Object[][]{{"symbol", "S2"}, {"feed", "F1"}, {"price", 5.0}});
 
             // test iterator
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(events, new String[]{"price"}, new Object[][]{{101.0}, {102.0}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"price"}, new Object[][]{{101.0}, {102.0}});
 
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("S1", "F2", 6));
-            env.assertNVListener("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F2"}, {"price", 6.0}}, null);
+            env.assertPropsNV("s0", new Object[][]{{"symbol", "S1"}, {"feed", "F2"}, {"price", 6.0}}, null);
 
             // test iterator
-            events = EPAssertionUtil.iteratorToArray(env.iterator("s0"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(events, new String[]{"price"}, new Object[][]{{101.0}, {6.0}, {102.0}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"price"}, new Object[][]{{101.0}, {6.0}, {102.0}});
 
             env.undeployAll();
         }
@@ -153,37 +148,37 @@ public class ViewUnique {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[0][]);
             sendSupportBean(env, "E1", 1);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
             sendSupportBean(env, "E2", 20);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2", 20});
+            env.assertPropsNew("s0", fields, new Object[]{"E2", 20});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 1}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 20}});
             sendSupportBean(env, "E1", 2);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E1", 2}, new Object[]{"E1", 1});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E1", 2}, new Object[]{"E1", 1});
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 2}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 2}, {"E2", 20}});
             sendSupportBean(env, "E2", 21);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E2", 21}, new Object[]{"E2", 20});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2", 21}, new Object[]{"E2", 20});
 
             env.milestone(5);
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s0"), fields, new Object[][]{{"E1", 2}, {"E2", 21}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 2}, {"E2", 21}});
             sendSupportBean(env, "E2", 22);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E2", 22}, new Object[]{"E2", 21});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2", 22}, new Object[]{"E2", 21});
             sendSupportBean(env, "E1", 3);
-            EPAssertionUtil.assertProps(env.listener("s0").assertGetAndResetIRPair(), fields, new Object[]{"E1", 3}, new Object[]{"E1", 2});
+            env.assertPropsIRPair("s0", fields, new Object[]{"E1", 3}, new Object[]{"E1", 2});
 
             sendSupportBean(env, "E3", 30);
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E3", 30});
+            env.assertPropsNew("s0", fields, new Object[]{"E3", 30});
 
             env.undeployAll();
         }
@@ -211,7 +206,7 @@ public class ViewUnique {
 
             SupportBean beanOne = new SupportBean("E1", 1);
             env.sendEventBean(beanOne);
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertListenerInvoked("s0");
 
             String eplTwo = "@name('s1') select irstream * from SupportBean#unique(intBoxed)";
             env.compileDeployAddListenerMile(eplTwo, "s1", 1);
@@ -219,10 +214,14 @@ public class ViewUnique {
             SupportBean beanTwo = new SupportBean("E2", 2);
             env.sendEventBean(beanTwo);
 
-            assertEquals(beanTwo, env.listener("s0").getLastNewData()[0].getUnderlying());
-            assertEquals(beanOne, env.listener("s0").getLastOldData()[0].getUnderlying());
-            assertEquals(beanTwo, env.listener("s1").getLastNewData()[0].getUnderlying());
-            assertNull(env.listener("s1").getLastOldData());
+            env.assertListener("s0", listener -> {
+                assertEquals(beanTwo, listener.getLastNewData()[0].getUnderlying());
+                assertEquals(beanOne, listener.getLastOldData()[0].getUnderlying());
+            });
+            env.assertListener("s1", listener -> {
+                assertEquals(beanTwo, listener.getLastNewData()[0].getUnderlying());
+                assertNull(listener.getLastOldData());
+            });
 
             env.undeployAll();
         }

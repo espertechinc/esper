@@ -76,7 +76,7 @@ public class ResultSetOutputLimitInsertInto {
 
     private static void assertReceivedS0AndS1(RegressionEnvironment env, Object[][] props) {
         String[] fields = new String[]{"theString"};
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, props);
+        env.assertPropsPerRowLastNew("s0", fields, props);
         EPAssertionUtil.assertPropsPerRow(env.listener("s1").getAndResetDataListsFlattened().getFirst(), fields, props);
     }
 }

@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -210,12 +209,12 @@ public class InfraTableIntoTable {
         assertResults(env.statement("iterate"), fields, new Object[]{b4, b1, new Object[]{b3, b4}});
 
         // invalid: bound aggregation into unbound max
-        tryInvalidCompile(env, path, "into table varagg select last(*) as lasteveru from SupportBean#length(2)",
+        env.tryInvalidCompile(path, "into table varagg select last(*) as lasteveru from SupportBean#length(2)",
             "Failed to validate select-clause expression 'last(*)': For into-table use 'window(*)' or 'window(stream.*)' instead");
         // invalid: unbound aggregation into bound max
-        tryInvalidCompile(env, path, "into table varagg select lastever(*) as windowb from SupportBean#length(2)",
+        env.tryInvalidCompile(path, "into table varagg select lastever(*) as windowb from SupportBean#length(2)",
             "Incompatible aggregation function for table 'varagg' column 'windowb', expecting 'window(*)' and received 'lastever(*)': The table declares 'window(*)' and provided is 'lastever(*)'");
-        tryInvalidCompile(env, path, "into table varagg select lastever(null) as lasteveru from SupportBean#length(2)",
+        env.tryInvalidCompile(path, "into table varagg select lastever(null) as lasteveru from SupportBean#length(2)",
             "Failed to validate select-clause expression 'lastever(null)': Null-type is not allowed");
 
         // valid: bound with unbound variable
@@ -254,10 +253,10 @@ public class InfraTableIntoTable {
         assertResults(env.statement("iterate"), fields, new Object[]{b1, b3, new Object[]{b3, b2}});
 
         // invalid: bound aggregation into unbound max
-        tryInvalidCompile(env, path, "into table varagg select maxby(intPrimitive) as maxbyeveru from SupportBean#length(2)",
+        env.tryInvalidCompile(path, "into table varagg select maxby(intPrimitive) as maxbyeveru from SupportBean#length(2)",
             "Failed to validate select-clause expression 'maxby(intPrimitive)': When specifying into-table a sort expression cannot be provided [");
         // invalid: unbound aggregation into bound max
-        tryInvalidCompile(env, path, "into table varagg select maxbyever() as sortedb from SupportBean#length(2)",
+        env.tryInvalidCompile(path, "into table varagg select maxbyever() as sortedb from SupportBean#length(2)",
             "Incompatible aggregation function for table 'varagg' column 'sortedb', expecting 'sorted(intPrimitive)' and received 'maxbyever()': The required aggregation function name is 'sorted' and provided is 'maxbyever' [");
 
         // valid: bound with unbound variable
@@ -455,7 +454,7 @@ public class InfraTableIntoTable {
         assertResults(env.statement("iterate"), fields, new Object[]{25, 25, 5, 5});
 
         // invalid: unbound aggregation into bound max
-        tryInvalidCompile(env, path, "into table varagg select max(intPrimitive) as maxb from SupportBean",
+        env.tryInvalidCompile(path, "into table varagg select max(intPrimitive) as maxb from SupportBean",
             "Incompatible aggregation function for table 'varagg' column 'maxb', expecting 'max(int)' and received 'max(intPrimitive)': The table declares use with data windows and provided is unbound [");
 
         // valid: bound with unbound variable

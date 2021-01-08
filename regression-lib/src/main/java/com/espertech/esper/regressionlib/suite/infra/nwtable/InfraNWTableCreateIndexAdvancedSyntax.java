@@ -15,7 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class InfraNWTableCreateIndexAdvancedSyntax implements RegressionExecution {
@@ -28,19 +27,19 @@ public class InfraNWTableCreateIndexAdvancedSyntax implements RegressionExecutio
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create window MyWindow#keepall as SupportSpatialPoint", path);
 
-        tryInvalidCompile(env, path, "create index MyIndex on MyWindow(())",
+        env.tryInvalidCompile(path, "create index MyIndex on MyWindow(())",
             "Invalid empty list of index expressions");
 
-        tryInvalidCompile(env, path, "create index MyIndex on MyWindow(intPrimitive+1)",
+        env.tryInvalidCompile(path, "create index MyIndex on MyWindow(intPrimitive+1)",
             "Invalid index expression 'intPrimitive+1'");
 
-        tryInvalidCompile(env, path, "create index MyIndex on MyWindow((x, y))",
+        env.tryInvalidCompile(path, "create index MyIndex on MyWindow((x, y))",
             "Invalid multiple index expressions");
 
-        tryInvalidCompile(env, path, "create index MyIndex on MyWindow(x.y)",
+        env.tryInvalidCompile(path, "create index MyIndex on MyWindow(x.y)",
             "Invalid index expression 'x.y'");
 
-        tryInvalidCompile(env, path, "create index MyIndex on MyWindow(id xxxx)",
+        env.tryInvalidCompile(path, "create index MyIndex on MyWindow(id xxxx)",
             "Unrecognized advanced-type index 'xxxx'");
 
         env.undeployAll();

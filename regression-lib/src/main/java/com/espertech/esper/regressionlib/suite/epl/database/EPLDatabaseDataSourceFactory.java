@@ -29,16 +29,16 @@ public class EPLDatabaseDataSourceFactory implements RegressionExecution {
         env.compileDeploy(stmtText).addListener("s0");
 
         sendSupportBeanEvent(env, 10);
-        env.assertPropsListenerNew("s0", fields, new Object[]{100});
+        env.assertPropsNew("s0", fields, new Object[]{100});
 
         sendSupportBeanEvent(env, 6);
-        env.assertPropsListenerNew("s0", fields, new Object[]{60});
+        env.assertPropsNew("s0", fields, new Object[]{60});
 
         long startTime = System.currentTimeMillis();
         // Send 100 events which all fireStatementStopped a join
         for (int i = 0; i < 100; i++) {
             sendSupportBeanEvent(env, 10);
-            env.assertPropsListenerNew("s0", fields, new Object[]{100});
+            env.assertPropsNew("s0", fields, new Object[]{100});
         }
         long endTime = System.currentTimeMillis();
         log.info("delta=" + (endTime - startTime));

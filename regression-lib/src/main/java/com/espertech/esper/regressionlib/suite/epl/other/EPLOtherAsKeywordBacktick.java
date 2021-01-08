@@ -145,7 +145,7 @@ public class EPLOtherAsKeywordBacktick {
 
             SupportBean_S1 s1 = new SupportBean_S1(10, "S1_1");
             env.sendEventBean(s1);
-            env.assertPropsListenerNew("s0", "order,select,order.p00,select.p10".split(","), new Object[]{s0, s1, "S0_1", "S1_1"});
+            env.assertPropsNew("s0", "order,select,order.p00,select.p10".split(","), new Object[]{s0, s1, "S0_1", "S1_1"});
 
             env.undeployAll();
         }

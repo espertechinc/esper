@@ -15,7 +15,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportProductIdEvent;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class ContextInitTermPrioritized {
             env.sendEventBean(new SupportProductIdEvent("A1"));
 
             // invalid - subquery not the same context
-            SupportMessageAssertUtil.tryInvalidCompile(env, path, "insert into EventsWindow select * from SupportProductIdEvent(not exists (select * from EventsWindow))",
+            env.tryInvalidCompile(path, "insert into EventsWindow select * from SupportProductIdEvent(not exists (select * from EventsWindow))",
                 "Failed to validate subquery number 1 querying EventsWindow: Named window by name 'EventsWindow' has been declared for context 'RuleActivityTime' and can only be used within the same context");
 
             env.undeployAll();
@@ -64,10 +63,10 @@ public class ContextInitTermPrioritized {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E1"});
+            env.assertPropsNew("s0", fields, new Object[]{"E1"});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{"E2"});
+            env.assertPropsNew("s0", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }

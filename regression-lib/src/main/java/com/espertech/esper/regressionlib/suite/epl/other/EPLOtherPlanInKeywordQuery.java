@@ -533,13 +533,13 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(1, "a", "c"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{1, 101});
+        env.assertPropsNew("s0", fields, new Object[]{1, 101});
 
         env.sendEventBean(new SupportBean_S0(2, "b", "d"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{2, 101});
+        env.assertPropsNew("s0", fields, new Object[]{2, 101});
 
         env.sendEventBean(new SupportBean_S0(3, "a", "d"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{3, 101});
+        env.assertPropsNew("s0", fields, new Object[]{3, 101});
 
         // 2-row tests
         env.sendEventBean(new SupportBean_S1(102, "a1", "a", "d1", "d"));
@@ -549,31 +549,31 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(10, "a", "c"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{10, 101});
+        env.assertPropsNew("s0", fields, new Object[]{10, 101});
 
         env.sendEventBean(new SupportBean_S0(11, "a", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{11, 101}, {11, 102}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{11, 101}, {11, 102}});
 
         env.sendEventBean(new SupportBean_S0(12, "a1", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{12, 102}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{12, 102}});
 
         env.sendEventBean(new SupportBean_S0(13, "a", "d1"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{13, 102}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{13, 102}});
 
         // 3-row tests
         env.sendEventBean(new SupportBean_S1(103, "a", "a2", "d", "d2"));
 
         env.sendEventBean(new SupportBean_S0(20, "a", "c"));
-        env.assertPropsListenerNew("s0", fields, new Object[]{20, 101});
+        env.assertPropsNew("s0", fields, new Object[]{20, 101});
 
         env.sendEventBean(new SupportBean_S0(21, "a", "d"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{21, 101}, {21, 102}, {21, 103}});
 
         env.sendEventBean(new SupportBean_S0(22, "a2", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{22, 103}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{22, 103}});
 
         env.sendEventBean(new SupportBean_S0(23, "a", "d2"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{23, 103}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{23, 103}});
 
         env.undeployAll();
     }
@@ -589,10 +589,10 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(1, "a", "b", "c", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 1}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{100, 1}});
 
         env.sendEventBean(new SupportBean_S1(2, "x", "a", "x", "c"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 2}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{100, 2}});
 
         // 2-rows available tests
         env.sendEventBean(new SupportBean_S0(101, "a", "d"));
@@ -602,13 +602,13 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(10, "a", "b", "c", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 10}, {101, 10}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{100, 10}, {101, 10}});
 
         env.sendEventBean(new SupportBean_S1(11, "x", "a", "x", "c"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 11}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{100, 11}});
 
         env.sendEventBean(new SupportBean_S1(12, "x", "a", "d", "x"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{101, 12}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{101, 12}});
 
         // 3-rows available tests
         env.sendEventBean(new SupportBean_S0(102, "b", "c"));
@@ -618,7 +618,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S1(20, "a", "b", "c", "d"));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 20}, {101, 20}, {102, 20}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{100, 20}, {101, 20}, {102, 20}});
 
         env.sendEventBean(new SupportBean_S1(21, "b", "a", "x", "c"));
         EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 21}, {102, 21}});

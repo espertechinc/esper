@@ -24,7 +24,6 @@ import com.espertech.esper.runtime.client.util.EPObjectType;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static org.junit.Assert.assertEquals;
 
 public class ClientExtendUDFInlinedClass {
@@ -61,7 +60,7 @@ public class ClientExtendUDFInlinedClass {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 4));
-            env.assertPropsListenerNew("s0", "c0,c1".split(","), new Object[]{16, 64});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{16, 64});
 
             env.undeployAll();
         }
@@ -191,7 +190,7 @@ public class ClientExtendUDFInlinedClass {
                 "  }\n" +
                 "\"\"\" " +
                 "select multiply(intPrimitive,intPrimitive) as c0 from SupportBean";
-            tryInvalidCompile(env, epl,
+            env.tryInvalidCompile(epl,
                 "The plug-in single-row function 'multiply' occurs multiple times");
         }
     }

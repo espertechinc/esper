@@ -41,7 +41,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{BigInteger.valueOf(4).divide(BigInteger.valueOf(2))});
+            env.assertPropsNew("s0", fields, new Object[]{BigInteger.valueOf(4).divide(BigInteger.valueOf(2))});
 
             env.undeployAll();
         }
@@ -56,7 +56,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{5L});
+            env.assertPropsNew("s0", fields, new Object[]{5L});
 
             env.undeployAll();
         }
@@ -71,7 +71,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{5f});
+            env.assertPropsNew("s0", fields, new Object[]{5f});
 
             env.undeployAll();
         }
@@ -84,7 +84,7 @@ public class ExprCoreMathDivisionRules {
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
-            env.assertPropsListenerNew("s0", fields, new Object[]{null});
+            env.assertPropsNew("s0", fields, new Object[]{null});
 
             env.undeployAll();
         }

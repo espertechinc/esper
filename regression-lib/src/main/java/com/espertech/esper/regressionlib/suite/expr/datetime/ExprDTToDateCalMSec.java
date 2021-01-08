@@ -85,10 +85,10 @@ public class ExprDTToDateCalMSec {
             Object[] expectedCal = SupportDateTime.getArrayCoerced(startTime, "cal", "cal", "cal", "cal", "cal", "cal");
             Object[] expectedMsec = SupportDateTime.getArrayCoerced(startTime, "long", "long", "long", "long", "long", "long");
             Object[] expected = EPAssertionUtil.concatenateArray(expectedUtil, expectedCal, expectedMsec);
-            env.assertPropsListenerNew("s0", fields, expected);
+            env.assertPropsNew("s0", fields, expected);
 
             env.sendEventBean(SupportDateTime.make(null));
-            env.assertPropsListenerNew("s0", fields, new Object[]{
+            env.assertPropsNew("s0", fields, new Object[]{
                 SupportDateTime.getValueCoerced(startTime, "util"), null, null, null, null, null,
                 SupportDateTime.getValueCoerced(startTime, "cal"), null, null, null, null, null,
                 SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});

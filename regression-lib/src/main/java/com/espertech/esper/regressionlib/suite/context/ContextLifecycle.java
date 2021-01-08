@@ -25,9 +25,8 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ContextLifecycle {
 
@@ -50,10 +49,10 @@ public class ContextLifecycle {
             env.compileDeploy("@name('s0') select * from NewSupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 100));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
             env.undeployAll();
             path.clear();
 
@@ -68,13 +67,13 @@ public class ContextLifecycle {
             env.compileDeploy(eplTwo, path);
             env.compileDeploy("@name('s0') select * from NewEventTwo", path).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null});
+            env.assertPropsNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("E1", 100));
-            env.assertPropsListenerNew("s0", fields, new Object[]{null});
+            env.assertPropsNew("s0", fields, new Object[]{null});
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertPropsListenerNew("s0", fields, new Object[]{100});
+            env.assertPropsNew("s0", fields, new Object[]{100});
 
             env.undeployAll();
         }
@@ -110,17 +109,17 @@ public class ContextLifecycle {
 
             // Trigger not in context
             env.compileDeploy("@name('createwindow') context NineToFive create window MyWindow#keepall as SupportBean", path);
-            tryInvalidCompile(env, path, "on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1",
+            env.tryInvalidCompile(path, "on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1",
                 "Cannot create on-trigger expression: Named window 'MyWindow' was declared with context 'NineToFive', please declare the same context name");
 
             // Trigger in different context
-            tryInvalidCompile(env, path, "context TenToFive on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1",
+            env.tryInvalidCompile(path, "context TenToFive on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1",
                 "Cannot create on-trigger expression: Named window 'MyWindow' was declared with context 'NineToFive', please use the same context instead");
 
             // Named window not in context, trigger in different context
             env.undeployModuleContaining("createwindow");
             env.compileDeploy("create window MyWindowTwo#keepall as SupportBean", path);
-            tryInvalidCompile(env, path, "context TenToFive on SupportBean_S0 s0 merge MyWindowTwo mw when matched then update set intPrimitive = 1",
+            env.tryInvalidCompile(path, "context TenToFive on SupportBean_S0 s0 merge MyWindowTwo mw when matched then update set intPrimitive = 1",
                 "Cannot create on-trigger expression: Named window 'MyWindowTwo' was declared without a context");
 
             env.undeployAll();
@@ -132,12 +131,12 @@ public class ContextLifecycle {
 
             String epl = "@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             // create and destroy
             env.compileDeploy(epl);
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployModuleContaining("context");
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
@@ -148,10 +147,10 @@ public class ContextLifecycle {
             assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
 
             env.compileDeploy("@Name('s0') context NineToFive select * from SupportBean", path);
-            assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployModuleContaining("s0");
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployModuleContaining("context");
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
@@ -162,11 +161,11 @@ public class ContextLifecycle {
             env.compileDeploy("@Name('C') context NineToFive select * from SupportBean", path);
             env.compileDeploy("@Name('D') context NineToFive select * from SupportBean", path);
 
-            assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployAll();
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env));
+            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
             env.undeployAll();
         }
@@ -179,7 +178,7 @@ public class ContextLifecycle {
             // same context twice
             String eplCreateCtx = "@name('ctx') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             env.compileDeploy(eplCreateCtx, path);
-            tryInvalidCompile(env, path, eplCreateCtx, "Context by name 'NineToFive' already exists");
+            env.tryInvalidCompile(path, eplCreateCtx, "Context by name 'NineToFive' already exists");
 
             // still in use
             env.compileDeploy("context NineToFive select * from SupportBean", path);
@@ -191,21 +190,21 @@ public class ContextLifecycle {
             }
 
             // not found
-            tryInvalidCompile(env, path, "context EightToSix select * from SupportBean", "Context by name 'EightToSix' could not be found");
+            env.tryInvalidCompile(path, "context EightToSix select * from SupportBean", "Context by name 'EightToSix' could not be found");
 
             // test update: update is not allowed as it is processed out-of-context by eventService
             env.compileDeploy("insert into ABCStream select * from SupportBean", path);
             env.compileDeploy("@Name('context') create context SegmentedByAString partition by theString from ABCStream", path);
-            tryInvalidCompile(env, path, "context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent) where intPrimitive < 0",
+            env.tryInvalidCompile(path, "context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent) where intPrimitive < 0",
                 "Update IStream is not supported in conjunction with a context");
 
             // context declaration for create-context
             env.compileDeploy("create context ABC start @now end after 5 seconds", path);
-            tryInvalidCompile(env, path, "context ABC create context DEF start @now end after 5 seconds",
+            env.tryInvalidCompile(path, "context ABC create context DEF start @now end after 5 seconds",
                 "A create-context statement cannot itself be associated to a context, please declare a nested context instead [context ABC create context DEF start @now end after 5 seconds]");
 
             // statement references context but there is none
-            tryInvalidCompile(env, "select context.sb.theString from SupportBean as sb",
+            env.tryInvalidCompile("select context.sb.theString from SupportBean as sb",
                 "Failed to validate select-clause expression 'context.sb.theString': Failed to resolve property 'context.sb.theString' to a stream or nested property in a stream");
 
             env.undeployAll();

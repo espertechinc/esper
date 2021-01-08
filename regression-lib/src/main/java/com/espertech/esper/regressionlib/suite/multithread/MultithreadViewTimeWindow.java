@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.multithread.GeneratorIterator;
 import com.espertech.esper.regressionlib.support.multithread.SendEventCallable;
 import com.espertech.esper.regressionlib.support.util.SupportCountListener;
@@ -19,6 +20,7 @@ import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.concurrent.*;
 
 import static junit.framework.TestCase.assertTrue;
@@ -31,8 +33,8 @@ public class MultithreadViewTimeWindow implements RegressionExecution {
     private final static Logger log = LoggerFactory.getLogger(MultithreadViewTimeWindow.class);
 
     @Override
-    public boolean excludeWhenInstrumented() {
-        return true;
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
     }
 
     public void run(RegressionEnvironment env) {

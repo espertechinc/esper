@@ -21,9 +21,8 @@ import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class EPLContainedEventNested {
 
@@ -230,13 +229,13 @@ public class EPLContainedEventNested {
             env.sendEventBean(OrderBeanFactory.makeEventFour());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", -1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 201));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -253,13 +252,13 @@ public class EPLContainedEventNested {
             env.sendEventBean(OrderBeanFactory.makeEventFour());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", -1));
-            assertFalse(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 201));
-            assertTrue(env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -289,31 +288,31 @@ public class EPLContainedEventNested {
     private static class EPLContainedInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            tryInvalidCompile(env, "select bookId from OrderBean[select count(*) from books]",
+            env.tryInvalidCompile("select bookId from OrderBean[select count(*) from books]",
                 "Expression in a property-selection may not utilize an aggregation function [select bookId from OrderBean[select count(*) from books]]");
 
-            tryInvalidCompile(env, "select bookId from OrderBean[select bookId, (select abc from review#lastevent) from books]",
+            env.tryInvalidCompile("select bookId from OrderBean[select bookId, (select abc from review#lastevent) from books]",
                 "Expression in a property-selection may not utilize a subselect [select bookId from OrderBean[select bookId, (select abc from review#lastevent) from books]]");
 
-            tryInvalidCompile(env, "select bookId from OrderBean[select prev(1, bookId) from books]",
+            env.tryInvalidCompile("select bookId from OrderBean[select prev(1, bookId) from books]",
                 "Failed to validate contained-event expression 'prev(1,bookId)': Previous function cannot be used in this context [select bookId from OrderBean[select prev(1, bookId) from books]]");
 
-            tryInvalidCompile(env, "select bookId from OrderBean[select * from books][select * from reviews]",
+            env.tryInvalidCompile("select bookId from OrderBean[select * from books][select * from reviews]",
                 "A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation [select bookId from OrderBean[select * from books][select * from reviews]]");
 
-            tryInvalidCompile(env, "select bookId from OrderBean[select abc from books][reviews]",
+            env.tryInvalidCompile("select bookId from OrderBean[select abc from books][reviews]",
                 "Failed to validate contained-event expression 'abc': Property named 'abc' is not valid in any stream [select bookId from OrderBean[select abc from books][reviews]]");
 
-            tryInvalidCompile(env, "select bookId from OrderBean[books][reviews]",
+            env.tryInvalidCompile("select bookId from OrderBean[books][reviews]",
                 "Failed to validate select-clause expression 'bookId': Property named 'bookId' is not valid in any stream [select bookId from OrderBean[books][reviews]]");
 
-            tryInvalidCompile(env, "select orderId from OrderBean[books]",
+            env.tryInvalidCompile("select orderId from OrderBean[books]",
                 "Failed to validate select-clause expression 'orderId': Property named 'orderId' is not valid in any stream [select orderId from OrderBean[books]]");
 
-            tryInvalidCompile(env, "select * from OrderBean[books where abc=1]",
+            env.tryInvalidCompile("select * from OrderBean[books where abc=1]",
                 "Failed to validate contained-event expression 'abc=1': Property named 'abc' is not valid in any stream [select * from OrderBean[books where abc=1]]");
 
-            tryInvalidCompile(env, "select * from OrderBean[abc]",
+            env.tryInvalidCompile("select * from OrderBean[abc]",
                 "Failed to validate contained-event expression 'abc': Property named 'abc' is not valid in any stream [select * from OrderBean[abc]]");
         }
     }
