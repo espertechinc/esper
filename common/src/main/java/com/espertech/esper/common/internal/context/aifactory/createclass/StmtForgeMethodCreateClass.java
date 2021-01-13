@@ -39,7 +39,7 @@ public class StmtForgeMethodCreateClass extends StmtForgeMethodCreateSimpleBase 
             throw new ExprValidationException("Class '" + className + "' has already been declared");
         }
         ClassProvided classProvided = new ClassProvided(classProvidedPrecompileResult.getBytes(), className);
-        NameAccessModifier visibility = services.getModuleVisibilityRules().getAccessModifierExpression(base, className);
+        NameAccessModifier visibility = services.getModuleVisibilityRules().getAccessModifierInlinedClass(base, classProvided.getClassName());
         classProvided.setModuleName(base.getModuleName());
         classProvided.setVisibility(visibility);
         classProvided.loadClasses(services.getParentClassLoader());

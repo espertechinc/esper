@@ -217,6 +217,7 @@ public class ConfigurationCompilerParser {
         parseOptionalAccessMod(element, "access-modifier-script", codegen::setAccessModifierScript);
         parseOptionalAccessMod(element, "access-modifier-table", codegen::setAccessModifierTable);
         parseOptionalAccessMod(element, "access-modifier-variable", codegen::setAccessModifierVariable);
+        parseOptionalAccessMod(element, "access-modifier-inlined-class", codegen::setAccessModifierInlinedClass);
 
         String busModifierEventType = getOptionalAttribute(element, "bus-modifier-event-type");
         if (busModifierEventType != null) {

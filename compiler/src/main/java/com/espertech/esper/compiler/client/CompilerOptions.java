@@ -27,6 +27,7 @@ public class CompilerOptions {
     private AccessModifierScriptOption accessModifierScript;
     private AccessModifierTableOption accessModifierTable;
     private AccessModifierVariableOption accessModifierVariable;
+    private AccessModifierInlinedClassOption accessModifierInlinedClass;
     private StatementUserObjectOption statementUserObject;
     private StatementNameOption statementName;
     private ModuleNameOption moduleName;
@@ -137,6 +138,25 @@ public class CompilerOptions {
     public CompilerOptions setAccessModifierVariable(AccessModifierVariableOption accessModifierVariable) {
         this.accessModifierVariable = accessModifierVariable;
         return this;
+    }
+
+    /**
+     * Returns the callback that determines the access modifier of a given inlined-class.
+     *
+     * @return callback returning an access modifier for an inlined-class
+     */
+    public AccessModifierInlinedClassOption getAccessModifierInlinedClass() {
+        return accessModifierInlinedClass;
+    }
+
+    /**
+     * Sets the callback that determines the access modifier of a given inlined-class.
+     *
+     * @param accessModifierInlinedClass callback returning an access modifier for an inlined-class
+     * @return itself
+     */
+    public void setAccessModifierInlinedClass(AccessModifierInlinedClassOption accessModifierInlinedClass) {
+        this.accessModifierInlinedClass = accessModifierInlinedClass;
     }
 
     /**

@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.util.StringValue;
+import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -22,6 +23,7 @@ import com.espertech.esper.runtime.client.EPDeployPreconditionException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -45,16 +47,17 @@ public class ClientDeployPreconditionDuplicate {
 
     public static class ClientDeployPrecondDupNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierNamedWindow(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create window SimpleWindow#keepall as SupportBean";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
             path.clear();
 
             epl = "module ABC; create window SimpleWindow#keepall as SupportBean";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", "ABC");
+            tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", "ABC", options);
 
             env.undeployAll();
         }
@@ -62,70 +65,77 @@ public class ClientDeployPreconditionDuplicate {
 
     public static class ClientDeployPrecondDupTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierTable(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create table SimpleTable(col1 string)";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A table by name 'SimpleTable'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A table by name 'SimpleTable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create schema MySchema (col1 string)";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "An event type by name 'MySchema'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "An event type by name 'MySchema'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierVariable(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create variable string myvariable";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A variable by name 'myvariable'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A variable by name 'myvariable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupExprDecl implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierExpression(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create expression expr_one {0}";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A declared-expression by name 'expr_one'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A declared-expression by name 'expr_one'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupScript implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierScript(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create expression double myscript(stringvalue) [0]";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A script by name 'myscript (1 parameters)'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A script by name 'myscript (1 parameters)'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupClass implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierInlinedClass(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "An application-inlined class by name 'MyClass'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "An application-inlined class by name 'MyClass'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
 
     public static class ClientDeployPrecondDupContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            Consumer<CompilerOptions> options = opt -> opt.setAccessModifierContext(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
             String epl = "create context MyContext as partition by theString from SupportBean";
             env.compileDeploy(epl, path);
-            tryInvalidDeploy(env, epl, "A context by name 'MyContext'", MODULE_NAME_UNNAMED);
+            tryInvalidDeploy(env, epl, "A context by name 'MyContext'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
     }
@@ -152,9 +162,8 @@ public class ClientDeployPreconditionDuplicate {
         }
     }
 
-    private static void tryInvalidDeploy(RegressionEnvironment env, String epl, String text, String moduleName) {
-        EPCompiled compiled = env.compile(epl, options -> options.setAccessModifierNamedWindow(ctx -> NameAccessModifier.PUBLIC).setAccessModifierTable(ctx -> NameAccessModifier.PUBLIC).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC)
-            .setAccessModifierVariable(ctx -> NameAccessModifier.PUBLIC).setAccessModifierExpression(ctx -> NameAccessModifier.PUBLIC).setAccessModifierScript(ctx -> NameAccessModifier.PUBLIC).setAccessModifierContext(ctx -> NameAccessModifier.PUBLIC));
+    private static void tryInvalidDeploy(RegressionEnvironment env, String epl, String text, String moduleName, Consumer<CompilerOptions> options) {
+        EPCompiled compiled = env.compile(epl, options);
         tryInvalidDeploy(env, compiled, text, moduleName);
     }
 

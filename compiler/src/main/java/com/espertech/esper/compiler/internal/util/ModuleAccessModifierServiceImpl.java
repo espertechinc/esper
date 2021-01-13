@@ -79,6 +79,12 @@ public class ModuleAccessModifierServiceImpl implements ModuleAccessModifierServ
             ConfigurationCompilerByteCode::getAccessModifierScript);
     }
 
+    public NameAccessModifier getAccessModifierInlinedClass(StatementBaseInfo base, String inlinedClassName) {
+        return getModifier(base.getStatementRawInfo().getAnnotations(),
+            opts -> opts.getAccessModifierInlinedClass() == null ? null : opts.getAccessModifierInlinedClass().getValue(new AccessModifierInlinedClassContext(base, inlinedClassName)),
+            ConfigurationCompilerByteCode::getAccessModifierInlinedClass);
+    }
+
     public EventTypeBusModifier getBusModifierEventType(StatementRawInfo raw, String eventTypeName) {
         if (options.getBusModifierEventType() != null) {
             EventTypeBusModifier result = options.getBusModifierEventType().getValue(new BusModifierEventTypeContext(raw, eventTypeName));

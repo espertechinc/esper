@@ -80,6 +80,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(NameAccessModifier.PRIVATE, byteCode.getAccessModifierScript());
         assertEquals(NameAccessModifier.PRIVATE, byteCode.getAccessModifierTable());
         assertEquals(NameAccessModifier.PRIVATE, byteCode.getAccessModifierVariable());
+        assertEquals(NameAccessModifier.PRIVATE, byteCode.getAccessModifierInlinedClass());
         assertEquals(EventTypeBusModifier.NONBUS, byteCode.getBusModifierEventType());
         assertEquals(8, byteCode.getThreadPoolCompilerNumThreads());
         assertNull(byteCode.getThreadPoolCompilerCapacity());
@@ -498,6 +499,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(NameAccessModifier.PROTECTED, byteCode.getAccessModifierScript());
         assertEquals(NameAccessModifier.PUBLIC, byteCode.getAccessModifierTable());
         assertEquals(NameAccessModifier.PROTECTED, byteCode.getAccessModifierVariable());
+        assertEquals(NameAccessModifier.PUBLIC, byteCode.getAccessModifierInlinedClass());
         assertEquals(EventTypeBusModifier.BUS, byteCode.getBusModifierEventType());
         assertEquals(1234, byteCode.getThreadPoolCompilerNumThreads());
         assertEquals(4321, (int) byteCode.getThreadPoolCompilerCapacity());

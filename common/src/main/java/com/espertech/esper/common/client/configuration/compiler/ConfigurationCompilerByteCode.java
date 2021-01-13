@@ -37,6 +37,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
     private NameAccessModifier accessModifierExpression = NameAccessModifier.PRIVATE;
     private NameAccessModifier accessModifierScript = NameAccessModifier.PRIVATE;
     private NameAccessModifier accessModifierTable = NameAccessModifier.PRIVATE;
+    private NameAccessModifier accessModifierInlinedClass = NameAccessModifier.PRIVATE;
     private EventTypeBusModifier busModifierEventType = EventTypeBusModifier.NONBUS;
     private int threadPoolCompilerNumThreads = 8;
     private Integer threadPoolCompilerCapacity = null;
@@ -55,6 +56,7 @@ public class ConfigurationCompilerByteCode implements Serializable {
         accessModifierExpression = NameAccessModifier.PUBLIC;
         accessModifierScript = NameAccessModifier.PUBLIC;
         accessModifierTable = NameAccessModifier.PUBLIC;
+        accessModifierInlinedClass = NameAccessModifier.PUBLIC;
     }
 
     /**
@@ -307,6 +309,24 @@ public class ConfigurationCompilerByteCode implements Serializable {
      */
     public void setAccessModifierTable(NameAccessModifier accessModifierTable) {
         this.accessModifierTable = accessModifierTable;
+    }
+
+    /**
+     * Returns the default access modifier for inlined-classes
+     *
+     * @return access modifier
+     */
+    public NameAccessModifier getAccessModifierInlinedClass() {
+        return accessModifierInlinedClass;
+    }
+
+    /**
+     * Sets the default access modifier for inlined-classes
+     *
+     * @param accessModifierInlinedClass bus modifier
+     */
+    public void setAccessModifierInlinedClass(NameAccessModifier accessModifierInlinedClass) {
+        this.accessModifierInlinedClass = accessModifierInlinedClass;
     }
 
     /**

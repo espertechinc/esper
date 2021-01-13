@@ -696,6 +696,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         args.getOptions().setAccessModifierExpression(ctx -> NameAccessModifier.PUBLIC);
         args.getOptions().setAccessModifierScript(ctx -> NameAccessModifier.PUBLIC);
         args.getOptions().setAccessModifierTable(ctx -> NameAccessModifier.PUBLIC);
+        args.getOptions().setAccessModifierInlinedClass(ctx -> NameAccessModifier.PUBLIC);
         return args;
     }
 

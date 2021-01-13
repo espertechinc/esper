@@ -29,5 +29,7 @@ public interface ModuleAccessModifierService {
 
     NameAccessModifier getAccessModifierScript(StatementBaseInfo base, String scriptName, int numParameters);
 
+    NameAccessModifier getAccessModifierInlinedClass(StatementBaseInfo base, String inlinedClassName);
+
     EventTypeBusModifier getBusModifierEventType(StatementRawInfo raw, String eventTypeName);
 }
