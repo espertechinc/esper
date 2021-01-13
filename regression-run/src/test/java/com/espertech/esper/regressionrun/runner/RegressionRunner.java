@@ -11,10 +11,7 @@
 package com.espertech.esper.regressionrun.runner;
 
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionExecutionPreConfigured;
-import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
-import com.espertech.esper.regressionlib.framework.RegressionFilter;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import com.espertech.esper.runtime.internal.metrics.instrumentation.InstrumentationHelper;
@@ -71,14 +68,15 @@ public class RegressionRunner {
             session.setRuntime(runtime);
         }
 
-        if (InstrumentationHelper.ENABLED && !execution.excludeWhenInstrumented()) {
+        boolean excludeWhenInstrumented = execution.flags() != null && execution.flags().contains(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        if (InstrumentationHelper.ENABLED && !excludeWhenInstrumented) {
             InstrumentationHelper.startTest(session.getRuntime(), execution.getClass(), execution.getClass().getName());
         }
 
         log.info("Running test " + execution.name());
         execution.run(new RegressionEnvironmentEsper(session.getConfiguration(), session.getRuntime()));
 
-        if (InstrumentationHelper.ENABLED && !execution.excludeWhenInstrumented()) {
+        if (InstrumentationHelper.ENABLED && !excludeWhenInstrumented) {
             InstrumentationHelper.endTest();
         }
     }
