@@ -49,29 +49,29 @@ public class InfraTableRollup {
 
             env.sendEventBean(new SupportBean("E1", 10));
             assertValuesListener(env, new Object[][]{{null, 10}, {"E1", 10}, {"E2", null}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("into").getAndResetLastNewData(), fieldsOut, new Object[][]{{"E1", 10}, {null, 10}});
+            env.assertPropsPerRowLastNew("into", fieldsOut, new Object[][]{{"E1", 10}, {null, 10}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 200));
             assertValuesListener(env, new Object[][]{{null, 210}, {"E1", 10}, {"E2", 200}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("into").getAndResetLastNewData(), fieldsOut, new Object[][]{{"E2", 200}, {null, 210}});
+            env.assertPropsPerRowLastNew("into", fieldsOut, new Object[][]{{"E2", 200}, {null, 210}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E1", 11));
             assertValuesListener(env, new Object[][]{{null, 221}, {"E1", 21}, {"E2", 200}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("into").getAndResetLastNewData(), fieldsOut, new Object[][]{{"E1", 21}, {null, 221}});
+            env.assertPropsPerRowLastNew("into", fieldsOut, new Object[][]{{"E1", 21}, {null, 221}});
 
             env.sendEventBean(new SupportBean("E2", 201));
             assertValuesListener(env, new Object[][]{{null, 422}, {"E1", 21}, {"E2", 401}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("into").getAndResetLastNewData(), fieldsOut, new Object[][]{{"E2", 401}, {null, 422}});
+            env.assertPropsPerRowLastNew("into", fieldsOut, new Object[][]{{"E2", 401}, {null, 422}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E1", 12)); // {"E1", 10} leaving window
             assertValuesListener(env, new Object[][]{{null, 424}, {"E1", 23}, {"E2", 401}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("into").getAndResetLastNewData(), fieldsOut, new Object[][]{{"E1", 23}, {null, 424}});
+            env.assertPropsPerRowLastNew("into", fieldsOut, new Object[][]{{"E1", 23}, {null, 424}});
 
             env.undeployAll();
         }
@@ -82,7 +82,7 @@ public class InfraTableRollup {
             String[] fields = "k0,k1,total".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create objectarray schema MyEventTwo(k0 int, k1 int, col int)", path);
+            env.compileDeploy("@buseventtype create objectarray schema MyEventTwo(k0 int, k1 int, col int)", path);
             env.compileDeploy("create table MyTableR2D(k0 int primary key, k1 int primary key, total sum(int))", path);
             env.compileDeploy("into table MyTableR2D insert into MyStreamTwo select sum(col) as total from MyEventTwo#length(3) group by rollup(k0,k1)", path);
 
@@ -107,7 +107,7 @@ public class InfraTableRollup {
     private static class InfraGroupingSetThreeDim implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create objectarray schema MyEventThree(k0 int, k1 int, k2 int, col int)", path);
+            env.compileDeploy("@buseventtype create objectarray schema MyEventThree(k0 int, k1 int, k2 int, col int)", path);
 
             env.compileDeploy("create table MyTableGS3D(k0 int primary key, k1 int primary key, k2 int primary key, total sum(int))", path);
             env.compileDeploy("into table MyTableGS3D insert into MyStreamThree select sum(col) as total from MyEventThree#length(3) group by grouping sets(k0,k1,k2)", path);
@@ -141,8 +141,10 @@ public class InfraTableRollup {
     }
 
     private static void assertValuesIterate(RegressionEnvironment env, RegressionPath path, String name, String[] fields, Object[][] objects) {
-        EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from " + name, path);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), fields, objects);
+        env.assertThat(() -> {
+            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from " + name, path);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), fields, objects);
+        });
     }
 
     private static void assertValuesListener(RegressionEnvironment env, Object[][] objects) {
@@ -150,7 +152,8 @@ public class InfraTableRollup {
             String p00 = (String) objects[i][0];
             Integer expected = (Integer) objects[i][1];
             env.sendEventBean(new SupportBean_S0(0, p00));
-            assertEquals("Failed at " + i + " for key " + p00, expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            final int index = i;
+            env.assertListener("s0", listener -> assertEquals("Failed at " + index + " for key " + p00, expected, listener.assertOneGetNewAndReset().get("c0")));
         }
     }
 }

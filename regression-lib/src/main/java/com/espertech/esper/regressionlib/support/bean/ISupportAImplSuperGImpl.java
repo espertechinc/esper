@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.support.bean;
 
 public class ISupportAImplSuperGImpl extends ISupportAImplSuperG {
+    private static final long serialVersionUID = 876640957753819407L;
     private String valueG;
     private String valueA;
     private String valueBaseAB;

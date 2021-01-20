@@ -12,19 +12,26 @@ package com.espertech.esper.regressionlib.suite.event.map;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.EnumSet;
 
 public class EventMapInheritanceRuntime implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         String epl =
-            "create schema RootEvent(base string);\n" +
-                "create schema Sub1Event(sub1 string) inherits RootEvent;\n" +
-                "create schema Sub2Event(sub2 string) inherits RootEvent;\n" +
-                "create schema SubAEvent(suba string) inherits Sub1Event;\n" +
-                "create schema SubBEvent(subb string) inherits Sub1Event, Sub2Event;\n";
-        env.compileDeployWBusPublicType(epl, path);
+                "@buseventtype create schema RootEvent(base string);\n" +
+                "@buseventtype create schema Sub1Event(sub1 string) inherits RootEvent;\n" +
+                "@buseventtype create schema Sub2Event(sub2 string) inherits RootEvent;\n" +
+                "@buseventtype create schema SubAEvent(suba string) inherits Sub1Event;\n" +
+                "@buseventtype create schema SubBEvent(subb string) inherits Sub1Event, Sub2Event;\n";
+        env.compileDeploy(epl, path);
 
         EventMapInheritanceInitTime.runAssertionMapInheritance(env, path);
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 }

@@ -11,14 +11,13 @@
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
@@ -43,9 +42,9 @@ public class EPLInsertIntoPopulateUndStreamSelect {
 
     private static class EPLInsertIntoNamedWindowInheritsMap implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create objectarray schema Event();\n" +
-                "create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
-                "create objectarray schema Incident(name string, event Event);\n" +
+            String epl = "@buseventtype create objectarray schema Event();\n" +
+                "@buseventtype create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
+                "@buseventtype create objectarray schema Incident(name string, event Event);\n" +
                 "@Name('window') create window IncidentWindow#keepall as Incident;\n" +
                 "\n" +
                 "on ChildEvent e\n" +
@@ -59,14 +58,16 @@ public class EPLInsertIntoPopulateUndStreamSelect {
                 "            where e.action = 'INSERT'\n" +
                 "        then delete\n" +
                 "            where e.action = 'CLEAR';";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             env.sendEventObjectArray(new Object[]{"ID1", "INSERT"}, "ChildEvent");
-            EventBean event = env.statement("window").iterator().next();
-            Object[] underlying = (Object[]) event.getUnderlying();
-            assertEquals("ChildIncident", underlying[0]);
-            Object[] underlyingInner = (Object[]) ((EventBean) underlying[1]).getUnderlying();
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"ID1", "INSERT"}, underlyingInner);
+            env.assertIterator("window", iterator -> {
+                EventBean event = iterator.next();
+                Object[] underlying = (Object[]) event.getUnderlying();
+                assertEquals("ChildIncident", underlying[0]);
+                Object[] underlyingInner = (Object[]) ((EventBean) underlying[1]).getUnderlying();
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"ID1", "INSERT"}, underlyingInner);
+            });
 
             env.undeployAll();
         }
@@ -101,9 +102,9 @@ public class EPLInsertIntoPopulateUndStreamSelect {
 
     private static void tryAssertionNamedWindow(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        String schema = rep.getAnnotationText() + "@name('schema') create schema A as (myint int, mystr string);\n" +
-            rep.getAnnotationText() + "create schema C as (addprop int) inherits A;\n";
-        env.compileDeployWBusPublicType(schema, path);
+        String schema = rep.getAnnotationText() + "@name('schema') @buseventtype create schema A as (myint int, mystr string);\n" +
+            rep.getAnnotationText() + "@buseventtype create schema C as (addprop int) inherits A;\n";
+        env.compileDeploy(schema, path);
 
         env.compileDeploy("create window MyWindow#time(5 days) as C", path);
         env.compileDeploy("@name('s0') select * from MyWindow", path).addListener("s0");
@@ -151,8 +152,8 @@ public class EPLInsertIntoPopulateUndStreamSelect {
     private static void tryAssertionStreamInsertWWidenMap(RegressionEnvironment env, EventRepresentationChoice rep) {
 
         RegressionPath path = new RegressionPath();
-        String schemaSrc = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "@name('schema') create schema Src as (myint int, mystr string)";
-        env.compileDeployWBusPublicType(schemaSrc, path);
+        String schemaSrc = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "@name('schema') @buseventtype create schema Src as (myint int, mystr string)";
+        env.compileDeploy(schemaSrc, path);
 
         env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD1.class) + "create schema D1 as (myint int, mystr string, addprop long)", path);
         String eplOne = "insert into D1 select 1 as addprop, mysrc.* from Src as mysrc";
@@ -205,8 +206,8 @@ public class EPLInsertIntoPopulateUndStreamSelect {
         } else if (rep.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{123, "abc"}, "Src");
         } else if (rep.isAvroEvent()) {
-            EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("schema"), "Src");
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(eventType));
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "Src");
+            GenericData.Record event = new GenericData.Record(schema);
             event.put("myint", 123);
             event.put("mystr", "abc");
             env.sendEventAvro(event, "Src");
@@ -230,8 +231,8 @@ public class EPLInsertIntoPopulateUndStreamSelect {
     }
 
     private static GenericData.Record makeAvro(RegressionEnvironment env, int myint, String mystr) {
-        EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("schema"), "A");
-        GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(eventType));
+        Schema schema = env.runtimeAvroSchemaByDeployment("schema", "A");
+        GenericData.Record record = new GenericData.Record(schema);
         record.put("myint", myint);
         record.put("mystr", mystr);
         return record;

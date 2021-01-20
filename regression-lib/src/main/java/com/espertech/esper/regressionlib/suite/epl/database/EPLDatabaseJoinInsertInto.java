@@ -48,9 +48,11 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(30000);
-        EventBean[] received = env.listener("s0").getLastNewData();
-        assertEquals(10, received.length);
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean[] received = listener.getLastNewData();
+            assertEquals(10, received.length);
+            listener.reset();
+        });
 
         env.advanceTime(31000);
         env.assertListenerNotInvoked("s0");
@@ -58,9 +60,11 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(40000);
-        received = env.listener("s0").getLastNewData();
-        assertEquals(10, received.length);
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean[] received = listener.getLastNewData();
+            assertEquals(10, received.length);
+            listener.reset();
+        });
 
         env.advanceTime(41000);
         env.assertListenerNotInvoked("s0");

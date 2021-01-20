@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -56,50 +57,63 @@ public class EventXMLSchemaEventTransposeDOMGetter {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
         env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1", Node.class).fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
+        env.assertStatement("s0", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1", Node.class).fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
         env.compileDeploy("@name('s1') select nested1.attr1 as attr1, nested1.prop1 as prop1, nested1.prop2 as prop2, nested1.nested2.prop3 as prop3, nested1.nested2.prop3[0] as prop3_0, nested1.nested2 as nested2 from MyNestedStream#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("s1").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("prop1", String.class),
-            new SupportEventPropDesc("prop2", Boolean.class),
-            new SupportEventPropDesc("attr1", String.class),
-            new SupportEventPropDesc("prop3", Integer[].class).indexed(),
-            new SupportEventPropDesc("prop3_0", Integer.class),
-            new SupportEventPropDesc("nested2", Node.class).fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s1").getEventType());
+        env.assertStatement("s1", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("prop1", String.class),
+                new SupportEventPropDesc("prop2", Boolean.class),
+                new SupportEventPropDesc("attr1", String.class),
+                new SupportEventPropDesc("prop3", Integer[].class).indexed(),
+                new SupportEventPropDesc("prop3_0", Integer.class),
+                new SupportEventPropDesc("nested2", Node.class).fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
         env.compileDeploy("@name('sw') select * from MyNestedStream", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("sw").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1", Node.class).fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("sw").getEventType());
+        env.assertStatement("sw", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1", Node.class).fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
         env.compileDeploy("@name('iw') insert into MyNestedStreamTwo select nested1.* from " + eventTypeName + "#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("iw").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("prop1", String.class),
-            new SupportEventPropDesc("prop2", Boolean.class),
-            new SupportEventPropDesc("attr1", String.class),
-            new SupportEventPropDesc("nested2", Node.class).fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("iw").getEventType());
+        env.assertStatement("iw", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("prop1", String.class),
+                new SupportEventPropDesc("prop2", Boolean.class),
+                new SupportEventPropDesc("attr1", String.class),
+                new SupportEventPropDesc("nested2", Node.class).fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
-        EventBean stmtInsertWildcardBean = env.iterator("iw").next();
-        EPAssertionUtil.assertProps(stmtInsertWildcardBean, "prop1,prop2,attr1".split(","),
-            new Object[]{"SAMPLE_V1", true, "SAMPLE_ATTR1"});
+        Document doc = SupportXML.makeDefaultEvent("test");
+        env.sendEventXMLDOM(doc, eventTypeName);
 
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("s0").next());
-        EventBean stmtInsertBean = env.iterator("s0").next();
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("iw").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("sw").next());
+        env.assertIterator("iw", iterator -> {
+            EventBean stmtInsertWildcardBean = iterator.next();
+            SupportEventTypeAssertionUtil.assertConsistency(stmtInsertWildcardBean);
+            EPAssertionUtil.assertProps(stmtInsertWildcardBean, "prop1,prop2,attr1".split(","),
+                new Object[]{"SAMPLE_V1", true, "SAMPLE_ATTR1"});
 
-        EventBean fragmentNested1 = (EventBean) stmtInsertBean.getFragment("nested1");
-        assertEquals(5, fragmentNested1.get("nested2.prop3[2]"));
-        assertEquals(eventTypeName + ".nested1", fragmentNested1.getEventType().getName());
+            EventBean fragmentNested2 = (EventBean) stmtInsertWildcardBean.getFragment("nested2");
+            assertEquals(4, fragmentNested2.get("prop3[1]"));
+            assertEquals(eventTypeName + ".nested1.nested2", fragmentNested2.getEventType().getName());
+        });
 
-        EventBean fragmentNested2 = (EventBean) stmtInsertWildcardBean.getFragment("nested2");
-        assertEquals(4, fragmentNested2.get("prop3[1]"));
-        assertEquals(eventTypeName + ".nested1.nested2", fragmentNested2.getEventType().getName());
+        env.assertIterator("s0", iterator -> {
+            EventBean stmtInsertBean = iterator.next();
+            SupportEventTypeAssertionUtil.assertConsistency(stmtInsertBean);
+            EventBean fragmentNested1 = (EventBean) stmtInsertBean.getFragment("nested1");
+            assertEquals(5, fragmentNested1.get("nested2.prop3[2]"));
+            assertEquals(eventTypeName + ".nested1", fragmentNested1.getEventType().getName());
+        });
+        env.assertIterator("sw", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
 
         env.undeployAll();
     }

@@ -17,13 +17,15 @@ import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 import java.util.EnumSet;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.EXCLUDEWHENINSTRUMENTED;
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.PERFORMANCE;
 import static org.junit.Assert.assertTrue;
 
 public class RowRecogPerf implements RegressionExecution {
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(EXCLUDEWHENINSTRUMENTED, PERFORMANCE);
     }
 
     public void run(RegressionEnvironment env) {

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -20,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
@@ -341,15 +341,16 @@ public class PatternOperatorMatchUntil {
             Object eventB1 = new SupportBean_B("B1");
             env.sendEventBean(eventB1);
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("a"), new Object[]{eventA1, eventA2});
-            assertEquals(eventA1, theEvent.get("a0"));
-            assertEquals(eventA2, theEvent.get("a1"));
-            assertNull(theEvent.get("a2"));
-            assertEquals("A1", theEvent.get("a0Id"));
-            assertEquals("A2", theEvent.get("a1Id"));
-            assertNull(null, theEvent.get("a2Id"));
-            assertEquals(eventB1, theEvent.get("b"));
+            env.assertEventNew("s0", theEvent -> {
+                EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("a"), new Object[]{eventA1, eventA2});
+                assertEquals(eventA1, theEvent.get("a0"));
+                assertEquals(eventA2, theEvent.get("a1"));
+                assertNull(theEvent.get("a2"));
+                assertEquals("A1", theEvent.get("a0Id"));
+                assertEquals("A2", theEvent.get("a1Id"));
+                assertNull(null, theEvent.get("a2Id"));
+                assertEquals(eventB1, theEvent.get("b"));
+            });
 
             env.undeployModuleContaining("s0");
 
@@ -362,15 +363,16 @@ public class PatternOperatorMatchUntil {
             env.assertListenerNotInvoked("s0");
             env.sendEventBean(eventB1);
 
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("a"), new Object[]{eventA1, eventA2});
-            assertSame(eventA1, theEvent.get("a[0]"));
-            assertSame(eventA2, theEvent.get("a[1]"));
-            assertNull(theEvent.get("a[2]"));
-            assertEquals("A1", theEvent.get("a[0].id"));
-            assertEquals("A2", theEvent.get("a[1].id"));
-            assertNull(null, theEvent.get("a[2].id"));
-            assertSame(eventB1, theEvent.get("b"));
+            env.assertEventNew("s0", theEvent -> {
+                EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("a"), new Object[]{eventA1, eventA2});
+                assertSame(eventA1, theEvent.get("a[0]"));
+                assertSame(eventA2, theEvent.get("a[1]"));
+                assertNull(theEvent.get("a[2]"));
+                assertEquals("A1", theEvent.get("a[0].id"));
+                assertEquals("A2", theEvent.get("a[1].id"));
+                assertNull(null, theEvent.get("a[2].id"));
+                assertSame(eventB1, theEvent.get("b"));
+            });
 
             env.undeployAll();
         }
@@ -379,7 +381,6 @@ public class PatternOperatorMatchUntil {
     private static class PatternUseFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmt;
-            EventBean theEvent;
 
             stmt = "@name('s0') select * from pattern [a=SupportBean_A until b=SupportBean_B -> c=SupportBean_C(id = ('C' || a[0].id || a[1].id || b.id))]";
             env.compileDeploy(stmt).addListener("s0");
@@ -406,12 +407,13 @@ public class PatternOperatorMatchUntil {
 
             Object eventC1 = new SupportBean_C("CA1A2B1");
             env.sendEventBean(eventC1);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(eventA1, theEvent.get("a[0]"));
-            assertEquals(eventA2, theEvent.get("a[1]"));
-            assertNull(theEvent.get("a[2]"));
-            assertEquals(eventB1, theEvent.get("b"));
-            assertEquals(eventC1, theEvent.get("c"));
+            env.assertEventNew("s0", theEvent -> {
+                assertEquals(eventA1, theEvent.get("a[0]"));
+                assertEquals(eventA2, theEvent.get("a[1]"));
+                assertNull(theEvent.get("a[2]"));
+                assertEquals(eventB1, theEvent.get("b"));
+                assertEquals(eventC1, theEvent.get("c"));
+            });
             env.undeployAll();
 
             // Test equals-optimization with array event
@@ -428,8 +430,7 @@ public class PatternOperatorMatchUntil {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A2", 10));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10, theEvent.get("c.intPrimitive"));
+            env.assertEqualsNew("s0", "c.intPrimitive", 10);
             env.undeployAll();
 
             // Test in-optimization
@@ -448,8 +449,7 @@ public class PatternOperatorMatchUntil {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A3", 5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(5, theEvent.get("c.intPrimitive"));
+            env.assertEqualsNew("s0", "c.intPrimitive", 5);
             env.undeployAll();
 
             // Test not-in-optimization
@@ -470,8 +470,7 @@ public class PatternOperatorMatchUntil {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("A6", 5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(5, theEvent.get("c.intPrimitive"));
+            env.assertEqualsNew("s0", "c.intPrimitive", 5);
             env.undeployAll();
 
             // Test range-optimization
@@ -490,8 +489,7 @@ public class PatternOperatorMatchUntil {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(5, theEvent.get("c.intPrimitive"));
+            env.assertEqualsNew("s0", "c.intPrimitive", 5);
 
             env.undeployAll();
         }
@@ -577,9 +575,10 @@ public class PatternOperatorMatchUntil {
 
             env.sendEventBean(new SupportBean_A("A3"));
             env.sendEventBean(new SupportBean_B("A2"));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(3, theEvent.get("length"));
-            assertEquals(3, theEvent.get("l2"));
+            env.assertEventNew("s0", theEvent -> {
+                assertEquals(3, theEvent.get("length"));
+                assertEquals(3, theEvent.get("l2"));
+            });
 
             env.undeployAll();
         }
@@ -589,8 +588,8 @@ public class PatternOperatorMatchUntil {
         public void run(RegressionEnvironment env) {
 
             // test variables - closed bounds
-            env.runtime().getVariableService().setVariableValue(null, "lower", 2);
-            env.runtime().getVariableService().setVariableValue(null, "upper", 3);
+            env.runtimeSetVariable(null, "lower", 2);
+            env.runtimeSetVariable(null, "upper", 3);
             String stmtOne = "[lower:upper] a=SupportBean (theString = 'A') until b=SupportBean (theString = 'B')";
             validateStmt(env, stmtOne, 0, false, null);
             validateStmt(env, stmtOne, 1, false, null);
@@ -600,8 +599,8 @@ public class PatternOperatorMatchUntil {
             validateStmt(env, stmtOne, 5, true, 3);
 
             // test variables - half open
-            env.runtime().getVariableService().setVariableValue(null, "lower", 3);
-            env.runtime().getVariableService().setVariableValue(null, "upper", null);
+            env.runtimeSetVariable(null, "lower", 3);
+            env.runtimeSetVariable(null, "upper", null);
             String stmtTwo = "[lower:] a=SupportBean (theString = 'A') until b=SupportBean (theString = 'B')";
             validateStmt(env, stmtTwo, 0, false, null);
             validateStmt(env, stmtTwo, 1, false, null);
@@ -611,8 +610,8 @@ public class PatternOperatorMatchUntil {
             validateStmt(env, stmtTwo, 5, true, 5);
 
             // test variables - half closed
-            env.runtime().getVariableService().setVariableValue(null, "lower", null);
-            env.runtime().getVariableService().setVariableValue(null, "upper", 2);
+            env.runtimeSetVariable(null, "lower", null);
+            env.runtimeSetVariable(null, "upper", 2);
             String stmtThree = "[:upper] a=SupportBean (theString = 'A') until b=SupportBean (theString = 'B')";
             validateStmt(env, stmtThree, 0, true, null);
             validateStmt(env, stmtThree, 1, true, 1);
@@ -637,7 +636,7 @@ public class PatternOperatorMatchUntil {
             // test substitution parameter
             String epl = "select * from pattern[[?::int] SupportBean]";
             EPCompiled compiled = env.compile(epl);
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> prepared.setObject(1, 2)));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, 2)));
             env.undeployAll();
 
             // test exactly-1
@@ -762,18 +761,17 @@ public class PatternOperatorMatchUntil {
         env.assertListenerNotInvoked("s0");
         env.sendEventBean(new SupportBean("B", -1));
 
-        assertEquals(match, env.listener("s0").isInvoked());
-        if (!match) {
-            env.undeployAll();
-            return;
-        }
-
-        Object valueATag = env.listener("s0").assertOneGetNewAndReset().get("a");
-        if (matchCount == null) {
-            assertNull(valueATag);
-        } else {
-            assertEquals((int) matchCount, Array.getLength(valueATag));
-        }
+        env.assertListener("s0", listener -> {
+            assertEquals(match, listener.isInvoked());
+            if (match) {
+                Object valueATag = listener.assertOneGetNewAndReset().get("a");
+                if (matchCount == null) {
+                    assertNull(valueATag);
+                } else {
+                    assertEquals((int) matchCount, Array.getLength(valueATag));
+                }
+            }
+        });
 
         env.undeployAll();
     }

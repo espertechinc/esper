@@ -22,19 +22,23 @@ import static org.junit.Assert.assertTrue;
 
 public class SupportDeploymentDependencies {
     public static void assertEmpty(RegressionEnvironment env, String deployedStatementName) {
-        String deploymentId = env.deploymentId(deployedStatementName);
-        EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentId);
-        assertTrue(consumed.getDependencies().isEmpty());
-        EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentId);
-        assertTrue(provided.getDependencies().isEmpty());
+        env.assertThat(() -> {
+            String deploymentId = env.deploymentId(deployedStatementName);
+            EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentId);
+            assertTrue(consumed.getDependencies().isEmpty());
+            EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentId);
+            assertTrue(provided.getDependencies().isEmpty());
+        });
     }
 
     public static void assertSingle(RegressionEnvironment env, String deployedStmtNameConsume, String deployedStmtNameProvide, EPObjectType objectType, String objectName) {
-        String deploymentIdConsume = env.deploymentId(deployedStmtNameConsume);
-        String deploymentIdProvide = env.deploymentId(deployedStmtNameProvide);
-        EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentIdConsume);
-        assertEqualsAnyOrder(new EPDeploymentDependencyConsumed.Item[]{new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, objectType, objectName)}, consumed.getDependencies().toArray());
-        EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentIdProvide);
-        assertEqualsAnyOrder(new EPDeploymentDependencyProvided.Item[]{new EPDeploymentDependencyProvided.Item(objectType, objectName, Collections.singleton(deploymentIdConsume))}, provided.getDependencies().toArray());
+        env.assertThat(() -> {
+            String deploymentIdConsume = env.deploymentId(deployedStmtNameConsume);
+            String deploymentIdProvide = env.deploymentId(deployedStmtNameProvide);
+            EPDeploymentDependencyConsumed consumed = env.runtime().getDeploymentService().getDeploymentDependenciesConsumed(deploymentIdConsume);
+            assertEqualsAnyOrder(new EPDeploymentDependencyConsumed.Item[]{new EPDeploymentDependencyConsumed.Item(deploymentIdProvide, objectType, objectName)}, consumed.getDependencies().toArray());
+            EPDeploymentDependencyProvided provided = env.runtime().getDeploymentService().getDeploymentDependenciesProvided(deploymentIdProvide);
+            assertEqualsAnyOrder(new EPDeploymentDependencyProvided.Item[]{new EPDeploymentDependencyProvided.Item(objectType, objectName, Collections.singleton(deploymentIdConsume))}, provided.getDependencies().toArray());
+        });
     }
 }

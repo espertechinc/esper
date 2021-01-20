@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -34,9 +33,10 @@ public class EPLOtherSelectExprSQLCompat {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E1", 10);
-            EventBean received = env.listener("s0").getAndResetLastNewData()[0];
-            Assert.assertEquals("E1", received.get("val1"));
-            Assert.assertEquals(10, received.get("val2"));
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals("E1", received.get("val1"));
+                Assert.assertEquals(10, received.get("val2"));
+            });
 
             env.undeployAll();
         }

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.json;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.util.EventSenderJson;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
@@ -19,6 +18,7 @@ import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.json.SupportClientsEvent;
 import com.espertech.esper.regressionlib.support.json.SupportUsersEvent;
 
@@ -61,12 +61,14 @@ public class EventJsonProvidedUnderlyingClass {
             env.sendEventJson("{\"id\":\"G1\",\"val\":3}", "EventTwo");
             env.advanceTime(10000);
 
-            MyLocalJsonProvidedEventOut out = (MyLocalJsonProvidedEventOut) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("G1", out.startEvent.id);
-            assertEquals("G1", out.endEvents[0].id);
-            assertEquals(2, out.endEvents[0].val);
-            assertEquals("G1", out.endEvents[1].id);
-            assertEquals(3, out.endEvents[1].val);
+            env.assertEventNew("s0", event -> {
+                MyLocalJsonProvidedEventOut out = (MyLocalJsonProvidedEventOut) event.getUnderlying();
+                assertEquals("G1", out.startEvent.id);
+                assertEquals("G1", out.endEvents[0].id);
+                assertEquals(2, out.endEvents[0].val);
+                assertEquals("G1", out.endEvents[1].id);
+                assertEquals(3, out.endEvents[1].val);
+            });
 
             env.undeployAll();
         }
@@ -80,7 +82,7 @@ public class EventJsonProvidedUnderlyingClass {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("primitiveInt"));
+            env.assertEqualsNew("s0", "primitiveInt", -1);
 
             env.undeployAll();
         }
@@ -166,8 +168,10 @@ public class EventJsonProvidedUnderlyingClass {
 
             env.sendEventJson(getClientsJson(), "Clients");
 
-            JsonEventObject event = (JsonEventObject) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(getClientsJsonReplaceWhitespace(), event.toString());
+            env.assertEventNew("s0", theEvent -> {
+                JsonEventObject event = (JsonEventObject) theEvent.getUnderlying();
+                assertEquals(getClientsJsonReplaceWhitespace(), event.toString());
+            });
 
             env.undeployAll();
         }
@@ -207,8 +211,10 @@ public class EventJsonProvidedUnderlyingClass {
 
             env.sendEventJson(getUsersJson(), "Users");
 
-            JsonEventObject event = (JsonEventObject) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(getUsersJsonReplaceWhitespace(), event.toString());
+            env.assertEventNew("s0", theEvent -> {
+                JsonEventObject event = (JsonEventObject) theEvent.getUnderlying();
+                assertEquals(getUsersJsonReplaceWhitespace(), event.toString());
+            });
 
             env.undeployAll();
         }
@@ -227,12 +233,11 @@ public class EventJsonProvidedUnderlyingClass {
 
             // try send-event
             sender.sendEvent(getClientsJson());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertClientsPremade((SupportClientsEvent) event.getUnderlying());
-
-            // try write
-            JSONEventRenderer render = env.runtime().getRenderEventService().getJSONRenderer(event.getEventType());
-            assertEquals(getClientsJsonReplaceWhitespace(), render.render(event));
+            env.assertEventNew("s0", event -> {
+                assertClientsPremade((SupportClientsEvent) event.getUnderlying());
+                JSONEventRenderer render = env.runtime().getRenderEventService().getJSONRenderer(event.getEventType());
+                assertEquals(getClientsJsonReplaceWhitespace(), render.render(event));
+            });
 
             env.undeployAll();
         }
@@ -241,6 +246,10 @@ public class EventJsonProvidedUnderlyingClass {
             assertEquals(1, clients.clients.size());
             SupportClientsEvent.Client first = clients.clients.get(0);
             assertEquals(getClientObject().clients.get(0), first);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
         }
     }
 
@@ -257,14 +266,19 @@ public class EventJsonProvidedUnderlyingClass {
 
             // try send-event
             sender.sendEvent(getUsersJson());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertUsersPremade((SupportUsersEvent) event.getUnderlying());
+            env.assertEventNew("s0", event -> {
+                assertUsersPremade((SupportUsersEvent) event.getUnderlying());
 
-            // try write
-            JSONEventRenderer render = env.runtime().getRenderEventService().getJSONRenderer(event.getEventType());
-            assertEquals(getUsersJsonReplaceWhitespace(), render.render(event));
+                // try write
+                JSONEventRenderer render = env.runtime().getRenderEventService().getJSONRenderer(event.getEventType());
+                assertEquals(getUsersJsonReplaceWhitespace(), render.render(event));
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
         }
 
         private void assertUsersPremade(SupportUsersEvent users) {

@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-
 public class EPLJoinCoercion {
 
     public static List<RegressionExecution> executions() {
@@ -94,7 +92,7 @@ public class EPLJoinCoercion {
             env.compileDeployAddListenerMileZero(joinStatement, "s0");
             sendBeanEvent(env, 100);
             sendMarketEvent(env, 100);
-            assertEquals(100L, env.listener("s0").assertOneGetNewAndReset().get("volume"));
+            env.assertEqualsNew("s0", "volume", 100L);
             env.undeployAll();
         }
     }

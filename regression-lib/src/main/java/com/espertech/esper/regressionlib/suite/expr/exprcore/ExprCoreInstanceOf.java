@@ -90,14 +90,16 @@ public class ExprCoreInstanceOf {
             env.compileDeploy(model).addListener("s0").milestone(0);
 
             env.sendEventBean(new SupportBean("abc", 100));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertTrue((Boolean) theEvent.get("t0"));
-            assertTrue((Boolean) theEvent.get("t1"));
+            env.assertEventNew("s0", theEvent -> {
+                assertTrue((Boolean) theEvent.get("t0"));
+                assertTrue((Boolean) theEvent.get("t1"));
+            });
 
             env.sendEventBean(new SupportBean(null, 100));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertFalse((Boolean) theEvent.get("t0"));
-            assertFalse((Boolean) theEvent.get("t1"));
+            env.assertEventNew("s0", theEvent -> {
+                assertFalse((Boolean) theEvent.get("t0"));
+                assertFalse((Boolean) theEvent.get("t1"));
+            });
 
             env.undeployAll();
         }
@@ -111,14 +113,16 @@ public class ExprCoreInstanceOf {
             env.eplToModelCompileDeploy(epl).addListener("s0").milestone(0);
 
             env.sendEventBean(new SupportBean("abc", 100));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertTrue((Boolean) theEvent.get("t0"));
-            assertTrue((Boolean) theEvent.get("t1"));
+            env.assertEventNew("s0", theEvent -> {
+                assertTrue((Boolean) theEvent.get("t0"));
+                assertTrue((Boolean) theEvent.get("t1"));
+            });
 
             env.sendEventBean(new SupportBean(null, 100));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertFalse((Boolean) theEvent.get("t0"));
-            assertFalse((Boolean) theEvent.get("t1"));
+            env.assertEventNew("s0", theEvent -> {
+                assertFalse((Boolean) theEvent.get("t0"));
+                assertFalse((Boolean) theEvent.get("t1"));
+            });
 
             env.undeployAll();
         }
@@ -140,19 +144,19 @@ public class ExprCoreInstanceOf {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBeanDynRoot("abc"));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{true, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{true, false, false, false, false, false, false, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(100f));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, true, true, false, false, true, true});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, true, true, false, false, true, true}));
 
             env.sendEventBean(new SupportBeanDynRoot(null));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, false, false, false, false, false, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(10));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, true, false, false, true, false, true, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, true, false, false, true, false, true, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(99L));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, false, false, false, true, true, true});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, false, false, false, true, true, true}));
 
             env.undeployAll();
         }
@@ -172,22 +176,22 @@ public class ExprCoreInstanceOf {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBeanDynRoot(new SupportBeanDynRoot("abc")));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{true, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{true, false, false, false, false, false, false, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(new ISupportAImplSuperGImplPlus()));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, true, true, false, true, true, true, true});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, true, true, false, true, true, true, true}));
 
             env.sendEventBean(new SupportBeanDynRoot(new ISupportAImplSuperGImpl("", "", "")));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, true, true, false, true, true, true, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, true, true, false, true, true, true, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(new ISupportBaseABImpl("")));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, true, true, false, true, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, true, true, false, true, false, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(new ISupportBImpl("", "")));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, false, true, false, true, true, true, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, true, false, true, true, true, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(new ISupportAImpl("", "")));
-            assertResults(env.listener("s0").assertOneGetNewAndReset(), new boolean[]{false, true, true, false, true, true, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, true, true, false, true, true, false, false}));
 
             env.undeployAll();
         }

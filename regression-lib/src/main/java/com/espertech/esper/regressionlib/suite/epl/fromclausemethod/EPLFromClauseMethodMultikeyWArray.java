@@ -14,13 +14,14 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class EPLFromClauseMethodMultikeyWArray {
     public static List<RegressionExecution> executions() {
@@ -61,12 +62,16 @@ public class EPLFromClauseMethodMultikeyWArray {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class EPLFromClauseMultikeyWArrayParameterizedByArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from SupportEventWithManyArray as e,\n" +
-                "method:" + SupportJoinResultIsArray.class.getName() + ".getResultIntArray(e.intOne) as s";
+                    "method:" + SupportJoinResultIsArray.class.getName() + ".getResultIntArray(e.intOne) as s";
             env.compileDeploy(epl).addListener("s0");
 
             sendManyArray(env, "E1", new int[]{1, 2});
@@ -85,6 +90,10 @@ public class EPLFromClauseMethodMultikeyWArray {
             assertReceivedUUID(env, sb12.getTheString());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -157,11 +166,6 @@ public class EPLFromClauseMethodMultikeyWArray {
         env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints));
     }
 
-    private static SupportBean sendManyArrayGetSB(RegressionEnvironment env, String id, int[] ints) {
-        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints));
-        return (SupportBean) env.listener("s0").assertOneGetNewAndReset().get("s");
-    }
-
     private static void assertReceived(RegressionEnvironment env, String idOne, String idTwo) {
         env.assertPropsNew("s0",
             "e.id,s.id".split(","), new Object[]{idOne, idTwo});
@@ -184,9 +188,16 @@ public class EPLFromClauseMethodMultikeyWArray {
         }
     }
 
+    private static SupportBean sendManyArrayGetSB(RegressionEnvironment env, String id, int[] ints) {
+        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(ints));
+        return (SupportBean) env.listener("s0").assertOneGetNewAndReset().get("s");
+    }
+
     private static void assertReceivedUUID(RegressionEnvironment env, String uuidExpected) {
-        SupportBean sb = (SupportBean) env.listener("s0").assertOneGetNewAndReset().get("s");
-        assertEquals(uuidExpected, sb.getTheString());
+        env.assertListener("s0", listener -> {
+            SupportBean sb = (SupportBean) listener.assertOneGetNewAndReset().get("s");
+            assertEquals(uuidExpected, sb.getTheString());
+        });
     }
 
     public static class SupportDoubleAndIntArray {

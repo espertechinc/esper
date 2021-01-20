@@ -11,8 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -23,6 +21,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanArrayCollMap;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
@@ -32,8 +31,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ExprCoreInBetween {
     public static Collection<RegressionExecution> executions() {
@@ -111,14 +108,14 @@ public class ExprCoreInBetween {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select intPrimitive in (?::int[primitive]) as result from SupportBean";
             EPCompiled compiled = env.compile(stmtText);
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> prepared.setObject(1, new int[]{10, 20, 30})));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, new int[]{10, 20, 30})));
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10), SupportBean.class.getSimpleName());
-            assertTrue((Boolean) env.listener("s0").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", true);
 
             env.sendEventBean(new SupportBean("E2", 9), SupportBean.class.getSimpleName());
-            assertFalse((Boolean) env.listener("s0").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", false);
 
             env.undeployAll();
         }
@@ -129,15 +126,15 @@ public class ExprCoreInBetween {
 
             String epl = "@name('s0') select 10 in (arrayProperty) as result from SupportBeanComplexProps";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("result")));
 
             epl = "@name('s1') select 5 in (arrayProperty) as result from SupportBeanComplexProps";
             env.compileDeploy(epl).addListener("s1");
             env.milestone(0);
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("result"));
-            assertEquals(false, env.listener("s1").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", true);
+            env.assertEqualsNew("s1", "result", false);
 
             env.undeployAll();
         }
@@ -431,7 +428,7 @@ public class ExprCoreInBetween {
             String epl = "@name('s0') select intPrimitive in (shortBoxed, intBoxed, longBoxed) as result from " + SupportBean.class.getSimpleName();
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("result")));
 
             sendAndAssert(env, 1, 2, 3, 4L, false);
             sendAndAssert(env, 1, 1, 3, 4L, true);
@@ -450,7 +447,7 @@ public class ExprCoreInBetween {
             String epl = "@name('s0') select intBoxed in (floatBoxed, doublePrimitive, longBoxed) as result from " + SupportBean.class.getSimpleName();
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("result")));
 
             sendAndAssert(env, 1, 2f, 3d, 4L, false);
             sendAndAssert(env, 1, 1f, 3d, 4L, true);
@@ -523,7 +520,7 @@ public class ExprCoreInBetween {
 
             fields = "r1,r2".split(",");
             env.sendEventBean(new SupportBean("E1", 3));
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{true, true});
+            env.assertPropsNew("s1", fields, new Object[]{true, true});
 
             env.undeployAll();
 
@@ -533,16 +530,16 @@ public class ExprCoreInBetween {
             env.compileDeployAddListenerMile(eplThree, "s2", 2);
 
             env.sendEventBean(new SupportBean("a", 5));
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{false});
+            env.assertPropsNew("s2", fields, new Object[]{false});
 
             env.sendEventBean(new SupportBean("b", 5));
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{true});
+            env.assertPropsNew("s2", fields, new Object[]{true});
 
             env.sendEventBean(new SupportBean("c", 5));
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{true});
+            env.assertPropsNew("s2", fields, new Object[]{true});
 
             env.sendEventBean(new SupportBean("d", 5));
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{false});
+            env.assertPropsNew("s2", fields, new Object[]{false});
 
             env.undeployAll();
         }
@@ -553,7 +550,7 @@ public class ExprCoreInBetween {
             String epl = "@name('s0') select intBoxed between floatBoxed and doublePrimitive as result from " + SupportBean.class.getSimpleName();
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("result")));
 
             sendAndAssert(env, 1, 2f, 3d, false);
             sendAndAssert(env, 2, 2f, 3d, true);
@@ -588,8 +585,7 @@ public class ExprCoreInBetween {
 
         env.sendEventBean(bean);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(result, theEvent.get("result"));
+        env.assertEqualsNew("s0", "result", result);
     }
 
     private static void sendAndAssert(RegressionEnvironment env, int intPrimitive, int shortBoxed, Integer intBoxed, Long longBoxed, Boolean result) {
@@ -601,8 +597,7 @@ public class ExprCoreInBetween {
 
         env.sendEventBean(bean);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(result, theEvent.get("result"));
+        env.assertEqualsNew("s0", "result", result);
     }
 
     private static SupportBean makeBean(int intPrimitive, int shortBoxed, Long longBoxed) {
@@ -622,8 +617,7 @@ public class ExprCoreInBetween {
 
         env.sendEventBean(bean);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(result, theEvent.get("result"));
+        env.assertEqualsNew("s0", "result", result);
     }
 
     private static void tryInBoolean(RegressionEnvironment env, String expr, Boolean[] input, boolean[] result) {
@@ -664,12 +658,12 @@ public class ExprCoreInBetween {
 
         env.deploy(compiled).addListener("s0");
 
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("result"));
+        env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("result")));
 
         for (int i = 0; i < input.length; i++) {
             sendSupportBeanEvent(env, input[i]);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Wrong result for " + input[i], result[i], theEvent.get("result"));
+            final int index = i;
+            env.assertEventNew("s0", event -> assertEquals("Wrong result for " + input[index], result[index], event.get("result")));
         }
         env.undeployAll();
     }

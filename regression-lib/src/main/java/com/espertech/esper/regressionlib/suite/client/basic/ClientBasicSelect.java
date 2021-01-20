@@ -19,8 +19,9 @@ public class ClientBasicSelect implements RegressionExecution {
         String epl = "@name('s0') select * from SupportBean";
         env.compileDeployAddListenerMileZero(epl, "s0");
 
-        env.sendEventBean(new SupportBean())
-            .listener("s0").assertInvokedAndReset();
+        env.sendEventBean(new SupportBean());
+        env.assertListenerInvoked("s0");
+
         env.milestone(1);
 
         env.undeployAll();

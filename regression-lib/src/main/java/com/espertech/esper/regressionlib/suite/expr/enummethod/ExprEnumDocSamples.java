@@ -50,9 +50,11 @@ public class ExprEnumDocSamples {
 
             env.sendEventBean(LocationReportFactory.makeSmall());
 
-            Item[] items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("zeroloc"));
-            assertEquals(1, items.length);
-            assertEquals("P00020", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("zeroloc"));
+                assertEquals(1, items.length);
+                assertEquals("P00020", items[0].getAssetId());
+            });
 
             env.undeployAll();
             eplFragment = "@name('s0') select items.where(i => i.location.x = 0).where(i => i.location.y = 0) as zeroloc from LocationReport";
@@ -60,9 +62,11 @@ public class ExprEnumDocSamples {
 
             env.sendEventBean(LocationReportFactory.makeSmall());
 
-            items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("zeroloc"));
-            assertEquals(1, items.length);
-            assertEquals("P00020", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("zeroloc"));
+                assertEquals(1, items.length);
+                assertEquals("P00020", items[0].getAssetId());
+            });
 
             env.undeployAll();
         }
@@ -80,9 +84,11 @@ public class ExprEnumDocSamples {
             env.sendEventBean(new Zone("Z2", new Rectangle(21, 21, 40, 40)));
             env.sendEventBean(new Item("A1", new Location(10, 10)));
 
-            Zone[] zones = toArrayZones((Collection<Zone>) env.listener("s0").assertOneGetNewAndReset().get("zones"));
-            assertEquals(1, zones.length);
-            assertEquals("Z1", zones[0].getName());
+            env.assertEventNew("s0", event -> {
+                Zone[] zones = toArrayZones((Collection<Zone>) event.get("zones"));
+                assertEquals(1, zones.length);
+                assertEquals("Z1", zones[0].getName());
+            });
 
             // subquery with event as input
             String epl = "create schema SettlementEvent (symbol string, price double);" +
@@ -102,7 +108,6 @@ public class ExprEnumDocSamples {
     private static class ExprEnumNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl;
-            Zone[] zones;
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window ZoneWindow#keepall as Zone", path);
@@ -115,9 +120,11 @@ public class ExprEnumDocSamples {
             env.sendEventBean(new Zone("Z2", new Rectangle(21, 21, 40, 40)));
             env.sendEventBean(new Item("A1", new Location(10, 10)));
 
-            zones = toArrayZones((Collection<Zone>) env.listener("s0").assertOneGetNewAndReset().get("zones"));
-            assertEquals(1, zones.length);
-            assertEquals("Z1", zones[0].getName());
+            env.assertEventNew("s0", event -> {
+                Zone[] zones = toArrayZones((Collection<Zone>) event.get("zones"));
+                assertEquals(1, zones.length);
+                assertEquals("Z1", zones[0].getName());
+            });
 
             env.undeployModuleContaining("s0");
 
@@ -127,9 +134,11 @@ public class ExprEnumDocSamples {
             env.sendEventBean(new Zone("Z3", new Rectangle(0, 0, 20, 20)));
             env.sendEventBean(new Item("A1", new Location(10, 10)));
 
-            zones = toArrayZones((Collection<Zone>) env.listener("s0").assertOneGetNewAndReset().get("zones"));
-            assertEquals(1, zones.length);
-            assertEquals("Z3", zones[0].getName());
+            env.assertEventNew("s0", event -> {
+                Zone[] zones = toArrayZones((Collection<Zone>) event.get("zones"));
+                assertEquals(1, zones.length);
+                assertEquals("Z3", zones[0].getName());
+            });
 
             env.undeployAll();
         }
@@ -142,13 +151,17 @@ public class ExprEnumDocSamples {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new Item("P0001", new Location(10, 10), "P", null));
-            Item[] items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("centeritems"));
-            assertEquals(1, items.length);
-            assertEquals("P0001", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("centeritems"));
+                assertEquals(1, items.length);
+                assertEquals("P0001", items[0].getAssetId());
+            });
 
             env.sendEventBean(new Item("P0002", new Location(10, 1000), "P", null));
-            items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("centeritems"));
-            assertEquals(0, items.length);
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("centeritems"));
+                assertEquals(0, items.length);
+            });
 
             env.undeployAll();
         }
@@ -161,14 +174,18 @@ public class ExprEnumDocSamples {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new Item("P0001", new Location(10, 10), "P", null));
-            Item[] items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("centeritems"));
-            assertEquals(1, items.length);
-            assertEquals("P0001", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("centeritems"));
+                assertEquals(1, items.length);
+                assertEquals("P0001", items[0].getAssetId());
+            });
 
             env.sendEventBean(new Item("P0002", new Location(10, 1000), "P", null));
-            items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("centeritems"));
-            assertEquals(1, items.length);
-            assertEquals("P0001", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("centeritems"));
+                assertEquals(1, items.length);
+                assertEquals("P0001", items[0].getAssetId());
+            });
 
             env.undeployAll();
         }
@@ -181,9 +198,11 @@ public class ExprEnumDocSamples {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(LocationReportFactory.makeSmall());
-            Item[] items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("centeritems"));
-            assertEquals(1, items.length);
-            assertEquals("P00020", items[0].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("centeritems"));
+                assertEquals(1, items.length);
+                assertEquals("P00020", items[0].getAssetId());
+            });
 
             env.undeployAll();
         }
@@ -196,9 +215,11 @@ public class ExprEnumDocSamples {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new Item("A1", new Location(5, 5)));
-            Zone[] zones = toArrayZones((Collection<Zone>) env.listener("s0").assertOneGetNewAndReset().get("zones"));
-            assertEquals(1, zones.length);
-            assertEquals("Z1", zones[0].getName());
+            env.assertEventNew("s0", event -> {
+                Zone[] zones = toArrayZones((Collection<Zone>) event.get("zones"));
+                assertEquals(1, zones.length);
+                assertEquals("Z1", zones[0].getName());
+            });
 
             env.undeployAll();
         }
@@ -214,10 +235,12 @@ public class ExprEnumDocSamples {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(LocationReportFactory.makeSmall());
-            Item[] items = toArrayItems((Collection<Item>) env.listener("s0").assertOneGetNewAndReset().get("p"));
-            assertEquals(2, items.length);
-            assertEquals("P00002", items[0].getAssetId());
-            assertEquals("P00020", items[1].getAssetId());
+            env.assertEventNew("s0", event -> {
+                Item[] items = toArrayItems((Collection<Item>) event.get("p"));
+                assertEquals(2, items.length);
+                assertEquals("P00002", items[0].getAssetId());
+                assertEquals("P00020", items[1].getAssetId());
+            });
 
             env.undeployAll();
         }
@@ -250,7 +273,7 @@ public class ExprEnumDocSamples {
             assertStmt(env, path, "select items.where(i => i.assetId=\"L001\").union(items.where(i => i.type=\"P\")) as itemsUnion from LocationReport");
             assertStmt(env, path, "select (select name from Zone#unique(name)).orderBy() as orderedZones from pattern [every timer:interval(30)]");
 
-            env.compileDeployWBusPublicType("create schema MyEvent as (seqone String[], seqtwo String[])", path);
+            env.compileDeploy("@buseventtype create schema MyEvent as (seqone String[], seqtwo String[])", path);
 
             assertStmt(env, path, "select seqone.sequenceEqual(seqtwo) from MyEvent");
             assertStmt(env, path, "select window(assetId).orderBy() as orderedAssetIds from Item#time(10) group by assetId");
@@ -395,8 +418,10 @@ public class ExprEnumDocSamples {
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 0));
-        Object result = env.listener("s0").assertOneGetNewAndReset().get("result");
-        verifier.accept(result);
+        env.assertEventNew("s0", event -> {
+            Object result = event.get("result");
+            verifier.accept(result);
+        });
 
         env.undeployAll();
     }

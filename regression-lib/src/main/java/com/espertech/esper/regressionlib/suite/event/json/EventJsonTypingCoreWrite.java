@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.json;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
@@ -21,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -105,10 +103,11 @@ public class EventJsonTypingCoreWrite {
 
         private void sendAssertLibrary(RegressionEnvironment env, String json, String libraryId, String isleId, String shelfId, String bookId) {
             env.sendEventJson(json, "Library");
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertJsonWrite(json, event);
-            EPAssertionUtil.assertProps(event, "libraryId,isle.isleId,isle.shelf.shelfId,isle.shelf.book.bookId".split(","),
-                new Object[]{libraryId, isleId, shelfId, bookId});
+            env.assertEventNew("s0", event -> {
+                assertJsonWrite(json, event);
+                EPAssertionUtil.assertProps(event, "libraryId,isle.isleId,isle.shelf.shelfId,isle.shelf.book.bookId".split(","),
+                    new Object[]{libraryId, isleId, shelfId, bookId});
+            });
         }
     }
 
@@ -141,7 +140,7 @@ public class EventJsonTypingCoreWrite {
                 "  ]\n" +
                 "}";
             env.sendEventJson(jsonOne, "Library");
-            assertJsonWrite(jsonOne, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             JsonObject book111 = buildBook("B111", 20);
             JsonObject shelf11 = buildShelf("S11", book111);
@@ -149,7 +148,7 @@ public class EventJsonTypingCoreWrite {
             JsonObject libraryOne = buildLibrary("L1", isle1);
             String jsonTwo = libraryOne.toString();
             env.sendEventJson(jsonTwo, "Library");
-            assertJsonWrite(jsonTwo, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             JsonObject book112 = buildBook("B112", 21);
             shelf11.get("books").asArray().add(book112);
@@ -158,14 +157,15 @@ public class EventJsonTypingCoreWrite {
             JsonObject libraryTwo = buildLibrary("L", isle1, isle2);
             String jsonThree = libraryTwo.toString();
             env.sendEventJson(jsonThree, "Library");
-            assertJsonWrite(jsonThree, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonThree, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
-            assertJsonWrite(jsonThree, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+                assertJsonWrite(jsonThree, it.next());
+            });
 
             env.undeployAll();
         }
@@ -194,7 +194,8 @@ public class EventJsonTypingCoreWrite {
                 "  \"c11\": 1500.0,\n" +
                 "  \"c12\": null\n" +
                 "}";
-            assertJsonWrite(jsonOne, sendGet(env, jsonOne));
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{\n" +
                 "  \"c0\": null,\n" +
@@ -211,13 +212,15 @@ public class EventJsonTypingCoreWrite {
                 "  \"c11\": null,\n" +
                 "  \"c12\": null\n" +
                 "}";
-            assertJsonWrite(jsonTwo, sendGet(env, jsonTwo));
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+            });
 
             env.undeployAll();
         }
@@ -256,7 +259,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [60.0, 61.0],\n" +
                 "\"c16\": [62.0, 63.0]" +
                 "}\n";
-            assertJsonWrite(jsonOne, sendGet(env, jsonOne));
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{ \"c0\": [],\n" +
                 "\"c1\": [],\n" +
@@ -276,7 +280,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [],\n" +
                 "\"c16\": []" +
                 "}\n";
-            assertJsonWrite(jsonTwo, sendGet(env, jsonTwo));
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             String jsonThree = "{ \"c0\": null,\n" +
                 "\"c1\": null,\n" +
@@ -296,7 +301,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": null,\n" +
                 "\"c16\": null" +
                 "}\n";
-            assertJsonWrite(jsonThree, sendGet(env, jsonThree));
+            env.sendEventJson(jsonThree, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonThree, event));
 
             String jsonFour = "{ \"c0\": [null, \"def\", null],\n" +
                 "\"c1\": [\"x\", null],\n" +
@@ -316,15 +322,17 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [null],\n" +
                 "\"c16\": [63.0]" +
                 "}\n";
-            assertJsonWrite(jsonFour, sendGet(env, jsonFour));
+            env.sendEventJson(jsonFour, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonFour, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
-            assertJsonWrite(jsonThree, it.next());
-            assertJsonWrite(jsonFour, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+                assertJsonWrite(jsonThree, it.next());
+                assertJsonWrite(jsonFour, it.next());
+            });
 
             env.undeployAll();
         }
@@ -363,7 +371,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [[60.0, 61.0], []],\n" +
                 "\"c16\": [[62.0], [63.0]]" +
                 "}\n";
-            assertJsonWrite(jsonOne, sendGet(env, jsonOne));
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{ \"c0\": [],\n" +
                 "\"c1\": [],\n" +
@@ -383,7 +392,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [],\n" +
                 "\"c16\": []" +
                 "}\n";
-            assertJsonWrite(jsonTwo, sendGet(env, jsonTwo));
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             String jsonThree = "{ \"c0\": null,\n" +
                 "\"c1\": null,\n" +
@@ -403,7 +413,8 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": null,\n" +
                 "\"c16\": null" +
                 "}\n";
-            assertJsonWrite(jsonThree, sendGet(env, jsonThree));
+            env.sendEventJson(jsonThree, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonThree, event));
 
             String jsonFour = "{ \"c0\": [[null, \"a\"]],\n" +
                 "\"c1\": [[null], [\"x\"]],\n" +
@@ -423,15 +434,17 @@ public class EventJsonTypingCoreWrite {
                 "\"c15\": [[null]],\n" +
                 "\"c16\": [[63.0]]" +
                 "}\n";
-            assertJsonWrite(jsonFour, sendGet(env, jsonFour));
+            env.sendEventJson(jsonFour, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonFour, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
-            assertJsonWrite(jsonThree, it.next());
-            assertJsonWrite(jsonFour, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+                assertJsonWrite(jsonThree, it.next());
+                assertJsonWrite(jsonFour, it.next());
+            });
 
             env.undeployAll();
         }
@@ -444,20 +457,24 @@ public class EventJsonTypingCoreWrite {
             env.compileDeploy(epl).addListener("s0");
 
             String jsonOne = "{\"c0\": \"ENUM_VALUE_2\", \"c1\": [\"ENUM_VALUE_2\", \"ENUM_VALUE_1\"], \"c2\": [[\"ENUM_VALUE_2\"], [\"ENUM_VALUE_1\", \"ENUM_VALUE_3\"]]}";
-            assertJsonWrite(jsonOne, sendGet(env, jsonOne));
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{\"c0\": null, \"c1\": null, \"c2\": null}";
-            assertJsonWrite(jsonTwo, sendGet(env, jsonTwo));
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             String jsonThree = "{\"c0\": null, \"c1\": [], \"c2\": [[]]}";
-            assertJsonWrite(jsonThree, sendGet(env, jsonThree));
+            env.sendEventJson(jsonThree, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonThree, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
-            assertJsonWrite(jsonThree, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+                assertJsonWrite(jsonThree, it.next());
+            });
 
             env.undeployAll();
         }
@@ -474,16 +491,19 @@ public class EventJsonTypingCoreWrite {
                 "\"c2\": [123456789123456789123456789], \"c3\": [123456789123456789123456789.1]," +
                 "\"c4\": [[123456789123456789123456789]], \"c5\": [[123456789123456789123456789.1]]" +
                 "}";
-            assertJsonWrite(jsonOne, sendGet(env, jsonOne));
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{\"c0\": null, \"c1\": null, \"c2\": null, \"c3\": null, \"c4\": null, \"c5\": null}";
-            assertJsonWrite(jsonTwo, sendGet(env, jsonTwo));
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+            });
 
             env.undeployAll();
         }
@@ -495,7 +515,7 @@ public class EventJsonTypingCoreWrite {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Object.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String[] jsons = new String[]{
                 "{\"c0\": 1}",
@@ -512,15 +532,17 @@ public class EventJsonTypingCoreWrite {
                 "{\"c0\": {\"c1\": 10, \"c2\": \"abc\"}}",
             };
             for (String json : jsons) {
-                sendAssert(env, json);
+                env.sendEventJson(json, "JsonEvent");
+                env.assertEventNew("s0", event -> assertJsonWrite(json, event));
             }
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            for (String json : jsons) {
-                assertJsonWrite(json, it.next());
-            }
+            env.assertIterator("s0", it -> {
+                for (String json : jsons) {
+                    assertJsonWrite(json, it.next());
+                }
+            });
 
             env.undeployAll();
         }
@@ -532,7 +554,7 @@ public class EventJsonTypingCoreWrite {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Object[].class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String[] jsons = new String[]{
                 "{\"c0\": []}",
@@ -549,15 +571,17 @@ public class EventJsonTypingCoreWrite {
                 "{\"c0\": [{\"c1\": 10, \"c2\": \"abc\"}]}",
             };
             for (String json : jsons) {
-                sendAssert(env, json);
+                env.sendEventJson(json, "JsonEvent");
+                env.assertEventNew("s0", event -> assertJsonWrite(json, event));
             }
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            for (String json : jsons) {
-                assertJsonWrite(json, it.next());
-            }
+            env.assertIterator("s0", it -> {
+                for (String json : jsons) {
+                    assertJsonWrite(json, it.next());
+                }
+            });
 
             env.undeployAll();
         }
@@ -569,22 +593,24 @@ public class EventJsonTypingCoreWrite {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Map.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String[] jsons = new String[]{
                 "{\"c0\": {\"c1\" : 10}}",
                 "{\"c0\": {\"c1\": [\"c2\", 20]}}",
             };
             for (String json : jsons) {
-                sendAssert(env, json);
+                env.sendEventJson(json, "JsonEvent");
+                env.assertEventNew("s0", event -> assertJsonWrite(json, event));
             }
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            for (String json : jsons) {
-                assertJsonWrite(json, it.next());
-            }
+            env.assertIterator("s0", it -> {
+                for (String json : jsons) {
+                    assertJsonWrite(json, it.next());
+                }
+            });
 
             env.undeployAll();
         }
@@ -608,20 +634,24 @@ public class EventJsonTypingCoreWrite {
                 "    \"b\"\n" +
                 "  ]\n" +
                 "}";
-            sendAssert(env, jsonOne);
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{}";
-            sendAssert(env, jsonTwo);
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             String jsonThree = "{\"a_boolean\": false}";
-            sendAssert(env, jsonThree);
+            env.sendEventJson(jsonThree, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonThree, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
-            assertJsonWrite(jsonThree, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+                assertJsonWrite(jsonThree, it.next());
+            });
 
             env.undeployAll();
         }
@@ -643,12 +673,12 @@ public class EventJsonTypingCoreWrite {
                 "    null\n" +
                 "  ]\n" +
                 "}";
-            sendAssert(env, json);
+            env.sendEventJson(json, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(json, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(json, it.next());
+            env.assertIterator("s0", it -> assertJsonWrite(json, it.next()));
 
             env.undeployAll();
         }
@@ -665,20 +695,23 @@ public class EventJsonTypingCoreWrite {
                 "    [[3,4], 5]" +
                 "  ]\n" +
                 "}";
-            sendAssert(env, jsonOne);
+            env.sendEventJson(jsonOne, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonOne, event));
 
             String jsonTwo = "{\n" +
                 "  \"a_array\": [\n" +
                 "    [6, [ [7,8], [9], []]]\n" +
                 "  ]\n" +
                 "}";
-            sendAssert(env, jsonTwo);
+            env.sendEventJson(jsonTwo, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(jsonTwo, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(jsonOne, it.next());
-            assertJsonWrite(jsonTwo, it.next());
+            env.assertIterator("s0", it -> {
+                assertJsonWrite(jsonOne, it.next());
+                assertJsonWrite(jsonTwo, it.next());
+            });
 
             env.undeployAll();
         }
@@ -690,24 +723,15 @@ public class EventJsonTypingCoreWrite {
                 "@name('s0') select * from JsonEvent#keepall").addListener("s0");
 
             String json = "{ \"num1\": 42, \"num2\": 42.0, \"num3\": 43.0}";
-            sendAssert(env, json);
+            env.sendEventJson(json, "JsonEvent");
+            env.assertEventNew("s0", event -> assertJsonWrite(json, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertJsonWrite(json, it.next());
+            env.assertIterator("s0", iterator -> assertJsonWrite(json, iterator.next()));
 
             env.undeployAll();
         }
-    }
-
-    private static void sendAssert(RegressionEnvironment env, String json) {
-        assertJsonWrite(json, sendGet(env, json));
-    }
-
-    private static EventBean sendGet(RegressionEnvironment env, String json) {
-        env.sendEventJson(json, "JsonEvent");
-        return env.listener("s0").assertOneGetNewAndReset();
     }
 
     private static JsonObject buildBook(String bookId, int price) {

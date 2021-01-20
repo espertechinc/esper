@@ -112,7 +112,7 @@ public class Deployer {
         // register for recovery
         if (!recovery) {
             DeploymentRecoveryInformation recoveryInformation = getRecoveryInformation(deployed);
-            services.getDeploymentRecoveryService().add(deploymentId, statementIdFirstStatement, compiled, recoveryInformation.getStatementUserObjectsRuntime(), recoveryInformation.getStatementNamesWhenProvidedByAPI(), stmtLightweights.getSubstitutionParameters());
+            services.getDeploymentRecoveryService().add(deploymentId, statementIdFirstStatement, compiled, recoveryInformation.getStatementUserObjectsRuntime(), recoveryInformation.getStatementNamesWhenProvidedByAPI(), stmtLightweights.getSubstitutionParameters(), deployed.getDeploymentIdDependencies());
         }
 
         return deployed;

@@ -44,17 +44,17 @@ public class PatternCompositeSelect {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", theEvent -> {
+                Object[] values = new Object[theEvent.getEventType().getPropertyNames().length];
+                int count = 0;
+                for (String name : theEvent.getEventType().getPropertyNames()) {
+                    values[count++] = theEvent.get(name);
+                }
 
-            Object[] values = new Object[env.statement("s0").getEventType().getPropertyNames().length];
-            int count = 0;
-            for (String name : env.statement("s0").getEventType().getPropertyNames()) {
-                values[count++] = theEvent.get(name);
-            }
-
-            SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
-                new SupportEventPropDesc("a", SupportBean_A.class).fragment(),
-                new SupportEventPropDesc("b", SupportBean_B.class).fragment());
+                SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
+                    new SupportEventPropDesc("a", SupportBean_A.class).fragment(),
+                    new SupportEventPropDesc("b", SupportBean_B.class).fragment());
+            });
 
             env.undeployAll();
         }
@@ -65,41 +65,44 @@ public class PatternCompositeSelect {
             String stmtTxtOne = "@name('s0') select * from pattern [[2] a=SupportBean_A -> b=SupportBean_B]";
             env.compileDeploy(stmtTxtOne).addListener("s0");
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            env.assertStatement("s0", statement ->
+                SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("a", SupportBean_A[].class).indexed().fragment(),
-                new SupportEventPropDesc("b", SupportBean_B.class).fragment());
+                new SupportEventPropDesc("b", SupportBean_B.class).fragment()));
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));
-            env.sendEventBean(new SupportBean_B("B1"));
-
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertTrue(theEvent.getUnderlying() instanceof Map);
 
             env.milestone(0);
 
-            // test fragment B type and event
-            FragmentEventType typeFragB = theEvent.getEventType().getFragmentType("b");
-            assertFalse(typeFragB.isIndexed());
-            Assert.assertEquals("SupportBean_B", typeFragB.getFragmentType().getName());
-            Assert.assertEquals(String.class, typeFragB.getFragmentType().getPropertyType("id"));
+            env.sendEventBean(new SupportBean_B("B1"));
 
-            EventBean eventFragB = (EventBean) theEvent.getFragment("b");
-            Assert.assertEquals("SupportBean_B", eventFragB.getEventType().getName());
+            env.assertEventNew("s0", theEvent -> {
+                assertTrue(theEvent.getUnderlying() instanceof Map);
 
-            // test fragment A type and event
-            FragmentEventType typeFragA = theEvent.getEventType().getFragmentType("a");
-            assertTrue(typeFragA.isIndexed());
-            Assert.assertEquals("SupportBean_A", typeFragA.getFragmentType().getName());
-            Assert.assertEquals(String.class, typeFragA.getFragmentType().getPropertyType("id"));
+                // test fragment B type and event
+                FragmentEventType typeFragB = theEvent.getEventType().getFragmentType("b");
+                assertFalse(typeFragB.isIndexed());
+                Assert.assertEquals("SupportBean_B", typeFragB.getFragmentType().getName());
+                Assert.assertEquals(String.class, typeFragB.getFragmentType().getPropertyType("id"));
 
-            assertTrue(theEvent.getFragment("a") instanceof EventBean[]);
-            EventBean eventFragA1 = (EventBean) theEvent.getFragment("a[0]");
-            Assert.assertEquals("SupportBean_A", eventFragA1.getEventType().getName());
-            Assert.assertEquals("A1", eventFragA1.get("id"));
-            EventBean eventFragA2 = (EventBean) theEvent.getFragment("a[1]");
-            Assert.assertEquals("SupportBean_A", eventFragA2.getEventType().getName());
-            Assert.assertEquals("A2", eventFragA2.get("id"));
+                EventBean eventFragB = (EventBean) theEvent.getFragment("b");
+                Assert.assertEquals("SupportBean_B", eventFragB.getEventType().getName());
+
+                // test fragment A type and event
+                FragmentEventType typeFragA = theEvent.getEventType().getFragmentType("a");
+                assertTrue(typeFragA.isIndexed());
+                Assert.assertEquals("SupportBean_A", typeFragA.getFragmentType().getName());
+                Assert.assertEquals(String.class, typeFragA.getFragmentType().getPropertyType("id"));
+
+                assertTrue(theEvent.getFragment("a") instanceof EventBean[]);
+                EventBean eventFragA1 = (EventBean) theEvent.getFragment("a[0]");
+                Assert.assertEquals("SupportBean_A", eventFragA1.getEventType().getName());
+                Assert.assertEquals("A1", eventFragA1.get("id"));
+                EventBean eventFragA2 = (EventBean) theEvent.getFragment("a[1]");
+                Assert.assertEquals("SupportBean_A", eventFragA2.getEventType().getName());
+                Assert.assertEquals("A2", eventFragA2.get("id"));
+            });
 
             env.undeployAll();
         }

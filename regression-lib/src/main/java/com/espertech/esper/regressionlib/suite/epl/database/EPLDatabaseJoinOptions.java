@@ -56,13 +56,13 @@ public class EPLDatabaseJoinOptions {
             "SupportBean#length(100) as s1";
         env.compileDeploy(stmtText).addListener("s0");
 
-        assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("mydouble"));
+        env.assertStatement("s0", statement -> assertEquals(Double.class, statement.getEventType().getPropertyType("mydouble")));
 
         sendSupportBeanEvent(env, 10);
-        assertEquals(1.2, env.listener("s0").assertOneGetNewAndReset().get("mydouble"));
+        env.assertEqualsNew("s0", "mydouble", 1.2);
 
         sendSupportBeanEvent(env, 80);
-        assertEquals(8.2, env.listener("s0").assertOneGetNewAndReset().get("mydouble"));
+        env.assertEqualsNew("s0", "mydouble", 8.2);
 
         env.undeployAll();
     }

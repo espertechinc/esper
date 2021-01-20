@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.join.indexlookupplan.*;
 import com.espertech.esper.common.internal.epl.join.queryplan.LookupInstructionQueryPlanNodeForge;
@@ -37,8 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -63,7 +60,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             String epl = "create table MyTable as (p0 string primary key, p1 int);\n" +
                 "@name('s0') select theString, p1 from SupportBean unidirectional left outer join MyTable on theString = p0;\n";
             env.compileDeploy(epl, path).addListener("s0");
-            env.compileExecuteFAF("insert into MyTable select 'a' as p0, 10 as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyTable select 'a' as p0, 10 as p1", path);
 
             env.sendEventBean(new SupportBean("a", 0));
             env.assertPropsNew("s0", fields, new Object[]{"a", 10});
@@ -110,9 +107,11 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             IndexAssertionEventSend eventSendAssertionRangeTwoExpected = new IndexAssertionEventSend() {
                 public void run() {
                     env.sendEventBean(new SupportBean_S0(-1, null));
-                    EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getNewDataListFlattened(), "value".split(","),
-                        new Object[][]{{2000L}, {3000L}});
-                    env.listener("s0").reset();
+                    env.assertListener("s0", listener -> {
+                        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getNewDataListFlattened(), "value".split(","),
+                            new Object[][]{{2000L}, {3000L}});
+                        listener.reset();
+                    });
                 }
             };
 
@@ -120,9 +119,12 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             IndexAssertionEventSend eventSendAssertionHash = new IndexAssertionEventSend() {
                 public void run() {
                     env.sendEventBean(new SupportBean_S0(10, "G1"));
-                    env.assertPropsPerRowNewFlattened("s0",  "value".split(","),
-                        new Object[][]{{1000L}});
-                    env.listener("s0").reset();
+                    env.assertListener("s0", listener -> {
+                        EPAssertionUtil.assertPropsPerRow(listener.getNewDataListFlattened(), "value".split(","),
+                            new Object[][]{{1000L}});
+                        listener.reset();
+                    });
+
                 }
             };
 
@@ -189,9 +191,11 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             IndexAssertionEventSend eventSendAssertionRangeOneExpected = new IndexAssertionEventSend() {
                 public void run() {
                     env.sendEventBean(new SupportBean_S0(-1, null));
-                    EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getNewDataListFlattened(), "value".split(","),
-                        new Object[][]{{2000L}});
-                    env.listener("s0").reset();
+                    env.assertListener("s0", listener -> {
+                        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getNewDataListFlattened(), "value".split(","),
+                            new Object[][]{{2000L}});
+                        listener.reset();
+                    });
                 }
             };
             assertIndexChoice(env, eplDeclare, eplPopulate, eplQuery, createIndexRangeOne, preloadedEventsTwo,
@@ -241,9 +245,11 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             IndexAssertionEventSend eventSendAssertion = new IndexAssertionEventSend() {
                 public void run() {
                     env.sendEventBean(new SupportBeanRange(20L));
-                    EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getNewDataListFlattened(), "value".split(","),
-                        new Object[][]{{2000L}});
-                    env.listener("s0").reset();
+                    env.assertListener("s0", listener -> {
+                        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getNewDataListFlattened(), "value".split(","),
+                            new Object[][]{{2000L}});
+                        listener.reset();
+                    });
                 }
             };
             assertIndexChoice(env, eplDeclare, eplPopulate, eplQuery, createIndexEmpty, preloadedEvents,
@@ -268,12 +274,12 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             // join simple
             env.compileDeploy("@name('join') select sumint from MyTable, SupportBean", path).addListener("join");
             env.sendEventBean(new SupportBean());
-            assertEquals(201, env.listener("join").assertOneGetNewAndReset().get("sumint"));
+            env.assertEqualsNew("join", "sumint", 201);
             env.undeployModuleContaining("join");
 
             // test regular columns inserted-into
             env.compileDeploy("create table SecondTable (a string, b int)", path);
-            env.compileExecuteFAF("insert into SecondTable values ('a1', 10)", path);
+            env.compileExecuteFAFNoResult("insert into SecondTable values ('a1', 10)", path);
             env.compileDeploy("@name('s0')select a, b from SecondTable, SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", "a,b".split(","), new Object[]{"a1", 10});
@@ -317,34 +323,40 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             }
             epl += " where " + assertion.getWhereClause();
 
-            try {
-                EPCompiled compiled = env.compileWCheckedEx("@name('s0')" + epl, path);
-                env.deploy(compiled).addListener("s0");
-            } catch (EPCompileException ex) {
-                if (assertion.getEventSendAssertion() == null) {
-                    // no assertion, expected
-                    assertTrue(ex.getMessage().contains("index hint busted"));
-                    continue;
-                }
-                throw new RuntimeException("Unexpected statement exception: " + ex.getMessage(), ex);
+            if (assertion.getEventSendAssertion() == null) {
+                String text = "@name('s0')" + epl;
+                env.assertThat(() -> {
+                    try {
+                        env.compileWCheckedEx(text, path);
+                        fail();
+                    } catch (EPCompileException ex) {
+                        // no assertion, expected
+                        assertTrue(ex.getMessage().contains("index hint busted"));
+                    }
+                });
+                continue;
             }
+
+            env.compileDeploy("@name('s0')" + epl, path).addListener("s0");
 
             // send multistream seed event
             env.sendEventBean(new SupportBeanSimple("", -1));
 
             // assert index and access
             assertion.getEventSendAssertion().run();
-            QueryPlanForge plan = SupportQueryPlanIndexHook.assertJoinAndReset();
+            env.assertThat(() -> {
+                QueryPlanForge plan = SupportQueryPlanIndexHook.assertJoinAndReset();
+                TableLookupPlanForge tableLookupPlan;
+                if (plan.getExecNodeSpecs()[0] instanceof TableLookupNodeForge) {
+                    tableLookupPlan = ((TableLookupNodeForge) plan.getExecNodeSpecs()[0]).getTableLookupPlan();
+                } else {
+                    LookupInstructionQueryPlanNodeForge lqp = (LookupInstructionQueryPlanNodeForge) plan.getExecNodeSpecs()[0];
+                    tableLookupPlan = lqp.getLookupInstructions().get(0).getLookupPlans()[0];
+                }
+                assertEquals(assertion.getExpectedIndexName(), tableLookupPlan.getIndexNum()[0].getIndexName());
+                assertEquals(assertion.getExpectedStrategy(), tableLookupPlan.getClass());
+            });
 
-            TableLookupPlanForge tableLookupPlan;
-            if (plan.getExecNodeSpecs()[0] instanceof TableLookupNodeForge) {
-                tableLookupPlan = ((TableLookupNodeForge) plan.getExecNodeSpecs()[0]).getTableLookupPlan();
-            } else {
-                LookupInstructionQueryPlanNodeForge lqp = (LookupInstructionQueryPlanNodeForge) plan.getExecNodeSpecs()[0];
-                tableLookupPlan = lqp.getLookupInstructions().get(0).getLookupPlans()[0];
-            }
-            assertEquals(assertion.getExpectedIndexName(), tableLookupPlan.getIndexNum()[0].getIndexName());
-            assertEquals(assertion.getExpectedStrategy(), tableLookupPlan.getClass());
             env.undeployModuleContaining("s0");
         }
 
@@ -358,8 +370,8 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             if (values[i] == null) {
                 env.assertListenerNotInvoked("s0");
             } else {
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));
+                final int index = i;
+                env.assertEventNew("s0", event -> assertEquals("Failed for key '" + keyarr[index] + "'", values[index], event.get("value")));
             }
         }
     }

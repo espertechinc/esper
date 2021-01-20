@@ -10,10 +10,18 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-public class SupportCollection {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportCollection implements Serializable {
+    private static final long serialVersionUID = -8399656881081928288L;
     private static String sampleStaticCSV;
 
     private Collection<String> strvals;
@@ -22,7 +30,7 @@ public class SupportCollection {
     private Collection<BigDecimal> bdvals;
     private Collection<Boolean> boolvals;
     private int[] intarray;
-    private Iterable<Integer> intiterable;
+    private ArrayList<Integer> intiterable;
 
     public static SupportCollection makeString(String csvlist) {
         SupportCollection bean = new SupportCollection();
@@ -50,13 +58,7 @@ public class SupportCollection {
             for (Integer val : bean.intvals) {
                 bean.intarray[count++] = val == null ? Integer.MIN_VALUE : val;
             }
-
-            final Collection<Integer> iteratable = bean.intvals;
-            bean.intiterable = new Iterable<Integer>() {
-                public Iterator<Integer> iterator() {
-                    return iteratable.iterator();
-                }
-            };
+            bean.intiterable = new ArrayList<>(bean.intvals);
         }
 
         return bean;
@@ -203,10 +205,6 @@ public class SupportCollection {
 
     public void setIntarray(int[] intarray) {
         this.intarray = intarray;
-    }
-
-    public void setIntiterable(Iterable<Integer> intiterable) {
-        this.intiterable = intiterable;
     }
 
     public String toString() {

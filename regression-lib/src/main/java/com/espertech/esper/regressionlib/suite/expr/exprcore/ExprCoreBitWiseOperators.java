@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -83,12 +82,14 @@ public class ExprCoreBitWiseOperators {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') " + EPL).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(Byte.class, type.getPropertyType("myFirstProperty"));
-            assertEquals(Short.class, type.getPropertyType("mySecondProperty"));
-            assertEquals(Integer.class, type.getPropertyType("myThirdProperty"));
-            assertEquals(Long.class, type.getPropertyType("myFourthProperty"));
-            assertEquals(Boolean.class, type.getPropertyType("myFifthProperty"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(Byte.class, type.getPropertyType("myFirstProperty"));
+                assertEquals(Short.class, type.getPropertyType("mySecondProperty"));
+                assertEquals(Integer.class, type.getPropertyType("myThirdProperty"));
+                assertEquals(Long.class, type.getPropertyType("myFourthProperty"));
+                assertEquals(Boolean.class, type.getPropertyType("myFifthProperty"));
+            });
 
             runBitWiseOperators(env);
 
@@ -115,12 +116,13 @@ public class ExprCoreBitWiseOperators {
         SupportBean sb = makeEvent();
         env.sendEventBean(sb);
 
-        EventBean received = env.listener("s0").getAndResetLastNewData()[0];
-        assertEquals((byte) 1, received.get("myFirstProperty"));
-        assertTrue(((Short) (received.get("mySecondProperty")) & SECOND_EVENT) == SECOND_EVENT);
-        assertTrue(((Integer) (received.get("myThirdProperty")) & FIRST_EVENT) == FIRST_EVENT);
-        assertEquals(7L, received.get("myFourthProperty"));
-        assertEquals(false, received.get("myFifthProperty"));
+        env.assertEventNew("s0", received -> {
+            assertEquals((byte) 1, received.get("myFirstProperty"));
+            assertTrue(((Short) (received.get("mySecondProperty")) & SECOND_EVENT) == SECOND_EVENT);
+            assertTrue(((Integer) (received.get("myThirdProperty")) & FIRST_EVENT) == FIRST_EVENT);
+            assertEquals(7L, received.get("myFourthProperty"));
+            assertEquals(false, received.get("myFifthProperty"));
+        });
     }
 
     private static SupportBean makeEvent() {

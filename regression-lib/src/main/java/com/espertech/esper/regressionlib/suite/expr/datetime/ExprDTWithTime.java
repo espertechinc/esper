@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -37,7 +36,6 @@ public class ExprDTWithTime implements RegressionExecution {
             "create variable int varsec;\n" +
             "create variable int varmsec;\n";
         env.compileDeploy(epl, path);
-        String variablesDepId = env.deploymentId("variables");
 
         String startTime = "2002-05-30T09:00:00.000";
         env.advanceTime(DateTime.parseDefaultMSec(startTime));
@@ -52,29 +50,29 @@ public class ExprDTWithTime implements RegressionExecution {
             "zoneddate.withTime(varhour, varmin, varsec, varmsec) as val5" +
             " from SupportDateTime";
         env.compileDeploy(epl, path).addListener("s0");
-        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
+        env.assertStmtTypes("s0", fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
         env.sendEventBean(SupportDateTime.make(null));
         env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
 
         String expectedTime = "2002-05-30T09:00:00.000";
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", null); // variable is null
+        env.runtimeSetVariable("variables", "varhour", null); // variable is null
         env.sendEventBean(SupportDateTime.make(startTime));
         env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         expectedTime = "2002-05-30T01:02:03.004";
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", 1);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varmin", 2);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varsec", 3);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varmsec", 4);
+        env.runtimeSetVariable("variables", "varhour", 1);
+        env.runtimeSetVariable("variables", "varmin", 2);
+        env.runtimeSetVariable("variables", "varsec", 3);
+        env.runtimeSetVariable("variables", "varmsec", 4);
         env.sendEventBean(SupportDateTime.make(startTime));
         env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 
         expectedTime = "2002-05-30T00:00:00.006";
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varhour", 0);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varmin", null);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varsec", null);
-        env.runtime().getVariableService().setVariableValue(variablesDepId, "varmsec", 6);
+        env.runtimeSetVariable("variables", "varhour", 0);
+        env.runtimeSetVariable("variables", "varmin", null);
+        env.runtimeSetVariable("variables", "varsec", null);
+        env.runtimeSetVariable("variables", "varmsec", 6);
         env.sendEventBean(SupportDateTime.make(startTime));
         env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "long", "util", "long", "cal", "ldt", "zdt"));
 

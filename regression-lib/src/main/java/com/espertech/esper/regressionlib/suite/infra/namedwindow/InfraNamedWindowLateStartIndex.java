@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportCountAccessEvent;
 import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -61,7 +60,7 @@ public class InfraNamedWindowLateStartIndex implements RegressionExecution {
         assertEquals(2, SupportCountAccessEvent.getAndResetCountGetterCalled());
 
         env.sendEventBean(new SupportBean_S0(-1, "x"));
-        assertTrue(env.listener("s2").isInvoked());
+        env.assertListenerInvoked("s2");
 
         env.undeployAll();
     }

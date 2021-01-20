@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.filter;
 
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -59,12 +58,14 @@ public class ExprFilterWhereClause {
             epl = "select * From MapEventWithCriteriaBool#time(30 seconds) where criteria";
             env.compileDeploy(epl);
 
-            try {
-                env.sendEventMap(Collections.singletonMap("criteria", 15), "MapEventWithCriteriaBool");
-                fail(); // ensure exception handler rethrows
-            } catch (EPException ex) {
-                // fine
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventMap(Collections.singletonMap("criteria", 15), "MapEventWithCriteriaBool");
+                    fail(); // ensure exception handler rethrows
+                } catch (EPException ex) {
+                    // fine
+                }
+            });
             env.undeployAll();
         }
     }
@@ -83,13 +84,14 @@ public class ExprFilterWhereClause {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBeanEvent(env, 2, 2, 2, 2);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            Assert.assertEquals(Long.class, theEvent.getEventType().getPropertyType("p1"));
-            Assert.assertEquals(4L, theEvent.get("p1"));
-            Assert.assertEquals(Double.class, theEvent.getEventType().getPropertyType("p2"));
-            Assert.assertEquals(4d, theEvent.get("p2"));
-            Assert.assertEquals(Double.class, theEvent.getEventType().getPropertyType("p3"));
-            Assert.assertEquals(1d, theEvent.get("p3"));
+            env.assertEventNew("s0", event -> {
+                Assert.assertEquals(Long.class, event.getEventType().getPropertyType("p1"));
+                Assert.assertEquals(4L, event.get("p1"));
+                Assert.assertEquals(Double.class, event.getEventType().getPropertyType("p2"));
+                Assert.assertEquals(4d, event.get("p2"));
+                Assert.assertEquals(Double.class, event.getEventType().getPropertyType("p3"));
+                Assert.assertEquals(1d, event.get("p3"));
+            });
 
             env.undeployAll();
         }

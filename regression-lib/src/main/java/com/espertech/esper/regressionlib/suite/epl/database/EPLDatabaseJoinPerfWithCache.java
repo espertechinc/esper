@@ -51,7 +51,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -74,7 +74,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseRangeIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -85,7 +85,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", 10, 12));
-                assertEquals(3, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(3, listener.getAndResetLastNewData().length));
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -99,7 +99,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(SupportBeanRange.makeLong("R", "K", 10L, 12L));
-            assertEquals(3, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(3, listener.getAndResetLastNewData().length));
 
             env.undeployAll();
         }
@@ -108,7 +108,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseKeyAndRangeIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -119,7 +119,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "11", 10, 12));
-                assertEquals(1, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(1, listener.getAndResetLastNewData().length));
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -133,7 +133,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(SupportBeanRange.makeLong("R", "11", 10L, 12L));
-            assertEquals(1, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(1, listener.getAndResetLastNewData().length));
 
             env.undeployAll();
         }
@@ -146,7 +146,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseSelectLargeResultSet implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -177,7 +177,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseSelectLargeResultSetCoercion implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -208,7 +208,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabase2StreamOuterJoin implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -243,7 +243,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseOuterJoinPlusWhere implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -284,7 +284,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseInKeywordSingleIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -300,7 +300,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 2000; i++) {
                 env.sendEventBean(new SupportBean_S0(i, "x", "y", "815"));
-                assertEquals(815, env.listener("s0").assertOneGetNewAndReset().get("s1.mycol3"));
+                env.assertEqualsNew("s0", "s1.mycol3", 815);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -314,7 +314,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
     private static class EPLDatabaseInKeywordMultiIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -330,7 +330,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 2000; i++) {
                 env.sendEventBean(new SupportBean_S0(i, "815"));
-                assertEquals(815, env.listener("s0").assertOneGetNewAndReset().get("s1.mycol3"));
+                env.assertEqualsNew("s0", "s1.mycol3", 815);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -347,7 +347,7 @@ public class EPLDatabaseJoinPerfWithCache implements IndexBackingTableInfo {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(new SupportBean("E", 0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get(field));
+            env.assertEqualsNew("s0", field, expected);
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;

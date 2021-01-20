@@ -24,7 +24,8 @@ import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class EPLJoinMultiKeyAndRange {
 
@@ -115,7 +116,7 @@ public class EPLJoinMultiKeyAndRange {
 
         private void assertReceived(RegressionEnvironment env, Object[][] expected) {
             final String[] fields = "si.id,sm.id".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, expected);
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, expected);
         }
 
         private void sendManyArray(RegressionEnvironment env, String id, int[] ints, int value) {
@@ -192,16 +193,20 @@ public class EPLJoinMultiKeyAndRange {
             // range invalid
             sendEvent(env, new SupportBeanRange("R4", "G", 10, 0));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
 
             // duplicates
             Object eventOne = sendSupportBean(env, "G", 100, 5);
             Object eventTwo = sendSupportBean(env, "G", 101, 5);
             sendEvent(env, new SupportBeanRange("R4", "G", 0, 10));
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{eventOne, eventTwo}, EPAssertionUtil.getUnderlying(events));
-            events = env.listener("s1").getAndResetLastNewData();
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{eventOne, eventTwo}, EPAssertionUtil.getUnderlying(events));
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{eventOne, eventTwo}, EPAssertionUtil.getUnderlying(events));
+            });
+            env.assertListener("s1", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{eventOne, eventTwo}, EPAssertionUtil.getUnderlying(events));
+            });
 
             // test string compare
             String eplThree = "@name('s2') select sb.* from SupportBeanRange#keepall sb, SupportBean#lastevent where theString in [rangeStartStr:rangeEndStr]";
@@ -226,9 +231,11 @@ public class EPLJoinMultiKeyAndRange {
             env.compileDeploy(joinStatement).addListener("s0");
             String[] fields = "streamA.theString,streamB.theString".split(",");
 
-            assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("streamA"));
-            assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("streamB"));
-            assertEquals(2, env.statement("s0").getEventType().getPropertyNames().length);
+            env.assertStatement("s0", statement -> {
+                assertEquals(SupportBean.class, statement.getEventType().getPropertyType("streamA"));
+                assertEquals(SupportBean.class, statement.getEventType().getPropertyType("streamB"));
+                assertEquals(2, statement.getEventType().getPropertyNames().length);
+            });
 
             final int[][] eventData = {{1, 100},
                 {2, 100},
@@ -253,7 +260,7 @@ public class EPLJoinMultiKeyAndRange {
             sendEvent(env, eventsB[1]);
             sendEvent(env, eventsB[2]);
             sendEvent(env, eventsB[3]);
-            assertNull(env.listener("s0").getLastNewData());    // No events expected
+            env.assertListener("s0", listener -> assertNull(listener.getLastNewData()));    // No events expected
 
             env.milestone(0);
 

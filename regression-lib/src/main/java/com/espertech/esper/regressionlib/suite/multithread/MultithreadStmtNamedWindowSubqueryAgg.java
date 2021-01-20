@@ -46,9 +46,9 @@ public class MultithreadStmtNamedWindowSubqueryAgg implements RegressionExecutio
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread, boolean indexShare) {
         // setup statements
         RegressionPath path = new RegressionPath();
-        String schemas = "create schema UpdateEvent as (uekey string, ueint int);\n" +
-            "create schema WindowSchema as (wskey string, wsint int);\n";
-        env.compileDeployWBusPublicType(schemas, path);
+        String schemas = "@buseventtype create schema UpdateEvent as (uekey string, ueint int);\n" +
+            "@buseventtype create schema WindowSchema as (wskey string, wsint int);\n";
+        env.compileDeploy(schemas, path);
 
         String createEpl = "@name('namedWindow') create window MyWindow#keepall as WindowSchema";
         if (indexShare) {

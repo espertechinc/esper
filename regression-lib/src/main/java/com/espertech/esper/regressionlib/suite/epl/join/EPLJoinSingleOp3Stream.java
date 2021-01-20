@@ -17,14 +17,12 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 public class EPLJoinSingleOp3Stream {
@@ -117,31 +115,32 @@ public class EPLJoinSingleOp3Stream {
         // Test sending a C event
         sendEvent(env, eventsA[0]);
         sendEvent(env, eventsB[0]);
-        assertNull(env.listener("s0").getLastNewData());
+        env.assertListenerNotInvoked("s0");
         sendEvent(env, eventsC[0]);
         assertEventsReceived(env, eventsA[0], eventsB[0], eventsC[0]);
 
         // Test sending a B event
         sendEvent(env, new Object[]{eventsA[1], eventsB[2], eventsC[3]});
         sendEvent(env, eventsC[1]);
-        assertNull(env.listener("s0").getLastNewData());
+        env.assertListenerNotInvoked("s0");
         sendEvent(env, eventsB[1]);
         assertEventsReceived(env, eventsA[1], eventsB[1], eventsC[1]);
 
         // Test sending a C event
         sendEvent(env, new Object[]{eventsA[4], eventsA[5], eventsB[4], eventsB[3]});
-        assertNull(env.listener("s0").getLastNewData());
+        env.assertListenerNotInvoked("s0");
         sendEvent(env, eventsC[4]);
         assertEventsReceived(env, eventsA[4], eventsB[4], eventsC[4]);
     }
 
     private static void assertEventsReceived(RegressionEnvironment env, SupportBean_A eventA, SupportBean_B eventB, SupportBean_C eventC) {
-        SupportListener updateListener = env.listener("s0");
-        Assert.assertEquals(1, updateListener.getLastNewData().length);
-        assertSame(eventA, updateListener.getLastNewData()[0].get("streamA"));
-        assertSame(eventB, updateListener.getLastNewData()[0].get("streamB"));
-        assertSame(eventC, updateListener.getLastNewData()[0].get("streamC"));
-        updateListener.reset();
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(1, listener.getLastNewData().length);
+            assertSame(eventA, listener.getLastNewData()[0].get("streamA"));
+            assertSame(eventB, listener.getLastNewData()[0].get("streamB"));
+            assertSame(eventC, listener.getLastNewData()[0].get("streamC"));
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, Object theEvent) {

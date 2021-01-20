@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.bean;
 
 import com.espertech.esper.common.client.util.DateTime;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -19,8 +20,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
-public abstract class SupportTimeStartBase {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public abstract class SupportTimeStartBase implements Serializable {
 
+    private static final long serialVersionUID = -8152981205970218444L;
     private String key;
     private Long longdateStart;
     private Date utildateStart;

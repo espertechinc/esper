@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -27,7 +26,6 @@ import org.apache.avro.generic.GenericData;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertPropsPerRow;
 import static org.junit.Assert.*;
 
 /**
@@ -37,7 +35,7 @@ public class InfraNamedWindowOnMerge {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new InfraUpdateNonPropertySet());
+        execs.add(new InfraNamedWindowOnMergeUpdateNonPropertySet());
         execs.add(new InfraMergeTriggeredByAnotherWindow());
         execs.add(new InfraPropertyInsertBean());
         execs.add(new InfraSubselect());
@@ -75,10 +73,12 @@ public class InfraNamedWindowOnMerge {
         }
 
         private void assertWindow(RegressionEnvironment env, String id, Object[] currentSewid, Object[] prevSewid) {
-            EventBean event = env.iterator("window").next();
-            assertEquals(id, event.get("id"));
-            assertSame(currentSewid, ((EventBean) event.get("currentSewid")).getUnderlying());
-            assertSame(prevSewid, ((EventBean) event.get("prevSewid")).getUnderlying());
+            env.assertIterator("window", iterator -> {
+                EventBean event = iterator.next();
+                assertEquals(id, event.get("id"));
+                assertSame(currentSewid, ((EventBean) event.get("currentSewid")).getUnderlying());
+                assertSame(prevSewid, ((EventBean) event.get("prevSewid")).getUnderlying());
+            });
         }
     }
 
@@ -100,7 +100,7 @@ public class InfraNamedWindowOnMerge {
         }
     }
 
-    private static class InfraUpdateNonPropertySet implements RegressionExecution {
+    private static class InfraNamedWindowOnMergeUpdateNonPropertySet implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window MyWindowUNP#keepall as SupportBean", path);
@@ -113,7 +113,7 @@ public class InfraNamedWindowOnMerge {
 
             env.sendEventBean(makeSupportBean("E1", 10, 2));
             env.sendEventBean(new SupportBean_S0(5, "E1"));
-            EPAssertionUtil.assertProps(env.listener("merge").getAndResetLastNewData()[0], fields, new Object[]{11, 5d, 5d});
+            env.assertPropsPerRowLastNew("merge", fields, new Object[][]{{11, 5d, 5d}});
 
             // try a case-statement
             String eplCase = "on SupportBean_S0 merge MyWindowUNP " +
@@ -138,7 +138,7 @@ public class InfraNamedWindowOnMerge {
             env.compileDeploy("@Name('E') insert into A select intPrimitive as id from SupportBean", path);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertTrue(env.listener("D").isInvoked());
+            env.assertListenerInvoked("D");
             env.undeployAll();
 
             // test insert-stream only, no remove stream
@@ -177,15 +177,17 @@ public class InfraNamedWindowOnMerge {
             env.compileDeploy(epl, path);
             env.sendEventBean(new SupportBean("E1", 10));
 
-            EventBean theEvent = env.iterator("window").next();
-            EPAssertionUtil.assertProps(theEvent, "theString,intPrimitive".split(","), new Object[]{null, 10});
+            env.assertIterator("window", iterator -> {
+                EventBean theEvent = iterator.next();
+                EPAssertionUtil.assertProps(theEvent, "theString,intPrimitive".split(","), new Object[]{null, 10});
+            });
             env.undeployModuleContaining("merge");
 
             epl = "on SupportBean as up merge MergeWindow as mv where mv.theString=up.theString when not matched then insert select theString, intPrimitive";
             env.compileDeploy(epl, path);
             env.sendEventBean(new SupportBean("E2", 20));
 
-            assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
+            env.assertPropsPerRowIterator("window", "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
 
             env.undeployAll();
         }
@@ -201,8 +203,8 @@ public class InfraNamedWindowOnMerge {
 
     private static void tryAssertionSubselect(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         String[] fields = "col1,col2".split(",");
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent as (in1 string, in2 int);\n";
-        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " create schema MySchema as (col1 string, col2 int);\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent as (in1 string, in2 int);\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " @buseventtype create schema MySchema as (col1 string, col2 int);\n";
         epl += "@name('create') create window MyWindowSS#lastevent as MySchema;\n";
         epl += "on SupportBean_A delete from MyWindowSS;\n";
         epl += "on MyEvent me " +
@@ -213,46 +215,46 @@ public class InfraNamedWindowOnMerge {
             "update set col1=(select theString from SupportBean(theString like 'B%')#lastevent), col2=(select intPrimitive from SupportBean(theString like 'B%')#lastevent) " +
             "when matched and (select intPrimitive>0 from SupportBean(theString like 'C%')#lastevent) then " +
             "delete;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath());
+        env.compileDeploy(epl, new RegressionPath());
 
         // no action tests
         sendMyEvent(env, eventRepresentationEnum, "X1", 1);
         env.sendEventBean(new SupportBean("A1", 0));   // ignored
         sendMyEvent(env, eventRepresentationEnum, "X2", 2);
         env.sendEventBean(new SupportBean("A2", 20));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, null);
 
         sendMyEvent(env, eventRepresentationEnum, "X3", 3);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A2", 20}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A2", 20}});
 
         env.sendEventBean(new SupportBean_A("Y1"));
         env.sendEventBean(new SupportBean("A3", 30));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, null);
 
         sendMyEvent(env, eventRepresentationEnum, "X4", 4);
         env.sendEventBean(new SupportBean("A4", 40));
         sendMyEvent(env, eventRepresentationEnum, "X5", 5);   // ignored as matched (no where clause, no B event)
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A3", 30}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A3", 30}});
 
         env.sendEventBean(new SupportBean("B1", 50));
         sendMyEvent(env, eventRepresentationEnum, "X6", 6);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"B1", 50}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"B1", 50}});
 
         env.sendEventBean(new SupportBean("B2", 60));
         sendMyEvent(env, eventRepresentationEnum, "X7", 7);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"B2", 60}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"B2", 60}});
 
         env.sendEventBean(new SupportBean("B2", 0));
         sendMyEvent(env, eventRepresentationEnum, "X8", 8);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"B2", 60}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"B2", 60}});
 
         env.sendEventBean(new SupportBean("C1", 1));
         sendMyEvent(env, eventRepresentationEnum, "X9", 9);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, null);
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, null);
 
         env.sendEventBean(new SupportBean("C1", 0));
         sendMyEvent(env, eventRepresentationEnum, "X10", 10);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A4", 40}});
+        env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A4", 40}});
 
         env.undeployAll();
     }
@@ -272,12 +274,12 @@ public class InfraNamedWindowOnMerge {
             theEvent.put("in2", in2);
             env.sendEventMap(theEvent, "MyEvent");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("MyEvent")));
+            GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("MyEvent"));
             theEvent.put("in1", in1);
             theEvent.put("in2", in2);
-            env.eventService().sendEventAvro(theEvent, "MyEvent");
+            env.sendEventAvro(theEvent, "MyEvent");
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-            env.eventService().sendEventJson("{\"in1\": \"" + in1 + "\", \"in2\": " + in2 + "}", "MyEvent");
+            env.sendEventJson("{\"in1\": \"" + in1 + "\", \"in2\": " + in2 + "}", "MyEvent");
         } else {
             fail();
         }
@@ -286,8 +288,8 @@ public class InfraNamedWindowOnMerge {
     private static void tryAssertionDocExample(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
         String baseModuleEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOrderEvent.class) +
-            " create schema OrderEvent as (orderId string, productId string, price double, quantity int, deletedFlag boolean)";
-        env.compileDeployWBusPublicType(baseModuleEPL, path);
+            " @public @buseventtype create schema OrderEvent as (orderId string, productId string, price double, quantity int, deletedFlag boolean)";
+        env.compileDeploy(baseModuleEPL, path);
 
         String appModuleOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductTotalRec.class) + " create schema ProductTotalRec as (productId string, totalPrice double);" +
             "" +
@@ -319,8 +321,8 @@ public class InfraNamedWindowOnMerge {
         sendOrderEvent(env, eventRepresentationEnum, "O1", "P1", 10, 100, false);
         sendOrderEvent(env, eventRepresentationEnum, "O1", "P1", 11, 200, false);
         sendOrderEvent(env, eventRepresentationEnum, "O2", "P2", 3, 300, false);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("nwProd").iterator(), "productId,totalPrice".split(","), new Object[][]{{"P1", 21d}, {"P2", 3d}});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("nwOrd").iterator(), "orderId,quantity".split(","), new Object[][]{{"O1", 200}, {"O2", 300}});
+        env.assertPropsPerRowIteratorAnyOrder("nwProd", "productId,totalPrice".split(","), new Object[][]{{"P1", 21d}, {"P2", 3d}});
+        env.assertPropsPerRowIteratorAnyOrder("nwOrd", "orderId,quantity".split(","), new Object[][]{{"O1", 200}, {"O2", 300}});
 
         String module = "create schema StreetCarCountSchema (streetid string, carcount int);" +
             "    create schema StreetChangeEvent (streetid string, action string);" +
@@ -347,13 +349,13 @@ public class InfraNamedWindowOnMerge {
             theEvent.put("deletedFlag", deletedFlag);
             env.sendEventMap(theEvent, "OrderEvent");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("OrderEvent")));
+            GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("OrderEvent"));
             theEvent.put("orderId", orderId);
             theEvent.put("productId", productId);
             theEvent.put("price", price);
             theEvent.put("quantity", quantity);
             theEvent.put("deletedFlag", deletedFlag);
-            env.eventService().sendEventAvro(theEvent, "OrderEvent");
+            env.sendEventAvro(theEvent, "OrderEvent");
         } else {
             JsonObject object = new JsonObject();
             object.add("orderId", orderId);
@@ -361,7 +363,7 @@ public class InfraNamedWindowOnMerge {
             object.add("price", price);
             object.add("quantity", quantity);
             object.add("deletedFlag", deletedFlag);
-            env.eventService().sendEventJson(object.toString(), "OrderEvent");
+            env.sendEventJson(object.toString(), "OrderEvent");
         }
     }
 
@@ -373,7 +375,7 @@ public class InfraNamedWindowOnMerge {
 
         env.sendEventBean(new SupportBean_Container(Arrays.asList(new SupportBean("E1", 10), new SupportBean("E2", 20))));
 
-        assertPropsPerRow(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
+        env.assertPropsPerRowIterator("window", "theString,intPrimitive".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
 
         env.undeployAll();
     }

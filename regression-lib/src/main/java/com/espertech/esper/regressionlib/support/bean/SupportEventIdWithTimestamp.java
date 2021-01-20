@@ -14,7 +14,11 @@ import com.espertech.esper.common.client.util.DateTime;
 
 import java.io.Serializable;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportEventIdWithTimestamp implements Serializable {
+    private static final long serialVersionUID = -5590829572773127860L;
     private String id;
     private long mytimestamp;
 

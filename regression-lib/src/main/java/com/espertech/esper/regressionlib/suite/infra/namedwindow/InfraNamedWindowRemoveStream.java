@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -34,17 +33,17 @@ public class InfraNamedWindowRemoveStream implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E2", 1));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c1"), fields, new Object[][]{{"E1"}, {"E2"}});
+        env.assertPropsPerRowIteratorAnyOrder("c1", fields, new Object[][]{{"E1"}, {"E2"}});
 
         env.sendEventBean(new SupportBean("E3", 1));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c1"), fields, new Object[][]{{"E2"}, {"E3"}});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c2"), fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIteratorAnyOrder("c1", fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowIteratorAnyOrder("c2", fields, new Object[][]{{"E1"}});
 
         env.sendEventBean(new SupportBean("E4", 1));
         env.sendEventBean(new SupportBean("E5", 1));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c1"), fields, new Object[][]{{"E4"}, {"E5"}});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c2"), fields, new Object[][]{{"E2"}, {"E3"}});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("c3"), fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIteratorAnyOrder("c1", fields, new Object[][]{{"E4"}, {"E5"}});
+        env.assertPropsPerRowIteratorAnyOrder("c2", fields, new Object[][]{{"E2"}, {"E3"}});
+        env.assertPropsPerRowIteratorAnyOrder("c3", fields, new Object[][]{{"E1"}});
 
         env.undeployAll();
     }

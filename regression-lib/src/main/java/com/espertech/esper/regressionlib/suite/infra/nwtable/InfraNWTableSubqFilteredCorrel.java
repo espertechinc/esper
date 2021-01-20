@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-
 public class InfraNWTableSubqFilteredCorrel {
 
     public static Collection<RegressionExecution> executions() {
@@ -74,22 +72,26 @@ public class InfraNWTableSubqFilteredCorrel {
             env.compileDeploy(consumeEpl).addListener("consume");
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            assertVal(env, null);
 
             env.sendEventBean(new SupportBean_S0(20, "E2"));
-            assertEquals(-2, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            assertVal(env, -2);
 
             env.sendEventBean(new SupportBean("E3", -3));
             env.sendEventBean(new SupportBean("E4", 4));
 
             env.sendEventBean(new SupportBean_S0(-3, "E3"));
-            assertEquals(-3, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            assertVal(env, -3);
 
             env.sendEventBean(new SupportBean_S0(20, "E4"));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            assertVal(env, null);
 
             env.undeployModuleContaining("consume");
             env.undeployAll();
+        }
+
+        private void assertVal(RegressionEnvironment env, Object expected) {
+            env.assertEqualsNew("s0", "val", expected);
         }
     }
 }

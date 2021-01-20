@@ -38,9 +38,9 @@ public class EPLOtherCreateIndex {
                 INDEX_CALLBACK_HOOK + "@name('s0') on SupportBean_S0 as s0 select p0,p1 from MyWindow as win where win.p0 = s0.p00;\n";
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "unique hash={p0(string)} btree={} advanced={}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "unique hash={p0(string)} btree={} advanced={}"));
 
-            env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
             env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 1});
@@ -57,9 +57,9 @@ public class EPLOtherCreateIndex {
             env.compileDeploy(INDEX_CALLBACK_HOOK + "@name('s0') on SupportBean_S0 as s0 select p0, p1 from MyWindow as win where win.p0 = s0.p00;", path);
             env.addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "unique hash={p0(string)} btree={} advanced={}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "unique hash={p0(string)} btree={} advanced={}"));
 
-            env.compileExecuteFAF("insert into MyWindow select 'a' as p0, 1 as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyWindow select 'a' as p0, 1 as p1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
             env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"a", 1});

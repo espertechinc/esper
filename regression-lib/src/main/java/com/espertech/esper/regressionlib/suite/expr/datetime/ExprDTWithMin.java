@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
@@ -42,8 +41,7 @@ public class ExprDTWithMin {
                 "zoneddate.withMin('month') as val4" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             String startTime = "2002-05-30T09:00:00.000";
             String expectedTime = "2002-01-30T09:00:00.000";
@@ -69,7 +67,7 @@ public class ExprDTWithMin {
                 "utildate.withMin('week') as val7" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.000",
@@ -83,7 +81,7 @@ public class ExprDTWithMin {
             };
             String startTime = "2002-05-30T09:01:02.003";
             env.sendEventBean(SupportDateTime.make(startTime));
-            //System.out.println("===> " + SupportDateTime.print(env.listener("s0").assertOneGetNew().get("val7")));
+            //System.out.println("===> " + SupportDateTime.print(listener.assertOneGetNew().get("val7")));
             env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expected, "util"));
 
             env.undeployAll();

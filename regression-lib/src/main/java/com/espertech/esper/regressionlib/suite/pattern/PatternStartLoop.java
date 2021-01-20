@@ -13,11 +13,14 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
 
 public class PatternStartLoop implements RegressionExecution {
     /**
@@ -57,6 +60,10 @@ public class PatternStartLoop implements RegressionExecution {
         public int getCount() {
             return count;
         }
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     private final static Logger log = LoggerFactory.getLogger(PatternStartLoop.class);

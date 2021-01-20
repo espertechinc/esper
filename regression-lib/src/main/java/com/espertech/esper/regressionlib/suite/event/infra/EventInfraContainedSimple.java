@@ -10,11 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.avro.core.AvroConstant;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -23,14 +20,12 @@ import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.function.BiConsumer;
-
-import static org.junit.Assert.assertEquals;
+import java.util.function.Consumer;
 
 public class EventInfraContainedSimple implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, String> bean = (type, id) -> {
+        Consumer<String> bean = id -> {
             env.sendEventBean(new LocalEvent(new LocalInnerEvent(id)));
         };
         String beanepl = "@public @buseventtype create schema LocalInnerEvent as " + LocalInnerEvent.class.getName() + ";\n" +
@@ -38,7 +33,7 @@ public class EventInfraContainedSimple implements RegressionExecution {
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, String> map = (type, id) -> {
+        Consumer<String> map = id -> {
             env.sendEventMap(Collections.singletonMap("property", Collections.singletonMap("id", id)), "LocalEvent");
         };
         String mapepl = "@public @buseventtype create schema LocalInnerEvent(id string);\n" +
@@ -46,7 +41,7 @@ public class EventInfraContainedSimple implements RegressionExecution {
         runAssertion(env, mapepl, map);
 
         // Object-array
-        BiConsumer<EventType, String> oa = (type, id) -> {
+        Consumer<String> oa = id -> {
             env.sendEventObjectArray(new Object[]{new Object[]{id}}, "LocalEvent");
         };
         String oaepl = "@public @buseventtype create objectarray schema LocalInnerEvent(id string);\n" +
@@ -54,7 +49,7 @@ public class EventInfraContainedSimple implements RegressionExecution {
         runAssertion(env, oaepl, oa);
 
         // Json
-        BiConsumer<EventType, String> json = (type, id) -> {
+        Consumer<String> json = id -> {
             JsonObject event = new JsonObject().add("property", new JsonObject().add("id", id));
             env.sendEventJson(event.toString(), "LocalEvent");
         };
@@ -67,36 +62,36 @@ public class EventInfraContainedSimple implements RegressionExecution {
         runAssertion(env, jsonProvidedEpl, json);
 
         // Avro
-        BiConsumer<EventType, String> avro = (type, id) -> {
+        Consumer<String> avro = id -> {
             Schema schema = SchemaBuilder.record("name").fields()
                 .name("id").type(SchemaBuilder.builder().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
                 .endRecord();
             GenericData.Record inside = new GenericData.Record(schema);
             inside.put("id", id);
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
+            Schema schemaEvent = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
+            GenericData.Record event = new GenericData.Record(schemaEvent);
             event.put("property", inside);
             env.sendEventAvro(event, "LocalEvent");
         };
-        String avroepl = "@public @buseventtype create avro schema LocalInnerEvent(id string);\n" +
+        String avroepl = "@name('schema') @public @buseventtype create avro schema LocalInnerEvent(id string);\n" +
             "@public @buseventtype create avro schema LocalEvent(property LocalInnerEvent);\n";
         runAssertion(env, avroepl, avro);
     }
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, String> sender) {
+                             Consumer<String> sender) {
 
         env.compileDeploy(createSchemaEPL + "@name('s0') select * from LocalEvent[property];\n").addListener("s0");
-        EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("s0"), "LocalEvent");
 
-        sender.accept(eventType, "a");
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("a", event.get("id"));
+        sender.accept("a");
+        env.assertEqualsNew("s0", "id", "a");
 
         env.undeployAll();
     }
 
-    public static class LocalInnerEvent {
+    public static class LocalInnerEvent implements Serializable {
+        private static final long serialVersionUID = -8402717095861140133L;
         private final String id;
 
         public LocalInnerEvent(String id) {
@@ -108,7 +103,8 @@ public class EventInfraContainedSimple implements RegressionExecution {
         }
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -3833339455439261422L;
         private LocalInnerEvent property;
 
         public LocalEvent(LocalInnerEvent property) {
@@ -121,10 +117,12 @@ public class EventInfraContainedSimple implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = 8150364130999059884L;
         public MyLocalJsonProvidedInnerEvent property;
     }
 
     public static class MyLocalJsonProvidedInnerEvent implements Serializable {
+        private static final long serialVersionUID = 6257529978131050247L;
         public String id;
     }
 }

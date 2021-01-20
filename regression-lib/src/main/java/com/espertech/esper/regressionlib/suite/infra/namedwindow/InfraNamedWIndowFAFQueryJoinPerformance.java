@@ -32,7 +32,7 @@ public class InfraNamedWIndowFAFQueryJoinPerformance implements RegressionExecut
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE, RegressionFlag.FIREANDFORGET);
     }
 
     public void run(RegressionEnvironment env) {

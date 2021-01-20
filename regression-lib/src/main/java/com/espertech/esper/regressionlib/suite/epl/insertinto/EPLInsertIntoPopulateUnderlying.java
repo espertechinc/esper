@@ -20,13 +20,8 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.*;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
@@ -65,11 +60,11 @@ public class EPLInsertIntoPopulateUnderlying {
 
             SupportBean e1 = new SupportBean("E1", 1);
             env.sendEventBean(e1);
-            assertMyEventTargetWithArray(env.listener("s0").assertOneGetNewAndReset(), e1);
+            env.assertEventNew("s0", event -> assertMyEventTargetWithArray(event, e1));
 
             SupportBean e2 = new SupportBean("E2", 2);
             env.sendEventBean(e2);
-            assertMyEventTargetWithArray(env.listener("s0").assertOneGetNewAndReset(), e1, e2);
+            env.assertEventNew("s0", event -> assertMyEventTargetWithArray(event, e1, e2));
 
             env.undeployAll();
         }
@@ -87,15 +82,15 @@ public class EPLInsertIntoPopulateUnderlying {
             String eplOne = "@name('s0') insert into SupportBeanCtorOne select theString, intBoxed, intPrimitive, boolPrimitive from SupportBean";
             env.compileDeploy(eplOne).addListener("s0");
 
-            sendReceive(env, env.listener("s0"), "E1", 2, true, 100);
-            sendReceive(env, env.listener("s0"), "E2", 3, false, 101);
-            sendReceive(env, env.listener("s0"), null, 4, true, null);
+            sendReceive(env, "E1", 2, true, 100);
+            sendReceive(env, "E2", 3, false, 101);
+            sendReceive(env, null, 4, true, null);
             env.undeployModuleContaining("s0");
 
             // boxable type and null values
             String eplTwo = "@name('s0') insert into SupportBeanCtorOne select theString, null, intBoxed from SupportBean";
             env.compileDeploy(eplTwo).addListener("s0");
-            sendReceiveTwo(env, env.listener("s0"), "E1", 100);
+            sendReceiveTwo(env, "E1", 100);
             env.undeployModuleContaining("s0");
 
             // test join wildcard
@@ -104,19 +99,23 @@ public class EPLInsertIntoPopulateUnderlying {
 
             env.sendEventBean(new SupportBean_ST0("ST0", 1));
             env.sendEventBean(new SupportBean_ST1("ST1", 2));
-            SupportBeanCtorTwo theEvent = (SupportBeanCtorTwo) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertNotNull(theEvent.getSt0());
-            assertNotNull(theEvent.getSt1());
+            env.assertEventNew("s0", event -> {
+                SupportBeanCtorTwo theEvent = (SupportBeanCtorTwo) event.getUnderlying();
+                assertNotNull(theEvent.getSt0());
+                assertNotNull(theEvent.getSt1());
+            });
             env.undeployModuleContaining("s0");
 
             // test (should not use column names)
             String eplFour = "@name('s0') insert into SupportBeanCtorOne(theString, intPrimitive) select 'E1', 5 from SupportBean";
             env.compileDeploy(eplFour).addListener("s0");
             env.sendEventBean(new SupportBean("x", -1));
-            SupportBeanCtorOne eventOne = (SupportBeanCtorOne) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("E1", eventOne.getTheString());
-            assertEquals(99, eventOne.getIntPrimitive());
-            assertEquals((Integer) 5, eventOne.getIntBoxed());
+            env.assertEventNew("s0", event -> {
+                SupportBeanCtorOne eventOne = (SupportBeanCtorOne) event.getUnderlying();
+                assertEquals("E1", eventOne.getTheString());
+                assertEquals(99, eventOne.getIntPrimitive());
+                assertEquals((Integer) 5, eventOne.getIntBoxed());
+            });
 
             // test Ctor accepting same types
             env.undeployAll();
@@ -125,9 +124,11 @@ public class EPLInsertIntoPopulateUnderlying {
 
             env.sendEventBean(new SupportBean("b1", 1));
             env.sendEventBean(new SupportBean("b2", 2));
-            SupportEventWithCtorSameType result = (SupportEventWithCtorSameType) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(1, result.getB1().getIntPrimitive());
-            assertEquals(2, result.getB2().getIntPrimitive());
+            env.assertEventNew("s0", event -> {
+                SupportEventWithCtorSameType result = (SupportEventWithCtorSameType) event.getUnderlying();
+                assertEquals(1, result.getB1().getIntPrimitive());
+                assertEquals(2, result.getB2().getIntPrimitive());
+            });
 
             env.undeployAll();
         }
@@ -143,11 +144,13 @@ public class EPLInsertIntoPopulateUnderlying {
             env.sendEventBean(new SupportBean_ST0("E0", 1));
             env.sendEventBean(new SupportBean_ST1("E1", 2));
             env.sendEventBean(new SupportBean_ST1("E2", 3));
-            SupportBeanCtorThree three = (SupportBeanCtorThree) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("E0", three.getSt0().getId());
-            assertEquals(2, three.getSt1().length);
-            assertEquals("E1", three.getSt1()[0].getId());
-            assertEquals("E2", three.getSt1()[1].getId());
+            env.assertEventNew("s0", event -> {
+                SupportBeanCtorThree three = (SupportBeanCtorThree) event.getUnderlying();
+                assertEquals("E0", three.getSt0().getId());
+                assertEquals(2, three.getSt1().length);
+                assertEquals("E1", three.getSt1()[0].getId());
+                assertEquals("E2", three.getSt1()[1].getId());
+            });
 
             env.undeployAll();
         }
@@ -163,9 +166,11 @@ public class EPLInsertIntoPopulateUnderlying {
             env.sendEventBean(n1);
             SupportBean_S0 s01 = new SupportBean_S0(1);
             env.sendEventBean(s01);
-            SupportBeanObject theEvent = (SupportBeanObject) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertSame(n1, theEvent.getOne());
-            assertSame(s01, theEvent.getTwo());
+            env.assertEventNew("s0", event -> {
+                SupportBeanObject theEvent = (SupportBeanObject) event.getUnderlying();
+                assertSame(n1, theEvent.getOne());
+                assertSame(s01, theEvent.getTwo());
+            });
             env.undeployModuleContaining("s0");
 
             // test select stream names
@@ -174,9 +179,11 @@ public class EPLInsertIntoPopulateUnderlying {
 
             env.sendEventBean(n1);
             env.sendEventBean(s01);
-            theEvent = (SupportBeanObject) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertSame(n1, theEvent.getOne());
-            assertSame(s01, theEvent.getTwo());
+            env.assertEventNew("s0", event -> {
+                SupportBeanObject theEvent = (SupportBeanObject) event.getUnderlying();
+                assertSame(n1, theEvent.getOne());
+                assertSame(s01, theEvent.getTwo());
+            });
             env.undeployModuleContaining("s0");
 
             // test fully-qualified class name as target
@@ -185,17 +192,21 @@ public class EPLInsertIntoPopulateUnderlying {
 
             env.sendEventBean(n1);
             env.sendEventBean(s01);
-            theEvent = (SupportBeanObject) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertSame(n1, theEvent.getOne());
-            assertSame(s01, theEvent.getTwo());
+            env.assertEventNew("s0", event -> {
+                SupportBeanObject theEvent = (SupportBeanObject) event.getUnderlying();
+                assertSame(n1, theEvent.getOne());
+                assertSame(s01, theEvent.getTwo());
+            });
             env.undeployModuleContaining("s0");
 
             // test local class and auto-import
             stmtTextOne = "@name('s0') insert into " + EPLInsertIntoPopulateUnderlying.class.getName() + "$MyLocalTarget select 1 as value from SupportBean_N";
             env.compileDeploy(stmtTextOne).addListener("s0");
             env.sendEventBean(n1);
-            MyLocalTarget eventLocal = (MyLocalTarget) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(1, eventLocal.getValue());
+            env.assertEventNew("s0", event -> {
+                MyLocalTarget eventLocal = (MyLocalTarget) event.getUnderlying();
+                assertEquals(1, eventLocal.getValue());
+            });
             env.undeployAll();
         }
     }
@@ -259,12 +270,11 @@ public class EPLInsertIntoPopulateUnderlying {
             // surprise - wrong type than defined
             stmtTextOne = "@name('s0') insert into SupportBean(intPrimitive) select anint from MyMap";
             env.compileDeploy(stmtTextOne).addListener("s0");
-            env.listener("s0").reset();
             Map<String, Object> map = new HashMap<>();
             map.put("anint", "notAnInt");
             try {
                 env.sendEventBean(map, "MyMap");
-                assertEquals(0, env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"));
+                env.assertEqualsNew("s0", "intPrimitive", 0);
             } catch (RuntimeException ex) {
                 // an exception is possible and up to the implementation.
             }
@@ -288,6 +298,10 @@ public class EPLInsertIntoPopulateUnderlying {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLInsertIntoPopulateBeanSimple implements RegressionExecution {
@@ -306,11 +320,12 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextTwo).addListener("s0");
 
             env.sendEventMap(new HashMap(), "MyMap");
-            SupportBean received = (SupportBean) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("E1", received.getTheString());
-            SupportBean.compare(received, "intPrimitive,intBoxed,longPrimitive,longBoxed,boolPrimitive,charPrimitive,bytePrimitive,floatPrimitive,doublePrimitive,shortPrimitive,enumValue".split(","),
-                new Object[]{1, 2, 3L, null, true, 'x', (byte) 10, 8f, 9d, (short) 5, SupportEnum.ENUM_VALUE_2});
-
+            env.assertEventNew("s0", event -> {
+                SupportBean received = (SupportBean) event.getUnderlying();
+                assertEquals("E1", received.getTheString());
+                SupportBean.compare(received, "intPrimitive,intBoxed,longPrimitive,longBoxed,boolPrimitive,charPrimitive,bytePrimitive,floatPrimitive,doublePrimitive,shortPrimitive,enumValue".split(","),
+                    new Object[]{1, 2, 3L, null, true, 'x', (byte) 10, 8f, 9d, (short) 5, SupportEnum.ENUM_VALUE_2});
+            });
             // test insert-into column names
             env.undeployModuleContaining("s0");
             env.undeployModuleContaining("i1");
@@ -327,11 +342,13 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextOne).addListener("s0");
 
             env.sendEventMap(new HashMap(), "MyMap");
-            received = (SupportBean) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("E1", received.getTheString());
-            SupportBean.compare(received,
-                "intPrimitive,intBoxed,longPrimitive,longBoxed,boolPrimitive,charPrimitive,bytePrimitive,floatPrimitive,doublePrimitive,shortPrimitive,enumValue".split(","),
-                new Object[]{1, 2, 3L, null, true, 'x', (byte) 10, 8f, 9d, (short) 5, SupportEnum.ENUM_VALUE_2});
+            env.assertEventNew("s0", event -> {
+                SupportBean received = (SupportBean) event.getUnderlying();
+                assertEquals("E1", received.getTheString());
+                SupportBean.compare(received,
+                    "intPrimitive,intBoxed,longPrimitive,longBoxed,boolPrimitive,charPrimitive,bytePrimitive,floatPrimitive,doublePrimitive,shortPrimitive,enumValue".split(","),
+                    new Object[]{1, 2, 3L, null, true, 'x', (byte) 10, 8f, 9d, (short) 5, SupportEnum.ENUM_VALUE_2});
+            });
 
             // test convert Integer boxed to Long boxed
             env.undeployModuleContaining("s0");
@@ -350,7 +367,7 @@ public class EPLInsertIntoPopulateUnderlying {
                 "select 'test' as id, new {somefield = theString} as themap from SupportBean").addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsMap((Map) env.listener("s0").assertOneGetNew().get("themap"), "somefield".split(","), "E1");
+            env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsMap((Map) event.get("themap"), "somefield".split(","), "E1"));
 
             env.undeployAll();
         }
@@ -391,10 +408,12 @@ public class EPLInsertIntoPopulateUnderlying {
             inner.put("mykey", "myval");
             mymapVals.put("mapProp", inner);
             env.sendEventMap(mymapVals, "MyMap");
-            SupportBeanComplexProps theEvent = (SupportBeanComplexProps) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(-2, theEvent.getArrayProperty()[1]);
-            assertEquals(20, theEvent.getObjectArray()[1]);
-            assertEquals("myval", theEvent.getMapProperty().get("mykey"));
+            env.assertEventNew("s0", event -> {
+                SupportBeanComplexProps theEvent = (SupportBeanComplexProps) event.getUnderlying();
+                assertEquals(-2, theEvent.getArrayProperty()[1]);
+                assertEquals(20, theEvent.getObjectArray()[1]);
+                assertEquals("myval", theEvent.getMapProperty().get("mykey"));
+            });
             env.undeployModuleContaining("s0");
 
             // inheritance
@@ -406,8 +425,10 @@ public class EPLInsertIntoPopulateUnderlying {
             mymapVals = new HashMap<>();
             mymapVals.put("mapProp", inner);
             env.sendEventMap(mymapVals, "MyMap");
-            assertTrue(env.listener("s0").assertOneGetNewAndReset().getUnderlying() instanceof SupportBeanInterfaceProps);
-            assertEquals(SupportBeanInterfaceProps.class, env.statement("s0").getEventType().getUnderlyingType());
+            env.assertEventNew("s0", event -> {
+                assertTrue(event.getUnderlying() instanceof SupportBeanInterfaceProps);
+                assertEquals(SupportBeanInterfaceProps.class, event.getEventType().getUnderlyingType());
+            });
             env.undeployModuleContaining("s0");
 
             // object values from Map same type
@@ -417,8 +438,10 @@ public class EPLInsertIntoPopulateUnderlying {
             mymapVals = new HashMap<>();
             mymapVals.put("nested", new SupportBeanComplexProps.SupportBeanSpecialGetterNested("111", "222"));
             env.sendEventMap(mymapVals, "MyMap");
-            SupportBeanComplexProps eventThree = (SupportBeanComplexProps) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("111", eventThree.getNested().getNestedValue());
+            env.assertEventNew("s0", event -> {
+                SupportBeanComplexProps eventThree = (SupportBeanComplexProps) event.getUnderlying();
+                assertEquals("111", eventThree.getNested().getNestedValue());
+            });
             env.undeployModuleContaining("s0");
 
             // object to Object
@@ -426,8 +449,10 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextOne).addListener("s0");
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-            SupportBeanArrayCollMap eventFour = (SupportBeanArrayCollMap) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("nestedValue", ((SupportBeanComplexProps.SupportBeanSpecialGetterNested) eventFour.getAnyObject()).getNestedValue());
+            env.assertEventNew("s0", event -> {
+                SupportBeanArrayCollMap eventFour = (SupportBeanArrayCollMap) event.getUnderlying();
+                assertEquals("nestedValue", ((SupportBeanComplexProps.SupportBeanSpecialGetterNested) eventFour.getAnyObject()).getNestedValue());
+            });
             env.undeployModuleContaining("s0");
 
             // test null value
@@ -435,14 +460,18 @@ public class EPLInsertIntoPopulateUnderlying {
             env.compileDeploy(stmtTextThree).addListener("s0");
 
             env.sendEventBean(new SupportBean("A", 0));
-            SupportBean received = (SupportBean) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(0, received.getIntPrimitive());
+            env.assertEventNew("s0", event -> {
+                SupportBean received = (SupportBean) event.getUnderlying();
+                assertEquals(0, received.getIntPrimitive());
+            });
 
             SupportBean bean = new SupportBean("A", 1);
             bean.setIntBoxed(20);
             env.sendEventBean(bean);
-            received = (SupportBean) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(20, received.getIntPrimitive());
+            env.assertEventNew("s0", event -> {
+                SupportBean received = (SupportBean) event.getUnderlying();
+                assertEquals(20, received.getIntPrimitive());
+            });
 
             env.undeployAll();
         }
@@ -474,14 +503,13 @@ public class EPLInsertIntoPopulateUnderlying {
         public void run(RegressionEnvironment env) {
             // test factory method on the same event class
             String stmtTextOne = "@name('s0') insert into SupportBeanString select 'abc' as theString from MyMap";
-            env.compileDeploy(stmtTextOne).addListener("s0");
-
-            SupportSubscriber subscriber = new SupportSubscriber();
-            env.statement("s0").setSubscriber(subscriber);
+            env.compileDeploy(stmtTextOne).addListener("s0").setSubscriber("s0");
 
             env.sendEventMap(new HashMap(), "MyMap");
-            assertEquals("abc", env.listener("s0").assertOneGetNewAndReset().get("theString"));
-            assertEquals("abc", subscriber.assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> {
+                assertEquals("abc", event.get("theString"));
+            });
+            env.assertSubscriber("s0", subscriber -> assertEquals("abc", subscriber.assertOneGetNewAndReset()));
             env.undeployModuleContaining("s0");
 
             // test factory method fully-qualified
@@ -534,12 +562,14 @@ public class EPLInsertIntoPopulateUnderlying {
             env.sendEventBean(new SupportBean("G1", 3));
             env.advanceTime(10000);
 
-            FinalEventValid outEvent = (FinalEventValid) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals(1, outEvent.getStartEvent().getId());
-            assertEquals("G1", outEvent.getStartEvent().getP00());
-            assertEquals(2, outEvent.getEndEvent().length);
-            assertEquals(2, outEvent.getEndEvent()[0].getIntPrimitive());
-            assertEquals(3, outEvent.getEndEvent()[1].getIntPrimitive());
+            env.assertEventNew("s0", event -> {
+                FinalEventValid outEvent = (FinalEventValid) event.getUnderlying();
+                assertEquals(1, outEvent.getStartEvent().getId());
+                assertEquals("G1", outEvent.getStartEvent().getP00());
+                assertEquals(2, outEvent.getEndEvent().length);
+                assertEquals(2, outEvent.getEndEvent()[0].getIntPrimitive());
+                assertEquals(3, outEvent.getEndEvent()[1].getIntPrimitive());
+            });
 
             // Test invalid case of non-array destination insert
             String invalidEpl = "INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
@@ -558,7 +588,13 @@ public class EPLInsertIntoPopulateUnderlying {
     private static class EPLInsertIntoArrayMapInsert implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                tryAssertionArrayMapInsert(env, rep);
+                if (rep.isAvroEvent()) {
+                    env.assertThat(() -> {
+                        tryAssertionArrayMapInsert(env, rep);
+                    });
+                } else {
+                    tryAssertionArrayMapInsert(env, rep);
+                }
             }
         }
     }
@@ -567,12 +603,12 @@ public class EPLInsertIntoPopulateUnderlying {
 
         RegressionPath path = new RegressionPath();
         String schema =
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventOne.class) + " create schema EventOne(id string);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTwo.class) + " create schema EventTwo(id string, val int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventValid.class) + " create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidNonArray.class) + " create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidArray.class) + " create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
-        env.compileDeployWBusPublicType(schema, path);
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventOne.class) + " @buseventtype create schema EventOne(id string);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTwo.class) + " @buseventtype create schema EventTwo(id string, val int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventValid.class) + " @buseventtype create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidNonArray.class) + " @buseventtype create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidArray.class) + " @buseventtype create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
+        env.compileDeploy(schema, path);
 
         env.advanceTime(0);
 
@@ -586,63 +622,68 @@ public class EPLInsertIntoPopulateUnderlying {
         sendEventTwo(env, eventRepresentationEnum, "G1", 3);
         env.advanceTime(10000);
 
-        EventBean startEventOne;
-        EventBean endEventOne;
-        EventBean endEventTwo;
-        if (eventRepresentationEnum.isObjectArrayEvent()) {
-            Object[] outArray = (Object[]) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            startEventOne = (EventBean) outArray[0];
-            endEventOne = ((EventBean[]) outArray[1])[0];
-            endEventTwo = ((EventBean[]) outArray[1])[1];
-        } else if (eventRepresentationEnum.isMapEvent()) {
-            Map outMap = (Map) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            startEventOne = (EventBean) outMap.get("startEvent");
-            endEventOne = ((EventBean[]) outMap.get("endEvent"))[0];
-            endEventTwo = ((EventBean[]) outMap.get("endEvent"))[1];
-        } else if (eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            startEventOne = (EventBean) received.getFragment("startEvent");
-            EventBean[] endEvents = (EventBean[]) received.getFragment("endEvent");
-            endEventOne = endEvents[0];
-            endEventTwo = endEvents[1];
-        } else {
-            throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
-        }
-        assertEquals("G1", startEventOne.get("id"));
-        assertEquals(2, endEventOne.get("val"));
-        assertEquals(3, endEventTwo.get("val"));
+        env.assertEventNew("s0", event -> {
+            EventBean startEventOne;
+            EventBean endEventOne;
+            EventBean endEventTwo;
+            if (eventRepresentationEnum.isObjectArrayEvent()) {
+                Object[] outArray = (Object[]) event.getUnderlying();
+                startEventOne = (EventBean) outArray[0];
+                endEventOne = ((EventBean[]) outArray[1])[0];
+                endEventTwo = ((EventBean[]) outArray[1])[1];
+            } else if (eventRepresentationEnum.isMapEvent()) {
+                Map outMap = (Map) event.getUnderlying();
+                startEventOne = (EventBean) outMap.get("startEvent");
+                endEventOne = ((EventBean[]) outMap.get("endEvent"))[0];
+                endEventTwo = ((EventBean[]) outMap.get("endEvent"))[1];
+            } else if (eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
+                startEventOne = (EventBean) event.getFragment("startEvent");
+                EventBean[] endEvents = (EventBean[]) event.getFragment("endEvent");
+                endEventOne = endEvents[0];
+                endEventTwo = endEvents[1];
+            } else {
+                throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
+            }
+            assertEquals("G1", startEventOne.get("id"));
+            assertEquals(2, endEventOne.get("val"));
+            assertEquals(3, endEventTwo.get("val"));
+        });
 
         // Test invalid case of non-array destination insert
-        String invalidEpl = "INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
+        String invalidEplOne = "INSERT INTO FinalEventInvalidNonArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
             "every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]";
-        try {
-            env.compileWCheckedEx(invalidEpl, path);
-            fail();
-        } catch (EPCompileException ex) {
-            String expected;
-            if (eventRepresentationEnum.isAvroEvent()) {
-                expected = "Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
-            } else {
-                expected = "Event type named 'FinalEventInvalidNonArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidNonArray' in property 'endEvent' expected event type 'EventTwo' but receives event type array 'EventTwo'";
+        env.assertThat(() -> {
+            try {
+                env.compileWCheckedEx(invalidEplOne, path);
+                fail();
+            } catch (EPCompileException ex) {
+                String expected;
+                if (eventRepresentationEnum.isAvroEvent()) {
+                    expected = "Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
+                } else {
+                    expected = "Event type named 'FinalEventInvalidNonArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidNonArray' in property 'endEvent' expected event type 'EventTwo' but receives event type array 'EventTwo'";
+                }
+                SupportMessageAssertUtil.assertMessage(ex, expected);
             }
-            SupportMessageAssertUtil.assertMessage(ex, expected);
-        }
+        });
 
         // Test invalid case of array destination insert from non-array var
-        invalidEpl = "INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
+        String invalidEplTwo = "INSERT INTO FinalEventInvalidArray SELECT s as startEvent, e as endEvent FROM PATTERN [" +
             "every s=EventOne -> e=EventTwo(id=s.id) until timer:interval(10 sec)]";
-        try {
-            env.compileWCheckedEx(invalidEpl, path);
-            fail();
-        } catch (EPCompileException ex) {
-            String expected;
-            if (eventRepresentationEnum.isAvroEvent()) {
-                expected = "Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
-            } else {
-                expected = "Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type array 'EventTwo'";
+        env.assertThat(() -> {
+            try {
+                env.compileWCheckedEx(invalidEplTwo, path);
+                fail();
+            } catch (EPCompileException ex) {
+                String expected;
+                if (eventRepresentationEnum.isAvroEvent()) {
+                    expected = "Property 'endEvent' is incompatible, expecting an array of compatible schema 'EventTwo' but received schema 'EventTwo'";
+                } else {
+                    expected = "Event type named 'FinalEventInvalidArray' has already been declared with differing column name or type information: Type by name 'FinalEventInvalidArray' in property 'endEvent' expected event type 'EventTwo' but receives event type array 'EventTwo'";
+                }
+                SupportMessageAssertUtil.assertMessage(ex, expected);
             }
-            SupportMessageAssertUtil.assertMessage(ex, expected);
-        }
+        });
 
         env.undeployAll();
     }
@@ -769,28 +810,32 @@ public class EPLInsertIntoPopulateUnderlying {
         }
     }
 
-    private static void sendReceiveTwo(RegressionEnvironment env, SupportListener listener, String
+    private static void sendReceiveTwo(RegressionEnvironment env, String
         theString, Integer intBoxed) {
         SupportBean bean = new SupportBean(theString, -1);
         bean.setIntBoxed(intBoxed);
         env.sendEventBean(bean);
-        SupportBeanCtorOne theEvent = (SupportBeanCtorOne) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-        assertEquals(theString, theEvent.getTheString());
-        assertEquals(null, theEvent.getIntBoxed());
-        assertEquals(intBoxed, (Integer) theEvent.getIntPrimitive());
+        env.assertEventNew("s0", event -> {
+            SupportBeanCtorOne theEvent = (SupportBeanCtorOne) event.getUnderlying();
+            assertEquals(theString, theEvent.getTheString());
+            assertEquals(null, theEvent.getIntBoxed());
+            assertEquals(intBoxed, (Integer) theEvent.getIntPrimitive());
+        });
     }
 
-    private static void sendReceive(RegressionEnvironment env, SupportListener listener, String theString,
+    private static void sendReceive(RegressionEnvironment env, String theString,
                                     int intPrimitive, boolean boolPrimitive, Integer intBoxed) {
         SupportBean bean = new SupportBean(theString, intPrimitive);
         bean.setBoolPrimitive(boolPrimitive);
         bean.setIntBoxed(intBoxed);
         env.sendEventBean(bean);
-        SupportBeanCtorOne theEvent = (SupportBeanCtorOne) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-        assertEquals(theString, theEvent.getTheString());
-        assertEquals(intBoxed, theEvent.getIntBoxed());
-        assertEquals(boolPrimitive, theEvent.isBoolPrimitive());
-        assertEquals(intPrimitive, theEvent.getIntPrimitive());
+        env.assertEventNew("s0", event -> {
+            SupportBeanCtorOne theEvent = (SupportBeanCtorOne) event.getUnderlying();
+            assertEquals(theString, theEvent.getTheString());
+            assertEquals(intBoxed, theEvent.getIntBoxed());
+            assertEquals(boolPrimitive, theEvent.isBoolPrimitive());
+            assertEquals(intPrimitive, theEvent.getIntPrimitive());
+        });
     }
 
     private static void tryAssertionPopulateUnderlying(RegressionEnvironment env, String typeName) {
@@ -799,7 +844,7 @@ public class EPLInsertIntoPopulateUnderlying {
         String stmtTextOne = "@name('s0') insert into " + typeName + " select intPrimitive as intVal, theString as stringVal, doubleBoxed as doubleVal from SupportBean";
         env.compileDeploy(stmtTextOne).addListener("s0");
 
-        assertSame(env.statement("select").getEventType(), env.statement("s0").getEventType());
+        env.assertThat(() -> assertSame(env.statement("select").getEventType(), env.statement("s0").getEventType()));
 
         SupportBean bean = new SupportBean();
         bean.setIntPrimitive(1000);

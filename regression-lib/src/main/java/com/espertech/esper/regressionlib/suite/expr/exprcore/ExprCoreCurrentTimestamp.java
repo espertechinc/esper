@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -43,22 +44,24 @@ public class ExprCoreCurrentTimestamp {
                 " from SupportBean";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(Long.class, type.getPropertyType("current_timestamp()"));
-            Assert.assertEquals(Long.class, type.getPropertyType("t0"));
-            Assert.assertEquals(Long.class, type.getPropertyType("t1"));
-            Assert.assertEquals(Long.class, type.getPropertyType("t2"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                Assert.assertEquals(Long.class, type.getPropertyType("current_timestamp()"));
+                Assert.assertEquals(Long.class, type.getPropertyType("t0"));
+                Assert.assertEquals(Long.class, type.getPropertyType("t1"));
+                Assert.assertEquals(Long.class, type.getPropertyType("t2"));
+            });
 
             sendTimer(env, 100);
             env.sendEventBean(new SupportBean());
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{100L, 100L, 101L});
+            env.assertEventNew("s0", event -> assertResults(event, new Object[]{100L, 100L, 101L}));
 
             sendTimer(env, 999);
             env.sendEventBean(new SupportBean());
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{999L, 999L, 1000L});
-            Assert.assertEquals(theEvent.get("current_timestamp()"), theEvent.get("t0"));
+            env.assertEventNew("s0", theEvent -> {
+                assertResults(theEvent, new Object[]{999L, 999L, 1000L});
+                Assert.assertEquals(theEvent.get("current_timestamp()"), theEvent.get("t0"));
+            });
 
             env.undeployAll();
         }
@@ -78,12 +81,11 @@ public class ExprCoreCurrentTimestamp {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
 
-            Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("t0"));
+            env.assertStmtType("s0", "t0", EPTypePremade.LONGBOXED.getEPType());
 
             sendTimer(env, 777);
             env.sendEventBean(new SupportBean());
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{777L});
+            env.assertEventNew("s0", event -> assertResults(event, new Object[]{777L}));
 
             env.undeployAll();
         }
@@ -95,12 +97,11 @@ public class ExprCoreCurrentTimestamp {
             String stmtText = "@name('s0') select current_timestamp() as t0 from SupportBean";
             env.eplToModelCompileDeploy(stmtText).addListener("s0").milestone(0);
 
-            Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("t0"));
+            env.assertStmtType("s0", "t0", EPTypePremade.LONGBOXED.getEPType());
 
             sendTimer(env, 777);
             env.sendEventBean(new SupportBean());
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{777L});
+            env.assertEventNew("s0", event -> assertResults(event, new Object[]{777L}));
 
             env.undeployAll();
         }

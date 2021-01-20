@@ -10,10 +10,15 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class SupportEventTypeErasure {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportEventTypeErasure implements Serializable {
 
+    private static final long serialVersionUID = 8495305399123810926L;
     private String key;
     private int subkey;
     private Map<String, SupportEventInnerTypeWGetIds> innerTypes;

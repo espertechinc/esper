@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
-
 public class ResultSetOutputLimitInsertInto {
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
@@ -42,7 +40,7 @@ public class ResultSetOutputLimitInsertInto {
 
             env.sendEventBean(new SupportBean("E2", 0));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
 
             env.advanceTime(2000);
             assertReceivedS0AndS1(env, new Object[][]{{"E1"}, {"E2"}});
@@ -63,7 +61,7 @@ public class ResultSetOutputLimitInsertInto {
 
             env.sendEventBean(new SupportBean("E2", 0));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
 
             env.advanceTime(1000);
 
@@ -77,6 +75,6 @@ public class ResultSetOutputLimitInsertInto {
     private static void assertReceivedS0AndS1(RegressionEnvironment env, Object[][] props) {
         String[] fields = new String[]{"theString"};
         env.assertPropsPerRowLastNew("s0", fields, props);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s1").getAndResetDataListsFlattened().getFirst(), fields, props);
+        env.assertListener("s1", listener -> EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened().getFirst(), fields, props));
     }
 }

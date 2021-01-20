@@ -20,16 +20,10 @@ import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
@@ -69,6 +63,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraParameterizedQueryInvalidUse implements RegressionExecution {
@@ -89,6 +87,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
                 "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -134,6 +136,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraParameterizedQueryInvalidParametersUntyped implements RegressionExecution {
@@ -158,6 +164,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraParameterizedQueryInvalidParametersTyped implements RegressionExecution {
@@ -177,6 +187,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
             // consistent with variables/schema/table-column the "int" becomes "Integer" as a type and there is no fail checking for null
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -235,6 +249,10 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

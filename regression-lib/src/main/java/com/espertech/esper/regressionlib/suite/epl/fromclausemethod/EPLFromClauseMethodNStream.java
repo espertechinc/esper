@@ -60,7 +60,7 @@ public class EPLFromClauseMethodNStream {
             SupportTradeEventWithSide two = new SupportTradeEventWithSide("T2", "S");
             env.sendEventBean(two);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "us,them,crl".split(","), new Object[][]{{one, two, 1}, {two, one, 1}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", "us,them,crl".split(","), new Object[][]{{one, two, 1}, {two, one, 1}});
             env.undeployAll();
         }
     }
@@ -96,7 +96,7 @@ public class EPLFromClauseMethodNStream {
             env.assertPropsPerRowLastNew("s0", fields, result);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, result);
 
-            env.milestone(0);
+            env.milestone(1);
 
             sendBeanInt(env, "E4", 2, 1);
             result = new Object[][]{{"E4", "H01", "H11"}, {"E4", "H02", "H11"}};

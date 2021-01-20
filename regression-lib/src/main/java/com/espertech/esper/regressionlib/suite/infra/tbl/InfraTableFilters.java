@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * NOTE: More table-related tests in "nwtable"
  */
@@ -36,18 +34,20 @@ public class InfraTableFilters implements RegressionExecution {
         String[] fields = "col0".split(",");
 
         // test FAF filter
-        EventBean[] events = env.compileExecuteFAF("select col0 from MyTable(pkey='E1')", path).getArray();
-        EPAssertionUtil.assertPropsPerRow(events, fields, new Object[][]{{1}});
+        env.assertThat(() -> {
+            EventBean[] events = env.compileExecuteFAF("select col0 from MyTable(pkey='E1')", path).getArray();
+            EPAssertionUtil.assertPropsPerRow(events, fields, new Object[][]{{1}});
+        });
 
         // test iterate
         env.compileDeploy("@name('iterate') select col0 from MyTable(pkey='E2')", path);
-        EPAssertionUtil.assertPropsPerRow(env.iterator("iterate"), fields, new Object[][]{{2}});
+        env.assertPropsPerRowIterator("iterate", fields, new Object[][]{{2}});
         env.undeployModuleContaining("iterate");
 
         // test subquery
         env.compileDeploy("@name('subq') select (select col0 from MyTable(pkey='E3')) as col0 from SupportBean_S0", path).addListener("subq");
         env.sendEventBean(new SupportBean_S0(0));
-        assertEquals(3, env.listener("subq").assertOneGetNewAndReset().get("col0"));
+        env.assertEqualsNew("subq", "col0", 3);
         env.undeployModuleContaining("subq");
 
         // test join

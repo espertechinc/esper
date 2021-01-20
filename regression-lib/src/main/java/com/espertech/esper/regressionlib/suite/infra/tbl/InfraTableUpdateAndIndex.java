@@ -18,14 +18,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.EPDeployException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -69,7 +67,7 @@ public class InfraTableUpdateAndIndex {
             } catch (EPException ex) {
                 SupportMessageAssertUtil.assertMessage(ex, "Unique index violation, index 'MyTableEUIV' is a unique index and key 'MultiKey[E1,0]' already exists");
                 // assert events are unchanged - no update actually performed
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E1", 20}});
+                env.assertPropsPerRowIteratorAnyOrder("create", "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E1", 20}});
             }
 
             // try on-update unique index violation
@@ -92,6 +90,10 @@ public class InfraTableUpdateAndIndex {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -130,12 +132,16 @@ public class InfraTableUpdateAndIndex {
             } catch (EPException ex) {
                 SupportMessageAssertUtil.assertMessage(ex.getCause(), "Unexpected exception in statement 'on-update': Unique index violation, index 'MyUniqueSecondary' is a unique index and key '0' already exists");
                 // assert events are unchanged - no update actually performed
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
+                env.assertPropsPerRowIteratorAnyOrder("create", "pkey0,pkey1".split(","), new Object[][]{{"E1", 10}, {"E2", 20}});
             }
 
             // unregister
             env.undeployModuleContaining("on-update");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -158,6 +164,10 @@ public class InfraTableUpdateAndIndex {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraTableKeyUpdateMultiKey implements RegressionExecution {
@@ -175,7 +185,7 @@ public class InfraTableUpdateAndIndex {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E2", "E20"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s1"), fields, new Object[][]{{"E1", 10, 100L}, {"E20", 20, 200L}, {"E3", 30, 300L}});
+            env.assertPropsPerRowIteratorAnyOrder("s1", fields, new Object[][]{{"E1", 10, 100L}, {"E20", 20, 200L}, {"E3", 30, 300L}});
 
             env.milestone(1);
 
@@ -183,13 +193,13 @@ public class InfraTableUpdateAndIndex {
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s1"), fields, new Object[][]{{"E10", 10, 100L}, {"E20", 20, 200L}, {"E3", 30, 300L}});
+            env.assertPropsPerRowIteratorAnyOrder("s1", fields, new Object[][]{{"E10", 10, 100L}, {"E20", 20, 200L}, {"E3", 30, 300L}});
 
             env.sendEventBean(new SupportBean_S0(0, "E3", "E30"));
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("s1"), fields, new Object[][]{{"E10", 10, 100L}, {"E20", 20, 200L}, {"E30", 30, 300L}});
+            env.assertPropsPerRowIteratorAnyOrder("s1", fields, new Object[][]{{"E10", 10, 100L}, {"E20", 20, 200L}, {"E30", 30, 300L}});
 
             env.undeployAll();
         }

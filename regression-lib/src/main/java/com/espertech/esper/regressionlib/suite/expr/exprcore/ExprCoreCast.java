@@ -13,14 +13,11 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
@@ -83,12 +80,16 @@ public class ExprCoreCast {
             String epl = schema.toString() + cast.toString();
             env.compileDeploy(epl).addListener("s0");
 
-            SupportGenericColUtil.assertPropertyEPTypes(env.statement("s0").getEventType());
+            env.assertStatement("s0", statement -> SupportGenericColUtil.assertPropertyEPTypes(statement.getEventType()));
 
             env.sendEventMap(SupportGenericColUtil.getSampleEvent(), "MyEvent");
-            SupportGenericColUtil.compare(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> SupportGenericColUtil.compare(event));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -102,13 +103,13 @@ public class ExprCoreCast {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "create schema MyEvent(arr_string java.lang.Object, arr_primitive java.lang.Object, " +
+                    "@buseventtype create schema MyEvent(arr_string java.lang.Object, arr_primitive java.lang.Object, " +
                     "arr_boxed_one java.lang.Object, arr_boxed_two java.lang.Object, arr_object java.lang.Object," +
                     "arr_2dim_primitive java.lang.Object, arr_2dim_object java.lang.Object," +
                     "arr_3dim_primitive java.lang.Object, arr_3dim_object java.lang.Object" +
                     ");\n" +
                     "create schema MyArrayEvent as " + MyArrayEvent.class.getName() + ";\n";
-            env.compileDeployWBusPublicType(epl, path);
+            env.compileDeploy(epl, path);
 
             String insert = "@name('s0') insert into MyArrayEvent select " +
                 "cast(arr_string,string[]) as c0, " +
@@ -121,19 +122,20 @@ public class ExprCoreCast {
                 "cast(arr_3dim_primitive,int[primitive][][]) as c7, " +
                 "cast(arr_3dim_object,java.lang.Object[][][]) as c8 " +
                 "from MyEvent";
-            env.compileDeploy(soda, insert, path);
+            env.compileDeploy(soda, insert, path).addListener("s0");
 
-            EPStatement stmt = env.addListener("s0").statement("s0");
-            EventType eventType = stmt.getEventType();
-            assertEquals(String[].class, eventType.getPropertyType("c0"));
-            assertEquals(int[].class, eventType.getPropertyType("c1"));
-            assertEquals(Integer[].class, eventType.getPropertyType("c2"));
-            assertEquals(Integer[].class, eventType.getPropertyType("c3"));
-            assertEquals(Object[].class, eventType.getPropertyType("c4"));
-            assertEquals(int[][].class, eventType.getPropertyType("c5"));
-            assertEquals(Object[][].class, eventType.getPropertyType("c6"));
-            assertEquals(int[][][].class, eventType.getPropertyType("c7"));
-            assertEquals(Object[][][].class, eventType.getPropertyType("c8"));
+            env.assertStatement("s0", stmt -> {
+                EventType eventType = stmt.getEventType();
+                assertEquals(String[].class, eventType.getPropertyType("c0"));
+                assertEquals(int[].class, eventType.getPropertyType("c1"));
+                assertEquals(Integer[].class, eventType.getPropertyType("c2"));
+                assertEquals(Integer[].class, eventType.getPropertyType("c3"));
+                assertEquals(Object[].class, eventType.getPropertyType("c4"));
+                assertEquals(int[][].class, eventType.getPropertyType("c5"));
+                assertEquals(Object[][].class, eventType.getPropertyType("c6"));
+                assertEquals(int[][][].class, eventType.getPropertyType("c7"));
+                assertEquals(Object[][][].class, eventType.getPropertyType("c8"));
+            });
 
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("arr_string", new String[]{"a"});
@@ -148,16 +150,18 @@ public class ExprCoreCast {
 
             env.sendEventMap(map, "MyEvent");
 
-            MyArrayEvent mae = (MyArrayEvent) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            assertEquals("a", mae.c0[0]);
-            assertEquals(1, mae.c1[0]);
-            assertEquals(2, mae.c2[0].intValue());
-            assertEquals(3, mae.c3[0].intValue());
-            assertEquals(new SupportBean("E1", 0), mae.c4[0]);
-            assertEquals(10, mae.c5[0][0]);
-            assertEquals(11, mae.c6[0][0]);
-            assertEquals(12, mae.c7[0][0][0]);
-            assertEquals(13, mae.c8[0][0][0]);
+            env.assertEventNew("s0", event -> {
+                MyArrayEvent mae = (MyArrayEvent) event.getUnderlying();
+                assertEquals("a", mae.c0[0]);
+                assertEquals(1, mae.c1[0]);
+                assertEquals(2, mae.c2[0].intValue());
+                assertEquals(3, mae.c3[0].intValue());
+                assertEquals(new SupportBean("E1", 0), mae.c4[0]);
+                assertEquals(10, mae.c5[0][0]);
+                assertEquals(11, mae.c6[0][0]);
+                assertEquals(12, mae.c7[0][0][0]);
+                assertEquals(13, mae.c8[0][0][0]);
+            });
 
             env.sendEventMap(Collections.emptyMap(), "MyEvent");
 
@@ -199,17 +203,18 @@ public class ExprCoreCast {
             map.put("intBoxed", 11);
 
             env.sendEventMap(map, "StaticTypeMapEvent");
-            EventBean row = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(100, row.get("intVal"));
-            assertEquals(0.14d, row.get("doubleVal"));
-            assertEquals(-10L, row.get("longVal"));
-            assertEquals(1.001f, row.get("floatVal"));
-            assertEquals((byte) 10, row.get("byteVal"));
-            assertEquals((short) 223, row.get("shortVal"));
-            assertEquals(10, row.get("intOne"));
-            assertEquals(11, row.get("intTwo"));
-            assertEquals(10L, row.get("longOne"));
-            assertEquals(11L, row.get("longTwo"));
+            env.assertEventNew("s0", row -> {
+                assertEquals(100, row.get("intVal"));
+                assertEquals(0.14d, row.get("doubleVal"));
+                assertEquals(-10L, row.get("longVal"));
+                assertEquals(1.001f, row.get("floatVal"));
+                assertEquals((byte) 10, row.get("byteVal"));
+                assertEquals((short) 223, row.get("shortVal"));
+                assertEquals(10, row.get("intOne"));
+                assertEquals(11, row.get("intTwo"));
+                assertEquals(10L, row.get("longOne"));
+                assertEquals(11L, row.get("longTwo"));
+            });
 
             env.undeployAll();
         }
@@ -288,7 +293,7 @@ public class ExprCoreCast {
 
             env.sendEventBean(new SupportBeanObject(new SupportBean("E1", 1)));
             env.assertPropsNew("s0", "t0,t1".split(","), new Object[]{"E1", null});
-            assertEquals(SupportBean.class, env.statement("s0").getEventType().getPropertyType("t1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean.class, statement.getEventType().getPropertyType("t1")));
 
             env.undeployAll();
         }
@@ -307,25 +312,25 @@ public class ExprCoreCast {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
 
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("t0"));
+            env.assertStmtType("s0", "t0", EPTypePremade.DOUBLEBOXED.getEPType());
 
             env.sendEventBean(new SupportBeanDynRoot(100));
-            assertEquals(100d, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", 100d);
 
             env.sendEventBean(new SupportBeanDynRoot((byte) 2));
-            assertEquals(2d, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", 2d);
 
             env.sendEventBean(new SupportBeanDynRoot(77.7777));
-            assertEquals(77.7777d, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", 77.7777d);
 
             env.sendEventBean(new SupportBeanDynRoot(6L));
-            assertEquals(6d, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", 6d);
 
             env.sendEventBean(new SupportBeanDynRoot(null));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", null);
 
             env.sendEventBean(new SupportBeanDynRoot("abc"));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", null);
 
             env.undeployAll();
         }
@@ -359,8 +364,7 @@ public class ExprCoreCast {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select cast(theString, int) as t0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("t0"));
+            env.assertStmtType("s0", "t0", EPTypePremade.INTEGERBOXED.getEPType());
 
             env.sendEventBean(new SupportBean("12", 1));
             env.assertPropsNew("s0", "t0".split(","), new Object[]{12});
@@ -383,40 +387,37 @@ public class ExprCoreCast {
 
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(SupportMarkerInterface.class, type.getPropertyType("t0"));
-            assertEquals(ISupportA.class, type.getPropertyType("t1"));
-            assertEquals(ISupportBaseAB.class, type.getPropertyType("t2"));
-            assertEquals(ISupportBaseABImpl.class, type.getPropertyType("t3"));
-            assertEquals(ISupportC.class, type.getPropertyType("t4"));
-            assertEquals(ISupportD.class, type.getPropertyType("t5"));
-            assertEquals(ISupportAImplSuperG.class, type.getPropertyType("t6"));
-            assertEquals(ISupportAImplSuperGImplPlus.class, type.getPropertyType("t7"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(SupportMarkerInterface.class, type.getPropertyType("t0"));
+                assertEquals(ISupportA.class, type.getPropertyType("t1"));
+                assertEquals(ISupportBaseAB.class, type.getPropertyType("t2"));
+                assertEquals(ISupportBaseABImpl.class, type.getPropertyType("t3"));
+                assertEquals(ISupportC.class, type.getPropertyType("t4"));
+                assertEquals(ISupportD.class, type.getPropertyType("t5"));
+                assertEquals(ISupportAImplSuperG.class, type.getPropertyType("t6"));
+                assertEquals(ISupportAImplSuperGImplPlus.class, type.getPropertyType("t7"));
+            });
 
-            Object bean = new SupportBeanDynRoot("abc");
-            env.sendEventBean(new SupportBeanDynRoot(bean));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{bean, null, null, null, null, null, null, null});
+            Object beanOne = new SupportBeanDynRoot("abc");
+            env.sendEventBean(new SupportBeanDynRoot(beanOne));
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{beanOne, null, null, null, null, null, null, null}));
 
-            bean = new ISupportDImpl("", "", "");
-            env.sendEventBean(new SupportBeanDynRoot(bean));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, null, null, null, null, bean, null, null});
+            Object beanTwo = new ISupportDImpl("", "", "");
+            env.sendEventBean(new SupportBeanDynRoot(beanTwo));
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{null, null, null, null, null, beanTwo, null, null}));
 
-            bean = new ISupportBCImpl("", "", "");
-            env.sendEventBean(new SupportBeanDynRoot(bean));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, null, bean, null, bean, null, null, null});
+            Object beanThree = new ISupportBCImpl("", "", "");
+            env.sendEventBean(new SupportBeanDynRoot(beanThree));
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{null, null, beanThree, null, beanThree, null, null, null}));
 
-            bean = new ISupportAImplSuperGImplPlus();
-            env.sendEventBean(new SupportBeanDynRoot(bean));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, bean, bean, null, bean, null, bean, bean});
+            Object beanFour = new ISupportAImplSuperGImplPlus();
+            env.sendEventBean(new SupportBeanDynRoot(beanFour));
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{null, beanFour, beanFour, null, beanFour, null, beanFour, beanFour}));
 
-            bean = new ISupportBaseABImpl("");
-            env.sendEventBean(new SupportBeanDynRoot(bean));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{null, null, bean, bean, null, null, null, null});
+            Object beanFive = new ISupportBaseABImpl("");
+            env.sendEventBean(new SupportBeanDynRoot(beanFive));
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{null, null, beanFive, beanFive, null, null, null, null}));
 
             env.undeployAll();
         }
@@ -428,25 +429,25 @@ public class ExprCoreCast {
 
             env.eplToModelCompileDeploy(epl).addListener("s0");
 
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("t0"));
+            env.assertStmtType("s0", "t0", EPTypePremade.STRING.getEPType());
 
             env.sendEventBean(new SupportBeanDynRoot(100));
-            assertEquals("100", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", "100");
 
             env.sendEventBean(new SupportBeanDynRoot((byte) 2));
-            assertEquals("2", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", "2");
 
             env.sendEventBean(new SupportBeanDynRoot(77.7777));
-            assertEquals("77.7777", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", "77.7777");
 
             env.sendEventBean(new SupportBeanDynRoot(6L));
-            assertEquals("6", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", "6");
 
             env.sendEventBean(new SupportBeanDynRoot(null));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", null);
 
             env.sendEventBean(new SupportBeanDynRoot("abc"));
-            assertEquals("abc", env.listener("s0").assertOneGetNewAndReset().get("t0"));
+            env.assertEqualsNew("s0", "t0", "abc");
 
             env.undeployAll();
         }
@@ -460,31 +461,30 @@ public class ExprCoreCast {
                 " from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(Boolean.class, type.getPropertyType("t0"));
-            assertEquals(Boolean.class, type.getPropertyType("t1"));
-            assertEquals(String.class, type.getPropertyType("t2"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(Boolean.class, type.getPropertyType("t0"));
+                assertEquals(Boolean.class, type.getPropertyType("t1"));
+                assertEquals(String.class, type.getPropertyType("t2"));
+            });
 
             SupportBean bean = new SupportBean("abc", 100);
             bean.setBoolPrimitive(true);
             bean.setBoolBoxed(true);
             env.sendEventBean(bean);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{true, true, "true"});
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{true, true, "true"}));
 
             bean = new SupportBean(null, 100);
             bean.setBoolPrimitive(false);
             bean.setBoolBoxed(false);
             env.sendEventBean(bean);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{false, false, "false"});
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{false, false, "false"}));
 
             bean = new SupportBean(null, 100);
             bean.setBoolPrimitive(true);
             bean.setBoolBoxed(null);
             env.sendEventBean(bean);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new Object[]{true, null, null});
+            env.assertEventNew("s0", theEvent -> assertResults(theEvent, new Object[]{true, null, null}));
 
             env.undeployAll();
         }
@@ -589,13 +589,13 @@ public class ExprCoreCast {
     }
 
     private static void runAssertionDynamicDateFormatJava8(RegressionEnvironment env) {
-        String epl = "create schema ValuesAndFormats(" +
+        String epl = "@buseventtype create schema ValuesAndFormats(" +
             "ldt string, ldtf string," +
             "ld string, ldf string," +
             "lt string, ltf string," +
             "zdt string, zdtf string)";
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(epl, path);
+        env.compileDeploy(epl, path);
 
         String[] fields = "c0,c1,c2,c3".split(",");
         SupportEvalBuilder builder = new SupportEvalBuilder("ValuesAndFormats").withPath(path)
@@ -627,7 +627,7 @@ public class ExprCoreCast {
     private static void runAssertionDatetimeRenderOutCol(RegressionEnvironment env, AtomicInteger milestone) {
         String epl = "@name('s0') select cast(yyyymmdd,date,dateformat:\"yyyyMMdd\") from MyDateType";
         env.compileDeploy(epl).addListener("s0").milestone(milestone.getAndIncrement());
-        assertEquals("cast(yyyymmdd,date,dateformat:\"yyyyMMdd\")", env.statement("s0").getEventType().getPropertyNames()[0]);
+        env.assertStatement("s0", statement -> assertEquals("cast(yyyymmdd,date,dateformat:\"yyyyMMdd\")", statement.getEventType().getPropertyNames()[0]));
         env.undeployAll();
     }
 
@@ -690,22 +690,23 @@ public class ExprCoreCast {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         env.sendEventBean(new SupportBean());
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c0"), 1997, 6, 16, 19, 20, 30, 0, "GMT+00:00");
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c1"), 1997, 6, 16, 19, 20, 30, 0, "GMT+01:00");
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c2"), 1997, 6, 16, 19, 20, 30, 0, TimeZone.getDefault().getID());
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c3"), 1997, 6, 16, 19, 20, 30, 450, "GMT+00:00");
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c4"), 1997, 6, 16, 19, 20, 30, 450, "GMT+01:00");
-        SupportDateTimeUtil.compareDate((Calendar) event.get("c5"), 1997, 6, 16, 19, 20, 30, 450, TimeZone.getDefault().getID());
-        assertEquals(Long.class, event.get("c6").getClass());
-        assertEquals(Date.class, event.get("c7").getClass());
-        for (String prop : "c8,c9,c10".split(",")) {
-            assertNull(event.get(prop));
-        }
-        assertEquals(LocalDateTime.parse("1997-07-16T19:20:30.45", DateTimeFormatter.ISO_DATE_TIME), event.get("c11"));
-        assertEquals(ZonedDateTime.parse("1997-07-16T19:20:30+01:00", DateTimeFormatter.ISO_ZONED_DATE_TIME), event.get("c12"));
-        assertEquals(LocalDate.parse("1997-07-16", DateTimeFormatter.ISO_DATE), event.get("c13"));
-        assertEquals(LocalTime.parse("19:20:30", DateTimeFormatter.ISO_TIME), event.get("c14"));
+        env.assertEventNew("s0", event -> {
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c0"), 1997, 6, 16, 19, 20, 30, 0, "GMT+00:00");
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c1"), 1997, 6, 16, 19, 20, 30, 0, "GMT+01:00");
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c2"), 1997, 6, 16, 19, 20, 30, 0, TimeZone.getDefault().getID());
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c3"), 1997, 6, 16, 19, 20, 30, 450, "GMT+00:00");
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c4"), 1997, 6, 16, 19, 20, 30, 450, "GMT+01:00");
+            SupportDateTimeUtil.compareDate((Calendar) event.get("c5"), 1997, 6, 16, 19, 20, 30, 450, TimeZone.getDefault().getID());
+            assertEquals(Long.class, event.get("c6").getClass());
+            assertEquals(Date.class, event.get("c7").getClass());
+            for (String prop : "c8,c9,c10".split(",")) {
+                assertNull(event.get(prop));
+            }
+            assertEquals(LocalDateTime.parse("1997-07-16T19:20:30.45", DateTimeFormatter.ISO_DATE_TIME), event.get("c11"));
+            assertEquals(ZonedDateTime.parse("1997-07-16T19:20:30+01:00", DateTimeFormatter.ISO_ZONED_DATE_TIME), event.get("c12"));
+            assertEquals(LocalDate.parse("1997-07-16", DateTimeFormatter.ISO_DATE), event.get("c13"));
+            assertEquals(LocalTime.parse("19:20:30", DateTimeFormatter.ISO_TIME), event.get("c14"));
+        });
 
         env.undeployAll();
     }
@@ -730,8 +731,7 @@ public class ExprCoreCast {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         env.sendEventBean(new SupportBean());
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "c0,c1,c2,c3,c4,c5,c6".split(","), new Object[]{sdt.getUtildate(), sdt.getCaldate(),
+        env.assertPropsNew("s0", "c0,c1,c2,c3,c4,c5,c6".split(","), new Object[]{sdt.getUtildate(), sdt.getCaldate(),
             sdt.getLongdate(), sdt.getLocaldate(), sdt.getZoneddate(), sdt.getLocaldate().toLocalDate(), sdt.getLocaldate().toLocalTime()});
 
         env.undeployAll();

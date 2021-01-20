@@ -19,12 +19,14 @@ import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.util.EnumSet;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.EXCLUDEWHENINSTRUMENTED;
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.PERFORMANCE;
 import static org.junit.Assert.assertTrue;
 
 public class ResultSetQueryTypeRowPerEventPerformance implements RegressionExecution {
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(EXCLUDEWHENINSTRUMENTED, PERFORMANCE);
     }
 
     public void run(RegressionEnvironment env) {

@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ContextKeySegmentedInfra {
 
@@ -90,13 +89,13 @@ public class ContextKeySegmentedInfra {
 
             String[] fields = new String[]{"theString", "intPrimitive"};
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10});
+            env.assertPropsNew("named window", fields, new Object[]{"G1", 10});
             env.assertPropsNew("s0", fields, new Object[]{"G1", 10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20});
+            env.assertPropsNew("named window", fields, new Object[]{"G2", 20});
             env.assertPropsNew("s0", fields, new Object[]{"G2", 20});
 
             env.milestone(1);
@@ -105,7 +104,7 @@ public class ContextKeySegmentedInfra {
 
             // Out-of-context consumer not initialized
             env.compileDeploy("@Name('s0') select count(*) as cnt from MyWindow", path);
-            EPAssertionUtil.assertProps(env.iterator("s0").next(), "cnt".split(","), new Object[]{0L});
+            env.assertIterator("s0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "cnt".split(","), new Object[]{0L}));
 
             env.undeployAll();
         }
@@ -126,37 +125,39 @@ public class ContextKeySegmentedInfra {
             env.addListener("select");
 
             env.sendEventBean(new SupportBean("G1", 10));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G1", 10});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsCnt, new Object[]{"G1", 1L});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G1", 10});
+            env.assertPropsNew("select", fieldsCnt, new Object[]{"G1", 1L});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 20));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G2", 20});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsCnt, new Object[]{"G2", 1L});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G2", 20});
+            env.assertPropsNew("select", fieldsCnt, new Object[]{"G2", 1L});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G1", 11));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G1", 11});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsCnt, new Object[]{"G1", 2L});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G1", 11});
+            env.assertPropsNew("select", fieldsCnt, new Object[]{"G1", 2L});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("G2", 21));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G2", 21});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsCnt, new Object[]{"G2", 2L});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G2", 21});
+            env.assertPropsNew("select", fieldsCnt, new Object[]{"G2", 2L});
 
             env.undeployModuleContaining("select");
 
             // In-context consumer not initialized
             env.compileDeploy("@Name('select') context SegmentedByString select count(*) as cnt from MyWindow", path);
             env.addListener("select");
-            try {
-                env.statement("select").iterator();
-            } catch (UnsupportedOperationException ex) {
-                assertEquals("Iterator not supported on statements that have a context attached", ex.getMessage());
-            }
+            env.assertThat(() -> {
+                try {
+                    env.statement("select").iterator();
+                } catch (UnsupportedOperationException ex) {
+                    assertEquals("Iterator not supported on statements that have a context attached", ex.getMessage());
+                }
+            });
             env.undeployAll();
         }
     }
@@ -177,32 +178,28 @@ public class ContextKeySegmentedInfra {
             String[] fieldsNW = new String[]{"theString", "intPrimitive"};
 
             env.sendEventBean(new SupportBean("G1", 1));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G1", 1});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G1", 1});
 
             env.sendEventBean(new SupportBean_S1(99, "G1"));
             env.sendEventBean(new SupportBean_S0(0, "G1"));
-            EPAssertionUtil.assertProps(env.listener("named window").getLastNewData()[0], fieldsNW, new Object[]{"G1", 99});
-            EPAssertionUtil.assertProps(env.listener("named window").getLastOldData()[0], fieldsNW, new Object[]{"G1", 1});
-            env.listener("named window").reset();
+            env.assertPropsIRPair("named window", fieldsNW, new Object[]{"G1", 99}, new Object[]{"G1", 1});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G2", 2});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G2", 2});
 
             env.sendEventBean(new SupportBean_S1(98, "Gx"));
             env.sendEventBean(new SupportBean_S0(0, "G2"));
-            EPAssertionUtil.assertProps(env.listener("named window").getLastNewData()[0], fieldsNW, new Object[]{"G2", 2});
-            EPAssertionUtil.assertProps(env.listener("named window").getLastOldData()[0], fieldsNW, new Object[]{"G2", 2});
-            env.listener("named window").reset();
+            env.assertPropsIRPair("named window", fieldsNW, new Object[]{"G2", 2}, new Object[]{"G2", 2});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G3", 3));
-            EPAssertionUtil.assertProps(env.listener("named window").assertOneGetNewAndReset(), fieldsNW, new Object[]{"G3", 3});
+            env.assertPropsNew("named window", fieldsNW, new Object[]{"G3", 3});
 
             env.sendEventBean(new SupportBean_S0(0, "Gx"));
-            assertFalse(env.listener("named window").isInvoked());
+            env.assertListenerNotInvoked("named window");
 
             env.undeployAll();
         }
@@ -246,12 +243,14 @@ public class ContextKeySegmentedInfra {
         }
 
         private void assertValues(RegressionEnvironment env, final String group, Object[][] expected) {
-            Iterator<EventBean> it = env.statement("table").iterator(new ContextPartitionSelectorSegmented() {
-                public List<Object[]> getPartitionKeys() {
-                    return Collections.singletonList(new Object[]{group});
-                }
+            env.assertStatement("table", statement -> {
+                Iterator<EventBean> it = statement.iterator(new ContextPartitionSelectorSegmented() {
+                    public List<Object[]> getPartitionKeys() {
+                        return Collections.singletonList(new Object[]{group});
+                    }
+                });
+                EPAssertionUtil.assertPropsPerRowAnyOrder(it, "theString,intPrimitive".split(","), expected);
             });
-            EPAssertionUtil.assertPropsPerRowAnyOrder(it, "theString,intPrimitive".split(","), expected);
         }
     }
 
@@ -283,10 +282,10 @@ public class ContextKeySegmentedInfra {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0, "G1"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fieldsNW, new Object[][]{{"G1", 1}, {"G1", 3}});
+        env.assertPropsPerRowLastNewAnyOrder("s0", fieldsNW, new Object[][]{{"G1", 1}, {"G1", 3}});
 
         env.sendEventBean(new SupportBean_S0(0, "G2"));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fieldsNW, new Object[][]{{"G2", 2}});
+        env.assertPropsPerRowLastNewAnyOrder("s0", fieldsNW, new Object[][]{{"G2", 2}});
 
         env.undeployAll();
     }
@@ -316,9 +315,11 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean("E1", 1));
 
-        EPCompiled faf = env.compileFAF("select * from MyInfra where intPrimitive = 1", path);
-        EPFireAndForgetQueryResult result = env.runtime().getFireAndForgetService().executeQuery(faf, new ContextPartitionSelector[]{new SupportSelectorById(1)});
-        EPAssertionUtil.assertPropsPerRow(result.getArray(), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}});
+        env.assertThat(() -> {
+            EPCompiled faf = env.compileFAF("select * from MyInfra where intPrimitive = 1", path);
+            EPFireAndForgetQueryResult result = env.runtime().getFireAndForgetService().executeQuery(faf, new ContextPartitionSelector[]{new SupportSelectorById(1)});
+            EPAssertionUtil.assertPropsPerRow(result.getArray(), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}});
+        });
 
         env.sendEventBean(new SupportBean_S1(3, "A"));
 
@@ -386,9 +387,9 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean_S0(0, "G2"));
         if (namedWindow) {
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fieldsNW, new Object[][]{{"G2", 20}, {"G2", 21}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), fieldsNW, new Object[][]{{"G2", 20}, {"G2", 21}}));
         }
-        env.listener("s0").reset();
+        env.listenerReset("s0");
 
         env.undeployModuleContaining("on-delete");
 
@@ -410,9 +411,7 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean_S0(0, "G4"));
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fieldsNW, new Object[]{"G4", 5});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fieldsNW, new Object[]{"G4", 4});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fieldsNW, new Object[]{"G4", 5}, new Object[]{"G4", 4});
         }
 
         env.milestoneInc(milestone);
@@ -424,9 +423,7 @@ public class ContextKeySegmentedInfra {
 
         env.sendEventBean(new SupportBean_S0(0, "G5"));
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fieldsNW, new Object[]{"G5", 6});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fieldsNW, new Object[]{"G5", 5});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fieldsNW, new Object[]{"G5", 6}, new Object[]{"G5", 5});
         }
 
         env.undeployModuleContaining("on-merge");

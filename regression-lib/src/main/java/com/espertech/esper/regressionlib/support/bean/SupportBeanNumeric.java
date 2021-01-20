@@ -14,7 +14,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportBeanNumeric implements Serializable {
+    private static final long serialVersionUID = 7460071100684697795L;
     private Integer intOne;
     private Integer intTwo;
     private BigInteger bigint;

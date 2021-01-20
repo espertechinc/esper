@@ -22,10 +22,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorPartitioned;
 
@@ -76,6 +73,10 @@ public class ContextSelectionAndFireAndForget {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ContextSelectionAndFireAndForgetNamedWindowQuery implements RegressionExecution {
@@ -123,6 +124,10 @@ public class ContextSelectionAndFireAndForget {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class ContextSelectionFAFNestedNamedWindowQuery implements RegressionExecution {
@@ -157,6 +162,10 @@ public class ContextSelectionAndFireAndForget {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class ContextSelectionIterateStatement implements RegressionExecution {
@@ -176,47 +185,51 @@ public class ContextSelectionAndFireAndForget {
             env.assertPropsPerRowIterator("s0", fields, expectedAll);
 
             // test iterator ALL
-            ContextPartitionSelector selector = ContextPartitionSelectorAll.INSTANCE;
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, expectedAll);
+            ContextPartitionSelector selectorOne = ContextPartitionSelectorAll.INSTANCE;
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertPropsPerRow(statement.iterator(selectorOne), statement.safeIterator(selectorOne), fields, expectedAll));
 
             // test iterator by context partition id
-            selector = new SupportSelectorById(new HashSet<Integer>(Arrays.asList(0, 1, 2)));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, expectedAll);
+            ContextPartitionSelector selectorTwo = new SupportSelectorById(new HashSet<Integer>(Arrays.asList(0, 1, 2)));
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertPropsPerRow(statement.iterator(selectorTwo), statement.safeIterator(selectorTwo), fields, expectedAll));
 
-            selector = new SupportSelectorById(new HashSet<Integer>(Arrays.asList(1)));
-            EPAssertionUtil.assertPropsPerRow(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, new Object[][]{{"E2", 41}});
+            ContextPartitionSelector selectorThree = new SupportSelectorById(new HashSet<Integer>(Arrays.asList(1)));
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertPropsPerRow(statement.iterator(selectorThree), statement.safeIterator(selectorThree), fields, new Object[][]{{"E2", 41}}));
 
-            assertFalse(env.statement("s0").iterator(new SupportSelectorById(Collections.<Integer>emptySet())).hasNext());
-            assertFalse(env.statement("s0").iterator(new SupportSelectorById(null)).hasNext());
+            env.assertStatement("s0", statement -> {
+                assertFalse(statement.iterator(new SupportSelectorById(Collections.<Integer>emptySet())).hasNext());
+                assertFalse(statement.iterator(new SupportSelectorById(null)).hasNext());
 
-            try {
-                env.statement("s0").iterator(null);
-                fail();
-            } catch (IllegalArgumentException ex) {
-                assertEquals(ex.getMessage(), "No selector provided");
-            }
+                try {
+                    statement.iterator(null);
+                    fail();
+                } catch (IllegalArgumentException ex) {
+                    assertEquals(ex.getMessage(), "No selector provided");
+                }
 
-            try {
-                env.statement("s0").safeIterator(null);
-                fail();
-            } catch (IllegalArgumentException ex) {
-                assertEquals(ex.getMessage(), "No selector provided");
-            }
+                try {
+                    statement.safeIterator(null);
+                    fail();
+                } catch (IllegalArgumentException ex) {
+                    assertEquals(ex.getMessage(), "No selector provided");
+                }
+            });
 
             env.compileDeploy("@name('s2') select * from SupportBean");
-            try {
-                env.statement("s2").iterator(null);
-                fail();
-            } catch (UnsupportedOperationException ex) {
-                assertEquals(ex.getMessage(), "Iterator with context selector is only supported for statements under context");
-            }
+            env.assertStatement("s2", statement -> {
+                try {
+                    statement.iterator(null);
+                    fail();
+                } catch (UnsupportedOperationException ex) {
+                    assertEquals(ex.getMessage(), "Iterator with context selector is only supported for statements under context");
+                }
 
-            try {
-                env.statement("s2").safeIterator(null);
-                fail();
-            } catch (UnsupportedOperationException ex) {
-                assertEquals(ex.getMessage(), "Iterator with context selector is only supported for statements under context");
-            }
+                try {
+                    statement.safeIterator(null);
+                    fail();
+                } catch (UnsupportedOperationException ex) {
+                    assertEquals(ex.getMessage(), "Iterator with context selector is only supported for statements under context");
+                }
+            });
 
             env.undeployAll();
         }

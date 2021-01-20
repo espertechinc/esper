@@ -16,9 +16,11 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -72,6 +74,10 @@ public class ClientCompileSyntaxValidate {
             env.tryInvalidCompile("on SupportBean select 1",
                 "Required insert-into clause is not provided, the clause is required for split-stream syntax");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientCompileOptionsValidateOnly implements RegressionExecution {
@@ -102,6 +108,10 @@ public class ClientCompileSyntaxValidate {
             } catch (EPCompileException ex) {
                 SupportMessageAssertUtil.assertMessage(ex, "Select-clause has not been defined");
             }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 }

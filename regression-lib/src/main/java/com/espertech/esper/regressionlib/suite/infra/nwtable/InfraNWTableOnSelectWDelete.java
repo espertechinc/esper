@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -56,27 +55,27 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
             if (namedWindow) {
-                EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fieldsWin, new Object[][]{{"E1", 1}, {"E2", 2}});
+                env.assertPropsPerRowIterator("create", fieldsWin, new Object[][]{{"E1", 1}, {"E2", 2}});
             } else {
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[][]{{"E1", 1}, {"E2", 2}});
+                env.assertPropsPerRowIteratorAnyOrder("create", fieldsWin, new Object[][]{{"E1", 1}, {"E2", 2}});
             }
 
             // select and delete bean E1
             env.sendEventBean(new SupportBean_S0(100, "E1"));
             env.assertPropsNew("s0", fieldsSelect, new Object[]{1});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[][]{{"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fieldsWin, new Object[][]{{"E2", 2}});
 
             env.milestone(0);
 
             // add some E2 events
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean("E2", 4));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[][]{{"E2", 2}, {"E2", 3}, {"E2", 4}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fieldsWin, new Object[][]{{"E2", 2}, {"E2", 3}, {"E2", 4}});
 
             // select and delete beans E2
             env.sendEventBean(new SupportBean_S0(101, "E2"));
             env.assertPropsNew("s0", fieldsSelect, new Object[]{2 + 3 + 4});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsWin, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("create", fieldsWin, new Object[0][]);
 
             // test SODA
             env.eplToModelCompileDeploy(eplSelectDelete, path);

@@ -43,7 +43,7 @@ public class ResultSetAggregateSortedMinMaxBy {
             String epl = "@name('s0') select sorted(theString desc, intPrimitive desc) as c0 from SupportBean#keepall";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(new EPTypeClass(SupportBean[].class), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(new EPTypeClass(SupportBean[].class), statement.getEventType().getPropertyEPType("c0")));
 
             env.sendEventBean(new SupportBean("C", 10));
             assertExpected(env, new Object[][]{{"C", 10}});
@@ -224,12 +224,14 @@ public class ResultSetAggregateSortedMinMaxBy {
                 " from SupportBean#time(10)";
             env.compileDeploy(epl).addListener("s0");
 
-            EventPropertyDescriptor[] props = env.statement("s0").getEventType().getPropertyDescriptors();
-            assertEquals("maxby(intPrimitive).theString", props[0].getPropertyName());
-            assertEquals("minby(intPrimitive)", props[1].getPropertyName());
-            assertEquals("maxbyever(intPrimitive).theString", props[2].getPropertyName());
-            assertEquals("minbyever(intPrimitive)", props[3].getPropertyName());
-            assertEquals("sorted(intPrimitive,theString desc)", props[4].getPropertyName());
+            env.assertStatement("s0", statement -> {
+                EventPropertyDescriptor[] props = statement.getEventType().getPropertyDescriptors();
+                assertEquals("maxby(intPrimitive).theString", props[0].getPropertyName());
+                assertEquals("minby(intPrimitive)", props[1].getPropertyName());
+                assertEquals("maxbyever(intPrimitive).theString", props[2].getPropertyName());
+                assertEquals("minbyever(intPrimitive)", props[3].getPropertyName());
+                assertEquals("sorted(intPrimitive,theString desc)", props[4].getPropertyName());
+            });
 
             env.undeployAll();
         }
@@ -513,11 +515,13 @@ public class ResultSetAggregateSortedMinMaxBy {
     }
 
     private static void assertExpected(RegressionEnvironment env, Object[][] expected) {
-        SupportBean[] und = (SupportBean[]) env.listener("s0").assertOneGetNewAndReset().get("c0");
-        for (int i = 0; i < und.length; i++) {
-            assertEquals(expected[i][0], und[i].getTheString());
-            assertEquals(expected[i][1], und[i].getIntPrimitive());
-        }
+        env.assertListener("s0", listener -> {
+            SupportBean[] und = (SupportBean[]) listener.assertOneGetNewAndReset().get("c0");
+            for (int i = 0; i < und.length; i++) {
+                assertEquals(expected[i][0], und[i].getTheString());
+                assertEquals(expected[i][1], und[i].getIntPrimitive());
+            }
+        });
     }
 }
 

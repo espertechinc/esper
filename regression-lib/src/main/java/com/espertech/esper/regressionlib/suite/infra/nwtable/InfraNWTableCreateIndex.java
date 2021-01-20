@@ -27,14 +27,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
@@ -130,15 +128,17 @@ public class InfraNWTableCreateIndex {
             env.compileDeploy("@Name('insert') insert into MyInfraTwo select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("create unique index I1 on MyInfraTwo(theString)", path);
             env.sendEventBean(new SupportBean("E1", 1));
-            try {
-                env.sendEventBean(new SupportBean("E1", 2));
-                fail();
-            } catch (Exception ex) {
-                String text = namedWindow ?
-                    "Unexpected exception in statement 'create': Unique index violation, index 'I1' is a unique index and key 'E1' already exists" :
-                    "java.lang.RuntimeException: Unexpected exception in statement 'insert': Unique index violation, index 'I1' is a unique index and key 'E1' already exists";
-                assertEquals(text, ex.getMessage());
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventBean(new SupportBean("E1", 2));
+                    fail();
+                } catch (Exception ex) {
+                    String text = namedWindow ?
+                        "Unexpected exception in statement 'create': Unique index violation, index 'I1' is a unique index and key 'E1' already exists" :
+                        "java.lang.RuntimeException: Unexpected exception in statement 'insert': Unique index violation, index 'I1' is a unique index and key 'E1' already exists";
+                    assertEquals(text, ex.getMessage());
+                }
+            });
 
             if (!namedWindow) {
                 env.compileDeploy("create table MyTable (p0 string, sumint sum(int))", path);
@@ -176,20 +176,20 @@ public class InfraNWTableCreateIndex {
             env.sendEventBean(new SupportBean("E1", 1));
 
             env.compileDeploy("@name('s0') on SupportBean_S0 s0 select nw.f1 as f1, nw.f2 as f2 from MyInfraONR nw where nw.f2 = s0.id", path).addListener("s0");
-            assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
+            env.assertThat(() -> assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR")));
 
             env.sendEventBean(new SupportBean_S0(1));
             env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
 
             // create second identical statement
             env.compileDeploy("@name('stmtTwo') on SupportBean_S0 s0 select nw.f1 as f1, nw.f2 as f2 from MyInfraONR nw where nw.f2 = s0.id", path);
-            assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
+            env.assertThat(() -> assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR")));
 
             env.undeployModuleContaining("s0");
-            assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
+            env.assertThat(() -> assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR")));
 
             env.undeployModuleContaining("stmtTwo");
-            assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR"));
+            env.assertThat(() -> assertEquals(namedWindow ? 1 : 2, getIndexCount(env, namedWindow, "create", "MyInfraONR")));
 
             env.undeployModuleContaining("indexOne");
 
@@ -198,7 +198,7 @@ public class InfraNWTableCreateIndex {
             env.compileDeploy("create index idx1 on MyInfraFour (theString, intPrimitive)", path);
             env.compileDeploy("on SupportBean sb select * from MyInfraFour w where w.theString = sb.theString and w.intPrimitive = sb.intPrimitive", path);
             env.compileDeploy("on SupportBean sb select * from MyInfraFour w where w.intPrimitive = sb.intPrimitive and w.theString = sb.theString", path);
-            assertEquals(1, SupportInfraUtil.getIndexCountNoContext(env, true, "cw", "MyInfraFour"));
+            env.assertThat(() -> assertEquals(1, SupportInfraUtil.getIndexCountNoContext(env, true, "cw", "MyInfraFour")));
 
             env.undeployAll();
         }
@@ -266,6 +266,10 @@ public class InfraNWTableCreateIndex {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraMultipleColumnMultipleIndex implements RegressionExecution {
@@ -317,6 +321,10 @@ public class InfraNWTableCreateIndex {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     public static class InfraLateCreate implements RegressionExecution {
@@ -351,8 +359,10 @@ public class InfraNWTableCreateIndex {
             env.milestone(0);
 
             // perform on-demand query
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfra where theString = 'B2' order by intPrimitive asc", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"B2", 1}, {"B2", 2}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfra where theString = 'B2' order by intPrimitive asc", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"B2", 1}, {"B2", 2}});
+            });
 
             // cleanup
             env.undeployAll();
@@ -394,9 +404,11 @@ public class InfraNWTableCreateIndex {
 
             env.milestone(1);
 
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraLC where f3='>E1<' order by f2 asc", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{
-                {"E1", -4, ">E1<", "?E1?"}, {"E1", -3, ">E1<", "?E1?"}, {"E1", -2, ">E1<", "?E1?"}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraLC where f3='>E1<' order by f2 asc", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{
+                    {"E1", -4, ">E1<", "?E1?"}, {"E1", -3, ">E1<", "?E1?"}, {"E1", -2, ">E1<", "?E1?"}});
+            });
 
             env.undeployAll();
         }
@@ -450,6 +462,10 @@ public class InfraNWTableCreateIndex {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraWidening implements RegressionExecution {
@@ -472,8 +488,10 @@ public class InfraNWTableCreateIndex {
 
             sendEventLong(env, "E1", 10L);
 
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraW where f1=10", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{10L, "E1"}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraW where f1=10", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{10L, "E1"}});
+            });
 
             // coerce to short
             stmtTextCreate = namedWindow ?
@@ -485,8 +503,10 @@ public class InfraNWTableCreateIndex {
 
             sendEventShort(env, "E1", (short) 2);
 
-            result = env.compileExecuteFAF("select * from MyInfraWTwo where f1=2", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{(short) 2, "E1"}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraWTwo where f1=2", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{(short) 2, "E1"}});
+            });
 
             env.undeployAll();
         }
@@ -520,8 +540,10 @@ public class InfraNWTableCreateIndex {
             String[] fields = "f1,f2".split(",");
 
             sendEventLong(env, "E1", 10L);
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraHBTW where f1>9", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{10L, "E1"}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraHBTW where f1>9", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{10L, "E1"}});
+            });
 
             // SODA
             String epl = "create index IX1 on MyInfraHBTW(f1, f2 btree)";
@@ -543,8 +565,10 @@ public class InfraNWTableCreateIndex {
 
             sendEventShort(env, "E1", (short) 2);
 
-            result = env.compileExecuteFAF("select * from MyInfraHBTWTwo where f1>=2", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{(short) 2, "E1"}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyInfraHBTWTwo where f1>=2", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{(short) 2, "E1"}});
+            });
 
             env.undeployAll();
         }
@@ -605,6 +629,10 @@ public class InfraNWTableCreateIndex {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     public static class InfraMultikeyIndexFAF implements RegressionExecution {
@@ -648,6 +676,10 @@ public class InfraNWTableCreateIndex {
             return this.getClass().getSimpleName() + "{" +
                 "isNamedWindow=" + isNamedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

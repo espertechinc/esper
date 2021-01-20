@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -76,7 +74,7 @@ public class InfraTableOnDelete {
             assertEquals(p00s.length, sums.length);
             for (int i = 0; i < p00s.length; i++) {
                 env.sendEventBean(new SupportBean_S0(0, p00s[i]));
-                assertEquals(sums[i], env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                env.assertEqualsNew("s0", "c0", sums[i]);
             }
         }
     }
@@ -92,7 +90,7 @@ public class InfraTableOnDelete {
             env.compileDeploy("@name('sda') on SupportBean_S1(id = 2) delete from varagg", path).addListener("sda");
 
             Object[][] expectedType = new Object[][]{{"key", String.class}, {"thesum", Integer.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("sda").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("sda", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             env.sendEventBean(new SupportBean("G1", 10));
             assertValues(env, "G1,G2", new Integer[]{10, null});
@@ -102,13 +100,13 @@ public class InfraTableOnDelete {
 
             env.sendEventBean(new SupportBean_S1(1, "G1"));
             assertValues(env, "G1,G2", new Integer[]{null, 20});
-            EPAssertionUtil.assertProps(env.listener("sdf").assertOneGetNewAndReset(), fields, new Object[]{"G1", 10});
+            env.assertPropsNew("sdf", fields, new Object[]{"G1", 10});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(2, null));
             assertValues(env, "G1,G2", new Integer[]{null, null});
-            EPAssertionUtil.assertProps(env.listener("sda").assertOneGetNewAndReset(), fields, new Object[]{"G2", 20});
+            env.assertPropsNew("sda", fields, new Object[]{"G2", 20});
 
             env.undeployAll();
         }
@@ -119,8 +117,8 @@ public class InfraTableOnDelete {
         assertEquals(keyarr.length, values.length);
         for (int i = 0; i < keyarr.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, keyarr[i]));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));
+            final int index = i;
+            env.assertEventNew("s0", event -> assertEquals("Failed for key '" + keyarr[index] + "'", values[index], event.get("value")));
         }
     }
 

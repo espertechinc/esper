@@ -12,7 +12,11 @@ package com.espertech.esper.regressionlib.support.bean;
 
 import java.io.Serializable;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportEventPropertyWithMethod implements Serializable {
+    private static final long serialVersionUID = -833372517772274123L;
     private String property;
 
     public SupportEventPropertyWithMethod() {

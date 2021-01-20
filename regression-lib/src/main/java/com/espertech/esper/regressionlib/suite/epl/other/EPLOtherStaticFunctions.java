@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -32,8 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 public class EPLOtherStaticFunctions {
     private final static String STREAM_MDB_LEN5 = " from SupportMarketDataBean#length(5) ";
@@ -71,13 +69,13 @@ public class EPLOtherStaticFunctions {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create map schema MyEvent(someDate Date, dateFrom string, dateTo string, minutesOfDayFrom int, minutesOfDayTo int, daysOfWeek string);\n" +
-                "select " +
-                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isAfter(cast(dateFrom||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c0,\n" +
-                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isBefore(cast(dateTo||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c1,\n" +
-                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)>= minutesOfDayFrom as c2,\n" +
-                "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)<= minutesOfDayTo as c3,\n" +
-                "daysOfWeek.contains(java.lang.String.valueOf(java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).getDayOfWeek().getValue())) as c4\n" +
-                "from MyEvent";
+                    "select " +
+                    "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isAfter(cast(dateFrom||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c0,\n" +
+                    "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).isBefore(cast(dateTo||'T00:00:00Z', zoneddatetime, dateformat:java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(java.time.ZoneId.of('CET')))) as c1,\n" +
+                    "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)>= minutesOfDayFrom as c2,\n" +
+                    "java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).get(java.time.temporal.ChronoField.MINUTE_OF_DAY)<= minutesOfDayTo as c3,\n" +
+                    "daysOfWeek.contains(java.lang.String.valueOf(java.time.ZonedDateTime.ofInstant(someDate.toInstant(),java.time.ZoneId.of('CET')).getDayOfWeek().getValue())) as c4\n" +
+                    "from MyEvent";
             env.compile(epl);
         }
     }
@@ -89,7 +87,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertEquals("1970-01-01T00:00:01Z", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "1970-01-01T00:00:01Z");
 
             env.undeployAll();
         }
@@ -150,14 +148,16 @@ public class EPLOtherStaticFunctions {
             Object[][] rows = new Object[][]{
                 {subexp, String.class}
             };
-            EventPropertyDescriptor[] prop = env.statement("s0").getEventType().getPropertyDescriptors();
-            for (int i = 0; i < rows.length; i++) {
-                Assert.assertEquals(rows[i][0], prop[i].getPropertyName());
-                Assert.assertEquals(rows[i][1], prop[i].getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                EventPropertyDescriptor[] prop = statement.getEventType().getPropertyDescriptors();
+                for (int i = 0; i < rows.length; i++) {
+                    Assert.assertEquals(rows[i][0], prop[i].getPropertyName());
+                    Assert.assertEquals(rows[i][1], prop[i].getPropertyType());
+                }
+            });
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), new String[]{subexp},
+            env.assertPropsNew("s0", new String[]{subexp},
                 new Object[]{SupportChainTop.make().getChildOne("abc", 1).getChildTwo("def").getText()});
 
             env.undeployAll();
@@ -171,7 +171,7 @@ public class EPLOtherStaticFunctions {
 
             env.sendEventBean(new SupportBean("E1", 99));
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), "value".split(","), new Object[]{"E1 99"});
+            env.assertPropsNew("s0", "value".split(","), new Object[]{"E1 99"});
 
             env.undeployAll();
         }
@@ -188,7 +188,7 @@ public class EPLOtherStaticFunctions {
 
             env.sendEventBean(new SupportBean());
 
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), "v0,v1".split(","), new Object[]{"A1", 200});
+            env.assertPropsNew("s0", "v0,v1".split(","), new Object[]{"A1", 200});
 
             env.undeployAll();
         }
@@ -225,7 +225,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "IBM", 10d, 4L);
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             env.undeployAll();
         }
@@ -255,21 +255,22 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(statementText).addListener("s0");
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 10d, 4L, ""));
-            Long result = (Long) getProperty(env, "System.currentTimeMillis()");
-            Long finishTime = System.currentTimeMillis();
-            assertTrue(startTime <= result);
-            assertTrue(result <= finishTime);
+            env.assertEventNew("s0", event -> {
+                Long result = (Long) event.get("System.currentTimeMillis()");
+                Long finishTime = System.currentTimeMillis();
+                assertTrue(startTime <= result);
+                assertTrue(result <= finishTime);
+            });
+
             env.undeployAll();
 
             statementText = "@name('s0') select java.lang.ClassLoader.getSystemClassLoader() " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
             Object expected = ClassLoader.getSystemClassLoader();
-            Object[] resultTwo = assertStatementAndGetProperty(env, true, "java.lang.ClassLoader.getSystemClassLoader()");
-            if (resultTwo == null) {
-                fail();
-            }
-            assertEquals(expected, resultTwo[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "java.lang.ClassLoader.getSystemClassLoader()", expected);
+
             env.undeployAll();
 
             env.tryInvalidCompile("select UnknownClass.invalidMethod() " + STREAM_MDB_LEN5,
@@ -290,7 +291,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(model).addListener("s0");
 
             sendEvent(env, "IBM", 10d, 4L);
-            Assert.assertEquals(Integer.toBinaryString(7), env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", Integer.toBinaryString(7));
 
             env.undeployAll();
         }
@@ -302,7 +303,7 @@ public class EPLOtherStaticFunctions {
             env.eplToModelCompileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "IBM", 10d, 4L);
-            Assert.assertEquals(Integer.toBinaryString(7), env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", Integer.toBinaryString(7));
 
             env.undeployAll();
         }
@@ -313,22 +314,24 @@ public class EPLOtherStaticFunctions {
             String statementText = "@name('s0') select Integer.toBinaryString(7) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            Object[] result = assertStatementAndGetProperty(env, true, "Integer.toBinaryString(7)");
-            assertEquals(Integer.toBinaryString(7), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "Integer.toBinaryString(7)", Integer.toBinaryString(7));
             env.undeployAll();
 
             statementText = "@name('s0') select Integer.valueOf(\"6\") " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            result = assertStatementAndGetProperty(env, true, "Integer.valueOf(\"6\")");
-            assertEquals(Integer.valueOf("6"), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "Integer.valueOf(\"6\")", Integer.valueOf("6"));
+
             env.undeployAll();
 
             statementText = "@name('s0') select java.lang.String.valueOf(\'a\') " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            result = assertStatementAndGetProperty(env, true, "java.lang.String.valueOf(\"a\")");
-            assertEquals(String.valueOf('a'), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "java.lang.String.valueOf(\"a\")", String.valueOf('a'));
+
             env.undeployAll();
         }
     }
@@ -339,20 +342,24 @@ public class EPLOtherStaticFunctions {
             String statementText = "@name('s0') select Math.max(2,3) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            assertEquals(3, assertStatementAndGetProperty(env, true, "Math.max(2,3)")[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "Math.max(2,3)", 3);
+
             env.undeployAll();
 
             statementText = "@name('s0') select java.lang.Math.max(2,3d) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            assertEquals(3d, assertStatementAndGetProperty(env, true, "java.lang.Math.max(2,3.0)")[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "java.lang.Math.max(2,3.0)", 3d);
+
             env.undeployAll();
 
             statementText = "@name('s0') select Long.parseLong(\"123\",10)" + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            Object expected = Long.parseLong("123", 10);
-            assertEquals(expected, assertStatementAndGetProperty(env, true, "Long.parseLong(\"123\",10)")[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "Long.parseLong(\"123\",10)", Long.parseLong("123", 10));
             env.undeployAll();
         }
     }
@@ -364,7 +371,9 @@ public class EPLOtherStaticFunctions {
             String statementText = "@name('s0') select " + className + ".staticMethod(2)" + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            assertEquals(2, assertStatementAndGetProperty(env, true, className + ".staticMethod(2)")[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", className + ".staticMethod(2)", 2);
+
             env.undeployAll();
 
             // try context passed
@@ -372,12 +381,15 @@ public class EPLOtherStaticFunctions {
             statementText = "@Name('s0') select " + className + ".staticMethodWithContext(2)" + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            assertEquals(2, assertStatementAndGetProperty(env, true, className + ".staticMethodWithContext(2)")[0]);
-            EPLMethodInvocationContext first = SupportStaticMethodLib.getMethodInvocationContexts().get(0);
-            Assert.assertEquals("s0", first.getStatementName());
-            Assert.assertEquals(env.runtimeURI(), first.getRuntimeURI());
-            Assert.assertEquals(-1, first.getContextPartitionId());
-            Assert.assertEquals("staticMethodWithContext", first.getFunctionName());
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", className + ".staticMethodWithContext(2)", 2);
+            env.assertThat(() -> {
+                EPLMethodInvocationContext first = SupportStaticMethodLib.getMethodInvocationContexts().get(0);
+                Assert.assertEquals("s0", first.getStatementName());
+                Assert.assertEquals(env.runtimeURI(), first.getRuntimeURI());
+                Assert.assertEquals(-1, first.getContextPartitionId());
+                Assert.assertEquals("staticMethodWithContext", first.getFunctionName());
+            });
             env.undeployAll();
         }
     }
@@ -385,33 +397,32 @@ public class EPLOtherStaticFunctions {
     private static class EPLOtherComplexParameters implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-
             String statementText = "@name('s0') select String.valueOf(price) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            Object[] result = assertStatementAndGetProperty(env, true, "String.valueOf(price)");
-            assertEquals(String.valueOf(10d), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "String.valueOf(price)", String.valueOf(10d));
             env.undeployAll();
 
             statementText = "@name('s0') select String.valueOf(2 + 3*5) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            result = assertStatementAndGetProperty(env, true, "String.valueOf(2+3*5)");
-            assertEquals(String.valueOf(17), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "String.valueOf(2+3*5)", String.valueOf(2 + 3 * 5));
             env.undeployAll();
 
             statementText = "@name('s0') select String.valueOf(price*volume +volume) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            result = assertStatementAndGetProperty(env, true, "String.valueOf(price*volume+volume)");
-            assertEquals(String.valueOf(44d), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "String.valueOf(price*volume+volume)", String.valueOf(44d));
             env.undeployAll();
 
             statementText = "@name('s0') select String.valueOf(Math.pow(price,Integer.valueOf(\"2\"))) " + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            result = assertStatementAndGetProperty(env, true, "String.valueOf(Math.pow(price,Integer.valueOf(\"2\")))");
-            assertEquals(String.valueOf(100d), result[0]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "String.valueOf(Math.pow(price,Integer.valueOf(\"2\")))", String.valueOf(100d));
 
             env.undeployAll();
         }
@@ -423,9 +434,8 @@ public class EPLOtherStaticFunctions {
             String statementText = "@name('s0') select Math.max(2d,price), Math.max(volume,4d)" + STREAM_MDB_LEN5;
             env.compileDeploy(statementText).addListener("s0");
 
-            Object[] props = assertStatementAndGetProperty(env, true, "Math.max(2.0,price)", "Math.max(volume,4.0)");
-            assertEquals(10d, props[0]);
-            assertEquals(4d, props[1]);
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertPropsNew("s0", new String[]{"Math.max(2.0,price)", "Math.max(volume,4.0)"}, new Object[]{10d, 4d});
             env.undeployAll();
         }
     }
@@ -435,39 +445,53 @@ public class EPLOtherStaticFunctions {
             // where
             String statementText = "@name('s0') select *" + STREAM_MDB_LEN5 + "where Math.pow(price, .5) > 2";
             env.compileDeploy(statementText).addListener("s0");
-            assertEquals("IBM", assertStatementAndGetProperty(env, true, "symbol")[0]);
+
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "symbol", "IBM");
+
             sendEvent(env, "CAT", 4d, 100);
-            assertNull(getProperty(env, "symbol"));
+            env.assertListenerNotInvoked("s0");
+
             env.undeployAll();
 
             // group-by
             statementText = "@name('s0') select symbol, sum(price)" + STREAM_MDB_LEN5 + "group by String.valueOf(symbol)";
             env.compileDeploy(statementText).addListener("s0");
-            assertEquals(10d, assertStatementAndGetProperty(env, true, "sum(price)")[0]);
+
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "sum(price)", 10d);
+
             sendEvent(env, "IBM", 4d, 100);
-            assertEquals(14d, getProperty(env, "sum(price)"));
+            env.assertEqualsNew("s0", "sum(price)", 14d);
             env.undeployAll();
 
             // having
             statementText = "@name('s0') select symbol, sum(price)" + STREAM_MDB_LEN5 + "having Math.pow(sum(price), .5) > 3";
             env.compileDeploy(statementText).addListener("s0");
-            assertEquals(10d, assertStatementAndGetProperty(env, true, "sum(price)")[0]);
+
+            sendEvent(env, "IBM", 10d, 4L);
+            env.assertEqualsNew("s0", "sum(price)", 10d);
+
             sendEvent(env, "IBM", 100d, 100);
-            assertEquals(110d, getProperty(env, "sum(price)"));
+            env.assertEqualsNew("s0", "sum(price)", 110d);
+
             env.undeployAll();
 
             // order-by
             statementText = "@name('s0') select symbol, price" + STREAM_MDB_LEN5 + "output every 3 events order by Math.pow(price, 2)";
             env.compileDeploy(statementText).addListener("s0");
-            assertStatementAndGetProperty(env, false, "symbol");
+
+            sendEvent(env, "IBM", 10d, 4L);
             sendEvent(env, "CAT", 10d, 0L);
             sendEvent(env, "MAT", 3d, 0L);
 
-            EventBean[] newEvents = env.listener("s0").getAndResetLastNewData();
-            assertTrue(newEvents.length == 3);
-            Assert.assertEquals("MAT", newEvents[0].get("symbol"));
-            Assert.assertEquals("IBM", newEvents[1].get("symbol"));
-            Assert.assertEquals("CAT", newEvents[2].get("symbol"));
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getAndResetLastNewData();
+                assertTrue(newEvents.length == 3);
+                Assert.assertEquals("MAT", newEvents[0].get("symbol"));
+                Assert.assertEquals("IBM", newEvents[1].get("symbol"));
+                Assert.assertEquals("CAT", newEvents[2].get("symbol"));
+            });
             env.undeployAll();
         }
     }
@@ -480,7 +504,7 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportTemperatureBean("a"));
-            Assert.assertEquals("|POLYGON ((100.0 100, \", 100 100, 400 400))||a", env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", "|POLYGON ((100.0 100, \", 100 100, 400 400))||a");
 
             env.undeployAll();
         }
@@ -493,10 +517,10 @@ public class EPLOtherStaticFunctions {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", 1L);
 
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", 2L);
 
             env.undeployAll();
         }
@@ -540,32 +564,6 @@ public class EPLOtherStaticFunctions {
 
             env.undeployAll();
         }
-    }
-
-    private static Object getProperty(RegressionEnvironment env, String propertyName) {
-        EventBean[] newData = env.listener("s0").getAndResetLastNewData();
-        if (newData == null || newData.length == 0) {
-            return null;
-        } else {
-            return newData[0].get(propertyName);
-        }
-    }
-
-    private static Object[] assertStatementAndGetProperty(RegressionEnvironment env, boolean expectResult, String... propertyNames) {
-        if (propertyNames == null) {
-            fail("no prop names");
-        }
-        sendEvent(env, "IBM", 10d, 4L);
-
-        if (expectResult) {
-            List<Object> properties = new ArrayList<>();
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            for (String propertyName : propertyNames) {
-                properties.add(theEvent.get(propertyName));
-            }
-            return properties.toArray(new Object[0]);
-        }
-        return null;
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price, long volume) {

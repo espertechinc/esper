@@ -16,10 +16,8 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.util.DoubleValueAssertionUtil;
-import org.junit.Assert;
 
-import java.util.Iterator;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ViewTimeWinWSystemTime implements RegressionExecution {
@@ -30,7 +28,9 @@ public class ViewTimeWinWSystemTime implements RegressionExecution {
         String epl = "@name('s0') select * from SupportMarketDataBean(symbol='" + SYMBOL + "')#time(3.0)#weighted_avg(price, volume, symbol, feed)";
         env.compileDeployAddListenerMileZero(epl, "s0");
 
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("average"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(Double.class, statement.getEventType().getPropertyType("average"));
+        });
 
         // Send 2 events, E1 and E2 at +0sec
         env.sendEventBean(makeBean(SYMBOL, 10, 500));
@@ -72,22 +72,24 @@ public class ViewTimeWinWSystemTime implements RegressionExecution {
     }
 
     private void checkValue(RegressionEnvironment env, double avgE) {
-        Iterator<EventBean> iterator = env.statement("s0").iterator();
-        checkValue(iterator.next(), avgE);
-        assertTrue(!iterator.hasNext());
+        env.assertIterator("s0", iterator -> {
+            checkValue(iterator.next(), avgE);
+            assertTrue(!iterator.hasNext());
+        });
 
-        assertTrue(env.listener("s0").getLastNewData().length == 1);
-        EventBean listenerValues = env.listener("s0").getLastNewData()[0];
-        checkValue(listenerValues, avgE);
-
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            assertEquals(1, listener.getLastNewData().length);
+            EventBean listenerValues = listener.getLastNewData()[0];
+            checkValue(listenerValues, avgE);
+            listener.reset();
+        });
     }
 
     private void checkValue(EventBean values, double avgE) {
         double avg = getDoubleValue(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE, values);
         assertTrue(DoubleValueAssertionUtil.equals(avg, avgE, 6));
-        Assert.assertEquals(FEED, values.get("feed"));
-        Assert.assertEquals(SYMBOL, values.get("symbol"));
+        assertEquals(FEED, values.get("feed"));
+        assertEquals(SYMBOL, values.get("symbol"));
     }
 
     private double getDoubleValue(ViewFieldEnum field, EventBean theEvent) {

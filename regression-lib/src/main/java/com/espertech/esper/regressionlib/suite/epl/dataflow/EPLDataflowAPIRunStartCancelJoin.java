@@ -17,12 +17,10 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraph
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib.sleep;
@@ -87,6 +85,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowNonBlockingJoinException implements RegressionExecution {
@@ -126,6 +128,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(0, output.getAndReset().size());
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowNonBlockingException implements RegressionExecution {
@@ -146,6 +152,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(EPDataFlowState.COMPLETE, dfOne.getState());
             assertEquals(0, output.getAndReset().size());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -173,6 +183,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(EPDataFlowState.COMPLETE, dfOne.getState());
             assertEquals(0, output.getAndReset().size());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -217,6 +231,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(0, output.getAndReset().size());
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowNonBlockingCancel implements RegressionExecution {
@@ -248,6 +266,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(EPDataFlowState.CANCELLED, dfOne.getState());
             assertEquals(0, output.getAndReset().size());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -293,6 +315,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             dfOne.cancel();
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowNonBlockingJoinMultipleRunnable implements RegressionExecution {
@@ -335,6 +361,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(EPDataFlowState.COMPLETE, dfOne.getState());
             assertEquals(2, future.getAndReset().size());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -381,6 +411,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertEquals(2, future.getAndReset().size());
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowNonBlockingJoinSingleRunnable implements RegressionExecution {
@@ -419,6 +453,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             dfOne.cancel();
             assertEquals(EPDataFlowState.COMPLETE, dfOne.getState());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -476,6 +514,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             assertTrue("deltaJoin=" + deltaJoin, deltaJoin >= 500);
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFastCompleteBlocking implements RegressionExecution {
@@ -510,6 +552,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             tryAssertionAfterExec(dfOne);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -559,6 +605,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             }
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFastCompleteNonBlocking implements RegressionExecution {
@@ -594,6 +644,10 @@ public class EPLDataflowAPIRunStartCancelJoin {
             // assert past-exec
             tryAssertionAfterExec(dfOne);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

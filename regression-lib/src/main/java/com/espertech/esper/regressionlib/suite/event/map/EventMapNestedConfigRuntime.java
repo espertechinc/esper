@@ -20,10 +20,10 @@ public class EventMapNestedConfigRuntime implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         String epl =
-            "create schema N1N1 (n1n1 String);\n" +
-                "create schema N1 (n1 string, n2 N1N1);\n" +
-                "create schema NestedMapWithSimpleProps (nested N1);\n";
-        env.compileDeployWBusPublicType(epl, path);
+                "@buseventtype create schema N1N1 (n1n1 String);\n" +
+                "@buseventtype create schema N1 (n1 string, n2 N1N1);\n" +
+                "@buseventtype create schema NestedMapWithSimpleProps (nested N1);\n";
+        env.compileDeploy(epl, path);
 
         runAssertion(env, path);
     }

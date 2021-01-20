@@ -33,11 +33,7 @@ import static org.junit.Assert.*;
 public class SupportFilterServiceHelper {
 
     public static void assertFilterSvcCount(RegressionEnvironment env, int count, String stmtName) {
-        EPStatement statement = env.statement(stmtName);
-        if (statement == null) {
-            fail("Statement not found '" + stmtName + "'");
-        }
-        assertEquals(count, SupportFilterServiceHelper.getFilterSvcCountAnyType(statement));
+        env.assertStatement(stmtName, statement -> assertEquals(count, SupportFilterServiceHelper.getFilterSvcCountAnyType(statement)));
     }
 
     public static String getFilterSvcToString(RegressionEnvironment env, String statementName) {
@@ -97,14 +93,16 @@ public class SupportFilterServiceHelper {
         return total;
     }
 
-    public static void assertFilterSvcTwo(EPStatement statement, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
-        EPStatementSPI statementSPI = (EPStatementSPI) statement;
-        FilterItem[] multi = getFilterSvcMultiAssertNonEmpty(statementSPI);
-        assertEquals(2, multi.length);
-        assertEquals(opOne, multi[0].getOp());
-        assertEquals(expressionOne, multi[0].getName());
-        assertEquals(opTwo, multi[1].getOp());
-        assertEquals(expressionTwo, multi[1].getName());
+    public static void assertFilterSvcTwo(RegressionEnvironment env, String statementName, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
+        env.assertStatement(statementName, statement -> {
+            EPStatementSPI statementSPI = (EPStatementSPI) statement;
+            FilterItem[] multi = getFilterSvcMultiAssertNonEmpty(statementSPI);
+            assertEquals(2, multi.length);
+            assertEquals(opOne, multi[0].getOp());
+            assertEquals(expressionOne, multi[0].getName());
+            assertEquals(opTwo, multi[1].getOp());
+            assertEquals(expressionTwo, multi[1].getName());
+        });
     }
 
     public static FilterItem getFilterSvcSingle(EPStatement statement) {
@@ -113,11 +111,13 @@ public class SupportFilterServiceHelper {
         return params[0];
     }
 
-    public static void assertFilterSvcSingle(EPStatement stmt, String expression, FilterOperator op) {
-        EPStatementSPI statementSPI = (EPStatementSPI) stmt;
-        FilterItem param = getFilterSvcSingle(statementSPI);
-        assertEquals(op, param.getOp());
-        assertEquals(expression, param.getName());
+    public static void assertFilterSvcSingle(RegressionEnvironment env, String stmtName, String expression, FilterOperator op) {
+        env.assertStatement(stmtName, statement -> {
+            EPStatementSPI statementSPI = (EPStatementSPI) statement;
+            FilterItem param = getFilterSvcSingle(statementSPI);
+            assertEquals(op, param.getOp());
+            assertEquals(expression, param.getName());
+        });
     }
 
     public static FilterItem[] getFilterSvcMultiAssertNonEmpty(EPStatement statementSPI) {
@@ -134,15 +134,17 @@ public class SupportFilterServiceHelper {
         return paths.iterator().next();
     }
 
-    public static void assertFilterSvcByTypeSingle(EPStatement statement, String eventTypeName, FilterItem expected) {
-        FilterItem[][] filtersAll = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
-        assertEquals(1, filtersAll.length);
-        FilterItem[] filters = filtersAll[0];
-        assertEquals(1, filters.length);
-        assertEquals(expected, filters[0]);
+    public static void assertFilterSvcByTypeSingle(RegressionEnvironment env, String statementName, String eventTypeName, FilterItem expected) {
+        env.assertStatement(statementName, statement -> {
+            FilterItem[][] filtersAll = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
+            assertEquals(1, filtersAll.length);
+            FilterItem[] filters = filtersAll[0];
+            assertEquals(1, filters.length);
+            assertEquals(expected, filters[0]);
+        });
     }
 
-    public static void assertFilterSvcByTypeMulti(EPStatement statement, String eventTypeName, FilterItem[][] expected) {
+    public static void assertFilterSvcByTypeMulti(RegressionEnvironment env, String statementName, String eventTypeName, FilterItem[][] expected) {
         Comparator<FilterItem> comparator = (o1, o2) -> {
             if (o1.getName().equals(o2.getName())) {
                 if (o1.getOp().ordinal() > o1.getOp().ordinal()) {
@@ -156,17 +158,19 @@ public class SupportFilterServiceHelper {
             return o1.getName().compareTo(o2.getName());
         };
 
-        FilterItem[][] found = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
+        env.assertStatement(statementName, statement -> {
+            FilterItem[][] found = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
 
-        for (int i = 0; i < found.length; i++) {
-            Arrays.sort(found[i], comparator);
-        }
+            for (int i = 0; i < found.length; i++) {
+                Arrays.sort(found[i], comparator);
+            }
 
-        for (int i = 0; i < expected.length; i++) {
-            Arrays.sort(expected[i], comparator);
-        }
+            for (int i = 0; i < expected.length; i++) {
+                Arrays.sort(expected[i], comparator);
+            }
 
-        EPAssertionUtil.assertEqualsAnyOrder(expected, found);
+            EPAssertionUtil.assertEqualsAnyOrder(expected, found);
+        });
     }
 
     public static int getFilterSvcCountApprox(RegressionEnvironment env) {
@@ -246,16 +250,20 @@ public class SupportFilterServiceHelper {
         return statements;
     }
 
-    public static void assertFilterSvcEmpty(EPStatement statement, String eventTypeName) {
-        FilterItem[][] filters = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
-        assertEquals(1, filters.length);
-        assertEquals(0, filters[0].length);
+    public static void assertFilterSvcEmpty(RegressionEnvironment env, String statementName, String eventTypeName) {
+        env.assertStatement(statementName, statement -> {
+            FilterItem[][] filters = getFilterSvcMultiAssertNonEmpty(statement, eventTypeName);
+            assertEquals(1, filters.length);
+            assertEquals(0, filters[0].length);
+        });
     }
 
-    public static void assertFilterSvcNone(EPStatement statement, String eventTypeName) {
-        Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = getFilterSvcForStatement(statement);
-        EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(((EPStatementSPI) statement).getStatementContext(), eventTypeName);
-        assertFalse(set.containsKey(typeId));
+    public static void assertFilterSvcNone(RegressionEnvironment env, String statementName, String eventTypeName) {
+        env.assertStatement(statementName, statement -> {
+            Map<EventTypeIdPair, Map<Integer, List<FilterItem[]>>> set = getFilterSvcForStatement(statement);
+            EventTypeIdPair typeId = SupportEventTypeHelper.getTypeIdForName(((EPStatementSPI) statement).getStatementContext(), eventTypeName);
+            assertFalse(set.containsKey(typeId));
+        });
     }
 
     public static FilterItem[][] getFilterSvcMultiAssertNonEmpty(EPStatement statement, String eventTypeName) {
@@ -278,17 +286,19 @@ public class SupportFilterServiceHelper {
         return params.toArray(new FilterItem[params.size()][]);
     }
 
-    public static void assertFilterSvcMultiSameIndexDepthOne(EPStatement stmt, String eventType, int numEntries, String expression, FilterOperator operator) {
-        FilterItem[][] items = getFilterSvcMultiAssertNonEmpty(stmt, eventType);
-        assertEquals(numEntries, items.length);
-        for (int i = 0; i < numEntries; i++) {
-            FilterItem[] entries = items[i];
-            assertEquals(1, entries.length);
-            FilterItem item = entries[0];
-            assertEquals(expression, item.getName());
-            assertEquals(operator, item.getOp());
-            assertSame(items[0][0].getIndex(), item.getIndex());
-        }
+    public static void assertFilterSvcMultiSameIndexDepthOne(RegressionEnvironment env, String stmtName, String eventType, int numEntries, String expression, FilterOperator operator) {
+        env.assertStatement(stmtName, stmt -> {
+            FilterItem[][] items = getFilterSvcMultiAssertNonEmpty(stmt, eventType);
+            assertEquals(numEntries, items.length);
+            for (int i = 0; i < numEntries; i++) {
+                FilterItem[] entries = items[i];
+                assertEquals(1, entries.length);
+                FilterItem item = entries[0];
+                assertEquals(expression, item.getName());
+                assertEquals(operator, item.getOp());
+                assertSame(items[0][0].getIndex(), item.getIndex());
+            }
+        });
     }
 
     public static void assertFilterSvcMultiSameIndexDepthOne(Map<Integer, List<FilterItem[]>> filters, int numEntries, String expression, FilterOperator operator) {

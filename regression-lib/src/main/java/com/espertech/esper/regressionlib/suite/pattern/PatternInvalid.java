@@ -14,6 +14,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.fail;
 
@@ -52,6 +54,10 @@ public class PatternInvalid {
                 "Subselects are not allowed within pattern observer parameters, please consider using a variable instead");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -127,6 +133,10 @@ public class PatternInvalid {
             exception = getStatementExceptionPattern(env, "timer:at(perhaps:10)");
             SupportMessageAssertUtil.assertMessage(exception, "Invalid parameter for pattern observer 'timer:at(perhaps:10)': timer:at does not allow named parameters");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class PatternUseResult implements RegressionExecution {
@@ -147,6 +157,10 @@ public class PatternInvalid {
             tryInvalid(env, "na=" + event + "() -> nb=" + event + "(doublePrimitive in [na.intBoxed:na.boolBoxed])");
             tryInvalid(env, "na=" + event + "() -> nb=" + event + "(doublePrimitive in [na.xx:na.intPrimitive])");
             tryInvalid(env, "na=" + event + "() -> nb=" + event + "(doublePrimitive in [na.boolBoxed:na.intPrimitive])");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

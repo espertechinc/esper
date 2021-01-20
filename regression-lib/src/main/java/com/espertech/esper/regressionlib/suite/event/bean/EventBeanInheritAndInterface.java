@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.event.bean;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -38,19 +40,16 @@ public class EventBeanInheritAndInterface {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportOverrideOneA("valA", "valOne", "valBase"));
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("valA", theEvent.get("value"));
+            env.assertEqualsNew("s0", "value", "valA");
 
             env.sendEventBean(new SupportOverrideBase("x"));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportOverrideOneB("valB", "valTwo", "valBase2"));
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("valB", theEvent.get("value"));
+            env.assertEqualsNew("s0", "value", "valB");
 
             env.sendEventBean(new SupportOverrideOne("valThree", "valBase3"));
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("valThree", theEvent.get("value"));
+            env.assertEqualsNew("s0", "value", "valThree");
 
             env.undeployAll();
         }
@@ -98,6 +97,10 @@ public class EventBeanInheritAndInterface {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 }

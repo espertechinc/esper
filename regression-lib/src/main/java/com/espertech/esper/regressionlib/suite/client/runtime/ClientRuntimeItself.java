@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.ClassHelperGenericType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeBeanAnonymousTypeService;
@@ -32,6 +33,7 @@ import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -79,6 +81,10 @@ public class ClientRuntimeItself {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientRuntimeWrongCompileMethod implements RegressionExecution {
@@ -112,6 +118,10 @@ public class ClientRuntimeItself {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientRuntimeSPICompileReflective implements RegressionExecution {
@@ -137,7 +147,7 @@ public class ClientRuntimeItself {
             module.getItems().add(new ModuleItem("@name('s1') select * from MyWindow"));
             EPCompiled compiledFromModule = svc.reflectiveCompile(module);
             env.deploy(compiledFromModule);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), new String[]{"theString"}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("s1", new String[]{"theString"}, new Object[][]{{"E1"}});
 
             ExprNode node = svc.reflectiveCompileExpression("1*1", null, null);
             assertEquals(1, node.getForge().getExprEvaluator().evaluate(null, true, null));
@@ -151,6 +161,10 @@ public class ClientRuntimeItself {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientRuntimeItselfTransientConfiguration implements RegressionExecution {
@@ -163,6 +177,10 @@ public class ClientRuntimeItself {
             assertEquals(TEST_SECRET_VALUE, listener.getSecretValue());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 

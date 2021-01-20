@@ -58,7 +58,7 @@ public class ClientStageSendEvent {
         return execs;
     }
 
-    private static class ClientStageSendEventUpdateIStream implements RegressionExecution {
+    private static class ClientStageSendEventUpdateIStream implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "update istream SupportBean set intPrimitive = -1;\n" +
                 "@name('s0') select * from SupportBean;\n";
@@ -67,7 +67,7 @@ public class ClientStageSendEvent {
             env.stageService().getStage("ST");
 
             sendEvent(env, null, "E1", 10);
-            assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"));
+            env.assertEqualsNew("s0", "intPrimitive", -1);
 
             stageIt(env, "ST", deploymentId);
 
@@ -81,13 +81,13 @@ public class ClientStageSendEvent {
             env.milestone(1);
 
             sendEvent(env, null, "E3", 30);
-            assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"));
+            env.assertEqualsNew("s0", "intPrimitive", -1);
 
             env.undeployAll();
         }
     }
 
-    private static class ClientStageSendEventSubquery implements RegressionExecution {
+    private static class ClientStageSendEventSubquery implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select (select sum(id) from SupportBean_S0) as thesum from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
@@ -119,7 +119,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextStartWithEndPattern implements RegressionExecution {
+    private static class ClientStageSendEventContextStartWithEndPattern implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext start SupportBean_S0 end pattern [SupportBean_S1(id=100) -> SupportBean_S1(id=200)];\n" +
@@ -162,7 +162,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextKeyedWithTerminated implements RegressionExecution {
+    private static class ClientStageSendEventContextKeyedWithTerminated implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext partition by theString from SupportBean, p00 from SupportBean_S0 " +
@@ -201,7 +201,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextKeyedWithInitiated implements RegressionExecution {
+    private static class ClientStageSendEventContextKeyedWithInitiated implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext partition by theString from SupportBean initiated by SupportBean(intPrimitive=1);\n" +
@@ -237,7 +237,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextStartWithEndFilter implements RegressionExecution {
+    private static class ClientStageSendEventContextStartWithEndFilter implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext start SupportBean_S0 end SupportBean_S1;\n" +
@@ -279,7 +279,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextNestedHashOverHash implements RegressionExecution {
+    private static class ClientStageSendEventContextNestedHashOverHash implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext \n" +
@@ -318,7 +318,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextNestedInitiatedOverKeyed implements RegressionExecution {
+    private static class ClientStageSendEventContextNestedInitiatedOverKeyed implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext \n" +
@@ -357,18 +357,18 @@ public class ClientStageSendEvent {
             env.milestone(3);
 
             sendEvent(env, null, "A", 40);
-            assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{1000, "A", 10 + 20 + 30 + 40}, {2000, "A", 30 + 40}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1000, "A", 10 + 20 + 30 + 40}, {2000, "A", 30 + 40}});
 
             sendEventS0(env, null, 3000);
 
             sendEvent(env, null, "B", 41);
-            assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{1000, "B", 21 + 41}, {2000, "B", 41}, {3000, "B", 41}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1000, "B", 21 + 41}, {2000, "B", 41}, {3000, "B", 41}});
 
             env.undeployAll();
         }
     }
 
-    private static class ClientStageSendEventContextNestedPartitionedOverStart implements RegressionExecution {
+    private static class ClientStageSendEventContextNestedPartitionedOverStart implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext \n" +
@@ -411,7 +411,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextNestedCategoryOverKeyed implements RegressionExecution {
+    private static class ClientStageSendEventContextNestedCategoryOverKeyed implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext \n" +
@@ -455,7 +455,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextInitiatedNoTerminated implements RegressionExecution {
+    private static class ClientStageSendEventContextInitiatedNoTerminated implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext initiated by SupportBean(theString='init') as sb;\n" +
@@ -465,10 +465,10 @@ public class ClientStageSendEvent {
             String[] fields = new String[]{"c0", "thesum"};
 
             sendEvent(env, null, "init", 100);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 100});
+            env.assertPropsNew("s0", fields, new Object[]{100, 100});
 
             sendEvent(env, null, "x", 101);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{100, 201});
+            env.assertPropsNew("s0", fields, new Object[]{100, 201});
 
             env.stageService().getStage("ST");
             stageIt(env, "ST", deploymentId);
@@ -488,16 +488,16 @@ public class ClientStageSendEvent {
             env.milestone(3);
 
             sendEvent(env, null, "z", 400);
-            assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 1101}, {300, 700}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{100, 1101}, {300, 700}});
 
             sendEvent(env, null, "init", 401);
-            assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{100, 1101 + 401}, {300, 700 + 401}, {401, 401}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{100, 1101 + 401}, {300, 700 + 401}, {401, 401}});
 
             env.undeployAll();
         }
     }
 
-    private static class ClientStageSendEventContextStartNoEnd implements RegressionExecution {
+    private static class ClientStageSendEventContextStartNoEnd implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext start SupportBean(theString='start');\n" +
@@ -529,7 +529,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextHash implements RegressionExecution {
+    private static class ClientStageSendEventContextHash implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext coalesce by consistent_hash_crc32(theString) from SupportBean granularity 16;\n" +
@@ -563,7 +563,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextCategory implements RegressionExecution {
+    private static class ClientStageSendEventContextCategory implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create context MyContext group by theString='A' as grp1, group by theString='B' as grp2 from SupportBean;\n" +
@@ -599,7 +599,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventContextKeyed implements RegressionExecution {
+    private static class ClientStageSendEventContextKeyed implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('context') @public create context MyContext partition by theString from SupportBean", path);
@@ -635,21 +635,21 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWEvery implements RegressionExecution {
+    private static class ClientStageSendEventPatternWEvery implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every SupportBean]";
             runAssertionPatternEvery(env, epl);
         }
     }
 
-    private static class ClientStageSendEventPatternWEveryDistinct implements RegressionExecution {
+    private static class ClientStageSendEventPatternWEveryDistinct implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[every-distinct(a.theString) a=SupportBean]";
             runAssertionPatternEvery(env, epl);
         }
     }
 
-    private static class ClientStageSendEventPatternWOr implements RegressionExecution {
+    private static class ClientStageSendEventPatternWOr implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') or SupportBean(theString='b')]";
             env.compileDeploy(epl).addListener("s0");
@@ -667,7 +667,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWNot implements RegressionExecution {
+    private static class ClientStageSendEventPatternWNot implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') and not SupportBean(theString='b')]";
             env.compileDeploy(epl).addListener("s0");
@@ -686,7 +686,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWUntil implements RegressionExecution {
+    private static class ClientStageSendEventPatternWUntil implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') until SupportBean(theString='b')]";
             env.compileDeploy(epl).addListener("s0");
@@ -705,7 +705,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWGuard implements RegressionExecution {
+    private static class ClientStageSendEventPatternWGuard implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') where timer:within(10 sec)]";
             env.compileDeploy(epl).addListener("s0");
@@ -723,7 +723,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWAnd implements RegressionExecution {
+    private static class ClientStageSendEventPatternWAnd implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') and SupportBean(theString='b')]";
             env.compileDeploy(epl).addListener("s0");
@@ -744,7 +744,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventPatternWFollowedBy implements RegressionExecution {
+    private static class ClientStageSendEventPatternWFollowedBy implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[SupportBean(theString='a') -> SupportBean(theString='b') ->" +
                 "SupportBean(theString='c') -> SupportBean(theString='d') -> SupportBean(theString='e')]";
@@ -779,13 +779,14 @@ public class ClientStageSendEvent {
             env.milestone(5);
 
             sendEvent(env, null, "e");
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", event -> {
+            });
 
             env.undeployAll();
         }
     }
 
-    private static class ClientStageSendEventNamedWindow implements RegressionExecution {
+    private static class ClientStageSendEventNamedWindow implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
                 "create window MyWindow#keepall as SupportBean;\n" +
@@ -795,7 +796,7 @@ public class ClientStageSendEvent {
         }
     }
 
-    private static class ClientStageSendEventFilter implements RegressionExecution {
+    private static class ClientStageSendEventFilter implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             runAssertionSimple(env, "@name('s0') select sum(intPrimitive) as c0 from SupportBean");
         }
@@ -833,12 +834,15 @@ public class ClientStageSendEvent {
         sendEvent(env, null, "E5", 31);
         sendEvent(env, "P1", "E6", 32);
         assertTotal(env, null, 10 + 22 + 31);
-        SupportListener listener = env.listener("s0");
+        env.assertThat(() -> {
+            SupportListener listener = env.listener("s0");
 
+            env.undeployAll();
+
+            sendEvent(env, null, "end", 99);
+            assertFalse(listener.getAndClearIsInvoked());
+        });
         env.undeployAll();
-
-        sendEvent(env, null, "end", 99);
-        assertFalse(listener.getAndClearIsInvoked());
     }
 
     private static void runAssertionPatternEvery(RegressionEnvironment env, String epl) {

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.avro;
 
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.event.avro.AvroSchemaEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -29,8 +28,11 @@ public class EventAvroSampleConfigDocOutputSchema implements RegressionExecution
         // schema from statement
         String epl = "@name('s0') " + EventRepresentationChoice.AVRO.getAnnotationText() + "select 1 as carId, 'abc' as carType from SupportBean";
         env.compileDeploy(epl);
-        Schema schema = (Schema) ((AvroSchemaEventType) env.statement("s0").getEventType()).getSchema();
-        assertEquals("{\"type\":\"record\",\"name\":\"stmt0_out0\",\"fields\":[{\"name\":\"carId\",\"type\":\"int\"},{\"name\":\"carType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}", schema.toString());
+        env.assertStatement("s0", statement -> {
+            Schema schema = (Schema) ((AvroSchemaEventType) statement.getEventType()).getSchema();
+            assertEquals("{\"type\":\"record\",\"name\":\"stmt0_out0\",\"fields\":[{\"name\":\"carId\",\"type\":\"int\"},{\"name\":\"carType\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}", schema.toString());
+        });
+
         env.undeployAll();
 
         // schema to-string Avro
@@ -42,12 +44,12 @@ public class EventAvroSampleConfigDocOutputSchema implements RegressionExecution
         env.undeployAll();
 
         env.compileDeploy("@name('s0') select count(*) from CarLocUpdateEvent(direction = 1)#time(1 min)").addListener("s0");
-        Schema schemaCarLocUpd = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("CarLocUpdateEvent"));
+        Schema schemaCarLocUpd = env.runtimeAvroSchemaPreconfigured("CarLocUpdateEvent");
         GenericData.Record event = new GenericData.Record(schemaCarLocUpd);
         event.put("carId", "A123456");
         event.put("direction", 1);
         env.sendEventAvro(event, "CarLocUpdateEvent");
-        assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("count(*)"));
+        env.assertEqualsNew("s0", "count(*)", 1L);
 
         env.undeployAll();
     }

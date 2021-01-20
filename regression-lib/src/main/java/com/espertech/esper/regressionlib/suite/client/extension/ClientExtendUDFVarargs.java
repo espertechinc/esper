@@ -44,10 +44,12 @@ public class ClientExtendUDFVarargs {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_S0(0));
-            Object[] data = (Object[]) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals(1, data[0]);
-            assertTrue(data[1] instanceof SupportBean);
-            assertTrue(((Collection) data[2]).iterator().next() instanceof SupportBean);
+            env.assertEventNew("s0", event -> {
+                Object[] data = (Object[]) event.get("c0");
+                assertEquals(1, data[0]);
+                assertTrue(data[1] instanceof SupportBean);
+                assertTrue(((Collection) data[2]).iterator().next() instanceof SupportBean);
+            });
 
             env.undeployAll();
         }
@@ -156,13 +158,13 @@ public class ClientExtendUDFVarargs {
         env.compileDeployAddListenerMile(buf.toString(), "test", milestone.getAndIncrement());
 
         env.sendEventBean(new SupportBean());
-        EventBean out = env.listener("test").assertOneGetNewAndReset();
-
-        count = 0;
-        for (UniformPair<String> pair : pairs) {
-            assertEquals("failed for '" + pair.getFirst() + "'", pair.getSecond(), out.get("c" + count));
-            count++;
-        }
+        env.assertEventNew("test", event -> {
+            int index = 0;
+            for (UniformPair<String> pair : pairs) {
+                assertEquals("failed for '" + pair.getFirst() + "'", pair.getSecond(), event.get("c" + index));
+                index++;
+            }
+        });
 
         env.undeployAll();
     }
@@ -181,11 +183,12 @@ public class ClientExtendUDFVarargs {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         env.sendEventBean(new SupportBean());
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEqualsColl(event, "c0", "a");
-        assertEqualsColl(event, "c1", "a");
-        assertEqualsColl(event, "c2", "a", "b");
-        assertEqualsColl(event, "c3", "a", "b");
+        env.assertEventNew("s0", event -> {
+            assertEqualsColl(event, "c0", "a");
+            assertEqualsColl(event, "c1", "a");
+            assertEqualsColl(event, "c2", "a", "b");
+            assertEqualsColl(event, "c3", "a", "b");
+        });
 
         env.undeployAll();
     }

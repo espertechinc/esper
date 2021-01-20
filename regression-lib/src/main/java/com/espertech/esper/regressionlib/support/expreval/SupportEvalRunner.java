@@ -30,12 +30,14 @@ import static org.junit.Assert.fail;
 public class SupportEvalRunner {
     private static final Logger log = LoggerFactory.getLogger(SupportEvalRunner.class);
 
-    public static <T> void run(RegressionEnvironment env, boolean soda, SupportEvalBuilder builder) {
+    public static <T> SupportEvalBuilderResult run(RegressionEnvironment env, boolean soda, SupportEvalBuilder builder) {
         verifyAssertions(builder);
+        SupportEvalBuilderResult result = null;
         if (!builder.isExcludeEPLAssertion()) {
-            runEPL(env, builder, soda);
+            result = runEPL(env, builder, soda);
         }
-        runNonCompile(env, builder);
+        env.assertThat(() -> runNonCompile(env, builder));
+        return result;
     }
 
     private static void verifyAssertions(SupportEvalBuilder builder) {
@@ -77,7 +79,7 @@ public class SupportEvalRunner {
         }
     }
 
-    private static void runEPL(RegressionEnvironment env, SupportEvalBuilder builder, boolean soda) {
+    private static SupportEvalBuilderResult runEPL(RegressionEnvironment env, SupportEvalBuilder builder, boolean soda) {
         StringBuilder epl = new StringBuilder();
         epl.append("@name('s0') select ");
 
@@ -110,7 +112,7 @@ public class SupportEvalRunner {
         }
 
         if (builder.getStatementConsumer() != null && builder.getExludeAssertionsExcept() == null && builder.getExludeNamesExcept() == null) {
-            builder.getStatementConsumer().accept(env.statement("s0"));
+            env.assertStatement("s0", statement -> builder.getStatementConsumer().accept(statement));
         }
 
         int count = -1;
@@ -123,6 +125,7 @@ public class SupportEvalRunner {
         }
 
         env.undeployModuleContaining("s0");
+        return new SupportEvalBuilderResult(eplText);
     }
 
     private static void runEPLAssertion(int assertionNumber, String eventType, RegressionEnvironment env, SupportEvalAssertionPair assertion, SupportEvalBuilder builder) {
@@ -139,19 +142,19 @@ public class SupportEvalRunner {
             }
         }
 
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        if (builder.isLogging()) {
-            log.info("Received event: " + EventBeanUtility.printEvent(event));
-        }
-
-        for (Map.Entry<String, SupportEvalExpected> expected : assertion.getBuilder().getResults().entrySet()) {
-            String name = expected.getKey();
-            if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(name)) {
-                continue;
+        env.assertEventNew("s0", event -> {
+            if (builder.isLogging()) {
+                log.info("Received event: " + EventBeanUtility.printEvent(event));
             }
-            Object actual = event.get(name);
-            doAssert(true, assertionNumber, expected.getKey(), expected.getValue(), actual);
-        }
+            for (Map.Entry<String, SupportEvalExpected> expected : assertion.getBuilder().getResults().entrySet()) {
+                String name = expected.getKey();
+                if (builder.getExludeNamesExcept() != null && !builder.getExludeNamesExcept().equals(name)) {
+                    continue;
+                }
+                Object actual = event.get(name);
+                doAssert(true, assertionNumber, expected.getKey(), expected.getValue(), actual);
+            }
+        });
     }
 
     private static void runNonCompileAssertion(int assertionNumber, EventType eventType, Map<String, ExprEvaluator> nodes, SupportEvalAssertionPair assertion, RegressionEnvironment env, SupportEvalBuilder builder) {

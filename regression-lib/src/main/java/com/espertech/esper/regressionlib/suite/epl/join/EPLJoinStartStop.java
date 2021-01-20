@@ -12,10 +12,12 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -48,8 +50,7 @@ public class EPLJoinStartStop {
 
             sendEvent(env, setOne[0]);
             sendEvent(env, setTwo[0]);
-            assertNotNull(env.listener("s0").getLastNewData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> assertNotNull(listener.getAndResetLastNewData()));
 
             SupportListener listener = env.listener("s0");
             env.undeployAll();
@@ -71,6 +72,10 @@ public class EPLJoinStartStop {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 

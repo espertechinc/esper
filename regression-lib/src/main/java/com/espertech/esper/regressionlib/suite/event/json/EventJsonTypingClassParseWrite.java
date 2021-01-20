@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -56,18 +57,18 @@ public class EventJsonTypingClassParseWrite {
 
             JsonObject depthTwo = new JsonObject().add("local", makeNested("a,b"));
             env.sendEventJson(depthTwo.toString(), "JsonEvent");
-            assertDepthTwo(env, env.listener("s0").assertOneGetNewAndReset(), depthTwo);
+            env.assertEventNew("s0", event -> assertDepthTwo(env, event, depthTwo));
 
             JsonObject depthThree = new JsonObject().add("local", makeNested("a,b,c"));
             env.sendEventJson(depthThree.toString(), "JsonEvent");
-            assertDepthThree(env, env.listener("s0").assertOneGetNewAndReset(), depthThree);
+            env.assertEventNew("s0", event -> assertDepthThree(env, event, depthThree));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertDepthTwo(env, it.next(), depthTwo);
-            assertDepthThree(env, it.next(), depthThree);
-
+            env.assertIterator("s0", it -> {
+                assertDepthTwo(env, it.next(), depthTwo);
+                assertDepthThree(env, it.next(), depthThree);
+            });
             env.undeployAll();
         }
 
@@ -118,7 +119,7 @@ public class EventJsonTypingClassParseWrite {
                 .add("c0Coll", new JsonArray().add(makeJson("E4", 4)));
             JsonObject jsonFilled = new JsonObject().add("local", localFilled);
             env.sendEventJson(jsonFilled.toString(), "JsonEvent");
-            assertFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonFilled);
+            env.assertEventNew("s0", event -> assertFilled(env, event, jsonFilled));
 
             JsonObject localNull = new JsonObject()
                 .add("c0", Json.NULL)
@@ -127,7 +128,7 @@ public class EventJsonTypingClassParseWrite {
                 .add("c0Coll", new JsonArray().add(Json.NULL));
             JsonObject jsonNulled = new JsonObject().add("local", localNull);
             env.sendEventJson(jsonNulled.toString(), "JsonEvent");
-            assertNulled(env, env.listener("s0").assertOneGetNewAndReset(), jsonNulled);
+            env.assertEventNew("s0", event -> assertNulled(env, event, jsonNulled));
 
             JsonObject localHalfFilled = new JsonObject()
                 .add("c0", makeJson("E1", 1))
@@ -136,7 +137,7 @@ public class EventJsonTypingClassParseWrite {
                 .add("c0Coll", new JsonArray().add(makeJson("E4", 4)).add(Json.NULL));
             JsonObject jsonHalfFilled = new JsonObject().add("local", localHalfFilled);
             env.sendEventJson(jsonHalfFilled.toString(), "JsonEvent");
-            assertHalfFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonHalfFilled);
+            env.assertEventNew("s0", event -> assertHalfFilled(env, event, jsonHalfFilled));
 
             JsonObject localEmpty = new JsonObject()
                 .add("c0", Json.NULL)
@@ -145,7 +146,7 @@ public class EventJsonTypingClassParseWrite {
                 .add("c0Coll", new JsonArray());
             JsonObject jsonEmpty = new JsonObject().add("local", localEmpty);
             env.sendEventJson(jsonEmpty.toString(), "JsonEvent");
-            assertEmpty(env, env.listener("s0").assertOneGetNewAndReset(), jsonEmpty);
+            env.assertEventNew("s0", event -> assertEmpty(env, event, jsonEmpty));
 
             JsonObject localFilledMultiple = new JsonObject()
                 .add("c0", makeJson("E1", 1))
@@ -154,16 +155,17 @@ public class EventJsonTypingClassParseWrite {
                 .add("c0Coll", new JsonArray().add(makeJson("E4", 40)).add(makeJson("E4", 41)));
             JsonObject jsonFilledMultiple = new JsonObject().add("local", localFilledMultiple);
             env.sendEventJson(jsonFilledMultiple.toString(), "JsonEvent");
-            assertFilledMultiple(env, env.listener("s0").assertOneGetNewAndReset(), jsonFilledMultiple);
+            env.assertEventNew("s0", event -> assertFilledMultiple(env, event, jsonFilledMultiple));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(env, it.next(), jsonFilled);
-            assertNulled(env, it.next(), jsonNulled);
-            assertHalfFilled(env, it.next(), jsonHalfFilled);
-            assertEmpty(env, it.next(), jsonEmpty);
-            assertFilledMultiple(env, it.next(), jsonFilledMultiple);
+            env.assertIterator("s0", it -> {
+                assertFilled(env, it.next(), jsonFilled);
+                assertNulled(env, it.next(), jsonNulled);
+                assertHalfFilled(env, it.next(), jsonHalfFilled);
+                assertEmpty(env, it.next(), jsonEmpty);
+                assertFilledMultiple(env, it.next(), jsonFilledMultiple);
+            });
 
             env.undeployAll();
         }
@@ -265,7 +267,7 @@ public class EventJsonTypingClassParseWrite {
             JsonObject jsonFilledObject = new JsonObject().add("local", localFilled);
             String jsonFilled = jsonFilledObject.toString();
             env.sendEventJson(jsonFilled, "JsonEvent");
-            assertEvent(env, env.listener("s0").assertOneGetNewAndReset(), jsonFilled, expected);
+            env.assertEventNew("s0", event -> assertEvent(env, event, jsonFilled, expected));
 
             JsonObject localNull = new JsonObject()
                 .add("c0", Json.NULL)
@@ -275,23 +277,26 @@ public class EventJsonTypingClassParseWrite {
             JsonObject jsonNullObject = new JsonObject().add("local", localNull);
             String jsonNull = jsonNullObject.toString();
             env.sendEventJson(jsonNull, "JsonEvent");
-            assertEvent(env, env.listener("s0").assertOneGetNewAndReset(), jsonNull, null);
+            env.assertEventNew("s0", event -> assertEvent(env, event, jsonNull, null));
 
-            try {
-                JsonObject localInvalid = new JsonObject().add("c0", invalidJson);
-                JsonObject jsonInvalidObject = new JsonObject().add("local", localInvalid);
-                env.sendEventJson(jsonInvalidObject.toString(), "JsonEvent");
-                fail();
-            } catch (EPException ex) {
-                String value = invalidJson instanceof JsonNumber ? invalidJson.toString() : invalidJson.asString();
-                assertMessage(ex, "Failed to parse json member name 'c0' as a " + fieldType.getSimpleName() + "-type from value '" + value + "'");
-            }
+            env.assertThat(() -> {
+                try {
+                    JsonObject localInvalid = new JsonObject().add("c0", invalidJson);
+                    JsonObject jsonInvalidObject = new JsonObject().add("local", localInvalid);
+                    env.sendEventJson(jsonInvalidObject.toString(), "JsonEvent");
+                    fail();
+                } catch (EPException ex) {
+                    String value = invalidJson instanceof JsonNumber ? invalidJson.toString() : invalidJson.asString();
+                    assertMessage(ex, "Failed to parse json member name 'c0' as a " + fieldType.getSimpleName() + "-type from value '" + value + "'");
+                }
+            });
 
             env.milestoneInc(milestone);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEvent(env, it.next(), jsonFilled, expected);
-            assertEvent(env, it.next(), jsonNull, null);
+            env.assertIterator("s0", it -> {
+                assertEvent(env, it.next(), jsonFilled, expected);
+                assertEvent(env, it.next(), jsonNull, null);
+            });
 
             env.undeployAll();
         }
@@ -305,6 +310,10 @@ public class EventJsonTypingClassParseWrite {
             String rendered = env.runtime().getRenderEventService().getJSONRenderer(event.getEventType()).render(event);
             assertEquals(json, rendered);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class EventJsonTypingListEnumType implements RegressionExecution {
@@ -316,32 +325,33 @@ public class EventJsonTypingClassParseWrite {
 
             String jsonFilled = "{ \"local\" : { \"c0\": [\"ENUM_VALUE_1\", \"ENUM_VALUE_2\"] } }\n";
             env.sendEventJson(jsonFilled, "JsonEvent");
-            assertFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonFilled);
+            env.assertEventNew("s0", event -> assertFilled(env, event, jsonFilled));
 
             String jsonUnfilled = "{ \"local\" : {}}";
             env.sendEventJson(jsonUnfilled, "JsonEvent");
-            assertUnfilled(env, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(env, event));
 
             String jsonEmpty = "{ \"local\" : { \"c0\": []}}\n";
             env.sendEventJson(jsonEmpty, "JsonEvent");
-            assertEmpty(env, env.listener("s0").assertOneGetNewAndReset(), jsonEmpty);
+            env.assertEventNew("s0", event -> assertEmpty(env, event, jsonEmpty));
 
             String jsonNull = "{ \"local\" : { \"c0\": null}}\n";
             env.sendEventJson(jsonNull, "JsonEvent");
-            assertUnfilled(env, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(env, event));
 
             String jsonPartiallyFilled = "{ \"local\" : { \"c0\": [\"ENUM_VALUE_3\", null] }}\n";
             env.sendEventJson(jsonPartiallyFilled, "JsonEvent");
-            assertPartiallyFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonPartiallyFilled);
+            env.assertEventNew("s0", event -> assertPartiallyFilled(env, event, jsonPartiallyFilled));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(env, it.next(), jsonFilled);
-            assertUnfilled(env, it.next());
-            assertEmpty(env, it.next(), jsonEmpty);
-            assertUnfilled(env, it.next());
-            assertPartiallyFilled(env, it.next(), jsonPartiallyFilled);
+            env.assertIterator("s0", it -> {
+                assertFilled(env, it.next(), jsonFilled);
+                assertUnfilled(env, it.next());
+                assertEmpty(env, it.next(), jsonEmpty);
+                assertUnfilled(env, it.next());
+                assertPartiallyFilled(env, it.next(), jsonPartiallyFilled);
+            });
 
             env.undeployAll();
         }
@@ -397,11 +407,11 @@ public class EventJsonTypingClassParseWrite {
                 "\"c10\": [80, 81]\n" +
                 "}}\n";
             env.sendEventJson(jsonFilled, "JsonEvent");
-            assertFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonFilled);
+            env.assertEventNew("s0", event -> assertFilled(env, event, jsonFilled));
 
             String jsonUnfilled = "{ \"local\" : {}}";
             env.sendEventJson(jsonUnfilled, "JsonEvent");
-            assertUnfilled(env, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(env, event));
 
             String jsonEmpty = "{ \"local\" : { " +
                 "\"c0\": [],\n" +
@@ -417,7 +427,7 @@ public class EventJsonTypingClassParseWrite {
                 "\"c10\": []\n" +
                 "}}\n";
             env.sendEventJson(jsonEmpty, "JsonEvent");
-            assertEmpty(env, env.listener("s0").assertOneGetNewAndReset(), jsonEmpty);
+            env.assertEventNew("s0", event -> assertEmpty(env, event, jsonEmpty));
 
             String jsonNull = "{ \"local\" : { " +
                 "\"c0\": null,\n" +
@@ -433,7 +443,7 @@ public class EventJsonTypingClassParseWrite {
                 "\"c10\": null\n" +
                 "}}\n";
             env.sendEventJson(jsonNull, "JsonEvent");
-            assertUnfilled(env, env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(env, event));
 
             String jsonPartiallyFilled = "{ \"local\" : { " +
                 "\"c0\": [\"abc\", null],\n" +
@@ -449,16 +459,17 @@ public class EventJsonTypingClassParseWrite {
                 "\"c10\": [80, null]\n" +
                 "}}\n";
             env.sendEventJson(jsonPartiallyFilled, "JsonEvent");
-            assertPartiallyFilled(env, env.listener("s0").assertOneGetNewAndReset(), jsonPartiallyFilled);
+            env.assertEventNew("s0", event -> assertPartiallyFilled(env, event, jsonPartiallyFilled));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(env, it.next(), jsonFilled);
-            assertUnfilled(env, it.next());
-            assertEmpty(env, it.next(), jsonEmpty);
-            assertUnfilled(env, it.next());
-            assertPartiallyFilled(env, it.next(), jsonPartiallyFilled);
+            env.assertIterator("s0", it -> {
+                assertFilled(env, it.next(), jsonFilled);
+                assertUnfilled(env, it.next());
+                assertEmpty(env, it.next(), jsonEmpty);
+                assertUnfilled(env, it.next());
+                assertPartiallyFilled(env, it.next(), jsonPartiallyFilled);
+            });
 
             env.undeployAll();
         }
@@ -550,7 +561,7 @@ public class EventJsonTypingClassParseWrite {
 
             env.milestone(0);
 
-            EPAssertionUtil.assertProps(env.iterator("s0").next(), "local".split(","), new Object[]{new MyLocalEvent("abc", 10)});
+            env.assertIterator("s0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "local".split(","), new Object[]{new MyLocalEvent("abc", 10)}));
 
             env.undeployAll();
         }

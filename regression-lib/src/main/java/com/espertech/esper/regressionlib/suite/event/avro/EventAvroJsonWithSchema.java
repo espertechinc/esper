@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.avro;
 
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -32,7 +31,7 @@ public class EventAvroJsonWithSchema implements RegressionExecution {
         String fields = "name,favorite_number,favorite_color";
         env.compileDeploy("@name('s0') select " + fields + " from User").addListener("s0");
 
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("User"));
+        Schema schema = env.runtimeAvroSchemaPreconfigured("User");
         String eventOneJson = "{\"name\": \"Jane\", \"favorite_number\": 256, \"favorite_color\": \"red\"}";
         GenericData.Record record = parse(schema, eventOneJson);
         env.sendEventAvro(record, "User");

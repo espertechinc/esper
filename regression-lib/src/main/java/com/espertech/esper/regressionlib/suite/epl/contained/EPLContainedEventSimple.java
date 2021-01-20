@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementFormatter;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
@@ -61,8 +60,7 @@ public class EPLContainedEventSimple {
             env.sendEventMap(buildMap("roomId", "r1"), "Room");
             env.sendEventMap(buildMap("roomId", "r2"), "Room");
             env.sendEventMap(buildMap("personId", "va"), "Person");
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            EPAssertionUtil.assertPropsPerRow(events, "personId,roomId".split(","), new Object[][] {{"va", "r1"}, {"va", "r2"}});
+            env.assertPropsPerRowLastNew("s0", "personId,roomId".split(","), new Object[][] {{"va", "r1"}, {"va", "r2"}});
 
             env.undeployAll();
         }
@@ -84,12 +82,10 @@ public class EPLContainedEventSimple {
             env.compileDeploy("insert into MyWindow select * from BookStream bs where not exists (select * from MyWindow mw where mw.price > bs.price)", path);
 
             env.sendEventBean(makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"10020"}, {"10021"}, {"10022"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"10020"}, {"10021"}, {"10022"}});
 
             // higest price (27 is the last value)
-            EventBean theEvent = env.iterator("nw").next();
-            assertEquals(35.0, theEvent.get("price"));
+            env.assertIterator("nw", iterator -> assertEquals(35.0, iterator.next().get("price")));
 
             env.undeployAll();
         }
@@ -129,18 +125,13 @@ public class EPLContainedEventSimple {
         private void tryAssertionUnidirectionalJoin(RegressionEnvironment env) {
             String[] fields = "orderEvent.orderdetail.orderId,book.bookId,book.title,item.amount".split(",");
             env.sendEventBean(makeEventOne());
-            assertEquals(3, env.listener("s0").getLastNewData().length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"PO200901", "10020", "Enders Game", 10}, {"PO200901", "10020", "Enders Game", 30}, {"PO200901", "10021", "Foundation 1", 25}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"PO200901", "10020", "Enders Game", 10}, {"PO200901", "10020", "Enders Game", 30}, {"PO200901", "10021", "Foundation 1", 25}});
 
             env.sendEventBean(makeEventTwo());
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"PO200902", "10022", "Stranger in a Strange Land", 5}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"PO200902", "10022", "Stranger in a Strange Land", 5}});
 
             env.sendEventBean(makeEventThree());
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"PO200903", "10021", "Foundation 1", 50}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"PO200903", "10021", "Foundation 1", 50}});
         }
     }
 
@@ -212,19 +203,16 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"10020", "A001", 10}, {"10020", "A003", 30}, {"10021", "A002", 25}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"10020", "A001", 10}, {"10020", "A003", 30}, {"10021", "A002", 25}});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"10020", "A001", 10}, {"10020", "A003", 30}, {"10021", "A002", 25}});
-            env.listener("s0").reset();
 
             env.sendEventBean(makeEventTwo());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"10022", "B001", 5}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"10022", "B001", 5}});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"10020", "A001", 10}, {"10020", "A003", 30}, {"10021", "A002", 25}, {"10022", "B001", 5}});
-            env.listener("s0").reset();
 
             env.sendEventBean(makeEventThree());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"10021", "C001", 50}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"10021", "C001", 50}});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"10020", "A001", 10}, {"10020", "A003", 30}, {"10021", "A002", 25}, {"10021", "C001", 50}, {"10022", "B001", 5}});
-            env.listener("s0").reset();
 
             env.sendEventBean(makeEventFour());
             env.assertListenerNotInvoked("s0");
@@ -258,23 +246,20 @@ public class EPLContainedEventSimple {
             env.compileDeploy("@name('s1') @IterableUnbound select books[0].author as val from OrderBean(books[0].bookId = '10020')");
 
             env.sendEventBean(makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "bookId".split(","), new Object[][]{{"10020"}, {"10021"}, {"10022"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", "bookId".split(","), new Object[][]{{"10020"}, {"10021"}, {"10022"}});
             env.assertPropsPerRowIterator("s0", "bookId".split(","), new Object[][]{{"10020"}, {"10021"}, {"10022"}});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), "val".split(","), new Object[][]{{"Orson Scott Card"}});
+            env.assertPropsPerRowIterator("s1", "val".split(","), new Object[][]{{"Orson Scott Card"}});
 
             env.sendEventBean(makeEventFour());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "bookId".split(","), new Object[][]{{"10031"}, {"10032"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", "bookId".split(","), new Object[][]{{"10031"}, {"10032"}});
             env.assertPropsPerRowIterator("s0", "bookId".split(","), new Object[][]{{"10031"}, {"10032"}});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), "val".split(","), new Object[][]{{"Orson Scott Card"}});
+            env.assertPropsPerRowIterator("s1", "val".split(","), new Object[][]{{"Orson Scott Card"}});
 
             // add where clause
             env.undeployAll();
             env.compileDeploy("@name('s0') select bookId from OrderBean[books where author='Orson Scott Card']").addListener("s0");
             env.sendEventBean(makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "bookId".split(","), new Object[][]{{"10020"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", "bookId".split(","), new Object[][]{{"10020"}});
 
             env.undeployAll();
         }
@@ -286,15 +271,15 @@ public class EPLContainedEventSimple {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "bookId".split(","), new Object[][]{{"10020"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", "bookId".split(","), new Object[][]{{"10020"}});
             env.assertPropsPerRowIterator("s0", "bookId".split(","), new Object[][]{{"10020"}});
 
             env.sendEventBean(makeEventFour());
-            assertNull(env.listener("s0").getLastOldData());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "bookId".split(","), new Object[][]{{"10031"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertNull(listener.getLastOldData());
+                EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), "bookId".split(","), new Object[][]{{"10031"}});
+                listener.reset();
+            });
             env.assertPropsPerRowIterator("s0", "bookId".split(","), new Object[][]{{"10031"}});
 
             env.undeployAll();

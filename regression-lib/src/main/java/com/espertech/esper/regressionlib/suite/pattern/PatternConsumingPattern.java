@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -77,8 +76,7 @@ public class PatternConsumingPattern {
             env.sendEventBean(new SupportIdEventA("A1", null, null));
             env.sendEventBean(new SupportIdEventA("A2", null, null));
             env.sendEventBean(new SupportIdEventB("B1", null));
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            EPAssertionUtil.assertPropsPerRow(events, "a.id".split(","), new Object[][]{{"A2"}, {"A1"}});
+            env.assertPropsPerRowNewOnly("s0", "a.id".split(","), new Object[][]{{"A2"}, {"A1"}});
 
             env.undeployAll();
         }
@@ -455,8 +453,8 @@ public class PatternConsumingPattern {
         if (target == TargetEnum.SUPPRESS_ONLY || target == TargetEnum.DISCARD_AND_SUPPRESS) {
             env.assertPropsNew("s0", fields, new Object[]{"A1", "A2", "B1"});
         } else {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
-                new Object[][]{{"A1", "A2", "B1"}, {"A2", null, "B1"}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields,
+                new Object[][]{{"A1", "A2", "B1"}, {"A2", null, "B1"}}));
         }
 
         env.undeployAll();

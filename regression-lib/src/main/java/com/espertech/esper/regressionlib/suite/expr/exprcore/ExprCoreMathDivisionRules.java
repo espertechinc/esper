@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -17,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 public class ExprCoreMathDivisionRules {
 
@@ -37,7 +36,7 @@ public class ExprCoreMathDivisionRules {
             String epl = "@name('s0') select BigInteger.valueOf(4)/BigInteger.valueOf(2) as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(BigInteger.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStmtType("s0", "c0", EPTypePremade.BIGINTEGER.getEPType());
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
@@ -52,7 +51,7 @@ public class ExprCoreMathDivisionRules {
             String epl = "@name('s0') select 10L/2L as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStmtType("s0", "c0", EPTypePremade.LONGBOXED.getEPType());
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
@@ -67,7 +66,7 @@ public class ExprCoreMathDivisionRules {
             String epl = "@name('s0') select 10f/2f as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Float.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStmtType("s0", "c0", EPTypePremade.FLOATBOXED.getEPType());
 
             String[] fields = "c0".split(",");
             env.sendEventBean(new SupportBean());
@@ -95,16 +94,16 @@ public class ExprCoreMathDivisionRules {
             String epl = "@name('s0') select intPrimitive/intBoxed as result from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStmtType("s0", "result", EPTypePremade.INTEGERBOXED.getEPType());
 
             sendEvent(env, 100, 3);
-            assertEquals(33, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", 33);
 
             sendEvent(env, 100, null);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", null);
 
             sendEvent(env, 100, 0);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+            env.assertEqualsNew("s0", "result", null);
 
             env.undeployAll();
         }

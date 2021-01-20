@@ -45,7 +45,7 @@ public class PatternStartStop {
     private static class PatternStartStopTwo implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
         }
 
         public void run(RegressionEnvironment env) {
@@ -124,6 +124,10 @@ public class PatternStartStop {
             assertFalse(env.iterator("s0").hasNext());
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class PatternAddRemoveListener implements RegressionExecution {
@@ -158,11 +162,15 @@ public class PatternStartStop {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static void sendAndAssert(RegressionEnvironment env) {
         for (int i = 0; i < 1000; i++) {
-            Object theEvent = null;
+            final Object theEvent;
             if (i % 3 == 0) {
                 theEvent = new SupportBean();
             } else {
@@ -171,14 +179,15 @@ public class PatternStartStop {
 
             env.sendEventBean(theEvent);
 
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            if (theEvent instanceof SupportBean) {
-                TestCase.assertSame(theEvent, eventBean.get("a"));
-                assertNull(eventBean.get("b"));
-            } else {
-                TestCase.assertSame(theEvent, eventBean.get("b"));
-                assertNull(eventBean.get("a"));
-            }
+            env.assertEventNew("s0", eventBean -> {
+                if (theEvent instanceof SupportBean) {
+                    TestCase.assertSame(theEvent, eventBean.get("a"));
+                    assertNull(eventBean.get("b"));
+                } else {
+                    TestCase.assertSame(theEvent, eventBean.get("b"));
+                    assertNull(eventBean.get("a"));
+                }
+            });
         }
     }
 

@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import org.junit.Assert;
@@ -294,7 +295,7 @@ public class PatternObserverTimerInterval {
             env.milestone(0);
 
             sendTimer(12000, env);
-            Assert.assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", "E2");
 
             sendTimer(12999, env);
             env.assertListenerNotInvoked("s0");
@@ -302,7 +303,7 @@ public class PatternObserverTimerInterval {
             env.milestone(1);
 
             sendTimer(13000, env);
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", "E1");
 
             env.undeployAll();
         }
@@ -340,10 +341,7 @@ public class PatternObserverTimerInterval {
 
             // Set up a timer:within
             EPCompiled compiled = env.compile("@name('s0') select * from pattern [timer:interval(?::int minute ?::int seconds)]");
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> {
-                prepared.setObject(1, 1);
-                prepared.setObject(2, 2);
-            }));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams().add(1, 1).add(2, 2)));
             env.addListener("s0");
 
             sendTimer(62 * 1000 - 1, env);

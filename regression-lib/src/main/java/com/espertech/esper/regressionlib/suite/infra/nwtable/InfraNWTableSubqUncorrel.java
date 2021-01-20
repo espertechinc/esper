@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class InfraNWTableSubqUncorrel {
 
@@ -69,21 +68,23 @@ public class InfraNWTableSubqUncorrel {
                 stmtTextSelectOne = "@Hint('disable_window_subquery_indexshare') " + stmtTextSelectOne;
             }
             env.compileDeploy(stmtTextSelectOne, path).addListener("select");
-            EPAssertionUtil.assertEqualsAnyOrder(env.statement("select").getEventType().getPropertyNames(), new String[]{"value", "symbol"});
-            assertEquals(String.class, env.statement("select").getEventType().getPropertyType("value"));
-            assertEquals(String.class, env.statement("select").getEventType().getPropertyType("symbol"));
+            env.assertStatement("select", statement -> {
+                EPAssertionUtil.assertEqualsAnyOrder(statement.getEventType().getPropertyNames(), new String[]{"value", "symbol"});
+                assertEquals(String.class, statement.getEventType().getPropertyType("value"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            });
 
             sendMarketBean(env, "M1");
             String[] fieldsStmt = new String[]{"value", "symbol"};
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M1"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{null, "M1"});
 
             sendSupportBean(env, "S1", 1L, 2L);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
             String[] fieldsWin = new String[]{"a", "b", "c"};
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fieldsWin, new Object[]{"S1", 1L, 2L});
+                env.assertPropsNew("create", fieldsWin, new Object[]{"S1", 1L, 2L});
             } else {
-                assertFalse(env.listener("create").isInvoked());
+                env.assertListenerNotInvoked("create");
             }
 
             // create consumer 2 -- note that this one should not start empty now
@@ -94,19 +95,19 @@ public class InfraNWTableSubqUncorrel {
             env.compileDeploy(stmtTextSelectTwo, path).addListener("selectTwo");
 
             sendMarketBean(env, "M1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S1", "M1"});
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S1", "M1"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{"S1", "M1"});
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{"S1", "M1"});
 
             sendSupportBean(env, "S2", 10L, 20L);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fieldsWin, new Object[]{"S2", 10L, 20L});
+                env.assertPropsNew("create", fieldsWin, new Object[]{"S2", 10L, 20L});
             }
 
             sendMarketBean(env, "M2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M2"});
-            assertFalse(env.listener("create").isInvoked());
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M2"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{null, "M2"});
+            env.assertListenerNotInvoked("create");
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{null, "M2"});
 
             // create delete stmt
             String stmtTextDelete = "@name('delete') on SupportBean_A delete from MyInfra where id = a";
@@ -115,31 +116,31 @@ public class InfraNWTableSubqUncorrel {
             // delete S1
             env.sendEventBean(new SupportBean_A("S1"));
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fieldsWin, new Object[]{"S1", 1L, 2L});
+                env.assertPropsOld("create", fieldsWin, new Object[]{"S1", 1L, 2L});
             }
 
             sendMarketBean(env, "M3");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S2", "M3"});
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S2", "M3"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{"S2", "M3"});
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{"S2", "M3"});
 
             // delete S2
             env.sendEventBean(new SupportBean_A("S2"));
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fieldsWin, new Object[]{"S2", 10L, 20L});
+                env.assertPropsOld("create", fieldsWin, new Object[]{"S2", 10L, 20L});
             }
 
             sendMarketBean(env, "M4");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M4"});
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M4"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{null, "M4"});
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{null, "M4"});
 
             sendSupportBean(env, "S3", 100L, 200L);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fieldsWin, new Object[]{"S3", 100L, 200L});
+                env.assertPropsNew("create", fieldsWin, new Object[]{"S3", 100L, 200L});
             }
 
             sendMarketBean(env, "M5");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S3", "M5"});
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{"S3", "M5"});
+            env.assertPropsNew("select", fieldsStmt, new Object[]{"S3", "M5"});
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{"S3", "M5"});
 
             env.undeployAll();
         }

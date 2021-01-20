@@ -15,12 +15,14 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -48,9 +50,13 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
             String eplInsertInto = "insert into MyTableINS (p0, p1) select 'a', 1";
             EPFireAndForgetQueryResult resultOne = env.compileExecuteFAF(eplInsertInto, path);
             assertFAFInsertResult(resultOne, propertyNames, env.statement("create"));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), propertyNames, new Object[][]{{"a", 1}});
+            env.assertPropsPerRowIterator("create", propertyNames, new Object[][]{{"a", 1}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -68,6 +74,10 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFUpdate implements RegressionExecution {
@@ -82,6 +92,10 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
             EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("TheTable").iterator(), fields, new Object[][]{{"E1", "ABC"}, {"E2", "ABC"}});
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSelect implements RegressionExecution {
@@ -95,6 +109,10 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
             EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyTableSEL", path);
             EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), fields, new Object[][]{{"E1"}, {"E2"}});
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

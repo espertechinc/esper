@@ -10,16 +10,13 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
-import org.junit.Assert;
 
 import java.util.EnumSet;
 
-import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertEquals;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
 
 public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
@@ -72,7 +69,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
         // 1001st event should finally join and produce a result
         SupportBean_S0 bean = new SupportBean_S0(10);
         env.sendEventBean(bean);
-        Assert.assertEquals("J", env.listener("s0").assertOneGetNewAndReset().get("myvarchar"));
+        env.assertEqualsNew("s0", "myvarchar", "J");
 
         env.undeployAll();
     }
@@ -90,7 +87,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
         for (int i = 0; i < 100; i++) {
             SupportBean_S0 bean = new SupportBean_S0(5);
             env.sendEventBean(bean);
-            assertEquals("E", env.listener("s0").assertOneGetNewAndReset().get("myvarchar"));
+            env.assertEqualsNew("s0", "myvarchar", "E");
         }
 
         // now advance the time, this should not produce events or join
@@ -134,8 +131,7 @@ public class EPLDatabaseJoinPerfNoCache implements RegressionExecution {
             SupportBean_S0 bean = new SupportBean_S0(id);
             env.sendEventBean(bean);
 
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(id * 10, received.get("myint"));
+            env.assertEqualsNew("s0", "myint", id * 10);
         }
 
         env.undeployAll();

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.*;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -90,10 +89,10 @@ public class InfraTableCountMinSketch {
             env.milestone(0);
 
             env.sendEventBean(new SupportByteArrEventStringId("B", new byte[]{0, 2, 3}));
-            assertEquals(0L, env.listener("s0").assertOneGetNewAndReset().get("freq"));
+            env.assertEqualsNew("s0", "freq", 0L);
 
             env.sendEventBean(new SupportByteArrEventStringId("B", new byte[]{1, 2, 3}));
-            assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("freq"));
+            env.assertEqualsNew("s0", "freq", 1L);
 
             env.undeployAll();
         }
@@ -139,20 +138,20 @@ public class InfraTableCountMinSketch {
             String eplJoin = "@name('join') select wordapprox.countMinSketchFrequency(s2.p20) as c0 from MyApproxFT, SupportBean_S2 s2 unidirectional";
             env.compileDeploy(eplJoin, path).addListener("join");
 
-            env.milestone(2);
+            env.milestone(3);
 
             env.sendEventBean(new SupportBean_S2(0, "E3"));
-            assertEquals(1L, env.listener("join").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("join", "c0", 1L);
             env.undeployModuleContaining("join");
 
             // test subquery
             String eplSubquery = "@name('subq') select (select wordapprox.countMinSketchFrequency(s2.p20) from MyApproxFT) as c0 from SupportBean_S2 s2";
             env.compileDeploy(eplSubquery, path).addListener("subq");
 
-            env.milestone(3);
+            env.milestone(4);
 
             env.sendEventBean(new SupportBean_S2(0, "E3"));
-            assertEquals(1L, env.listener("subq").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("subq", "c0", 1L);
             env.undeployModuleContaining("subq");
 
             env.undeployAll();
@@ -221,28 +220,32 @@ public class InfraTableCountMinSketch {
         for (int i = 0; i < pairs.length; i++) {
             String[] split = pairs[i].split("=");
             env.sendEventBean(new SupportBean_S0(0, split[0].trim()));
-            Object value = env.listener("frequency").assertOneGetNewAndReset().get("freq");
-            assertEquals("failed at index" + i, Long.parseLong(split[1]), value);
+            final int index = i;
+            env.assertEventNew("frequency", event -> {
+                Object value = event.get("freq");
+                assertEquals("failed at index" + index, Long.parseLong(split[1]), value);
+            });
         }
     }
 
     private static void assertTopk(RegressionEnvironment env, String topkList) {
 
         env.sendEventBean(new SupportBean_S1(0));
-        EventBean event = env.listener("topk").assertOneGetNewAndReset();
-        CountMinSketchTopK[] arr = (CountMinSketchTopK[]) event.get("topk");
+        env.assertEventNew("topk", event -> {
+            CountMinSketchTopK[] arr = (CountMinSketchTopK[]) event.get("topk");
 
-        String[] pairs = topkList.split(",");
-        assertEquals("received " + Arrays.asList(arr), pairs.length, arr.length);
+            String[] pairs = topkList.split(",");
+            assertEquals("received " + Arrays.asList(arr), pairs.length, arr.length);
 
-        for (String pair : pairs) {
-            String[] pairArr = pair.split("=");
-            long expectedFrequency = Long.parseLong(pairArr[1]);
-            String expectedValue = pairArr[0].trim();
-            int foundIndex = find(expectedFrequency, expectedValue, arr);
-            assertFalse("failed to find '" + expectedValue + "=" + expectedFrequency + "' among remaining " + Arrays.asList(arr), foundIndex == -1);
-            arr[foundIndex] = null;
-        }
+            for (String pair : pairs) {
+                String[] pairArr = pair.split("=");
+                long expectedFrequency = Long.parseLong(pairArr[1]);
+                String expectedValue = pairArr[0].trim();
+                int foundIndex = find(expectedFrequency, expectedValue, arr);
+                assertFalse("failed to find '" + expectedValue + "=" + expectedFrequency + "' among remaining " + Arrays.asList(arr), foundIndex == -1);
+                arr[foundIndex] = null;
+            }
+        });
     }
 
     private static int find(long expectedFrequency, String expectedValue, CountMinSketchTopK[] arr) {

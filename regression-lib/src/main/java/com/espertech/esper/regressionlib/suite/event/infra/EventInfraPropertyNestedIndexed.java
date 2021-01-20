@@ -18,7 +18,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
@@ -86,8 +85,10 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
     private void runAssertion(RegressionEnvironment env, boolean preconfigured, String typename, FunctionSendEvent4IntWArrayNested send, EPTypeClass nestedClass, String fragmentTypeName, RegressionPath path) {
         runAssertionSelectNested(env, typename, send, path);
         runAssertionBeanNav(env, typename, send, path);
-        runAssertionTypeValidProp(env, preconfigured, typename, send, nestedClass, fragmentTypeName);
-        runAssertionTypeInvalidProp(env, typename);
+        env.assertThat(() -> {
+            runAssertionTypeValidProp(env, preconfigured, typename, send, nestedClass, fragmentTypeName);
+            runAssertionTypeInvalidProp(env, typename);
+        });
     }
 
     private void runAssertionBeanNav(RegressionEnvironment env, String typename, FunctionSendEvent4IntWArrayNested send, RegressionPath path) {
@@ -95,14 +96,15 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         env.compileDeploy(epl, path).addListener("s0");
 
         send.apply(typename, env, 1, 2, 3, 4);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "l1[0].lvl1,l1[0].l2[0].lvl2,l1[0].l2[0].l3[0].lvl3,l1[0].l2[0].l3[0].l4[0].lvl4".split(","), new Object[]{1, 2, 3, 4});
-        SupportEventTypeAssertionUtil.assertConsistency(event);
-        boolean isNative = typename.equals(BEAN_TYPENAME);
-        SupportEventTypeAssertionUtil.assertFragments(event, isNative, true, "l1,l1[0].l2,l1[0].l2[0].l3,l1[0].l2[0].l3[0].l4");
-        SupportEventTypeAssertionUtil.assertFragments(event, isNative, false, "l1[0],l1[0].l2[0],l1[0].l2[0].l3[0],l1[0].l2[0].l3[0].l4[0]");
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, "l1[0].lvl1,l1[0].l2[0].lvl2,l1[0].l2[0].l3[0].lvl3,l1[0].l2[0].l3[0].l4[0].lvl4".split(","), new Object[]{1, 2, 3, 4});
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+            boolean isNative = typename.equals(BEAN_TYPENAME);
+            SupportEventTypeAssertionUtil.assertFragments(event, isNative, true, "l1,l1[0].l2,l1[0].l2[0].l3,l1[0].l2[0].l3[0].l4");
+            SupportEventTypeAssertionUtil.assertFragments(event, isNative, false, "l1[0],l1[0].l2[0],l1[0].l2[0].l3[0],l1[0].l2[0].l3[0].l4[0]");
 
-        runAssertionEventInvalidProp(event);
+            runAssertionEventInvalidProp(event);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -122,15 +124,18 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
 
         String[] fields = "c0,exists_c0,c1,exists_c1,c2,exists_c2,c3,exists_c3".split(",");
 
-        EventType eventType = env.statement("s0").getEventType();
-        for (String property : fields) {
-            assertEquals(property.startsWith("exists") ? Boolean.class : Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(property)));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String property : fields) {
+                assertEquals(property.startsWith("exists") ? Boolean.class : Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(property)));
+            }
+        });
 
         send.apply(typename, env, 1, 2, 3, 4);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, fields, new Object[]{1, true, 2, true, 3, true, 4, true});
-        SupportEventTypeAssertionUtil.assertConsistency(event);
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, fields, new Object[]{1, true, 2, true, 3, true, 4, true});
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+        });
 
         send.apply(typename, env, 10, 5, 50, 400);
         env.assertPropsNew("s0", fields, new Object[]{10, true, 5, true, 50, true, 400, true});
@@ -249,7 +254,7 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
     };
 
     private static final FunctionSendEvent4IntWArrayNested FAVRO = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema lvl1Schema = schema.getField("l1").schema().getElementType();
         Schema lvl2Schema = lvl1Schema.getField("l2").schema().getElementType();
         Schema lvl3Schema = lvl2Schema.getField("l3").schema().getElementType();
@@ -305,7 +310,8 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         public void apply(String eventTypeName, RegressionEnvironment env, int lvl1, int lvl2, int lvl3, int lvl4);
     }
 
-    public static class InfraNestedIndexPropTop {
+    public static class InfraNestedIndexPropTop implements Serializable {
+        private static final long serialVersionUID = 2297443945432320211L;
         private InfraNestedIndexedPropLvl1[] l1;
 
         public InfraNestedIndexPropTop(InfraNestedIndexedPropLvl1[] l1) {
@@ -317,7 +323,8 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         }
     }
 
-    public static class InfraNestedIndexedPropLvl1 {
+    public static class InfraNestedIndexedPropLvl1 implements Serializable {
+        private static final long serialVersionUID = 7600046952952069712L;
         private InfraNestedIndexedPropLvl2[] l2;
         private int lvl1;
 
@@ -335,7 +342,8 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         }
     }
 
-    public static class InfraNestedIndexedPropLvl2 {
+    public static class InfraNestedIndexedPropLvl2 implements Serializable {
+        private static final long serialVersionUID = -6947556516047331971L;
         private InfraNestedIndexedPropLvl3[] l3;
         private int lvl2;
 
@@ -353,7 +361,8 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         }
     }
 
-    public static class InfraNestedIndexedPropLvl3 {
+    public static class InfraNestedIndexedPropLvl3 implements Serializable {
+        private static final long serialVersionUID = -488159080789006506L;
         private InfraNestedIndexedPropLvl4[] l4;
         private int lvl3;
 
@@ -371,7 +380,8 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
         }
     }
 
-    public static class InfraNestedIndexedPropLvl4 {
+    public static class InfraNestedIndexedPropLvl4 implements Serializable {
+        private static final long serialVersionUID = 6747213776138885624L;
         private int lvl4;
 
         public InfraNestedIndexedPropLvl4(int lvl4) {
@@ -384,25 +394,30 @@ public class EventInfraPropertyNestedIndexed implements RegressionExecution {
     }
 
     public static class MyLocalJSONProvidedTop implements Serializable {
+        private static final long serialVersionUID = 3376936775224606438L;
         public MyLocalJSONProvidedLvl1[] l1;
     }
 
     public static class MyLocalJSONProvidedLvl1 implements Serializable {
+        private static final long serialVersionUID = 2158145623507831109L;
         public MyLocalJSONProvidedLvl2[] l2;
         public int lvl1;
     }
 
     public static class MyLocalJSONProvidedLvl2 implements Serializable {
+        private static final long serialVersionUID = 2026500333648907630L;
         public MyLocalJSONProvidedLvl3[] l3;
         public int lvl2;
     }
 
     public static class MyLocalJSONProvidedLvl3 implements Serializable {
+        private static final long serialVersionUID = 6823394189225158503L;
         public MyLocalJSONProvidedLvl4[] l4;
         public int lvl3;
     }
 
     public static class MyLocalJSONProvidedLvl4 implements Serializable {
+        private static final long serialVersionUID = -6252928103336677885L;
         public int lvl4;
     }
 }

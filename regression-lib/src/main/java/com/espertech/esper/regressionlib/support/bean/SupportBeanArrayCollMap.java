@@ -10,9 +10,14 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class SupportBeanArrayCollMap {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportBeanArrayCollMap implements Serializable {
+    private static final long serialVersionUID = 6020043263874699818L;
     private int[] intArr;
     private Long[] longArr;
     private Collection<Integer> intCol;

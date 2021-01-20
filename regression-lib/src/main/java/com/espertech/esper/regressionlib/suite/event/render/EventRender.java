@@ -67,6 +67,10 @@ public class EventRender {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
     }
 
     private static class EventRenderObjectArray implements RegressionExecution {
@@ -76,13 +80,17 @@ public class EventRender {
             env.compileDeploy("@name('s0') select * from MyObjectArrayType");
             env.sendEventObjectArray(values, "MyObjectArrayType");
 
-            String json = env.runtime().getRenderEventService().renderJSON("MyEvent", env.iterator("s0").next());
-            String expectedJson = "{ \"MyEvent\": { \"p0\": \"abc\", \"p1\": 1, \"p3\": 2, \"p4\": 3.0, \"p2\": { \"id\": 1, \"p00\": \"p00\", \"p01\": null, \"p02\": null, \"p03\": null } } }";
-            assertEquals(removeNewline(expectedJson), removeNewline(json));
+            env.assertThat(() -> {
+                String json = env.runtime().getRenderEventService().renderJSON("MyEvent", env.iterator("s0").next());
+                String expectedJson = "{ \"MyEvent\": { \"p0\": \"abc\", \"p1\": 1, \"p3\": 2, \"p4\": 3.0, \"p2\": { \"id\": 1, \"p00\": \"p00\", \"p01\": null, \"p02\": null, \"p03\": null } } }";
+                assertEquals(removeNewline(expectedJson), removeNewline(json));
+            });
 
-            String xmlOne = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next());
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <MyEvent> <p0>abc</p0> <p1>1</p1> <p3>2</p3> <p4>3.0</p4> <p2> <id>1</id> <p00>p00</p00> </p2> </MyEvent>";
-            assertEquals(removeNewline(expected), removeNewline(xmlOne));
+            env.assertThat(() -> {
+                String xmlOne = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next());
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <MyEvent> <p0>abc</p0> <p1>1</p1> <p3>2</p3> <p4>3.0</p4> <p2> <id>1</id> <p00>p00</p00> </p2> </MyEvent>";
+                assertEquals(removeNewline(expected), removeNewline(xmlOne));
+            });
 
             env.undeployAll();
         }
@@ -107,29 +115,35 @@ public class EventRender {
             env.compileDeploy("@name('s0') select * from SupportBeanRendererOne");
             env.sendEventBean(beanOne);
 
-            String json = env.runtime().getRenderEventService().renderJSON("MyEvent", env.iterator("s0").next());
             String expectedJson = "{ \"MyEvent\": { \"stringObjectMap\": { \"abc\": \"def\", \"def\": 123, \"efg\": null } } }";
-            assertEquals(removeNewline(expectedJson), removeNewline(json));
+            env.assertThat(() -> {
+                String json = env.runtime().getRenderEventService().renderJSON("MyEvent", env.iterator("s0").next());
+                assertEquals(removeNewline(expectedJson), removeNewline(json));
+            });
 
-            String xmlOne = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next());
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<MyEvent>\n" +
-                "  <stringObjectMap>\n" +
-                "    <abc>def</abc>\n" +
-                "    <def>123</def>\n" +
-                "    <efg></efg>\n" +
-                "  </stringObjectMap>\n" +
-                "</MyEvent>";
-            assertEquals(removeNewline(expected), removeNewline(xmlOne));
+            env.assertThat(() -> {
+                String xmlOne = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next());
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<MyEvent>\n" +
+                    "  <stringObjectMap>\n" +
+                    "    <abc>def</abc>\n" +
+                    "    <def>123</def>\n" +
+                    "    <efg></efg>\n" +
+                    "  </stringObjectMap>\n" +
+                    "</MyEvent>";
+                assertEquals(removeNewline(expected), removeNewline(xmlOne));
+            });
 
-            XMLRenderingOptions opt = new XMLRenderingOptions();
-            opt.setDefaultAsAttribute(true);
-            String xmlTwo = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next(), opt);
-            String expectedTwo = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<MyEvent>\n" +
-                "  <stringObjectMap abc=\"def\" def=\"123\"/>\n" +
-                "</MyEvent>";
-            assertEquals(removeNewline(expectedTwo), removeNewline(xmlTwo));
+            env.assertThat(() -> {
+                XMLRenderingOptions opt = new XMLRenderingOptions();
+                opt.setDefaultAsAttribute(true);
+                String xmlTwo = env.runtime().getRenderEventService().renderXML("MyEvent", env.iterator("s0").next(), opt);
+                String expectedTwo = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<MyEvent>\n" +
+                    "  <stringObjectMap abc=\"def\" def=\"123\"/>\n" +
+                    "</MyEvent>";
+                assertEquals(removeNewline(expectedTwo), removeNewline(xmlTwo));
+            });
             env.undeployModuleContaining("s0");
 
             // try the same Map only undeclared
@@ -137,8 +151,10 @@ public class EventRender {
             beanThree.setStringObjectMap(otherMap);
             env.compileDeploy("@name('s0') select * from SupportBeanRendererThree");
             env.sendEventBean(beanThree);
-            json = env.runtime().getRenderEventService().renderJSON("MyEvent", env.iterator("s0").next());
-            assertEquals(removeNewline(expectedJson), removeNewline(json));
+            env.assertIterator("s0", iterator -> {
+                String json = env.runtime().getRenderEventService().renderJSON("MyEvent", iterator.next());
+                assertEquals(removeNewline(expectedJson), removeNewline(json));
+            });
 
             env.undeployAll();
         }

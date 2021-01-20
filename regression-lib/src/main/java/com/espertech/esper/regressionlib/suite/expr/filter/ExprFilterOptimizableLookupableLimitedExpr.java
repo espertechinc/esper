@@ -18,14 +18,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
@@ -86,10 +85,10 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
         private void sendSBAssert(RegressionEnvironment env, boolean received) {
             env.sendEventBean(new SupportBean());
-            assertEquals(received, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvokedFlag("s0", received);
         }
     }
-    
+
     private static class ExprFilterOptLkupCurrentTimestampWEquals implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select * from pattern[a=SupportBean -> SupportBean(a.longPrimitive = current_timestamp() + longPrimitive)];\n";
@@ -98,13 +97,14 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.advanceTime(1000);
             env.sendEventBean(makeSBLong(1123));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "current_timestamp()+longPrimitive", EQUAL);
+                assertFilterSvcSingle(env, "s0", "current_timestamp()+longPrimitive", EQUAL);
             }
 
             env.milestone(0);
 
             env.sendEventBean(makeSBLong(123));
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", event -> {
+            });
 
             env.undeployAll();
         }
@@ -140,7 +140,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             assertDisqualified(env, path, "SupportBean",
                 hook + "select * from pattern[s0=SupportBean_S0 -> SupportBean(MyJavaScript(theString)='x')]");
             assertDisqualified(env, path, "SupportBean",
-                    hook + "select * from SupportBean(current_timestamp()=1)");
+                hook + "select * from SupportBean(current_timestamp()=1)");
 
             // local inlined class
             String eplWithLocalHelper = hook + "inlined_class \"\"\"\n" +
@@ -153,28 +153,35 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
                 "select * from SupportBean(LocalHelper.doit(theString) = 'abc')";
             assertDisqualified(env, path, "SupportBean", eplWithLocalHelper);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ExprFilterOptLkupInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed in [a.id - 2 : b.id + 2])];\n";
-            runAssertionInRange(env, epl, false);
+            runAssertionInRange(env, epl, false, milestone);
 
             epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive+longBoxed not in [a.id - 2 : b.id + 2])];\n";
-            runAssertionInRange(env, epl, true);
+            runAssertionInRange(env, epl, true, milestone);
         }
 
-        private void runAssertionInRange(RegressionEnvironment env, String epl, boolean not) {
+        private void runAssertionInRange(RegressionEnvironment env, String epl, boolean not, AtomicInteger milestone) {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean_S1(200));
 
-            env.milestone(0);
-            if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "longPrimitive+longBoxed", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
-            }
+            env.milestoneInc(milestone);
+            env.assertThat(() -> {
+                if (hasFilterIndexPlanAdvanced(env)) {
+                    assertFilterSvcSingle(env, "s0", "longPrimitive+longBoxed", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+                }
+            });
 
             sendSBLongsAssert(env, 3, 4, not);
             sendSBLongsAssert(env, 5, 3, !not);
@@ -198,7 +205,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.milestone(0);
 
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "longPrimitive+longBoxed", IN_LIST_OF_VALUES);
+                assertFilterSvcSingle(env, "s0", "longPrimitive+longBoxed", IN_LIST_OF_VALUES);
             }
 
             sendSBLongsAssert(env, 0, 9, false);
@@ -215,7 +222,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             String epl = "@name('s0') select * from SupportBean(doublePrimitive + doubleBoxed = Integer.parseInt('10'))";
             env.compileDeploy(epl).addListener("s0");
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "doublePrimitive+doubleBoxed", EQUAL);
+                assertFilterSvcSingle(env, "s0", "doublePrimitive+doubleBoxed", EQUAL);
             }
 
             env.milestone(0);
@@ -236,7 +243,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "p10||p11", EQUAL);
+                assertFilterSvcSingle(env, "s0", "p10||p11", EQUAL);
             }
 
             env.milestone(0);
@@ -261,7 +268,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
             env.milestone(0);
 
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcMultiSameIndexDepthOne(env.statement("s0"), "SupportBean_S1", 2, "p10||p11", EQUAL);
+                assertFilterSvcMultiSameIndexDepthOne(env, "s0", "SupportBean_S1", 2, "p10||p11", EQUAL);
             }
 
             env.sendEventBean(new SupportBean_S1(10, "a", "x"));
@@ -293,14 +300,17 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
             env.milestone(0);
 
-            Map<Integer, List<FilterItem[]>> filters = getFilterSvcAllStmtForType(env.runtime(), "SupportBean_S0");
-            if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcMultiSameIndexDepthOne(filters, 5, "p00||p01", EQUAL);
-            }
+            env.assertThat(() -> {
+                Map<Integer, List<FilterItem[]>> filters = getFilterSvcAllStmtForType(env.runtime(), "SupportBean_S0");
+                if (hasFilterIndexPlanAdvanced(env)) {
+                    assertFilterSvcMultiSameIndexDepthOne(filters, 5, "p00||p01", EQUAL);
+                }
+            });
 
             env.sendEventBean(new SupportBean_S0(10, "a", "x"));
             for (String name : names) {
-                env.listener(name).assertOneGetNewAndReset();
+                env.assertEventNew(name, event -> {
+                });
             }
 
             env.undeployAll();
@@ -312,7 +322,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
         sb.setDoublePrimitive(doublePrimitive);
         sb.setDoubleBoxed(doubleBoxed);
         env.sendEventBean(sb);
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void sendSBLongsAssert(RegressionEnvironment env, long longPrimitive, long longBoxed, boolean received) {
@@ -320,7 +330,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
         sb.setLongPrimitive(longPrimitive);
         sb.setLongBoxed(longBoxed);
         env.sendEventBean(sb);
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static SupportBean makeSBLong(long longPrimitive) {
@@ -331,7 +341,7 @@ public class ExprFilterOptimizableLookupableLimitedExpr {
 
     private static void sendSB1Assert(RegressionEnvironment env, String p10, String p11, boolean received) {
         env.sendEventBean(new SupportBean_S1(0, p10, p11));
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String epl) {

@@ -20,9 +20,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class ExprDTResolution {
 
     public static Collection<RegressionExecution> executions(boolean isMicrosecond) {
@@ -110,10 +107,10 @@ public class ExprDTResolution {
         env.sendEventObjectArray(new Object[]{"B", tsB, tsB}, "MyEvent");
 
         env.sendEventObjectArray(new Object[]{"A", flipTimeEndtsA - 1, flipTimeEndtsA - 1}, "MyEvent");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.sendEventObjectArray(new Object[]{"A", flipTimeEndtsA, flipTimeEndtsA}, "MyEvent");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

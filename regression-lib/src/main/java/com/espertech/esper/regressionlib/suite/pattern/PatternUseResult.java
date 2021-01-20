@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportTradeEvent;
@@ -25,10 +26,11 @@ import com.espertech.esper.runtime.client.UpdateListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Random;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.OBSERVEROPS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class PatternUseResult {
 
@@ -140,25 +142,25 @@ public class PatternUseResult {
     private static class PatternPatternTypeCacheForRepeat implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // UEJ-229-28464 bug fix for type reuse for dissimilar types
-            String epl = "create objectarray schema TypeOne(symbol string, price double);\n" +
-                "create objectarray schema TypeTwo(symbol string, market string, price double);\n" +
+            String epl = "@buseventtype create objectarray schema TypeOne(symbol string, price double);\n" +
+                "@buseventtype create objectarray schema TypeTwo(symbol string, market string, price double);\n" +
                 "\n" +
                 "@Name('Out2') select a[0].symbol from pattern [ [2] a=TypeOne ]\n;" +
                 "@Name('Out3') select a[0].market from pattern [ [2] a=TypeTwo ];";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             env.addListener("Out2");
             env.addListener("Out3");
 
             env.sendEventObjectArray(new Object[]{"GE", 10}, "TypeOne");
             env.sendEventObjectArray(new Object[]{"GE", 10}, "TypeOne");
-            assertTrue(env.listener("Out2").getIsInvokedAndReset());
+            env.assertListenerInvoked("Out2");
 
             env.milestone(0);
 
             env.sendEventObjectArray(new Object[]{"GE", "m1", 5}, "TypeTwo");
             env.sendEventObjectArray(new Object[]{"GE", "m2", 5}, "TypeTwo");
-            assertTrue(env.listener("Out3").getIsInvokedAndReset());
+            env.assertListenerInvoked("Out3");
 
             env.undeployAll();
         }
@@ -338,6 +340,10 @@ public class PatternUseResult {
             assertEquals(0, listener.badMatchCount);
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(OBSERVEROPS);
+        }
     }
 
     private static class MyUpdateListener implements UpdateListener {
@@ -377,7 +383,7 @@ public class PatternUseResult {
         env.sendEventBean(new SupportBean_A(id));
         final String[] fields = "c0".split(",");
         env.assertPropsNew("s0", fields, new Object[]{intPrimitiveExpected});
-        assertEquals(numFiltersRemaining, SupportFilterServiceHelper.getFilterSvcCount(env.statement("s0"), "SupportBean_A"));
+        env.assertStatement("s0", statement -> assertEquals(numFiltersRemaining, SupportFilterServiceHelper.getFilterSvcCount(statement, "SupportBean_A")));
     }
 
     private static void sendBeanAMiss(RegressionEnvironment env, String idCSV) {

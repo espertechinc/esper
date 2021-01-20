@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraph
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.dataflow.SupportDataFlowAssertionUtil;
@@ -30,6 +31,7 @@ import com.espertech.esper.runtime.client.EPDeployException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.fail;
@@ -116,6 +118,10 @@ public class EPLDataflowOpEPStatementSource {
             df.cancel();
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowAllTypes implements RegressionExecution {
@@ -157,6 +163,10 @@ public class EPLDataflowOpEPStatementSource {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowInvalid implements RegressionExecution {
@@ -176,6 +186,10 @@ public class EPLDataflowOpEPStatementSource {
             // invalid: no statement deployment id
             env.tryInvalidCompile("create dataflow DF1 EPStatementSource ->abc { statementName : 'abc' }",
                 "Failed to obtain operator 'EPStatementSource': Both 'statementDeploymentId' and 'statementName' are required when either of these are specified");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -236,6 +250,10 @@ public class EPLDataflowOpEPStatementSource {
             assertEquals(0, captureOp.getCurrent().length);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

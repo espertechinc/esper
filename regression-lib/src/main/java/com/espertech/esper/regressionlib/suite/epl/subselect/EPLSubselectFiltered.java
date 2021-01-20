@@ -10,9 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -22,14 +19,14 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class EPLSubselectFiltered {
 
@@ -138,13 +135,11 @@ public class EPLSubselectFiltered {
             String stmtText = "@name('s0') select (select * from SupportBean_S1#length(1000)) as events1 from SupportBean_S1";
             env.eplToModelCompileDeploy(stmtText).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            TestCase.assertEquals(SupportBean_S1.class, type.getPropertyType("events1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("events1")));
 
             Object theEvent = new SupportBean_S1(-1, "Y");
             env.sendEventBean(theEvent);
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(theEvent, result.get("events1"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("events1")));
 
             env.undeployAll();
         }
@@ -162,18 +157,16 @@ public class EPLSubselectFiltered {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String stmtText = "select (select * from SupportBean_S1#length(1000)) as events1 from SupportBean_S1";
-            TestCase.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            TestCase.assertEquals(SupportBean_S1.class, type.getPropertyType("events1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("events1")));
 
             Object theEvent = new SupportBean_S1(-1, "Y");
             env.sendEventBean(theEvent);
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(theEvent, result.get("events1"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("events1")));
 
             env.undeployAll();
         }
@@ -184,13 +177,11 @@ public class EPLSubselectFiltered {
             String stmtText = "@name('s0') select (select * from SupportBean_S1#length(1000)) as events1 from SupportBean_S1";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            TestCase.assertEquals(SupportBean_S1.class, type.getPropertyType("events1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("events1")));
 
             Object theEvent = new SupportBean_S1(-1, "Y");
             env.sendEventBean(theEvent);
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(theEvent, result.get("events1"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("events1")));
 
             env.undeployAll();
         }
@@ -201,14 +192,13 @@ public class EPLSubselectFiltered {
             String stmtText = "@name('s0') select (select * from SupportBean_S1#length(1000)) as events1 from SupportBean_S0";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            TestCase.assertEquals(SupportBean_S1.class, type.getPropertyType("events1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("events1")));
 
             Object theEvent = new SupportBean_S1(-1, "Y");
             env.sendEventBean(theEvent);
             env.sendEventBean(new SupportBean_S0(0));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(theEvent, result.get("events1"));
+
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("events1")));
 
             env.undeployAll();
         }
@@ -219,14 +209,13 @@ public class EPLSubselectFiltered {
             String stmtText = "@name('s0') select (select * from SupportBean_S1#length(1000)) from SupportBean_S0";
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(SupportBean_S1.class, type.getPropertyType("subselect_1"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("subselect_1")));
 
             Object theEvent = new SupportBean_S1(-1, "Y");
             env.sendEventBean(theEvent);
             env.sendEventBean(new SupportBean_S0(0));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, result.get("subselect_1"));
+
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("subselect_1")));
 
             env.undeployAll();
         }
@@ -242,21 +231,21 @@ public class EPLSubselectFiltered {
 
             env.sendEventBean(new SupportBean_S1(-1, "Y"));
             env.sendEventBean(new SupportBean_S0(0));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", null);
 
             env.sendEventBean(new SupportBean_S1(1, "X"));
             env.sendEventBean(new SupportBean_S1(2, "Y"));
             env.sendEventBean(new SupportBean_S1(3, "Z"));
 
             env.sendEventBean(new SupportBean_S0(0));
-            TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 1);
 
             env.sendEventBean(new SupportBean_S0(1));
-            TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 1);
 
             env.sendEventBean(new SupportBean_S1(2, "X"));
             env.sendEventBean(new SupportBean_S0(2));
-            TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", null);
             env.undeployAll();
 
             // two-column constant
@@ -265,7 +254,7 @@ public class EPLSubselectFiltered {
 
             env.sendEventBean(new SupportBean_S1(1, "X", "Y"));
             env.sendEventBean(new SupportBean_S0(0));
-            TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 1);
             env.undeployAll();
 
             // single range
@@ -274,7 +263,7 @@ public class EPLSubselectFiltered {
 
             env.sendEventBean(new SupportBean("E1", 15));
             env.sendEventBean(new SupportBean_S0(0));
-            TestCase.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", "E1");
 
             env.undeployAll();
         }
@@ -303,7 +292,7 @@ public class EPLSubselectFiltered {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String stmtText = "select (select prev(1,id) from SupportBean_S1#length(1000) where id=s0.id) as value from SupportBean_S0 as s0";
-            TestCase.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
@@ -327,6 +316,7 @@ public class EPLSubselectFiltered {
 
     public static class EPLSubselectSelectSceneOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[]{"s0price", "s1price"};
             String text = "@name('s0') select irstream s0.price as s0price, " +
                 " (select price from SupportMarketDataBean(symbol='S1')#length(10) s1" +
                 " where s0.volume = s1.volume) as s1price " +
@@ -334,10 +324,7 @@ public class EPLSubselectFiltered {
             env.compileDeployAddListenerMileZero(text, "s0");
 
             env.sendEventBean(makeMarketDataEvent("S0", 100, 1));
-            env.assertPropsPerRowNewFlattened("s0",
-                new String[]{"s0price", "s1price"}, new Object[][]{{100.0, null}});
-            assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{100.0, null}}, null);
 
             env.milestone(1);
 
@@ -347,10 +334,7 @@ public class EPLSubselectFiltered {
             env.milestone(2);
 
             env.sendEventBean(makeMarketDataEvent("S0", 200, 2));
-            env.assertPropsPerRowNewFlattened("s0",
-                new String[]{"s0price", "s1price"}, new Object[][]{{200.0, -10.0}});
-            assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{200.0, -10.0}}, null);
 
             env.milestone(3);
 
@@ -360,11 +344,7 @@ public class EPLSubselectFiltered {
             env.milestone(4);
 
             env.sendEventBean(makeMarketDataEvent("S0", 300, 3));
-            env.assertPropsPerRowNewFlattened("s0",
-                new String[]{"s0price", "s1price"}, new Object[][]{{300.0, -20.0}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(),
-                new String[]{"s0price", "s1price"}, new Object[][]{{100.0, null}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{300.0, -20.0}}, new Object[][]{{100.0, null}});
 
             env.milestone(5);
 
@@ -378,23 +358,23 @@ public class EPLSubselectFiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", null);
 
             env.sendEventBean(new SupportBean_S1(1, "X"));
             env.sendEventBean(new SupportBean_S1(2, "Y"));
             env.sendEventBean(new SupportBean_S1(3, "Z"));
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", null);
 
             env.sendEventBean(new SupportBean_S0(0, "X"));
-            TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 1);
             env.sendEventBean(new SupportBean_S0(0, "Y"));
-            TestCase.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 2);
             env.sendEventBean(new SupportBean_S0(0, "Z"));
-            TestCase.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", 3);
             env.sendEventBean(new SupportBean_S0(0, "A"));
-            TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids1"));
+            env.assertEqualsNew("s0", "ids1", null);
 
             env.undeployAll();
         }
@@ -407,12 +387,12 @@ public class EPLSubselectFiltered {
 
             env.sendEventBean(new SupportBean_S1(10, "s0_1"));
             env.sendEventBean(new SupportBean_S2(10, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S0(99, "s0_1"));
             env.sendEventBean(new SupportBean_S1(11, "s0_1"));
             env.sendEventBean(new SupportBean_S2(11, "s0_1"));
-            TestCase.assertEquals(99, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", 99);
 
             env.undeployAll();
         }
@@ -427,29 +407,29 @@ public class EPLSubselectFiltered {
             env.sendEventBean(new SupportBean_S1(10, "s0_1"));
             env.sendEventBean(new SupportBean_S2(10, "s0_1"));
             env.sendEventBean(new SupportBean_S3(10, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S0(99, "s0_1"));
             env.sendEventBean(new SupportBean_S1(11, "s0_1"));
             env.sendEventBean(new SupportBean_S2(11, "xxx"));
             env.sendEventBean(new SupportBean_S3(11, "s0_1"));
-            TestCase.assertEquals(99, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", 99);
 
             env.sendEventBean(new SupportBean_S0(98, "s0_2"));
             env.sendEventBean(new SupportBean_S1(12, "s0_x"));
             env.sendEventBean(new SupportBean_S2(12, "s0_2"));
             env.sendEventBean(new SupportBean_S3(12, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S1(13, "s0_2"));
             env.sendEventBean(new SupportBean_S2(13, "s0_2"));
             env.sendEventBean(new SupportBean_S3(13, "s0_x"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S1(14, "s0_2"));
             env.sendEventBean(new SupportBean_S2(14, "xx"));
             env.sendEventBean(new SupportBean_S3(14, "s0_2"));
-            TestCase.assertEquals(98, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", 98);
 
             env.undeployAll();
         }
@@ -464,29 +444,29 @@ public class EPLSubselectFiltered {
             env.sendEventBean(new SupportBean_S1(10, "s0_1"));
             env.sendEventBean(new SupportBean_S2(10, "s0_1"));
             env.sendEventBean(new SupportBean_S3(10, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S0(99, "s0_1"));
             env.sendEventBean(new SupportBean_S1(11, "s0_1"));
             env.sendEventBean(new SupportBean_S2(11, "xxx"));
             env.sendEventBean(new SupportBean_S3(11, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S0(98, "s0_2"));
             env.sendEventBean(new SupportBean_S1(12, "s0_x"));
             env.sendEventBean(new SupportBean_S2(12, "s0_2"));
             env.sendEventBean(new SupportBean_S3(12, "s0_1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S1(13, "s0_2"));
             env.sendEventBean(new SupportBean_S2(13, "s0_2"));
             env.sendEventBean(new SupportBean_S3(13, "s0_x"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", null);
 
             env.sendEventBean(new SupportBean_S1(14, "s0_2"));
             env.sendEventBean(new SupportBean_S2(14, "s0_2"));
             env.sendEventBean(new SupportBean_S3(14, "s0_2"));
-            TestCase.assertEquals(98, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+            env.assertEqualsNew("s0", "ids0", 98);
 
             env.undeployAll();
         }
@@ -575,18 +555,18 @@ public class EPLSubselectFiltered {
 
             env.sendEventBean(new SupportBean_S1(1));
             env.sendEventBean(new SupportBean_S0(1));
-            TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 1);
 
             env.sendEventBean(new SupportBean_S2(2));
             env.sendEventBean(new SupportBean_S0(2));
-            TestCase.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.sendEventBean(new SupportBean_S0(3));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(3));
             env.sendEventBean(new SupportBean_S0(3));
-            TestCase.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 3);
 
             env.undeployAll();
         }
@@ -640,9 +620,10 @@ public class EPLSubselectFiltered {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(4, "Temperature", "B", 55, 88.0));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertEquals(2, theEvent.get("a.id"));
-            TestCase.assertEquals(4, theEvent.get("b.id"));
+            env.assertEventNew("s0", theEvent -> {
+                assertEquals(2, theEvent.get("a.id"));
+                assertEquals(4, theEvent.get("b.id"));
+            });
 
             env.sendEventBean(new SupportSensorEvent(5, "Temperature", "B", 65, 85.0));
             env.assertListenerNotInvoked("s0");
@@ -651,9 +632,10 @@ public class EPLSubselectFiltered {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportSensorEvent(7, "Temperature", "A", 51, 99.5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertEquals(7, theEvent.get("a.id"));
-            TestCase.assertEquals(6, theEvent.get("b.id"));
+            env.assertEventNew("s0", theEvent -> {
+                assertEquals(7, theEvent.get("a.id"));
+                assertEquals(6, theEvent.get("b.id"));
+            });
 
             env.undeployAll();
         }
@@ -669,21 +651,25 @@ public class EPLSubselectFiltered {
             env.compileDeployAddListenerMileZero(stmtTextOne, "s0");
 
             env.sendEventBean(new SupportSensorEvent(1, "Temp", "Dev1", 68.0, 96.5));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertEquals(68.0, ((SupportSensorEvent) theEvent.get("high")).getMeasurement());
-            TestCase.assertEquals(68.0, ((SupportSensorEvent) theEvent.get("low")).getMeasurement());
+            assertHighLow(env, 68, 68);
 
             env.sendEventBean(new SupportSensorEvent(2, "Temp", "Dev2", 70.0, 98.5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertEquals(70.0, ((SupportSensorEvent) theEvent.get("high")).getMeasurement());
-            TestCase.assertEquals(68.0, ((SupportSensorEvent) theEvent.get("low")).getMeasurement());
+            assertHighLow(env, 70, 68);
 
             env.sendEventBean(new SupportSensorEvent(3, "Temp", "Dev2", 65.0, 99.5));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertEquals(70.0, ((SupportSensorEvent) theEvent.get("high")).getMeasurement());
-            TestCase.assertEquals(65.0, ((SupportSensorEvent) theEvent.get("low")).getMeasurement());
+            assertHighLow(env, 70, 65);
 
             env.undeployAll();
+        }
+
+        private void assertHighLow(RegressionEnvironment env, double highExpected, double lowExpected) {
+            env.assertEventNew("s0", theEvent -> {
+                double high = ((SupportSensorEvent) theEvent.get("high")).getMeasurement();
+                double low = ((SupportSensorEvent) theEvent.get("low")).getMeasurement();
+                assertEquals(highExpected, high, 0d);
+                assertEquals(lowExpected, low, 0d);
+            });
+
         }
     }
 
@@ -735,31 +721,31 @@ public class EPLSubselectFiltered {
         sendBean(env, "A", 1, 10, 200, 3000);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 1, 10, 200, 3000);
         sendBean(env, "C", 1, 10, 200, 3000);
-        assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -1, 11, 201, 0);     // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "A", 2, 201, 0, 0);
         sendBean(env, "B", 2, 0, 0, 201);
         sendBean(env, "C", 2, 0, 11, 0);
-        TestCase.assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", -1);
 
         sendBean(env, "S", -2, 12, 202, 0);     // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "A", 3, 202, 0, 0);
         sendBean(env, "B", 3, 0, 0, 202);
         sendBean(env, "C", 3, 0, -1, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -3, 13, 203, 0);     // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "A", 4, 203, 0, 0);
         sendBean(env, "B", 4, 0, 0, 203.0001);
         sendBean(env, "C", 4, 0, 13, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -4, 14, 204, 0);     // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "A", 5, 205, 0, 0);
         sendBean(env, "B", 5, 0, 0, 204);
         sendBean(env, "C", 5, 0, 14, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         env.undeployAll();
     }
@@ -770,31 +756,31 @@ public class EPLSubselectFiltered {
         sendBean(env, "A", 1, 10, 200, 3000);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 1, 10, 200, 3000);
         sendBean(env, "C", 1, 10, 200, 3000);
-        assertNull(env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -2, 11, 0, 3001);
         sendBean(env, "A", 2, 0, 11, 0);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 2, 0, 0, 11);
         sendBean(env, "C", 2, 3001, 0, 0);
-        TestCase.assertEquals(-2, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", -2);
 
         sendBean(env, "S", -3, 12, 0, 3002);
         sendBean(env, "A", 3, 0, 12, 0);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 3, 0, 0, 12);
         sendBean(env, "C", 3, 3003, 0, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -4, 11, 0, 3003);
         sendBean(env, "A", 4, 0, 0, 0);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 4, 0, 0, 11);
         sendBean(env, "C", 4, 3003, 0, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         sendBean(env, "S", -5, 14, 0, 3004);
         sendBean(env, "A", 5, 0, 14, 0);        // intPrimitive, intBoxed, longBoxed, doubleBoxed
         sendBean(env, "B", 5, 0, 0, 11);
         sendBean(env, "C", 5, 3004, 0, 0);
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("ids0"));
+        env.assertEqualsNew("s0", "ids0", null);
 
         env.undeployAll();
     }
@@ -809,22 +795,24 @@ public class EPLSubselectFiltered {
         env.sendEventBean(new SupportBean_S2(1, "ab"));
         env.sendEventBean(new SupportBean_S0(1, "a"));
         env.sendEventBean(new SupportBean_S1(1, "b"));
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        TestCase.assertEquals(1, theEvent.get("s0id"));
-        TestCase.assertEquals(1, theEvent.get("s1id"));
-        TestCase.assertEquals("ab", theEvent.get("s2p20"));
-        TestCase.assertEquals(null, theEvent.get("s2p20Prior"));
-        TestCase.assertEquals(null, theEvent.get("s2p20Prev"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals(1, theEvent.get("s0id"));
+            assertEquals(1, theEvent.get("s1id"));
+            assertEquals("ab", theEvent.get("s2p20"));
+            assertEquals(null, theEvent.get("s2p20Prior"));
+            assertEquals(null, theEvent.get("s2p20Prev"));
+        });
 
         env.sendEventBean(new SupportBean_S2(2, "qx"));
         env.sendEventBean(new SupportBean_S0(2, "q"));
         env.sendEventBean(new SupportBean_S1(2, "x"));
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        TestCase.assertEquals(2, theEvent.get("s0id"));
-        TestCase.assertEquals(2, theEvent.get("s1id"));
-        TestCase.assertEquals("qx", theEvent.get("s2p20"));
-        TestCase.assertEquals("ab", theEvent.get("s2p20Prior"));
-        TestCase.assertEquals("ab", theEvent.get("s2p20Prev"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals(2, theEvent.get("s0id"));
+            assertEquals(2, theEvent.get("s1id"));
+            assertEquals("qx", theEvent.get("s2p20"));
+            assertEquals("ab", theEvent.get("s2p20Prior"));
+            assertEquals("ab", theEvent.get("s2p20Prev"));
+        });
 
         env.undeployAll();
     }
@@ -832,15 +820,15 @@ public class EPLSubselectFiltered {
     private static void runWherePrevious(RegressionEnvironment env) {
         env.sendEventBean(new SupportBean_S1(1));
         env.sendEventBean(new SupportBean_S0(0));
-        assertNull(env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", null);
 
         env.sendEventBean(new SupportBean_S1(2));
         env.sendEventBean(new SupportBean_S0(2));
-        TestCase.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", 1);
 
         env.sendEventBean(new SupportBean_S1(3));
         env.sendEventBean(new SupportBean_S0(3));
-        TestCase.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", 2);
     }
 
     private static void sendBean(RegressionEnvironment env, String theString, int intPrimitive, int intBoxed, long longBoxed, double doubleBoxed) {
@@ -860,7 +848,7 @@ public class EPLSubselectFiltered {
 
     private static void sendS0AndAssert(RegressionEnvironment env, Integer expected) {
         env.sendEventBean(new SupportBean_S0(0));
-        TestCase.assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static SupportMarketDataBean makeMarketDataEvent(String symbol, double price, long volume) {
@@ -873,7 +861,7 @@ public class EPLSubselectFiltered {
 
     private static void sendIntArrayAndAssert(RegressionEnvironment env, String id, int[] array, int value, String expected) {
         env.sendEventBean(new SupportEventWithIntArray(id, array, value));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", expected);
     }
 
     private static void sendIntArray(RegressionEnvironment env, String id, int[] array) {
@@ -886,11 +874,6 @@ public class EPLSubselectFiltered {
 
     private static void sendIntArrayAndAssert(RegressionEnvironment env, String id, int[] array, String expected) {
         env.sendEventBean(new SupportEventWithIntArray(id, array));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
-    }
-
-    private static void sendManyArrayAndAssert(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, String expected) {
-        env.sendEventBean(new SupportEventWithManyArray(id).withIntOne(intOne).withIntTwo(intTwo));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", expected);
     }
 }

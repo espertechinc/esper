@@ -27,13 +27,13 @@ public class EPLDatabaseJoinOptionLowercase implements RegressionExecution {
             "SupportBean#length(100) as s1";
         env.compileDeploy(stmtText).addListener("s0");
 
-        assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("myint"));
+        env.assertStatement("s0", statement -> assertEquals(String.class, statement.getEventType().getPropertyType("myint")));
 
         sendSupportBeanEvent(env, 10);
-        assertEquals("10", env.listener("s0").assertOneGetNewAndReset().get("myint"));
+        env.assertEqualsNew("s0", "myint", "10");
 
         sendSupportBeanEvent(env, 80);
-        assertEquals("80", env.listener("s0").assertOneGetNewAndReset().get("myint"));
+        env.assertEqualsNew("s0", "myint", "80");
 
         env.undeployAll();
     }

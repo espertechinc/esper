@@ -12,9 +12,12 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.EPSubscriberException;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
 import static org.junit.Assert.fail;
@@ -28,6 +31,10 @@ public class ClientRuntimeSubscriberDisallowed implements RegressionExecution {
         tryInvalid(() -> stmt.setSubscriber(new SupportSubscriberMRD(), "update"));
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.INVALIDITY, RegressionFlag.OBSERVEROPS);
     }
 
     private static void tryInvalid(Runnable r) {

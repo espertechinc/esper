@@ -18,19 +18,17 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import junit.framework.TestCase;
-import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class EPLOtherSelectExprStreamSelector {
     public static List<RegressionExecution> executions() {
@@ -67,16 +65,16 @@ public class EPLOtherSelectExprStreamSelector {
             RegressionPath path = new RegressionPath();
             String stmtOneText = "@name('l1') insert into StreamA select nested.* from SupportBeanComplexProps as s0";
             env.compileDeploy(stmtOneText, path).addListener("l1");
-            Assert.assertEquals(SupportBeanComplexProps.SupportBeanSpecialGetterNested.class, env.statement("l1").getEventType().getUnderlyingType());
+            env.assertStatement("l1", statement -> assertEquals(SupportBeanComplexProps.SupportBeanSpecialGetterNested.class, statement.getEventType().getUnderlyingType()));
 
             String stmtTwoText = "@name('l2') select nestedValue from StreamA";
             env.compileDeploy(stmtTwoText, path).addListener("l2");
-            Assert.assertEquals(String.class, env.statement("l2").getEventType().getPropertyType("nestedValue"));
+            env.assertStatement("l2", statement -> assertEquals(String.class, statement.getEventType().getPropertyType("nestedValue")));
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
 
-            Assert.assertEquals("nestedValue", env.listener("l1").assertOneGetNewAndReset().get("nestedValue"));
-            Assert.assertEquals("nestedValue", env.listener("l2").assertOneGetNewAndReset().get("nestedValue"));
+            env.assertEqualsNew("l1", "nestedValue", "nestedValue");
+            env.assertEqualsNew("l2", "nestedValue", "nestedValue");
 
             env.undeployAll();
             env.undeployAll();
@@ -91,22 +89,30 @@ public class EPLOtherSelectExprStreamSelector {
             String stmtTwoText = "@name('l2') insert into streamA select a.* from pattern [every a=SupportBean where timer:within(30 sec)]";
             env.compileDeploy(stmtTwoText).addListener("l2");
 
-            EventType eventType = env.statement("l1").getEventType();
-            Assert.assertEquals(SupportBean.class, eventType.getUnderlyingType());
+            env.assertStatement("l1", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(SupportBean.class, eventType.getUnderlyingType());
+            });
 
-            Object theEvent = sendBeanEvent(env, "E1", 10);
-            TestCase.assertSame(theEvent, env.listener("l2").assertOneGetNewAndReset().getUnderlying());
+            Object theEventOne = sendBeanEvent(env, "E1", 10);
+            env.assertEventNew("l2", event -> assertSame(theEventOne, event.getUnderlying()));
 
-            theEvent = sendBeanEvent(env, "E2", 10);
-            TestCase.assertSame(theEvent, env.listener("l2").assertOneGetNewAndReset().getUnderlying());
+            Object theEventTwo = sendBeanEvent(env, "E2", 10);
+            env.assertEventNew("l2", event -> assertSame(theEventTwo, event.getUnderlying()));
 
             String stmtThreeText = "@name('l3') insert into streamB select a.*, 'abc' as abc from pattern [every a=SupportBean where timer:within(30 sec)]";
             env.compileDeploy(stmtThreeText);
-            Assert.assertEquals(Pair.class, env.statement("l3").getEventType().getUnderlyingType());
-            Assert.assertEquals(String.class, env.statement("l3").getEventType().getPropertyType("abc"));
-            Assert.assertEquals(String.class, env.statement("l3").getEventType().getPropertyType("theString"));
+            env.assertStatement("l3", statement -> {
+                assertEquals(Pair.class, statement.getEventType().getUnderlyingType());
+                assertEquals(String.class, statement.getEventType().getPropertyType("abc"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("theString"));
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -125,20 +131,21 @@ public class EPLOtherSelectExprStreamSelector {
 
             String epl = "@name('s0') select s0.*, s1.* as s1stream, theString as sym from SupportBean#keepall as s0, " +
                 "SupportMarketDataBean#keepall as s1";
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
             EPStatementObjectModel modelReverse = env.eplToModel(model.toEPL());
-            Assert.assertEquals(epl, modelReverse.toEPL());
+            assertEquals(epl, modelReverse.toEPL());
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
-            Assert.assertEquals(Pair.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
+                assertEquals(Pair.class, type.getUnderlyingType());
+            });
 
             sendBeanEvent(env, "E1");
             env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
-            EventBean outevent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(theEvent, outevent.get("s1stream"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("s1stream")));
 
             env.undeployAll();
         }
@@ -149,12 +156,14 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select *, win.* from SupportBean#length(3) as win";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertTrue(type.getPropertyNames().length > 15);
-            Assert.assertEquals(SupportBean.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertTrue(type.getPropertyNames().length > 15);
+                assertEquals(SupportBean.class, type.getUnderlyingType());
+            });
 
             Object theEvent = sendBeanEvent(env, "E1", 16);
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.getUnderlying()));
 
             env.undeployAll();
         }
@@ -166,20 +175,21 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(7, type.getPropertyNames().length);
-            Assert.assertEquals(Long.class, type.getPropertyType("volume"));
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0"));
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
-            Assert.assertEquals(Pair.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(7, type.getPropertyNames().length);
+                assertEquals(Long.class, type.getPropertyType("volume"));
+                assertEquals(SupportBean.class, type.getPropertyType("s0"));
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
+                assertEquals(Pair.class, type.getUnderlyingType());
+            });
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
             env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"s0", "s1", "symbol", "volume"};
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{eventOne, eventTwo, "E2", 0L});
+            env.assertPropsNew("s0", fields, new Object[]{eventOne, eventTwo, "E2", 0L});
 
             env.undeployAll();
         }
@@ -190,10 +200,12 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select *, win.* as s0 from SupportBean#length(3) as win";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertTrue(type.getPropertyNames().length > 15);
-            Assert.assertEquals(Pair.class, type.getUnderlyingType());
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertTrue(type.getPropertyNames().length > 15);
+                assertEquals(Pair.class, type.getUnderlyingType());
+                assertEquals(SupportBean.class, type.getPropertyType("s0"));
+            });
 
             Object theEvent = sendBeanEvent(env, "E1", 15);
             String[] fields = new String[]{"theString", "intPrimitive", "s0"};
@@ -209,21 +221,22 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(4, type.getPropertyNames().length);
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0stream"));
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0"));
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(4, type.getPropertyNames().length);
+                assertEquals(SupportBean.class, type.getPropertyType("s0stream"));
+                assertEquals(SupportBean.class, type.getPropertyType("s0"));
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
+                assertEquals(Map.class, type.getUnderlyingType());
+            });
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
             env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"s0", "s1", "s0stream", "s1stream"};
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{eventOne, eventTwo, eventOne, eventTwo});
+            env.assertPropsNew("s0", fields, new Object[]{eventOne, eventTwo, eventOne, eventTwo});
 
             env.undeployAll();
         }
@@ -234,13 +247,15 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select theString.* as s0, intPrimitive as a, theString.* as s1, intPrimitive as b from SupportBean#length(3) as theString";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(4, type.getPropertyNames().length);
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
-            Assert.assertEquals(Integer.class, type.getPropertyType("a"));
-            Assert.assertEquals(Integer.class, type.getPropertyType("b"));
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0"));
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s1"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(4, type.getPropertyNames().length);
+                assertEquals(Map.class, type.getUnderlyingType());
+                assertEquals(Integer.class, type.getPropertyType("a"));
+                assertEquals(Integer.class, type.getPropertyType("b"));
+                assertEquals(SupportBean.class, type.getPropertyType("s0"));
+                assertEquals(SupportBean.class, type.getPropertyType("s1"));
+            });
 
             Object theEvent = sendBeanEvent(env, "E1", 12);
             String[] fields = new String[]{"s0", "s1", "a", "b"};
@@ -256,24 +271,27 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(5, type.getPropertyNames().length);
-            Assert.assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0stream"));
-            Assert.assertEquals(String.class, type.getPropertyType("sym"));
-            Assert.assertEquals(String.class, type.getPropertyType("theString"));
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(5, type.getPropertyNames().length);
+                assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1stream"));
+                assertEquals(SupportBean.class, type.getPropertyType("s0stream"));
+                assertEquals(String.class, type.getPropertyType("sym"));
+                assertEquals(String.class, type.getPropertyType("theString"));
+                assertEquals(Map.class, type.getUnderlyingType());
+            });
 
             Object eventOne = sendBeanEvent(env, "E1", 13);
             env.assertListenerNotInvoked("s0");
 
             Object eventTwo = sendMarketEvent(env, "E2");
             String[] fields = new String[]{"intPrimitive", "sym", "theString", "s0stream", "s1stream"};
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{13, "E2", "E1", eventOne, eventTwo});
-            EventBean theEvent = (EventBean) ((Map) received.getUnderlying()).get("s0stream");
-            TestCase.assertSame(eventOne, theEvent.getUnderlying());
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertProps(event, fields, new Object[]{13, "E2", "E1", eventOne, eventTwo});
+                EventBean theEvent = (EventBean) ((Map) event.getUnderlying()).get("s0stream");
+                TestCase.assertSame(eventOne, theEvent.getUnderlying());
+            });
 
             env.undeployAll();
         }
@@ -284,12 +302,14 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select intPrimitive as a, string.*, intPrimitive as b from SupportBean#length(3) as string";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(22, type.getPropertyNames().length);
-            Assert.assertEquals(Pair.class, type.getUnderlyingType());
-            Assert.assertEquals(Integer.class, type.getPropertyType("a"));
-            Assert.assertEquals(Integer.class, type.getPropertyType("b"));
-            Assert.assertEquals(String.class, type.getPropertyType("theString"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(22, type.getPropertyNames().length);
+                assertEquals(Pair.class, type.getUnderlyingType());
+                assertEquals(Integer.class, type.getPropertyType("a"));
+                assertEquals(Integer.class, type.getPropertyType("b"));
+                assertEquals(String.class, type.getPropertyType("theString"));
+            });
 
             sendBeanEvent(env, "E1", 10);
             String[] fields = new String[]{"a", "theString", "intPrimitive", "b"};
@@ -305,19 +325,22 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(7, type.getPropertyNames().length);
-            Assert.assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
-            Assert.assertEquals(Pair.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(7, type.getPropertyNames().length);
+                assertEquals(Integer.class, type.getPropertyType("intPrimitive"));
+                assertEquals(Pair.class, type.getUnderlyingType());
+            });
 
             sendBeanEvent(env, "E1", 11);
             env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendMarketEvent(env, "E1");
             String[] fields = new String[]{"intPrimitive", "sym", "symbol"};
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{11, "E1", "E1"});
-            TestCase.assertSame(theEvent, ((Pair) received.getUnderlying()).getFirst());
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertProps(event, fields, new Object[]{11, "E1", "E1"});
+                TestCase.assertSame(theEvent, ((Pair) event.getUnderlying()).getFirst());
+            });
 
             env.undeployAll();
         }
@@ -328,12 +351,14 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select theString.* from SupportBean#length(3) as theString";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertTrue(type.getPropertyNames().length > 10);
-            Assert.assertEquals(SupportBean.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertTrue(type.getPropertyNames().length > 10);
+                assertEquals(SupportBean.class, type.getUnderlyingType());
+            });
 
             Object theEvent = sendBeanEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.getUnderlying()));
 
             env.undeployAll();
         }
@@ -344,13 +369,15 @@ public class EPLOtherSelectExprStreamSelector {
             String epl = "@name('s0') select theString.* as s0 from SupportBean#length(3) as theString";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(1, type.getPropertyNames().length);
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("s0"));
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(1, type.getPropertyNames().length);
+                assertEquals(SupportBean.class, type.getPropertyType("s0"));
+                assertEquals(Map.class, type.getUnderlyingType());
+            });
 
             Object theEvent = sendBeanEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("s0"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("s0")));
 
             env.undeployAll();
         }
@@ -360,19 +387,19 @@ public class EPLOtherSelectExprStreamSelector {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select s1.* as s1 from SupportBean#length(3) as s0, " +
                 "SupportMarketDataBean#keepall as s1";
-            env.compileDeploy(epl);
-            SupportUpdateListener testListener = new SupportUpdateListener();
-            env.statement("s0").addListener(testListener);
+            env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s1"));
+                assertEquals(Map.class, type.getUnderlyingType());
+            });
 
             sendBeanEvent(env, "E1");
             env.assertListenerNotInvoked("s0");
 
-            Object theEvent = sendMarketEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("s1"));
+            Object eventOne = sendMarketEvent(env, "E1");
+            env.assertEventNew("s0", event -> assertSame(eventOne, event.get("s1")));
 
             env.undeployAll();
 
@@ -381,15 +408,17 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            type = env.statement("s0").getEventType();
-            Assert.assertEquals(SupportBean.class, type.getPropertyType("szero"));
-            Assert.assertEquals(Map.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(SupportBean.class, type.getPropertyType("szero"));
+                assertEquals(Map.class, type.getUnderlyingType());
+            });
 
             sendMarketEvent(env, "E1");
             env.assertListenerNotInvoked("s0");
 
-            theEvent = sendBeanEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("szero"));
+            Object eventTwo = sendBeanEvent(env, "E1");
+            env.assertEventNew("s0", event -> assertSame(eventTwo, event.get("szero")));
 
             env.undeployAll();
         }
@@ -401,15 +430,17 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            Assert.assertEquals(Long.class, type.getPropertyType("volume"));
-            Assert.assertEquals(SupportMarketDataBean.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(Long.class, type.getPropertyType("volume"));
+                assertEquals(SupportMarketDataBean.class, type.getUnderlyingType());
+            });
 
             sendBeanEvent(env, "E1");
             env.assertListenerNotInvoked("s0");
 
-            Object theEvent = sendMarketEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            Object eventOne = sendMarketEvent(env, "E1");
+            env.assertEventNew("s0", event -> assertSame(eventOne, event.getUnderlying()));
 
             env.undeployAll();
 
@@ -418,15 +449,17 @@ public class EPLOtherSelectExprStreamSelector {
                 "SupportMarketDataBean#keepall as s1";
             env.compileDeploy(epl).addListener("s0");
 
-            type = env.statement("s0").getEventType();
-            Assert.assertEquals(String.class, type.getPropertyType("theString"));
-            Assert.assertEquals(SupportBean.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(String.class, type.getPropertyType("theString"));
+                assertEquals(SupportBean.class, type.getUnderlyingType());
+            });
 
             sendMarketEvent(env, "E1");
             env.assertListenerNotInvoked("s0");
 
-            theEvent = sendBeanEvent(env, "E1");
-            TestCase.assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            Object eventTwo = sendBeanEvent(env, "E1");
+            env.assertEventNew("s0", event -> assertSame(eventTwo, event.getUnderlying()));
 
             env.undeployAll();
         }

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.event.objectarray;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -33,11 +32,11 @@ public class EventObjectArrayConfiguredStatic implements RegressionExecution {
         env.compileDeploy("@name('s0') select bean, theString, map('key'), bean.theString from MyOAType");
         env.addListener("s0");
 
-        assertEquals(Object[].class, env.statement("s0").getEventType().getUnderlyingType());
+        env.assertStatement("s0", statement -> assertEquals(Object[].class, statement.getEventType().getUnderlyingType()));
 
         SupportBean bean = new SupportBean("E1", 1);
         env.sendEventObjectArray(new Object[]{bean, "abc", Collections.singletonMap("key", "value")}, "MyOAType");
-        EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), "bean,theString,map('key'),bean.theString".split(","), new Object[]{bean, "abc", "value", "E1"});
+        env.assertPropsNew("s0", "bean,theString,map('key'),bean.theString".split(","), new Object[]{bean, "abc", "value", "E1"});
 
         env.undeployAll();
     }

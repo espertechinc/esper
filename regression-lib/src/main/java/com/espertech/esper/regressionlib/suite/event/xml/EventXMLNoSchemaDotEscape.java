@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.event.xml;
 
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.sendXMLEvent;
-import static org.junit.Assert.assertEquals;
 
 public class EventXMLNoSchemaDotEscape {
 
@@ -54,8 +52,7 @@ public class EventXMLNoSchemaDotEscape {
         env.compileDeploy(stmt, path).addListener("s0");
 
         sendXMLEvent(env, "<myroot><a.b><c.d>value</c.d></a.b></myroot>", eventTypeName);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("value", theEvent.get("val"));
+        env.assertEqualsNew("s0", "val", "value");
 
         env.undeployAll();
     }

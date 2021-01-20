@@ -181,6 +181,10 @@ public class ClientRuntimeSubscriber {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberSubscriberAndListener implements RegressionExecution {
@@ -207,6 +211,10 @@ public class ClientRuntimeSubscriber {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -522,6 +530,10 @@ public class ClientRuntimeSubscriber {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberInvocationTargetEx implements RegressionExecution {
@@ -544,6 +556,10 @@ public class ClientRuntimeSubscriber {
             env.sendEventBean(new SupportMarketDataBean("IBM", 0, 0L, ""));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -577,6 +593,10 @@ public class ClientRuntimeSubscriber {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberVariables implements RegressionExecution {
@@ -599,11 +619,19 @@ public class ClientRuntimeSubscriber {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             tryAssertionNamedWindow(env, EventRepresentationChoice.MAP);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -690,11 +718,15 @@ public class ClientRuntimeSubscriber {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberPerformanceSyntheticUndelivered implements RegressionExecution {
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -714,7 +746,7 @@ public class ClientRuntimeSubscriber {
 
     private static class ClientRuntimeSubscriberPerformanceSynthetic implements RegressionExecution {
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {

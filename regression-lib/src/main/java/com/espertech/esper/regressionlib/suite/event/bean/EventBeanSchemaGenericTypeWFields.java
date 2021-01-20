@@ -17,16 +17,13 @@ import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanParameterizedWFieldSingleIndexed;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanParameterizedWFieldSingleMapped;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanParameterizedWFieldSinglePlain;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
 import static com.espertech.esper.common.client.type.EPTypeClassParameterized.from;
 import static org.junit.Assert.assertEquals;
 
@@ -46,20 +43,26 @@ public class EventBeanSchemaGenericTypeWFields {
                 "@name('s0') select simpleProperty as c0, simpleField as c1 from MyEvent;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            EPTypeClass type = env.statement("schema").getEventType().getUnderlyingEPType();
-            assertEquals(EPTypeClassParameterized.from(SupportBeanParameterizedWFieldSinglePlain.class, Integer.class), type);
-            SupportEventPropUtil.assertPropsEquals(env.statement("schema").getEventType().getPropertyDescriptors(),
-                new SupportEventPropDesc("simpleProperty", Integer.class),
-                new SupportEventPropDesc("simpleField", Integer.class));
+            env.assertStatement("schema", statement -> {
+                EPTypeClass type = env.statement("schema").getEventType().getUnderlyingEPType();
+                assertEquals(EPTypeClassParameterized.from(SupportBeanParameterizedWFieldSinglePlain.class, Integer.class), type);
+                SupportEventPropUtil.assertPropsEquals(env.statement("schema").getEventType().getPropertyDescriptors(),
+                    new SupportEventPropDesc("simpleProperty", Integer.class),
+                    new SupportEventPropDesc("simpleField", Integer.class));
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-                new SupportEventPropDesc("c0", Integer.class),
-                new SupportEventPropDesc("c1", Integer.class));
+                SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+                    new SupportEventPropDesc("c0", Integer.class),
+                    new SupportEventPropDesc("c1", Integer.class));
+            });
 
             env.sendEventBean(new SupportBeanParameterizedWFieldSinglePlain<>(10), "MyEvent");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {10, 10});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[] {10, 10});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -69,23 +72,27 @@ public class EventBeanSchemaGenericTypeWFields {
                 "@name('schema') @public @buseventtype create schema MyEvent as " + SupportBeanParameterizedWFieldSingleMapped.class.getName() + "<Integer>;\n" +
                 "@name('s0') select mapProperty as c0, mapField as c1, mapProperty('key') as c2, mapField('key') as c3, mapKeyed('key') as c4 from MyEvent;\n";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertPropsEquals(env.statement("schema").getEventType().getPropertyDescriptors(),
+            env.assertStatement("schema", statement -> SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("mapProperty", from(Map.class, String.class, Integer.class)).mapped(),
                 new SupportEventPropDesc("mapField", from(Map.class, String.class, Integer.class)).mapped(),
                 new SupportEventPropDesc("mapKeyed", Integer.class).mapped().mappedRequiresKey()
-            );
+            ));
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("c0", from(Map.class, String.class, Integer.class)).mapped(),
                 new SupportEventPropDesc("c1", from(Map.class, String.class, Integer.class)).mapped(),
                 new SupportEventPropDesc("c2", Integer.class),
                 new SupportEventPropDesc("c3", Integer.class),
-                new SupportEventPropDesc("c4", Integer.class));
+                new SupportEventPropDesc("c4", Integer.class)));
 
             env.sendEventBean(new SupportBeanParameterizedWFieldSingleMapped<>(10), "MyEvent");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4".split(","), new Object[] {CollectionUtil.buildMap("key", 10), CollectionUtil.buildMap("key", 10), 10, 10, 10});
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4".split(","), new Object[] {CollectionUtil.buildMap("key", 10), CollectionUtil.buildMap("key", 10), 10, 10, 10});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -98,14 +105,16 @@ public class EventBeanSchemaGenericTypeWFields {
                     "indexedArrayAtIndex[0] as c8 from MyEvent;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("schema").getEventType().getPropertyDescriptors(),
-                new SupportEventPropDesc("indexedArrayProperty", Integer[].class).indexed(),
-                new SupportEventPropDesc("indexedArrayField", Integer[].class).indexed(),
-                new SupportEventPropDesc("indexedListProperty", EPTypeClassParameterized.from(List.class, Integer.class)).indexed(),
-                new SupportEventPropDesc("indexedListField", EPTypeClassParameterized.from(List.class, Integer.class)).indexed(),
-                new SupportEventPropDesc("indexedArrayAtIndex", Integer.class).indexed().indexedRequiresIndex());
+            env.assertStatement("schema", statement -> {
+                SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                    new SupportEventPropDesc("indexedArrayProperty", Integer[].class).indexed(),
+                    new SupportEventPropDesc("indexedArrayField", Integer[].class).indexed(),
+                    new SupportEventPropDesc("indexedListProperty", EPTypeClassParameterized.from(List.class, Integer.class)).indexed(),
+                    new SupportEventPropDesc("indexedListField", EPTypeClassParameterized.from(List.class, Integer.class)).indexed(),
+                    new SupportEventPropDesc("indexedArrayAtIndex", Integer.class).indexed().indexedRequiresIndex());
+            });
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("c0", Integer[].class).indexed(),
                 new SupportEventPropDesc("c1", Integer[].class).indexed(),
                 new SupportEventPropDesc("c2", Integer.class),
@@ -114,13 +123,17 @@ public class EventBeanSchemaGenericTypeWFields {
                 new SupportEventPropDesc("c5", EPTypeClassParameterized.from(List.class, Integer.class)).indexed(),
                 new SupportEventPropDesc("c6", Integer.class),
                 new SupportEventPropDesc("c7", Integer.class),
-                new SupportEventPropDesc("c8", Integer.class));
+                new SupportEventPropDesc("c8", Integer.class)));
 
             env.sendEventBean(new SupportBeanParameterizedWFieldSingleIndexed<>(Integer.class, 10), "MyEvent");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(","), new Object[] {new Integer[] {10}, new Integer[] {10}, 10, 10,
+            env.assertPropsNew("s0", "c0,c1,c2,c3,c4,c5,c6,c7,c8".split(","), new Object[] {new Integer[] {10}, new Integer[] {10}, 10, 10,
                 Collections.singletonList(10), Collections.singletonList(10), 10, 10, 10});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 }

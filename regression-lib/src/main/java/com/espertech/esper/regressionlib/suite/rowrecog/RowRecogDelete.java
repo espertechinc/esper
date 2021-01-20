@@ -82,7 +82,7 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportRecogBean("P2", 1));
             env.sendEventBean(new SupportRecogBean("E1", 3));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
@@ -127,7 +127,7 @@ public class RowRecogDelete {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("D3", 12));      // delete P3 and E3 of first batch
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -235,7 +235,7 @@ public class RowRecogDelete {
             env.sendEventBean(new SupportBean("E2", 0));       // deletes E2
             env.sendEventBean(new SupportRecogBean("E3", 3));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 

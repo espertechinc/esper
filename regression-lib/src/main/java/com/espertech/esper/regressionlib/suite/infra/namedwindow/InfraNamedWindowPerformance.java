@@ -146,8 +146,8 @@ public class InfraNamedWindowPerformance {
             assertTrue("Delta=" + delta, delta < 500);
 
             // assert they are deleted
-            assertEquals(50000 - 10000, EPAssertionUtil.iteratorCount(env.iterator("create")));
-            assertEquals(10000, env.listener("create").getOldDataList().size());
+            env.assertIterator("create", iterator -> assertEquals(50000 - 10000, EPAssertionUtil.iteratorCount(iterator)));
+            env.assertListener("create", listener -> assertEquals(10000, listener.getOldDataList().size()));
 
             env.undeployAll();
         }
@@ -181,8 +181,8 @@ public class InfraNamedWindowPerformance {
             assertTrue("Delta=" + delta, delta < 500);
 
             // assert they are deleted
-            assertEquals(50000 - 10000, EPAssertionUtil.iteratorCount(env.iterator("create")));
-            assertEquals(10000, env.listener("create").getOldDataList().size());
+            env.assertIterator("create", iterator -> assertEquals(50000 - 10000, EPAssertionUtil.iteratorCount(iterator)));
+            env.assertListener("create", listener -> assertEquals(10000, listener.getOldDataList().size()));
 
             env.undeployAll();
         }
@@ -218,8 +218,8 @@ public class InfraNamedWindowPerformance {
             assertTrue("Delta=" + delta, delta < 1500);
 
             // assert they are all deleted
-            assertEquals(0, EPAssertionUtil.iteratorCount(env.iterator("create")));
-            assertEquals(20000, env.listener("create").getOldDataList().size());
+            env.assertIterator("create", iterator -> assertEquals(0, EPAssertionUtil.iteratorCount(iterator)));
+            env.assertListener("create", listener -> assertEquals(20000, listener.getOldDataList().size()));
 
             env.undeployAll();
         }
@@ -259,7 +259,7 @@ public class InfraNamedWindowPerformance {
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
             assertTrue("Delta=" + delta, delta < 1000);
-            assertEquals(10000, EPAssertionUtil.iteratorCount(env.iterator("create")));
+            env.assertIterator("create", iterator -> assertEquals(10000, EPAssertionUtil.iteratorCount(iterator)));
 
             // destroy all
             for (String statement : statements) {
@@ -281,7 +281,7 @@ public class InfraNamedWindowPerformance {
 
         for (int i = 0; i < loops; i++) {
             env.sendEventBean(theEvent);
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", expected);
         }
         long end = System.currentTimeMillis();
         long delta = end - start;

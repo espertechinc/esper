@@ -243,51 +243,54 @@ public class RowRecogDataSet {
 
     private static void compare(RegressionEnvironment env, Object[] row, int rowCount, Object theEvent) {
         if (row.length < 3 || row[2] == null) {
-            if (env.listener("s0").isInvoked()) {
-                EventBean[] matches = env.listener("s0").getLastNewData();
-                if (matches != null) {
-                    for (int i = 0; i < matches.length; i++) {
-                        log.info("Received matches: " + getProps(matches[i]));
+            env.assertListener("s0", listener -> {
+                if (listener.isInvoked()) {
+                    EventBean[] matches = listener.getLastNewData();
+                    if (matches != null) {
+                        for (int i = 0; i < matches.length; i++) {
+                            log.info("Received matches: " + getProps(matches[i]));
+                        }
                     }
                 }
-            }
-            assertFalse("For event " + theEvent + " row " + rowCount, env.listener("s0").isInvoked());
+                assertFalse("For event " + theEvent + " row " + rowCount, listener.isInvoked());
+            });
             return;
         }
 
         String[] expected = (String[]) row[2];
-
-        EventBean[] matches = env.listener("s0").getLastNewData();
-        String[] matchesText = null;
-        if (matches != null) {
-            matchesText = new String[matches.length];
-            for (int i = 0; i < matches.length; i++) {
-                matchesText[i] = getProps(matches[i]);
-                log.debug(getProps(matches[i]));
-            }
-        } else {
-            if (expected != null) {
-                log.info("Received no matches but expected: ");
-                for (int i = 0; i < expected.length; i++) {
-                    log.info(expected[i]);
+        env.assertListener("s0", listener -> {
+            EventBean[] matches = listener.getLastNewData();
+            String[] matchesText = null;
+            if (matches != null) {
+                matchesText = new String[matches.length];
+                for (int i = 0; i < matches.length; i++) {
+                    matchesText[i] = getProps(matches[i]);
+                    log.debug(getProps(matches[i]));
                 }
-                Assert.fail();
+            } else {
+                if (expected != null) {
+                    log.info("Received no matches but expected: ");
+                    for (int i = 0; i < expected.length; i++) {
+                        log.info(expected[i]);
+                    }
+                    Assert.fail();
+                }
             }
-        }
 
-        Arrays.sort(expected);
-        Arrays.sort(matchesText);
+            Arrays.sort(expected);
+            Arrays.sort(matchesText);
 
-        assertEquals("For event " + theEvent, matches.length, expected.length);
-        for (int i = 0; i < expected.length; i++) {
-            if (!expected[i].equals(matchesText[i])) {
-                log.info("expected:" + expected[i]);
-                log.info("  actual:" + expected[i]);
-                assertEquals("Sending event " + theEvent + " row " + rowCount, expected[i], matchesText[i]);
+            assertEquals("For event " + theEvent, matches.length, expected.length);
+            for (int i = 0; i < expected.length; i++) {
+                if (!expected[i].equals(matchesText[i])) {
+                    log.info("expected:" + expected[i]);
+                    log.info("  actual:" + expected[i]);
+                    assertEquals("Sending event " + theEvent + " row " + rowCount, expected[i], matchesText[i]);
+                }
             }
-        }
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static String getProps(EventBean theEvent) {

@@ -35,9 +35,11 @@ public class EventBeanPublicAccessors implements RegressionExecution {
     public void run(RegressionEnvironment env) {
 
         // assert type metadata
-        EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("AnotherLegacyEvent");
-        assertEquals(EventTypeApplicationType.CLASS, type.getMetadata().getApplicationType());
-        assertEquals("AnotherLegacyEvent", type.getMetadata().getName());
+        env.assertThat(() -> {
+            EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("AnotherLegacyEvent");
+            assertEquals(EventTypeApplicationType.CLASS, type.getMetadata().getApplicationType());
+            assertEquals("AnotherLegacyEvent", type.getMetadata().getName());
+        });
 
         String statementText = "@name('s0') select " +
             "fieldLegacyVal as fieldSimple," +
@@ -63,57 +65,63 @@ public class EventBeanPublicAccessors implements RegressionExecution {
             " from AnotherLegacyEvent#length(5)";
         env.compileDeploy(statementText).addListener("s0");
 
-        EventType eventType = env.statement("s0").getEventType();
-        assertEquals(String.class, eventType.getPropertyType("fieldSimple"));
-        assertEquals(String[].class, eventType.getPropertyType("fieldArr"));
-        assertEquals(String.class, eventType.getPropertyType("fieldArrIndexed"));
-        assertEquals(Map.class, eventType.getPropertyType("fieldMap"));
-        assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("fieldNested"));
-        assertEquals(String.class, eventType.getPropertyType("fieldNestedVal"));
-        assertEquals(String.class, eventType.getPropertyType("simple"));
-        assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("nestedObject"));
-        assertEquals(String.class, eventType.getPropertyType("nested"));
-        assertEquals(String.class, eventType.getPropertyType("array"));
-        assertEquals(String.class, eventType.getPropertyType("indexed"));
-        assertEquals(String.class, eventType.getPropertyType("mapped"));
-        assertEquals(String.class, eventType.getPropertyType("explicitFSimple"));
-        assertEquals(String.class, eventType.getPropertyType("explicitFIndexed[0]"));
-        assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("explicitFNested"));
-        assertEquals(String.class, eventType.getPropertyType("explicitMSimple"));
-        assertEquals(String.class, eventType.getPropertyType("explicitMArray[0]"));
-        assertEquals(String.class, eventType.getPropertyType("explicitMIndexed[1]"));
-        assertEquals(String.class, eventType.getPropertyType("explicitMMapped('key2')"));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            assertEquals(String.class, eventType.getPropertyType("fieldSimple"));
+            assertEquals(String[].class, eventType.getPropertyType("fieldArr"));
+            assertEquals(String.class, eventType.getPropertyType("fieldArrIndexed"));
+            assertEquals(Map.class, eventType.getPropertyType("fieldMap"));
+            assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("fieldNested"));
+            assertEquals(String.class, eventType.getPropertyType("fieldNestedVal"));
+            assertEquals(String.class, eventType.getPropertyType("simple"));
+            assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("nestedObject"));
+            assertEquals(String.class, eventType.getPropertyType("nested"));
+            assertEquals(String.class, eventType.getPropertyType("array"));
+            assertEquals(String.class, eventType.getPropertyType("indexed"));
+            assertEquals(String.class, eventType.getPropertyType("mapped"));
+            assertEquals(String.class, eventType.getPropertyType("explicitFSimple"));
+            assertEquals(String.class, eventType.getPropertyType("explicitFIndexed[0]"));
+            assertEquals(SupportLegacyBean.LegacyNested.class, eventType.getPropertyType("explicitFNested"));
+            assertEquals(String.class, eventType.getPropertyType("explicitMSimple"));
+            assertEquals(String.class, eventType.getPropertyType("explicitMArray[0]"));
+            assertEquals(String.class, eventType.getPropertyType("explicitMIndexed[1]"));
+            assertEquals(String.class, eventType.getPropertyType("explicitMMapped('key2')"));
+        });
 
         SupportLegacyBean legacyBean = makeSampleEvent();
         env.sendEventBean(legacyBean, "AnotherLegacyEvent");
 
-        assertEquals(legacyBean.fieldLegacyVal, env.listener("s0").getLastNewData()[0].get("fieldSimple"));
-        assertEquals(legacyBean.fieldStringArray, env.listener("s0").getLastNewData()[0].get("fieldArr"));
-        assertEquals(legacyBean.fieldStringArray[1], env.listener("s0").getLastNewData()[0].get("fieldArrIndexed"));
-        assertEquals(legacyBean.fieldMapped, env.listener("s0").getLastNewData()[0].get("fieldMap"));
-        assertEquals(legacyBean.fieldNested, env.listener("s0").getLastNewData()[0].get("fieldNested"));
-        assertEquals(legacyBean.fieldNested.readNestedValue(), env.listener("s0").getLastNewData()[0].get("fieldNestedVal"));
+        env.assertEventNew("s0", eventBean -> {
+            assertEquals(legacyBean.fieldLegacyVal, eventBean.get("fieldSimple"));
+            assertEquals(legacyBean.fieldStringArray, eventBean.get("fieldArr"));
+            assertEquals(legacyBean.fieldStringArray[1], eventBean.get("fieldArrIndexed"));
+            assertEquals(legacyBean.fieldMapped, eventBean.get("fieldMap"));
+            assertEquals(legacyBean.fieldNested, eventBean.get("fieldNested"));
+            assertEquals(legacyBean.fieldNested.readNestedValue(), eventBean.get("fieldNestedVal"));
 
-        assertEquals(legacyBean.readLegacyBeanVal(), env.listener("s0").getLastNewData()[0].get("simple"));
-        assertEquals(legacyBean.readLegacyNested(), env.listener("s0").getLastNewData()[0].get("nestedObject"));
-        assertEquals(legacyBean.readLegacyNested().readNestedValue(), env.listener("s0").getLastNewData()[0].get("nested"));
-        assertEquals(legacyBean.readStringIndexed(0), env.listener("s0").getLastNewData()[0].get("array"));
-        assertEquals(legacyBean.readStringIndexed(1), env.listener("s0").getLastNewData()[0].get("indexed"));
-        assertEquals(legacyBean.readMapByKey("key1"), env.listener("s0").getLastNewData()[0].get("mapped"));
-        assertEquals(legacyBean.readMap(), env.listener("s0").getLastNewData()[0].get("mapItself"));
+            assertEquals(legacyBean.readLegacyBeanVal(), eventBean.get("simple"));
+            assertEquals(legacyBean.readLegacyNested(), eventBean.get("nestedObject"));
+            assertEquals(legacyBean.readLegacyNested().readNestedValue(), eventBean.get("nested"));
+            assertEquals(legacyBean.readStringIndexed(0), eventBean.get("array"));
+            assertEquals(legacyBean.readStringIndexed(1), eventBean.get("indexed"));
+            assertEquals(legacyBean.readMapByKey("key1"), eventBean.get("mapped"));
+            assertEquals(legacyBean.readMap(), eventBean.get("mapItself"));
 
-        assertEquals(legacyBean.readLegacyBeanVal(), env.listener("s0").getLastNewData()[0].get("explicitFSimple"));
-        assertEquals(legacyBean.readLegacyBeanVal(), env.listener("s0").getLastNewData()[0].get("explicitMSimple"));
-        assertEquals(legacyBean.readLegacyNested(), env.listener("s0").getLastNewData()[0].get("explicitFNested"));
-        assertEquals(legacyBean.readStringIndexed(0), env.listener("s0").getLastNewData()[0].get("explicitFIndexed[0]"));
-        assertEquals(legacyBean.readStringIndexed(0), env.listener("s0").getLastNewData()[0].get("explicitMArray[0]"));
-        assertEquals(legacyBean.readStringIndexed(1), env.listener("s0").getLastNewData()[0].get("explicitMIndexed[1]"));
-        assertEquals(legacyBean.readMapByKey("key2"), env.listener("s0").getLastNewData()[0].get("explicitMMapped('key2')"));
+            assertEquals(legacyBean.readLegacyBeanVal(), eventBean.get("explicitFSimple"));
+            assertEquals(legacyBean.readLegacyBeanVal(), eventBean.get("explicitMSimple"));
+            assertEquals(legacyBean.readLegacyNested(), eventBean.get("explicitFNested"));
+            assertEquals(legacyBean.readStringIndexed(0), eventBean.get("explicitFIndexed[0]"));
+            assertEquals(legacyBean.readStringIndexed(0), eventBean.get("explicitMArray[0]"));
+            assertEquals(legacyBean.readStringIndexed(1), eventBean.get("explicitMIndexed[1]"));
+            assertEquals(legacyBean.readMapByKey("key2"), eventBean.get("explicitMMapped('key2')"));
+        });
 
-        EventTypeSPI stmtType = (EventTypeSPI) env.statement("s0").getEventType();
-        assertEquals(EventTypeBusModifier.NONBUS, stmtType.getMetadata().getBusModifier());
-        assertEquals(EventTypeApplicationType.MAP, stmtType.getMetadata().getApplicationType());
-        assertEquals(EventTypeTypeClass.STATEMENTOUT, stmtType.getMetadata().getTypeClass());
+        env.assertStatement("s0", statement -> {
+            EventTypeSPI stmtType = (EventTypeSPI) statement.getEventType();
+            assertEquals(EventTypeBusModifier.NONBUS, stmtType.getMetadata().getBusModifier());
+            assertEquals(EventTypeApplicationType.MAP, stmtType.getMetadata().getApplicationType());
+            assertEquals(EventTypeTypeClass.STATEMENTOUT, stmtType.getMetadata().getTypeClass());
+        });
 
         env.undeployAll();
     }

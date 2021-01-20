@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -737,27 +736,30 @@ public class ResultSetAggregateFilterNamedParameter {
         SupportBean sb = new SupportBean(theString, intPrimitive);
         sb.setDoublePrimitive(doublePrimitive);
         env.sendEventBean(sb);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(cAvedev, event.get("cAvedev"));
-        assertEquals(cAvg, event.get("cAvg"));
-        assertEquals(cCount, event.get("cCount"));
-        assertEquals(cMax, event.get("cMax"));
-        assertEquals(cFmax, event.get("cFmax"));
-        assertEquals(cMaxever, event.get("cMaxever"));
-        assertEquals(cFmaxever, event.get("cFmaxever"));
-        assertEquals(cMedian, event.get("cMedian"));
-        assertEquals(cMin, event.get("cMin"));
-        assertEquals(cFmin, event.get("cFmin"));
-        assertEquals(cMinever, event.get("cMinever"));
-        assertEquals(cFminever, event.get("cFminever"));
-        assertEquals(cStddev, event.get("cStddev"));
-        assertEquals(cSum, event.get("cSum"));
+        env.assertEventNew("s0", event -> {
+            assertEquals(cAvedev, event.get("cAvedev"));
+            assertEquals(cAvg, event.get("cAvg"));
+            assertEquals(cCount, event.get("cCount"));
+            assertEquals(cMax, event.get("cMax"));
+            assertEquals(cFmax, event.get("cFmax"));
+            assertEquals(cMaxever, event.get("cMaxever"));
+            assertEquals(cFmaxever, event.get("cFmaxever"));
+            assertEquals(cMedian, event.get("cMedian"));
+            assertEquals(cMin, event.get("cMin"));
+            assertEquals(cFmin, event.get("cFmin"));
+            assertEquals(cMinever, event.get("cMinever"));
+            assertEquals(cFminever, event.get("cFminever"));
+            assertEquals(cStddev, event.get("cStddev"));
+            assertEquals(cSum, event.get("cSum"));
+        });
     }
 
     private static void sendEventAssertEventsAsList(RegressionEnvironment env, String theString, String expected) {
         sendEvent(env, theString, 0);
-        List value = (List) env.listener("s0").assertOneGetNewAndReset().get("c0");
-        assertEquals(expected, value.toString());
+        env.assertListener("s0", listener -> {
+            List value = (List) listener.assertOneGetNewAndReset().get("c0");
+            assertEquals(expected, value.toString());
+        });
     }
 
     private static void sendEventAssert(RegressionEnvironment env, String theString, int intPrimitive, String[] fields, Object[] expected) {

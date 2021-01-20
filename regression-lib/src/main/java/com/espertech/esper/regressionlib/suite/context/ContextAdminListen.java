@@ -17,14 +17,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.SupportContextListenUtil;
 import com.espertech.esper.regressionlib.support.context.SupportContextListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.regressionlib.support.context.SupportContextListenUtil.*;
 import static org.junit.Assert.*;
@@ -65,6 +63,10 @@ public class ContextAdminListen {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ContextAdminPartitionAddRemoveListener implements RegressionExecution {
@@ -76,6 +78,10 @@ public class ContextAdminListen {
                 "context NeverEndingStory start @now, " +
                 "context ABSession start SupportBean_S0 as s0 end SupportBean_S1";
             runAssertionPartitionAddRemoveListener(env, epl, "MyContextStartEndWithNeverEnding");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -157,6 +163,10 @@ public class ContextAdminListen {
                 listeners[i].assertNotInvoked();
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS, RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ContextAdminListenNested implements RegressionExecution {
@@ -193,6 +203,10 @@ public class ContextAdminListen {
 
             env.runtime().getContextPartitionService().removeContextStateListeners();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ContextAdminListenCategory implements RegressionExecution {
@@ -212,6 +226,10 @@ public class ContextAdminListen {
             env.undeployModuleContaining("s0");
             env.undeployModuleContaining("ctx");
             env.runtime().getContextPartitionService().removeContextStateListeners();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -240,6 +258,10 @@ public class ContextAdminListen {
                 SupportContextListenUtil.eventContext(deploymentId, "MyContext", ContextStateEventContextDestroyed.class));
 
             env.runtime().getContextPartitionService().removeContextStateListeners();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -270,6 +292,10 @@ public class ContextAdminListen {
             listener.assertAndReset(eventContext(depIdCtx, "MyContext", ContextStateEventContextDestroyed.class));
 
             env.runtime().getContextPartitionService().removeContextStateListeners();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 }

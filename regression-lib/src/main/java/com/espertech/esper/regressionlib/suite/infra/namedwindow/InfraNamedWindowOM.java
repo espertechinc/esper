@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -24,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -62,12 +60,12 @@ public class InfraNamedWindowOM {
 
             // send events
             sendSupportBean(env, "E1", 10L);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 20L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10L});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 20L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", 10L});
 
             sendSupportBean(env, "E2", 20L);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 40L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20L});
+            env.assertPropsNew("select", fields, new Object[]{"E2", 40L});
+            env.assertPropsNew("create", fields, new Object[]{"E2", 20L});
 
             // create delete stmt
             String stmtTextDelete = "@name('delete') on SupportMarketDataBean as s0 delete from MyWindow as s1 where s0.symbol=s1.key";
@@ -77,31 +75,31 @@ public class InfraNamedWindowOM {
 
             // send delete event
             sendMarketBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"E1", 20L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E1", 10L});
+            env.assertPropsOld("select", fields, new Object[]{"E1", 20L});
+            env.assertPropsOld("create", fields, new Object[]{"E1", 10L});
 
             // send delete event again, none deleted now
             sendMarketBean(env, "E1");
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("create").isInvoked());
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("create");
 
             // send delete event
             sendMarketBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"E2", 40L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 20L});
+            env.assertPropsOld("select", fields, new Object[]{"E2", 40L});
+            env.assertPropsOld("create", fields, new Object[]{"E2", 20L});
 
             // trigger on-select on empty window
-            assertFalse(env.listener("onselect").isInvoked());
+            env.assertListenerNotInvoked("onselect");
             env.sendEventBean(new SupportBean_B("B1"));
-            assertFalse(env.listener("onselect").isInvoked());
+            env.assertListenerNotInvoked("onselect");
 
             sendSupportBean(env, "E3", 30L);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E3", 60L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 30L});
+            env.assertPropsNew("select", fields, new Object[]{"E3", 60L});
+            env.assertPropsNew("create", fields, new Object[]{"E3", 30L});
 
             // trigger on-select on the filled window
             env.sendEventBean(new SupportBean_B("B2"));
-            EPAssertionUtil.assertProps(env.listener("onselect").assertOneGetNewAndReset(), fields, new Object[]{"E3", 30L});
+            env.assertPropsNew("onselect",  fields, new Object[]{"E3", 30L});
 
             env.undeployModuleContaining("delete");
             env.undeployModuleContaining("onselect");
@@ -147,12 +145,12 @@ public class InfraNamedWindowOM {
 
             // send events
             sendSupportBean(env, "E1", 10L);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 20L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10L});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 20L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", 10L});
 
             sendSupportBean(env, "E2", 20L);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 40L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 20L});
+            env.assertPropsNew("select", fields, new Object[]{"E2", 40L});
+            env.assertPropsNew("create", fields, new Object[]{"E2", 20L});
 
             // create delete stmt
             model = new EPStatementObjectModel();
@@ -168,18 +166,18 @@ public class InfraNamedWindowOM {
 
             // send delete event
             sendMarketBean(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"E1", 20L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E1", 10L});
+            env.assertPropsOld("select", fields, new Object[]{"E1", 20L});
+            env.assertPropsOld("create", fields, new Object[]{"E1", 10L});
 
             // send delete event again, none deleted now
             sendMarketBean(env, "E1");
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("create").isInvoked());
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("create");
 
             // send delete event
             sendMarketBean(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"E2", 40L});
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 20L});
+            env.assertPropsOld("select", fields, new Object[]{"E2", 40L});
+            env.assertPropsOld("create", fields, new Object[]{"E2", 20L});
 
             // On-select object model
             model = new EPStatementObjectModel();
@@ -199,11 +197,11 @@ public class InfraNamedWindowOM {
             sendSupportBean(env, "E4", 40L);
 
             env.sendEventBean(new SupportBean_B("B1"));
-            assertFalse(env.listener("onselect").isInvoked());
+            env.assertListenerNotInvoked("onselect");
 
             // trigger on-select
             env.sendEventBean(new SupportBean_B("E3"));
-            EPAssertionUtil.assertProps(env.listener("onselect").assertOneGetNewAndReset(), fields, new Object[]{"E3", 30L});
+            env.assertPropsNew("onselect",  fields, new Object[]{"E3", 30L});
 
             env.undeployAll();
         }

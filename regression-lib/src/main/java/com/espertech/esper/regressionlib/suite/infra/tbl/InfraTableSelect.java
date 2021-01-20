@@ -21,13 +21,13 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.subscriber.SupportSubscriberMultirowObjectArrayNStmt;
-import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -75,9 +75,9 @@ public class InfraTableSelect {
         private void sendS1Assert(RegressionEnvironment env, String p10, String p11, String p12, String expected) {
             env.sendEventBean(new SupportBean_S1(0, p10, p11, p12));
             if (expected == null) {
-                assertFalse(expected, env.listener("s0").isInvoked());
+                env.assertListenerNotInvoked("s0");
             } else {
-                assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+                env.assertEqualsNew("s0", "v", expected);
             }
         }
     }
@@ -105,7 +105,7 @@ public class InfraTableSelect {
 
         private void sendManyArrayAssert(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, int expected) {
             sendManyArray(env, id, intOne, intTwo, -1);
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
 
         private void sendManyArray(RegressionEnvironment env, String id, int[] intOne, int[] intTwo, int value) {
@@ -136,7 +136,7 @@ public class InfraTableSelect {
 
         private void sendAssertManyArray(RegressionEnvironment env, int[] ints, int expected) {
             env.sendEventBean(new SupportEventWithManyArray().withIntOne(ints));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
 
         private void sendIntArray(RegressionEnvironment env, String id, int[] ints, int value) {
@@ -150,11 +150,13 @@ public class InfraTableSelect {
             String epl = "create table MyTable(p string);\n" +
                 "@name('s0') select t.firstOf() as c0 from MyTable as t;\n";
             env.compileDeploy(epl, path);
-            env.compileExecuteFAF("insert into MyTable select 'a' as p", path);
+            env.compileExecuteFAFNoResult("insert into MyTable select 'a' as p", path);
 
-            EventBean event = env.iterator("s0").next();
-            Object[] row = (Object[]) event.get("c0");
-            assertEquals("a", row[0]);
+            env.assertIterator("s0", iterator -> {
+                EventBean event = iterator.next();
+                Object[] row = (Object[]) event.get("c0");
+                assertEquals("a", row[0]);
+            });
 
             env.undeployAll();
         }
@@ -208,7 +210,7 @@ public class InfraTableSelect {
             runAssertionOnSelectWindowAgg(env, path, expectedType, rowValues);
             runAssertionSubquerySelectStar(env, path, rowValues);
             runAssertionSubquerySelectWEnumMethod(env, path, rowValues);
-            runAssertionIterateCreateTable(env, expectedType, rowValues, env.statement("create"));
+            runAssertionIterateCreateTable(env, expectedType, rowValues, "create");
             runAssertionJoinSelectStar(env, path, expectedType, rowValues);
             runAssertionJoinSelectStreamName(env, path, expectedType, rowValues);
             runAssertionJoinSelectStreamStarNamed(env, path, expectedType, rowValues);
@@ -230,9 +232,10 @@ public class InfraTableSelect {
             " from SupportBean_S2", path).addListener("s0");
 
         env.sendEventBean(new SupportBean_S2(0));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventUnd(((Object[][]) event.get("c0"))[0], rowValues);
-        assertEventUnd(event.get("c1"), rowValues);
+        env.assertEventNew("s0", event -> {
+            assertEventUnd(((Object[][]) event.get("c0"))[0], rowValues);
+            assertEventUnd(event.get("c1"), rowValues);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -249,44 +252,49 @@ public class InfraTableSelect {
             " from MyTable as win", path).addListener("s0");
 
         env.sendEventBean(new SupportBean_S2(0));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        for (String col : "c1,c2,c6".split(",")) {
-            assertEventUnd(event.get(col), rowValues);
-        }
-        for (String col : "c0,c5".split(",")) {
-            assertEventUnd(((Object[][]) event.get(col))[0], rowValues);
-        }
-        assertEquals("b", event.get("c3"));
-        EPAssertionUtil.assertEqualsExactOrder(new String[]{"b"}, (String[]) event.get("c4"));
+        env.assertEventNew("s0", event -> {
+            for (String col : "c1,c2,c6".split(",")) {
+                assertEventUnd(event.get(col), rowValues);
+            }
+            for (String col : "c0,c5".split(",")) {
+                assertEventUnd(((Object[][]) event.get(col))[0], rowValues);
+            }
+            assertEquals("b", event.get("c3"));
+            EPAssertionUtil.assertEqualsExactOrder(new String[]{"b"}, (String[]) event.get("c4"));
+        });
 
         env.undeployModuleContaining("s0");
     }
 
     private static void runAssertionOutputSnapshot(RegressionEnvironment env, RegressionPath path, Object[][] expectedType, Object[] rowValues, AtomicLong currentTime) {
         env.compileDeploy("@name('s0') select * from MyTable output snapshot every 1 second", path).addListener("s0");
-        assertEventType(env.statement("s0").getEventType(), expectedType);
+        env.assertStatement("s0", statement -> assertEventType(statement.getEventType(), expectedType));
 
         currentTime.set(currentTime.get() + 1000L);
         env.advanceTime(currentTime.get());
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventTypeAndEvent(event.getEventType(), expectedType, event.getUnderlying(), rowValues);
+        env.assertEventNew("s0", event -> assertEventTypeAndEvent(event.getEventType(), expectedType, event.getUnderlying(), rowValues));
 
         env.undeployModuleContaining("s0");
     }
 
     private static void runAssertionFireAndForgetInsertUpdateDelete(RegressionEnvironment env, RegressionPath path, Object[][] expectedType) {
-        EPFireAndForgetQueryResult result = env.compileExecuteFAF("insert into MyTable(key) values ('dummy')", path);
-        assertEventType(result.getEventType(), expectedType);
+        env.assertThat(() -> {
+            EPFireAndForgetQueryResult result = env.compileExecuteFAF("insert into MyTable(key) values ('dummy')", path);
+            assertEventType(result.getEventType(), expectedType);
 
-        result = env.compileExecuteFAF("delete from MyTable where key = 'dummy'", path);
-        assertEventType(result.getEventType(), expectedType);
+            result = env.compileExecuteFAF("delete from MyTable where key = 'dummy'", path);
+            assertEventType(result.getEventType(), expectedType);
 
-        result = env.compileExecuteFAF("update MyTable set key='dummy' where key='dummy'", path);
-        assertEventType(result.getEventType(), expectedType);
+            result = env.compileExecuteFAF("update MyTable set key='dummy' where key='dummy'", path);
+            assertEventType(result.getEventType(), expectedType);
+        });
     }
 
-    private static void runAssertionIterateCreateTable(RegressionEnvironment env, Object[][] expectedType, Object[] rowValues, EPStatement stmtCreate) {
-        assertEventTypeAndEvent(stmtCreate.getEventType(), expectedType, stmtCreate.iterator().next().getUnderlying(), rowValues);
+    private static void runAssertionIterateCreateTable(RegressionEnvironment env, Object[][] expectedType, Object[] rowValues, String stmtNameCreate) {
+        env.assertIterator(stmtNameCreate, iterator -> {
+            EventBean event = iterator.next();
+            assertEventTypeAndEvent(event.getEventType(), expectedType, event.getUnderlying(), rowValues);
+        });
     }
 
     private static void runAssertionSingleRowFunc(RegressionEnvironment env, RegressionPath path, Object[] rowValues) {
@@ -298,9 +306,10 @@ public class InfraTableSelect {
         env.compileDeploy(eplJoin, path).addListener("s0");
 
         env.sendEventBean(new SupportBean_S2(0));
-        EventBean result = env.listener("s0").assertOneGetNewAndReset();
-        assertEventUnd(result.get("c0"), rowValues);
-        assertEventUnd(result.get("c1"), rowValues);
+        env.assertEventNew("s0", result -> {
+            assertEventUnd(result.get("c0"), rowValues);
+            assertEventUnd(result.get("c1"), rowValues);
+        });
         env.undeployModuleContaining("s0");
 
         // try subquery
@@ -309,8 +318,7 @@ public class InfraTableSelect {
         env.compileDeploy(eplSubquery, path).addListener("s0");
 
         env.sendEventBean(new SupportBean_S2(0));
-        result = env.listener("s0").assertOneGetNewAndReset();
-        assertEventUnd(result.get("c0"), rowValues);
+        env.assertEventNew("s0", event -> assertEventUnd(event.get("c0"), rowValues));
 
         env.undeployModuleContaining("s0");
     }
@@ -320,7 +328,7 @@ public class InfraTableSelect {
         env.compileDeploy(epl, path).addListener("s0");
 
         env.sendEventBean(new SupportBean_S2(0));
-        assertEventUnd(env.listener("s0").assertOneGetNewAndReset().get("arr"), rowValues);
+        env.assertEventNew("s0", event -> assertEventUnd(event.get("arr"), rowValues));
 
         env.undeployModuleContaining("s0");
     }
@@ -329,11 +337,13 @@ public class InfraTableSelect {
         String epl = "@name('s0') select (select * from MyTable).where(v=>v.key = 'G1') as mt from SupportBean_S2";
         env.compileDeploy(epl, path).addListener("s0");
 
-        assertEquals(Collection.class, env.statement("s0").getEventType().getPropertyType("mt"));
+        env.assertStatement("s0", statement -> assertEquals(Collection.class, statement.getEventType().getPropertyType("mt")));
 
         env.sendEventBean(new SupportBean_S2(0));
-        Collection coll = (Collection) env.listener("s0").assertOneGetNewAndReset().get("mt");
-        assertEventUnd(coll.iterator().next(), rowValues);
+        env.assertEventNew("s0", event -> {
+            Collection coll = (Collection) event.get("mt");
+            assertEventUnd(coll.iterator().next(), rowValues);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -348,14 +358,17 @@ public class InfraTableSelect {
         // With @eventbean
         String eplEventBean = "@name('s0') select (select * from MyTable) @eventbean as mt from SupportBean_S2";
         env.compileDeploy(eplEventBean, path).addListener("s0");
-        assertEquals(Object[][].class, env.statement("s0").getEventType().getPropertyType("mt"));
-        assertSame(env.statement("create").getEventType(), env.statement("s0").getEventType().getFragmentType("mt").getFragmentType());
+        env.assertStatement("s0", statement -> {
+            assertEquals(Object[][].class, statement.getEventType().getPropertyType("mt"));
+            assertSame(env.statement("create").getEventType(), statement.getEventType().getFragmentType("mt").getFragmentType());
+        });
 
         env.sendEventBean(new SupportBean_S2(0));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        Object[][] value = (Object[][]) event.get("mt");
-        assertEventUnd(value[0], rowValues);
-        assertSame(env.statement("create").getEventType(), ((EventBean[]) event.getFragment("mt"))[0].getEventType());
+        env.assertEventNew("s0", event -> {
+            Object[][] value = (Object[][]) event.get("mt");
+            assertEventUnd(value[0], rowValues);
+            assertSame(env.statement("create").getEventType(), ((EventBean[]) event.getFragment("mt"))[0].getEventType());
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -363,11 +376,10 @@ public class InfraTableSelect {
     private static void runAssertionSubquerySelectStar(RegressionEnvironment env, RegressionPath path, Object[] rowValues, String epl) {
         env.compileDeploy(epl, path).addListener("s0");
 
-        assertEquals(Object[].class, env.statement("s0").getEventType().getPropertyType("mt"));
+        env.assertStatement("s0", statement -> assertEquals(Object[].class, statement.getEventType().getPropertyType("mt")));
 
         env.sendEventBean(new SupportBean_S2(0));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventUnd(event.get("mt"), rowValues);
+        env.assertEventNew("s0", event -> assertEventUnd(event.get("mt"), rowValues));
 
         env.undeployModuleContaining("s0");
     }
@@ -376,18 +388,19 @@ public class InfraTableSelect {
         String joinEpl = "@name('s0') select mt.* from MyTable as mt, SupportBean_S2 where key = p20";
         env.compileDeploy(joinEpl, path).addListener("s0");
         SupportSubscriberMultirowObjectArrayNStmt subscriber = new SupportSubscriberMultirowObjectArrayNStmt();
-        env.statement("s0").setSubscriber(subscriber);
+        env.assertStatement("s0", statement -> statement.setSubscriber(subscriber));
 
-        assertEventType(env.statement("s0").getEventType(), expectedType);
+        env.assertStatement("s0", statement -> assertEventType(statement.getEventType(), expectedType));
 
         // listener assertion
         env.sendEventBean(new SupportBean_S2(0, "G1"));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventTypeAndEvent(event.getEventType(), expectedType, event.getUnderlying(), rowValues);
+        env.assertEventNew("s0", event -> assertEventTypeAndEvent(event.getEventType(), expectedType, event.getUnderlying(), rowValues));
 
         // subscriber assertion
-        Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
-        assertEventUnd(newData[0][0], rowValues);
+        env.assertThat(() -> {
+            Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
+            assertEventUnd(newData[0][0], rowValues);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -396,19 +409,21 @@ public class InfraTableSelect {
         String joinEpl = "@name('s0') select mt.* as mymt from MyTable as mt, SupportBean_S2 where key = p20";
         env.compileDeploy(joinEpl, path).addListener("s0");
         SupportSubscriberMultirowObjectArrayNStmt subscriber = new SupportSubscriberMultirowObjectArrayNStmt();
-        env.statement("s0").setSubscriber(subscriber);
-
-        assertEventType(env.statement("s0").getEventType().getFragmentType("mymt").getFragmentType(), expectedType);
+        env.assertStatement("s0", statement -> {
+            statement.setSubscriber(subscriber);
+            assertEventType(statement.getEventType().getFragmentType("mymt").getFragmentType(), expectedType);
+        });
 
         // listener assertion
         env.sendEventBean(new SupportBean_S2(0, "G1"));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventTypeAndEvent(event.getEventType().getFragmentType("mymt").getFragmentType(),
-            expectedType, event.get("mymt"), rowValues);
+        env.assertEventNew("s0", event -> assertEventTypeAndEvent(event.getEventType().getFragmentType("mymt").getFragmentType(),
+            expectedType, event.get("mymt"), rowValues));
 
         // subscriber assertion
-        Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
-        assertEventUnd(newData[0][0], rowValues);
+        env.assertThat(() -> {
+            Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
+            assertEventUnd(newData[0][0], rowValues);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -417,12 +432,11 @@ public class InfraTableSelect {
         String joinEpl = "@name('s0') select mt from MyTable as mt, SupportBean_S2 where key = p20";
         env.compileDeploy(joinEpl, path).addListener("s0");
 
-        assertEventType(env.statement("s0").getEventType().getFragmentType("mt").getFragmentType(), expectedType);
+        env.assertStatement("s0", statement -> assertEventType(statement.getEventType().getFragmentType("mt").getFragmentType(), expectedType));
 
         env.sendEventBean(new SupportBean_S2(0, "G1"));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventTypeAndEvent(event.getEventType().getFragmentType("mt").getFragmentType(),
-            expectedType, event.get("mt"), rowValues);
+        env.assertEventNew("s0", event -> assertEventTypeAndEvent(event.getEventType().getFragmentType("mt").getFragmentType(),
+            expectedType, event.get("mt"), rowValues));
 
         env.undeployModuleContaining("s0");
     }
@@ -431,26 +445,31 @@ public class InfraTableSelect {
         String joinEpl = "@name('s0') select * from MyTable, SupportBean_S2 where key = p20";
         env.compileDeploy(joinEpl, path).addListener("s0");
         SupportSubscriberMultirowObjectArrayNStmt subscriber = new SupportSubscriberMultirowObjectArrayNStmt();
-        env.statement("s0").setSubscriber(subscriber);
+        env.assertThat(() -> {
+            env.statement("s0").setSubscriber(subscriber);
+        });
 
-        assertEventType(env.statement("s0").getEventType().getFragmentType("stream_0").getFragmentType(), expectedType);
+        env.assertStatement("s0", statement -> assertEventType(statement.getEventType().getFragmentType("stream_0").getFragmentType(), expectedType));
 
         // listener assertion
         env.sendEventBean(new SupportBean_S2(0, "G1"));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEventTypeAndEvent(event.getEventType().getFragmentType("stream_0").getFragmentType(),
-            expectedType, event.get("stream_0"), rowValues);
+        env.assertEventNew("s0", event -> assertEventTypeAndEvent(event.getEventType().getFragmentType("stream_0").getFragmentType(),
+            expectedType, event.get("stream_0"), rowValues));
 
         // subscriber assertion
-        Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
-        assertEventUnd(newData[0][0], rowValues);
+        env.assertThat(() -> {
+            Object[][] newData = subscriber.getAndResetIndicateArr().get(0).getFirst();
+            assertEventUnd(newData[0][0], rowValues);
+        });
 
         env.undeployModuleContaining("s0");
     }
 
     private static void runAssertionFireAndForgetSelectStar(RegressionEnvironment env, RegressionPath path, Object[][] expectedType, Object[] rowValues) {
-        EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyTable where key = 'G1'", path);
-        assertEventTypeAndEvent(result.getEventType(), expectedType, result.getArray()[0].getUnderlying(), rowValues);
+        env.assertThat(() -> {
+            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyTable where key = 'G1'", path);
+            assertEventTypeAndEvent(result.getEventType(), expectedType, result.getArray()[0].getUnderlying(), rowValues);
+        });
     }
 
     private static void assertEventTypeAndEvent(EventType eventType, Object[][] expectedType, Object underlying, Object[] expectedValues) {

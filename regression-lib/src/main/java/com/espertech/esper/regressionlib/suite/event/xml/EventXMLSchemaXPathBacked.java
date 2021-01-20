@@ -60,14 +60,16 @@ public class EventXMLSchemaXPathBacked {
 
         String stmtSelectWild = "@name('s0') select * from " + typeName;
         env.compileDeploy(stmtSelectWild, path).addListener("s0");
-        EventType type = env.statement("s0").getEventType();
-        SupportEventTypeAssertionUtil.assertConsistency(type);
+        env.assertStatement("s0", statement -> {
+            EventType type = statement.getEventType();
+            SupportEventTypeAssertionUtil.assertConsistency(type);
 
-        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1", Node.class).fragment(!xpath),
-            new SupportEventPropDesc("prop4", String.class),
-            new SupportEventPropDesc("nested3", Node.class).fragment(!xpath),
-            new SupportEventPropDesc("customProp", Double.class));
+            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1", Node.class).fragment(!xpath),
+                new SupportEventPropDesc("prop4", String.class),
+                new SupportEventPropDesc("nested3", Node.class).fragment(!xpath),
+                new SupportEventPropDesc("customProp", Double.class));
+        });
         env.undeployModuleContaining("s0");
 
         String stmt = "@name('s0') select nested1 as nodeProp," +
@@ -81,31 +83,36 @@ public class EventXMLSchemaXPathBacked {
             " from " + typeName + "#length(100)";
 
         env.compileDeploy(stmt, path).addListener("s0");
-        type = env.statement("s0").getEventType();
-        SupportEventTypeAssertionUtil.assertConsistency(type);
-        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-            new SupportEventPropDesc("nodeProp", Node.class).fragment(!xpath),
-            new SupportEventPropDesc("nested1Prop", String.class),
-            new SupportEventPropDesc("nested2Prop", Boolean.class),
-            new SupportEventPropDesc("complexProp", String.class),
-            new SupportEventPropDesc("indexedProp", Integer.class),
-            new SupportEventPropDesc("customProp", Double.class),
-            new SupportEventPropDesc("attrOneProp", Boolean.class),
-            new SupportEventPropDesc("attrTwoProp", String.class));
+        env.assertStatement("s0", statement -> {
+            EventType type = statement.getEventType();
+            SupportEventTypeAssertionUtil.assertConsistency(type);
+            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                new SupportEventPropDesc("nodeProp", Node.class).fragment(!xpath),
+                new SupportEventPropDesc("nested1Prop", String.class),
+                new SupportEventPropDesc("nested2Prop", Boolean.class),
+                new SupportEventPropDesc("complexProp", String.class),
+                new SupportEventPropDesc("indexedProp", Integer.class),
+                new SupportEventPropDesc("customProp", Double.class),
+                new SupportEventPropDesc("attrOneProp", Boolean.class),
+                new SupportEventPropDesc("attrTwoProp", String.class));
+        });
 
-        Document eventDoc = SupportXML.sendDefaultEvent(env.eventService(), "test", typeName);
+        Document doc = SupportXML.makeDefaultEvent("test");
+        env.sendEventXMLDOM(doc, typeName);
 
-        assertNotNull(env.listener("s0").getLastNewData());
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
+        env.assertListener("s0", listener -> {
+            assertNotNull(listener.getLastNewData());
+            EventBean theEvent = listener.getLastNewData()[0];
 
-        assertSame(eventDoc.getDocumentElement().getChildNodes().item(1), theEvent.get("nodeProp"));
-        assertEquals("SAMPLE_V6", theEvent.get("nested1Prop"));
-        assertEquals(true, theEvent.get("nested2Prop"));
-        assertEquals("SAMPLE_V8", theEvent.get("complexProp"));
-        assertEquals(5, theEvent.get("indexedProp"));
-        assertEquals(3.0, theEvent.get("customProp"));
-        assertEquals(true, theEvent.get("attrOneProp"));
-        assertEquals("c", theEvent.get("attrTwoProp"));
+            assertSame(doc.getDocumentElement().getChildNodes().item(1), theEvent.get("nodeProp"));
+            assertEquals("SAMPLE_V6", theEvent.get("nested1Prop"));
+            assertEquals(true, theEvent.get("nested2Prop"));
+            assertEquals("SAMPLE_V8", theEvent.get("complexProp"));
+            assertEquals(5, theEvent.get("indexedProp"));
+            assertEquals(3.0, theEvent.get("customProp"));
+            assertEquals(true, theEvent.get("attrOneProp"));
+            assertEquals("c", theEvent.get("attrTwoProp"));
+        });
 
         /**
          * Comment-in for performance testing

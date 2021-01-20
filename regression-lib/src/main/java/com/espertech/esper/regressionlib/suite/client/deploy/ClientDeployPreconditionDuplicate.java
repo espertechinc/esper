@@ -14,14 +14,12 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.util.StringValue;
 import com.espertech.esper.compiler.client.CompilerOptions;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployPreconditionException;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -61,6 +59,10 @@ public class ClientDeployPreconditionDuplicate {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientDeployPrecondDupTable implements RegressionExecution {
@@ -71,6 +73,10 @@ public class ClientDeployPreconditionDuplicate {
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A table by name 'SimpleTable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -83,6 +89,10 @@ public class ClientDeployPreconditionDuplicate {
             tryInvalidDeploy(env, epl, "An event type by name 'MySchema'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientDeployPrecondDupVariable implements RegressionExecution {
@@ -93,6 +103,10 @@ public class ClientDeployPreconditionDuplicate {
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A variable by name 'myvariable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -105,6 +119,10 @@ public class ClientDeployPreconditionDuplicate {
             tryInvalidDeploy(env, epl, "A declared-expression by name 'expr_one'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientDeployPrecondDupScript implements RegressionExecution {
@@ -115,6 +133,10 @@ public class ClientDeployPreconditionDuplicate {
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A script by name 'myscript (1 parameters)'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -127,6 +149,10 @@ public class ClientDeployPreconditionDuplicate {
             tryInvalidDeploy(env, epl, "An application-inlined class by name 'MyClass'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientDeployPrecondDupContext implements RegressionExecution {
@@ -137,6 +163,10 @@ public class ClientDeployPreconditionDuplicate {
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A context by name 'MyContext'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -159,6 +189,10 @@ public class ClientDeployPreconditionDuplicate {
             tryInvalidDeploy(env, compiled, "An index by name 'MyIndexOnNW'", MODULE_NAME_UNNAMED);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

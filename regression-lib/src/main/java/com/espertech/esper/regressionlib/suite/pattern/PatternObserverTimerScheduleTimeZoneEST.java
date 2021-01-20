@@ -14,9 +14,6 @@ import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class PatternObserverTimerScheduleTimeZoneEST implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         sendCurrentTime(env, "2012-10-01T08:59:00.000GMT-04:00");
@@ -25,13 +22,13 @@ public class PatternObserverTimerScheduleTimeZoneEST implements RegressionExecut
         env.compileDeploy(epl).addListener("s0");
 
         sendCurrentTime(env, "2012-10-01T08:59:59.999GMT-4:00");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         sendCurrentTime(env, "2012-10-01T09:00:00.000GMT-4:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         sendCurrentTime(env, "2012-10-03T09:00:00.000GMT-4:00");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }

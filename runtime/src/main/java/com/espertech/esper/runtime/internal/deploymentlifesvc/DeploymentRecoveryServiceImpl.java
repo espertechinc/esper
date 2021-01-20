@@ -19,7 +19,7 @@ import java.util.Map;
 public class DeploymentRecoveryServiceImpl implements DeploymentRecoveryService {
     public final static DeploymentRecoveryServiceImpl INSTANCE = new DeploymentRecoveryServiceImpl();
 
-    public void add(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters) {
+    public void add(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters, String[] deploymentIdsConsumed) {
         // no action
     }
 

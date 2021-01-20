@@ -10,14 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.event.avro;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-
-import static org.junit.Assert.assertFalse;
 
 public class EventAvroSupertypeInsertInto implements RegressionExecution {
     private final static String[] FIELDS = new String[] {"symbol"};
@@ -40,24 +36,25 @@ public class EventAvroSupertypeInsertInto implements RegressionExecution {
         sendEvent(env, "B");
         assertReceived(env, "ss", "B");
         assertReceived(env, "sb", "B");
-        assertFalse(env.listener("sa").isInvoked());
+        env.assertListenerNotInvoked("sa");
 
         sendEvent(env, "A");
         assertReceived(env, "ss", "A");
         assertReceived(env, "sa", "A");
-        assertFalse(env.listener("sb").isInvoked());
+        env.assertListenerNotInvoked("sb");
 
         env.undeployAll();
     }
 
     private void sendEvent(RegressionEnvironment env, String symbol) {
-        Schema schema = SupportAvroUtil.getAvroSchema(env.statement("input").getEventType());
+        Schema schema = env.runtimeAvroSchemaByDeployment("input", "Input");
         GenericData.Record rec = new GenericData.Record(schema);
         rec.put("symbol", symbol);
+        rec.put("price", 1d);
         env.sendEventAvro(rec, "Input");
     }
 
     private void assertReceived(RegressionEnvironment env, String statementName, String symbol) {
-        EPAssertionUtil.assertProps(env.listener(statementName).assertOneGetNewAndReset(), FIELDS, new Object[] {symbol});
+        env.assertPropsNew(statementName, FIELDS, new Object[] {symbol});
     }
 }

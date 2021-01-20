@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -40,8 +39,9 @@ public class ResultSetOutputLimitAfter {
 
     private static class ResultSetAfterWithOutputLast implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertionAfterWithOutputLast(env, outputLimitOpt);
+                runAssertionAfterWithOutputLast(env, outputLimitOpt, milestone);
             }
         }
     }
@@ -201,19 +201,20 @@ public class ResultSetOutputLimitAfter {
                 "@Name('s0')\n" +
                 "select a.* from SupportBean#time(10) a output after 3 events when myvar0=true then set myvar1=true, myvar2=true";
             env.compileDeploy(epl).addListener("s0");
-            String depId = env.deploymentId("s0");
 
             sendEvent(env, "E1");
             sendEvent(env, "E2");
             sendEvent(env, "E3");
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(depId, "myvar0", true);
+            env.runtimeSetVariable("s0", "myvar0", true);
             sendEvent(env, "E4");
             env.assertListenerInvoked("s0");
-
-            Assert.assertEquals(true, env.runtime().getVariableService().getVariableValue(depId, "myvar1"));
-            Assert.assertEquals(true, env.runtime().getVariableService().getVariableValue(depId, "myvar2"));
+            env.assertRuntime(runtime -> {
+                String depId = env.deploymentId("s0");
+                Assert.assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar1"));
+                Assert.assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar2"));
+            });
 
             env.undeployAll();
         }
@@ -233,15 +234,13 @@ public class ResultSetOutputLimitAfter {
         sendTimer(env, 20000);
         sendEvent(env, "E4");
         String[] fields = "theString".split(",");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}});
 
         env.milestone(1);
 
         sendTimer(env, 21000);
         sendEvent(env, "E5");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}, {"E4"}, {"E5"}});
     }
 
     private static void tryAssertionEveryPolicy(RegressionEnvironment env, AtomicInteger milestone) {
@@ -272,8 +271,7 @@ public class ResultSetOutputLimitAfter {
         env.milestoneInc(milestone);
 
         sendTimer(env, 25000);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4"}, {"E5"}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4"}, {"E5"}});
 
         env.milestoneInc(milestone);
 
@@ -289,7 +287,7 @@ public class ResultSetOutputLimitAfter {
         env.assertPropsNew("s0", fields, new Object[]{"E6"});
     }
 
-    private static void runAssertionAfterWithOutputLast(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertionAfterWithOutputLast(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String epl = opt.getHint() + "@name('s0') select sum(intPrimitive) as thesum " +
             "from SupportBean#keepall " +
             "output after 4 events last every 2 events";
@@ -298,12 +296,12 @@ public class ResultSetOutputLimitAfter {
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean("E2", 20));
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E3", 30));
         env.sendEventBean(new SupportBean("E4", 40));
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E5", 50));
         env.assertListenerNotInvoked("s0");

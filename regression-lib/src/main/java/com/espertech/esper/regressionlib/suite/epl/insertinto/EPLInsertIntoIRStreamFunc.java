@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -34,21 +33,21 @@ public class EPLInsertIntoIRStreamFunc implements RegressionExecution {
         env.compileDeploy(stmtTextTwo, path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 0));
-        EPAssertionUtil.assertProps(env.listener("i0").assertOneGetNewAndReset(), fields, new Object[]{"E1", true});
+        env.assertPropsNew("i0", fields, new Object[]{"E1", true});
         env.assertPropsNew("s0", fields, new Object[]{"E1", true});
 
         env.sendEventBean(new SupportBean("E2", 0));
-        EPAssertionUtil.assertProps(env.listener("i0").assertPairGetIRAndReset(), fields, new Object[]{"E2", true}, new Object[]{"E1", false});
+        env.assertPropsIRPair("i0", fields, new Object[]{"E2", true}, new Object[]{"E1", false});
         env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"E2", true}, {"E1", false}}, new Object[0][]);
 
         env.sendEventBean(new SupportBean("E3", 0));
-        EPAssertionUtil.assertProps(env.listener("i0").assertPairGetIRAndReset(), fields, new Object[]{"E3", true}, new Object[]{"E2", false});
+        env.assertPropsIRPair("i0", fields, new Object[]{"E3", true}, new Object[]{"E2", false});
         env.assertPropsPerRowIRPairFlattened("s0", fields, new Object[][]{{"E3", true}, {"E2", false}}, new Object[0][]);
 
         // test SODA
         String eplModel = "@name('s1') select istream() from SupportBean";
         env.eplToModelCompileDeploy(eplModel);
-        assertEquals(Boolean.class, env.statement("s1").getEventType().getPropertyType("istream()"));
+        env.assertStatement("s1", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("istream()")));
 
         // test join
         env.undeployAll();
@@ -61,8 +60,7 @@ public class EPLInsertIntoIRStreamFunc implements RegressionExecution {
         env.assertPropsNew("s0", fields, new Object[]{"E1", 10, true});
 
         env.sendEventBean(new SupportBean("E2", 0));
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1", 10, false});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E2", 10, true});
+        env.assertPropsIRPair("s0", fields, new Object[]{"E2", 10, true}, new Object[]{"E1", 10, false});
 
         env.undeployAll();
     }

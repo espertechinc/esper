@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -36,23 +35,26 @@ public class EventBeanEventPropertyDynamicPerformance implements RegressionExecu
             "from SupportBeanComplexProps";
         env.compileDeploy(stmtText).addListener("s0");
 
-        EventType type = env.statement("s0").getEventType();
-        assertEquals(Object.class, type.getPropertyType("simpleProperty?"));
-        assertEquals(Object.class, type.getPropertyType("indexed"));
-        assertEquals(Object.class, type.getPropertyType("mapped"));
+        env.assertStatement("s0", statement -> {
+            EventType type = statement.getEventType();
+            assertEquals(Object.class, type.getPropertyType("simpleProperty?"));
+            assertEquals(Object.class, type.getPropertyType("indexed"));
+            assertEquals(Object.class, type.getPropertyType("mapped"));
+        });
 
         SupportBeanComplexProps inner = SupportBeanComplexProps.makeDefaultBean();
         env.sendEventBean(inner);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(inner.getSimpleProperty(), theEvent.get("simpleProperty?"));
-        assertEquals(inner.getIndexed(1), theEvent.get("indexed"));
-        assertEquals(inner.getMapped("keyOne"), theEvent.get("mapped"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals(inner.getSimpleProperty(), theEvent.get("simpleProperty?"));
+            assertEquals(inner.getIndexed(1), theEvent.get("indexed"));
+            assertEquals(inner.getMapped("keyOne"), theEvent.get("mapped"));
+        });
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
             env.sendEventBean(inner);
             if (i % 1000 == 0) {
-                env.listener("s0").reset();
+                env.listenerReset("s0");
             }
         }
         long end = System.currentTimeMillis();

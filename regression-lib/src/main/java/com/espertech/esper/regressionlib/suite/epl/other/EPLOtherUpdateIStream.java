@@ -20,12 +20,12 @@ import com.espertech.esper.common.client.soda.Expressions;
 import com.espertech.esper.common.client.soda.UpdateClause;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanCopyMethod;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
@@ -33,9 +33,8 @@ import com.espertech.esper.regressionlib.support.util.SupportXML;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Document;
 
@@ -68,7 +67,9 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdate());
         execs.add(new EPLOtherUpdateListenerDeliveryMultiupdateMixed());
         execs.add(new EPLOtherUpdateSubqueryMultikeyWArray());
-        execs.add(new EPLOtherUpdateMapIndexProps());
+        execs.add(new EPLOtherUpdateMapSetMapPropsBean());
+        execs.add(new EPLOtherUpdateMapSetMapPropsRep());
+        execs.add(new EPLOtherUpdateNWSetMapProps());
         execs.add(new EPLOtherUpdateArrayElement());
         execs.add(new EPLOtherUpdateArrayElementBoxed());
         execs.add(new EPLOtherUpdateArrayElementInvalid());
@@ -160,7 +161,7 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventMap(Collections.singletonMap("dbls", new Double[3]), "MyEvent");
-            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEventNew("s0", event -> assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) event.get("c0")));
 
             env.undeployAll();
         }
@@ -182,8 +183,7 @@ public class EPLOtherUpdateIStream {
 
         private void assertUpdate(RegressionEnvironment env, int position, int[] expectedInt, Object[] expectedObj) {
             env.sendEventMap(CollectionUtil.buildMap("position", position, "intarray", new int[3], "objectarray", new Object[3]), "Arriving");
-            EventBean out = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(out, "position,intarray,objectarray".split(","), new Object[] {position, expectedInt, expectedObj});
+            env.assertPropsNew("s0", "position,intarray,objectarray".split(","), new Object[] {position, expectedInt, expectedObj});
         }
     }
 
@@ -213,7 +213,7 @@ public class EPLOtherUpdateIStream {
 
         private void assertUpdate(RegressionEnvironment env, Integer expected) {
             env.sendEventMap(new HashMap<>(), "Arriving");
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", expected);
         }
     }
 
@@ -231,25 +231,21 @@ public class EPLOtherUpdateIStream {
 
             String[] fields = "theString,intPrimitive".split(",");
             env.sendEventBean(new SupportBean("E1", 9));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 9});
-            EPAssertionUtil.assertProps(env.listener("Insert").assertOneGetNewAndReset(), fields, new Object[]{"E1", 9});
-            assertFalse(env.listener("Update").isInvoked());
+            env.assertPropsNew("Select", fields, new Object[]{"E1", 9});
+            env.assertPropsNew("Insert", fields, new Object[]{"E1", 9});
+            env.assertListenerNotInvoked("Update");
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"O_E2", 10});
-            EPAssertionUtil.assertProps(env.listener("Insert").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1});
-            EPAssertionUtil.assertProps(env.listener("Update").getLastOldData()[0], fields, new Object[]{"E2", 1});
-            EPAssertionUtil.assertProps(env.listener("Update").getLastNewData()[0], fields, new Object[]{"O_E2", 10});
-            env.listener("Update").reset();
+            env.assertPropsNew("Select", fields, new Object[]{"O_E2", 10});
+            env.assertPropsNew("Insert", fields, new Object[]{"E2", 1});
+            env.assertPropsIRPair("Update", fields, new Object[]{"O_E2", 10}, new Object[]{"E2", 1});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E3", 1));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"O_E3", 10});
-            EPAssertionUtil.assertProps(env.listener("Insert").assertOneGetNewAndReset(), fields, new Object[]{"E3", 1});
-            EPAssertionUtil.assertProps(env.listener("Update").getLastOldData()[0], fields, new Object[]{"E3", 1});
-            EPAssertionUtil.assertProps(env.listener("Update").getLastNewData()[0], fields, new Object[]{"O_E3", 10});
-            env.listener("Update").reset();
+            env.assertPropsNew("Select", fields, new Object[]{"O_E3", 10});
+            env.assertPropsNew("Insert", fields, new Object[]{"E3", 1});
+            env.assertPropsIRPair("Update", fields, new Object[]{"O_E3", 10}, new Object[]{"E3", 1});
 
             env.undeployAll();
         }
@@ -260,13 +256,13 @@ public class EPLOtherUpdateIStream {
 
             env.compileDeploy("@name('update') update istream SupportBean " +
                 "set intPrimitive=myvar, intBoxed=intPrimitive");
-            assertEquals(StatementType.UPDATE, env.statement("update").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("update", statement -> assertEquals(StatementType.UPDATE, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             env.compileDeploy("@name('s0') select * from SupportBean").addListener("s0");
             String[] fields = "intPrimitive,intBoxed".split(",");
 
             env.sendEventBean(makeSupportBean("E1", 1, 2));
-            EPAssertionUtil.assertProps(env.listener("s0").getAndResetLastNewData()[0], fields, new Object[]{10, 1});
+            env.assertPropsNew("s0", fields, new Object[]{10, 1});
 
             env.undeployAll();
         }
@@ -324,82 +320,73 @@ public class EPLOtherUpdateIStream {
             String[] fields = "theString,intPrimitive".split(",");
             env.sendEventBean(new SupportBean("E1", 9));
             env.assertPropsNew("s0", fields, new Object[]{"E1", 9});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E1", 9});
-            assertFalse(env.listener("update_1").isInvoked());
+            env.assertPropsNew("insert", fields, new Object[]{"E1", 9});
+            env.assertListenerNotInvoked("update_1");
 
             env.sendEventBean(new SupportBean("E2", 1));
             env.assertPropsNew("s0", fields, new Object[]{"O_E2", 10});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E2", 1});
-            EPAssertionUtil.assertProps(env.listener("update_1").assertOneGetOld(), fields, new Object[]{"E2", 1});
-            EPAssertionUtil.assertProps(env.listener("update_1").assertOneGetNew(), fields, new Object[]{"O_E2", 10});
-            env.listener("update_1").reset();
+            env.assertPropsNew("insert", fields, new Object[]{"E2", 1});
+            env.assertPropsIRPair("update_1", fields, new Object[]{"O_E2", 10}, new Object[]{"E2", 1});
+            env.listenerReset("update_1");
 
             env.sendEventBean(new SupportBean("E3", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E3", 2});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E3", 2});
-            assertFalse(env.listener("update_1").isInvoked());
+            env.assertPropsNew("insert", fields, new Object[]{"E3", 2});
+            env.assertListenerNotInvoked("update_1");
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.assertPropsNew("s0", fields, new Object[]{"O_E4", 10});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E4", 1});
-            EPAssertionUtil.assertProps(env.listener("update_1").assertOneGetOld(), fields, new Object[]{"E4", 1});
-            EPAssertionUtil.assertProps(env.listener("update_1").assertOneGetNew(), fields, new Object[]{"O_E4", 10});
+            env.assertPropsNew("insert", fields, new Object[]{"E4", 1});
+            env.assertPropsIRPair("update_1", fields, new Object[]{"O_E4", 10}, new Object[]{"E4", 1});
 
             env.compileDeploy("@name('update_2') update istream MyStreamBW as xyz set intPrimitive=xyz.intPrimitive + 1000 where intPrimitive=2", path);
             env.addListener("update_2");
 
             env.sendEventBean(new SupportBean("E5", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E5", 1002});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E5", 2});
-            EPAssertionUtil.assertProps(env.listener("update_2").assertOneGetOld(), fields, new Object[]{"E5", 2});
-            EPAssertionUtil.assertProps(env.listener("update_2").assertOneGetNew(), fields, new Object[]{"E5", 1002});
-            env.listener("update_2").reset();
+            env.assertPropsNew("insert", fields, new Object[]{"E5", 2});
+            env.assertPropsIRPair("update_2", fields, new Object[]{"E5", 1002}, new Object[]{"E5", 2});
 
             env.undeployModuleContaining("update_1");
 
             env.sendEventBean(new SupportBean("E6", 1));
             env.assertPropsNew("s0", fields, new Object[]{"E6", 1});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E6", 1});
-            assertFalse(env.listener("update_2").isInvoked());
+            env.assertPropsNew("insert", fields, new Object[]{"E6", 1});
+            env.assertListenerNotInvoked("update_2");
 
             env.sendEventBean(new SupportBean("E7", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E7", 1002});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E7", 2});
-            EPAssertionUtil.assertProps(env.listener("update_2").assertOneGetOld(), fields, new Object[]{"E7", 2});
-            EPAssertionUtil.assertProps(env.listener("update_2").assertOneGetNew(), fields, new Object[]{"E7", 1002});
-            env.listener("update_2").reset();
-            assertFalse(env.iterator("update_2").hasNext());
-
-            SupportListener listenerUpdate2 = env.listener("update_2");
-            env.statement("update_2").removeAllListeners();
+            env.assertPropsNew("insert", fields, new Object[]{"E7", 2});
+            env.assertPropsIRPair("update_2", fields, new Object[]{"E7", 1002}, new Object[]{"E7", 2});
+            env.listenerReset("update_2");
+            env.assertIterator("update_2", iterator -> assertFalse(iterator.hasNext()));
 
             env.sendEventBean(new SupportBean("E8", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E8", 1002});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E8", 2});
-            assertFalse(listenerUpdate2.isInvoked());
+            env.assertPropsNew("insert", fields, new Object[]{"E8", 2});
 
-            SupportSubscriber subscriber = new SupportSubscriber();
-            env.statement("update_2").setSubscriber(subscriber);
+            env.setSubscriber("update_2");
 
             env.sendEventBean(new SupportBean("E9", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E9", 1002});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E9", 2});
-            SupportBean.compare(subscriber.getOldDataListFlattened()[0], "E9", 2);
-            SupportBean.compare(subscriber.getNewDataListFlattened()[0], "E9", 1002);
-            subscriber.reset();
+            env.assertPropsNew("insert", fields, new Object[]{"E9", 2});
+            env.assertSubscriber("update_2", subscriber -> {
+                SupportBean.compare(subscriber.getOldDataListFlattened()[0], "E9", 2);
+                SupportBean.compare(subscriber.getNewDataListFlattened()[0], "E9", 1002);
+                subscriber.reset();
+            });
 
             env.undeployModuleContaining("update_2");
 
             env.sendEventBean(new SupportBean("E10", 2));
             env.assertPropsNew("s0", fields, new Object[]{"E10", 2});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E10", 2});
+            env.assertPropsNew("insert", fields, new Object[]{"E10", 2});
 
             env.compileDeploy("@name('update_3') update istream MyStreamBW set intPrimitive=intBoxed", path);
             env.addListener("update_3");
 
             env.sendEventBean(new SupportBean("E11", 2));
-            EPAssertionUtil.assertProps(env.listener("update_3").assertOneGetNew(), fields, new Object[]{"E11", 2});
-            env.listener("update_3").reset();
+            env.assertListener("update_3", listener -> EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E11", 2}));
 
             env.undeployAll();
         }
@@ -419,20 +406,20 @@ public class EPLOtherUpdateIStream {
             String[] fields = "p0,p1,p2".split(",");
             env.sendEventMap(makeMap("p0", 10L, "p1", 1L, "p2", 100L), "MyMapTypeII");
             env.assertPropsNew("s0", fields, new Object[]{1L, 10L, 100L});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{10L, 1L, 100L});
+            env.assertPropsNew("insert", fields, new Object[]{10L, 1L, 100L});
 
             env.undeployModuleContaining("update");
             env.deploy(update).addListener("update");
 
             env.sendEventMap(makeMap("p0", 5L, "p1", 4L, "p2", 101L), "MyMapTypeII");
             env.assertPropsNew("s0", fields, new Object[]{4L, 5L, 101L});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{5L, 4L, 101L});
+            env.assertPropsNew("insert", fields, new Object[]{5L, 4L, 101L});
 
             env.undeployModuleContaining("update");
 
             env.sendEventMap(makeMap("p0", 20L, "p1", 0L, "p2", 102L), "MyMapTypeII");
             env.assertPropsNew("s0", fields, new Object[]{20L, 0L, 102L});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{20L, 0L, 102L});
+            env.assertPropsNew("insert", fields, new Object[]{20L, 0L, 102L});
 
             env.undeployAll();
         }
@@ -518,26 +505,26 @@ public class EPLOtherUpdateIStream {
             env.milestone(0);
 
             env.sendEventMap(makeMap("p0", "E1", "p1", "oldvalue"), "MyMapTypeNW");
-            EPAssertionUtil.assertProps(env.listener("window").assertOneGetNewAndReset(), fields, new Object[]{"E1", "newvalue"});
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E1", "oldvalue"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", "newvalue"});
+            env.assertPropsNew("window", fields, new Object[]{"E1", "newvalue"});
+            env.assertPropsNew("insert", fields, new Object[]{"E1", "oldvalue"});
+            env.assertPropsNew("select", fields, new Object[]{"E1", "newvalue"});
 
             env.compileDeploy("@name('onselect') on SupportBean(theString='A') select win.* from AWindow as win", path).addListener("onselect");
             env.sendEventBean(new SupportBean("A", 0));
-            EPAssertionUtil.assertProps(env.listener("onselect").assertOneGetNewAndReset(), fields, new Object[]{"E1", "newvalue"});
+            env.assertPropsNew("onselect", fields, new Object[]{"E1", "newvalue"});
 
             env.milestone(1);
 
             env.compileDeploy("@name('oninsert') on SupportBean(theString='B') insert into MyOtherStream select win.* from AWindow as win", path).addListener("oninsert");
             env.sendEventBean(new SupportBean("B", 1));
-            EPAssertionUtil.assertProps(env.listener("oninsert").assertOneGetNewAndReset(), fields, new Object[]{"E1", "newvalue"});
+            env.assertPropsNew("oninsert", fields, new Object[]{"E1", "newvalue"});
 
             env.milestone(2);
 
             env.compileDeploy("update istream MyOtherStream set p0='a', p1='b'", path);
             env.compileDeploy("@name('s0') select * from MyOtherStream", path).addListener("s0");
             env.sendEventBean(new SupportBean("B", 1));
-            EPAssertionUtil.assertProps(env.listener("oninsert").assertOneGetNewAndReset(), fields, new Object[]{"E1", "newvalue"});
+            env.assertPropsNew("oninsert", fields, new Object[]{"E1", "newvalue"});
             env.assertPropsNew("s0", fields, new Object[]{"a", "b"});
 
             env.undeployAll();
@@ -623,6 +610,10 @@ public class EPLOtherUpdateIStream {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -800,7 +791,7 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy("@name('s0') select * from ABCStreamLD", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1, "orig"});
+            env.assertPropsNew("insert", fields, new Object[]{"E1", 1, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetOld(), fields, new Object[]{"E1", 1, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetNew(), fields, new Object[]{"A", 1, "a"});
             EPAssertionUtil.assertProps(listeners[1].assertOneGetOld(), fields, new Object[]{"A", 1, "a"});
@@ -810,7 +801,7 @@ public class EPLOtherUpdateIStream {
             reset(listeners);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2, "orig"});
+            env.assertPropsNew("insert", fields, new Object[]{"E2", 2, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetOld(), fields, new Object[]{"E2", 2, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetNew(), fields, new Object[]{"A", 2, "a"});
             assertFalse(listeners[1].isInvoked());
@@ -820,7 +811,7 @@ public class EPLOtherUpdateIStream {
             reset(listeners);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3, "orig"});
+            env.assertPropsNew("insert", fields, new Object[]{"E3", 3, "orig"});
             assertFalse(listeners[0].isInvoked());
             EPAssertionUtil.assertProps(listeners[1].assertOneGetOld(), fields, new Object[]{"E3", 3, "orig"});
             EPAssertionUtil.assertProps(listeners[1].assertOneGetNew(), fields, new Object[]{"B", 3, "b"});
@@ -830,6 +821,10 @@ public class EPLOtherUpdateIStream {
             reset(listeners);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -853,7 +848,7 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy("@Name('E') update istream ABCStreamLDM set theString='E', value1='e'", path);
 
             env.sendEventBean(new SupportBean("E4", 4));
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4, "orig"});
+            env.assertPropsNew("insert", fields, new Object[]{"E4", 4, "orig"});
             assertFalse(listeners[0].isInvoked());
             EPAssertionUtil.assertProps(listeners[1].assertOneGetOld(), fields, new Object[]{"A", 4, "a"});
             EPAssertionUtil.assertProps(listeners[1].assertOneGetNew(), fields, new Object[]{"B", 4, "b"});
@@ -870,7 +865,7 @@ public class EPLOtherUpdateIStream {
             env.statement("E").addListener(listeners[4]);
 
             env.sendEventBean(new SupportBean("E5", 5));
-            EPAssertionUtil.assertProps(env.listener("insert").assertOneGetNewAndReset(), fields, new Object[]{"E5", 5, "orig"});
+            env.assertPropsNew("insert", fields, new Object[]{"E5", 5, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetOld(), fields, new Object[]{"E5", 5, "orig"});
             EPAssertionUtil.assertProps(listeners[0].assertOneGetNew(), fields, new Object[]{"A", 5, "a"});
             assertFalse(listeners[1].isInvoked());
@@ -883,18 +878,34 @@ public class EPLOtherUpdateIStream {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
-    private static class EPLOtherUpdateMapIndexProps implements RegressionExecution {
+    private static class EPLOtherUpdateNWSetMapProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            runAssertionSetMapPropsBean(env);
-
-            for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                runAssertionUpdateIStreamSetMapProps(env, rep);
-            }
-
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
                 runAssertionNamedWindowSetMapProps(env, rep);
+            }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
+    }
+
+    private static class EPLOtherUpdateMapSetMapPropsBean implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            runAssertionSetMapPropsBean(env);
+        }
+    }
+
+    private static class EPLOtherUpdateMapSetMapPropsRep implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
+                runAssertionUpdateIStreamSetMapProps(env, rep);
             }
         }
     }
@@ -902,7 +913,7 @@ public class EPLOtherUpdateIStream {
     private static void runAssertionSetMapPropsBean(RegressionEnvironment env) {
         // test update-istream with bean
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType("create schema MyMapPropEvent as " + MyMapPropEvent.class.getName(), path);
+        env.compileDeploy("@buseventtype create schema MyMapPropEvent as " + MyMapPropEvent.class.getName(), path);
         env.compileDeploy("insert into MyStream select * from MyMapPropEvent", path);
         env.compileDeploy("@name('s0') update istream MyStream set props('abc') = 1, array[2] = 10", path).addListener("s0");
 
@@ -916,8 +927,8 @@ public class EPLOtherUpdateIStream {
 
         // test update-istream with map
         RegressionPath path = new RegressionPath();
-        String eplType = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
-        env.compileDeployWBusPublicType(eplType, path);
+        String eplType = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @buseventtype create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        env.compileDeploy(eplType, path);
 
         env.compileDeploy("@name('update') update istream MyInfraTypeWithMapProp set simple='A', mymap('abc') = 1, myarray[2] = 10", path).addListener("update");
 
@@ -926,9 +937,11 @@ public class EPLOtherUpdateIStream {
         } else if (eventRepresentationEnum.isMapEvent()) {
             env.sendEventMap(makeMapEvent(new HashMap<>(), new int[10]), "MyInfraTypeWithMapProp");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(env.deploymentId("type"), "MyInfraTypeWithMapProp")));
+            Schema schema = env.runtimeAvroSchemaByDeployment("type", "MyInfraTypeWithMapProp");
+            GenericData.Record event = new GenericData.Record(schema);
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
+            event.put("simple", "");
             env.sendEventAvro(event, "MyInfraTypeWithMapProp");
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonArray myarray = new JsonArray().add(0).add(0).add(0).add(0).add(0);
@@ -938,7 +951,8 @@ public class EPLOtherUpdateIStream {
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.listener("update").assertPairGetIRAndReset(), "simple,mymap('abc'),myarray[2]".split(","), new Object[]{"A", 1, 10}, new Object[]{null, null, 0});
+        String simpleExpected = eventRepresentationEnum.isAvroEvent() ? "" : null;
+        env.assertPropsIRPair("update", "simple,mymap('abc'),myarray[2]".split(","), new Object[]{"A", 1, 10}, new Object[]{simpleExpected, null, 0});
 
         env.undeployAll();
     }
@@ -947,8 +961,8 @@ public class EPLOtherUpdateIStream {
 
         // test named-window update
         RegressionPath path = new RegressionPath();
-        String eplTypes = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
-        env.compileDeployWBusPublicType(eplTypes, path);
+        String eplTypes = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @buseventtype create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        env.compileDeploy(eplTypes, path);
 
         env.compileDeploy("@name('window') create window MyWindowWithMapProp#keepall as MyNWInfraTypeWithMapProp", path);
         env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " insert into MyWindowWithMapProp select * from MyNWInfraTypeWithMapProp", path);
@@ -958,7 +972,8 @@ public class EPLOtherUpdateIStream {
         } else if (eventRepresentationEnum.isMapEvent()) {
             env.sendEventMap(makeMapEvent(new HashMap<>(), new int[10]), "MyNWInfraTypeWithMapProp");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(env.deploymentId("type"), "MyNWInfraTypeWithMapProp")));
+            Schema schema = env.runtimeAvroSchemaByDeployment("type", "MyNWInfraTypeWithMapProp");
+            GenericData.Record event = new GenericData.Record(schema);
             event.put("myarray", Arrays.asList(0, 0, 0, 0, 0));
             event.put("mymap", new HashMap());
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
@@ -973,7 +988,7 @@ public class EPLOtherUpdateIStream {
 
         env.compileDeploy("on SupportBean update MyWindowWithMapProp set simple='A', mymap('abc') = intPrimitive, myarray[2] = intPrimitive", path);
         env.sendEventBean(new SupportBean("E1", 10));
-        EPAssertionUtil.assertPropsPerRow(env.iterator("window"), "simple,mymap('abc'),myarray[2]".split(","), new Object[][]{{"A", 10, 10}});
+        env.assertPropsPerRowIterator("window", "simple,mymap('abc'),myarray[2]".split(","), new Object[][]{{"A", 10, 10}});
 
         // test null and array too small
         if (eventRepresentationEnum.isObjectArrayEvent()) {
@@ -997,7 +1012,7 @@ public class EPLOtherUpdateIStream {
             fail();
         }
         env.sendEventBean(new SupportBean("E2", 20));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), "simple,mymap('abc'),myarray[2]".split(","), new Object[][]{{"A", 20, 20}, {"A", null, null}});
+        env.assertPropsPerRowIteratorAnyOrder("window", "simple,mymap('abc'),myarray[2]".split(","), new Object[][]{{"A", 20, 20}, {"A", null, null}});
 
         env.undeployAll();
     }
@@ -1040,7 +1055,7 @@ public class EPLOtherUpdateIStream {
 
         env.undeployModuleContaining("s0");
         env.compileDeploy("@name('s0') select * from MyStream", path).addListener("s0");
-        assertTrue(eventRepresentationEnum.matchesClass(env.statement("s0").getEventType().getUnderlyingType()));
+        env.assertStatement("s0", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
         env.sendEventBean(new SupportBean("D1", -2));
         env.assertPropsNew("s0", fields, new Object[]{"D1", -2});

@@ -12,15 +12,13 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.EPDeploymentDependencyConsumed;
 import com.espertech.esper.runtime.client.EPDeploymentDependencyProvided;
 import com.espertech.esper.runtime.client.util.EPObjectType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsAnyOrder;
 import static org.junit.Assert.assertNull;
@@ -69,6 +67,10 @@ public class ClientDeployListDependencies {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientDeployListDependenciesInvalid implements RegressionExecution {
@@ -90,6 +92,10 @@ public class ClientDeployListDependencies {
                 // expected
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientDeployListDependenciesNoDependencies implements RegressionExecution {
@@ -99,6 +105,10 @@ public class ClientDeployListDependencies {
             env.compileDeploy("module A;\n @name('table') create table MyTable(k string, v string)");
             assertNoneProvidedConsumed(env, "table");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -125,6 +135,10 @@ public class ClientDeployListDependencies {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -180,6 +194,10 @@ public class ClientDeployListDependencies {
             assertEqualsAnyOrder(new String[]{env.deploymentId("provide")}, env.deployment().getDeployment(deploymentIdConsume).getDeploymentIdDependencies());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

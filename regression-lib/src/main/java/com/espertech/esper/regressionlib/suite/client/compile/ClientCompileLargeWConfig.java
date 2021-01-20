@@ -21,11 +21,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -75,10 +77,12 @@ public class ClientCompileLargeWConfig {
             eplSchema.append(");\n");
             env.compileDeploy(eplSchema.toString(), path);
 
-            EventType eventType = env.statement("schema").getEventType();
-            for (int i = 0; i < numColumns; i++) {
-                assertEquals(Long.class, eventType.getPropertyType("p" + i));
-            }
+            env.assertStatement("schema", statement -> {
+                EventType eventType = statement.getEventType();
+                for (int i = 0; i < numColumns; i++) {
+                    assertEquals(Long.class, eventType.getPropertyType("p" + i));
+                }
+            });
 
             StringWriter eplInsert = new StringWriter();
             eplInsert.append("insert into MyEvent select ");
@@ -93,10 +97,11 @@ public class ClientCompileLargeWConfig {
 
             env.compileDeploy("@name('s0') select * from MyEvent", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < numColumns; i++) {
-                assertEquals(i + 1000000L, event.get("p" + i));
-            }
+            env.assertEventNew("s0", event -> {
+                for (int i = 0; i < numColumns; i++) {
+                    assertEquals(i + 1000000L, event.get("p" + i));
+                }
+            });
 
             env.undeployAll();
         }
@@ -107,6 +112,10 @@ public class ClientCompileLargeWConfig {
                 ", numColumns=" + numColumns +
                 ", widening=" + widening +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -137,12 +146,17 @@ public class ClientCompileLargeWConfig {
             env.deploy(compiled, options).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < numColumns; i++) {
-                assertEquals("v" + i, event.get("c" + i));
-            }
+            env.assertEventNew("s0", event -> {
+                for (int i = 0; i < numColumns; i++) {
+                    assertEquals("v" + i, event.get("c" + i));
+                }
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -182,6 +196,10 @@ public class ClientCompileLargeWConfig {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     public static class ClientCompileLargeAggregationAccess implements RegressionExecution {
@@ -205,12 +223,17 @@ public class ClientCompileLargeWConfig {
 
             SupportBean sbOne = new SupportBean("E1", 10);
             env.sendEventBean(sbOne);
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < numColumns; i++) {
-                assertEquals(sbOne, result.get("c" + i));
-            }
+            env.assertEventNew("s0", event -> {
+                for (int i = 0; i < numColumns; i++) {
+                    assertEquals(sbOne, event.get("c" + i));
+                }
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -238,13 +261,18 @@ public class ClientCompileLargeWConfig {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
+
         private void sendBeanAssert(RegressionEnvironment env, int intPrimitive) {
             env.sendEventBean(new SupportBean("x", intPrimitive));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < numColumns; i++) {
-                assertTrue(result.getEventType().isProperty("c" + i));
-                assertEquals(intPrimitive + i, result.get("c" + i));
-            }
+            env.assertEventNew("s0", event -> {
+                for (int i = 0; i < numColumns; i++) {
+                    assertTrue(event.getEventType().isProperty("c" + i));
+                    assertEquals(intPrimitive + i, event.get("c" + i));
+                }
+            });
         }
     }
 
@@ -269,6 +297,10 @@ public class ClientCompileLargeWConfig {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     public static class ClientCompileLargeTableAggregationEnterLeaveMethod implements RegressionExecution {
@@ -289,6 +321,10 @@ public class ClientCompileLargeWConfig {
             assertTableSum(env, numColumns, 30);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -327,6 +363,10 @@ public class ClientCompileLargeWConfig {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     public static class ClientCompileLargeSelectCol implements RegressionExecution {
@@ -350,11 +390,12 @@ public class ClientCompileLargeWConfig {
             env.compileDeploy(epl.toString()).addListener("s0");
 
             env.sendEventBean(new SupportBean("x", 0));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < numColumns; i++) {
-                assertTrue(result.getEventType().isProperty("c" + i));
-                assertEquals("x" + i, result.get("c" + i));
-            }
+            env.assertEventNew("s0", event -> {
+                for (int i = 0; i < numColumns; i++) {
+                    assertTrue(event.getEventType().isProperty("c" + i));
+                    assertEquals("x" + i, event.get("c" + i));
+                }
+            });
 
             env.undeployAll();
         }
@@ -363,6 +404,10 @@ public class ClientCompileLargeWConfig {
             return this.getClass().getSimpleName() + "{" +
                     "representation=" + representation +
                     '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -389,26 +434,32 @@ public class ClientCompileLargeWConfig {
     }
 
     private static void assertTableSum(RegressionEnvironment env, int numColumns, int intPrimitive) {
-        EventBean result = env.iterator("table").next();
-        for (int i = 0; i < numColumns; i++) {
-            assertTrue(result.getEventType().isProperty("c" + i));
-            assertEquals(intPrimitive + i, result.get("c" + i));
-        }
+        env.assertIterator("table", iterator -> {
+            EventBean result = iterator.next();
+            for (int i = 0; i < numColumns; i++) {
+                assertTrue(result.getEventType().isProperty("c" + i));
+                assertEquals(intPrimitive + i, result.get("c" + i));
+            }
+        });
     }
 
     private static void assertTableReset(RegressionEnvironment env, int numColumns) {
-        EventBean result = env.iterator("table").next();
-        for (int i = 0; i < numColumns; i++) {
-            assertNull(result.get("c" + i));
-        }
+        env.assertIterator("table", iterator -> {
+            EventBean result = iterator.next();
+            for (int i = 0; i < numColumns; i++) {
+                assertNull(result.get("c" + i));
+            }
+        });
     }
 
     private static void assertTableWindow(RegressionEnvironment env, int numColumns, SupportBean sb) {
-        EventBean result = env.iterator("table").next();
-        for (int i = 0; i < numColumns; i++) {
-            SupportBean[] beans = (SupportBean[]) result.get("c" + i);
-            assertEquals(1, beans.length);
-            assertEquals(beans[0], sb);
-        }
+        env.assertIterator("table", iterator -> {
+            EventBean result = iterator.next();
+            for (int i = 0; i < numColumns; i++) {
+                SupportBean[] beans = (SupportBean[]) result.get("c" + i);
+                assertEquals(1, beans.length);
+                assertEquals(beans[0], sb);
+            }
+        });
     }
 }

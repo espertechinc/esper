@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.client.stage;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class ClientStageAdvanceTime {
         return execs;
     }
 
-    private static class ClientStageCurrentTime implements RegressionExecution {
+    private static class ClientStageCurrentTime implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             advanceTime(env, null, "2002-05-30T09:00:00.000");
             env.stageService().getStage("ST");
@@ -53,7 +52,7 @@ public class ClientStageAdvanceTime {
         }
     }
 
-    private static class ClientStageAdvanceRelativeTime implements RegressionExecution {
+    private static class ClientStageAdvanceRelativeTime implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             advanceTime(env, null, "2002-05-30T09:00:00.000");
 
@@ -75,7 +74,7 @@ public class ClientStageAdvanceTime {
         }
     }
 
-    private static class ClientStageAdvanceWindowTimeBatch implements RegressionExecution {
+    private static class ClientStageAdvanceWindowTimeBatch implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             advanceTime(env, null, "2002-05-30T09:00:00.000");
 
@@ -112,13 +111,13 @@ public class ClientStageAdvanceTime {
             advanceTime(env, "ST", "2002-05-30T09:00:20.000");
             env.assertListenerNotInvoked("s0");
             advanceTime(env, "2002-05-30T09:00:20.000");
-            assertPropsPerRow(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E2"}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2"}});
 
             env.undeployAll();
         }
     }
 
-    private static class ClientStageAdvanceWindowTime implements RegressionExecution {
+    private static class ClientStageAdvanceWindowTime implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
 
@@ -133,7 +132,7 @@ public class ClientStageAdvanceTime {
 
             env.advanceTime(4000);
             env.sendEventBean(new SupportBean("E3", 3));
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             env.milestone(0);
 
@@ -163,10 +162,9 @@ public class ClientStageAdvanceTime {
 
             env.advanceTime(13999);
             env.advanceTimeStage("P1", 14000);
-            SupportListener listener = env.listener("s0");
-            assertFalse(listener.getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
             env.advanceTime(14000);
-            assertEquals("E3", env.listener("s0").assertOneGetOldAndReset().get("theString"));
+            env.assertEqualsOld("s0", "theString", "E3");
 
             env.undeployAll();
         }

@@ -16,8 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-
 public class RowRecogClausePresence implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -79,7 +77,7 @@ public class RowRecogClausePresence implements RegressionExecution {
         env.milestoneInc(milestone);
 
         env.advanceTimeSpan(baseTime + 60 * 1000 * 2);
-        assertEquals(value, env.listener("s0").getNewDataListFlattened()[0].get("val"));
+        env.assertEqualsNew("s0", "val", value);
 
         env.undeployAll();
     }

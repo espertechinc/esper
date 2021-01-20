@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.support.bean;
 import java.io.Serializable;
 
 public class ISupportAImpl implements ISupportA, Serializable {
+    private static final long serialVersionUID = 4396474639093420856L;
     private String valueA;
     private String valueBaseAB;
 

@@ -22,7 +22,9 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourc
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -70,5 +72,9 @@ public class EPLDataflowAPIStatistics implements RegressionExecution {
         assertEquals(0, destStat.getTimePerPort().length);
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 }

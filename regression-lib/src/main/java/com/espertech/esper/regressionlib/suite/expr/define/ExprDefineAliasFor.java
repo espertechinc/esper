@@ -18,7 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ExprDefineAliasFor {
 
@@ -41,10 +41,10 @@ public class ExprDefineAliasFor {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("a", 1));
-            assertTrue(env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvoked("s0");
 
             env.sendEventBean(new SupportBean("b", 1));
-            assertFalse(env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -89,9 +89,11 @@ public class ExprDefineAliasFor {
             env.compileDeploy(epl).addListener("s0");
 
             String[] fields = "total,total+1".split(",");
-            for (String field : fields) {
-                assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(field));
-            }
+            env.assertStatement("s0", statement -> {
+                for (String field : fields) {
+                    assertEquals(Integer.class, statement.getEventType().getPropertyType(field));
+                }
+            });
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.assertPropsNew("s0", fields, new Object[]{10, 11});
@@ -113,7 +115,7 @@ public class ExprDefineAliasFor {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("myaliastwo"));
+            env.assertEqualsNew("s0", "myaliastwo", 2);
 
             env.undeployAll();
         }

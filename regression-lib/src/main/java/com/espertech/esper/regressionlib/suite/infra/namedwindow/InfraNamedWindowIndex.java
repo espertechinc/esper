@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -28,8 +27,10 @@ public class InfraNamedWindowIndex implements RegressionExecution {
             "insert into MyWindowOne select * from SupportBean;\n" +
             "@name('idx') create unique index I1 on MyWindowOne(theString);\n";
         env.compileDeploy(epl);
-        assertEquals(StatementType.CREATE_INDEX, env.statement("idx").getProperty(StatementProperty.STATEMENTTYPE));
-        assertEquals("I1", env.statement("idx").getProperty(StatementProperty.CREATEOBJECTNAME));
+        env.assertStatement("idx", statement -> {
+            assertEquals(StatementType.CREATE_INDEX, statement.getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("I1", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
+        });
 
         env.sendEventBean(new SupportBean("E0", 1));
         env.sendEventBean(new SupportBean("E2", 2));
@@ -37,7 +38,7 @@ public class InfraNamedWindowIndex implements RegressionExecution {
         env.sendEventBean(new SupportBean("E1", 4));
         env.sendEventBean(new SupportBean("E0", 5));
 
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), "theString,intPrimitive".split(","), new Object[][]{{"E0", 5}, {"E1", 4}, {"E2", 3}});
+        env.assertPropsPerRowIteratorAnyOrder("window", "theString,intPrimitive".split(","), new Object[][]{{"E0", 5}, {"E1", 4}, {"E2", 3}});
 
         env.undeployAll();
     }

@@ -13,12 +13,8 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.EventTypeException;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_G;
 import com.espertech.esper.regressionlib.support.bean.SupportMarkerImplA;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
@@ -26,6 +22,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -69,7 +66,7 @@ public class EventInfraEventSender implements RegressionExecution {
             "Unexpected root element name 'xxxx' encountered, expected a root element name of 'myevent'");
 
         // Avro
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         runAssertionSendEvent(env, path, AVRO_TYPENAME, new GenericData.Record(schema));
         runAssertionRouteEvent(env, path, AVRO_TYPENAME, new GenericData.Record(schema));
         runAssertionInvalid(env, AVRO_TYPENAME, new SupportBean(),
@@ -101,6 +98,10 @@ public class EventInfraEventSender implements RegressionExecution {
         }
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     private void runAssertionRouteEvent(RegressionEnvironment env,
@@ -143,9 +144,9 @@ public class EventInfraEventSender implements RegressionExecution {
 
     private void assertUnderlying(RegressionEnvironment env, String typename, Object underlying) {
         if (typename.equals(JSON_TYPENAME)) {
-            assertNotNull(env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", eventBean -> assertNotNull(eventBean.getUnderlying()));
         } else {
-            assertSame(underlying, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", eventBean -> assertSame(underlying, eventBean.getUnderlying()));
         }
     }
 

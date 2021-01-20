@@ -16,10 +16,12 @@ import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportXML.getDocument;
@@ -38,6 +40,10 @@ public class EventXMLSchemaEventSender {
         public void run(RegressionEnvironment env) {
             runAssertion(env, "EventABC", "BEvent", new RegressionPath());
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
+        }
     }
 
     public static class EventXMLSchemaEventSenderCreateSchema implements RegressionExecution {
@@ -55,6 +61,10 @@ public class EventXMLSchemaEventSender {
             env.compileDeploy(epl, path);
             runAssertion(env, "MyEventCreateSchemaABC", "MyEventCreateSchemaB", path);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
+        }
     }
 
     private static void runAssertion(RegressionEnvironment env, String eventTypeNameABC, String eventTypeNameB, RegressionPath path) {
@@ -65,9 +75,10 @@ public class EventXMLSchemaEventSender {
         EventSender sender = env.eventService().getEventSender(eventTypeNameABC);
         sender.sendEvent(doc);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("text", theEvent.get("type"));
-        assertEquals("text", theEvent.get("element1"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("text", theEvent.get("type"));
+            assertEquals("text", theEvent.get("element1"));
+        });
 
         // send wrong event
         try {
@@ -93,8 +104,10 @@ public class EventXMLSchemaEventSender {
         EventSender senderTwo = env.eventService().getEventSender(eventTypeNameB);
         senderTwo.sendEvent(getDocument("<xxxx><b><c>text</c></b></xxxx>"));    // allowed, not checking
 
-        theEvent = env.statement("s0").iterator().next();
-        assertEquals("text", theEvent.get("element2"));
+        env.assertIterator("s0", iterator -> {
+            EventBean theEvent = iterator.next();
+            assertEquals("text", theEvent.get("element2"));
+        });
 
         env.undeployAll();
     }

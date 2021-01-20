@@ -171,12 +171,16 @@ public class RowRecogRegex implements RegressionExecution {
                 env.sendEventBean(new SupportRecogBean(testchar, count++));
             }
 
-            EventBean[] iteratorData = EPAssertionUtil.iteratorToArray(env.statement("s0").iterator());
-            compare(testcase.getTestdata(), iteratorData, testDesc.getMeasures(), testcase);
+            env.assertIterator("s0", iterator -> {
+                EventBean[] iteratorData = EPAssertionUtil.iteratorToArray(iterator);
+                compare(testcase.getTestdata(), iteratorData, testDesc.getMeasures(), testcase);
+            });
 
-            EventBean[] listenerData = env.listener("s0").getNewDataListFlattened();
-            env.listener("s0").reset();
-            compare(testcase.getTestdata(), listenerData, testDesc.getMeasures(), testcase);
+            env.assertListener("s0", listener -> {
+                EventBean[] listenerData = listener.getNewDataListFlattened();
+                listener.reset();
+                compare(testcase.getTestdata(), listenerData, testDesc.getMeasures(), testcase);
+            });
 
             env.undeployModuleContaining("s0");
         }

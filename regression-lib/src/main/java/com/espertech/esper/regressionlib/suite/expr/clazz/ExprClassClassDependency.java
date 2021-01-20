@@ -19,8 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExprClassClassDependency {
 
     public static Collection<RegressionExecution> executions() {
@@ -61,7 +59,7 @@ public class ExprClassClassDependency {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals("'E1'", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "'E1'");
 
             env.undeployAll();
         }
@@ -124,7 +122,7 @@ public class ExprClassClassDependency {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals("|>E1<|", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "|>E1<|");
 
             env.undeployAll();
         }

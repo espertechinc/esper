@@ -20,7 +20,6 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -61,7 +60,7 @@ public class ResultSetQueryTypeIterator {
             myEventBean1.setTheString("address");
             myEventBean1.setIntBoxed(9001);
             env.sendEventBean(myEventBean1);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
@@ -69,14 +68,15 @@ public class ResultSetQueryTypeIterator {
             myEventBean2.setTheString("txn");
             myEventBean2.setIntBoxed(9001);
             env.sendEventBean(myEventBean2);
-            assertTrue(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertTrue(it.hasNext()));
 
             env.milestone(1);
 
-            Iterator<EventBean> itr = env.statement("s0").iterator();
-            EventBean theEvent = itr.next();
-            Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
-            Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+            env.assertIterator("s0", itr -> {
+                EventBean theEvent = itr.next();
+                Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
+                Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+            });
 
             env.undeployAll();
         }
@@ -102,10 +102,11 @@ public class ResultSetQueryTypeIterator {
 
             env.milestone(0);
 
-            Iterator<EventBean> itr = env.statement("s0").iterator();
-            EventBean theEvent = itr.next();
-            Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
-            Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+            env.assertIterator("s0", itr -> {
+                EventBean theEvent = itr.next();
+                Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
+                Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+            });
 
             env.undeployAll();
         }
@@ -116,27 +117,31 @@ public class ResultSetQueryTypeIterator {
             String stmtText = "@name('s0') select * from SupportMarketDataBean#length(5) order by symbol, volume";
             env.compileDeploy(stmtText).addListener("s0");
 
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             Object eventOne = sendEvent(env, "SYM", 1);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventOne}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventOne});
 
             Object eventTwo = sendEvent(env, "OCC", 2);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventTwo, eventOne}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventTwo, eventOne});
 
             Object eventThree = sendEvent(env, "TOC", 3);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventTwo, eventOne, eventThree}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventTwo, eventOne, eventThree});
 
             Object eventFour = sendEvent(env, "SYM", 0);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventTwo, eventFour, eventOne, eventThree}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventTwo, eventFour, eventOne, eventThree});
 
             Object eventFive = sendEvent(env, "SYM", 10);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventTwo, eventFour, eventOne, eventFive, eventThree}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventTwo, eventFour, eventOne, eventFive, eventThree});
 
             Object eventSix = sendEvent(env, "SYM", 4);
-            EPAssertionUtil.assertEqualsExactOrderUnderlying(new Object[]{eventTwo, eventFour, eventSix, eventFive, eventThree}, env.statement("s0").iterator());
+            assertIterator(env, new Object[]{eventTwo, eventFour, eventSix, eventFive, eventThree});
 
             env.undeployAll();
+        }
+
+        private void assertIterator(RegressionEnvironment env, Object[] expecteds) {
+            env.assertIterator("s0", iterator -> EPAssertionUtil.assertEqualsExactOrderUnderlying(expecteds, iterator));
         }
     }
 
@@ -146,7 +151,7 @@ public class ResultSetQueryTypeIterator {
             String stmtText = "@name('s0') select symbol, volume from SupportMarketDataBean#length(3) order by symbol, volume";
             env.compileDeploy(stmtText).addListener("s0");
 
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 1);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 1L}});
@@ -171,10 +176,8 @@ public class ResultSetQueryTypeIterator {
                 " where volume < 0";
             env.compileDeploy(stmtText).addListener("s0");
 
-            assertFalse(env.statement("s0").iterator().hasNext());
-
             sendEvent(env, "SYM", 100);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
             env.assertPropsPerRowIterator("s0", fields, null);
 
             sendEvent(env, "SYM", -1);
@@ -209,7 +212,7 @@ public class ResultSetQueryTypeIterator {
             env.milestone(3);
 
             sendEvent(env, "SYM", 6);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -223,8 +226,6 @@ public class ResultSetQueryTypeIterator {
                 "group by symbol " +
                 "order by symbol";
             env.compileDeploy(stmtText).addListener("s0");
-
-            assertFalse(env.statement("s0").iterator().hasNext());
 
             env.milestone(0);
 
@@ -264,7 +265,7 @@ public class ResultSetQueryTypeIterator {
                 "group by symbol";
             env.compileDeploy(stmtText).addListener("s0");
 
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
@@ -306,9 +307,8 @@ public class ResultSetQueryTypeIterator {
             String stmtText = "@name('s0') select symbol, sum(volume) as sumVol " +
                 "from SupportMarketDataBean#length(5) " +
                 "group by symbol having sum(volume) > 10";
-
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
@@ -352,12 +352,12 @@ public class ResultSetQueryTypeIterator {
                 "from SupportMarketDataBean#groupwin(symbol)#length(1) " +
                 "where price - volume >= 1000.0 group by symbol having count(*) = 1";
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportMarketDataBean("SYM", -1, -1L, null));
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(1);
 
@@ -365,7 +365,7 @@ public class ResultSetQueryTypeIterator {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", "1x1000.0"}});
 
             env.sendEventBean(new SupportMarketDataBean("SYM", 1d, 1L, null));
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -379,7 +379,7 @@ public class ResultSetQueryTypeIterator {
                 "group by symbol " +
                 "order by symbol";
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", -1, 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
@@ -422,7 +422,7 @@ public class ResultSetQueryTypeIterator {
                 "group by symbol";
 
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", -1, 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
@@ -463,7 +463,7 @@ public class ResultSetQueryTypeIterator {
                 "group by symbol having sum(volume) > 20";
 
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", -1, 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", -1d, 100L}});
@@ -505,7 +505,7 @@ public class ResultSetQueryTypeIterator {
                 "from SupportMarketDataBean#length(3) ";
 
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
@@ -532,7 +532,7 @@ public class ResultSetQueryTypeIterator {
                 "from SupportMarketDataBean#length(3) " +
                 " order by symbol asc";
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 100);
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 100L}});
@@ -560,10 +560,10 @@ public class ResultSetQueryTypeIterator {
 
             env.compileDeploy(stmtText).addListener("s0");
 
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, "SYM", 100);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
@@ -576,7 +576,7 @@ public class ResultSetQueryTypeIterator {
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"SYM", 104L}, {"TAC", 104L}, {"MOV", 104L}});
 
             sendEvent(env, "SYM", 10);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -620,10 +620,10 @@ public class ResultSetQueryTypeIterator {
                 "from SupportMarketDataBean#length(3) having sum(volume) > 100";
 
             env.compileDeploy(stmtText).addListener("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             sendEvent(env, 100);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
@@ -636,7 +636,7 @@ public class ResultSetQueryTypeIterator {
             env.milestone(1);
 
             sendEvent(env, 10);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }

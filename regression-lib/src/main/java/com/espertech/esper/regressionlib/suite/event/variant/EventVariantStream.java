@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.variant;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
@@ -66,7 +65,7 @@ public class EventVariantStream {
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("out"), "id".split(","), new Object[][] {{"E1"}, {"E2"}, {"E3"}, {"E4"}});
+            env.assertPropsPerRowIterator("out", "id".split(","), new Object[][] {{"E1"}, {"E2"}, {"E3"}, {"E4"}});
 
             env.undeployAll();
         }
@@ -135,9 +134,7 @@ public class EventVariantStream {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_B("E3"));
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E3"});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1"});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E3"}, new Object[]{"E1"});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E2"}, {"E3"}});
 
             env.undeployAll();
@@ -158,10 +155,10 @@ public class EventVariantStream {
             env.compileDeploy("@name('s0') select * from MyVariantTwoTyped").addListener("s0");
 
             env.sendEventMap(new HashMap<>(), "MyEvent");
-            assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+            env.assertListenerInvoked("s0");
 
             env.sendEventMap(new HashMap<>(), "MySecondEvent");
-            assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -175,7 +172,7 @@ public class EventVariantStream {
             env.compileDeploy("create window MainEventWindow#length(10000) as MyVariantTwoTypedSBVariant", path);
             env.compileDeploy("insert into MainEventWindow select " + EventVariantStream.class.getSimpleName() + ".preProcessEvent(event) from MyVariantTwoTypedSBVariant as event", path);
             env.compileDeploy("@name('s0') select * from MainEventWindow where theString = 'E'", path);
-            env.statement("s0").addListenerWithReplay(env.listenerNew());
+            env.assertThat(() -> env.statement("s0").addListenerWithReplay(env.listenerNew()));
 
             env.sendEventBean(new SupportBean("E1", 1));
 
@@ -189,9 +186,11 @@ public class EventVariantStream {
             SupportBean bean;
 
             env.compileDeploy("@name('s0') select * from MyVariantTwoTypedSB").addListener("s0");
-            EventType typeSelectAll = env.statement("s0").getEventType();
-            assertEventTypeDefault(typeSelectAll);
-            assertEquals(Object.class, env.statement("s0").getEventType().getUnderlyingType());
+            env.assertStatement("s0", statement -> {
+                EventType typeSelectAll = statement.getEventType();
+                assertEventTypeDefault(typeSelectAll);
+                assertEquals(Object.class, statement.getEventType().getUnderlyingType());
+            });
 
             env.compileDeploy("insert into MyVariantTwoTypedSB select * from SupportBean");
             env.compileDeploy("insert into MyVariantTwoTypedSB select * from SupportBeanVariantStream");
@@ -199,17 +198,17 @@ public class EventVariantStream {
             // try wildcard
             Object eventOne = new SupportBean("E0", -1);
             env.sendEventBean(eventOne);
-            assertSame(eventOne, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(eventOne, event.getUnderlying()));
 
             Object eventTwo = new SupportBeanVariantStream("E1");
             env.sendEventBean(eventTwo);
-            assertSame(eventTwo, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(eventTwo, event.getUnderlying()));
 
             env.undeployModuleContaining("s0");
 
             fields = "theString,boolBoxed,intPrimitive,longPrimitive,doublePrimitive,enumValue";
             env.compileDeploy("@name('s0') select " + fields + " from MyVariantTwoTypedSB").addListener("s0");
-            assertEventTypeDefault(env.statement("s0").getEventType());
+            env.assertStatement("s0", statement -> assertEventTypeDefault(statement.getEventType()));
 
             // coerces to the higher resolution type, accepts boxed versus not boxed
             env.sendEventBean(new SupportBeanVariantStream("s1", true, 1, 20, 30, SupportEnum.ENUM_VALUE_1));
@@ -252,31 +251,35 @@ public class EventVariantStream {
             env.compileDeploy("insert into MyVariantStreamTwo select * from SupportBeanVariantTwo");
 
             env.compileDeploy("@name('s0') select * from MyVariantStreamTwo").addListener("s0");
-            EventType eventType = env.statement("s0").getEventType();
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
 
-            String[] expected = "p0,p1,p2,p3,p4,p5,indexed,mapped,inneritem".split(",");
-            String[] propertyNames = eventType.getPropertyNames();
-            EPAssertionUtil.assertEqualsAnyOrder(expected, propertyNames);
-            assertEquals(ISupportBaseAB.class, eventType.getPropertyType("p0"));
-            assertEquals(ISupportAImplSuperG.class, eventType.getPropertyType("p1"));
-            assertEquals(AbstractList.class, eventType.getPropertyType("p2"));
-            assertEquals(List.class, eventType.getPropertyType("p3"));
-            assertEquals(Collection.class, eventType.getPropertyType("p4"));
-            assertEquals(Collection.class, eventType.getPropertyType("p5"));
-            assertEquals(int[].class, eventType.getPropertyType("indexed"));
-            assertEquals(Map.class, eventType.getPropertyType("mapped"));
-            assertEquals(SupportBeanVariantOne.SupportBeanVariantOneInner.class, eventType.getPropertyType("inneritem"));
+                String[] expected = "p0,p1,p2,p3,p4,p5,indexed,mapped,inneritem".split(",");
+                String[] propertyNames = eventType.getPropertyNames();
+                EPAssertionUtil.assertEqualsAnyOrder(expected, propertyNames);
+                assertEquals(ISupportBaseAB.class, eventType.getPropertyType("p0"));
+                assertEquals(ISupportAImplSuperG.class, eventType.getPropertyType("p1"));
+                assertEquals(AbstractList.class, eventType.getPropertyType("p2"));
+                assertEquals(List.class, eventType.getPropertyType("p3"));
+                assertEquals(Collection.class, eventType.getPropertyType("p4"));
+                assertEquals(Collection.class, eventType.getPropertyType("p5"));
+                assertEquals(int[].class, eventType.getPropertyType("indexed"));
+                assertEquals(Map.class, eventType.getPropertyType("mapped"));
+                assertEquals(SupportBeanVariantOne.SupportBeanVariantOneInner.class, eventType.getPropertyType("inneritem"));
+            });
 
             env.undeployModuleContaining("s0");
 
             env.compileDeploy("@name('s0') select p0,p1,p2,p3,p4,p5,indexed[0] as p6,indexArr[1] as p7,mappedKey('a') as p8,inneritem as p9,inneritem.val as p10 from MyVariantStreamTwo");
             env.addListener("s0");
-            eventType = env.statement("s0").getEventType();
-            assertEquals(Integer.class, eventType.getPropertyType("p6"));
-            assertEquals(Integer.class, eventType.getPropertyType("p7"));
-            assertEquals(String.class, eventType.getPropertyType("p8"));
-            assertEquals(SupportBeanVariantOne.SupportBeanVariantOneInner.class, eventType.getPropertyType("p9"));
-            assertEquals(String.class, eventType.getPropertyType("p10"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer.class, eventType.getPropertyType("p6"));
+                assertEquals(Integer.class, eventType.getPropertyType("p7"));
+                assertEquals(String.class, eventType.getPropertyType("p8"));
+                assertEquals(SupportBeanVariantOne.SupportBeanVariantOneInner.class, eventType.getPropertyType("p9"));
+                assertEquals(String.class, eventType.getPropertyType("p10"));
+            });
 
             SupportBeanVariantOne ev1 = new SupportBeanVariantOne();
             env.sendEventBean(ev1);
@@ -303,29 +306,33 @@ public class EventVariantStream {
 
             Object eventOne = new SupportBean("E1", -1);
             env.sendEventBean(eventOne);
-            assertSame(eventOne, env.listener("window").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("window", event -> assertSame(eventOne, event.getUnderlying()));
 
             env.milestone(0);
 
             Object eventTwo = new SupportBeanVariantStream("E2");
             env.sendEventBean(eventTwo);
-            assertSame(eventTwo, env.listener("window").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("window", event -> assertSame(eventTwo, event.getUnderlying()));
 
             env.milestone(1);
 
             Object eventThree = new SupportBean("E2", -1);
             env.sendEventBean(eventThree);
-            assertEquals(eventThree, env.listener("window").getLastNewData()[0].getUnderlying());
-            assertEquals(eventTwo, env.listener("window").getLastOldData()[0].getUnderlying());
-            env.listener("window").reset();
+            env.assertListener("window", listener -> {
+                assertEquals(eventThree, listener.getLastNewData()[0].getUnderlying());
+                assertEquals(eventTwo, listener.getLastOldData()[0].getUnderlying());
+                listener.reset();
+            });
 
             env.milestone(2);
 
             Object eventFour = new SupportBeanVariantStream("E1");
             env.sendEventBean(eventFour);
-            assertEquals(eventFour, env.listener("window").getLastNewData()[0].getUnderlying());
-            assertEquals(eventOne, env.listener("window").getLastOldData()[0].getUnderlying());
-            env.listener("window").reset();
+            env.assertListener("window", listener -> {
+                assertEquals(eventFour, listener.getLastNewData()[0].getUnderlying());
+                assertEquals(eventOne, listener.getLastOldData()[0].getUnderlying());
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -385,8 +392,7 @@ public class EventVariantStream {
 
             env.milestone(0);
 
-            EventBean[] arr = EPAssertionUtil.iteratorToArray(env.iterator("Target"));
-            EPAssertionUtil.assertPropsPerRow(arr, new String[]{"abc"}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("Target", new String[]{"abc"}, new Object[][]{{"E1"}});
 
             env.undeployAll();
         }
@@ -396,13 +402,15 @@ public class EventVariantStream {
         public void run(RegressionEnvironment env) {
 
             env.compileDeploy("@name('s0') select * from VarStreamAny");
-            EventType type = env.statement("s0").getEventType();
-            env.undeployAll();
+            env.assertStatement("s0", statement -> {
+                // assert type metadata
+                EventType type = statement.getEventType();
+                assertEquals(EventTypeApplicationType.VARIANT, type.getMetadata().getApplicationType());
+                assertEquals("VarStreamAny", type.getMetadata().getName());
+                assertEquals(EventTypeTypeClass.VARIANT, type.getMetadata().getTypeClass());
+            });
 
-            // assert type metadata
-            assertEquals(EventTypeApplicationType.VARIANT, type.getMetadata().getApplicationType());
-            assertEquals("VarStreamAny", type.getMetadata().getName());
-            assertEquals(EventTypeTypeClass.VARIANT, type.getMetadata().getTypeClass());
+            env.undeployAll();
         }
     }
 
@@ -413,24 +421,26 @@ public class EventVariantStream {
             env.compileDeploy("insert into VarStreamAny select * from SupportBean_A");
             env.compileDeploy("insert into VarStreamAny select symbol as theString, volume as intPrimitive, feed as id from SupportMarketDataBean");
             env.compileDeploy("@name('s0') select * from VarStreamAny").addListener("s0");
-            assertEquals(0, env.statement("s0").getEventType().getPropertyNames().length);
+            env.assertStatement("s0", statement -> assertEquals(0, statement.getEventType().getPropertyNames().length));
 
             Object eventOne = new SupportBean("E0", -1);
             env.sendEventBean(eventOne);
-            assertSame(eventOne, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(eventOne, event.getUnderlying()));
 
             Object eventTwo = new SupportBean_A("E1");
             env.sendEventBean(eventTwo);
-            assertSame(eventTwo, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertSame(eventTwo, event.getUnderlying()));
 
             env.undeployModuleContaining("s0");
 
             env.compileDeploy("@name('s0') select theString,id,intPrimitive from VarStreamAny").addListener("s0");
 
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Object.class, eventType.getPropertyType("theString"));
-            assertEquals(Object.class, eventType.getPropertyType("id"));
-            assertEquals(Object.class, eventType.getPropertyType("intPrimitive"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Object.class, eventType.getPropertyType("theString"));
+                assertEquals(Object.class, eventType.getPropertyType("id"));
+                assertEquals(Object.class, eventType.getPropertyType("intPrimitive"));
+            });
 
             String[] fields = "theString,id,intPrimitive".split(",");
             env.sendEventBean(new SupportBeanVariantStream("E1"));
@@ -459,16 +469,14 @@ public class EventVariantStream {
 
             env.sendEventBean(new SupportBean("E1", 1));
 
-            EventBean[] arr = EPAssertionUtil.iteratorToArray(env.iterator("Target"));
-            EPAssertionUtil.assertPropsPerRow(arr, new String[]{"abc"}, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("Target", new String[]{"abc"}, new Object[][]{{"E1"}});
 
             env.compileDeploy("insert into MyStream2 select feed from SupportMarketDataBean", path);
             env.compileDeploy("insert into VarStreamMD select feed as abc from MyStream2", path);
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 1, 1L, "E2"));
 
-            arr = EPAssertionUtil.iteratorToArray(env.iterator("Target"));
-            EPAssertionUtil.assertPropsPerRow(arr, new String[]{"abc"}, new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIterator("Target", new String[]{"abc"}, new Object[][]{{"E1"}, {"E2"}});
 
             env.undeployAll();
         }
@@ -481,9 +489,10 @@ public class EventVariantStream {
             env.compileDeploy("@name('s0') select * from VarStreamAny").addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("test", event.get("eventConfigId"));
-            assertEquals(1, event.get("intPrimitive"));
+            env.assertEventNew("s0", event -> {
+                assertEquals("test", event.get("eventConfigId"));
+                assertEquals(1, event.get("intPrimitive"));
+            });
 
             env.undeployAll();
         }

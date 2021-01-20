@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -68,7 +67,7 @@ public class InfraTableSubquery {
 
         private void sendAssert(RegressionEnvironment env, String theString, boolean expected) {
             env.sendEventBean(new SupportBean(theString, 0));
-            assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvokedFlag("s0", expected);
         }
     }
 
@@ -154,8 +153,8 @@ public class InfraTableSubquery {
         String[] keyarr = keys.split(",");
         for (int i = 0; i < keyarr.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, keyarr[i]));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));
+            final int index = i;
+            env.assertEventNew("s0", event -> assertEquals("Failed for key '" + keyarr[index] + "'", values[index], event.get("value")));
         }
     }
 

@@ -35,7 +35,7 @@ public class ExprCoreBigNumberSupportMathContext {
             env.compileDeploy(epl).addListener("s0");
 
             String[] fields = "c0".split(",");
-            assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("c0")));
 
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", fields, new Object[]{BigDecimal.valueOf(2, 0)});
@@ -48,10 +48,12 @@ public class ExprCoreBigNumberSupportMathContext {
         public void run(RegressionEnvironment env) {
             // cast and divide
             env.compileDeploy("@name('s0')  Select cast(1.6, BigDecimal) / cast(9.2, BigDecimal) from SupportBean").addListener("s0");
-            env.statement("s0").setSubscriber(new Object() {
-                public void update(BigDecimal value) {
-                    assertEquals(0.1739130d, value.doubleValue());
-                }
+            env.assertStatement("s0", statement -> {
+                statement.setSubscriber(new Object() {
+                    public void update(BigDecimal value) {
+                        assertEquals(0.1739130d, value.doubleValue());
+                    }
+                });
             });
             env.sendEventBean(new SupportBean());
 

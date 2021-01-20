@@ -20,10 +20,12 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourc
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.dataflow.DefaultSupportCaptureOpStatic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -58,6 +60,10 @@ public class EPLDataflowOpFilter {
 
             tryInvalidFilter(env, "prev(theString, 1) = 'abc'",
                 "Failed to obtain operator 'Filter': Invalid filter dataflow operator expression 'prev(theString,1)=\"abc\"': Aggregation, sub-select, previous or prior functions are not supported in this context");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -106,6 +112,10 @@ public class EPLDataflowOpFilter {
             DefaultSupportCaptureOpStatic.getInstances().clear();
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
@@ -50,16 +49,17 @@ public class EPLInsertIntoPopulateCreateStreamAvro {
                 "from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "myLong,myLongArray,myByteArray,myMap".split(","), new EPTypeClass[]{
-                LONGBOXED.getEPType(), EPTypeClassParameterized.from(Collection.class, LONGBOXED.getEPType()), BYTEBUFFER.getEPType(), EPTypeClassParameterized.from(Map.class, String.class, String.class)});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), "myLong,myLongArray,myByteArray,myMap".split(","), new EPTypeClass[]{
+                LONGBOXED.getEPType(), EPTypeClassParameterized.from(Collection.class, LONGBOXED.getEPType()), BYTEBUFFER.getEPType(), EPTypeClassParameterized.from(Map.class, String.class, String.class)}));
 
             env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportAvroUtil.avroToJson(event);
-            assertEquals(1L, event.get("myLong"));
-            EPAssertionUtil.assertEqualsExactOrder(new Long[]{1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
-            assertTrue(Arrays.equals(new byte[]{1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
-            assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
+            env.assertEventNew("s0", event -> {
+                SupportAvroUtil.avroToJson(event);
+                assertEquals(1L, event.get("myLong"));
+                EPAssertionUtil.assertEqualsExactOrder(new Long[]{1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
+                assertTrue(Arrays.equals(new byte[]{1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
+                assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
+            });
 
             env.undeployAll();
         }
@@ -76,23 +76,24 @@ public class EPLInsertIntoPopulateCreateStreamAvro {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            String json = SupportAvroUtil.avroToJson(event);
-            System.out.println(json);
-            assertEquals(1, event.get("myInt"));
-            EPAssertionUtil.assertEqualsExactOrder(new Long[]{1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
-            assertTrue(Arrays.equals(new byte[]{1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
-            assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
+            env.assertEventNew("s0", event -> {
+                String json = SupportAvroUtil.avroToJson(event);
+                System.out.println(json);
+                assertEquals(1, event.get("myInt"));
+                EPAssertionUtil.assertEqualsExactOrder(new Long[]{1L, 2L}, ((Collection) event.get("myLongArray")).toArray());
+                assertTrue(Arrays.equals(new byte[]{1, 2, 3}, ((ByteBuffer) event.get("myByteArray")).array()));
+                assertEquals("{k1=v1}", ((Map) event.get("myMap")).toString());
 
-            Schema designSchema = record("name").fields()
-                .requiredInt("myInt")
-                .name("myLongArray").type(array().items(unionOf().nullType().and().longType().endUnion())).noDefault()
-                .name("myByteArray").type("bytes").noDefault()
-                .name("myMap").type(map().values().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
-                .endRecord();
-            Schema assembledSchema = ((AvroEventType) event.getEventType()).getSchemaAvro();
-            String compareMsg = SupportAvroUtil.compareSchemas(designSchema, assembledSchema);
-            assertNull(compareMsg, compareMsg);
+                Schema designSchema = record("name").fields()
+                    .requiredInt("myInt")
+                    .name("myLongArray").type(array().items(unionOf().nullType().and().longType().endUnion())).noDefault()
+                    .name("myByteArray").type("bytes").noDefault()
+                    .name("myMap").type(map().values().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
+                    .endRecord();
+                Schema assembledSchema = ((AvroEventType) event.getEventType()).getSchemaAvro();
+                String compareMsg = SupportAvroUtil.compareSchemas(designSchema, assembledSchema);
+                assertNull(compareMsg, compareMsg);
+            });
 
             env.undeployAll();
         }

@@ -56,10 +56,10 @@ public class EPLOtherSelectWildcardWAdditional {
 
             assertSimple(env);
 
-            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("myString", String.class),
                 new SupportEventPropDesc("myInt", int.class),
-                new SupportEventPropDesc("concat", String.class));
+                new SupportEventPropDesc("concat", String.class)));
 
             env.undeployAll();
         }
@@ -199,61 +199,71 @@ public class EPLOtherSelectWildcardWAdditional {
         SupportBeanSimple eventSimple = sendSimpleEvent(env, "string");
         SupportMarketDataBean eventMarket = sendMarketEvent(env, "string");
 
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("concat", "stringstring");
-        assertProperties(env, "s0", properties);
-        assertSame(eventSimple, theEvent.get("eventOne"));
-        assertSame(eventMarket, theEvent.get("eventTwo"));
+        env.assertListener("s0", listener -> {
+            EventBean theEvent = listener.getLastNewData()[0];
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("concat", "stringstring");
+            assertProperties(env, "s0", properties);
+            assertSame(eventSimple, theEvent.get("eventOne"));
+            assertSame(eventMarket, theEvent.get("eventTwo"));
+        });
     }
 
     private static void assertSimple(RegressionEnvironment env) {
         SupportBeanSimple theEvent = sendSimpleEvent(env, "string");
 
-        Assert.assertEquals("stringstring", env.listener("s0").getLastNewData()[0].get("concat"));
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("concat", "stringstring");
-        properties.put("myString", "string");
-        properties.put("myInt", 0);
-        assertProperties(env, "s0", properties);
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals("stringstring", listener.getLastNewData()[0].get("concat"));
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("concat", "stringstring");
+            properties.put("myString", "string");
+            properties.put("myInt", 0);
+            assertProperties(env, "s0", properties);
 
-        Assert.assertEquals(Pair.class, env.listener("s0").getLastNewData()[0].getEventType().getUnderlyingType());
-        assertTrue(env.listener("s0").getLastNewData()[0].getUnderlying() instanceof Pair);
-        Pair pair = (Pair) env.listener("s0").getLastNewData()[0].getUnderlying();
-        Assert.assertEquals(theEvent, pair.getFirst());
-        assertEquals("stringstring", ((Map) pair.getSecond()).get("concat"));
+            Assert.assertEquals(Pair.class, listener.getLastNewData()[0].getEventType().getUnderlyingType());
+            assertTrue(listener.getLastNewData()[0].getUnderlying() instanceof Pair);
+            Pair pair = (Pair) listener.getLastNewData()[0].getUnderlying();
+            Assert.assertEquals(theEvent, pair.getFirst());
+            assertEquals("stringstring", ((Map) pair.getSecond()).get("concat"));
+        });
     }
 
     private static void assertCommonProperties(RegressionEnvironment env) {
         sendABEvents(env, "string");
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("concat", "stringstring");
-        assertProperties(env, "s0", properties);
-        assertNotNull(theEvent.get("eventOne"));
-        assertNotNull(theEvent.get("eventTwo"));
+        env.assertListener("s0", listener -> {
+            EventBean theEvent = listener.getLastNewData()[0];
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("concat", "stringstring");
+            assertProperties(env, "s0", properties);
+            assertNotNull(theEvent.get("eventOne"));
+            assertNotNull(theEvent.get("eventTwo"));
+        });
     }
 
     private static void assertCombinedProps(RegressionEnvironment env) {
         sendCombinedProps(env);
-        EventBean eventBean = env.listener("s0").getLastNewData()[0];
+        env.assertListener("s0", listener -> {
+            EventBean eventBean = listener.getLastNewData()[0];
 
-        Assert.assertEquals("0ma0", eventBean.get("indexed[0].mapped('0ma').value"));
-        Assert.assertEquals("0ma1", eventBean.get("indexed[0].mapped('0mb').value"));
-        Assert.assertEquals("1ma0", eventBean.get("indexed[1].mapped('1ma').value"));
-        Assert.assertEquals("1ma1", eventBean.get("indexed[1].mapped('1mb').value"));
+            Assert.assertEquals("0ma0", eventBean.get("indexed[0].mapped('0ma').value"));
+            Assert.assertEquals("0ma1", eventBean.get("indexed[0].mapped('0mb').value"));
+            Assert.assertEquals("1ma0", eventBean.get("indexed[1].mapped('1ma').value"));
+            Assert.assertEquals("1ma1", eventBean.get("indexed[1].mapped('1mb').value"));
 
-        Assert.assertEquals("0ma0", eventBean.get("array[0].mapped('0ma').value"));
-        Assert.assertEquals("1ma1", eventBean.get("array[1].mapped('1mb').value"));
+            Assert.assertEquals("0ma0", eventBean.get("array[0].mapped('0ma').value"));
+            Assert.assertEquals("1ma1", eventBean.get("array[1].mapped('1mb').value"));
 
-        Assert.assertEquals("0ma00ma1", eventBean.get("concat"));
+            Assert.assertEquals("0ma00ma1", eventBean.get("concat"));
+        });
     }
 
     private static void assertProperties(RegressionEnvironment env, String statementName, Map<String, Object> properties) {
-        EventBean theEvent = env.listener(statementName).getLastNewData()[0];
-        for (String property : properties.keySet()) {
-            Assert.assertEquals(properties.get(property), theEvent.get(property));
-        }
+        env.assertListener(statementName, listener -> {
+            EventBean theEvent = listener.getLastNewData()[0];
+            for (String property : properties.keySet()) {
+                Assert.assertEquals(properties.get(property), theEvent.get(property));
+            }
+        });
     }
 
     private static SupportBeanSimple sendSimpleEvent(RegressionEnvironment env, String s) {

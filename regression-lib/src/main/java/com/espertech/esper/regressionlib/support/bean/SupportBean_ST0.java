@@ -14,8 +14,12 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 
 import java.io.Serializable;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportBean_ST0 implements Serializable {
     public final static EPTypeClass EPTYPE = new EPTypeClass(SupportBean_ST0.class);
+    private static final long serialVersionUID = -5864504038770461650L;
 
     private String id;
     private String key0;

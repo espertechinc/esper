@@ -14,7 +14,6 @@ import java.io.Serializable;
 
 public class SupportBean_S0 implements Serializable {
     private static final long serialVersionUID = -877754287006563712L;
-    private static int idCounter;
 
     private int id;
     private String p00;
@@ -24,10 +23,9 @@ public class SupportBean_S0 implements Serializable {
     private int value;
 
     public static Object[] makeS0(String propOne, String[] propTwo) {
-        idCounter++;
         Object[] events = new Object[propTwo.length];
         for (int i = 0; i < propTwo.length; i++) {
-            events[i] = new SupportBean_S0(idCounter, propOne, propTwo[i]);
+            events[i] = new SupportBean_S0(-1, propOne, propTwo[i]);
         }
         return events;
     }

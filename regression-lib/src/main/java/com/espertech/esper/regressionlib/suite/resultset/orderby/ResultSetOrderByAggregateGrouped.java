@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -22,8 +21,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import static org.junit.Assert.assertNull;
 
 public class ResultSetOrderByAggregateGrouped {
     public static Collection<RegressionExecution> executions() {
@@ -248,10 +245,8 @@ public class ResultSetOrderByAggregateGrouped {
         sendEvent(env, "CAT", 160, 6);
 
         String[] fields = "symbol,volume,mySum".split(",");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 130L, 1.0}, {"CMU", 140L, 3.0}, {"IBM", 110L, 3.0},
-                {"CAT", 150L, 5.0}, {"IBM", 120L, 7.0}, {"CAT", 160L, 11.0}});
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{{"CMU", 130L, 1.0}, {"CMU", 140L, 3.0}, {"IBM", 110L, 3.0},
+            {"CAT", 150L, 5.0}, {"IBM", 120L, 7.0}, {"CAT", 160L, 11.0}});
     }
 
     private static void tryAssertionDefaultNoVolume(RegressionEnvironment env) {
@@ -269,10 +264,8 @@ public class ResultSetOrderByAggregateGrouped {
         sendEvent(env, "CAT", 160, 6);
 
         String[] fields = "symbol,sum(price)".split(",");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0},
-                {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}});
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0},
+            {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}});
     }
 
     private static void tryAssertionLast(RegressionEnvironment env) {
@@ -290,9 +283,7 @@ public class ResultSetOrderByAggregateGrouped {
         sendEvent(env, "CAT", 106, 6);
 
         String[] fields = "symbol,volume,sum(price)".split(",");
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 104L, 3.0}, {"IBM", 102L, 7.0}, {"CAT", 106L, 11.0}});
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{{"CMU", 104L, 3.0}, {"IBM", 102L, 7.0}, {"CAT", 106L, 11.0}});
 
         sendEvent(env, "IBM", 201, 3);
         sendEvent(env, "IBM", 202, 4);
@@ -304,8 +295,6 @@ public class ResultSetOrderByAggregateGrouped {
         sendEvent(env, "DOG", 205, 0);
         sendEvent(env, "DOG", 206, 1);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"DOG", 206L, 1.0}, {"CMU", 204L, 13.0}, {"IBM", 202L, 14.0}});
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{{"DOG", 206L, 1.0}, {"CMU", 204L, 13.0}, {"IBM", 202L, 14.0}});
     }
 }

@@ -93,12 +93,12 @@ public class PatternMicrosecondResolutionCrontab implements RegressionExecution 
             long nextLong = parseWithMicro(next);
             env.advanceTime(nextLong - 1);
             // Comment-me-in: System.out.println("Advance to " + printMicro(nextLong));
-            assertFalse("unexpected callback at " + next, env.listener("s0").isInvoked());
+            env.assertListener("s0", listener -> assertFalse("unexpected callback at " + next, listener.isInvoked()));
 
             // send right-after time
             env.advanceTime(nextLong);
             // Comment-me-in: System.out.println("Advance to " + printMicro(nextLong));
-            assertTrue("missing callback at " + next, env.listener("s0").getAndClearIsInvoked());
+            env.assertListener("s0", listener -> assertTrue("missing callback at " + next, listener.getAndClearIsInvoked()));
         }
     }
 }

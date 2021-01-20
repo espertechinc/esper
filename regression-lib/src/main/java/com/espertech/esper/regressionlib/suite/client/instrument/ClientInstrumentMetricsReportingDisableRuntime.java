@@ -15,7 +15,10 @@ import com.espertech.esper.common.client.metric.StatementMetric;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPStatement;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -63,6 +66,10 @@ public class ClientInstrumentMetricsReportingDisableRuntime implements Regressio
         assertTrue(env.listener("runtimemetric").isInvoked());
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.RUNTIMEOPS);
     }
 
     private void sendTimer(RegressionEnvironment env, long currentTime) {

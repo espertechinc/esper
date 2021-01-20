@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EPLJoin3StreamCoercionPerformance {
@@ -34,7 +33,7 @@ public class EPLJoin3StreamCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneOne implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -55,7 +54,7 @@ public class EPLJoin3StreamCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "A", index, 0, 0);
-                assertEquals(index, env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", index);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -68,7 +67,7 @@ public class EPLJoin3StreamCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneTwo implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -89,7 +88,7 @@ public class EPLJoin3StreamCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "C", 0, 0, index);
-                assertEquals(index, env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", index);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -102,7 +101,7 @@ public class EPLJoin3StreamCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneThree implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -123,7 +122,7 @@ public class EPLJoin3StreamCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "B", 0, index, 0);
-                assertEquals(index, env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", index);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;

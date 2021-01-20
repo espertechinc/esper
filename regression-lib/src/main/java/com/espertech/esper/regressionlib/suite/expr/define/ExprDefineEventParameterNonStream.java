@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExprDefineEventParameterNonStream {
 
     public static Collection<RegressionExecution> executions() {
@@ -158,6 +156,6 @@ public class ExprDefineEventParameterNonStream {
     }
 
     private static void assertReceived(RegressionEnvironment env, Object expected) {
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 }

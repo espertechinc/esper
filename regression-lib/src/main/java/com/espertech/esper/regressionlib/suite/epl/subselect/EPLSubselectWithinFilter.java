@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class EPLSubselectWithinFilter {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
@@ -71,6 +69,6 @@ public class EPLSubselectWithinFilter {
 
     private static void sendS0Assert(RegressionEnvironment env, int id, String p00, boolean expected) {
         env.sendEventBean(new SupportBean_S0(id, p00));
-        assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", expected);
     }
 }

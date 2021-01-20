@@ -12,13 +12,10 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.minimaljson.JsonValue;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -29,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -37,7 +34,7 @@ import static org.junit.Assert.assertNull;
 public class EventInfraGetterNestedArray implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, String[]> bean = (type, array) -> {
+        Consumer<String[]> bean = array -> {
             LocalInnerEvent[] property;
             if (array == null) {
                 property = null;
@@ -54,7 +51,7 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, String[]> map = (type, array) -> {
+        Consumer<String[]> map = array -> {
             Map[] property;
             if (array == null) {
                 property = null;
@@ -69,7 +66,7 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
         runAssertion(env, getEpl("map"), map);
 
         // Object-array
-        BiConsumer<EventType, String[]> oa = (type, array) -> {
+        Consumer<String[]> oa = array -> {
             Object[][] property;
             if (array == null) {
                 property = new Object[][]{null};
@@ -84,7 +81,7 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
         runAssertion(env, getEpl("objectarray"), oa);
 
         // Json
-        BiConsumer<EventType, String[]> json = (type, array) -> {
+        Consumer<String[]> json = array -> {
             JsonValue property;
             if (array == null) {
                 property = Json.NULL;
@@ -104,11 +101,11 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
         runAssertion(env, eplJsonProvided, json);
 
         // Avro
-        BiConsumer<EventType, String[]> avro = (type, array) -> {
-            Schema schema = SupportAvroUtil.getAvroSchema(type);
+        Consumer<String[]> avro = array -> {
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
             GenericData.Record event = new GenericData.Record(schema);
             if (array == null) {
-                event.put("property", null);
+                event.put("property", Collections.emptyList());
             } else {
                 Collection<GenericData.Record> arr = new ArrayList();
                 for (int i = 0; i < array.length; i++) {
@@ -125,7 +122,7 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, String[]> sender) {
+                             Consumer<String[]> sender) {
 
         String epl = createSchemaEPL +
             "@name('s0') select * from LocalEvent;\n" +
@@ -134,41 +131,36 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
             " typeof(property[0].id) as c4, typeof(property[1].id) as c5" +
             " from LocalEvent;\n";
         env.compileDeploy(epl).addListener("s0").addListener("s1");
-        EventType eventType = env.statement("s0").getEventType();
 
-        EventPropertyGetter g0 = eventType.getGetter("property[0].id");
-        EventPropertyGetter g1 = eventType.getGetter("property[1].id");
-
-        sender.accept(eventType, new String[]{"a", "b"});
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "a");
-        assertGetter(event, g1, true, "b");
+        sender.accept(new String[]{"a", "b"});
+        env.assertEventNew("s0", event -> assertGetters(event, true, "a", true, "b"));
         assertProps(env, true, "a", true, "b");
 
-        sender.accept(eventType, new String[]{"a"});
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "a");
-        assertGetter(event, g1, false, null);
+        sender.accept(new String[]{"a"});
+        env.assertEventNew("s0", event -> assertGetters(event, true, "a", false, null));
         assertProps(env, true, "a", false, null);
 
-        sender.accept(eventType, new String[0]);
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(new String[0]);
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, false, null, false, null);
 
-        sender.accept(eventType, null);
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(null);
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, false, null, false, null);
 
         env.undeployAll();
     }
 
     private void assertProps(RegressionEnvironment env, boolean existsA, String expectedA, boolean existsB, String expectedB) {
-        EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "c0,c1,c2,c3,c4,c5".split(","),
+        env.assertPropsNew("s1", "c0,c1,c2,c3,c4,c5".split(","),
             new Object[]{expectedA, expectedB, existsA, existsB, existsA ? String.class.getSimpleName() : null, existsB ? String.class.getSimpleName() : null});
+    }
+
+    private void assertGetters(EventBean event, boolean existsZero, String valueZero, boolean existsOne, String valueOne) {
+        EventPropertyGetter g0 = event.getEventType().getGetter("property[0].id");
+        EventPropertyGetter g1 = event.getEventType().getGetter("property[1].id");
+        assertGetter(event, g0, existsZero, valueZero);
+        assertGetter(event, g1, existsOne, valueOne);
     }
 
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists, String value) {
@@ -179,10 +171,11 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
 
     private String getEpl(String underlying) {
         return "@public @buseventtype create " + underlying + " schema LocalInnerEvent(id string);\n" +
-            "@public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent[]);\n";
+            "@name('schema') @public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent[]);\n";
     }
 
-    public static class LocalInnerEvent {
+    public static class LocalInnerEvent implements Serializable {
+        private static final long serialVersionUID = 6572664797059739109L;
         private final String id;
 
         public LocalInnerEvent(String id) {
@@ -194,7 +187,8 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
         }
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -7588127580058450233L;
         private LocalInnerEvent[] property;
 
         public LocalEvent(LocalInnerEvent[] property) {
@@ -207,6 +201,7 @@ public class EventInfraGetterNestedArray implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = 694609940326156527L;
         public MyLocalJsonProvidedInner[] property;
     }
 

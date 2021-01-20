@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class SupportMarkerImplA implements SupportMarkerInterface {
+import java.io.Serializable;
+
+public class SupportMarkerImplA implements SupportMarkerInterface, Serializable {
+    private static final long serialVersionUID = -4361673611761966833L;
     private String id;
 
     public SupportMarkerImplA(String id) {

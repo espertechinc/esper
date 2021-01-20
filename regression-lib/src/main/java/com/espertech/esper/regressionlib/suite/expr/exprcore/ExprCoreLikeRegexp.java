@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -238,12 +237,13 @@ public class ExprCoreLikeRegexp {
     }
 
     private static void assertReceived(RegressionEnvironment env, Object[][] objects) {
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        for (Object[] object : objects) {
-            String key = (String) object[0];
-            Object result = object[1];
-            assertEquals("key=" + key + " result=" + result, result, theEvent.get(key));
-        }
+        env.assertEventNew("s0", event -> {
+            for (Object[] object : objects) {
+                String key = (String) object[0];
+                Object result = object[1];
+                assertEquals("key=" + key + " result=" + result, result, event.get(key));
+            }
+        });
     }
 
     private static void tryInvalidExpr(RegressionEnvironment env, String expr) {

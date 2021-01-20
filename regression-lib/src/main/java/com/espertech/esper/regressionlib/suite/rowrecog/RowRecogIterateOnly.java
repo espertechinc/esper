@@ -12,11 +12,14 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.PERFORMANCE;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -54,12 +57,16 @@ public class RowRecogIterateOnly {
             env.milestone(0);
 
             env.sendEventBean(new SupportRecogBean("E2", 2));
-            env.runtime().getVariableService().setVariableValue(null, "mySleepDuration", 0);
+            env.runtimeSetVariable(null, "mySleepDuration", 0);
             env.assertListenerNotInvoked("s0");
             env.assertPropsPerRowIterator("s0", fields,
                 new Object[][]{{"E2"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(PERFORMANCE);
         }
     }
 
@@ -84,7 +91,7 @@ public class RowRecogIterateOnly {
             env.sendEventBean(new SupportRecogBean("E3", 3));
             env.sendEventBean(new SupportRecogBean("E4", 4));
             env.sendEventBean(new SupportRecogBean("E5", 2));
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(1);
 
@@ -125,7 +132,7 @@ public class RowRecogIterateOnly {
             env.sendEventBean(new SupportRecogBean("E3", "B", 3));
             env.sendEventBean(new SupportRecogBean("E4", "A", 4));
             env.sendEventBean(new SupportRecogBean("E5", "B", 2));
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(1);
 

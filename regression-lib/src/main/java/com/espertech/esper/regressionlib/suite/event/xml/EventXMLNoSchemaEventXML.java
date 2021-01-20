@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
@@ -52,9 +51,10 @@ public class EventXMLNoSchemaEventXML {
         env.compileDeploy(epl).addListener("s0");
 
         sendXMLEvent(env, "<event type=\"a-f-G\" uid=\"terminal.55\" time=\"2007-04-19T13:05:20.22Z\" version=\"2.0\"></event>", eventTypeName);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("a-f-G", theEvent.get("type"));
-        assertEquals("terminal.55", theEvent.get("uid"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("a-f-G", theEvent.get("type"));
+            assertEquals("terminal.55", theEvent.get("uid"));
+        });
 
         env.undeployAll();
     }

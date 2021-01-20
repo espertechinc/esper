@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLInsertIntoWrapper {
     public static List<RegressionExecution> executions() {
@@ -65,12 +63,12 @@ public class EPLInsertIntoWrapper {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(1, "true", "true", "false"));
-            assertEquals(1, env.listener("final").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("final", "id", 1);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1, "true", "true", "true"));
-            assertFalse(env.listener("final").isInvoked());
+            env.assertListenerNotInvoked("final");
 
             env.undeployAll();
         }
@@ -86,10 +84,10 @@ public class EPLInsertIntoWrapper {
             env.addListener("i2");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("i1").assertOneGetNewAndReset(), "theString,intPrimitive,p0".split(","), new Object[]{"E1", 1, 1});
+            env.assertPropsNew("i1", "theString,intPrimitive,p0".split(","), new Object[]{"E1", 1, 1});
 
             env.sendEventBean(new SupportEventContainsSupportBean(new SupportBean("E2", 2)));
-            EPAssertionUtil.assertProps(env.listener("i2").assertOneGetNewAndReset(), "theString,intPrimitive,p0".split(","), new Object[]{"E2", 2, null});
+            env.assertPropsNew("i2", "theString,intPrimitive,p0".split(","), new Object[]{"E2", 2, null});
 
             env.undeployAll();
         }
@@ -109,24 +107,28 @@ public class EPLInsertIntoWrapper {
             env.milestone(0);
 
             env.sendEventBean(new SupportBeanSimple("e1", 1));
-            EventBean event = env.listener("s2").assertOneGetNewAndReset();
-            assertEquals("e1", event.get("myString"));
-            assertEquals("e1AB", event.get("propB"));
+            env.assertEventNew("s2", event -> {
+                assertEquals("e1", event.get("myString"));
+                assertEquals("e1AB", event.get("propB"));
+            });
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBeanSimple("e2", 1));
-            event = env.listener("s2").assertOneGetNewAndReset();
-            assertEquals("e2", event.get("myString"));
-            assertEquals("e2AB", event.get("propB"));
+            env.assertEventNew("s2", event -> {
+                assertEquals("e2", event.get("myString"));
+                assertEquals("e2AB", event.get("propB"));
+            });
 
             env.sendEventBean(new SupportBeanSimple("e3", 1));
-            event = env.listener("s2").getLastNewData()[0];
-            assertEquals("e3", event.get("myString"));
-            assertEquals("e3AB", event.get("propB"));
-            event = env.listener("s2").getLastOldData()[0];
-            assertEquals("e1", event.get("myString"));
-            assertEquals("e1AB", event.get("propB"));
+            env.assertListener("s2", listener -> {
+                EventBean event = listener.getLastNewData()[0];
+                assertEquals("e3", event.get("myString"));
+                assertEquals("e3AB", event.get("propB"));
+                event = listener.getLastOldData()[0];
+                assertEquals("e1", event.get("myString"));
+                assertEquals("e1AB", event.get("propB"));
+            });
 
             env.undeployAll();
         }

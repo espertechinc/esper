@@ -13,10 +13,12 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -47,6 +49,10 @@ public class ClientDeployClassLoaderOption {
             assertFalse(mySupportClassloader.names.isEmpty());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

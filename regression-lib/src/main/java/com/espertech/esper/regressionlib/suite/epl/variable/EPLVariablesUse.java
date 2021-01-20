@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.variable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.variable.VariableConstantValueException;
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
 import com.espertech.esper.common.client.variable.VariableValueException;
@@ -19,6 +18,7 @@ import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.runtime.client.EPStatement;
@@ -59,7 +59,8 @@ public class EPLVariablesUse {
             SupportBean sb = new SupportBean("5", 0);
             sb.setLongBoxed(5L);
             env.sendEventBean(sb);
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", event -> {
+            });
 
             env.undeployAll();
         }
@@ -83,7 +84,7 @@ public class EPLVariablesUse {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", true);
 
             env.milestone(1);
 
@@ -98,7 +99,7 @@ public class EPLVariablesUse {
             env.compileDeploy(epl).addListener("s0");
             env.milestone(0);
             env.sendEventBean(new SupportBean("E1", 0));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", true);
             env.undeployAll();
         }
     }
@@ -111,7 +112,7 @@ public class EPLVariablesUse {
             env.addListener("s0");
             env.milestone(0);
             env.sendEventBean(new SupportBean("E1", 0));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", true);
             env.undeployAll();
         }
     }
@@ -119,7 +120,7 @@ public class EPLVariablesUse {
     private static class EPLVariableUseDotSeparateThread implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            env.runtime().getVariableService().setVariableValue(null, "mySimpleVariableService", new EPLVariablesUse.MySimpleVariableService());
+            env.runtimeSetVariable(null, "mySimpleVariableService", new EPLVariablesUse.MySimpleVariableService());
 
             EPStatement epStatement = env.compileDeploy("@Name('s0') select mySimpleVariableService.doSomething() as c0 from SupportBean").statement("s0");
 
@@ -150,6 +151,10 @@ public class EPLVariablesUse {
             assertEquals("hello", values.get(0));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -235,15 +240,14 @@ public class EPLVariablesUse {
 
             // try ESPER-653
             env.compileDeploy("@name('s0') create constant variable java.util.Date START_TIME = java.util.Calendar.getInstance().getTime()");
-            Object value = env.iterator("s0").next().get("START_TIME");
-            assertNotNull(value);
+            env.assertIterator("s0", iterator -> assertNotNull(iterator.next().get("START_TIME")));
             env.undeployModuleContaining("s0");
 
             // test array constant
             env.undeployAll();
             env.compileDeploy("create constant variable string[] var_strings = {'E1', 'E2'}", path);
             env.compileDeploy("@name('s0') select var_strings from SupportBean", path);
-            assertEquals(String[].class, env.statement("s0").getEventType().getPropertyType("var_strings"));
+            env.assertStatement("s0", statement -> assertEquals(String[].class, statement.getEventType().getPropertyType("var_strings")));
             env.undeployModuleContaining("s0");
 
             tryAssertionArrayVar(env, path, "var_strings");
@@ -261,13 +265,17 @@ public class EPLVariablesUse {
 
             // test array of primitives
             env.compileDeploy("@name('s0') create variable byte[] myBytesBoxed");
-            Object[][] expectedType = new Object[][]{{"myBytesBoxed", Byte[].class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> {
+                Object[][] expectedType = new Object[][]{{"myBytesBoxed", Byte[].class}};
+                SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            });
             env.undeployModuleContaining("s0");
 
             env.compileDeploy("@name('s0') create variable byte[primitive] myBytesPrimitive");
-            expectedType = new Object[][]{{"myBytesPrimitive", byte[].class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> {
+                Object[][] expectedType = new Object[][]{{"myBytesPrimitive", byte[].class}};
+                SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            });
             env.undeployAll();
 
             // test enum constant
@@ -295,7 +303,11 @@ public class EPLVariablesUse {
 
         private static void sendBeanAssert(RegressionEnvironment env, String theString, boolean expected) {
             env.sendEventBean(new SupportBean(theString, 1));
-            assertEquals(expected, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvokedFlag("s0", expected);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -316,13 +328,13 @@ public class EPLVariablesUse {
             sendSupportBean(env, null, 99);
             assertVariableValuesPreconfigured(env, new String[]{"var1", "var2"}, new Object[]{99, null});
 
-            env.runtime().getVariableService().setVariableValue(null, "var2", "def");
+            env.runtimeSetVariable(null, "var2", "def");
             assertVariableValuesPreconfigured(env, new String[]{"var1", "var2"}, new Object[]{99, "def"});
 
             env.milestone(0);
 
             assertVariableValuesPreconfigured(env, new String[]{"var1", "var2"}, new Object[]{99, "def"});
-            env.runtime().getVariableService().setVariableValue(null, "var1", 123);
+            env.runtimeSetVariable(null, "var1", 123);
             assertVariableValuesPreconfigured(env, new String[]{"var1", "var2"}, new Object[]{123, "def"});
 
             env.milestone(1);
@@ -345,7 +357,7 @@ public class EPLVariablesUse {
 
             // try variable not found
             try {
-                env.runtime().getVariableService().setVariableValue(null, "dummy", null);
+                env.runtimeSetVariable(null, "dummy", null);
                 fail();
             } catch (VariableNotFoundException ex) {
                 // expected
@@ -384,7 +396,7 @@ public class EPLVariablesUse {
             }
 
             try {
-                env.runtime().getVariableService().setVariableValue(null, "var2", 0);
+                env.runtimeSetVariable(null, "var2", 0);
                 fail();
             } catch (VariableValueException ex) {
                 // expected
@@ -392,7 +404,7 @@ public class EPLVariablesUse {
             }
 
             // coercion
-            env.runtime().getVariableService().setVariableValue(null, "var1", (short) -1);
+            env.runtimeSetVariable(null, "var1", (short) -1);
             assertVariableValuesPreconfigured(env, new String[]{"var1", "var2"}, new Object[]{-1, null});
 
             // rollback for coercion failed
@@ -422,6 +434,10 @@ public class EPLVariablesUse {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class EPLVariableUseVariableInFilterBoolean implements RegressionExecution {
@@ -430,7 +446,7 @@ public class EPLVariablesUse {
             String stmtTextSet = "@name('set') on SupportBean_S0 set var1IFB = p00, var2IFB = p01";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1IFB", "var2IFB"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{null, null}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{null, null}});
 
             String stmtTextSelect = "@name('s0') select theString, intPrimitive from SupportBean(theString = var1IFB or theString = var2IFB)";
             String[] fieldsSelect = new String[]{"theString", "intPrimitive"};
@@ -442,7 +458,7 @@ public class EPLVariablesUse {
             env.milestone(0);
 
             sendSupportBeanS0NewThread(env, 100, "a", "b");
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a", "b"});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"a", "b"});
 
             sendSupportBean(env, "a", 2);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{"a", 2});
@@ -461,7 +477,7 @@ public class EPLVariablesUse {
             env.milestone(2);
 
             sendSupportBeanS0NewThread(env, 100, "e", "c");
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"e", "c"});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"e", "c"});
 
             sendSupportBean(env, "c", 5);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{"c", 5});
@@ -479,7 +495,7 @@ public class EPLVariablesUse {
             String stmtTextSet = "@name('set') on SupportBean_S0 set var1IF = p00";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1IF"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{null}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{null}});
 
             String stmtTextSelect = "@name('s0') select theString, intPrimitive from SupportBean(theString = var1IF)";
             String[] fieldsSelect = new String[]{"theString", "intPrimitive"};
@@ -489,7 +505,7 @@ public class EPLVariablesUse {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBeanS0NewThread(env, 100, "a", "b");
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"a"});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"a"});
 
             sendSupportBean(env, "a", 2);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{"a", 2});
@@ -500,7 +516,7 @@ public class EPLVariablesUse {
             env.assertListenerNotInvoked("s0");
 
             sendSupportBeanS0NewThread(env, 100, "e", "c");
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"e"});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"e"});
 
             env.milestone(1);
 
@@ -613,12 +629,14 @@ public class EPLVariablesUse {
             boolean expected = (Boolean) testdata[i][1];
 
             env.sendEventBean(bean);
-            assertEquals("Failed at " + i, expected, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvokedFlag("s0", expected, "Failed at " + i);
         }
 
         // assert type of expression
-        FilterItem item = SupportFilterServiceHelper.getFilterSvcSingle(env.statement("s0"));
-        assertTrue(item.getOp() != FilterOperator.BOOLEAN_EXPRESSION);
+        env.assertThat(() -> {
+            FilterItem item = SupportFilterServiceHelper.getFilterSvcSingle(env.statement("s0"));
+            assertTrue(item.getOp() != FilterOperator.BOOLEAN_EXPRESSION);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -629,7 +647,12 @@ public class EPLVariablesUse {
         }
     }
 
-    public static class MySimpleVariableService {
+    /**
+     * Test service; only serializable because it *may* go over the wire some time when running tests and serialization is just convenient
+     */
+    public static class MySimpleVariableService implements Serializable {
+        private static final long serialVersionUID = 5053839663706543568L;
+
         public String doSomething() {
             return "hello";
         }
@@ -653,7 +676,11 @@ public class EPLVariablesUse {
         public abstract int getValue();
     }
 
-    public static class MyVariableCustomEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyVariableCustomEvent implements Serializable {
+        private static final long serialVersionUID = 8457503203367721176L;
         private final MyVariableCustomType name;
 
         MyVariableCustomEvent(MyVariableCustomType name) {
@@ -665,7 +692,11 @@ public class EPLVariablesUse {
         }
     }
 
-    public static class MyVariableCustomType {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyVariableCustomType implements Serializable {
+        private static final long serialVersionUID = 7612595617141560464L;
         private final String name;
 
         MyVariableCustomType(String name) {
@@ -694,8 +725,12 @@ public class EPLVariablesUse {
         }
     }
 
-    public static class SupportVarargsObject {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SupportVarargsObject implements Serializable {
 
+        private static final long serialVersionUID = -3753820113226731916L;
         private Long value;
 
         public SupportVarargsObject(Long value) {
@@ -718,7 +753,11 @@ public class EPLVariablesUse {
         public SupportVarargsObject getTestObject(String stringValue);
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class SupportVarargsClientImpl implements SupportVarargsClient {
+        private static final long serialVersionUID = 2799998920897135196L;
 
         public boolean functionWithVarargs(Long longValue, Object... objects) {
             SupportVarargsObject obj = (SupportVarargsObject) objects[0];

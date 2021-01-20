@@ -12,16 +12,13 @@ package com.espertech.esper.regressionlib.suite.event.json;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class EventJsonVisibility {
@@ -51,13 +48,13 @@ public class EventJsonVisibility {
                 "@name('b') select carId from JsonSchema#keepall", pathB).addListener("b");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertFruit(env.listener("a").assertOneGetNewAndReset());
-            assertCar(env.listener("b").assertOneGetNewAndReset());
+            env.assertEventNew("a", this::assertFruit);
+            env.assertEventNew("b", this::assertCar);
 
             env.milestone(0);
 
-            assertFruit(env.statement("a").iterator().next());
-            assertCar(env.statement("b").iterator().next());
+            env.assertIterator("a", it -> assertFruit(it.next()));
+            env.assertIterator("b", it -> assertCar(it.next()));
 
             env.undeployAll();
         }
@@ -99,7 +96,7 @@ public class EventJsonVisibility {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@public @buseventtype create json schema SimpleJson(fruit string, size string, color string)");
             String epl = "@name('s0') select fruit, size, color from SimpleJson#keepall";
-            EPCompiled compiled = env.compile(epl, new CompilerArguments(env.runtime().getRuntimePath()));
+            EPCompiled compiled = env.compileWRuntimePath(epl);
             env.deploy(compiled).addListener("s0");
 
             runAssertionSimple(env);
@@ -111,18 +108,18 @@ public class EventJsonVisibility {
     private static void runAssertionSimple(RegressionEnvironment env) {
         String json = "{ \"fruit\": \"Apple\", \"size\": \"Large\", \"color\": \"Red\"}";
         env.sendEventJson(json, "SimpleJson");
-        assertFruitApple(env.listener("s0").assertOneGetNewAndReset());
+        env.assertEventNew("s0", EventJsonVisibility::assertFruitApple);
 
-        EventSender eventSender = env.runtime().getEventService().getEventSender("SimpleJson");
         json = "{ \"fruit\": \"Peach\", \"size\": \"Small\", \"color\": \"Yellow\"}";
-        eventSender.sendEvent(json);
-        assertFruitPeach(env.listener("s0").assertOneGetNewAndReset());
+        env.sendEventJson(json, "SimpleJson");
+        env.assertEventNew("s0", EventJsonVisibility::assertFruitPeach);
 
         env.milestone(0);
 
-        Iterator<EventBean> it = env.statement("s0").iterator();
-        assertFruitApple(it.next());
-        assertFruitPeach(it.next());
+        env.assertIterator("s0", it -> {
+            assertFruitApple(it.next());
+            assertFruitPeach(it.next());
+        });
     }
 
     private static void assertFruitPeach(EventBean event) {

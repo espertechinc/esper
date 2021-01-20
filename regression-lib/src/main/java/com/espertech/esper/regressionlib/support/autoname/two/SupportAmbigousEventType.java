@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.autoname.two;
 
-public class SupportAmbigousEventType {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportAmbigousEventType implements Serializable {
+    private static final long serialVersionUID = 3699886715265602271L;
     private int id;
 
     public SupportAmbigousEventType(int id) {

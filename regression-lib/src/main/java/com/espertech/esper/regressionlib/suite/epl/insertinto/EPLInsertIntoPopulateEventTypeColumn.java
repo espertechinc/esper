@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class EPLInsertIntoPopulateEventTypeColumn {
     public static List<RegressionExecution> executions() {
@@ -106,10 +105,10 @@ public class EPLInsertIntoPopulateEventTypeColumn {
                 "insert into OuterType select computeNested(sb) as n0 from SupportBean as sb", path).addListener("out");
 
             env.sendEventBean(new SupportBean("E1", 2));
-            EPAssertionUtil.assertProps(env.listener("out").assertOneGetNewAndReset(), fields, new Object[]{"b", 2});
+            env.assertPropsNew("out", fields, new Object[]{"b", 2});
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EPAssertionUtil.assertProps(env.listener("out").assertOneGetNewAndReset(), fields, new Object[]{"a", 1});
+            env.assertPropsNew("out", fields, new Object[]{"a", 1});
 
             env.undeployAll();
         }
@@ -150,7 +149,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionFragmentSingeColNamedWindow(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType("create schema AEvent (symbol string)", path);
+        env.compileDeploy("@buseventtype create schema AEvent (symbol string)", path);
 
         env.compileDeploy("create window MyEventWindow#lastevent (e AEvent)", path);
         env.compileDeploy("insert into MyEventWindow select (select * from AEvent#lastevent) as e from SupportBean(theString = 'A')", path);
@@ -160,10 +159,11 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         env.sendEventMap(Collections.singletonMap("symbol", "GE"), "AEvent");
         env.sendEventBean(new SupportBean("A", 1));
         env.sendEventBean(new SupportBean("B", 2));
-        EventBean result = env.listener("s0").assertOneGetNewAndReset();
-        EventBean fragment = (EventBean) result.get("e");
-        assertEquals("AEvent", fragment.getEventType().getName());
-        assertEquals("GE", fragment.get("symbol"));
+        env.assertEventNew("s0", result -> {
+            EventBean fragment = (EventBean) result.get("e");
+            assertEquals("AEvent", fragment.getEventType().getName());
+            assertEquals("GE", fragment.get("symbol"));
+        });
 
         env.undeployAll();
     }
@@ -213,9 +213,10 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(1, "x1", "y1"));
         env.sendEventBean(new SupportBean("E1", 1));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, fields, new Object[]{"E1", "x1", "y1", null, null});
-        SupportEventTypeAssertionUtil.assertConsistency(event);
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, fields, new Object[]{"E1", "x1", "y1", null, null});
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+        });
 
         env.sendEventBean(new SupportBean_S0(2, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
@@ -236,12 +237,12 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(1, "x1", "y1"));
         env.sendEventBean(new SupportBean("E1", 1));
-        EPAssertionUtil.assertPropsPerRow((EventBean[]) env.listener("s0").assertOneGetNewAndReset().get("ez"), fields, null);
+        env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsPerRow((EventBean[]) event.get("ez"), fields, null));
 
         env.sendEventBean(new SupportBean_S0(10, "x2"));
         env.sendEventBean(new SupportBean_S0(20, "x3"));
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertPropsPerRow((EventBean[]) env.listener("s0").assertOneGetNewAndReset().get("ez"), fields, new Object[][]{{"x2"}, {"x3"}});
+        env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsPerRow((EventBean[]) event.get("ez"), fields, new Object[][]{{"x2"}, {"x3"}}));
 
         env.undeployAll();
     }
@@ -258,13 +259,17 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(1, "x1"));
         env.sendEventBean(new SupportBean("E1", 1));
-        EventBean[] inner = (EventBean[]) env.listener("s0").assertOneGetNewAndReset().get("sbarr");
-        EPAssertionUtil.assertPropsPerRow(inner, fields, new Object[][]{{"x1"}});
+        env.assertEventNew("s0", event -> {
+            EventBean[] inner = (EventBean[]) event.get("sbarr");
+            EPAssertionUtil.assertPropsPerRow(inner, fields, new Object[][]{{"x1"}});
+        });
 
         env.sendEventBean(new SupportBean_S0(2, "x2", "y2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        inner = (EventBean[]) env.listener("s0").assertOneGetNewAndReset().get("sbarr");
-        EPAssertionUtil.assertPropsPerRow(inner, fields, new Object[][]{{"x1"}, {"x2"}});
+        env.assertEventNew("s0", event -> {
+            EventBean[] inner = (EventBean[]) event.get("sbarr");
+            EPAssertionUtil.assertPropsPerRow(inner, fields, new Object[][]{{"x1"}, {"x2"}});
+        });
 
         env.undeployAll();
     }
@@ -286,12 +291,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         env.sendEventBean(new SupportBean_S0(100, "x2"));
         env.sendEventBean(new SupportBean("E2", 2));
-        String received = (String) env.listener("s0").assertOneGetNewAndReset().get(fields[0]);
-        if (filter) {
-            assertEquals("x2", received);
-        } else {
-            assertNull(received); // this should not take the first event and according to SQL standard returns null
-        }
+        env.assertEqualsNew("s0", fields[0], filter ? "x2" : null);
 
         env.undeployAll();
     }
@@ -300,17 +300,18 @@ public class EPLInsertIntoPopulateEventTypeColumn {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create " + typeType + " schema Item(name string, price double)", path);
         env.compileDeploy("create " + typeType + " schema PurchaseOrder(orderId string, items Item[])", path);
-        env.compileDeployWBusPublicType("create schema TriggerEvent()", path);
+        env.compileDeploy("@buseventtype create schema TriggerEvent()", path);
         env.compileDeploy("@name('s0') insert into PurchaseOrder select '001' as orderId, new {name= 'i1', price=10} as items from TriggerEvent", path).addListener("s0");
 
         env.sendEventMap(Collections.emptyMap(), "TriggerEvent");
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "orderId,items[0].name,items[0].price".split(","), new Object[]{"001", "i1", 10d});
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, "orderId,items[0].name,items[0].price".split(","), new Object[]{"001", "i1", 10d});
 
-        EventBean[] underlying = (EventBean[]) event.get("items");
-        assertEquals(1, underlying.length);
-        assertEquals("i1", underlying[0].get("name"));
-        assertEquals(10d, underlying[0].get("price"));
+            EventBean[] underlying = (EventBean[]) event.get("items");
+            assertEquals(1, underlying.length);
+            assertEquals("i1", underlying[0].get("name"));
+            assertEquals(10d, underlying[0].get("price"));
+        });
 
         env.undeployAll();
     }

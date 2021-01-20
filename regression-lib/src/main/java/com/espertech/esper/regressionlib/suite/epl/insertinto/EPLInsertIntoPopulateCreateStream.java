@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.runtime.client.EPStatement;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -39,7 +38,11 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         }
 
         for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-            runAssertPopulateFromNamedWindow(env, rep);
+            if (rep.isAvroEvent()) {
+                env.assertThat(() -> runAssertPopulateFromNamedWindow(env, rep));
+            } else {
+                runAssertPopulateFromNamedWindow(env, rep);
+            }
         }
 
         runAssertionObjectArrPropertyReorder(env);
@@ -48,10 +51,10 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
     private static void runAssertionObjectArrPropertyReorder(RegressionEnvironment env) {
         String epl = "create objectarray schema MyInner (p_inner string);\n" +
             "create objectarray schema MyOATarget (unfilled string, p0 string, p1 string, i0 MyInner);\n" +
-            "create objectarray schema MyOASource (p0 string, p1 string, i0 MyInner);\n" +
+            "@buseventtype create objectarray schema MyOASource (p0 string, p1 string, i0 MyInner);\n" +
             "insert into MyOATarget select p0, p1, i0, null as unfilled from MyOASource;\n" +
             "@name('s0') select * from MyOATarget;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+        env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
         env.sendEventObjectArray(new Object[]{"p0value", "p1value", new Object[]{"i"}}, "MyOASource");
         env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{"p0value", "p1value"});
@@ -61,8 +64,8 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
 
     private static void runAssertPopulateFromNamedWindow(RegressionEnvironment env, EventRepresentationChoice type) {
         RegressionPath path = new RegressionPath();
-        String schemaEPL = type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNode.class) + "create schema Node(nid string)";
-        env.compileDeployWBusPublicType(schemaEPL, path);
+        String schemaEPL = type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNode.class) + "@buseventtype create schema Node(nid string)";
+        env.compileDeploy(schemaEPL, path);
 
         env.compileDeploy("create window NodeWindow#unique(nid) as Node", path);
         env.compileDeploy("insert into NodeWindow select * from Node", path);
@@ -84,23 +87,24 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
         } else {
             fail();
         }
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("E1", event.get("npid"));
-        assertEquals("n1", event.get("node.nid"));
-        EventBean fragment = (EventBean) event.getFragment("node");
-        assertEquals("Node", fragment.getEventType().getName());
+        env.assertEventNew("s0", event -> {
+            assertEquals("E1", event.get("npid"));
+            assertEquals("n1", event.get("node.nid"));
+            EventBean fragment = (EventBean) event.getFragment("node");
+            assertEquals("Node", fragment.getEventType().getName());
+        });
 
         env.undeployAll();
     }
 
     private static void runAssertionCreateStream(RegressionEnvironment env, EventRepresentationChoice representation) {
-        String epl = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent(myId int);\n" +
-            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
+        String epl = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent(myId int);\n" +
+            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " @buseventtype create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
             "insert into MyStream select c, 'additionalValue' as value from MyEvent c;\n" +
             "insert into CompositeEvent select e1.c as c1, e2.c as c2, '4' as rule " +
             "  from pattern [e1=MyStream -> e2=MyStream];\n" +
             representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " @Name('Target') select * from CompositeEvent;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("Target");
+        env.compileDeploy(epl, new RegressionPath()).addListener("Target");
 
         if (representation.isObjectArrayEvent()) {
             env.sendEventObjectArray(makeEvent(10).values().toArray(), "MyEvent");
@@ -118,26 +122,27 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             fail();
         }
 
-        EventBean theEvent = env.listener("Target").assertOneGetNewAndReset();
-        assertEquals(10, theEvent.get("c1.myId"));
-        assertEquals(11, theEvent.get("c2.myId"));
-        assertEquals("4", theEvent.get("rule"));
+        env.assertEventNew("Target", theEvent -> {
+            assertEquals(10, theEvent.get("c1.myId"));
+            assertEquals(11, theEvent.get("c2.myId"));
+            assertEquals("4", theEvent.get("rule"));
+        });
 
         env.undeployAll();
     }
 
     private static void runAssertionCreateStreamTwo(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent(myId int)\n;" +
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedAllMyEvent.class) + " create schema AllMyEvent as (myEvent MyEvent, clazz String, reverse boolean);\n" +
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSuspectMyEvent.class) + " create schema SuspectMyEvent as (myEvent MyEvent, clazz String);\n";
-        env.compileDeployWBusPublicType(epl, path);
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent(myId int)\n;" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedAllMyEvent.class) + " @buseventtype create schema AllMyEvent as (myEvent MyEvent, clazz String, reverse boolean);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSuspectMyEvent.class) + " @buseventtype create schema SuspectMyEvent as (myEvent MyEvent, clazz String);\n";
+        env.compileDeploy(epl, path);
 
         env.compileDeploy("@name('s0') insert into AllMyEvent " +
             "select c as myEvent, 'test' as clazz, false as reverse " +
             "from MyEvent(myId=1) c", path).addListener("s0");
 
-        assertTrue(eventRepresentationEnum.matchesClass(env.statement("s0").getEventType().getUnderlyingType()));
+        env.assertStatement("s0", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
         env.compileDeploy("@name('s1') insert into SuspectMyEvent " +
             "select c.myEvent as myEvent, clazz " +
@@ -155,20 +160,20 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
             fail();
         }
 
-        assertCreateStreamTwo(eventRepresentationEnum, env.listener("s0").assertOneGetNewAndReset(), env.statement("s0"));
-        assertCreateStreamTwo(eventRepresentationEnum, env.listener("s1").assertOneGetNewAndReset(), env.statement("s1"));
+        env.assertEventNew("s0", event -> assertCreateStreamTwo(eventRepresentationEnum, event));
+        env.assertEventNew("s1", event -> assertCreateStreamTwo(eventRepresentationEnum, event));
 
         env.undeployAll();
     }
 
-    private static void assertCreateStreamTwo(EventRepresentationChoice eventRepresentationEnum, EventBean eventBean, EPStatement statement) {
+    private static void assertCreateStreamTwo(EventRepresentationChoice eventRepresentationEnum, EventBean eventBean) {
         if (eventRepresentationEnum.isAvroOrJsonEvent()) {
             assertEquals(1, eventBean.get("myEvent.myId"));
         } else {
             assertTrue(eventBean.get("myEvent") instanceof EventBean);
             assertEquals(1, ((EventBean) eventBean.get("myEvent")).get("myId"));
         }
-        assertNotNull(statement.getEventType().getFragmentType("myEvent"));
+        assertNotNull(eventBean.getEventType().getFragmentType("myEvent"));
     }
 
     private static Map<String, Object> makeEvent(int myId) {

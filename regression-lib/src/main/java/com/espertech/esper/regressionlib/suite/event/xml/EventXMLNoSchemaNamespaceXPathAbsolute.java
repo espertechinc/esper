@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -70,12 +69,13 @@ public class EventXMLNoSchemaNamespaceXPathAbsolute {
         System.out.println("result=" + expression.evaluate(doc,XPathConstants.STRING));
         */
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("IBM", theEvent.get("symbol_a"));
-        assertEquals("IBM", theEvent.get("symbol_b"));
-        assertEquals("IBM", theEvent.get("symbol_c"));
-        assertEquals("IBM", theEvent.get("symbol_d"));
-        assertEquals("", theEvent.get("symbol_e"));    // should be empty string as we are doing absolute XPath
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("IBM", theEvent.get("symbol_a"));
+            assertEquals("IBM", theEvent.get("symbol_b"));
+            assertEquals("IBM", theEvent.get("symbol_c"));
+            assertEquals("IBM", theEvent.get("symbol_d"));
+            assertEquals("", theEvent.get("symbol_e"));    // should be empty string as we are doing absolute XPath
+        });
 
         env.undeployAll();
     }

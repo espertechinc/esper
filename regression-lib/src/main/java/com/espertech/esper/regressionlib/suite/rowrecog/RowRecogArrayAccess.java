@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertNotNull;
-
 public class RowRecogArrayAccess {
 
     public static Collection<RegressionExecution> executions() {
@@ -174,7 +172,7 @@ public class RowRecogArrayAccess {
         env.assertListenerNotInvoked("s0");
 
         sendEvents(env, new Object[][]{{"B", 1}, {"B", 1}});
-        assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+        env.assertListenerInvoked("s0");
 
         env.milestoneInc(milestone);
 
@@ -182,7 +180,7 @@ public class RowRecogArrayAccess {
         env.assertListenerNotInvoked("s0");
 
         sendEvents(env, new Object[][]{{"B", 2}, {"B", 2}});
-        assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

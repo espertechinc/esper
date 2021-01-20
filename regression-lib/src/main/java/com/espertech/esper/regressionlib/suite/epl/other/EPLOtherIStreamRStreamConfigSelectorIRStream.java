@@ -26,12 +26,14 @@ public class EPLOtherIStreamRStreamConfigSelectorIRStream implements RegressionE
         Object eventOld = sendEvent(env, "a");
         sendEvent(env, "b");
         sendEvent(env, "c");
-        env.listener("s0").reset();
+        env.listenerReset("s0");
 
         Object eventNew = sendEvent(env, "d");
-        assertTrue(env.listener("s0").isInvoked());
-        assertSame(eventNew, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
-        assertSame(eventOld, env.listener("s0").getLastOldData()[0].getUnderlying());    // receive 'a' as new data
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertSame(eventNew, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
+            assertSame(eventOld, listener.getLastOldData()[0].getUnderlying());    // receive 'a' as new data
+        });
 
         env.undeployAll();
     }

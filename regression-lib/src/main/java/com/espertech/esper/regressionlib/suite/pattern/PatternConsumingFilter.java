@@ -10,15 +10,12 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertFalse;
 
 public class PatternConsumingFilter {
 
@@ -103,12 +100,12 @@ public class PatternConsumingFilter {
 
             String[] fields = new String[]{"a", "b"};
             env.sendEventBean(new SupportBean("A", 10));
-            assertFalse(env.listener("A").isInvoked());
+            env.assertListenerNotInvoked("A");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("X", 10));
-            EPAssertionUtil.assertProps(env.listener("A").assertOneGetNew(), fields, new Object[]{"X", "A"});
+            env.assertPropsNew("A", fields, new Object[]{"X", "A"});
 
             env.undeployAll();
         }

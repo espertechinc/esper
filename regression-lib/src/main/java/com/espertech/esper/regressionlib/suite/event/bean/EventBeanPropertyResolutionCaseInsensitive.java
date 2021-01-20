@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
@@ -26,11 +25,12 @@ public class EventBeanPropertyResolutionCaseInsensitive implements RegressionExe
         env.addListener("s0");
 
         env.sendEventBean(new SupportBeanDupProperty("lowercamel", "uppercamel", "upper", "lower"));
-        EventBean result = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("upper", result.get("MYPROPERTY"));
-        assertEquals("lower", result.get("myproperty"));
-        assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
-        assertEquals("upper", result.get("MyProperty"));
+        env.assertEventNew("s0", result -> {
+            assertEquals("upper", result.get("MYPROPERTY"));
+            assertEquals("lower", result.get("myproperty"));
+            assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
+            assertEquals("upper", result.get("MyProperty"));
+        });
         env.undeployAll();
 
         env.compileDeploy("@name('s0') select " +
@@ -41,11 +41,12 @@ public class EventBeanPropertyResolutionCaseInsensitive implements RegressionExe
             " from SupportBeanComplexProps").addListener("s0");
 
         env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("nestedValue", theEvent.get("val1"));
-        assertEquals(10, theEvent.get("val2"));
-        assertEquals("valueOne", theEvent.get("val3"));
-        assertEquals(1, theEvent.get("val4"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("nestedValue", theEvent.get("val1"));
+            assertEquals(10, theEvent.get("val2"));
+            assertEquals("valueOne", theEvent.get("val3"));
+            assertEquals(1, theEvent.get("val4"));
+        });
 
         env.undeployAll();
     }

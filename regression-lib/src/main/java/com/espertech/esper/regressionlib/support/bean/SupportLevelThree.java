@@ -10,7 +10,14 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class SupportLevelThree {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportLevelThree implements Serializable {
+    private static final long serialVersionUID = -8335467449973324094L;
+
     public String getCustomLevelThree(int val) {
         return "level3:" + val;
     }

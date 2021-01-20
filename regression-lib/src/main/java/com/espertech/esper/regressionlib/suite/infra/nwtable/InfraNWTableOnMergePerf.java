@@ -21,7 +21,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -57,7 +56,7 @@ public class InfraNWTableOnMergePerf {
                 outputType.getAnnotationText() + "@name('create') create window MyWindow#keepall as (c1 string, c2 int)" :
                 "@name('create') create table MyWindow(c1 string primary key, c2 int)";
             env.compileDeploy(eplCreate, path);
-            assertTrue(outputType.matchesClass(env.statement("create").getEventType().getUnderlyingType()));
+            env.assertStatement("create", statement -> assertTrue(outputType.matchesClass(statement.getEventType().getUnderlyingType())));
 
             // preload events
             env.compileDeploy("@name('insert') insert into MyWindow select theString as c1, intPrimitive as c2 from SupportBean", path);
@@ -83,14 +82,15 @@ public class InfraNWTableOnMergePerf {
             long delta = endTime - startTime;
 
             // verify
-            Iterator<EventBean> events = env.statement("create").iterator();
-            int count = 0;
-            for (; events.hasNext(); ) {
-                EventBean next = events.next();
-                assertEquals(1, next.get("c2"));
-                count++;
-            }
-            assertEquals(totalUpdated, count);
+            env.assertIterator("create", events -> {
+                int count = 0;
+                for (; events.hasNext(); ) {
+                    EventBean next = events.next();
+                    assertEquals(1, next.get("c2"));
+                    count++;
+                }
+                assertEquals(totalUpdated, count);
+            });
             assertTrue("Delta=" + delta, delta < 500);
 
             env.undeployAll();

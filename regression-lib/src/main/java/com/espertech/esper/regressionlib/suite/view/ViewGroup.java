@@ -129,6 +129,7 @@ public class ViewGroup {
             sendEvent(env, symbolGe, feedInfo, 1);
             sendEvent(env, symbolGe, feedInfo, 2);
             sendEvent(env, symbolGe, feedInfo, 1);
+            env.listenerReset("s0");
 
             env.milestone(1);
 

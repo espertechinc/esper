@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -250,7 +249,7 @@ public class ResultSetOrderByRowPerGroup {
             env.sendEventBean(new SupportBean("E2", 13));
             env.sendEventBean(new SupportBean("E1", 14));
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "c0,c1".split(","), new Object[][]{{14, "E1"}, {13, "E2"}, {12, "E3"}});
+            env.assertPropsPerRowNewOnly("s0", "c0,c1".split(","), new Object[][]{{14, "E1"}, {13, "E2"}, {12, "E3"}});
 
             env.undeployAll();
         }
@@ -277,10 +276,7 @@ public class ResultSetOrderByRowPerGroup {
 
         sendEvent(env, "CAT", 6);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 3.0}, {"IBM", 7.0}, {"CAT", 11.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
-            new Object[][]{{"CAT", null}, {"CMU", null}, {"IBM", null}});
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"CMU", 3.0}, {"IBM", 7.0}, {"CAT", 11.0}}, new Object[][]{{"CAT", null}, {"CMU", null}, {"IBM", null}});
 
         sendEvent(env, "IBM", 3);
         sendEvent(env, "IBM", 4);
@@ -292,9 +288,7 @@ public class ResultSetOrderByRowPerGroup {
 
         sendEvent(env, "DOG", 1);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"DOG", 1.0}, {"CMU", 13.0}, {"IBM", 14.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"DOG", 1.0}, {"CMU", 13.0}, {"IBM", 14.0}},
             new Object[][]{{"DOG", null}, {"CMU", 3.0}, {"IBM", 7.0}});
     }
 
@@ -310,11 +304,8 @@ public class ResultSetOrderByRowPerGroup {
         sendEvent(env, "CMU", 2);
         sendEvent(env, "CAT", 5);
         sendEvent(env, "CAT", 6);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0}, {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0}, {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}},
             new Object[][]{{"CAT", null}, {"CMU", null}, {"IBM", null}, {"CMU", 1.0}, {"IBM", 3.0}, {"CAT", 5.0}});
-        env.listener("s0").reset();
 
         env.milestoneInc(milestone);
 
@@ -327,9 +318,7 @@ public class ResultSetOrderByRowPerGroup {
         env.milestoneInc(milestone);
 
         sendEvent(env, "DOG", 1);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"DOG", 0.0}, {"DOG", 1.0}, {"CMU", 8.0}, {"IBM", 10.0}, {"CMU", 13.0}, {"IBM", 14.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"DOG", 0.0}, {"DOG", 1.0}, {"CMU", 8.0}, {"IBM", 10.0}, {"CMU", 13.0}, {"IBM", 14.0}},
             new Object[][]{{"DOG", null}, {"DOG", 0.0}, {"CMU", 3.0}, {"IBM", 7.0}, {"CMU", 8.0}, {"IBM", 10.0}});
     }
 
@@ -346,11 +335,8 @@ public class ResultSetOrderByRowPerGroup {
 
         sendEvent(env, "CAT", 6);
 
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0}, {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"CMU", 1.0}, {"CMU", 3.0}, {"IBM", 3.0}, {"CAT", 5.0}, {"IBM", 7.0}, {"CAT", 11.0}},
             new Object[][]{{"CMU", 1.0}, {"IBM", 3.0}, {"CAT", 5.0}});
-        env.listener("s0").reset();
 
         sendEvent(env, "IBM", 3);
 
@@ -364,9 +350,7 @@ public class ResultSetOrderByRowPerGroup {
         env.milestoneInc(milestone);
 
         sendEvent(env, "DOG", 1);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-            new Object[][]{{"DOG", 1.0}, {"CMU", 8.0}, {"IBM", 10.0}, {"CMU", 13.0}, {"IBM", 14.0}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields,
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"DOG", 1.0}, {"CMU", 8.0}, {"IBM", 10.0}, {"CMU", 13.0}, {"IBM", 14.0}},
             new Object[][]{{"CMU", 3.0}, {"IBM", 7.0}, {"CMU", 8.0}, {"IBM", 10.0}});
     }
 }

@@ -92,7 +92,7 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
         runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema itemSchema = AvroSchemaUtil.findUnionRecordSchemaSingle(schema.getField("item").schema());
         GenericData.Record datumOne = new GenericData.Record(schema);
         datumOne.put("item", null);
@@ -106,7 +106,7 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
             new Pair<>(datumOne, notExists),
             new Pair<>(datumTwo, new ValueWithExistsFlag[]{exists(1), exists(2), notExists(), exists(3), exists(4), notExists()}),
         };
-        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path);
+        env.assertThat(() -> runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path));
 
         // Json
         Pair[] jsonTests = new Pair[]{
@@ -171,15 +171,17 @@ public class EventInfraPropertyDynamicNestedRootedNonSimple implements Regressio
         env.compileDeploy(stmtText, path).addListener("s0");
 
         String[] propertyNames = "indexed1,indexed2,array,mapped1,mapped2,map".split(",");
-        EventType eventType = env.statement("s0").getEventType();
-        for (String propertyName : propertyNames) {
-            assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
-            assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String propertyName : propertyNames) {
+                assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
+                assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
+            }
+        });
 
         for (Pair pair : tests) {
             send.apply(env, pair.getFirst(), typename);
-            SupportEventInfra.assertValuesMayConvert(env.listener("s0").assertOneGetNewAndReset(), propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion);
+            env.assertEventNew("s0", event -> SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion));
         }
 
         env.undeployAll();

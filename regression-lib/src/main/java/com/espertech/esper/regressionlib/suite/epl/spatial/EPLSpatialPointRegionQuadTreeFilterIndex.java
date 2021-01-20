@@ -49,13 +49,13 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
         public void run(RegressionEnvironment env) {
             String eplNoIndex = "@name('s0') select * from SupportSpatialAABB(point(0, 0).inside(rectangle(x, y, width, height)))";
             env.compileDeploy(eplNoIndex);
-            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env, "s0", "SupportSpatialAABB", new FilterItem[][]{{FilterItem.getBoolExprFilterItem()}});
             env.undeployAll();
 
             String eplIndexed = "@name('s0') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))";
             env.compileDeploy(eplIndexed);
-            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportSpatialAABB", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/pointregionquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env, "s0", "SupportSpatialAABB", new FilterItem[][]{{new FilterItem("x,y,width,height/myindex/pointregionquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
 
             env.undeployAll();
         }
@@ -69,7 +69,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
             sendRectangle(env, "R1", 0, 0, 5, 10);
             sendRectangle(env, "R2", 4, 3, 2, 20);
-            assertEquals("R2", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", "R2");
 
             env.undeployAll();
         }
@@ -78,12 +78,12 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     private static class EPLSpatialPRFilterIndexPerfStatement implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
-                "select * from SupportSpatialAABB(point(?::int, ?::int, filterindex:myindex).inside(rectangle(x, y, width, height)))");
+                    "select * from SupportSpatialAABB(point(?::int, ?::int, filterindex:myindex).inside(rectangle(x, y, width, height)))");
             SupportUpdateListener listener = new SupportUpdateListener();
 
             int count = 0;
@@ -110,7 +110,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     private static class EPLSpatialPRFilterIndexPerfPattern implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -119,7 +119,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
             env.addListener("s0");
 
             sendSpatialPoints(env, 100, 100);
-            sendAssertSpatialAABB(env, env.listener("s0"), 100, 100, 1000);
+            sendAssertSpatialAABB(env, 100, 100, 1000);
 
             env.undeployAll();
         }
@@ -128,7 +128,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
     private static class EPLSpatialPRFilterIndexPerfContextPartition implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -140,7 +140,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
             env.addListener("s0");
 
             sendSpatialPoints(env, 100, 100);
-            sendAssertSpatialAABB(env, env.listener("s0"), 100, 100, 1000);
+            sendAssertSpatialAABB(env, 100, 100, 1000);
 
             env.undeployAll();
         }
@@ -157,9 +157,9 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
         public void run(RegressionEnvironment env) {
 
-            String epl = "@name('out') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
+            String epl = "@name('s0') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select p.id as c0 from pattern [every p=SupportSpatialPoint -> every SupportSpatialAABB(point(p.px, p.py, filterindex:myindex).inside(rectangle(x, y, width, height)))]";
-            env.compileDeploy(epl).addListener("out");
+            env.compileDeploy(epl).addListener("s0");
 
             env.milestone(0);
 
@@ -168,16 +168,16 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
             sendPoint(env, "P2", 60, 10);
             sendPoint(env, "P3", 10, 60);
             sendPoint(env, "P4", 10, 10);
-            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, "P0,P4", "P2", "P3", "P1", "P1");
+            env.assertThat(() -> assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            assertRectanglesManyRow(env, BOXES, "P0,P4", "P2", "P3", "P1", "P1");
 
             env.milestone(1);
 
-            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, "P0,P4", "P2", "P3", "P1", "P1");
+            env.assertThat(() -> assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            assertRectanglesManyRow(env, BOXES, "P0,P4", "P2", "P3", "P1", "P1");
 
             env.undeployAll();
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
         }
     }
 
@@ -190,15 +190,15 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
 
             String epl = "create context PointContext initiated by SupportSpatialPoint ssp terminated by SupportBean(theString=ssp.id);\n" +
-                "@name('out') expression myindex {pointregionquadtree(0, 0, 10, 10)}" +
+                "@name('s0') expression myindex {pointregionquadtree(0, 0, 10, 10)}" +
                 "context PointContext select context.ssp.id as c0 from SupportSpatialAABB(point(context.ssp.px, context.ssp.py, filterindex:myindex).inside(rectangle(x, y, width, height)))";
-            env.compileDeploy(epl).addListener("out");
+            env.compileDeploy(epl).addListener("s0");
 
             List<SupportSpatialPoint> points = new ArrayList<>();
             int count = 0;

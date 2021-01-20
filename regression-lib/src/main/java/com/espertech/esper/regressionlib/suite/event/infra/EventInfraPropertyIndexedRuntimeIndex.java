@@ -10,44 +10,43 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, String[]> bean = (type, values) -> {
+        Consumer<String[]> bean = values -> {
             env.sendEventBean(new LocalEvent(values));
         };
         String beanepl = "@public @buseventtype create schema LocalEvent as " + LocalEvent.class.getName() + ";\n";
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, String[]> map = (type, values) -> {
+        Consumer<String[]> map = values -> {
             env.sendEventMap(Collections.singletonMap("indexed", values), "LocalEvent");
         };
         String mapepl = "@public @buseventtype create schema LocalEvent(indexed string[]);\n";
         runAssertion(env, mapepl, map);
 
         // Object-array
-        BiConsumer<EventType, String[]> oa = (type, values) -> {
+        Consumer<String[]> oa = values -> {
             env.sendEventObjectArray(new Object[]{values}, "LocalEvent");
         };
         String oaepl = "@public @buseventtype create objectarray schema LocalEvent(indexed string[]);\n";
         runAssertion(env, oaepl, oa);
 
         // Json
-        BiConsumer<EventType, String[]> json = (type, values) -> {
+        Consumer<String[]> json = values -> {
             JsonArray array = new JsonArray();
             for (int i = 0; i < values.length; i++) {
                 array.add(values[i]);
@@ -63,32 +62,33 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
         runAssertion(env, jsonProvidedEpl, json);
 
         // Avro
-        BiConsumer<EventType, String[]> avro = (type, ids) -> {
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
-            event.put("indexed", Arrays.asList(ids));
+        Consumer<String[]> avro = values -> {
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
+            GenericData.Record event = new GenericData.Record(schema);
+            event.put("indexed", Arrays.asList(values));
             env.sendEventAvro(event, "LocalEvent");
         };
-        String avroepl = "@public @buseventtype create avro schema LocalEvent(indexed string[]);\n";
+        String avroepl = "@name('schema') @public @buseventtype create avro schema LocalEvent(indexed string[]);\n";
         runAssertion(env, avroepl, avro);
     }
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, String[]> sender) {
+                             Consumer<String[]> sender) {
 
         env.compileDeploy(createSchemaEPL +
             "create constant variable int offsetNum = 0;" +
             "@name('s0') select indexed(offsetNum+0) as c0, indexed(offsetNum+1) as c1 from LocalEvent as e;\n"
         ).addListener("s0");
-        EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("s0"), "LocalEvent");
 
-        sender.accept(eventType, new String[]{"a", "b"});
+        sender.accept(new String[]{"a", "b"});
         env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{"a", "b"});
 
         env.undeployAll();
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = 5671940595663495994L;
         private String[] indexed;
 
         public LocalEvent(String[] indexed) {
@@ -101,6 +101,7 @@ public class EventInfraPropertyIndexedRuntimeIndex implements RegressionExecutio
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = -6111414022743294114L;
         public String[] indexed;
     }
 }

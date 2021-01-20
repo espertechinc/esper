@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public final class SupportMaxAmountEvent {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public final class SupportMaxAmountEvent implements Serializable {
+    private static final long serialVersionUID = -3306577953946582750L;
     private String key;
     private double maxAmount;
 

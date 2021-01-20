@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
@@ -67,20 +66,23 @@ public class EventXMLNoSchemaPropertyDynamicDOMGetter {
         String stmtText = "@name('s0') select type?,dyn[1]?,nested.nes2?,map('a')? from " + eventTypeName;
         env.compileDeploy(stmtText, path).addListener("s0");
 
-        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("type?", Node.class),
-            new SupportEventPropDesc("dyn[1]?", Node.class),
-            new SupportEventPropDesc("nested.nes2?", Node.class),
-            new SupportEventPropDesc("map('a')?", Node.class));
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
+        env.assertStatement("s0", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("type?", Node.class),
+                new SupportEventPropDesc("dyn[1]?", Node.class),
+                new SupportEventPropDesc("nested.nes2?", Node.class),
+                new SupportEventPropDesc("map('a')?", Node.class));
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
         Document root = SupportXML.sendXMLEvent(env, NOSCHEMA_XML, eventTypeName);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertSame(root.getDocumentElement().getChildNodes().item(1), theEvent.get("type?"));
-        assertSame(root.getDocumentElement().getChildNodes().item(5), theEvent.get("dyn[1]?"));
-        assertSame(root.getDocumentElement().getChildNodes().item(7).getChildNodes().item(1), theEvent.get("nested.nes2?"));
-        assertSame(root.getDocumentElement().getChildNodes().item(9), theEvent.get("map('a')?"));
-        SupportEventTypeAssertionUtil.assertConsistency(theEvent);
+        env.assertEventNew("s0", theEvent -> {
+            assertSame(root.getDocumentElement().getChildNodes().item(1), theEvent.get("type?"));
+            assertSame(root.getDocumentElement().getChildNodes().item(5), theEvent.get("dyn[1]?"));
+            assertSame(root.getDocumentElement().getChildNodes().item(7).getChildNodes().item(1), theEvent.get("nested.nes2?"));
+            assertSame(root.getDocumentElement().getChildNodes().item(9), theEvent.get("map('a')?"));
+            SupportEventTypeAssertionUtil.assertConsistency(theEvent);
+        });
 
         env.undeployAll();
     }

@@ -14,8 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static org.junit.Assert.assertTrue;
-
 public class ResultSetOutputLimitMicrosecondResolution implements RegressionExecution {
 
     private final long startTime;
@@ -40,14 +38,14 @@ public class ResultSetOutputLimitMicrosecondResolution implements RegressionExec
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(flipTime);
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 10));
         env.advanceTime(repeatTime + flipTime - 1);
         env.assertListenerNotInvoked("s0");
 
         env.advanceTime(repeatTime + flipTime);
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }

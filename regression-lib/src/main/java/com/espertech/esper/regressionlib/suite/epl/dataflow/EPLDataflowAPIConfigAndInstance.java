@@ -14,7 +14,10 @@ import com.espertech.esper.common.client.dataflow.core.*;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.EnumSet;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
@@ -95,5 +98,9 @@ public class EPLDataflowAPIConfigAndInstance implements RegressionExecution {
         assertFalse(dataFlowRuntime.removeSavedInstance("F1"));
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 }

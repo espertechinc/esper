@@ -114,7 +114,7 @@ public class ResultSetQueryTypeRollupPlanningAndSODA implements RegressionExecut
         SupportGroupRollupPlanHook.reset();
 
         env.compile(epl);
-        comparePlan(expectedCSV);
+        env.assertThat(() -> comparePlan(expectedCSV));
         env.undeployAll();
 
         EPStatementObjectModel model = env.eplToModel(epl);
@@ -123,7 +123,7 @@ public class ResultSetQueryTypeRollupPlanningAndSODA implements RegressionExecut
 
         model.getAnnotations().add(AnnotationPart.nameAnnotation("s0"));
         env.compileDeploy(model).addListener("s0");
-        comparePlan(expectedCSV);
+        env.assertThat(() -> comparePlan(expectedCSV));
 
         env.undeployAll();
     }

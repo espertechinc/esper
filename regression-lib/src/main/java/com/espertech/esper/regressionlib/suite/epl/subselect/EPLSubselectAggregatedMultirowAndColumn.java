@@ -24,6 +24,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -68,11 +69,13 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(1));
-            Map[] maps = getSortMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c1");
-            assertTrue(Arrays.equals(new int[]{1, 2}, (int[]) maps[0].get("c0")));
-            assertEquals(21, maps[0].get("c1"));
-            assertTrue(Arrays.equals(new int[]{1}, (int[]) maps[1].get("c0")));
-            assertEquals(41, maps[1].get("c1"));
+            env.assertEventNew("s0", event -> {
+                Map[] maps = getSortMapMultiRow("e1", event, "c1");
+                assertTrue(Arrays.equals(new int[]{1, 2}, (int[]) maps[0].get("c0")));
+                assertEquals(21, maps[0].get("c1"));
+                assertTrue(Arrays.equals(new int[]{1}, (int[]) maps[1].get("c0")));
+                assertEquals(41, maps[1].get("c1"));
+            });
 
             env.undeployAll();
         }
@@ -361,11 +364,11 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.compileDeploy(stmtUncorrelated, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}}));
 
             env.sendEventBean(new SupportBean("E2", 200));
             env.sendEventBean(new SupportBean_S0(2));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}, {"E2", 200}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}, {"E2", 200}}));
             env.undeployModuleContaining("s0");
 
             // test correlated
@@ -374,7 +377,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.compileDeploy(eplTwo, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","), new Object[][]{{"E1", 30}}));
 
             env.undeployAll();
         }
@@ -388,15 +391,15 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             String[] fields = "c0,c1".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
-            EPLSubselectAggregatedMultirowAndColumn.assertMapMultiRow("subq", env.listener("s0").assertOneGetNewAndReset(), "c0", fields, null);
+            env.assertEventNew("s0", event -> assertMapMultiRow("subq", event, "c0", fields, null));
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean_S0(2, "E2"));
-            EPLSubselectAggregatedMultirowAndColumn.assertMapMultiRow("subq", env.listener("s0").assertOneGetNewAndReset(), "c0", fields, new Object[][]{{"G1", 10}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("subq", event, "c0", fields, new Object[][]{{"G1", 10}}));
 
             env.sendEventBean(new SupportBean("G2", 20));
             env.sendEventBean(new SupportBean_S0(3, "E3"));
-            EPLSubselectAggregatedMultirowAndColumn.assertMapMultiRow("subq", env.listener("s0").assertOneGetNewAndReset(), "c0", fields, new Object[][]{{"G1", 10}, {"G2", 20}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("subq", event, "c0", fields, new Object[][]{{"G1", 10}, {"G2", 20}}));
 
             env.undeployAll();
         }
@@ -413,18 +416,20 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.compileDeploy(epl).addListener("s0");
 
             sendSBEventAndTrigger(env, "E1", 20);
-            for (EventBean event : new EventBean[]{env.listener("s0").assertOneGetNew(), env.statement("s0").iterator().next()}) {
+            final Consumer<EventBean> assertionOne = event -> {
                 assertMapField("e1", event, fields, new Object[]{"E1", 20});
                 assertMapMultiRow("e2", event, "c0", fields, new Object[][]{{"E1", 20}});
-            }
-            env.listener("s0").reset();
+            };
+            env.assertEventNew("s0", assertionOne);
+            env.assertIterator("s0", iterator -> assertionOne.accept(iterator.next()));
 
             sendSBEventAndTrigger(env, "E2", 30);
-            for (EventBean event : new EventBean[]{env.listener("s0").assertOneGetNew(), env.statement("s0").iterator().next()}) {
+            final Consumer<EventBean> assertionTwo = event -> {
                 assertMapField("e1", event, fields, null);
                 assertMapMultiRow("e2", event, "c0", fields, new Object[][]{{"E1", 20}, {"E2", 30}});
-            }
-            env.listener("s0").reset();
+            };
+            env.assertEventNew("s0", assertionTwo);
+            env.assertIterator("s0", iterator -> assertionTwo.accept(iterator.next()));
 
             env.undeployAll();
         }
@@ -497,29 +502,29 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","),
-                null);
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","),
+                null));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean_S0(2));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","),
-                new Object[][]{{"E1", 10}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","),
+                new Object[][]{{"E1", 10}}));
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 200));
             env.sendEventBean(new SupportBean_S0(3));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","),
-                new Object[][]{{"E1", 10}, {"E2", 200}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","),
+                new Object[][]{{"E1", 10}, {"E2", 200}}));
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E1", 20));
             env.sendEventBean(new SupportBean_S0(4));
-            assertMapMultiRow("e1", env.listener("s0").assertOneGetNewAndReset(), "c0", "c0,c1".split(","),
-                new Object[][]{{"E1", 30}, {"E2", 200}});
+            env.assertEventNew("s0", event -> assertMapMultiRow("e1", event, "c0", "c0,c1".split(","),
+                new Object[][]{{"E1", 30}, {"E2", 200}}));
 
             env.undeployAll();
         }
@@ -557,13 +562,11 @@ public class EPLSubselectAggregatedMultirowAndColumn {
     }
 
     private static void assertMapFieldAndReset(RegressionEnvironment env, String fieldName, String[] names, Object[] values) {
-        assertMapField(fieldName, env.listener("s0").assertOneGetNew(), names, values);
-        env.listener("s0").reset();
+        env.assertEventNew("s0", event -> assertMapField(fieldName, event, names, values));
     }
 
     private static void assertMapMultiRowAndReset(RegressionEnvironment env, String fieldName, final String sortKey, String[] names, Object[][] values) {
-        assertMapMultiRow(fieldName, env.listener("s0").assertOneGetNew(), sortKey, names, values);
-        env.listener("s0").reset();
+        env.assertEventNew("s0", event -> assertMapMultiRow(fieldName, event, sortKey, names, values));
     }
 
     private static void assertMapField(String fieldName, EventBean event, String[] names, Object[] values) {

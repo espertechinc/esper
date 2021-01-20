@@ -12,18 +12,14 @@ package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
-import static org.junit.Assert.assertEquals;
 
 public class ExprCoreAndOrNot {
 
@@ -74,9 +70,7 @@ public class ExprCoreAndOrNot {
             sendBeanAssert(env, "World", false);
             sendBeanAssert(env, "x", true);
 
-            Map<DeploymentIdNamePair, Object> newValues = new HashMap<>();
-            newValues.put(new DeploymentIdNamePair(env.deploymentId("s0"), "thing"), "5 x 5");
-            env.runtime().getVariableService().setVariableValue(newValues);
+            env.runtimeSetVariable("s0", "thing", "5 x 5");
 
             sendBeanAssert(env, "World", true);
             sendBeanAssert(env, "x", false);
@@ -102,6 +96,6 @@ public class ExprCoreAndOrNot {
     private static void sendBeanAssert(RegressionEnvironment env, String theString, boolean expected) {
         SupportBean bean = new SupportBean(theString, 0);
         env.sendEventBean(bean);
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 }

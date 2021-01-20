@@ -49,12 +49,14 @@ public class EventObjectArrayEventNested {
             env.sendEventObjectArray(eventData, "MyArrayOA");
 
             env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 5, beans[1], p0});
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Integer.class, eventType.getPropertyType("a"));
-            assertEquals(Integer.class, eventType.getPropertyType("b"));
-            assertEquals(Integer.class, eventType.getPropertyType("c"));
-            assertEquals(SupportBean.class, eventType.getPropertyType("d"));
-            assertEquals(int[].class, eventType.getPropertyType("e"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer.class, eventType.getPropertyType("a"));
+                assertEquals(Integer.class, eventType.getPropertyType("b"));
+                assertEquals(Integer.class, eventType.getPropertyType("c"));
+                assertEquals(SupportBean.class, eventType.getPropertyType("d"));
+                assertEquals(int[].class, eventType.getPropertyType("e"));
+            });
             env.undeployAll();
 
             // test map at the second level of a nested map that is an array of primitive or Class
@@ -64,12 +66,14 @@ public class EventObjectArrayEventNested {
             env.sendEventObjectArray(new Object[]{eventData}, "MyArrayOAMapOuter");
 
             env.assertPropsNew("s0", "a,b,c,d".split(","), new Object[]{1, 2, 5, beans[1]});
-            eventType = env.statement("s0").getEventType();
-            assertEquals(Integer.class, eventType.getPropertyType("a"));
-            assertEquals(Integer.class, eventType.getPropertyType("b"));
-            assertEquals(Integer.class, eventType.getPropertyType("c"));
-            assertEquals(SupportBean.class, eventType.getPropertyType("d"));
-            assertEquals(int[].class, eventType.getPropertyType("e"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer.class, eventType.getPropertyType("a"));
+                assertEquals(Integer.class, eventType.getPropertyType("b"));
+                assertEquals(Integer.class, eventType.getPropertyType("c"));
+                assertEquals(SupportBean.class, eventType.getPropertyType("d"));
+                assertEquals(int[].class, eventType.getPropertyType("e"));
+            });
 
             env.undeployAll();
         }
@@ -88,7 +92,7 @@ public class EventObjectArrayEventNested {
             env.sendEventMap(theEvent, "MyMappedPropertyMap");
 
             env.assertPropsNew("s0", "a".split(","), new Object[]{"v1"});
-            assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
+            env.assertStatement("s0", statement -> assertEquals(Object.class, statement.getEventType().getPropertyType("a")));
             env.undeployAll();
 
             // test map at the second level of a nested map that is an array of primitive or Class
@@ -99,7 +103,7 @@ public class EventObjectArrayEventNested {
             env.sendEventMap(eventOuter, "MyMappedPropertyMapOuter");
 
             env.assertPropsNew("s0", "a".split(","), new Object[]{"v1"});
-            assertEquals(Object.class, env.statement("s0").getEventType().getPropertyType("a"));
+            env.assertStatement("s0", statement -> assertEquals(Object.class, statement.getEventType().getPropertyType("a")));
             env.undeployModuleContaining("s0");
 
             // test map that contains a bean which has a map property
@@ -109,7 +113,7 @@ public class EventObjectArrayEventNested {
             env.sendEventMap(eventOuterTwo, "MyMappedPropertyMapOuterTwo");
 
             env.assertPropsNew("s0", "a".split(","), new Object[]{"yOne"});
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("a"));
+            env.assertStatement("s0", statement -> assertEquals(String.class, statement.getEventType().getPropertyType("a")));
 
             env.undeployAll();
         }
@@ -130,12 +134,14 @@ public class EventObjectArrayEventNested {
             env.sendEventObjectArray(new Object[]{theEvent}, "MyObjectArrayMapOuter");
 
             env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Integer.class, eventType.getPropertyType("a"));
-            assertEquals(Integer.class, eventType.getPropertyType("b"));
-            assertEquals(Integer.class, eventType.getPropertyType("c"));
-            assertEquals(Map.class, eventType.getPropertyType("d"));
-            assertEquals(Map[].class, eventType.getPropertyType("e"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer.class, eventType.getPropertyType("a"));
+                assertEquals(Integer.class, eventType.getPropertyType("b"));
+                assertEquals(Integer.class, eventType.getPropertyType("c"));
+                assertEquals(Map.class, eventType.getPropertyType("d"));
+                assertEquals(Map[].class, eventType.getPropertyType("e"));
+            });
 
             env.undeployAll();
             env.compileDeploy("@name('s0') select outer.p0.n0? as a, outer.p1[0].n0? as b, outer.p1[1]?.n0 as c, outer.p0? as d, outer.p1? as e from MyObjectArrayMapOuter");
@@ -144,7 +150,7 @@ public class EventObjectArrayEventNested {
             env.sendEventObjectArray(new Object[]{theEvent}, "MyObjectArrayMapOuter");
 
             env.assertPropsNew("s0", "a,b,c,d,e".split(","), new Object[]{1, 2, 3, n0Bean1, n0Bean2});
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("a"));
+            env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("a")));
 
             env.undeployAll();
         }
@@ -162,18 +168,21 @@ public class EventObjectArrayEventNested {
             Map[] n0Bean2 = new Map[]{n0Bean21, n0Bean22};
             env.sendEventObjectArray(new Object[]{n0Bean1, n0Bean2}, "MyOAWithAMap");
 
-            EventBean eventResult = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(eventResult, "a,b,c,d".split(","), new Object[]{1, 2, 3, n0Bean1});
-            Map[] valueE = (Map[]) eventResult.get("e");
-            assertEquals(valueE[0], n0Bean2[0]);
-            assertEquals(valueE[1], n0Bean2[1]);
+            env.assertEventNew("s0", eventResult -> {
+                EPAssertionUtil.assertProps(eventResult, "a,b,c,d".split(","), new Object[]{1, 2, 3, n0Bean1});
+                Map[] valueE = (Map[]) eventResult.get("e");
+                assertEquals(valueE[0], n0Bean2[0]);
+                assertEquals(valueE[1], n0Bean2[1]);
+            });
 
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Integer.class, eventType.getPropertyType("a"));
-            assertEquals(Integer.class, eventType.getPropertyType("b"));
-            assertEquals(Integer.class, eventType.getPropertyType("c"));
-            assertEquals(Map.class, eventType.getPropertyType("d"));
-            assertEquals(Map[].class, eventType.getPropertyType("e"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer.class, eventType.getPropertyType("a"));
+                assertEquals(Integer.class, eventType.getPropertyType("b"));
+                assertEquals(Integer.class, eventType.getPropertyType("c"));
+                assertEquals(Map.class, eventType.getPropertyType("d"));
+                assertEquals(Map[].class, eventType.getPropertyType("e"));
+            });
 
             env.undeployAll();
         }
@@ -186,8 +195,10 @@ public class EventObjectArrayEventNested {
             Object[] dataLev1 = {1000};
             Object[] dataLev0 = {100, dataLev1};
             env.sendEventObjectArray(new Object[]{10, dataLev0}, "TypeRoot");
-            EventBean theEvent = env.iterator("s0").next();
-            EPAssertionUtil.assertProps(theEvent, "rootId,p0.p0id,p0.p1.p1id".split(","), new Object[]{10, 100, 1000});
+            env.assertIterator("s0", iterator -> {
+                EventBean theEvent = iterator.next();
+                EPAssertionUtil.assertProps(theEvent, "rootId,p0.p0id,p0.p1.p1id".split(","), new Object[]{10, 100, 1000});
+            });
 
             env.undeployAll();
         }

@@ -25,8 +25,7 @@ import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
 import java.util.*;
 
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertST0Id;
-import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.assertValuesArrayScalar;
+import static com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil.*;
 import static org.junit.Assert.assertEquals;
 
 public class ExprEnumExceptIntersectUnion {
@@ -46,9 +45,9 @@ public class ExprEnumExceptIntersectUnion {
     private static class ExprEnumStringArrayIntersection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
+            String epl = "@buseventtype create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
                 "@Name('s0') select * from Event(meta1.intersect(meta2).countOf() > 0);\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             sendAndAssert(env, "a,b", "a,b", true);
             sendAndAssert(env, "c,d", "a,b", false);
@@ -97,50 +96,50 @@ public class ExprEnumExceptIntersectUnion {
                     "last10A().union(last10NonZero()) as val2 " +
                     "from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
+            env.assertStmtTypes("s0", "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", "A1", 10));    // in both
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "");
-            assertST0Id(env.listener("s0"), "val1", "E1");
-            assertST0Id(env.listener("s0"), "val2", "E1,E1");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "");
+            assertST0Id(env, "val1", "E1");
+            assertST0Id(env, "val2", "E1,E1");
+            env.listenerReset("s0");
 
             env.sendEventBean(new SupportBean_ST0("E2", "A1", 0));
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "E2");
-            assertST0Id(env.listener("s0"), "val1", "E1");
-            assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "E2");
+            assertST0Id(env, "val1", "E1");
+            assertST0Id(env, "val2", "E1,E2,E1");
+            env.listenerReset("s0");
 
             env.sendEventBean(new SupportBean_ST0("E3", "B1", 0));
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "E2");
-            assertST0Id(env.listener("s0"), "val1", "E1");
-            assertST0Id(env.listener("s0"), "val2", "E1,E2,E1");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "E2");
+            assertST0Id(env, "val1", "E1");
+            assertST0Id(env, "val2", "E1,E2,E1");
+            env.listenerReset("s0");
 
             env.sendEventBean(new SupportBean_ST0("E4", "A2", -1));
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "E2,E4");
-            assertST0Id(env.listener("s0"), "val1", "");
-            assertST0Id(env.listener("s0"), "val2", "E2,E4,E1");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "E2,E4");
+            assertST0Id(env, "val1", "");
+            assertST0Id(env, "val2", "E2,E4,E1");
+            env.listenerReset("s0");
 
             env.sendEventBean(new SupportBean_ST0("E5", "A3", -2));
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "E4,E5");
-            assertST0Id(env.listener("s0"), "val1", "");
-            assertST0Id(env.listener("s0"), "val2", "E4,E5,E1");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "E4,E5");
+            assertST0Id(env, "val1", "");
+            assertST0Id(env, "val2", "E4,E5,E1");
+            env.listenerReset("s0");
 
             env.sendEventBean(new SupportBean_ST0("E6", "A6", 11));    // in both
             env.sendEventBean(new SupportBean_ST0("E7", "A7", 12));    // in both
             env.sendEventBean(new SupportBean());
-            assertST0Id(env.listener("s0"), "val0", "");
-            assertST0Id(env.listener("s0"), "val1", "E6,E7");
-            assertST0Id(env.listener("s0"), "val2", "E6,E7,E6,E7");
-            env.listener("s0").reset();
+            assertST0Id(env, "val0", "");
+            assertST0Id(env, "val1", "E6,E7");
+            assertST0Id(env, "val2", "E6,E7,E6,E7");
+            env.listenerReset("s0");
 
             env.undeployAll();
         }
@@ -212,27 +211,22 @@ public class ExprEnumExceptIntersectUnion {
                 "select one(bean).union(two(bean)) as val0 from SupportBean_ST0_Container as bean";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
+            env.assertStmtTypes("s0", "val0".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,10", "E3,1", "E4,10", "E5,11"));
-            assertST0Id(env.listener("s0"), "val0", "E2,E4,E5");
-            env.listener("s0").reset();
+            assertST0IdWReset(env, "val0", "E2,E4,E5");
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,10", "E2,1", "E3,1"));
-            assertST0Id(env.listener("s0"), "val0", "E1");
-            env.listener("s0").reset();
+            assertST0IdWReset(env, "val0", "E1");
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value("E1,1", "E2,1", "E3,10", "E4,11"));
-            assertST0Id(env.listener("s0"), "val0", "E3,E4");
-            env.listener("s0").reset();
+            assertST0IdWReset(env, "val0", "E3,E4");
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value((String[]) null));
-            assertST0Id(env.listener("s0"), "val0", null);
-            env.listener("s0").reset();
+            assertST0IdWReset(env, "val0", null);
 
             env.sendEventBean(SupportBean_ST0_Container.make2Value());
-            assertST0Id(env.listener("s0"), "val0", "");
-            env.listener("s0").reset();
+            assertST0IdWReset(env, "val0", "");
 
             env.undeployAll();
         }
@@ -250,11 +244,11 @@ public class ExprEnumExceptIntersectUnion {
 
     private static void tryAssertionInheritance(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
-        String epl = eventRepresentationEnum.getAnnotationText() + " create schema BaseEvent as (b1 string);\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " create schema SubEvent as (s1 string) inherits BaseEvent;\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " create schema OuterEvent as (bases BaseEvent[], subs SubEvent[]);\n";
+        String epl = eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema BaseEvent as (b1 string);\n";
+        epl += eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema SubEvent as (s1 string) inherits BaseEvent;\n";
+        epl += eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema OuterEvent as (bases BaseEvent[], subs SubEvent[]);\n";
         epl += eventRepresentationEnum.getAnnotationText() + " @name('s0') select bases.union(subs) as val from OuterEvent;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+        env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{new Object[][]{{"b10"}}, new Object[][]{{"b10", "s10"}}}, "OuterEvent");
@@ -265,8 +259,10 @@ public class ExprEnumExceptIntersectUnion {
             env.sendEventMap(outerEvent, "OuterEvent");
         }
 
-        Collection result = (Collection) env.listener("s0").assertOneGetNewAndReset().get("val");
-        assertEquals(2, result.size());
+        env.assertEventNew("s0", event -> {
+            Collection result = (Collection) event.get("val");
+            assertEquals(2, result.size());
+        });
 
         env.undeployAll();
     }
@@ -285,6 +281,6 @@ public class ExprEnumExceptIntersectUnion {
 
     private static void sendAndAssert(RegressionEnvironment env, String metaOne, String metaTwo, boolean expected) {
         env.sendEventObjectArray(new Object[]{metaOne.split(","), metaTwo.split(",")}, "Event");
-        assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", expected);
     }
 }

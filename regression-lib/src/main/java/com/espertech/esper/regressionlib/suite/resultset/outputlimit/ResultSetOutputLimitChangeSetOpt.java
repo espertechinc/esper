@@ -124,14 +124,16 @@ public class ResultSetOutputLimitChangeSetOpt implements RegressionExecution {
     }
 
     private void assertResourcesOutputRate(RegressionEnvironment env, int numExpectedChangeset) {
-        EPStatementSPI spi = (EPStatementSPI) env.statement("s0");
-        StatementResourceHolder resources = spi.getStatementContext().getStatementCPCacheService().getStatementResourceService().getResourcesUnpartitioned();
-        OutputProcessView outputProcessView = (OutputProcessView) resources.getFinalView();
-        try {
-            Assert.assertEquals("enableOutputLimitOpt=" + enableOutputLimitOpt, numExpectedChangeset, outputProcessView.getNumChangesetRows());
-        } catch (UnsupportedOperationException ex) {
-            // allowed
-        }
+        env.assertStatement("s0", statement -> {
+            EPStatementSPI spi = (EPStatementSPI) statement;
+            StatementResourceHolder resources = spi.getStatementContext().getStatementCPCacheService().getStatementResourceService().getResourcesUnpartitioned();
+            OutputProcessView outputProcessView = (OutputProcessView) resources.getFinalView();
+            try {
+                Assert.assertEquals("enableOutputLimitOpt=" + enableOutputLimitOpt, numExpectedChangeset, outputProcessView.getNumChangesetRows());
+            } catch (UnsupportedOperationException ex) {
+                // allowed
+            }
+        });
     }
 
     private static void sendTime(RegressionEnvironment env, long currentTime) {

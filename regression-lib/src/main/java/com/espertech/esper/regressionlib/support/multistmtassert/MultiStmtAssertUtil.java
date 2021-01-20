@@ -160,7 +160,7 @@ public class MultiStmtAssertUtil {
             String name = "s" + i;
             EPLWithInvokedFlags desc = descriptors.get(i);
             String message = "Failed at event " + event + " statement " + i + " epl [" + desc.epl() + "]";
-            assertEquals(message, desc.getReceived()[event], env.listener(name).getAndClearIsInvoked());
+            env.assertListenerInvokedFlag(name, desc.getReceived()[event], message);
         }
     }
 

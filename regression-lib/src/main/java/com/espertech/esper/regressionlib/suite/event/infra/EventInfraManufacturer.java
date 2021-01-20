@@ -15,10 +15,12 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.event.core.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -99,6 +101,10 @@ public class EventInfraManufacturer implements RegressionExecution {
         underlyingAssertion.accept(underlying);
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
     }
 
     private WriteablePropertyDescriptor findProp(Set<WriteablePropertyDescriptor> writables, String propertyName) {

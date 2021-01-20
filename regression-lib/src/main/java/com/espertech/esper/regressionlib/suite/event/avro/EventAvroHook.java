@@ -17,7 +17,6 @@ import com.espertech.esper.common.client.hook.type.TypeRepresentationMapper;
 import com.espertech.esper.common.client.hook.type.TypeRepresentationMapperContext;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -28,6 +27,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.TypeWidenerSPI;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithLocalDateTime;
 import org.apache.avro.Schema;
@@ -36,6 +36,7 @@ import org.apache.avro.generic.GenericData;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -69,7 +70,7 @@ public class EventAvroHook {
 
             LocalDateTime now = LocalDateTime.now();
             env.sendEventBean(new SupportEventWithLocalDateTime(now));
-            assertEquals(DateTimeFormatter.ISO_DATE_TIME.format(now), env.listener("s0").assertOneGetNewAndReset().get("isodate"));
+            env.assertEqualsNew("s0", "isodate", DateTimeFormatter.ISO_DATE_TIME.format(now));
 
             env.undeployAll();
         }
@@ -80,16 +81,17 @@ public class EventAvroHook {
      */
     private static class EventAvroHookSchemaFromClass implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') " + EventRepresentationChoice.AVRO.getAnnotationText() + "insert into MyEventOut select " + EventAvroHook.class.getName() + ".makeLocalDateTime() as isodate from SupportBean as e1";
+            String epl = "@name('s0') @public " + EventRepresentationChoice.AVRO.getAnnotationText() + "insert into MyEventOut select " + EventAvroHook.class.getName() + ".makeLocalDateTime() as isodate from SupportBean as e1";
             env.compileDeploy(epl).addListener("s0");
 
-            Schema schema = SupportAvroUtil.getAvroSchema(env.statement("s0").getEventType());
+            Schema schema = env.runtimeAvroSchemaByDeployment("s0", "MyEventOut");
             assertEquals("{\"type\":\"record\",\"name\":\"MyEventOut\",\"fields\":[{\"name\":\"isodate\",\"type\":\"string\"}]}", schema.toString());
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportAvroUtil.avroToJson(event);
-            assertTrue(event.get("isodate").toString().length() > 10);
+            env.assertEventNew("s0", event -> {
+                SupportAvroUtil.avroToJson(event);
+                assertTrue(event.get("isodate").toString().length() > 10);
+            });
 
             env.undeployAll();
         }
@@ -106,10 +108,13 @@ public class EventAvroHook {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(10));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("{\"sb\":{\"theString\":\"E1\",\"intPrimitive\":10}}", SupportAvroUtil.avroToJson(event));
+            env.assertEventNew("s0", event -> assertEquals("{\"sb\":{\"theString\":\"E1\",\"intPrimitive\":10}}", SupportAvroUtil.avroToJson(event)));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -121,7 +126,7 @@ public class EventAvroHook {
             env.compileDeploy("insert into MyWindow select * from MyEventWSchema", path);
             env.compileDeploy("on SupportBean thebean update MyWindow set sb = thebean", path);
 
-            Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("MyEventWSchema"));
+            Schema schema = env.runtimeAvroSchemaPreconfigured("MyEventWSchema");
             GenericData.Record event = new GenericData.Record(schema);
             env.sendEventAvro(event, "MyEventWSchema");
             env.sendEventBean(new SupportBean("E1", 10));
@@ -130,6 +135,10 @@ public class EventAvroHook {
             assertEquals("{\"sb\":{\"SupportBeanSchema\":{\"theString\":\"E1\",\"intPrimitive\":10}}}", SupportAvroUtil.avroToJson(eventBean));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 

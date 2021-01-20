@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
@@ -46,7 +47,7 @@ public class EPLVariablesEventTyped {
     private static class EPLVariableInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             try {
-                env.runtime().getVariableService().setVariableValue(null, "vars0_A", new SupportBean_S1(1));
+                env.runtimeSetVariable(null, "vars0_A", new SupportBean_S1(1));
                 fail();
             } catch (VariableValueException ex) {
                 assertEquals("Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type '" + SupportBean_S1.class.getName() + "'", ex.getMessage());
@@ -57,6 +58,10 @@ public class EPLVariablesEventTyped {
 
             env.tryInvalidCompile("on SupportBean_S0 arrival set vars0_A = 1",
                 "Failed to validate assignment expression 'vars0_A=1': Variable 'vars0_A' of declared event type 'SupportBean_S0' underlying type '" + SupportBean_S0.class.getName() + "' cannot be assigned a value of type 'int'");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -70,37 +75,36 @@ public class EPLVariablesEventTyped {
                 "create variable long varobj;\n" +
                 "create variable long varobjnull;\n";
             env.compileDeploy(vars, path);
-            String deploymentId = env.deploymentId("vars");
 
             String[] fields = "c0,c1,c2,c3,c4,c5,c6".split(",");
             String stmtSelectText = "@Name('Select') select varbean.theString as c0,varbean.intPrimitive as c1,vars0.id as c2,vars0.p00 as c3,varobj as c4,varbeannull.theString as c5, varobjnull as c6 from SupportBean_A";
             env.compileDeploy(stmtSelectText, path).addListener("Select");
 
             env.sendEventBean(new SupportBean_A("A1"));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{null, null, null, null, null, null, null});
+            env.assertPropsNew("Select", fields, new Object[]{null, null, null, null, null, null, null});
 
             // update via API
-            env.runtime().getVariableService().setVariableValue(deploymentId, "varobj", 101L);
-            env.runtime().getVariableService().setVariableValue(deploymentId, "vars0", new SupportBean_S0(1, "S01"));
-            env.runtime().getVariableService().setVariableValue(deploymentId, "varbean", new SupportBean("E1", -1));
+            env.runtimeSetVariable("vars", "varobj", 101L);
+            env.runtimeSetVariable("vars", "vars0", new SupportBean_S0(1, "S01"));
+            env.runtimeSetVariable("vars", "varbean", new SupportBean("E1", -1));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_A("A2"));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"E1", -1, 1, "S01", 101L, null, null});
+            env.assertPropsNew("Select", fields, new Object[]{"E1", -1, 1, "S01", 101L, null, null});
 
             env.milestone(1);
 
             // update properties via on-set
             String stmtUpdateText = "@Name('Update') on SupportBean_B set varbean.theString = 'EX', varbean.intPrimitive = -999";
             env.compileDeploy(stmtUpdateText, path);
-            assertEquals(StatementType.ON_SET, env.statement("Update").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("Update", statement -> assertEquals(StatementType.ON_SET, statement.getProperty(StatementProperty.STATEMENTTYPE)));
             env.sendEventBean(new SupportBean_B("B1"));
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_A("A3"));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"EX", -999, 1, "S01", 101L, null, null});
+            env.assertPropsNew("Select", fields, new Object[]{"EX", -999, 1, "S01", 101L, null, null});
 
             // update full bean via on-set
             stmtUpdateText = "@Name('Update2') on SupportBean(intPrimitive = 0) as sb set varbean = sb";
@@ -112,7 +116,7 @@ public class EPLVariablesEventTyped {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_A("A4"));
-            EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 0, 1, "S01", 101L, null, null});
+            env.assertPropsNew("Select", fields, new Object[]{"E2", 0, 1, "S01", 101L, null, null});
 
             env.undeployAll();
         }
@@ -141,6 +145,10 @@ public class EPLVariablesEventTyped {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class EPLVariableEventTypedSetProp implements RegressionExecution {
@@ -158,7 +166,7 @@ public class EPLVariablesEventTyped {
             env.compileDeploy("@name('set') on SupportBean_A set varbean.theString = 'A', varbean.intPrimitive = 1", path);
             env.addListener("set");
             env.sendEventBean(new SupportBean_A("E1"));
-            env.listener("set").reset();
+            env.listenerReset("set");
 
             env.milestone(0);
 
@@ -166,10 +174,10 @@ public class EPLVariablesEventTyped {
             env.assertPropsNew("s0", fields, new Object[]{null, null, null});
 
             SupportBean setBean = new SupportBean();
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("create"), "varbean", setBean);
+            env.runtimeSetVariable("create", "varbean", setBean);
             env.sendEventBean(new SupportBean_A("E2"));
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), "varbean.theString,varbean.intPrimitive".split(","), new Object[]{"A", 1});
-            EPAssertionUtil.assertProps(env.iterator("set").next(), "varbean.theString,varbean.intPrimitive".split(","), new Object[]{"A", 1});
+            env.assertPropsNew("set", "varbean.theString,varbean.intPrimitive".split(","), new Object[]{"A", 1});
+            env.assertIterator("s0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "varbean.theString,varbean.intPrimitive".split(","), new Object[]{"A", 1}));
 
             env.milestone(1);
 
@@ -193,6 +201,10 @@ public class EPLVariablesEventTyped {
             assertEquals(1, ((SupportBean) env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "varbean")).getLongPrimitive());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -238,8 +250,8 @@ public class EPLVariablesEventTyped {
             assertEquals(1, env.runtime().getVariableService().getVariableValue(depIdVarobject, "varobject"));
             assertEquals(s0objectTwo, env.runtime().getVariableService().getVariableValue(depIdVartype, "vartype"));
             assertEquals(s0objectTwo, env.runtime().getVariableService().getVariableValue(Collections.singleton(new DeploymentIdNamePair(depIdVartype, "vartype"))).get(new DeploymentIdNamePair(depIdVartype, "vartype")));
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsTop, new Object[]{1, s0objectTwo, null});
-            EPAssertionUtil.assertProps(env.iterator("set").next(), fieldsTop, new Object[]{1, s0objectTwo, null});
+            env.assertPropsNew("set", fieldsTop, new Object[]{1, s0objectTwo, null});
+            env.assertIterator("set", iterator -> EPAssertionUtil.assertProps(iterator.next(), fieldsTop, new Object[]{1, s0objectTwo, null}));
 
             // set via API to null
             Map<DeploymentIdNamePair, Object> newValues = new HashMap<>();
@@ -266,10 +278,14 @@ public class EPLVariablesEventTyped {
             assertEquals(null, env.runtime().getVariableService().getVariableValue(depIdVarobject, "varobject"));
             assertEquals(null, env.runtime().getVariableService().getVariableValue(depIdVartype, "vartype"));
             assertEquals(a1objectTwo, env.runtime().getVariableService().getVariableValue(Collections.singleton(new DeploymentIdNamePair(depIdVarbean, "varbean"))).get(new DeploymentIdNamePair(depIdVarbean, "varbean")));
-            EPAssertionUtil.assertProps(env.listener("set-two").assertOneGetNewAndReset(), fieldsTop, new Object[]{null, null, a1objectTwo});
-            EPAssertionUtil.assertProps(env.iterator("set-two").next(), fieldsTop, new Object[]{null, null, a1objectTwo});
+            env.assertPropsNew("set-two", fieldsTop, new Object[]{null, null, a1objectTwo});
+            env.assertIterator("set-two", iterator -> EPAssertionUtil.assertProps(iterator.next(), fieldsTop, new Object[]{null, null, a1objectTwo}));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 

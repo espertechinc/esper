@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportLegacyBeanInt;
@@ -24,15 +23,15 @@ public class EventBeanJavaBeanAccessor implements RegressionExecution {
             " from MyLegacyTwo#length(5)";
         env.compileDeploy(statementText).addListener("s0");
 
-        EventType eventType = env.statement("s0").getEventType();
-
         SupportLegacyBeanInt theEvent = new SupportLegacyBeanInt(10);
         env.sendEventBean(theEvent, "MyLegacyTwo");
 
-        for (String name : new String[]{"intPrimitive", "explicitFInt", "explicitMGetInt", "explicitMReadInt"}) {
-            assertEquals(Integer.class, eventType.getPropertyType(name));
-            assertEquals(10, env.listener("s0").getLastNewData()[0].get(name));
-        }
+        env.assertEventNew("s0", event -> {
+            for (String name : new String[]{"intPrimitive", "explicitFInt", "explicitMGetInt", "explicitMReadInt"}) {
+                assertEquals(Integer.class, event.getEventType().getPropertyType(name));
+                assertEquals(10, event.get(name));
+            }
+        });
 
         env.undeployAll();
     }

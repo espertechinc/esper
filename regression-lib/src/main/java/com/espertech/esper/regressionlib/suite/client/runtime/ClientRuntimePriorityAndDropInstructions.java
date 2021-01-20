@@ -16,11 +16,13 @@ import com.espertech.esper.common.client.annotation.Priority;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -78,6 +80,10 @@ public class ClientRuntimePriorityAndDropInstructions {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSchedulingDrop implements RegressionExecution {
@@ -97,6 +103,10 @@ public class ClientRuntimePriorityAndDropInstructions {
             assertPrio(listener, null, new int[]{3, 1});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -154,6 +164,10 @@ public class ClientRuntimePriorityAndDropInstructions {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeNamedWindowDrop implements RegressionExecution {
@@ -184,6 +198,10 @@ public class ClientRuntimePriorityAndDropInstructions {
             assertPrio(listener, "E1", new int[]{3, 2});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -227,6 +245,10 @@ public class ClientRuntimePriorityAndDropInstructions {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeAddRemoveStmts implements RegressionExecution {
@@ -254,7 +276,7 @@ public class ClientRuntimePriorityAndDropInstructions {
             assertReceivedSingle(env, "l0,l1", 0, "E3");
 
             env.sendEventBean(new SupportBean("E4", 3));
-            Assert.assertEquals("E4", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E4");
             assertReceivedNone(env, "l0,l1");
 
             String stmtThreeText = "@name('l2') @Drop select * from SupportBean where intPrimitive = 3";
@@ -270,15 +292,15 @@ public class ClientRuntimePriorityAndDropInstructions {
 
             env.undeployModuleContaining("l0");
             env.sendEventBean(new SupportBean("E7", 1));
-            Assert.assertEquals("E7", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E7");
             assertReceivedNone(env, "l1,l2");
 
             String stmtSelectTextTwo = "@name('s1') @Priority(50) select * from SupportBean";
             env.compileDeploy(stmtSelectTextTwo).addListener("s1");
 
             env.sendEventBean(new SupportBean("E8", 1));
-            Assert.assertEquals("E8", env.listener("s0").assertOneGetNewAndReset().get("theString"));
-            Assert.assertEquals("E8", env.listener("s1").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E8");
+            env.assertEqualsNew("s1", "theString", "E8");
             assertReceivedNone(env, "l1,l2");
 
             env.sendEventBean(new SupportBean("E9", 2));
@@ -286,6 +308,10 @@ public class ClientRuntimePriorityAndDropInstructions {
             assertReceivedSingle(env, "l1,l2", 0, "E9");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -315,7 +341,7 @@ public class ClientRuntimePriorityAndDropInstructions {
     private static void assertReceivedNone(RegressionEnvironment env, String namesCSV) {
         String[] names = namesCSV.split(",");
         for (int i = 0; i < names.length; i++) {
-            assertFalse(env.listener(names[i]).isInvoked());
+            env.assertListenerNotInvoked(names[i]);
         }
     }
 

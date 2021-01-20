@@ -52,9 +52,11 @@ public class ResultSetAggregationMethodWindow {
             SupportBean sb1 = makeSendBean(env, "E1", 10);
             SupportBean sb2 = makeSendBean(env, "E1", 10);
             env.sendEventBean(new SupportBean_S0(-1));
-            List<EventBean> events = (List<EventBean>) env.listener("s0").assertOneGetNewAndReset().get("collref");
-            assertEquals(2, events.size());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{events.get(0).getUnderlying(), events.get(1).getUnderlying()}, new SupportBean[]{sb1, sb2});
+            env.assertEventNew("s0", event -> {
+                List<EventBean> events = (List<EventBean>) event.get("collref");
+                assertEquals(2, events.size());
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{events.get(0).getUnderlying(), events.get(1).getUnderlying()}, new SupportBean[]{sb1, sb2});
+            });
 
             env.milestone(0);
 
@@ -137,7 +139,7 @@ public class ResultSetAggregationMethodWindow {
             env.assertPropsNew("s0", fields, new Object[]{"A", sb2, sb4});
 
             SupportBean sb5 = makeSendBean(env, "B", 5);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B", sb5, sb5}, {"A", sb3, sb4}});
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{{"B", sb5, sb5}, {"A", sb3, sb4}});
 
             SupportBean sb6 = makeSendBean(env, "A", 6);
             env.assertPropsNew("s0", fields, new Object[]{"A", sb4, sb6});

@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.wordexample;
 
-public class WordEvent {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class WordEvent implements Serializable {
+    private static final long serialVersionUID = 7165292015464466619L;
     private final String word;
 
     public WordEvent(String word) {

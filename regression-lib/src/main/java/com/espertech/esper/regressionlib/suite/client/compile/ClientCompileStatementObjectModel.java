@@ -50,7 +50,7 @@ public class ClientCompileStatementObjectModel {
 
             Object theEvent = new SupportBean();
             env.sendEventBean(theEvent);
-            Assert.assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertEquals(theEvent, event.getUnderlying()));
 
             env.undeployAll();
         }
@@ -87,8 +87,8 @@ public class ClientCompileStatementObjectModel {
 
             Object theEvent = new SupportBean();
             env.sendEventBean(theEvent);
-            Assert.assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
-            Assert.assertEquals("@name('s0') " + stmtText, env.statement("s0").getProperty(StatementProperty.EPL));
+            env.assertEventNew("s0", event -> assertEquals(theEvent, event.getUnderlying()));
+            env.assertStatement("s0", statement -> Assert.assertEquals("@name('s0') " + stmtText, statement.getProperty(StatementProperty.EPL)));
 
             env.undeployAll();
         }

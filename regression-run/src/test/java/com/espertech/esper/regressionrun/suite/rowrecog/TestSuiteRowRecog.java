@@ -15,7 +15,9 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.suite.rowrecog.*;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
+import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
@@ -97,7 +99,7 @@ public class TestSuiteRowRecog extends TestCase {
     }
 
     public void testRowRecogRepetition() {
-        RegressionRunner.run(session, new RowRecogRepetition());
+        RegressionRunner.run(session, RowRecogRepetition.executions());
     }
 
     public void testRowRecogAggregation() {

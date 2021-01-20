@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -30,11 +29,11 @@ public class EPLOtherComments implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("e1", 100));
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals("e1", theEvent.get("theString"));
-        Assert.assertEquals(100, theEvent.get("intPrimitive"));
-        Assert.assertEquals(100, theEvent.get("myPrimitive"));
-        env.listener("s0").reset();
+        env.assertEventNew("s0", theEvent -> {
+            Assert.assertEquals("e1", theEvent.get("theString"));
+            Assert.assertEquals(100, theEvent.get("intPrimitive"));
+            Assert.assertEquals(100, theEvent.get("myPrimitive"));
+        });
 
         env.sendEventBean(new SupportBean("e1", -1));
         env.assertListenerNotInvoked("s0");

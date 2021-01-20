@@ -99,18 +99,22 @@ public class ExprCoreMinMaxNonAgg {
 
     private static void tryMinMaxWindowStats(RegressionEnvironment env) {
         sendEvent(env, 10, 20, (short) 4);
-        EventBean received = env.listener("s0").getAndResetLastNewData()[0];
-        Assert.assertEquals(20L, received.get("myMax"));
-        Assert.assertEquals(10L, received.get("myMin"));
-        Assert.assertEquals(4L, received.get("myMinEx"));
-        Assert.assertEquals(20L, received.get("myMaxEx"));
+        env.assertListener("s0", listener -> {
+            EventBean received = listener.getAndResetLastNewData()[0];
+            Assert.assertEquals(20L, received.get("myMax"));
+            Assert.assertEquals(10L, received.get("myMin"));
+            Assert.assertEquals(4L, received.get("myMinEx"));
+            Assert.assertEquals(20L, received.get("myMaxEx"));
+        });
 
         sendEvent(env, -10, -20, (short) -30);
-        received = env.listener("s0").getAndResetLastNewData()[0];
-        Assert.assertEquals(-10L, received.get("myMax"));
-        Assert.assertEquals(-20L, received.get("myMin"));
-        Assert.assertEquals(-30L, received.get("myMinEx"));
-        Assert.assertEquals(-10L, received.get("myMaxEx"));
+        env.assertListener("s0", listener -> {
+            EventBean received = listener.getAndResetLastNewData()[0];
+            Assert.assertEquals(-10L, received.get("myMax"));
+            Assert.assertEquals(-20L, received.get("myMin"));
+            Assert.assertEquals(-30L, received.get("myMinEx"));
+            Assert.assertEquals(-10L, received.get("myMaxEx"));
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, long longBoxed, int intBoxed, short shortBoxed) {

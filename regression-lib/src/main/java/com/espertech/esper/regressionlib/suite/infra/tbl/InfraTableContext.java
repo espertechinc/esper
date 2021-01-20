@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -19,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * NOTE: More table-related tests in "nwtable"
@@ -67,7 +64,7 @@ public class InfraTableContext {
 
             env.sendEventBean(new SupportBean("E1", 60));
             env.sendEventBean(new SupportBean_S0(-1)); // terminated
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "c0,c1".split(","),
+            env.assertPropsPerRowLastNewAnyOrder("s0", "c0,c1".split(","),
                 new Object[][]{{"E1", 110}, {"E2", 20}});
 
             env.compileDeploy("context CtxNowTillS0 create index MyIdx on MyTable(col0)", path);
@@ -80,7 +77,7 @@ public class InfraTableContext {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(-1)); // terminated
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "c0,c1".split(","),
+            env.assertPropsPerRowLastNewAnyOrder("s0", "c0,c1".split(","),
                 new Object[][]{{"E1", 30}, {"E3", 100}});
 
             env.undeployAll();
@@ -100,12 +97,12 @@ public class InfraTableContext {
             env.sendEventBean(new SupportBean("E2", 20));
             env.sendEventBean(new SupportBean("E1", 60));
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            assertEquals(110, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 110);
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "E2"));
-            assertEquals(20, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 20);
 
             env.undeployAll();
         }

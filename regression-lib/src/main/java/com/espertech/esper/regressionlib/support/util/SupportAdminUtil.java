@@ -15,6 +15,7 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 import com.espertech.esper.runtime.client.stage.EPStage;
 import com.espertech.esper.runtime.internal.kernel.service.DeploymentInternal;
 import com.espertech.esper.runtime.internal.kernel.service.EPDeploymentServiceSPI;
@@ -29,13 +30,24 @@ import static org.junit.Assert.assertEquals;
 
 public class SupportAdminUtil {
     public static void assertStatelessStmt(RegressionEnvironment env, String stmtname, boolean flag) {
-        EPStatementSPI stmt = (EPStatementSPI) getRequireStatement(stmtname, env.runtime());
-        assertEquals(flag, stmt.getStatementContext().isStatelessSelect());
+        env.assertStatement(stmtname, statement -> {
+            EPStatementSPI stmt = (EPStatementSPI) statement;
+            assertEquals(flag, stmt.getStatementContext().isStatelessSelect());
+        });
     }
 
     public static SupportListener getRequireStatementListener(String statementName, EPRuntime runtime) {
         EPStatement statement = getRequireStatement(statementName, runtime);
         return getRequireListener(statementName, statement);
+    }
+
+    public static SupportSubscriber getRequireStatementSubscriber(String statementName, EPRuntime runtime) {
+        EPStatement statement = getRequireStatement(statementName, runtime);
+        SupportSubscriber subscriber = (SupportSubscriber) statement.getSubscriber();
+        if (subscriber == null) {
+            throw new IllegalArgumentException("Subscriber not set for statement '" + statementName + "'");
+        }
+        return subscriber;
     }
 
     public static SupportListener getRequireStatementListener(String statementName, String stageUri, EPRuntime runtime) {

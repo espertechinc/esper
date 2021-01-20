@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanCombinedProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
@@ -22,6 +23,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -53,84 +55,99 @@ public class EventMapNested {
 
             // test all properties exist
             String[] fields = "a".split(",");
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "mapOne")});
+            env.assertPropsNew("s0", fields, new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "mapOne")});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
     private static class EventMapNestedEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') select * from NestedMap");
-            EventType eventType = env.statement("s0").getEventType();
-
-            String[] propertiesReceived = eventType.getPropertyNames();
-            String[] propertiesExpected = new String[]{"simple", "object", "nodefmap", "map"};
-            EPAssertionUtil.assertEqualsAnyOrder(propertiesReceived, propertiesExpected);
-            assertEquals(String.class, eventType.getPropertyType("simple"));
-            assertEquals(Map.class, eventType.getPropertyType("map"));
-            assertEquals(Map.class, eventType.getPropertyType("nodefmap"));
-            assertEquals(SupportBean_A.class, eventType.getPropertyType("object"));
-
-            assertNull(eventType.getPropertyType("map.mapOne.simpleOne"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                String[] propertiesReceived = eventType.getPropertyNames();
+                String[] propertiesExpected = new String[]{"simple", "object", "nodefmap", "map"};
+                EPAssertionUtil.assertEqualsAnyOrder(propertiesReceived, propertiesExpected);
+                assertEquals(String.class, eventType.getPropertyType("simple"));
+                assertEquals(Map.class, eventType.getPropertyType("map"));
+                assertEquals(Map.class, eventType.getPropertyType("nodefmap"));
+                assertEquals(SupportBean_A.class, eventType.getPropertyType("object"));
+                assertNull(eventType.getPropertyType("map.mapOne.simpleOne"));
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
     private static class EventMapNestedNestedPojo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String statementText = "@name('s0') select " +
-                "simple, object, nodefmap, map, " +
-                "object.id as a1, nodefmap.key1? as a2, nodefmap.key2? as a3, nodefmap.key3?.key4 as a4, " +
-                "map.objectOne as b1, map.simpleOne as b2, map.nodefmapOne.key2? as b3, map.mapOne.simpleTwo? as b4, " +
-                "map.objectOne.indexed[1] as c1, map.objectOne.nested.nestedValue as c2," +
-                "map.mapOne.simpleTwo as d1, map.mapOne.objectTwo as d2, map.mapOne.nodefmapTwo as d3, " +
-                "map.mapOne.mapTwo as e1, map.mapOne.mapTwo.simpleThree as e2, map.mapOne.mapTwo.objectThree as e3, " +
-                "map.mapOne.objectTwo.array[1].mapped('1ma').value as f1, map.mapOne.mapTwo.objectThree.id as f2" +
-                " from NestedMap#length(5)";
+                    "simple, object, nodefmap, map, " +
+                    "object.id as a1, nodefmap.key1? as a2, nodefmap.key2? as a3, nodefmap.key3?.key4 as a4, " +
+                    "map.objectOne as b1, map.simpleOne as b2, map.nodefmapOne.key2? as b3, map.mapOne.simpleTwo? as b4, " +
+                    "map.objectOne.indexed[1] as c1, map.objectOne.nested.nestedValue as c2," +
+                    "map.mapOne.simpleTwo as d1, map.mapOne.objectTwo as d2, map.mapOne.nodefmapTwo as d3, " +
+                    "map.mapOne.mapTwo as e1, map.mapOne.mapTwo.simpleThree as e2, map.mapOne.mapTwo.objectThree as e3, " +
+                    "map.mapOne.objectTwo.array[1].mapped('1ma').value as f1, map.mapOne.mapTwo.objectThree.id as f2" +
+                    " from NestedMap#length(5)";
             env.compileDeploy(statementText).addListener("s0");
 
-            Map<String, Object> testdata = getTestData();
-            env.sendEventMap(testdata, "NestedMap");
+            Map<String, Object> testdataOne = getTestData();
+            env.sendEventMap(testdataOne, "NestedMap");
 
             // test all properties exist
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
-                new Object[]{"abc", new SupportBean_A("A1"), testdata.get("nodefmap"), testdata.get("map")});
-            EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
-                new Object[]{"A1", "val1", null, null});
-            EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
-                new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "objectOne"), 10, "val2", 300});
-            EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{2, "nestedValue"});
-            EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
-                new Object[]{300, EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "objectTwo"), EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "nodefmapTwo")});
-            EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
-                new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "mapTwo"), 4000L, new SupportBean_B("B1")});
-            EPAssertionUtil.assertProps(received, "f1,f2".split(","),
-                new Object[]{"1ma0", "B1"});
+            env.assertListener("s0", listener -> {
+                EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
+                        new Object[]{"abc", new SupportBean_A("A1"), testdataOne.get("nodefmap"), testdataOne.get("map")});
+                EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
+                        new Object[]{"A1", "val1", null, null});
+                EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
+                        new Object[]{EventMapCore.getNestedKeyMap(testdataOne, "map", "objectOne"), 10, "val2", 300});
+                EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{2, "nestedValue"});
+                EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
+                        new Object[]{300, EventMapCore.getNestedKeyMap(testdataOne, "map", "mapOne", "objectTwo"), EventMapCore.getNestedKeyMap(testdataOne, "map", "mapOne", "nodefmapTwo")});
+                EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
+                        new Object[]{EventMapCore.getNestedKeyMap(testdataOne, "map", "mapOne", "mapTwo"), 4000L, new SupportBean_B("B1")});
+                EPAssertionUtil.assertProps(received, "f1,f2".split(","),
+                        new Object[]{"1ma0", "B1"});
+            });
 
             // test partial properties exist
-            testdata = getTestDataThree();
-            env.sendEventMap(testdata, "NestedMap");
+            Map<String, Object> testdataTwo = getTestDataThree();
+            env.sendEventMap(testdataTwo, "NestedMap");
 
-            received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
-                new Object[]{"abc", new SupportBean_A("A1"), testdata.get("nodefmap"), testdata.get("map")});
-            EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
-                new Object[]{"A1", "val1", null, null});
-            EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
-                new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "objectOne"), null, null, null});
-            EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{null, null});
-            EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
-                new Object[]{null, EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "objectTwo"), EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "nodefmapTwo")});
-            EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
-                new Object[]{EventMapCore.getNestedKeyMap(testdata, "map", "mapOne", "mapTwo"), 4000L, null});
-            EPAssertionUtil.assertProps(received, "f1,f2".split(","),
-                new Object[]{"1ma0", null});
+            env.assertListener("s0", listener -> {
+                EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
+                        new Object[]{"abc", new SupportBean_A("A1"), testdataTwo.get("nodefmap"), testdataTwo.get("map")});
+                EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
+                        new Object[]{"A1", "val1", null, null});
+                EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
+                        new Object[]{EventMapCore.getNestedKeyMap(testdataTwo, "map", "objectOne"), null, null, null});
+                EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{null, null});
+                EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
+                        new Object[]{null, EventMapCore.getNestedKeyMap(testdataTwo, "map", "mapOne", "objectTwo"), EventMapCore.getNestedKeyMap(testdataTwo, "map", "mapOne", "nodefmapTwo")});
+                EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
+                        new Object[]{EventMapCore.getNestedKeyMap(testdataTwo, "map", "mapOne", "mapTwo"), 4000L, null});
+                EPAssertionUtil.assertProps(received, "f1,f2".split(","),
+                        new Object[]{"1ma0", null});
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -152,19 +169,19 @@ public class EventMapNested {
 
             // test all properties exist
             String[] fields = "a,b,c,d,e,f,g".split(",");
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields,
-                new Object[]{true, false, true, true, true, true, true});
+            env.assertPropsNew("s0", fields, new Object[]{true, false, true, true, true, true, true});
 
             // test partial properties exist
             testdata = getTestDataThree();
             env.sendEventMap(testdata, "NestedMap");
 
-            received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields,
-                new Object[]{true, false, false, true, true, true, false});
+            env.assertPropsNew("s0", fields, new Object[]{true, false, false, true, true, true, false});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 

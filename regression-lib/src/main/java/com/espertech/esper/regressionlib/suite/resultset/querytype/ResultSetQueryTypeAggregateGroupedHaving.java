@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -57,8 +55,7 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
             env.sendEventBean(new SupportBean("E2", 20));
             env.sendEventBean(new SupportBean("E2", 21));
 
-            EventBean[] received = env.listener("s0").getNewDataListFlattened();
-            EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive".split(","),
+            env.assertPropsPerRowNewFlattened("s0", "theString,intPrimitive".split(","),
                 new Object[][]{{"E2", 20}, {"E2", 21}});
 
             env.undeployAll();
@@ -110,9 +107,11 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
 
     private static void tryAssertionSum(RegressionEnvironment env) {
         // assert select result type
-        Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("volume"));
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> {
+            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+        });
 
         String[] fields = "symbol,volume,mySum".split(",");
         sendEvent(env, SYMBOL_DELL, 10000, 49);

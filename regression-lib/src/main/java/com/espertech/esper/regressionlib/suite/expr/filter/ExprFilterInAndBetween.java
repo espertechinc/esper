@@ -16,7 +16,9 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
@@ -57,8 +59,9 @@ public class ExprFilterInAndBetween {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("A", 1));
-            env.listener("s2").assertOneGetNewAndReset();
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertEventNew("s2", event -> {
+            });
+            env.assertListenerNotInvoked("s1");
 
             env.undeployAll();
         }
@@ -76,8 +79,9 @@ public class ExprFilterInAndBetween {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("A", 0));
-            env.listener("B").assertOneGetNewAndReset();
-            assertFalse(env.listener("A").getAndClearIsInvoked());
+            env.assertEventNew("B", event -> {
+            });
+            env.assertListenerNotInvoked("A");
 
             env.undeployAll();
         }
@@ -135,7 +139,7 @@ public class ExprFilterInAndBetween {
             Set<SupportEnum> types = new HashSet<>();
             types.add(SupportEnum.ENUM_VALUE_2);
             EPCompiled compiled = env.compile("@name('s0') select * from SupportBean ev " + "where ev.enumValue in (?::java.util.Collection)");
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> prepared.setObject(1, types)));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, types)));
             env.addListener("s0");
 
             SupportBean theEvent = new SupportBean();
@@ -281,6 +285,10 @@ public class ExprFilterInAndBetween {
             exprThree = "select * from SupportBean(intBoxed in (3), bytePrimitive < 1)";
             tryReuse(env, new String[]{exprOne, exprTwo, exprThree}, milestone);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ExprFilterReuseNot implements RegressionExecution {
@@ -304,6 +312,10 @@ public class ExprFilterInAndBetween {
             exprTwo = "select * from SupportBean(intBoxed not in [1:3))";
             exprThree = "select * from SupportBean(intBoxed not in (1,1,1,33))";
             tryReuse(env, new String[]{exprOne, exprTwo, exprThree}, milestone);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
@@ -44,7 +43,7 @@ public class ExprDTRound {
                 "zoneddate.roundCeiling('hour') as val4" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             String startTime = "2002-05-30T09:01:02.003";
             String expectedTime = "2002-5-30T10:00:00.000";
@@ -69,7 +68,7 @@ public class ExprDTRound {
                 "utildate.roundCeiling('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.003",
@@ -102,7 +101,7 @@ public class ExprDTRound {
                 "utildate.roundFloor('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T09:01:02.003",
@@ -124,7 +123,7 @@ public class ExprDTRound {
     private static class ExprDTRoundHalf implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String[] fields = "val0,val1,val2,val3,val4,val5,val6".split(",");
+            final String[] fields = "val0,val1,val2,val3,val4,val5,val6".split(",");
             String eplFragment = "@name('s0') select " +
                 "utildate.roundHalf('msec') as val0," +
                 "utildate.roundHalf('sec') as val1," +
@@ -135,7 +134,7 @@ public class ExprDTRound {
                 "utildate.roundHalf('year') as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, DATE.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, DATE.getEPType());
 
             String[] expected = {
                 "2002-05-30T15:30:02.550",
@@ -152,18 +151,18 @@ public class ExprDTRound {
 
             // test rounding up/down
             env.undeployAll();
-            fields = "val0".split(",");
+            String[] fieldsVal0 = "val0".split(",");
             eplFragment = "@name('s0') select utildate.roundHalf('min') as val0 from SupportDateTime";
             env.compileDeployAddListenerMile(eplFragment, "s0", 1);
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:29.999"));
-            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
+            env.assertPropsNew("s0", fieldsVal0, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:30:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.000"));
-            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsNew("s0", fieldsVal0, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.sendEventBean(SupportDateTime.make("2002-05-30T15:30:30.001"));
-            env.assertPropsNew("s0", fields, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
+            env.assertPropsNew("s0", fieldsVal0, new Object[]{SupportDateTime.getValueCoerced("2002-05-30T15:31:00.000", "util")});
 
             env.undeployAll();
         }

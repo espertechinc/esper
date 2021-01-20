@@ -43,12 +43,14 @@ public class ExprClassTypeUse {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            Object result = env.listener("s0").assertOneGetNewAndReset().get("c0");
-            try {
-                assertEquals("E1", result.getClass().getMethod("getId").invoke(result));
-            } catch (Throwable t) {
-                fail(t.getMessage());
-            }
+            env.assertEventNew("s0", event -> {
+                Object result = event.get("c0");
+                try {
+                    assertEquals("E1", result.getClass().getMethod("getId").invoke(result));
+                } catch (Throwable t) {
+                    fail(t.getMessage());
+                }
+            });
 
             env.undeployAll();
         }
@@ -110,6 +112,6 @@ public class ExprClassTypeUse {
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, int intPrimitive, Object expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 }

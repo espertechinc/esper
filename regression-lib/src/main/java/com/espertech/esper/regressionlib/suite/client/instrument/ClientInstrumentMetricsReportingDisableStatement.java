@@ -15,7 +15,10 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPStatement;
+
+import java.util.EnumSet;
 
 public class ClientInstrumentMetricsReportingDisableStatement implements RegressionExecution {
     private final static long CPUGOALONENANO = 80 * 1000 * 1000;
@@ -58,6 +61,10 @@ public class ClientInstrumentMetricsReportingDisableStatement implements Regress
         EPAssertionUtil.assertPropsPerRow(env.listener("MyStatement@METRIC").getNewDataListFlattened(), fields, new Object[][]{{"stmtone"}});
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.RUNTIMEOPS);
     }
 
     private void sendTimer(RegressionEnvironment env, long currentTime) {

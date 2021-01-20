@@ -10,12 +10,9 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-
-import static org.junit.Assert.assertEquals;
 
 public class EPLJoin2StreamSimple implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -30,20 +27,14 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.milestone(1);
 
         env.sendEventBean(makeMarketDataEvent("S1", 20, 1));
-        env.assertPropsPerRowNewFlattened("s0",
-            new String[]{"s0.price", "s1.price"},
-            new Object[][]{{100.0, 20.0}});
-        assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPairFlattened("s0", new String[]{"s0.price", "s1.price"},
+            new Object[][]{{100.0, 20.0}}, null);
 
         env.milestone(2);
 
         env.sendEventBean(makeMarketDataEvent("S1", 21, 1));
-        env.assertPropsPerRowNewFlattened("s0",
-            new String[]{"s0.price", "s1.price"},
-            new Object[][]{{100.0, 21.0}});
-        assertEquals(0, env.listener("s0").getOldDataListFlattened().length);
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPairFlattened("s0", new String[]{"s0.price", "s1.price"},
+            new Object[][]{{100.0, 21.0}}, null);
 
         env.milestone(3);
 
@@ -53,11 +44,7 @@ public class EPLJoin2StreamSimple implements RegressionExecution {
         env.milestone(4);
 
         env.sendEventBean(makeMarketDataEvent("S1", 23, 3));
-        assertEquals(0, env.listener("s0").getNewDataListFlattened().length);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getOldDataListFlattened(),
-            new String[]{"s0.price", "s1.price"},
-            new Object[][]{{100.0, 20.0}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowIRPairFlattened("s0", new String[]{"s0.price", "s1.price"}, null, new Object[][]{{100.0, 20.0}});
 
         env.milestone(5);
 

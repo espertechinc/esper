@@ -17,6 +17,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -152,15 +153,17 @@ public class ContextDocExamples implements RegressionExecution {
                 return Collections.singleton("small");
             }
         };
-        env.statement("s0").iterator(categorySmall);
+        env.assertStatement("s0", statement -> statement.iterator(categorySmall));
         ContextPartitionSelectorCategory categorySmallMed = new ContextPartitionSelectorCategory() {
             public Set<String> getLabels() {
                 return new HashSet<String>(Arrays.asList("small", "medium"));
             }
         };
         create(env, path, "context TxnCategoryContext create window BankTxnWindow#time(1 min) as BankTxn");
-        EPCompiled faf = env.compileFAF("select count(*) from BankTxnWindow", path);
-        env.runtime().getFireAndForgetService().executeQuery(faf, new ContextPartitionSelector[]{categorySmallMed});
+        env.assertThat(() -> {
+            EPCompiled faf = env.compileFAF("select count(*) from BankTxnWindow", path);
+            env.runtime().getFireAndForgetService().executeQuery(faf, new ContextPartitionSelector[]{categorySmallMed});
+        });
 
         create(env, path, "create context CtxPerKeysAndExternallyControlled\n" +
             "context PartitionedByKeys " +
@@ -207,7 +210,11 @@ public class ContextDocExamples implements RegressionExecution {
         env.compileDeploy(epl, path);
     }
 
-    public static class CumulativePrice {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class CumulativePrice implements Serializable {
+        private static final long serialVersionUID = 9014929529896161730L;
         private String venue;
         private String ccyPair;
         private String side;
@@ -230,7 +237,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class TrainLeaveEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class TrainLeaveEvent implements Serializable {
+        private static final long serialVersionUID = -3741525865638317924L;
         private int trainId;
 
         public int getTrainId() {
@@ -238,7 +249,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class TrainEnterEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class TrainEnterEvent implements Serializable {
+        private static final long serialVersionUID = -2238724385975216543L;
         private int trainId;
 
         public int getTrainId() {
@@ -246,7 +261,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class TrafficEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class TrafficEvent implements Serializable {
+        private static final long serialVersionUID = 1251960627423893435L;
         private double speed;
 
         public double getSpeed() {
@@ -254,7 +273,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class SensorEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SensorEvent implements Serializable {
+        private static final long serialVersionUID = 1346876762922000542L;
         private double temp;
         private int key1;
         private int key2;
@@ -280,7 +303,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class LoginEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class LoginEvent implements Serializable {
+        private static final long serialVersionUID = 628574410510947198L;
         private String loginId;
         private boolean failed;
 
@@ -293,7 +320,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class LogoutEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class LogoutEvent implements Serializable {
+        private static final long serialVersionUID = 6905108302835558953L;
         private String loginId;
 
         public String getLoginId() {
@@ -301,7 +332,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class SecurityEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SecurityEvent implements Serializable {
+        private static final long serialVersionUID = -2358984409391816529L;
         private String customerName;
 
         public String getCustomerName() {
@@ -309,7 +344,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class BankTxn {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class BankTxn implements Serializable {
+        private static final long serialVersionUID = 6178558635234977770L;
         private String custId;
         private String account;
         private long amount;
@@ -342,8 +381,12 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class PassengerScanEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class PassengerScanEvent implements Serializable {
 
+        private static final long serialVersionUID = -4874274583937837535L;
         private final String tagId;
 
         public PassengerScanEvent(String tagId) {
@@ -355,7 +398,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyStartEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyStartEvent implements Serializable {
+        private static final long serialVersionUID = 1497138945305730024L;
         private int id;
         private int level;
 
@@ -368,7 +415,10 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyEndEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyEndEvent implements Serializable {
         private int id;
         private int level;
 
@@ -381,7 +431,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyInitEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyInitEvent implements Serializable {
+        private static final long serialVersionUID = -694892870132404711L;
         private int id;
         private int level;
 
@@ -394,7 +448,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyTermEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyTermEvent implements Serializable {
+        private static final long serialVersionUID = -7490196721202366347L;
         private int id;
         private int level;
 
@@ -407,7 +465,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyEvent implements Serializable {
+        private static final long serialVersionUID = 7339025981770793534L;
         private int id;
         private int level;
 
@@ -420,7 +482,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyTwoKeyInit {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyTwoKeyInit implements Serializable {
+        private static final long serialVersionUID = 3089122725849048608L;
         private int key1;
         private int key2;
 
@@ -433,7 +499,11 @@ public class ContextDocExamples implements RegressionExecution {
         }
     }
 
-    public static class MyTwoKeyTerm {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyTwoKeyTerm implements Serializable {
+        private static final long serialVersionUID = -835214298004310922L;
         private int key1;
         private int key2;
 

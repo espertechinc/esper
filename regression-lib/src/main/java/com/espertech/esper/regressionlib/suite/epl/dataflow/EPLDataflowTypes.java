@@ -27,6 +27,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.dataflow.SupportGenericOutputOpWPort;
 
@@ -64,6 +65,10 @@ public class EPLDataflowTypes {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowMapType implements RegressionExecution {
@@ -86,6 +91,10 @@ public class EPLDataflowTypes {
             EPAssertionUtil.assertPropsPerRow(outputTwo.getAndReset().get(0).toArray(), "p0,p1".split(","), new Object[][]{{"E1", 1}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

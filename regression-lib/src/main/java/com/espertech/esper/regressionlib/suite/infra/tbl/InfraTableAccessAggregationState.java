@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
@@ -78,7 +77,7 @@ public class InfraTableAccessAggregationState {
             Object[][] expectedAggType = new Object[][]{
                 {"c0", SupportBean.class}, {"c1", SupportBean[].class}, {"c2", SupportBean.class},
                 {"c3", Integer.class}, {"c4", Integer[].class}, {"c5", Integer.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String[] fields = "c0,c1,c2,c3,c4,c5".split(",");
             SupportBean b1 = makeSendBean(env, "E1", 10);
@@ -116,13 +115,13 @@ public class InfraTableAccessAggregationState {
 
             env.compileDeploy("@name('into') into table varagg " +
                 "select window(sb.*) as mywin from SupportBean#time(10 sec) as sb", path).addListener("into");
-            assertEquals(SupportBean[].class, env.statement("into").getEventType().getPropertyType("mywin"));
+            env.assertStatement("into", statement -> assertEquals(SupportBean[].class, statement.getEventType().getPropertyType("mywin")));
 
             env.compileDeploy("@name('s0') select varagg.mywin as c0 from SupportBean_S0", path).addListener("s0");
-            assertEquals(SupportBean[].class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean[].class, statement.getEventType().getPropertyType("c0")));
 
             SupportBean b1 = makeSendBean(env, "E1", 10);
-            EPAssertionUtil.assertProps(env.listener("into").assertOneGetNewAndReset(), "mywin".split(","), new Object[]{new SupportBean[]{b1}});
+            env.assertPropsNew("into", "mywin".split(","), new Object[]{new SupportBean[]{b1}});
 
             env.milestone(0);
 
@@ -130,7 +129,7 @@ public class InfraTableAccessAggregationState {
             env.assertPropsNew("s0", "c0".split(","), new Object[]{new Object[]{b1}});
 
             SupportBean b2 = makeSendBean(env, "E2", 20);
-            EPAssertionUtil.assertProps(env.listener("into").assertOneGetNewAndReset(), "mywin".split(","), new Object[]{new SupportBean[]{b1, b2}});
+            env.assertPropsNew("into", "mywin".split(","), new Object[]{new SupportBean[]{b1, b2}});
 
             env.milestone(1);
 

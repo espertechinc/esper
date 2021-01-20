@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -18,10 +17,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class ContextInitTermWithDistinct {
 
@@ -46,13 +46,13 @@ public class ContextInitTermWithDistinct {
 
             env.sendEventBean(new SupportEventWithIntArray("SE1", new int[] {1, 2}, 0));
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {{"SE1", 1}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][] {{"SE1", 1}});
 
             env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
             env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
             env.sendEventBean(new SupportEventWithIntArray("SE1", new int[] {1, 2}, 0));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields,
                 new Object[][] {{"SE1", 3}, {"SE2", 2}});
 
             env.milestone(0);
@@ -61,7 +61,7 @@ public class ContextInitTermWithDistinct {
             env.sendEventBean(new SupportEventWithIntArray("SE2", new int[] {1}, 0));
             env.sendEventBean(new SupportEventWithIntArray("SE3", new int[] {}, 0));
             env.sendEventBean(new SupportBean("E3", 4));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields,
                 new Object[][] {{"SE1", 7}, {"SE2", 6}, {"SE3", 4}});
 
             env.undeployAll();
@@ -260,17 +260,17 @@ public class ContextInitTermWithDistinct {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean(null, 10));
-            Assert.assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 1L);
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean(null, 20));
-            Assert.assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 2L);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("A", 30));
-            Assert.assertEquals(2, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastNewData().length));
 
             env.undeployAll();
         }
@@ -284,15 +284,15 @@ public class ContextInitTermWithDistinct {
             env.addListener("s0");
 
             sendSBEvent(env, "A", null, 1);
-            Assert.assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 1L);
 
             sendSBEvent(env, "A", null, 1);
-            Assert.assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 2L);
 
             env.milestone(0);
 
             sendSBEvent(env, "A", 10, 1);
-            Assert.assertEquals(2, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastNewData().length));
 
             env.undeployAll();
         }

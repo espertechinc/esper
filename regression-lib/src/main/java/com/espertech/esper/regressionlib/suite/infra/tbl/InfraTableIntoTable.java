@@ -20,12 +20,12 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
-import com.espertech.esper.runtime.client.EPStatement;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,7 +67,7 @@ public class InfraTableIntoTable {
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k1,k2,thesum".split(","), new Object[][]{
+            env.assertPropsPerRowIteratorAnyOrder("tbl", "k1,k2,thesum".split(","), new Object[][]{
                 {new int[]{10}, new int[]{1, 2}, 100}, {new int[]{10}, new int[]{1, 1}, 102 + 104},
                 {new int[]{10, 20}, new int[]{1, 2}, 101 + 103}, {new int[]{10, 20}, new int[]{1, 1}, 105},
             });
@@ -96,7 +96,7 @@ public class InfraTableIntoTable {
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k,thesum".split(","), new Object[][]{
+            env.assertPropsPerRowIteratorAnyOrder("tbl", "k,thesum".split(","), new Object[][]{
                 {new int[]{1, 2}, 10}, {new int[]{0, 2}, 11 + 13}, {new int[]{1, 1}, 12 + 15}, {new int[]{1}, 14},
             });
 
@@ -149,9 +149,11 @@ public class InfraTableIntoTable {
             SupportBean sb2 = new SupportBean("E2", 2);
             env.sendEventBean(sb2);
 
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyTable", path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), "thewin,thesort".split(","),
-                new Object[][]{{new SupportBean[]{sb1, sb2}, new SupportBean[]{sb2, sb1}}});
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF("select * from MyTable", path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), "thewin,thesort".split(","),
+                    new Object[][]{{new SupportBean[]{sb1, sb2}, new SupportBean[]{sb2, sb1}}});
+            });
 
             env.undeployAll();
         }
@@ -201,12 +203,12 @@ public class InfraTableIntoTable {
         env.milestoneInc(milestone);
 
         SupportBean b3 = makeSendBean(env, "E3", 10);
-        assertResults(env.statement("iterate"), fields, new Object[]{b3, b1, new Object[]{b2, b3}});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{b3, b1, new Object[]{b2, b3}}));
 
         env.milestoneInc(milestone);
 
         SupportBean b4 = makeSendBean(env, "E4", 5);
-        assertResults(env.statement("iterate"), fields, new Object[]{b4, b1, new Object[]{b3, b4}});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{b4, b1, new Object[]{b3, b4}}));
 
         // invalid: bound aggregation into unbound max
         env.tryInvalidCompile(path, "into table varagg select last(*) as lasteveru from SupportBean#length(2)",
@@ -250,7 +252,7 @@ public class InfraTableIntoTable {
         env.milestoneInc(milestone);
 
         SupportBean b3 = makeSendBean(env, "E3", 10);
-        assertResults(env.statement("iterate"), fields, new Object[]{b1, b3, new Object[]{b3, b2}});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{b1, b3, new Object[]{b3, b2}}));
 
         // invalid: bound aggregation into unbound max
         env.tryInvalidCompile(path, "into table varagg select maxby(intPrimitive) as maxbyeveru from SupportBean#length(2)",
@@ -292,41 +294,40 @@ public class InfraTableIntoTable {
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{10}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{10}});
             makeSendBean(env, "E2", 200);
             assertValue(env, 210);
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{210}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{210}});
             makeSendBean(env, "E1", 11);
             assertValue(env, 221);
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{221}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{221}});
             makeSendBean(env, "E3", 3000);
             assertValue(env, 3221);
 
             env.milestone(5);
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{3221}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{3221}});
             makeSendBean(env, "E2", 201);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{3422}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{3422}});
             makeSendBean(env, "E3", 3001);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{6423}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{6423}});
 
             makeSendBean(env, "E1", 12);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{6435}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{6435}});
 
             env.undeployAll();
         }
 
         private static void assertValue(RegressionEnvironment env, Integer value) {
             env.sendEventBean(new SupportBean_S0(0));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(value, event.get("c0"));
+            env.assertEqualsNew("s0", "c0", value);
         }
     }
 
@@ -356,33 +357,33 @@ public class InfraTableIntoTable {
 
             env.milestone(2);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 10}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 10}});
             makeSendBean(env, "E2", 200);
             assertValues(env, valueList, new Integer[]{10, 200, null});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 10}, {"E2", 200}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 10}, {"E2", 200}});
             makeSendBean(env, "E1", 11);
             assertValues(env, valueList, new Integer[]{21, 200, null});
 
             env.milestone(4);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 21}, {"E2", 200}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 21}, {"E2", 200}});
             makeSendBean(env, "E3", 3000);
             assertValues(env, valueList, new Integer[]{21, 200, 3000});
 
             env.milestone(5);
             env.milestone(6);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 21}, {"E2", 200}, {"E3", 3000}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 21}, {"E2", 200}, {"E3", 3000}});
             makeSendBean(env, "E2", 201);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 21}, {"E2", 401}, {"E3", 3000}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 21}, {"E2", 401}, {"E3", 3000}});
             makeSendBean(env, "E3", 3001);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 21}, {"E2", 401}, {"E3", 6001}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 21}, {"E2", 401}, {"E3", 6001}});
 
             makeSendBean(env, "E1", 12);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create-Table"), fields, new Object[][]{{"E1", 33}, {"E2", 401}, {"E3", 6001}});
+            env.assertPropsPerRowIteratorAnyOrder("Create-Table", fields, new Object[][]{{"E1", 33}, {"E2", 401}, {"E3", 6001}});
 
             env.undeployAll();
         }
@@ -391,8 +392,8 @@ public class InfraTableIntoTable {
             String[] keyarr = keys.split(",");
             for (int i = 0; i < keyarr.length; i++) {
                 env.sendEventBean(new SupportBean_S0(0, keyarr[i]));
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("c0"));
+                final int index = i;
+                env.assertEventNew("s0", event -> assertEquals("Failed for key '" + keyarr[index] + "'", values[index], event.get("c0")));
             }
         }
     }
@@ -405,12 +406,16 @@ public class InfraTableIntoTable {
             env.compileDeploy(epl);
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("5"), new BigDecimal("100")));
-            EventBean result = env.iterator("tbl").next();
-            EPAssertionUtil.assertProps(result, fields, new Object[]{new BigDecimal("5"), new BigDecimal("100"), new BigInteger("5"), new BigDecimal("100")});
+            env.assertIterator("tbl", iterator -> {
+                EventBean result = env.iterator("tbl").next();
+                EPAssertionUtil.assertProps(result, fields, new Object[]{new BigDecimal("5"), new BigDecimal("100"), new BigInteger("5"), new BigDecimal("100")});
+            });
 
             env.sendEventBean(new SupportBeanNumeric(new BigInteger("4"), new BigDecimal("200")));
-            result = env.iterator("tbl").next();
-            EPAssertionUtil.assertProps(result, fields, new Object[]{new BigDecimal("4"), new BigDecimal("200"), new BigInteger("4"), new BigDecimal("200")});
+            env.assertIterator("tbl", iterator -> {
+                EventBean result = env.iterator("tbl").next();
+                EPAssertionUtil.assertProps(result, fields, new Object[]{new BigDecimal("4"), new BigDecimal("200"), new BigInteger("4"), new BigDecimal("200")});
+            });
 
             env.undeployAll();
         }
@@ -443,15 +448,15 @@ public class InfraTableIntoTable {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E3", 10));
-        assertResults(env.statement("iterate"), fields, new Object[]{15, 20, 10, 10});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{15, 20, 10, 10}));
 
         env.sendEventBean(new SupportBean("E4", 5));
-        assertResults(env.statement("iterate"), fields, new Object[]{10, 20, 5, 5});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{10, 20, 5, 5}));
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E5", 25));
-        assertResults(env.statement("iterate"), fields, new Object[]{25, 25, 5, 5});
+        env.assertIterator("iterate", iterator -> assertResults(iterator, fields, new Object[]{25, 25, 5, 5}));
 
         // invalid: unbound aggregation into bound max
         env.tryInvalidCompile(path, "into table varagg select max(intPrimitive) as maxb from SupportBean",
@@ -466,8 +471,8 @@ public class InfraTableIntoTable {
         env.undeployAll();
     }
 
-    private static void assertResults(EPStatement stmt, String[] fields, Object[] values) {
-        EventBean event = stmt.iterator().next();
+    private static void assertResults(Iterator<EventBean> it, String[] fields, Object[] values) {
+        EventBean event = it.next();
         Map map = (Map) event.get("varagg");
         EPAssertionUtil.assertPropsMap(map, fields, values);
     }
@@ -479,7 +484,7 @@ public class InfraTableIntoTable {
     }
 
     private static void runAssertionIntoTableUnkeyedSimple(RegressionEnvironment env) {
-        assertFalse(env.iterator("tbl").hasNext());
+        env.assertIterator("tbl", iterator -> assertFalse(iterator.hasNext()));
 
         env.sendEventBean(new SupportBean());
         assertIteratorUnkeyedSimple(env, 1);
@@ -493,6 +498,6 @@ public class InfraTableIntoTable {
     }
 
     private static void assertIteratorUnkeyedSimple(RegressionEnvironment env, long expected) {
-        assertEquals(expected, env.iterator("tbl").next().get("mycnt"));
+        env.assertIterator("tbl", iterator -> assertEquals(expected, iterator.next().get("mycnt")));
     }
 }

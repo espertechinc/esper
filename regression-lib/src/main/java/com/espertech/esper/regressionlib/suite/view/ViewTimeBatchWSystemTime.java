@@ -17,9 +17,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.util.DoubleValueAssertionUtil;
 
-import java.util.Iterator;
-
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ViewTimeBatchWSystemTime implements RegressionExecution {
     private final static String SYMBOL = "CSCO.O";
@@ -50,7 +48,6 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         // Sleep for 1.5 seconds, thus triggering a new batch
         sleep(1500);
         checkMeanIterator(env, 925);                 // Now the statistics view received the first batch
-        assertTrue(env.listener("s0").isInvoked());   // Listener has been invoked
         checkMeanListener(env, 925);
 
         // Send more events
@@ -71,7 +68,6 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         // Sleep for 1.5 seconds, thus triggering a new batch
         sleep(1500);
         checkMeanIterator(env, 2300d / 4d); // Now the statistics view received the second batch, the mean now is over all events
-        assertTrue(env.listener("s0").isInvoked());   // Listener has been invoked
         checkMeanListener(env, 2300d / 4d);
 
         // Send more events
@@ -82,7 +78,6 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
         // Sleep for 2 seconds, no events received anymore
         sleep(2000);
         checkMeanIterator(env, 1200); // statistics view received the third batch
-        assertTrue(env.listener("s0").isInvoked());   // Listener has been invoked
         checkMeanListener(env, 1200);
 
         env.undeployAll();
@@ -94,16 +89,19 @@ public class ViewTimeBatchWSystemTime implements RegressionExecution {
     }
 
     private void checkMeanListener(RegressionEnvironment env, double meanExpected) {
-        assertTrue(env.listener("s0").getLastNewData().length == 1);
-        EventBean listenerValues = env.listener("s0").getLastNewData()[0];
-        checkValue(listenerValues, meanExpected);
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            assertEquals(1, listener.getLastNewData().length);
+            EventBean listenerValues = listener.getLastNewData()[0];
+            checkValue(listenerValues, meanExpected);
+            listener.reset();
+        });
     }
 
     private void checkMeanIterator(RegressionEnvironment env, double meanExpected) {
-        Iterator<EventBean> iterator = env.statement("s0").iterator();
-        checkValue(iterator.next(), meanExpected);
-        assertTrue(!iterator.hasNext());
+        env.assertIterator("s0", iterator -> {
+            checkValue(iterator.next(), meanExpected);
+            assertFalse(iterator.hasNext());
+        });
     }
 
     private void checkValue(EventBean values, double avgE) {

@@ -10,11 +10,14 @@
  */
 package com.espertech.esper.regressionlib.support.filter;
 
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
+
+import java.util.EnumSet;
 
 public class FilterTestCaseSingleFieldExecution implements RegressionExecution {
     private final FilterTestCaseSingleField testCase;
@@ -25,6 +28,10 @@ public class FilterTestCaseSingleFieldExecution implements RegressionExecution {
         this.testCase = testCase;
         this.testCaseName = originator.getSimpleName() + " permutation [" + testCase.getFilterExpr() + "]";
         this.stats = stats;
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     public String name() {

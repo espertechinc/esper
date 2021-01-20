@@ -20,9 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class EventBeanMappedIndexedPropertyExpression implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -74,10 +71,10 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
         env.compileDeploy("@name('s0') select name,value,properties(name) = value as ok from InputEvent").addListener("s0");
 
         env.sendEventMap(makeMapEvent("name", "value1", Collections.singletonMap("name", "xxxx")), "InputEvent");
-        assertFalse((Boolean) env.listener("s0").assertOneGetNewAndReset().get("ok"));
+        env.assertEqualsNew("s0", "ok", false);
 
         env.sendEventMap(makeMapEvent("name", "value1", Collections.singletonMap("name", "value1")), "InputEvent");
-        assertTrue((Boolean) env.listener("s0").assertOneGetNewAndReset().get("ok"));
+        env.assertEqualsNew("s0", "ok", true);
 
         env.undeployAll();
 

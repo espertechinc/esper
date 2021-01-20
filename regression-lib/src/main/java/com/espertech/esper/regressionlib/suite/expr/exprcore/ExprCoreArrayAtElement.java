@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
 import static org.junit.Assert.assertEquals;
 
 public class ExprCoreArrayAtElement {
@@ -52,8 +51,7 @@ public class ExprCoreArrayAtElement {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select new String('a,b').split(',')[intPrimitive] as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(String.class, eventType.getPropertyType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(String.class, statement.getEventType().getPropertyType("c0")));
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.assertPropsNew("s0", "c0".split(","), new Object[] {"b"});
@@ -108,10 +106,7 @@ public class ExprCoreArrayAtElement {
                 "from SupportBean";
             env.compileDeploy(soda, epl).addListener("s0");
             String[] fields = "c0,c1,c2".split(",");
-            EventType eventType = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(Integer.class, eventType.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.INTEGERBOXED.getEPType());
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.assertPropsNew("s0", fields, new Object[] {10, 20, 30});
@@ -139,13 +134,10 @@ public class ExprCoreArrayAtElement {
                 "@name('s0') select var_mh[intPrimitive].getId() as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
             String[] fields = "c0".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(String.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.STRING.getEPType());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b"});
+            env.assertPropsNew("s0", fields, new Object[]{"b"});
 
             env.undeployAll();
         }
@@ -168,13 +160,10 @@ public class ExprCoreArrayAtElement {
             String epl = "@name('s0') select var_intarr[intPrimitive] as c0 from SupportBean";
             env.compileDeploy(soda, epl, path).addListener("s0");
             String[] fields = "c0".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(Integer.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.INTEGERBOXED.getEPType());
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2});
+            env.assertPropsNew("s0", fields, new Object[]{2});
 
             env.undeployAll();
         }
@@ -197,17 +186,14 @@ public class ExprCoreArrayAtElement {
             String epl = "@name('s0') select lvl1.lvl2[indexNumber].id as c0, me.lvl1.lvl2[indexNumber].id as c1 from Lvl0 as me";
             env.compileDeploy(epl, path).addListener("s0");
             String[] fields = "c0,c1".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(String.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.STRING.getEPType());
 
             Map<String, Object> lvl2One = CollectionUtil.buildMap("id", "a");
             Map<String, Object> lvl2Two = CollectionUtil.buildMap("id", "b");
             Map<String, Object> lvl1 = CollectionUtil.buildMap("lvl2", new Map[] {lvl2One, lvl2Two});
             Map<String, Object> lvl0 = CollectionUtil.buildMap("lvl1", lvl1, "indexNumber", 1);
             env.sendEventMap(lvl0, "Lvl0");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b", "b"});
+            env.assertPropsNew("s0", fields, new Object[]{"b", "b"});
 
             // Invalid tests
             // array value but no array provided
@@ -260,16 +246,13 @@ public class ExprCoreArrayAtElement {
                 "from Lvl0 as me";
             env.compileDeploy(soda, epl, path).addListener("s0");
             String[] fields = "c0,c1,c2,c3".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(Integer.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.INTEGERBOXED.getEPType());
 
             Map<String, Object> lvl2 = CollectionUtil.buildMap("intarr", new Integer[]{1, 2, 3});
             Map<String, Object> lvl1 = CollectionUtil.buildMap("lvl2", lvl2);
             Map<String, Object> lvl0 = CollectionUtil.buildMap("lvl1", lvl1, "indexNumber", 2);
             env.sendEventMap(lvl0, "Lvl0");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 3, 3, 3});
+            env.assertPropsNew("s0", fields, new Object[]{3, 3, 3, 3});
 
             // Invalid tests
             // not an index expression
@@ -315,16 +298,13 @@ public class ExprCoreArrayAtElement {
                 "@name('s0') select lvl1[indexNumber].id as c0, me.lvl1[indexNumber].id as c1 from Lvl0 as me";
             env.compileDeploy(epl, path).addListener("s0");
             String[] fields = "c0,c1".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(String.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.STRING.getEPType());
 
             Map<String, Object> lvl1One = CollectionUtil.buildMap("id", "a");
             Map<String, Object> lvl1Two = CollectionUtil.buildMap("id", "b");
             Map<String, Object> lvl0 = CollectionUtil.buildMap("lvl1", new Map[] {lvl1One, lvl1Two}, "indexNumber", 1);
             env.sendEventMap(lvl0, "Lvl0");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{"b", "b"});
+            env.assertPropsNew("s0", fields, new Object[]{"b", "b"});
 
             // Invalid tests
             // array value but no array provided
@@ -383,15 +363,12 @@ public class ExprCoreArrayAtElement {
                 "from Lvl0 as me";
             env.compileDeploy(soda, epl, path).addListener("s0");
             String[] fields = "c0,c1,c2,c3".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(Integer.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.INTEGERBOXED.getEPType());
 
             Map<String, Object> lvl1 = CollectionUtil.buildMap("intarr", new Integer[]{1, 2, 3});
             Map<String, Object> lvl0 = CollectionUtil.buildMap("lvl1", lvl1, "indexNumber", 2);
             env.sendEventMap(lvl0, "Lvl0");
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3, 3, 3, 3});
+            env.assertPropsNew("s0", fields, new Object[]{3, 3, 3, 3});
 
             // Invalid tests
             // not an index expression
@@ -444,13 +421,10 @@ public class ExprCoreArrayAtElement {
                 "from SupportBeanWithArray as me";
             env.compileDeploy(soda, epl).addListener("s0");
             String[] fields = "c0,c1,c2,c3".split(",");
-            EventType out = env.statement("s0").getEventType();
-            for (String field : fields) {
-                assertEquals(Integer.class, out.getPropertyType(field));
-            }
+            env.assertStmtTypesAllSame("s0", fields, EPTypePremade.INTEGERBOXED.getEPType());
 
             env.sendEventBean(new SupportBeanWithArray(1, new int[]{1, 2}));
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{2, 2, 2, 2});
+            env.assertPropsNew("s0", fields, new Object[]{2, 2, 2, 2});
 
             // Invalid tests
             // two index expressions

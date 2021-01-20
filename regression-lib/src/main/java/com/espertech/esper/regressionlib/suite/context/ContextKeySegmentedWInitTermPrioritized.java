@@ -170,12 +170,14 @@ public class ContextKeySegmentedWInitTermPrioritized {
         }
 
         private static void assertPartitionsInitWCorrelatedTermFilter(RegressionEnvironment env) {
-            ContextPartitionCollection partitions = env.runtime().getContextPartitionService().getContextPartitions(env.deploymentId("ctx"), "CtxPartitionInitWCorrTerm", ContextPartitionSelectorAll.INSTANCE);
-            Assert.assertEquals(2, partitions.getIdentifiers().size());
-            ContextPartitionIdentifierPartitioned first = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(0);
-            ContextPartitionIdentifierPartitioned second = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(1);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"A"}, first.getKeys());
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"B"}, second.getKeys());
+            env.assertThat(() -> {
+                ContextPartitionCollection partitions = env.runtime().getContextPartitionService().getContextPartitions(env.deploymentId("ctx"), "CtxPartitionInitWCorrTerm", ContextPartitionSelectorAll.INSTANCE);
+                Assert.assertEquals(2, partitions.getIdentifiers().size());
+                ContextPartitionIdentifierPartitioned first = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(0);
+                ContextPartitionIdentifierPartitioned second = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(1);
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"A"}, first.getKeys());
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"B"}, second.getKeys());
+            });
         }
     }
 
@@ -193,8 +195,10 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.addListener("s0");
             String[] fields = "ctx0id,ctx1id,p20,theSum".split(",");
 
-            Assert.assertEquals(SupportBean_S0.class, env.statement("s0").getEventType().getPropertyType("ctx0"));
-            Assert.assertEquals(SupportBean_S1.class, env.statement("s0").getEventType().getPropertyType("ctx1"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("ctx0"));
+                Assert.assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("ctx1"));
+            });
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
             env.sendEventBean(new SupportBean_S1(2, "B"));
@@ -232,7 +236,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.compileDeploy("@Name('s0') context CtxInitS0PositiveId select p00, p01, context.s0 as s0, sum(id) as theSum from SupportBean_S0", path);
             env.addListener("s0");
 
-            Assert.assertEquals(SupportBean_S0.class, env.statement("s0").getEventType().getPropertyType("s0"));
+            env.assertStatement("s0", statement -> Assert.assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("s0")));
 
             sendS0AssertNone(env, 0, "A", "G1");
             sendS0AssertNone(env, -1, "B", "G1");
@@ -490,7 +494,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean_S2(0, "A"));
             env.assertPropsNew("s0", fields, new Object[]{"A", 3L});
 
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
             env.undeployAll();
         }
     }
@@ -563,12 +567,12 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("B", 99));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"B", 1L}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("A", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"A", 1L}});
 
             env.undeployModuleContaining("s0");
             assertFilterSvcCount(env, 0, "ctx");
@@ -598,7 +602,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("B", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"B", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"B", 1L}});
 
             env.milestone(3);
 
@@ -628,7 +632,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 2L}, {"B", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"A", 2L}, {"B", 1L}});
 
             env.milestone(2);
 
@@ -638,7 +642,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"A", 1L}, {"C", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"A", 1L}, {"C", 1L}});
 
             env.undeployAll();
         }
@@ -722,7 +726,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.assertListenerNotInvoked("s0");
 
             sendCurrentTime(env, "2002-02-01T09:01:00.000");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,cnt".split(","), new Object[][]{{"A", 3L}, {"B", 2L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,cnt".split(","), new Object[][]{{"A", 3L}, {"B", 2L}});
 
             env.milestone(3);
 
@@ -736,7 +740,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.sendEventBean(new SupportBean("C", 0));
 
             sendCurrentTime(env, "2002-02-01T09:02:00.000");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,cnt".split(","), new Object[][]{{"A", 1L}, {"C", 2L}, {"D", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,cnt".split(","), new Object[][]{{"A", 1L}, {"C", 2L}, {"D", 1L}});
 
             sendCurrentTime(env, "2002-02-01T09:03:00.000");
             env.assertListenerNotInvoked("s0");
@@ -805,11 +809,11 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
     private static class ContextKeySegmentedTermByFilterWSecondType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create objectarray schema TypeOne(poa string);\n" +
-                "create map schema TypeTwo(pmap string);\n" +
+            String epl = "@buseventtype create objectarray schema TypeOne(poa string);\n" +
+                "@buseventtype create map schema TypeTwo(pmap string);\n" +
                 "create context MyContextOAMap partition by poa from TypeOne, pmap from TypeTwo terminated by TypeTwo;\n" +
                 "@name('s0') context MyContextOAMap select poa, count(*) as cnt from TypeOne;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             env.addListener("s0");
 

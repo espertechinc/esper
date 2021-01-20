@@ -12,9 +12,12 @@ package com.espertech.esper.regressionlib.suite.expr.define;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST1;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -38,5 +41,9 @@ public class ExprDefineConfigurations implements RegressionExecution {
         assertEquals(expectedInvocationCount, SupportStaticMethodLib.getInvocations().size());
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
     }
 }

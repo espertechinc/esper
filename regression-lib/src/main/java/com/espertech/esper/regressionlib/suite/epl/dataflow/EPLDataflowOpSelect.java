@@ -97,6 +97,10 @@ public class EPLDataflowOpSelect {
             env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyDataFlow");
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowInvalid implements RegressionExecution {
@@ -122,6 +126,10 @@ public class EPLDataflowOpSelect {
 
             tryInvalidCompileGraph(env, "select (select * from SupportBean#lastevent) from ME", false,
                 "Failed to obtain operator 'Select': Subselects are not supported");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -162,6 +170,10 @@ public class EPLDataflowOpSelect {
 
             instance.cancel();
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -212,6 +224,10 @@ public class EPLDataflowOpSelect {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowTimeWindowTriggered implements RegressionExecution {
@@ -250,6 +266,10 @@ public class EPLDataflowOpSelect {
             instance.cancel();
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowOuterJoinMultirow implements RegressionExecution {
@@ -281,6 +301,10 @@ public class EPLDataflowOpSelect {
             instance.cancel();
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFromClauseJoinOrder implements RegressionExecution {
@@ -292,6 +316,10 @@ public class EPLDataflowOpSelect {
             tryAssertionJoinOrder(env, "from S2#lastevent as s2, S1#lastevent as s1, S0#lastevent as s0");
             tryAssertionJoinOrder(env, "from S0#lastevent as s0, S1#lastevent as s1, S2#lastevent as s2");
             tryAssertionJoinOrder(env, "from S1#lastevent as s1, S2#lastevent as s2, S0#lastevent as s0");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
 
         private void tryAssertionJoinOrder(RegressionEnvironment env, String fromClause) {
@@ -338,6 +366,10 @@ public class EPLDataflowOpSelect {
             runAssertionAllTypes(env, "MyXMLEvent", DefaultSupportGraphEventUtil.getXMLEvents());
             runAssertionAllTypes(env, "MyOAEvent", DefaultSupportGraphEventUtil.getOAEvents());
             runAssertionAllTypes(env, "MyMapEvent", DefaultSupportGraphEventUtil.getMapEvents());
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

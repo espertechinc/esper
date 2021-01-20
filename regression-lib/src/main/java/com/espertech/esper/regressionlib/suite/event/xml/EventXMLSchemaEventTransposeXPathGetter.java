@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -61,17 +62,22 @@ public class EventXMLSchemaEventTransposeXPathGetter {
 
         // note class not a fragment
         env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1", Node.class));
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
+        env.assertStatement("s0", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1", Node.class));
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
-        EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
-        SupportEventTypeAssertionUtil.assertConsistency(type);
-        assertNull(type.getFragmentType("nested1"));
-        assertNull(type.getFragmentType("nested1.nested2"));
+        env.assertThat(() -> {
+            EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
+            SupportEventTypeAssertionUtil.assertConsistency(type);
+            assertNull(type.getFragmentType("nested1"));
+            assertNull(type.getFragmentType("nested1.nested2"));
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").iterator().next());
+        Document doc = SupportXML.makeDefaultEvent("ABC");
+        env.sendEventXMLDOM(doc, eventTypeName);
+        env.assertIterator("s0", it -> SupportEventTypeAssertionUtil.assertConsistency(it.next()));
 
         env.undeployAll();
     }

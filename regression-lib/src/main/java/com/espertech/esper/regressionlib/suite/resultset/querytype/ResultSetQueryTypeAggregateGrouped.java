@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -118,10 +117,10 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 6));
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E1");
 
             env.sendEventBean(new SupportBean("E3", 7));
-            Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E3");
 
             env.undeployAll();
         }
@@ -166,42 +165,32 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.milestone(0);
 
             sendEvent(env, SYMBOL_DELL, 900, 11);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{900L, "DELL", 11.0, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{900L, "DELL", 11.0, 1L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1000L, "DELL", 10.0, 1L}, {900L, "DELL", 11.0, 1L}});
-            env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_DELL, 1500, 10);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1500L, "DELL", 10.0, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{1500L, "DELL", 10.0, 2L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1000L, "DELL", 10.0, 2L}, {900L, "DELL", 11.0, 1L}, {1500L, "DELL", 10.0, 2L}});
-            env.listener("s0").reset();
 
             env.milestone(1);
 
             sendEvent(env, SYMBOL_IBM, 500, 5);
-            Assert.assertEquals(1, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{500L, "IBM", 5.0, 1L});
+            env.assertPropsNew("s0", fields, new Object[]{500L, "IBM", 5.0, 1L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1000L, "DELL", 10.0, 2L}, {900L, "DELL", 11.0, 1L}, {1500L, "DELL", 10.0, 2L}, {500L, "IBM", 5.0, 1L}});
-            env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 600, 5);
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{600L, "IBM", 5.0, 2L});
+            env.assertPropsNew("s0", fields, new Object[]{600L, "IBM", 5.0, 2L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1000L, "DELL", 10.0, 2L}, {900L, "DELL", 11.0, 1L}, {1500L, "DELL", 10.0, 2L}, {500L, "IBM", 5.0, 2L}, {600L, "IBM", 5.0, 2L}});
-            env.listener("s0").reset();
 
             env.milestone(2);
 
             sendEvent(env, SYMBOL_IBM, 500, 5);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{500L, "IBM", 5.0, 3L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{1000L, "DELL", 10.0, 1L});
+            env.assertPropsIRPair("s0", fields, new Object[]{500L, "IBM", 5.0, 3L}, new Object[]{1000L, "DELL", 10.0, 1L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{900L, "DELL", 11.0, 1L}, {1500L, "DELL", 10.0, 1L}, {500L, "IBM", 5.0, 3L}, {600L, "IBM", 5.0, 3L}, {500L, "IBM", 5.0, 3L}});
-            env.listener("s0").reset();
 
             sendEvent(env, SYMBOL_IBM, 600, 5);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{600L, "IBM", 5.0, 4L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{900L, "DELL", 11.0, 0L});
+            env.assertPropsIRPair("s0", fields, new Object[]{600L, "IBM", 5.0, 4L}, new Object[]{900L, "DELL", 11.0, 0L});
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1500L, "DELL", 10.0, 1L}, {500L, "IBM", 5.0, 4L}, {600L, "IBM", 5.0, 4L}, {500L, "IBM", 5.0, 4L}, {600L, "IBM", 5.0, 4L}});
-            env.listener("s0").reset();
 
             env.undeployAll();
         }
@@ -248,10 +237,11 @@ public class ResultSetQueryTypeAggregateGrouped {
             env.compileDeploy(stmt).addListener("s0");
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 10D, 20000L, null));
-            EventBean eventBean = env.listener("s0").getLastNewData()[0];
-            Assert.assertEquals("IBM", eventBean.get("symbol"));
-            Assert.assertEquals(10d, eventBean.get("average"));
-            Assert.assertEquals(20000L, eventBean.get("sumation"));
+            env.assertEventNew("s0", eventBean -> {
+                Assert.assertEquals("IBM", eventBean.get("symbol"));
+                Assert.assertEquals(10d, eventBean.get("average"));
+                Assert.assertEquals(20000L, eventBean.get("sumation"));
+            });
 
             // create insert into statements
             stmt = "@name('s1') insert into StockAverages select symbol as symbol, avg(price) as average, sum(volume) as sumation " +
@@ -261,17 +251,17 @@ public class ResultSetQueryTypeAggregateGrouped {
 
             // send event
             env.sendEventBean(new SupportMarketDataBean("IBM", 20D, 40000L, null));
-            eventBean = env.listener("s0").getLastNewData()[0];
-            Assert.assertEquals("IBM", eventBean.get("symbol"));
-            Assert.assertEquals(15d, eventBean.get("average"));
-            Assert.assertEquals(60000L, eventBean.get("sumation"));
+            env.assertEventNew("s0", eventBean -> {
+                Assert.assertEquals("IBM", eventBean.get("symbol"));
+                Assert.assertEquals(15d, eventBean.get("average"));
+                Assert.assertEquals(60000L, eventBean.get("sumation"));
+            });
 
-            Assert.assertEquals(1, env.listener("s2").getNewDataList().size());
-            Assert.assertEquals(1, env.listener("s2").getLastNewData().length);
-            eventBean = env.listener("s2").getLastNewData()[0];
-            Assert.assertEquals("IBM", eventBean.get("symbol"));
-            Assert.assertEquals(20d, eventBean.get("average"));
-            Assert.assertEquals(40000L, eventBean.get("sumation"));
+            env.assertEventNew("s2", eventBean -> {
+                Assert.assertEquals("IBM", eventBean.get("symbol"));
+                Assert.assertEquals(20d, eventBean.get("average"));
+                Assert.assertEquals(40000L, eventBean.get("sumation"));
+            });
 
             env.undeployAll();
         }
@@ -282,9 +272,11 @@ public class ResultSetQueryTypeAggregateGrouped {
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
         // assert select result type
-        Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("volume"));
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> {
+            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         assertEvents(env, SYMBOL_DELL, 10000, 51);
@@ -317,38 +309,24 @@ public class ResultSetQueryTypeAggregateGrouped {
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbol, long volume, double sum) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
-        Assert.assertEquals(volume, newData[0].get("volume"));
-        Assert.assertEquals(sum, newData[0].get("mySum"));
+            Assert.assertEquals(symbol, newData[0].get("symbol"));
+            Assert.assertEquals(volume, newData[0].get("volume"));
+            Assert.assertEquals(sum, newData[0].get("mySum"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, long volumeOld, double sumOld,
                                      String symbolNew, long volumeNew, double sumNew) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
-
-        assertEquals(1, oldData.length);
-        assertEquals(1, newData.length);
-
-        Assert.assertEquals(symbolOld, oldData[0].get("symbol"));
-        Assert.assertEquals(volumeOld, oldData[0].get("volume"));
-        Assert.assertEquals(sumOld, oldData[0].get("mySum"));
-
-        Assert.assertEquals(symbolNew, newData[0].get("symbol"));
-        Assert.assertEquals(volumeNew, newData[0].get("volume"));
-        Assert.assertEquals(sumNew, newData[0].get("mySum"));
-
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+        env.assertPropsIRPair("s0", "symbol,volume,mySum".split(","), new Object[] {symbolNew, volumeNew, sumNew}, new Object[] {symbolOld, volumeOld, sumOld});
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume, double price) {

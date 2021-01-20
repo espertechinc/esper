@@ -14,11 +14,10 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
+import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertNotNull;
 
 public class ExprCoreEventIdentityEquals {
     public static Collection<RegressionExecution> executions() {
@@ -109,6 +108,6 @@ public class ExprCoreEventIdentityEquals {
 
     private static void sendAssertReceived(RegressionEnvironment env, String theString) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+        env.assertEventNew("s0", Assert::assertNotNull);
     }
 }

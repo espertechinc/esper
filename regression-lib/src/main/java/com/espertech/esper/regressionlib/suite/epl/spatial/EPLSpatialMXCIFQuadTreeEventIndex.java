@@ -72,8 +72,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create window RectangleWindow#keepall as (id string, rx double, ry double, rw double, rh double);\n" +
                 "create index MyIndex on RectangleWindow((rx,ry,rw,rh) mxcifquadtree(0,0,100,100));\n" +
                 "insert into RectangleWindow select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(rx,ry,rw,rh).intersects(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(rx,ry,rw,rh).intersects(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendEventRectangle(env, "R0", 73.32704983331149, 23.46990952575032, 1, 1);
             sendEventRectangle(env, "R1", 53.09747562396894, 17.100976152185034, 1, 1);
@@ -89,8 +89,10 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             double endY = 22.93393078279351;
 
             env.sendEventBean(new SupportSpatialAABB("", beginX, beginY, endX - beginX, endY - beginY));
-            String received = sortJoinProperty(env.listener("out").getAndResetLastNewData(), "c0");
-            assertEquals("R1", received);
+            env.assertListener("s0", listener -> {
+                String received = sortJoinProperty(listener.getAndResetLastNewData(), "c0");
+                assertEquals("R1", received);
+            });
 
             env.undeployAll();
         }
@@ -99,16 +101,17 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     private static class EPLSpatialMXCIFEventIndexZeroWidthAndHeight implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create schema Geofence(x double, y double, vin string)", path);
+            SupportQueryPlanIndexHook.reset();
+            env.compileDeploy("@buseventtype create schema Geofence(x double, y double, vin string)", path);
 
             env.compileDeploy("create table Regions(regionId string primary key, rx double, ry double, rwidth double, rheight double)", path);
             env.compileDeploy("create index RectangleIndex on Regions((rx, ry, rwidth, rheight) mxcifquadtree(0, 0, 10, 12))", path);
             env.compileDeploy("@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on Geofence as vin insert into VINWithRegion select regionId, vin from Regions where rectangle(rx, ry, rwidth, rheight).intersects(rectangle(vin.x, vin.y, 0, 0))", path);
             env.addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("RectangleIndex", "non-unique hash={} btree={} advanced={mxcifquadtree(rx,ry,rwidth,rheight)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("RectangleIndex", "non-unique hash={} btree={} advanced={mxcifquadtree(rx,ry,rwidth,rheight)}"));
 
-            env.compileExecuteFAF("insert into Regions values ('R1', 2, 2, 5, 5)", path);
+            env.compileExecuteFAFNoResult("insert into Regions values ('R1', 2, 2, 5, 5)", path);
             env.sendEventMap(CollectionUtil.populateNameValueMap("x", 3d, "y", 3d, "vin", "V1"), "Geofence");
 
             env.assertPropsNew("s0", "vin,regionId".split(","), new Object[]{"V1", "R1"});
@@ -134,6 +137,10 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static void runAssertionFAF(RegressionEnvironment env, RegressionPath path, double x, double y, double width, double height, boolean expected) {
@@ -149,20 +156,20 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     private static class EPLSpatialMXCIFEventIndexPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
             String epl = "create window MyRectangleWindow#keepall as (id string, rx double, ry double, rw double, rh double);\n" +
                 "insert into MyRectangleWindow select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
                 "create index Idx on MyRectangleWindow( (rx, ry, rw, rh) mxcifquadtree(0, 0, 100, 100));\n" +
-                "@Name('out') on SupportSpatialAABB select mpw.id as c0 from MyRectangleWindow as mpw where rectangle(rx, ry, rw, rh).intersects(rectangle(x, y, width, height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@Name('s0') on SupportSpatialAABB select mpw.id as c0 from MyRectangleWindow as mpw where rectangle(rx, ry, rw, rh).intersects(rectangle(x, y, width, height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendSpatialEventRectanges(env, 100, 50);
 
             long start = System.currentTimeMillis();
-            SupportListener listener = env.listener("out");
+            SupportListener listener = env.listener("s0");
             for (int x = 0; x < 100; x++) {
                 for (int y = 0; y < 50; y++) {
                     env.sendEventBean(new SupportSpatialAABB("R", x, y, 0.5, 0.5));
@@ -181,10 +188,10 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "@Name('win') create window MyRectWindow#keepall as (id string, rx double, ry double, rw double, rh double);\n" +
                 "@Name('insert') insert into MyRectWindow select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
                 "@Name('idx') create unique index Idx on MyRectWindow( (rx, ry, rw, rh) mxcifquadtree(0, 0, 100, 100));\n" +
-                IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@Name('out') on SupportSpatialAABB select mpw.id as c0 from MyRectWindow as mpw where rectangle(rx, ry, rw, rh).intersects(rectangle(x, y, width, height));\n";
-            env.compileDeploy(epl).addListener("out");
+                IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@Name('s0') on SupportSpatialAABB select mpw.id as c0 from MyRectWindow as mpw where rectangle(rx, ry, rw, rh).intersects(rectangle(x, y, width, height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx", "unique hash={} btree={} advanced={mxcifquadtree(rx,ry,rw,rh)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx", "unique hash={} btree={} advanced={mxcifquadtree(rx,ry,rw,rh)}"));
 
             sendEventRectangle(env, "P1", 10, 15, 1, 2);
             try {
@@ -196,6 +203,10 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -243,6 +254,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
+            SupportQueryPlanIndexHook.reset();
             env.compileDeploy(soda, "create window MyWindow#length(5) as select * from SupportSpatialEventRectangle", path);
             env.compileDeploy(soda, "create index MyIndex on MyWindow((x,y,width,height) mxcifquadtree(0,0,100,100))", path);
             env.compileDeploy(soda, "insert into MyWindow select * from SupportSpatialEventRectangle", path);
@@ -251,50 +263,50 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
                 "select rects.id as c0 from MyWindow as rects where rectangle(rects.x,rects.y,rects.width,rects.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height))";
             env.compileDeploy(soda, epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={mxcifquadtree(x,y,width,height)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={mxcifquadtree(x,y,width,height)}"));
 
             sendEventRectangle(env, "R1", 10, 40, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R1", null, null, null, null);
+            assertRectanglesManyRow(env, BOXES, "R1", null, null, null, null);
 
             sendEventRectangle(env, "R2", 80, 80, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R1", null, null, "R2", null);
+            assertRectanglesManyRow(env, BOXES, "R1", null, null, "R2", null);
 
             env.milestone(0);
 
             sendEventRectangle(env, "R3", 10, 40, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R1,R3", null, null, "R2", null);
+            assertRectanglesManyRow(env, BOXES, "R1,R3", null, null, "R2", null);
 
             env.milestone(1);
 
             sendEventRectangle(env, "R4", 60, 40, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R1,R3", "R4", null, "R2", "R4");
+            assertRectanglesManyRow(env, BOXES, "R1,R3", "R4", null, "R2", "R4");
 
             sendEventRectangle(env, "R5", 20, 75, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R1,R3", "R4", "R5", "R2", "R4");
+            assertRectanglesManyRow(env, BOXES, "R1,R3", "R4", "R5", "R2", "R4");
 
             env.milestone(2);
 
             sendEventRectangle(env, "R6", 50, 50, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R3,R6", "R4,R6", "R5,R6", "R2,R6", "R4,R6");
+            assertRectanglesManyRow(env, BOXES, "R3,R6", "R4,R6", "R5,R6", "R2,R6", "R4,R6");
 
             sendEventRectangle(env, "R7", 0, 0, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R3,R6,R7", "R4,R6", "R5,R6", "R6", "R4,R6");
+            assertRectanglesManyRow(env, BOXES, "R3,R6,R7", "R4,R6", "R5,R6", "R6", "R4,R6");
 
             env.milestone(3);
 
             sendEventRectangle(env, "R8", 99.999, 0, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R6,R7", "R4,R6,R8", "R5,R6", "R6", "R4,R6");
+            assertRectanglesManyRow(env, BOXES, "R6,R7", "R4,R6,R8", "R5,R6", "R6", "R4,R6");
 
             sendEventRectangle(env, "R9", 0, 99.999, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R6,R7", "R6,R8", "R5,R6,R9", "R6", "R6");
+            assertRectanglesManyRow(env, BOXES, "R6,R7", "R6,R8", "R5,R6,R9", "R6", "R6");
 
             env.milestone(4);
 
             sendEventRectangle(env, "R10", 99.999, 99.999, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R6,R7", "R6,R8", "R6,R9", "R6,R10", "R6");
+            assertRectanglesManyRow(env, BOXES, "R6,R7", "R6,R8", "R6,R9", "R6,R10", "R6");
 
             sendEventRectangle(env, "R11", 0, 0, 1, 1);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "R7,R11", "R8", "R9", "R10", null);
+            assertRectanglesManyRow(env, BOXES, "R7,R11", "R8", "R9", "R10", null);
 
             env.undeployAll();
         }
@@ -314,25 +326,25 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create table RectangleTable(id string primary key, rx double, ry double, rw double, rh double);\n" +
                 "create index MyIndex on RectangleTable((rx,ry,rw,rh) mxcifquadtree(0,0,100,100,4,20));\n" +
                 "insert into RectangleTable select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(rx,ry,rw,rh).intersects(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(rx,ry,rw,rh).intersects(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             sendEventRectangle(env, "P1", 80, 80, 1, 1);
             sendEventRectangle(env, "P2", 81, 80, 1, 1);
             sendEventRectangle(env, "P3", 80, 81, 1, 1);
             sendEventRectangle(env, "P4", 80, 80, 1, 1);
             sendEventRectangle(env, "P5", 45, 55, 1, 1);
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
 
             env.milestone(0);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
-            env.compileExecuteFAF("delete from RectangleTable where id = 'P4'", path);
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
+            env.compileExecuteFAFNoResult("delete from RectangleTable where id = 'P4'", path);
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3", "P5");
 
             env.milestone(1);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3", "P5");
 
             env.undeployAll();
         }
@@ -344,8 +356,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleTable((x,y,width,height) mxcifquadtree(0,0,100,100,2,12));\n" +
                 "insert into RectangleTable select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             List<SupportSpatialEventRectangle> rectangles = new ArrayList<>();
             BoundingBox.BoundingBoxNode bbtree = new BoundingBox(0, 0, 100, 100).treeForPath("nw,se,sw,ne,nw,nw,nw,nw,nw,nw,nw,nw".split(","));
@@ -354,11 +366,11 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             addSendRectangle(env, rectangles, "P1", somewhere.getMinX(), somewhere.getMinY(), 0.0001, 0.0001);
             addSendRectangle(env, rectangles, "P2", somewhere.getMinX(), somewhere.getMinY(), 0.0001, 0.0001);
             addSendRectangle(env, rectangles, "P3", somewhere.getMinX(), somewhere.getMinY(), 0.0001, 0.0001);
-            assertBBTreeRectangles(env, bbtree, rectangles);
+            assertBBTreeRectangles(env, "s0", bbtree, rectangles);
 
             env.milestone(0);
 
-            assertBBTreeRectangles(env, bbtree, rectangles);
+            assertBBTreeRectangles(env, "s0", bbtree, rectangles);
 
             env.undeployAll();
         }
@@ -370,8 +382,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleTable((x,y,width,height) mxcifquadtree(0,0,100,100,4,40));\n" +
                 "insert into RectangleTable select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendEventRectangle(env, "P1", 80, 40, 1, 1);
             sendEventRectangle(env, "P2", 81, 41, 1, 1);
@@ -379,13 +391,13 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
             env.milestone(0);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, "P1,P2,P3", null, null, null);
+            assertRectanglesManyRow(env, BOXES, null, "P1,P2,P3", null, null, null);
             sendEventRectangle(env, "P4", 80, 40, 1, 1);
             sendEventRectangle(env, "P5", 81, 41, 1, 1);
 
             env.milestone(1);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, "P1,P2,P3,P4,P5", null, null, null);
+            assertRectanglesManyRow(env, BOXES, null, "P1,P2,P3,P4,P5", null, null, null);
 
             env.undeployAll();
         }
@@ -396,7 +408,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public EPLSpatialMXCIFEventIndexEdgeSubdivide(boolean straddle) {
@@ -409,8 +421,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create window RectangleWindow#keepall as (id string, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleWindow((x,y,width,height) mxcifquadtree(0,0,100,100,2,5));\n" +
                 "insert into RectangleWindow select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Set<BoundingBox> boxesLevel4 = getLevel5Boxes();
             int count = 0;
@@ -541,7 +553,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -550,8 +562,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
                 "create index MyIndex on RectangleWindow((px,py,pw,ph) mxcifquadtree(0,0,100,100));\n" +
                 "insert into RectangleWindow select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             List<SupportSpatialEventRectangle> rectangles = randomRectangles(random, NUM_POINTS, X, Y, WIDTH, HEIGHT);
@@ -562,7 +574,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             env.milestone(0);
 
             for (int i = 0; i < NUM_QUERIES_AFTER_LOAD; i++) {
-                randomQuery(env, path, random, rectangles);
+                randomQuery(env, "s0", random, rectangles);
             }
 
             AtomicInteger milestone = new AtomicInteger();
@@ -575,7 +587,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
                 env.runtime().getFireAndForgetService().executeQuery(preparedDelete);
 
                 for (int i = 0; i < NUM_QUERIES_AFTER_EACH_REMOVE; i++) {
-                    randomQuery(env, path, random, rectangles);
+                    randomQuery(env, "s0", random, rectangles);
                 }
 
                 if (Arrays.binarySearch(CHECKPOINT_REMAINING, rectangles.size()) >= 0) {
@@ -593,7 +605,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             return rectangles.remove(index);
         }
 
-        private void randomQuery(RegressionEnvironment env, RegressionPath path, Random random, List<SupportSpatialEventRectangle> rectangles) {
+        private void randomQuery(RegressionEnvironment env, String stmtName, Random random, List<SupportSpatialEventRectangle> rectangles) {
             double bbWidth = random.nextDouble() * WIDTH * 1.5;
             double bbHeight = random.nextDouble() * HEIGHT * 1.5;
             double bbMinX = random.nextDouble() * WIDTH + X * 0.8;
@@ -602,7 +614,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             double bbMaxY = bbMinY + bbHeight;
             BoundingBox boundingBox = new BoundingBox(bbMinX, bbMinY, bbMaxX, bbMaxY);
             // Comment-me-in: log.info("Query: " + boundingBox);
-            assertBBRectangles(env, boundingBox, rectangles);
+            assertBBRectangles(env, stmtName, boundingBox, rectangles);
         }
     }
 
@@ -617,7 +629,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -625,8 +637,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create table RectangleTable as (id string primary key, px double, py double, pw double, ph double);\n" +
                 "create index MyIndex on RectangleTable((px,py,pw,ph) mxcifquadtree(0,0,100,100));\n" +
                 "insert into RectangleTable select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             List<SupportSpatialEventRectangle> rectangles = generateCoordinates(random, NUM_RECTANGLES, WIDTH, HEIGHT);
@@ -646,7 +658,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
                 double startX = pointMoved.getX() - 5;
                 double startY = pointMoved.getY() - 5;
                 BoundingBox bb = new BoundingBox(startX, startY, startX + 10, startY + 10);
-                assertBBRectangles(env, bb, rectangles);
+                assertBBRectangles(env, "s0", bb, rectangles);
 
                 if (Arrays.binarySearch(CHECKPOINT_AT, i) >= 0) {
                     log.info("Checkpoint at " + rectangles.size());
@@ -712,7 +724,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -721,8 +733,8 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             String epl = "create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
                 "create unique index MyIndex on RectangleWindow((px,py,pw,ph) mxcifquadtree(0,0,1000,1000));\n" +
                 "insert into RectangleWindow select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             Collection<SupportSpatialEventRectangle> rectangles = generateCoordinates(random);
@@ -733,7 +745,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             env.milestone(0);
 
             // find all individually
-            SupportListener listener = env.listener("out");
+            SupportListener listener = env.listener("s0");
             for (SupportSpatialEventRectangle r : rectangles) {
                 env.sendEventBean(new SupportSpatialAABB("", r.getX(), r.getY(), 0.1, 0.1));
                 assertEquals(r.getId(), listener.assertOneGetNewAndReset().get("c0"));
@@ -766,12 +778,12 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
             }
 
             env.sendEventBean(new SupportSpatialAABB("", 0, 0, SIZE, SIZE));
-            assertFalse(env.listener("out").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportSpatialAABB("", 0, 0, SIZE, SIZE));
-            assertFalse(env.listener("out").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -803,10 +815,10 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         assertEquals(expected, bbTwo.intersectsBoxIncludingEnd(one.getX(), one.getY(), one.getWidth(), one.getHeight()));
 
         env.sendEventBean(new SupportSpatialDualAABB(one, two));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
 
         env.sendEventBean(new SupportSpatialDualAABB(two, one));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static void sendSpatialEventRectanges(RegressionEnvironment env, int numX, int numY) {

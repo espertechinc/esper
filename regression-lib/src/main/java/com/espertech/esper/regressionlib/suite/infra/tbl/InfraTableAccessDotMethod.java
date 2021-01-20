@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -21,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,13 +64,13 @@ public class InfraTableAccessDotMethod {
 
             String myBean = MyBean.class.getName();
             RegressionPath path = new RegressionPath();
-            String eplType = "create objectarray schema MyEvent as (p0 string);" +
-                "create objectarray schema PopulateEvent as (" +
+            String eplType = "@buseventtype create objectarray schema MyEvent as (p0 string);" +
+                "@buseventtype create objectarray schema PopulateEvent as (" +
                 "key string, ts long" +
                 ", mb " + myBean +
                 ", mbarr " + myBean + "[]" +
                 ", me MyEvent, mearr MyEvent[])";
-            env.compileDeployWBusPublicType(eplType, path);
+            env.compileDeploy(eplType, path);
 
             String eplDeclare = "create table varaggPWD (key string" + (grouped ? " primary key" : "") +
                 ", ts long" +
@@ -100,11 +100,12 @@ public class InfraTableAccessDotMethod {
             Object[] event = makePopulateEvent();
             env.sendEventObjectArray(event, "PopulateEvent");
             env.sendEventBean(new SupportBean_S0(0, "E1"));
-            EventBean output = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(output, "c0,c1,c3".split(","),
-                new Object[]{55, "x", "p0value"});
-            assertEquals(1, ((Collection) output.get("c2")).size());
-            assertEquals("[0_p0, 1_p0]", output.get("c4").toString());
+            env.assertEventNew("s0", output -> {
+                EPAssertionUtil.assertProps(output, "c0,c1,c3".split(","),
+                    new Object[]{55, "x", "p0value"});
+                assertEquals(1, ((Collection) output.get("c2")).size());
+                assertEquals("[0_p0, 1_p0]", output.get("c4").toString());
+            });
 
             env.undeployAll();
         }
@@ -141,7 +142,7 @@ public class InfraTableAccessDotMethod {
             " from SupportBean_S0";
         env.compileDeploy(soda, eplSelect, path).addListener("s0");
         Object[][] expectedAggType = new Object[][]{{"c0", Integer.class}, {"c1", Integer.class}, {"c2", Collection.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         String[] fields = "c0,c1,c2".split(",");
         makeSendBean(env, "E1", 10, 0);
@@ -184,14 +185,14 @@ public class InfraTableAccessDotMethod {
             (grouped ? " group by theString" : "");
         env.compileDeploy(soda, eplInto, path);
         Object[][] expectedAggType = new Object[][]{{"a1", Long.class}, {"a2", SupportBean[].class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("into").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("into", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         String key = grouped ? "[\"E1\"]" : "";
         String eplGet = "@name('s0') select varaggWDE" + key + ".a1.after(150L) as c0, " +
             "varaggWDE" + key + ".a2.countOf() as c1 from SupportBean_S0";
         env.compileDeploy(soda, eplGet, path).addListener("s0");
         Object[][] expectedGetType = new Object[][]{{"c0", Boolean.class}, {"c1", Integer.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedGetType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedGetType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         String[] fields = "c0,c1".split(",");
         makeSendBean(env, "E1", 10, 100);
@@ -213,7 +214,9 @@ public class InfraTableAccessDotMethod {
         env.sendEventBean(bean);
     }
 
-    public static class MyBean {
+    public static class MyBean implements Serializable {
+        private static final long serialVersionUID = 3540277937379443455L;
+
         public String getMyProperty() {
             return "x";
         }

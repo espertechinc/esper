@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
@@ -41,7 +40,7 @@ public class InfraNWTableEventType {
             env.sendEventMap(CollectionUtil.buildMap("foo", "a", "bar", 1d), "Fubar");
             env.sendEventMap(CollectionUtil.buildMap("foo", "b", "bar", 2d), "Fubar");
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("window"), "foo,bar".split(","), new Object[][] {{"a", 1d}, {"b", 2d}});
+            env.assertPropsPerRowIterator("window", "foo,bar".split(","), new Object[][] {{"a", 1d}, {"b", 2d}});
 
             env.undeployAll();
         }
@@ -78,7 +77,7 @@ public class InfraNWTableEventType {
         env.compileDeploy(eplCreate);
 
         Object[][] expectedType = new Object[][]{{"c0", Integer[].class}, {"c1", int[].class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         env.undeployAll();
     }

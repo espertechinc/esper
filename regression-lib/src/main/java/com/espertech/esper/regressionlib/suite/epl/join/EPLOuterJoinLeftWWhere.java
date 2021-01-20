@@ -76,7 +76,7 @@ public class EPLOuterJoinLeftWWhere {
 
             SupportBean_S0 eventS0 = new SupportBean_S0(0, "0", "[a]");
             sendEvent(eventS0, env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), eventS0, null);
+            env.assertEventNew("s0", event -> compareEvent(event, eventS0, null));
 
             // Send events to test the join for multiple rows incl. null value
             SupportBean_S1 s1Bean1 = new SupportBean_S1(1000, "5", "X");
@@ -86,13 +86,15 @@ public class EPLOuterJoinLeftWWhere {
             SupportBean_S0 s0 = new SupportBean_S0(1, "5", "X");
             sendEvent(env, new Object[]{s1Bean1, s1Bean2, s1Bean3, s1Bean4, s0});
 
-            assertEquals(3, env.listener("s0").getLastNewData().length);
-            Object[] received = new Object[3];
-            for (int i = 0; i < 3; i++) {
-                assertSame(s0, env.listener("s0").getLastNewData()[i].get("s0"));
-                received[i] = env.listener("s0").getLastNewData()[i].get("s1");
-            }
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{s1Bean1, s1Bean3, s1Bean4}, received);
+            env.assertListener("s0", listener -> {
+                assertEquals(3, listener.getLastNewData().length);
+                Object[] received = new Object[3];
+                for (int i = 0; i < 3; i++) {
+                    assertSame(s0, listener.getLastNewData()[i].get("s0"));
+                    received[i] = listener.getLastNewData()[i].get("s1");
+                }
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{s1Bean1, s1Bean3, s1Bean4}, received);
+            });
 
             env.undeployAll();
         }
@@ -134,7 +136,7 @@ public class EPLOuterJoinLeftWWhere {
             // Send S0[2] p01=d
             eventsS0[2].setP01("[d]");
             sendEvent(eventsS0[2], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), eventsS0[2], eventsS1[2]);
+            env.assertEventNew("s0", event -> compareEvent(event, eventsS0[2], eventsS1[2]));
 
             // Send S1[3] and S0[3] with differing props, no match expected
             eventsS1[3].setP11("[e]");
@@ -150,9 +152,11 @@ public class EPLOuterJoinLeftWWhere {
     private static class EPLJoinEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             setupStatement(env, "");
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(SupportBean_S0.class, type.getPropertyType("s0"));
-            assertEquals(SupportBean_S1.class, type.getPropertyType("s1"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(SupportBean_S0.class, type.getPropertyType("s0"));
+                assertEquals(SupportBean_S1.class, type.getPropertyType("s1"));
+            });
             env.undeployAll();
         }
     }
@@ -166,7 +170,7 @@ public class EPLOuterJoinLeftWWhere {
 
         SupportBean_S0 s0 = new SupportBean_S0(1, "5", "X");
         sendEvent(s0, env);
-        compareEvent(env.listener("s0").assertOneGetNewAndReset(), s0, s1Bean1);
+        env.assertEventNew("s0", event -> compareEvent(event, s0, s1Bean1));
     }
 
     private static void tryWhereNull(RegressionEnvironment env) {
@@ -178,7 +182,7 @@ public class EPLOuterJoinLeftWWhere {
 
         SupportBean_S0 s0 = new SupportBean_S0(1, "5", "X");
         sendEvent(s0, env);
-        compareEvent(env.listener("s0").assertOneGetNewAndReset(), s0, s1Bean2);
+        env.assertEventNew("s0", event -> compareEvent(event, s0, s1Bean2));
     }
 
     private static void compareEvent(EventBean receivedEvent, SupportBean_S0 expectedS0, SupportBean_S1 expectedS1) {

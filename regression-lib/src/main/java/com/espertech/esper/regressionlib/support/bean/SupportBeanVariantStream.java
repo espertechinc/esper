@@ -15,7 +15,11 @@ import com.espertech.esper.common.internal.support.SupportEnum;
 import java.io.Serializable;
 
 // For testing variant streams to act as a variant of SupportBean
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportBeanVariantStream implements Serializable {
+    private static final long serialVersionUID = 1129211738698977153L;
     private String theString;
     private boolean boolBoxed;
     private Integer intPrimitive;

@@ -27,7 +27,6 @@ import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggM
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTHandler;
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTSingleEventState;
 import com.espertech.esper.regressionlib.support.extend.aggmultifunc.SupportAggMFMultiRTSingleEventStateFactory;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,7 +94,7 @@ public class ClientExtendAggregationMultiFunction {
                 {"c0", SupportBean[].class, SupportBean.class.getName(), true},
                 {"c1", Boolean.class, null, null}, {"c2", Boolean.class, null, null}
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedEnumEvent, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedEnumEvent, statement.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment()));
 
             SupportBean eventEnumOne = new SupportBean("E1", 1);
             env.sendEventBean(eventEnumOne);
@@ -126,7 +125,7 @@ public class ClientExtendAggregationMultiFunction {
                 {"c1", Boolean.class, null, null}, {"c2", Boolean.class, null, null},
                 {"c3", String.class, null, null}, {"c4", Integer.class, null, null},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedSingleEvent, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedSingleEvent, statement.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment()));
 
             SupportBean eventOne = new SupportBean("E1", 1);
             env.sendEventBean(eventOne);
@@ -157,17 +156,21 @@ public class ClientExtendAggregationMultiFunction {
                 {"c0", Collection.class, null, null}, {"c1", Collection.class, null, null},
                 {"c2", Boolean.class, null, null}, {"c3", Boolean.class, null, null},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarColl, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarColl, statement.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment()));
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            env.assertPropsNew("s0", fieldsScalarColl, new Object[]{true, true});
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1"}, (Collection) event.get("c0"));
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, (Collection) event.get("c1"));
+                EPAssertionUtil.assertProps(event, fieldsScalarColl, new Object[]{true, true});
+            });
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1", "E2"}, (Collection) env.listener("s0").assertOneGetNew().get("c0"));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Collection) env.listener("s0").assertOneGetNew().get("c1"));
-            env.assertPropsNew("s0", fieldsScalarColl, new Object[]{false, false});
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"E1", "E2"}, (Collection) event.get("c0"));
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Collection) event.get("c1"));
+                EPAssertionUtil.assertProps(event, fieldsScalarColl, new Object[]{false, false});
+            });
 
             env.undeployAll();
         }
@@ -187,7 +190,7 @@ public class ClientExtendAggregationMultiFunction {
                 {"c0", String[].class, null, null}, {"c1", Integer[].class, null, null},
                 {"c2", Boolean.class, null, null}, {"c3", Boolean.class, null, null},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalarArray, statement.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment()));
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.assertPropsNew("s0", fieldsScalarArray, new Object[]{
@@ -207,7 +210,7 @@ public class ClientExtendAggregationMultiFunction {
             env.compileDeploy(eplScalar).addListener("s0");
 
             Object[][] expectedScalar = new Object[][]{{"c0", String.class, null, null}, {"c1", Integer.class, null, null}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment());
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedScalar, statement.getEventType(), SupportEventTypeAssertionEnum.getSetWithFragment()));
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.assertPropsNew("s0", fieldsScalar, new Object[]{"E1", 1});
@@ -231,17 +234,17 @@ public class ClientExtendAggregationMultiFunction {
 
             SupportBean e1 = new SupportBean("E1", 1);
             env.sendEventBean(e1);
-            assertList(env.listener("s0"), e1);
+            assertList(env, e1);
 
             SupportBean e2 = new SupportBean("E2", 2);
             env.sendEventBean(e2);
-            assertList(env.listener("s0"), e1, e2);
+            assertList(env, e1, e2);
 
             env.milestone(0);
 
             SupportBean e3 = new SupportBean("E3", 3);
             env.sendEventBean(e3);
-            assertList(env.listener("s0"), e2, e3);
+            assertList(env, e2, e3);
 
             env.undeployAll();
         }
@@ -270,39 +273,43 @@ public class ClientExtendAggregationMultiFunction {
     }
 
     private static void tryAssertion(RegressionEnvironment env) {
-
         String[] fields = "c0,c1".split(",");
-        EventType eventType = env.statement("s0").getEventType();
-        for (String prop : fields) {
-            assertEquals(SupportBean.class, eventType.getPropertyDescriptor(prop).getPropertyType());
-            assertEquals(true, eventType.getPropertyDescriptor(prop).isFragment());
-            assertEquals(SupportBean.class.getName(), eventType.getFragmentType(prop).getFragmentType().getName());
-        }
 
-        // there should be just 1 forge instance for all of the registered functions for this statement
-        assertEquals(1, SupportAggMFMultiRTForge.getForges().size());
-        assertEquals(2, SupportAggMFMultiRTForge.getFunctionDeclContexts().size());
-        for (int i = 0; i < 2; i++) {
-            AggregationMultiFunctionDeclarationContext contextDecl = SupportAggMFMultiRTForge.getFunctionDeclContexts().get(i);
-            assertEquals(i == 0 ? "se1" : "se2", contextDecl.getFunctionName());
-            assertFalse(contextDecl.isDistinct());
-            assertNotNull(contextDecl.getConfiguration());
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String prop : fields) {
+                assertEquals(SupportBean.class, eventType.getPropertyDescriptor(prop).getPropertyType());
+                assertEquals(true, eventType.getPropertyDescriptor(prop).isFragment());
+                assertEquals(SupportBean.class.getName(), eventType.getFragmentType(prop).getFragmentType().getName());
+            }
+        });
 
-            AggregationMultiFunctionValidationContext contextValid = SupportAggMFMultiRTForge.getFunctionHandlerValidationContexts().get(i);
-            assertEquals(i == 0 ? "se1" : "se2", contextValid.getFunctionName());
-            assertNotNull(contextValid.getParameterExpressions());
-            assertNotNull(contextValid.getAllParameterExpressions());
-            assertEquals("someinfovalue", contextValid.getConfig().getAdditionalConfiguredProperties().get("someinfokey"));
-            assertNotNull(contextValid.getEventTypes());
-            assertNotNull(contextValid.getValidationContext());
-            assertNotNull(contextValid.getStatementName());
-        }
-        assertEquals(2, SupportAggMFMultiRTHandler.getProviderKeys().size());
-        if (!SupportAggMFMultiRTHandler.getAccessorModes().isEmpty()) {
-            assertEquals(2, SupportAggMFMultiRTHandler.getAccessorModes().size());
-            assertEquals(1, SupportAggMFMultiRTHandler.getStateFactoryModes().size());
-        }
-        assertEquals(0, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
+        env.assertThat(() -> {
+            // there should be just 1 forge instance for all of the registered functions for this statement
+            assertEquals(1, SupportAggMFMultiRTForge.getForges().size());
+            assertEquals(2, SupportAggMFMultiRTForge.getFunctionDeclContexts().size());
+            for (int i = 0; i < 2; i++) {
+                AggregationMultiFunctionDeclarationContext contextDecl = SupportAggMFMultiRTForge.getFunctionDeclContexts().get(i);
+                assertEquals(i == 0 ? "se1" : "se2", contextDecl.getFunctionName());
+                assertFalse(contextDecl.isDistinct());
+                assertNotNull(contextDecl.getConfiguration());
+
+                AggregationMultiFunctionValidationContext contextValid = SupportAggMFMultiRTForge.getFunctionHandlerValidationContexts().get(i);
+                assertEquals(i == 0 ? "se1" : "se2", contextValid.getFunctionName());
+                assertNotNull(contextValid.getParameterExpressions());
+                assertNotNull(contextValid.getAllParameterExpressions());
+                assertEquals("someinfovalue", contextValid.getConfig().getAdditionalConfiguredProperties().get("someinfokey"));
+                assertNotNull(contextValid.getEventTypes());
+                assertNotNull(contextValid.getValidationContext());
+                assertNotNull(contextValid.getStatementName());
+            }
+            assertEquals(2, SupportAggMFMultiRTHandler.getProviderKeys().size());
+            if (!SupportAggMFMultiRTHandler.getAccessorModes().isEmpty()) {
+                assertEquals(2, SupportAggMFMultiRTHandler.getAccessorModes().size());
+                assertEquals(1, SupportAggMFMultiRTHandler.getStateFactoryModes().size());
+            }
+            assertEquals(0, SupportAggMFMultiRTSingleEventStateFactory.getStateContexts().size());
+        });
 
         // group 1
         SupportBean eventOne = new SupportBean("E1", 1);
@@ -327,12 +334,13 @@ public class ClientExtendAggregationMultiFunction {
 
     private static void sendAssertList(RegressionEnvironment env, SupportBean... events) {
         env.sendEventBean(new SupportBean_S0(1));
-        Object[] out = ((Collection) env.listener("s0").assertOneGetNewAndReset().get("c0")).toArray();
-        EPAssertionUtil.assertEqualsExactOrder(out, events);
+        assertList(env, events);
     }
 
-    private static void assertList(SupportListener listener, SupportBean... events) {
-        Object[] out = ((Collection) listener.assertOneGetNewAndReset().get("c0")).toArray();
-        EPAssertionUtil.assertEqualsExactOrder(out, events);
+    private static void assertList(RegressionEnvironment env, SupportBean... events) {
+        env.assertEventNew("s0", event -> {
+            Object[] out = ((Collection) event.get("c0")).toArray();
+            EPAssertionUtil.assertEqualsExactOrder(out, events);
+        });
     }
 }

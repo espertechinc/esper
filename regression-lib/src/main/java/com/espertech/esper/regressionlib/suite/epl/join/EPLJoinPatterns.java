@@ -16,10 +16,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -55,24 +57,20 @@ public class EPLJoinPatterns {
             env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 1, "b");
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, null, null, 1, "b", 1, "s1A");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, null, null, 1, "b", 1, "s1A"));
 
             sendEventS1(env, 2, "s2A");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, 2, "a", null, null, 2, "s2A");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, 2, "a", null, null, 2, "s2A"));
 
             sendEventS1(env, 20, "s20A");
             sendEventS1(env, 30, "s30A");
             env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 20, "a");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, 20, "a", null, null, 20, "s20A");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, 20, "a", null, null, 20, "s20A"));
 
             sendEventS0(env, 20, "b");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, null, null, 20, "b", 20, "s20A");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, null, null, 20, "b", 20, "s20A"));
 
             sendEventS0(env, 30, "c");   // filtered out
             env.assertListenerNotInvoked("s0");
@@ -81,17 +79,14 @@ public class EPLJoinPatterns {
             env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 50, "b");   // pushing an event s0(2, "a") out the window
-            theEvent = env.listener("s0").assertOneGetOldAndReset();
-            assertEventData(theEvent, 2, "a", null, null, 2, "s2A");
+            env.assertEventOld("s0", theEvent -> assertEventData(theEvent, 2, "a", null, null, 2, "s2A"));
 
             // stop statement
-            SupportListener listener = env.listener("s0");
             env.undeployAll();
 
             sendEventS1(env, 60, "s20");
             sendEventS0(env, 70, "a");
             sendEventS0(env, 71, "b");
-            assertFalse(listener.getAndClearIsInvoked());
 
             // start statement
             env.compileDeploy(stmtText).addListener("s0");
@@ -102,8 +97,7 @@ public class EPLJoinPatterns {
             env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 70, "b");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, null, null, 70, "b", 70, "s1-70");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, null, null, 70, "b", 70, "s1-70"));
 
             env.undeployAll();
         }
@@ -131,8 +125,7 @@ public class EPLJoinPatterns {
             sendEventS0(env, 3, "a");
             sendEventS2(env, 3, "c");
             sendEventS1(env, 1, "b");
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, 3, 1, 3, 2, "a", "b", "c", "d");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, 3, 1, 3, 2, "a", "b", "c", "d"));
 
             sendEventS0(env, 11, "a1");
             sendEventS2(env, 13, "c1");
@@ -144,13 +137,11 @@ public class EPLJoinPatterns {
             sendEventS0(env, 21, "a2");
             sendEventS2(env, 21, "c2");
             sendEventS1(env, 26, "b2");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, 21, 26, 21, 25, "a2", "b2", "c2", "d2");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, 21, 26, 21, 25, "a2", "b2", "c2", "d2"));
 
             sendEventS0(env, 31, "a3");
             sendEventS1(env, 32, "b3");
-            theEvent = env.listener("s0").assertOneGetOldAndReset();   // event moving out of window
-            assertEventData(theEvent, 3, 1, 3, 2, "a", "b", "c", "d");
+            env.assertEventOld("s0", theEvent -> assertEventData(theEvent, 3, 1, 3, 2, "a", "b", "c", "d"));
             sendEventS2(env, 33, "c3");
             sendEventS3(env, 35, "d3");
             env.assertListenerNotInvoked("s0");
@@ -178,10 +169,13 @@ public class EPLJoinPatterns {
             sendEventS0(env, 51, "a6");
             sendEventS2(env, 51, "c6");
             sendEventS1(env, 56, "b6");
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEventData(theEvent, 51, 56, 51, 55, "a6", "b6", "c6", "d6");
+            env.assertEventNew("s0", theEvent -> assertEventData(theEvent, 51, 56, 51, 55, "a6", "b6", "c6", "d6"));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -201,15 +195,15 @@ public class EPLJoinPatterns {
             SupportBean_S2 s2 = sendEventS2(env, 100, "");
             SupportBean_S3 s3 = sendEventS3(env, 2, "");
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", theEvent -> {
+                Map<String, EventBean> result = (Map<String, EventBean>) theEvent.get("s0");
+                assertSame(s0, result.get("es0").getUnderlying());
+                assertSame(s1, result.get("es1").getUnderlying());
 
-            Map<String, EventBean> result = (Map<String, EventBean>) theEvent.get("s0");
-            assertSame(s0, result.get("es0").getUnderlying());
-            assertSame(s1, result.get("es1").getUnderlying());
-
-            result = (Map<String, EventBean>) theEvent.get("s1");
-            assertSame(s2, result.get("es2").getUnderlying());
-            assertSame(s3, result.get("es3").getUnderlying());
+                result = (Map<String, EventBean>) theEvent.get("s1");
+                assertSame(s2, result.get("es2").getUnderlying());
+                assertSame(s3, result.get("es3").getUnderlying());
+            });
 
             env.undeployAll();
         }

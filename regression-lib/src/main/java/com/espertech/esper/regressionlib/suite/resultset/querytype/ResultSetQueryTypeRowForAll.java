@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.querytype;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -22,7 +21,8 @@ import com.espertech.esper.regressionlib.support.bean.SupportPriceEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ResultSetQueryTypeRowForAll {
     private final static String JOIN_KEY = "KEY";
@@ -33,13 +33,13 @@ public class ResultSetQueryTypeRowForAll {
         execs.add(new ResultSetQueryTypeRowForAllSumMinMax());
         execs.add(new ResultSetQueryTypeRowForAllWWindowAgg());
         execs.add(new ResultSetQueryTypeRowForAllMinMaxWindowed());
-        execs.add(new ResultSetQueryTypeSumOneView());
-        execs.add(new ResultSetQueryTypeSumJoin());
-        execs.add(new ResultSetQueryTypeAvgPerSym());
-        execs.add(new ResultSetQueryTypeSelectStarStdGroupBy());
-        execs.add(new ResultSetQueryTypeSelectExprGroupWin());
-        execs.add(new ResultSetQueryTypeSelectAvgExprStdGroupBy());
-        execs.add(new ResultSetQueryTypeSelectAvgStdGroupByUni());
+        execs.add(new ResultSetQueryTypeRowForAllSumOneView());
+        execs.add(new ResultSetQueryTypeRowForAllSumJoin());
+        execs.add(new ResultSetQueryTypeRowForAllAvgPerSym());
+        execs.add(new ResultSetQueryTypeRowForAllSelectStarStdGroupBy());
+        execs.add(new ResultSetQueryTypeRowForAllSelectExprGroupWin());
+        execs.add(new ResultSetQueryTypeRowForAllSelectAvgExprStdGroupBy());
+        execs.add(new ResultSetQueryTypeRowForAllSelectAvgStdGroupByUni());
         execs.add(new ResultSetQueryTypeRowForAllNamedWindowWindow());
         execs.add(new ResultSetQueryTypeRowForAllStaticMethodDoubleNested());
         return execs;
@@ -52,7 +52,7 @@ public class ResultSetQueryTypeRowForAll {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals("oiE1io", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "oiE1io");
 
             env.undeployAll();
         }
@@ -295,7 +295,7 @@ public class ResultSetQueryTypeRowForAll {
         }
     }
 
-    private static class ResultSetQueryTypeSumOneView implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSumOneView implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select irstream sum(longBoxed) as mySum " +
                 "from SupportBean#time(10 sec)";
@@ -309,7 +309,7 @@ public class ResultSetQueryTypeRowForAll {
         }
     }
 
-    private static class ResultSetQueryTypeSumJoin implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSumJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select irstream sum(longBoxed) as mySum " +
                 "from SupportBeanString#keepall as one, " +
@@ -327,122 +327,103 @@ public class ResultSetQueryTypeRowForAll {
         }
     }
 
-    private static class ResultSetQueryTypeAvgPerSym implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllAvgPerSym implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "sym,avgp".split(",");
             String epl = "@name('s0') select irstream avg(price) as avgp, sym " +
                 "from SupportPriceEvent#groupwin(sym)#length(2)";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportPriceEvent(1, "A"));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("A", theEvent.get("sym"));
-            assertEquals(1.0, theEvent.get("avgp"));
+            env.assertPropsNew("s0", fields, new Object[] {"A", 1.0});
 
             env.sendEventBean(new SupportPriceEvent(2, "B"));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("B", theEvent.get("sym"));
-            assertEquals(1.5, theEvent.get("avgp"));
+            env.assertPropsNew("s0", fields, new Object[] {"B", 1.5});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportPriceEvent(9, "A"));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("A", theEvent.get("sym"));
-            assertEquals((1 + 2 + 9) / 3.0, theEvent.get("avgp"));
+            env.assertPropsNew("s0", fields, new Object[] {"A", (1 + 2 + 9) / 3.0});
 
             env.sendEventBean(new SupportPriceEvent(18, "B"));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("B", theEvent.get("sym"));
-            assertEquals((1 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
+            env.assertPropsNew("s0", fields, new Object[] {"B", (1 + 2 + 9 + 18) / 4.0});
 
             env.sendEventBean(new SupportPriceEvent(5, "A"));
-            theEvent = env.listener("s0").getLastNewData()[0];
-            assertEquals("A", theEvent.get("sym"));
-            assertEquals((2 + 9 + 18 + 5) / 4.0, theEvent.get("avgp"));
-            theEvent = env.listener("s0").getLastOldData()[0];
-            assertEquals("A", theEvent.get("sym"));
-            assertEquals((5 + 2 + 9 + 18) / 4.0, theEvent.get("avgp"));
+            env.assertPropsIRPair("s0", fields, new Object[] {"A", (2 + 9 + 18 + 5) / 4.0}, new Object[] {"A", (5 + 2 + 9 + 18) / 4.0});
 
             env.undeployAll();
         }
     }
 
-    private static class ResultSetQueryTypeSelectStarStdGroupBy implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSelectStarStdGroupBy implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select istream * from SupportMarketDataBean#groupwin(symbol)#length(2)";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            env.assertListenerInvoked("s0");
-            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
-            assertTrue(env.listener("s0").getLastNewData()[0].getUnderlying() instanceof SupportMarketDataBean);
+            env.assertListener("s0", listener -> {
+                assertEquals(1.0, listener.getLastNewData()[0].get("price"));
+                assertTrue(listener.getLastNewData()[0].getUnderlying() instanceof SupportMarketDataBean);
+            });
 
             env.undeployAll();
         }
     }
 
-    private static class ResultSetQueryTypeSelectExprGroupWin implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSelectExprGroupWin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select istream price from SupportMarketDataBean#groupwin(symbol)#length(2)";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            env.assertListenerInvoked("s0");
-            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price"));
+            env.assertListener("s0", listener -> assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("price")));
 
             env.undeployAll();
         }
     }
 
-    private static class ResultSetQueryTypeSelectAvgExprStdGroupBy implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSelectAvgExprStdGroupBy implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select istream avg(price) as aprice from SupportMarketDataBean"
                 + "#groupwin(symbol)#length(2)";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            env.assertListenerInvoked("s0");
-            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertAPrice(env, 1.0);
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
-            env.assertListenerInvoked("s0");
-            assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            assertAPrice(env, 2.0);
 
             env.undeployAll();
         }
     }
 
-    private static class ResultSetQueryTypeSelectAvgStdGroupByUni implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllSelectAvgStdGroupByUni implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select istream average as aprice from SupportMarketDataBean"
                 + "#groupwin(symbol)#length(2)#uni(price)";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", 1);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(1.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            env.assertEqualsNew("s0", "aprice", 1.0);
 
             env.milestone(0);
 
             sendEvent(env, "B", 3);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(3.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            env.assertEqualsNew("s0", "aprice", 3.0);
+
             sendEvent(env, "A", 3);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(2.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            env.assertEqualsNew("s0", "aprice", 2.0);
 
             env.milestone(1);
 
             sendEvent(env, "A", 10);
+            env.listenerReset("s0");
+
             sendEvent(env, "A", 20);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(15.0, env.listener("s0").getLastNewData()[0].get("aprice"));
+            env.assertEqualsNew("s0", "aprice", 15.0);
 
             env.undeployAll();
         }
@@ -450,38 +431,35 @@ public class ResultSetQueryTypeRowForAll {
 
     private static void tryAssert(RegressionEnvironment env) {
         // assert select result type
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        String[] fields = "mySum".split(",");
+        env.assertStatement("s0", statement -> assertEquals(Long.class, statement.getEventType().getPropertyType("mySum")));
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{null}});
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
-        assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertMySum(env, 10L);
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 5000);
         sendEvent(env, 15);
-        assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        assertMySum(env, 25L);
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{25L}});
 
         sendTimerEvent(env, 8000);
         sendEvent(env, -5);
-        assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        assertNull(env.listener("s0").getLastOldData());
+        assertMySum(env, 20L);
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{20L}});
 
         sendTimerEvent(env, 10000);
-        assertEquals(20L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertPropsIRPair("s0", fields, new Object[] {10L}, new Object[] {20L});
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{10L}});
 
         sendTimerEvent(env, 15000);
-        assertEquals(10L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertEquals(-5L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertPropsIRPair("s0", fields, new Object[] {-5L}, new Object[] {10L});
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{-5L}});
 
         sendTimerEvent(env, 18000);
-        assertEquals(-5L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertNull(env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertPropsIRPair("s0", fields, new Object[] {null}, new Object[] {-5L});
         env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"mySum"}, new Object[][]{{null}});
     }
 
@@ -570,6 +548,14 @@ public class ResultSetQueryTypeRowForAll {
 
     private static void sendTimerEvent(RegressionEnvironment env, long msec) {
         env.advanceTime(msec);
+    }
+
+    private static void assertMySum(RegressionEnvironment env, long expected) {
+        env.assertListener("s0", listener -> assertEquals(expected, listener.getAndResetLastNewData()[0].get("mySum")));
+    }
+
+    private static void assertAPrice(RegressionEnvironment env, double expected) {
+        env.assertListener("s0", listener -> assertEquals(expected, listener.getAndResetLastNewData()[0].get("aprice")));
     }
 
     public static class MyHelper {

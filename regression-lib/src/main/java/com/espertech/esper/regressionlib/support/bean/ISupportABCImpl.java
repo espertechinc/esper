@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.support.bean;
 
 public class ISupportABCImpl implements ISupportA, ISupportB, ISupportC {
+    private static final long serialVersionUID = -4545077147434078484L;
     private String valueA;
     private String valueB;
     private String valueBaseAB;

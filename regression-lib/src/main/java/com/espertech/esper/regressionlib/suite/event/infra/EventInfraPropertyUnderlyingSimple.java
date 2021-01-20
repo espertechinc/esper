@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
@@ -87,20 +86,24 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
 
         String[] fields = "myInt,myString".split(",");
 
-        assertEquals(Integer.class, JavaClassHelper.getBoxedType(env.statement("s0").getEventType().getPropertyType("myInt")));
-        assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("myString"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(Integer.class, JavaClassHelper.getBoxedType(statement.getEventType().getPropertyType("myInt")));
+            assertEquals(String.class, statement.getEventType().getPropertyType("myString"));
+        });
 
         Object eventOne = send.apply(typename, env, 3, "some string");
 
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        SupportEventTypeAssertionUtil.assertConsistency(event);
-        assertUnderlying(typename, eventOne, event.getUnderlying());
-        EPAssertionUtil.assertProps(event, fields, new Object[]{3, "some string"});
+        env.assertEventNew("s0", event -> {
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+            assertUnderlying(typename, eventOne, event.getUnderlying());
+            EPAssertionUtil.assertProps(event, fields, new Object[]{3, "some string"});
+        });
 
         Object eventTwo = send.apply(typename, env, 4, "other string");
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertUnderlying(typename, eventTwo, event.getUnderlying());
-        EPAssertionUtil.assertProps(event, fields, new Object[]{4, "other string"});
+        env.assertEventNew("s0", event -> {
+            assertUnderlying(typename, eventTwo, event.getUnderlying());
+            EPAssertionUtil.assertProps(event, fields, new Object[]{4, "other string"});
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -121,21 +124,23 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
 
         String[] fields = "myInt,exists_myInt,myString,exists_myString".split(",");
 
-        EventType eventType = env.statement("s0").getEventType();
-        assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("myInt")));
-        assertEquals(String.class, eventType.getPropertyType("myString"));
-        assertEquals(Boolean.class, eventType.getPropertyType("exists_myInt"));
-        assertEquals(Boolean.class, eventType.getPropertyType("exists_myString"));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            assertEquals(Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("myInt")));
+            assertEquals(String.class, eventType.getPropertyType("myString"));
+            assertEquals(Boolean.class, eventType.getPropertyType("exists_myInt"));
+            assertEquals(Boolean.class, eventType.getPropertyType("exists_myString"));
+        });
 
         send.apply(typename, env, 3, "some string");
 
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        runAssertionEventInvalidProp(event);
-        EPAssertionUtil.assertProps(event, fields, new Object[]{3, true, "some string", true});
+        env.assertEventNew("s0", event -> {
+            runAssertionEventInvalidProp(event);
+            EPAssertionUtil.assertProps(event, fields, new Object[]{3, true, "some string", true});
+        });
 
         send.apply(typename, env, 4, "other string");
-        event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, fields, new Object[]{4, true, "other string", true});
+        env.assertEventNew("s0", event -> EPAssertionUtil.assertProps(event, fields, new Object[]{4, true, "other string", true}));
 
         env.undeployModuleContaining("s0");
     }
@@ -148,39 +153,43 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
     }
 
     private void runAssertionTypeValidProp(RegressionEnvironment env, String typeName, boolean boxed) {
-        EventType eventType = !typeName.equals(JSON_TYPENAME) ?
-            env.runtime().getEventTypeService().getEventTypePreconfigured(typeName) :
-            env.runtime().getEventTypeService().getEventType(env.deploymentId("schema"), typeName);
+        env.assertThat(() -> {
+            EventType eventType = !typeName.equals(JSON_TYPENAME) ?
+                env.runtime().getEventTypeService().getEventTypePreconfigured(typeName) :
+                env.runtime().getEventTypeService().getEventType(env.deploymentId("schema"), typeName);
 
-        Object[][] expectedType = new Object[][]{{"myInt", boxed ? Integer.class : int.class, null, null}, {"myString", String.class, null, null}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
+            Object[][] expectedType = new Object[][]{{"myInt", boxed ? Integer.class : int.class, null, null}, {"myString", String.class, null, null}};
+            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, eventType, SupportEventTypeAssertionEnum.getSetWithFragment());
 
-        EPAssertionUtil.assertEqualsAnyOrder(new String[]{"myString", "myInt"}, eventType.getPropertyNames());
+            EPAssertionUtil.assertEqualsAnyOrder(new String[]{"myString", "myInt"}, eventType.getPropertyNames());
 
-        assertNotNull(eventType.getGetter("myInt"));
-        assertTrue(eventType.isProperty("myInt"));
-        assertEquals(boxed ? Integer.class : int.class, eventType.getPropertyType("myInt"));
-        SupportEventPropUtil.assertPropEquals(new SupportEventPropDesc("myString", String.class), eventType.getPropertyDescriptor("myString"));
+            assertNotNull(eventType.getGetter("myInt"));
+            assertTrue(eventType.isProperty("myInt"));
+            assertEquals(boxed ? Integer.class : int.class, eventType.getPropertyType("myInt"));
+            SupportEventPropUtil.assertPropEquals(new SupportEventPropDesc("myString", String.class), eventType.getPropertyDescriptor("myString"));
+        });
     }
 
     private void runAssertionTypeInvalidProp(RegressionEnvironment env, String typeName, boolean xml) {
-        EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured(typeName);
+        env.assertThat(() -> {
+            EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured(typeName);
 
-        for (String prop : Arrays.asList("xxxx", "myString[0]", "myString('a')", "myString.x", "myString.x.y", "myString.x")) {
-            assertEquals(false, eventType.isProperty(prop));
-            Class expected = null;
-            if (xml) {
-                if (prop.equals("myString[0]")) {
-                    expected = String.class;
+            for (String prop : Arrays.asList("xxxx", "myString[0]", "myString('a')", "myString.x", "myString.x.y", "myString.x")) {
+                assertEquals(false, eventType.isProperty(prop));
+                Class expected = null;
+                if (xml) {
+                    if (prop.equals("myString[0]")) {
+                        expected = String.class;
+                    }
+                    if (prop.equals("myString.x?")) {
+                        expected = Node.class;
+                    }
                 }
-                if (prop.equals("myString.x?")) {
-                    expected = Node.class;
-                }
+                assertEquals(expected, eventType.getPropertyType(prop));
+                assertNull(eventType.getPropertyDescriptor(prop));
+                assertNull(eventType.getFragmentType(prop));
             }
-            assertEquals(expected, eventType.getPropertyType(prop));
-            assertNull(eventType.getPropertyDescriptor(prop));
-            assertNull(eventType.getFragmentType(prop));
-        }
+        });
     }
 
     @FunctionalInterface
@@ -224,7 +233,7 @@ public class EventInfraPropertyUnderlyingSimple implements RegressionExecution {
     };
 
     private static final FunctionSendEventIntString FAVRO = (eventTypeName, env, a, b) -> {
-        Schema avroSchema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema avroSchema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         GenericData.Record datum = new GenericData.Record(avroSchema);
         datum.put("myInt", a);
         datum.put("myString", b);

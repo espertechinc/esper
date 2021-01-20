@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -35,9 +34,9 @@ public class InfraNamedWindowOnUpdateWMultiDispatch implements RegressionExecuti
     public void run(RegressionEnvironment env) {
         String[] fields = "company,value,total".split(",");
 
-        String eplSchema = "create schema S2 ( company string, value double, total double)";
+        String eplSchema = "@buseventtype create schema S2 ( company string, value double, total double)";
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(eplSchema, path);
+        env.compileDeploy(eplSchema, path);
 
         // ESPER-568
         env.compileDeploy("@name('create') create window S2Win#time(25 hour)#firstunique(company) as S2", path);
@@ -46,28 +45,34 @@ public class InfraNamedWindowOnUpdateWMultiDispatch implements RegressionExecuti
         env.compileDeploy("@name('s0') select count(*) as cnt from S2Win", path).addListener("s0");
 
         createSendEvent(env, "S2", "AComp", 3.0, 0.0);
-        assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"AComp", 3.0, 0.0}});
+        assertCount(env, 1L);
+        env.assertPropsPerRowIterator("create", fields, new Object[][]{{"AComp", 3.0, 0.0}});
 
         createSendEvent(env, "S2", "AComp", 6.0, 0.0);
-        assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"AComp", 3.0, 9.0}});
+        assertCount(env, 1L);
+        env.assertPropsPerRowIterator("create", fields, new Object[][]{{"AComp", 3.0, 9.0}});
 
         createSendEvent(env, "S2", "AComp", 5.0, 0.0);
-        assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
-        EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"AComp", 3.0, 8.0}});
+        assertCount(env, 1L);
+        env.assertPropsPerRowIterator("create", fields, new Object[][]{{"AComp", 3.0, 8.0}});
 
         createSendEvent(env, "S2", "BComp", 4.0, 0.0);
         // this example does not have @priority thereby it is undefined whether there are two counts delivered or one
-        if (env.listener("s0").getLastNewData().length == 2) {
-            assertEquals(1L, env.listener("s0").getLastNewData()[0].get("cnt"));
-            assertEquals(2L, env.listener("s0").getLastNewData()[1].get("cnt"));
-        } else {
-            assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
-        }
-        EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"AComp", 3.0, 7.0}, {"BComp", 4.0, 0.0}});
+        env.assertListener("s0", listener -> {
+            if (listener.getLastNewData().length == 2) {
+                assertEquals(1L, listener.getLastNewData()[0].get("cnt"));
+                assertEquals(2L, listener.getLastNewData()[1].get("cnt"));
+            } else {
+                assertEquals(2L, listener.assertOneGetNewAndReset().get("cnt"));
+            }
+        });
+        env.assertPropsPerRowIterator("create", fields, new Object[][]{{"AComp", 3.0, 7.0}, {"BComp", 4.0, 0.0}});
 
         env.undeployAll();
+    }
+
+    private static void assertCount(RegressionEnvironment env, long expected) {
+        env.assertEqualsNew("s0", "cnt", expected);
     }
 
     private static void createSendEvent(RegressionEnvironment env, String typeName, String company, double value, double total) {

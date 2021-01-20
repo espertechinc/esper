@@ -15,22 +15,18 @@ import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -49,22 +45,28 @@ public class EPLOtherSelectExprEventBeanAnnotation {
                 runAssertionEventBeanAnnotation(env, rep);
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class EPLOtherSelectExprEventBeanAnnoWSubquery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // test non-named-window
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create objectarray schema MyEvent(col1 string, col2 string)", path);
+            env.compileDeploy("@buseventtype create objectarray schema MyEvent(col1 string, col2 string)", path);
 
             String eplInsert = "@name('insert') insert into DStream select " +
                 "(select * from MyEvent#keepall) @eventbean as c0 " +
                 "from SupportBean";
             env.compileDeploy(eplInsert, path);
 
-            for (String prop : "c0".split(",")) {
-                assertFragment(prop, env.statement("insert").getEventType(), "MyEvent", true);
-            }
+            env.assertStatement("insert", statement -> {
+                for (String prop : "c0".split(",")) {
+                    assertFragment(prop, statement.getEventType(), "MyEvent", true);
+                }
+            });
 
             // test consuming statement
             String[] fields = "f0,f1".split(",");
@@ -76,14 +78,12 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             Object[] eventOne = new Object[]{"E1", null};
             env.sendEventObjectArray(eventOne, "MyEvent");
             env.sendEventBean(new SupportBean());
-            EventBean out = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(out, fields, new Object[]{new Object[]{eventOne}, "E1"});
+            env.assertPropsNew("s0", fields, new Object[]{new Object[]{eventOne}, "E1"});
 
             Object[] eventTwo = new Object[]{"E2", null};
             env.sendEventObjectArray(eventTwo, "MyEvent");
             env.sendEventBean(new SupportBean());
-            out = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(out, fields, new Object[]{new Object[]{eventOne, eventTwo}, "E2"});
+            env.assertPropsNew("s0", fields, new Object[]{new Object[]{eventOne, eventTwo}, "E2"});
 
             env.undeployAll();
         }
@@ -91,7 +91,7 @@ public class EPLOtherSelectExprEventBeanAnnotation {
 
     private static void runAssertionEventBeanAnnotation(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@name('schema') create schema MyEvent(col1 string)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@name('schema') @buseventtype create schema MyEvent(col1 string)", path);
 
         String eplInsert = "@name('insert') insert into DStream select " +
             "last(*) @eventbean as c0, " +
@@ -100,9 +100,11 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             "from MyEvent#length(2) as s0";
         env.compileDeploy(eplInsert, path).addListener("insert");
 
-        for (String prop : "c0,c1,c2".split(",")) {
-            assertFragment(prop, env.statement("insert").getEventType(), "MyEvent", prop.equals("c1") || prop.equals("c2"));
-        }
+        env.assertStatement("insert", statement -> {
+            for (String prop : "c0,c1,c2".split(",")) {
+                assertFragment(prop, statement.getEventType(), "MyEvent", prop.equals("c1") || prop.equals("c2"));
+            }
+        });
 
         // test consuming statement
         String[] fields = "f0,f1,f2,f3,f4,f5".split(",");
@@ -159,7 +161,7 @@ public class EPLOtherSelectExprEventBeanAnnotation {
             env.sendEventObjectArray(event, "MyEvent");
             eventOne = event;
         } else if (rep.isAvroEvent()) {
-            Schema schema = SupportAvroUtil.getAvroSchema(env.statement("schema").getEventType());
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "MyEvent");
             GenericData.Record event = new GenericData.Record(schema);
             event.put("col1", value);
             env.sendEventAvro(event, "MyEvent");

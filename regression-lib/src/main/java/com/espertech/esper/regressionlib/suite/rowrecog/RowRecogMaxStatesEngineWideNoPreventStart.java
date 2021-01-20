@@ -59,9 +59,9 @@ public class RowRecogMaxStatesEngineWideNoPreventStart implements RegressionExec
 
         // overflow
         env.sendEventBean(new SupportBean("D", 1));
-        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("s0"), handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 3));
+        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, "s0", handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 3));
         env.sendEventBean(new SupportBean("E", 1));
-        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("s0"), handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 4));
+        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, "s0", handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 4));
 
         env.sendEventBean(new SupportBean("D", 2));    // D gone
         env.assertPropsNew("s0", fields, new Object[]{"D"});
@@ -76,7 +76,7 @@ public class RowRecogMaxStatesEngineWideNoPreventStart implements RegressionExec
         assertTrue(handler.getContexts().isEmpty());
 
         env.sendEventBean(new SupportBean("G", 1));
-        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("s0"), handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 3));
+        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, "s0", handler.getAndResetContexts(), 3, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "s0", 3));
 
         env.undeployAll();
     }

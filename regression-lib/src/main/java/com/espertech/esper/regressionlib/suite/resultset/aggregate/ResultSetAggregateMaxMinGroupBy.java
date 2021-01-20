@@ -118,6 +118,7 @@ public class ResultSetAggregateMaxMinGroupBy {
 
     private static class ResultSetAggregateMinMaxJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select irstream symbol, " +
                 "min(volume) as minVol," +
                 "max(volume) as maxVol," +
@@ -128,12 +129,12 @@ public class ResultSetAggregateMaxMinGroupBy {
                 "where (symbol='DELL' or symbol='IBM' or symbol='GE') " +
                 "  and one.theString = two.symbol " +
                 "group by symbol";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             env.sendEventBean(new SupportBeanString(SYMBOL_DELL));
             env.sendEventBean(new SupportBeanString(SYMBOL_IBM));
 
-            tryAssertionMinMax(env, new AtomicInteger());
+            tryAssertionMinMax(env, milestone);
 
             env.undeployAll();
         }
@@ -150,15 +151,15 @@ public class ResultSetAggregateMaxMinGroupBy {
             sendEvent(env, "DELL", 100L);
             env.assertListenerNotInvoked("s0");
 
-            env.milestone(0);
+            env.milestone(1);
 
             sendEvent(env, "DELL", 131L);
-            assertEquals("DELL", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "DELL");
 
             sendEvent(env, "DELL", 132L);
-            assertEquals("DELL", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "DELL");
 
-            env.milestone(1);
+            env.milestone(2);
 
             sendEvent(env, "DELL", 129L);
             env.assertListenerNotInvoked("s0");
@@ -169,6 +170,7 @@ public class ResultSetAggregateMaxMinGroupBy {
 
     private static class ResultSetAggregateMinNoGroupSelectHaving implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "symbol,mymin".split(",");
             String stmtText = "@name('s0') select symbol, min(volume) as mymin from SupportMarketDataBean#length(5) " +
                 "having volume > min(volume) * 1.3";
             env.compileDeployAddListenerMileZero(stmtText, "s0");
@@ -179,16 +181,12 @@ public class ResultSetAggregateMaxMinGroupBy {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "DELL", 131L);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("DELL", theEvent.get("symbol"));
-            assertEquals(100L, theEvent.get("mymin"));
+            env.assertPropsNew("s0", fields, new Object[] {"DELL", 100L});
 
             env.milestone(1);
 
             sendEvent(env, "DELL", 132L);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("DELL", theEvent.get("symbol"));
-            assertEquals(100L, theEvent.get("mymin"));
+            env.assertPropsNew("s0", fields, new Object[] {"DELL", 100L});
 
             sendEvent(env, "DELL", 129L);
             sendEvent(env, "DELL", 125L);
@@ -196,9 +194,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "DELL", 170L);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("DELL", theEvent.get("symbol"));
-            assertEquals(125L, theEvent.get("mymin"));
+            env.assertPropsNew("s0", fields, new Object[] {"DELL", 125L});
 
             env.undeployAll();
         }
@@ -206,18 +202,20 @@ public class ResultSetAggregateMaxMinGroupBy {
 
     private static void tryAssertionMinMax(RegressionEnvironment env, AtomicInteger milestone) {
         // assert select result type
-        assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("minVol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("maxVol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("minDistVol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("maxDistVol"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("minVol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("maxVol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("minDistVol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("maxDistVol"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 50L);
         assertEvents(env, SYMBOL_DELL, null, null, null, null,
             SYMBOL_DELL, 50L, 50L, 50L, 50L
         );
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         sendEvent(env, SYMBOL_DELL, 30L);
         assertEvents(env, SYMBOL_DELL, 50L, 50L, 50L, 50L,
@@ -229,7 +227,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             SYMBOL_DELL, 30L, 50L, 30L, 50L
         );
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         sendEvent(env, SYMBOL_DELL, 90L);
         assertEvents(env, SYMBOL_DELL, 30L, 50L, 30L, 50L,
@@ -249,7 +247,7 @@ public class ResultSetAggregateMaxMinGroupBy {
             SYMBOL_IBM, 5L, 18L, 5L, 18L
         );
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
 
         sendEvent(env, SYMBOL_IBM, null);
         assertEvents(env, SYMBOL_IBM, 5L, 18L, 5L, 18L,
@@ -269,26 +267,27 @@ public class ResultSetAggregateMaxMinGroupBy {
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, Long minVolOld, Long maxVolOld, Long minDistVolOld, Long maxDistVolOld,
                                      String symbolNew, Long minVolNew, Long maxVolNew, Long minDistVolNew, Long maxDistVolNew) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertEquals(1, oldData.length);
-        assertEquals(1, newData.length);
+            assertEquals(1, oldData.length);
+            assertEquals(1, newData.length);
 
-        assertEquals(symbolOld, oldData[0].get("symbol"));
-        assertEquals(minVolOld, oldData[0].get("minVol"));
-        assertEquals(maxVolOld, oldData[0].get("maxVol"));
-        assertEquals(minDistVolOld, oldData[0].get("minDistVol"));
-        assertEquals(maxDistVolOld, oldData[0].get("maxDistVol"));
+            assertEquals(symbolOld, oldData[0].get("symbol"));
+            assertEquals(minVolOld, oldData[0].get("minVol"));
+            assertEquals(maxVolOld, oldData[0].get("maxVol"));
+            assertEquals(minDistVolOld, oldData[0].get("minDistVol"));
+            assertEquals(maxDistVolOld, oldData[0].get("maxDistVol"));
 
-        assertEquals(symbolNew, newData[0].get("symbol"));
-        assertEquals(minVolNew, newData[0].get("minVol"));
-        assertEquals(maxVolNew, newData[0].get("maxVol"));
-        assertEquals(minDistVolNew, newData[0].get("minDistVol"));
-        assertEquals(maxDistVolNew, newData[0].get("maxDistVol"));
+            assertEquals(symbolNew, newData[0].get("symbol"));
+            assertEquals(minVolNew, newData[0].get("minVol"));
+            assertEquals(maxVolNew, newData[0].get("maxVol"));
+            assertEquals(minDistVolNew, newData[0].get("minDistVol"));
+            assertEquals(maxDistVolNew, newData[0].get("maxDistVol"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, Long volume) {

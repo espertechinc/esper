@@ -144,7 +144,7 @@ public class ExprEnumSumOf {
             builder.expression(fields[2], "strvals.sumOf( (v, i) => extractNum(v) + i*10)");
             builder.expression(fields[3], "strvals.sumOf( (v, i, s) => extractNum(v) + i*10 + s*100)");
 
-            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), BIGDECIMAL.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), BIGDECIMAL.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()}));
 
             builder.assertion(SupportCollection.makeString("E2,E1,E5,E4")).expect(fields, 2 + 1 + 5 + 4, new BigDecimal(2 + 1 + 5 + 4), 2 + 11 + 25 + 34, 402 + 411 + 425 + 434);
 

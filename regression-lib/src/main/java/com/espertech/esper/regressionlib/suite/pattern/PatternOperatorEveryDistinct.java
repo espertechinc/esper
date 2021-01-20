@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-
 public class PatternOperatorEveryDistinct {
 
     public static Collection<RegressionExecution> executions() {
@@ -72,7 +70,7 @@ public class PatternOperatorEveryDistinct {
 
         private void sendAssertReceived(RegressionEnvironment env, String id, int[] array, boolean received) {
             env.sendEventBean(new SupportEventWithIntArray(id, array));
-            assertEquals(received, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvokedFlag("s0", received);
         }
     }
 
@@ -240,7 +238,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E1");
 
             env.milestoneInc(milestone);
 
@@ -250,12 +248,12 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 2));
-            Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E3");
 
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E4", 3));
-            Assert.assertEquals("E4", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E4");
 
             env.milestoneInc(milestone);
 
@@ -267,7 +265,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E8", 0));
-            Assert.assertEquals("E8", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E8");
 
             env.eplToModelCompileDeploy(expression);
 
@@ -298,9 +296,10 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("E1", theEvent.get("a[0].theString"));
-            Assert.assertEquals("E3", theEvent.get("a[1].theString"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals("E1", theEvent.get("a[0].theString"));
+                Assert.assertEquals("E3", theEvent.get("a[1].theString"));
+            });
 
             env.milestoneInc(milestone);
 
@@ -334,9 +333,10 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E2", 1));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("E1", theEvent.get("a[0].theString"));
-            Assert.assertEquals("E2", theEvent.get("a[1].theString"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals("E1", theEvent.get("a[0].theString"));
+                Assert.assertEquals("E2", theEvent.get("a[1].theString"));
+            });
 
             env.milestoneInc(milestone);
 
@@ -349,9 +349,10 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E6", 1));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("E5", theEvent.get("a[0].theString"));
-            Assert.assertEquals("E6", theEvent.get("a[1].theString"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals("E5", theEvent.get("a[0].theString"));
+                Assert.assertEquals("E6", theEvent.get("a[1].theString"));
+            });
 
             env.undeployAll();
         }
@@ -375,7 +376,7 @@ public class PatternOperatorEveryDistinct {
             env.compileDeploy(expression).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E1");
 
             env.milestoneInc(milestone);
 
@@ -385,7 +386,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E3", 2));
-            Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E3");
 
             env.milestoneInc(milestone);
 
@@ -421,7 +422,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E1");
 
             env.sendEventBean(new SupportBean("E2", 1));
             env.assertListenerNotInvoked("s0");
@@ -430,7 +431,7 @@ public class PatternOperatorEveryDistinct {
 
             sendTimer(5000, env);
             env.sendEventBean(new SupportBean("E3", 2));
-            Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E3");
 
             env.milestoneInc(milestone);
 
@@ -466,7 +467,7 @@ public class PatternOperatorEveryDistinct {
 
             sendTimer(50000, env);
             env.sendEventBean(new SupportBean("E10", 1));
-            Assert.assertEquals("E10", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E10");
 
             env.sendEventBean(new SupportBean("E11", 1));
             env.assertListenerNotInvoked("s0");
@@ -474,7 +475,7 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("E12", 2));
-            Assert.assertEquals("E12", env.listener("s0").assertOneGetNewAndReset().get("a.theString"));
+            assertAString(env, "E12");
 
             env.sendEventBean(new SupportBean("E13", 2));
             env.assertListenerNotInvoked("s0");
@@ -809,9 +810,11 @@ public class PatternOperatorEveryDistinct {
             env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("B7", 3));
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            EPAssertionUtil.assertPropsPerRowAnyOrder(events, "a.theString,b.theString".split(","),
-                new Object[][]{{"A1", "B7"}, {"A3", "B7"}});
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                EPAssertionUtil.assertPropsPerRowAnyOrder(events, "a.theString,b.theString".split(","),
+                    new Object[][]{{"A1", "B7"}, {"A3", "B7"}});
+            });
 
             env.undeployAll();
         }
@@ -875,5 +878,9 @@ public class PatternOperatorEveryDistinct {
 
     private static void sendSupportBean(RegressionEnvironment env, String string) {
         env.sendEventBean(new SupportBean(string, 0));
+    }
+
+    private static void assertAString(RegressionEnvironment env, String expected) {
+        env.assertEqualsNew("s0", "a.theString", expected);
     }
 }

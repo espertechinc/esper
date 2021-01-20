@@ -18,18 +18,18 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLSubselectUnfiltered {
 
@@ -64,10 +64,10 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 1L);
 
             env.undeployAll();
         }
@@ -83,12 +83,10 @@ public class EPLSubselectUnfiltered {
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
-            SupportListener listener = env.listener("s0");
             env.undeployAll();
             env.sendEventBean(new SupportBean_S0(2));
-            assertFalse(listener.isInvoked());
 
             env.compileDeployAddListenerMileZero(stmtText, "s0");
             env.sendEventBean(new SupportBean_S0(2));
@@ -96,9 +94,13 @@ public class EPLSubselectUnfiltered {
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(3));
-            Assert.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 3);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -110,7 +112,7 @@ public class EPLSubselectUnfiltered {
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.undeployAll();
         }
@@ -127,7 +129,7 @@ public class EPLSubselectUnfiltered {
 
             env.sendEventBean(new SupportBean_S1(10, "X"));
             env.sendEventBean(new SupportBean_S0(0));
-            Assert.assertEquals(0, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 0);
 
             env.undeployAll();
         }
@@ -136,53 +138,60 @@ public class EPLSubselectUnfiltered {
     private static class EPLSubselectJoinUnfiltered implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select (select id from SupportBean_S3#length(1000)) as idS3, (select id from SupportBean_S4#length(1000)) as idS4 from SupportBean_S0#keepall as s0, SupportBean_S1#keepall as s1 where s0.id = s1.id";
-
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS3"));
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS4"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS3"));
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS4"));
+            });
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
             env.sendEventBean(new SupportBean_S1(0));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(null, theEvent.get("idS3"));
-            Assert.assertEquals(null, theEvent.get("idS4"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals(null, theEvent.get("idS3"));
+                Assert.assertEquals(null, theEvent.get("idS4"));
+            });
 
             // send one event
             env.sendEventBean(new SupportBean_S3(-1));
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(1));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, theEvent.get("idS3"));
-            Assert.assertEquals(null, theEvent.get("idS4"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals(-1, theEvent.get("idS3"));
+                Assert.assertEquals(null, theEvent.get("idS4"));
+            });
 
             // send one event
             env.sendEventBean(new SupportBean_S4(-2));
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean_S1(2));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, theEvent.get("idS3"));
-            Assert.assertEquals(-2, theEvent.get("idS4"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals(-1, theEvent.get("idS3"));
+                Assert.assertEquals(-2, theEvent.get("idS4"));
+            });
 
             // send second event
             env.sendEventBean(new SupportBean_S4(-2));
             env.sendEventBean(new SupportBean_S0(3));
             env.sendEventBean(new SupportBean_S1(3));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, theEvent.get("idS3"));
-            Assert.assertEquals(null, theEvent.get("idS4"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals(-1, theEvent.get("idS3"));
+                Assert.assertEquals(null, theEvent.get("idS4"));
+            });
 
             env.sendEventBean(new SupportBean_S3(-2));
             env.sendEventBean(new SupportBean_S0(3));
             env.sendEventBean(new SupportBean_S1(3));
-            EventBean[] events = env.listener("s0").getNewDataListFlattened();
-            assertEquals(3, events.length);
-            for (int i = 0; i < events.length; i++) {
-                Assert.assertEquals(null, events[i].get("idS3"));
-                Assert.assertEquals(null, events[i].get("idS4"));
-            }
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getNewDataListFlattened();
+                assertEquals(3, events.length);
+                for (int i = 0; i < events.length; i++) {
+                    Assert.assertEquals(null, events[i].get("idS3"));
+                    Assert.assertEquals(null, events[i].get("idS4"));
+                }
+            });
 
             env.undeployAll();
         }
@@ -259,20 +268,20 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("idS1"));
+            env.assertStatement("s0", statement -> Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("idS1")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", null);
 
             // test one event
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(9d, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", 9d);
 
             // resend event
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(9d, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", 9d);
 
             env.undeployAll();
         }
@@ -285,20 +294,20 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS1"));
+            env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", null);
 
             // test one event
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(1000, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", 1000);
 
             // resend event
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(1000, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", 1000);
 
             env.undeployAll();
         }
@@ -312,11 +321,11 @@ public class EPLSubselectUnfiltered {
 
             env.sendEventBean(new SupportBean_S1(1, "X"));
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", null);
 
             env.sendEventBean(new SupportBean_S1(1, "A"));
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+            env.assertEqualsNew("s0", "idS1", 1);
 
             env.undeployAll();
         }
@@ -394,18 +403,16 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("value"));
+            env.assertStatement("s0", statement -> Assert.assertEquals(String.class, statement.getEventType().getPropertyType("value")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(1));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(null, theEvent.get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             // test one event
             env.sendEventBean(new SupportBean_S1(-1, "a", "b"));
             env.sendEventBean(new SupportBean_S0(1));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals("ab", theEvent.get("value"));
+            env.assertEqualsNew("s0", "value", "ab");
 
             env.undeployAll();
         }
@@ -413,41 +420,35 @@ public class EPLSubselectUnfiltered {
 
     private static class EPLSubselectTwoSubqSelect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = "idS1_0,idS1_1".split(",");
             String stmtText = "@name('s0') select (select id+1 as myId from SupportBean_S1#lastevent) as idS1_0, " +
                 "(select id+2 as myId from SupportBean_S1#lastevent) as idS1_1 from SupportBean_S0";
 
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
-
             // check type
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS1_0"));
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS1_1"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_0"));
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_1"));
+            });
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(1));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(null, theEvent.get("idS1_0"));
-            Assert.assertEquals(null, theEvent.get("idS1_1"));
+            env.assertPropsNew("s0", fields, new Object[] {null, null});
 
             // test one event
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean_S0(1));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(11, theEvent.get("idS1_0"));
-            Assert.assertEquals(12, theEvent.get("idS1_1"));
+            env.assertPropsNew("s0", fields, new Object[] {11, 12});
 
             // resend event
             env.sendEventBean(new SupportBean_S0(2));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(11, theEvent.get("idS1_0"));
-            Assert.assertEquals(12, theEvent.get("idS1_1"));
+            env.assertPropsNew("s0", fields, new Object[] {11, 12});
 
             // test second event
             env.sendEventBean(new SupportBean_S1(999));
             env.sendEventBean(new SupportBean_S0(3));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(1000, theEvent.get("idS1_0"));
-            Assert.assertEquals(1001, theEvent.get("idS1_1"));
+            env.assertPropsNew("s0", fields, new Object[] {1000, 1001});
 
             env.undeployAll();
         }
@@ -457,74 +458,74 @@ public class EPLSubselectUnfiltered {
         env.compileDeployAddListenerMileZero(stmtText, "s0");
 
         // check type
-        Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(columnName));
+        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, null);
 
         // test one event
         env.sendEventBean(new SupportBean_S1(10));
         env.sendEventBean(new SupportBean_S0(1));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, 10);
 
         // resend event
         env.sendEventBean(new SupportBean_S0(2));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, 10);
 
         // test second event
         env.sendEventBean(new SupportBean_S1(999));
         env.sendEventBean(new SupportBean_S0(3));
-        Assert.assertEquals(999, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, 999);
 
         env.undeployAll();
     }
 
     private static void runUnfilteredStreamPrior(RegressionEnvironment env) {
         // check type
-        Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("idS1"));
+        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+        env.assertEqualsNew("s0", "idS1", null);
 
         // test one event
         env.sendEventBean(new SupportBean_S1(10));
         env.sendEventBean(new SupportBean_S0(1));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+        env.assertEqualsNew("s0", "idS1", 10);
 
         // resend event
         env.sendEventBean(new SupportBean_S0(2));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+        env.assertEqualsNew("s0", "idS1", 10);
 
         // test second event
         env.sendEventBean(new SupportBean_S0(3));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("idS1"));
+        env.assertEqualsNew("s0", "idS1", 10);
     }
 
     private static void tryAssertMultiRowUnfiltered(RegressionEnvironment env, String stmtText, String columnName) {
         env.compileDeployAddListenerMileZero(stmtText, "s0");
 
         // check type
-        Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(columnName));
+        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, null);
 
         // test one event
         env.sendEventBean(new SupportBean_S1(10));
         env.sendEventBean(new SupportBean_S0(1));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, 10);
 
         // resend event
         env.sendEventBean(new SupportBean_S0(2));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, 10);
 
         // test second event
         env.sendEventBean(new SupportBean_S1(999));
         env.sendEventBean(new SupportBean_S0(3));
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get(columnName));
+        env.assertEqualsNew("s0", columnName, null);
 
         env.undeployAll();
     }

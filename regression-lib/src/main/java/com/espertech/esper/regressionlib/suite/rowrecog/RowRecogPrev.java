@@ -58,7 +58,7 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("P2", 1));
             env.sendEventBean(new SupportRecogBean("E1", 3));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(1);
 
@@ -113,7 +113,7 @@ public class RowRecogPrev {
                 new Object[][]{{"E5", "E6"}});
 
             sendTimer(11500, env);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -148,7 +148,7 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("P2", "c1", 1));
             env.sendEventBean(new SupportRecogBean("E1", "c1", 3));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(1);
 
@@ -203,7 +203,7 @@ public class RowRecogPrev {
                 new Object[][]{{"c2", "E5", "E6"}});
 
             sendTimer(11500, env);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -298,7 +298,7 @@ public class RowRecogPrev {
             env.milestone(8);
 
             sendTimer(16000, env);
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.undeployAll();
         }
@@ -334,7 +334,7 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("S2", "T2", 1001));
             env.sendEventBean(new SupportRecogBean("S1", null, 9));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(2);
 
@@ -389,7 +389,7 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("E1", 5));
             env.sendEventBean(new SupportRecogBean("E2", 3));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(0);
 
@@ -448,7 +448,7 @@ public class RowRecogPrev {
             env.sendEventBean(new SupportRecogBean("E1", 5));
             env.sendEventBean(new SupportRecogBean("E2", 4));
             env.assertListenerNotInvoked("s0");
-            assertFalse(env.statement("s0").iterator().hasNext());
+            env.assertIterator("s0", it -> assertFalse(it.hasNext()));
 
             env.milestone(6);
 

@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public final class SupportBeanFinal {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public final class SupportBeanFinal implements Serializable {
+    private static final long serialVersionUID = 8955986506411343481L;
     private final int intPrimitive;
 
     public SupportBeanFinal(int intPrimitive) {

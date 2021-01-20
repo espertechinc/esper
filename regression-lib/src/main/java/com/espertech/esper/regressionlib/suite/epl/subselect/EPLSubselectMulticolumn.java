@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
@@ -129,57 +128,63 @@ public class EPLSubselectMulticolumn {
                 "from SupportBean_S0 as s0";
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
-            Object[][] rows = new Object[][]{
-                {"p00", String.class, false},
-                {"subrow", Map.class, true}
-            };
-            for (int i = 0; i < rows.length; i++) {
-                String message = "Failed assertion for " + rows[i][0];
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-                Assert.assertEquals(message, rows[i][2], prop.isFragment());
-            }
+            env.assertStatement("s0", statement -> {
+                Object[][] rows = new Object[][]{
+                    {"p00", String.class, false},
+                    {"subrow", Map.class, true}
+                };
+                for (int i = 0; i < rows.length; i++) {
+                    String message = "Failed assertion for " + rows[i][0];
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                    Assert.assertEquals(message, rows[i][2], prop.isFragment());
+                }
 
-            FragmentEventType fragmentType = env.statement("s0").getEventType().getFragmentType("subrow");
-            assertFalse(fragmentType.isIndexed());
-            assertFalse(fragmentType.isNative());
-            rows = new Object[][]{
-                {"v1", Integer.class},
-                {"v2", Integer.class},
-                {"v3", Integer[].class},
-                {"v4", SupportBean[].class},
-            };
-            for (int i = 0; i < rows.length; i++) {
-                String message = "Failed assertion for " + rows[i][0];
-                EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
-                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-            }
+                FragmentEventType fragmentType = statement.getEventType().getFragmentType("subrow");
+                assertFalse(fragmentType.isIndexed());
+                assertFalse(fragmentType.isNative());
+                rows = new Object[][]{
+                    {"v1", Integer.class},
+                    {"v2", Integer.class},
+                    {"v3", Integer[].class},
+                    {"v4", SupportBean[].class},
+                };
+                for (int i = 0; i < rows.length; i++) {
+                    String message = "Failed assertion for " + rows[i][0];
+                    EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                }
+            });
+
 
             String[] fields = "p00,subrow.v1,subrow.v2".split(",");
 
             env.sendEventBean(new SupportBean_S0(1, "T1"));
-            EventBean row = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", null, null});
-            assertNull(row.get("subrow.v3"));
-            assertNull(row.get("subrow.v4"));
+            env.assertEventNew("s0", row -> {
+                EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", null, null});
+                assertNull(row.get("subrow.v3"));
+                assertNull(row.get("subrow.v4"));
+            });
 
             SupportBean sb1 = new SupportBean("T1", 10);
             env.sendEventBean(sb1);
             env.sendEventBean(new SupportBean_S0(2, "T1"));
-            row = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 10, 11});
-            EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10});
-            EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1});
+            env.assertEventNew("s0", row -> {
+                EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 10, 11});
+                EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10});
+                EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1});
+            });
 
             SupportBean sb2 = new SupportBean("T1", 20);
             env.sendEventBean(sb2);
             env.sendEventBean(new SupportBean_S0(3, "T1"));
-            row = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 30, 32});
-            EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10, 20});
-            EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1, sb2});
+            env.assertEventNew("s0", row -> {
+                EPAssertionUtil.assertProps(row, fields, new Object[]{"T1", 30, 32});
+                EPAssertionUtil.assertEqualsAnyOrder((Integer[]) row.get("subrow.v3"), new Integer[]{10, 20});
+                EPAssertionUtil.assertEqualsAnyOrder((Object[]) row.get("subrow.v4"), new Object[]{sb1, sb2});
+            });
 
             env.undeployAll();
         }
@@ -187,25 +192,26 @@ public class EPLSubselectMulticolumn {
 
     private static void tryAssertion(RegressionEnvironment env) {
 
-        FragmentEventType fragmentType = env.statement("s0").getEventType().getFragmentType("subrow");
-        assertFalse(fragmentType.isIndexed());
-        assertFalse(fragmentType.isNative());
-        Object[][] rows = new Object[][]{
-            {"v1", String.class},
-            {"v2", Integer.class},
-        };
-        for (int i = 0; i < rows.length; i++) {
-            String message = "Failed assertion for " + rows[i][0];
-            EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
-            Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-            Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-        }
+        env.assertStatement("s0", statement -> {
+            FragmentEventType fragmentType = statement.getEventType().getFragmentType("subrow");
+            assertFalse(fragmentType.isIndexed());
+            assertFalse(fragmentType.isNative());
+            Object[][] rows = new Object[][]{
+                {"v1", String.class},
+                {"v2", Integer.class},
+            };
+            for (int i = 0; i < rows.length; i++) {
+                String message = "Failed assertion for " + rows[i][0];
+                EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
+                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
+                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+            }
+        });
 
         String[] fields = "subrow.v1,subrow.v2".split(",");
 
         env.sendEventBean(new SupportBean_S0(1));
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(theEvent, fields, new Object[]{null, null});
+        env.assertPropsNew("s0", fields, new Object[]{null, null});
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.sendEventBean(new SupportBean_S0(2));

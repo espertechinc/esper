@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
@@ -62,7 +60,7 @@ public class InfraTableOnUpdate {
             sendS0(env, "1", "1", 99);
             sendS0(env, "2", "1, 2", 99);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k1,k2,v".split(","), new Object[][] {
+            env.assertPropsPerRowIteratorAnyOrder("tbl", "k1,k2,v".split(","), new Object[][] {
                 {new int[] {1}, new int[] {1, 2}, 11},
                 {new int[] {1}, new int[] {1, 2, 3}, 21},
                 {new int[] {2}, new int[] {1}, 31}});
@@ -98,7 +96,7 @@ public class InfraTableOnUpdate {
             sendManyArray(env, "U4", new int[] {1}, new int[] {1}, 99);
             sendManyArray(env, "U5", new int[] {2}, new int[] {1, 2}, 99);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k1,k2,v".split(","), new Object[][] {
+            env.assertPropsPerRowIteratorAnyOrder("tbl", "k1,k2,v".split(","), new Object[][] {
                     {new int[] {1}, new int[] {1, 2}, 11},
                     {new int[] {1}, new int[] {1, 2, 3}, 21},
                     {new int[] {2}, new int[] {1}, 31}});
@@ -130,7 +128,7 @@ public class InfraTableOnUpdate {
             sendManyArray(env, "U4", new int[] {}, 99);
             sendManyArray(env, "U5", new int[] {1, 2, 4}, 99);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), "k1,v".split(","),
+            env.assertPropsPerRowIteratorAnyOrder("tbl", "k1,v".split(","),
                 new Object[][] {{new int[] {1, 2}, 11}, {new int[] {1, 2, 3}, 21}, {new int[] {1}, 31}});
 
             env.undeployAll();
@@ -155,8 +153,10 @@ public class InfraTableOnUpdate {
                 "where k1 = keyOne and k2 = keyTwo", path).addListener("update");
 
             Object[][] expectedType = new Object[][]{{"keyOne", String.class}, {"keyTwo", Integer.class}, {"p0", Long.class}};
-            EventType updateStmtEventType = env.statement("update").getEventType();
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, updateStmtEventType, SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("update", statement -> {
+                EventType updateStmtEventType = statement.getEventType();
+                SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, updateStmtEventType, SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            });
 
             env.sendEventBean(new SupportBean("G1", 10));
             assertValues(env, new Object[][]{{"G1", 10}}, new Long[]{1L});
@@ -165,8 +165,7 @@ public class InfraTableOnUpdate {
 
             env.sendEventBean(new SupportTwoKeyEvent("G1", 10, 2));
             assertValues(env, new Object[][]{{"G1", 10}}, new Long[]{2L});
-            EPAssertionUtil.assertProps(env.listener("update").getLastNewData()[0], fields, new Object[]{"G1", 10, 2L});
-            EPAssertionUtil.assertProps(env.listener("update").getAndResetLastOldData()[0], fields, new Object[]{"G1", 10, 1L});
+            env.assertPropsIRPair("update", fields, new Object[]{"G1", 10, 2L}, new Object[]{"G1", 10, 1L});
 
             // try property method invocation
             env.compileDeploy("create table MyTableSuppBean as (sb SupportBean)", path);
@@ -179,8 +178,8 @@ public class InfraTableOnUpdate {
         assertEquals(keys.length, values.length);
         for (int i = 0; i < keys.length; i++) {
             env.sendEventBean(new SupportBean_S0((Integer) keys[i][1], (String) keys[i][0]));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("Failed for key '" + Arrays.toString(keys[i]) + "'", values[i], event.get("value"));
+            final int index = i;
+            env.assertEventNew("s0", event -> assertEquals("Failed for key '" + Arrays.toString(keys[index]) + "'", values[index], event.get("value")));
         }
     }
 

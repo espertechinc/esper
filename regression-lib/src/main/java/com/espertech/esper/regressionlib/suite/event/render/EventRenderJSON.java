@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -44,19 +45,21 @@ public class EventRenderJSON {
 
             String expected = "{\"p0\":\"abc\",\"p1\":10}";
             String expectedWithTitle = "{\"thetitle\":{\"p0\":\"abc\",\"p1\":10}}";
-            EventBean event = env.statement("s0").iterator().next();
+            env.assertStatement("s0", statement -> {
+                EventBean event = statement.iterator().next();
 
-            String result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
-            assertEquals(expectedWithTitle, result);
+                String result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
+                assertEquals(expectedWithTitle, result);
 
-            result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
-            assertEquals(expectedWithTitle, result);
+                result = env.runtime().getRenderEventService().renderJSON("thetitle", event);
+                assertEquals(expectedWithTitle, result);
 
-            JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(env.statement("s0").getEventType());
-            result = renderer.render("thetitle", event);
-            assertEquals(expectedWithTitle, result);
-            result = renderer.render(event);
-            assertEquals(expected, result);
+                JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(statement.getEventType());
+                result = renderer.render("thetitle", event);
+                assertEquals(expectedWithTitle, result);
+                result = renderer.render(event);
+                assertEquals(expected, result);
+            });
 
             env.undeployAll();
         }
@@ -74,19 +77,21 @@ public class EventRenderJSON {
             env.compileDeploy("@name('s0') select * from SupportBean").addListener("s0");
             env.sendEventBean(bean);
 
-            String result = env.runtime().getRenderEventService().renderJSON("supportBean", env.statement("s0").iterator().next());
+            env.assertStatement("s0", statement -> {
+                String result = env.runtime().getRenderEventService().renderJSON("supportBean", statement.iterator().next());
 
-            //System.out.println(result);
-            String valuesOnly = "{ \"bigDecimal\": null, \"bigInteger\": null, \"boolBoxed\": null, \"boolPrimitive\": false, \"byteBoxed\": null, \"bytePrimitive\": 0, \"charBoxed\": null, \"charPrimitive\": \"x\", \"doubleBoxed\": null, \"doublePrimitive\": 0.0, \"enumValue\": \"ENUM_VALUE_1\", \"floatBoxed\": null, \"floatPrimitive\": 0.0, \"intBoxed\": 992, \"intPrimitive\": 1, \"longBoxed\": null, \"longPrimitive\": 0, \"shortBoxed\": null, \"shortPrimitive\": 0, \"theString\": \"a\\nc>\" }";
-            String expected = "{ \"supportBean\": " + valuesOnly + " }";
-            assertEquals(removeNewline(expected), removeNewline(result));
+                //System.out.println(result);
+                String valuesOnly = "{ \"bigDecimal\": null, \"bigInteger\": null, \"boolBoxed\": null, \"boolPrimitive\": false, \"byteBoxed\": null, \"bytePrimitive\": 0, \"charBoxed\": null, \"charPrimitive\": \"x\", \"doubleBoxed\": null, \"doublePrimitive\": 0.0, \"enumValue\": \"ENUM_VALUE_1\", \"floatBoxed\": null, \"floatPrimitive\": 0.0, \"intBoxed\": 992, \"intPrimitive\": 1, \"longBoxed\": null, \"longPrimitive\": 0, \"shortBoxed\": null, \"shortPrimitive\": 0, \"theString\": \"a\\nc>\" }";
+                String expected = "{ \"supportBean\": " + valuesOnly + " }";
+                assertEquals(removeNewline(expected), removeNewline(result));
 
-            JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(env.statement("s0").getEventType());
-            String jsonEvent = renderer.render("supportBean", env.statement("s0").iterator().next());
-            assertEquals(removeNewline(expected), removeNewline(jsonEvent));
+                JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(statement.getEventType());
+                String jsonEvent = renderer.render("supportBean", statement.iterator().next());
+                assertEquals(removeNewline(expected), removeNewline(jsonEvent));
 
-            jsonEvent = renderer.render(env.statement("s0").iterator().next());
-            assertEquals(removeNewline(valuesOnly), removeNewline(jsonEvent));
+                jsonEvent = renderer.render(statement.iterator().next());
+                assertEquals(removeNewline(valuesOnly), removeNewline(jsonEvent));
+            });
 
             env.undeployAll();
         }
@@ -109,30 +114,30 @@ public class EventRenderJSON {
             dataOuter.put("prop0", new SupportBean_A("A1"));
             env.sendEventMap(dataOuter, "OuterMap");
 
-            String result = env.runtime().getRenderEventService().renderJSON("outerMap", env.iterator("s0").next());
-
-            //System.out.println(result);
-            String expected = "{\n" +
-                "  \"outerMap\": {\n" +
-                "    \"intarr\": [1, 2],\n" +
-                "    \"innersimple\": {\n" +
-                "      \"prop1\": \"\",\n" +
-                "      \"stringarr\": [\"a\", \"b\"]\n" +
-                "    },\n" +
-                "    \"innerarray\": [{\n" +
-                "        \"prop1\": \"\",\n" +
-                "        \"stringarr\": [\"a\", \"b\"]\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"prop1\": \"abcdef\",\n" +
-                "        \"stringarr\": []\n" +
-                "      }],\n" +
-                "    \"prop0\": {\n" +
-                "      \"id\": \"A1\"\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderJSON("outerMap", env.iterator("s0").next());
+                String expected = "{\n" +
+                    "  \"outerMap\": {\n" +
+                    "    \"intarr\": [1, 2],\n" +
+                    "    \"innersimple\": {\n" +
+                    "      \"prop1\": \"\",\n" +
+                    "      \"stringarr\": [\"a\", \"b\"]\n" +
+                    "    },\n" +
+                    "    \"innerarray\": [{\n" +
+                    "        \"prop1\": \"\",\n" +
+                    "        \"stringarr\": [\"a\", \"b\"]\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"prop1\": \"abcdef\",\n" +
+                    "        \"stringarr\": []\n" +
+                    "      }],\n" +
+                    "    \"prop0\": {\n" +
+                    "      \"id\": \"A1\"\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.undeployAll();
         }
@@ -143,19 +148,25 @@ public class EventRenderJSON {
             env.compileDeploy("@name('s0') select * from EmptyMapEvent");
 
             env.sendEventBean(new EmptyMapEvent(null));
-            String result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
-            String expected = "{ \"outer\": { \"props\": null } }";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
+                String expected = "{ \"outer\": { \"props\": null } }";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.sendEventBean(new EmptyMapEvent(Collections.<String, String>emptyMap()));
-            result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
-            expected = "{ \"outer\": { \"props\": {} } }";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
+                String expected = "{ \"outer\": { \"props\": {} } }";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.sendEventBean(new EmptyMapEvent(Collections.singletonMap("a", "b")));
-            result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
-            expected = "{ \"outer\": { \"props\": { \"a\": \"b\" } } }";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderJSON("outer", env.iterator("s0").next());
+                String expected = "{ \"outer\": { \"props\": { \"a\": \"b\" } } }";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.undeployAll();
         }
@@ -182,7 +193,8 @@ public class EventRenderJSON {
         return text.replaceAll("\\s\\s+|\\n|\\r", " ").trim();
     }
 
-    public static class EmptyMapEvent {
+    public static class EmptyMapEvent implements Serializable {
+        private static final long serialVersionUID = 7742532676769125259L;
         private Map<String, String> props;
 
         public EmptyMapEvent(Map<String, String> props) {

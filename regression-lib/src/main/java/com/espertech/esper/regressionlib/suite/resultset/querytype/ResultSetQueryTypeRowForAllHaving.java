@@ -27,13 +27,13 @@ public class ResultSetQueryTypeRowForAllHaving {
 
     public static Collection<RegressionExecution> executions() {
         ArrayList<RegressionExecution> execs = new ArrayList<>();
-        execs.add(new ResultSetQueryTypeSumOneView());
-        execs.add(new ResultSetQueryTypeSumJoin());
-        execs.add(new ResultSetQueryTypeAvgGroupWindow());
+        execs.add(new ResultSetQueryTypeRowForAllWHavingSumOneView());
+        execs.add(new ResultSetQueryTypeRowForAllWHavingSumJoin());
+        execs.add(new ResultSetQueryTypeAvgRowForAllWHavingGroupWindow());
         return execs;
     }
 
-    private static class ResultSetQueryTypeSumOneView implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllWHavingSumOneView implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select irstream sum(longBoxed) as mySum " +
                 "from SupportBean#time(10 seconds) " +
@@ -46,7 +46,7 @@ public class ResultSetQueryTypeRowForAllHaving {
         }
     }
 
-    private static class ResultSetQueryTypeSumJoin implements RegressionExecution {
+    private static class ResultSetQueryTypeRowForAllWHavingSumJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') select irstream sum(longBoxed) as mySum " +
                 "from SupportBeanString#time(10 seconds) as one, " +
@@ -62,21 +62,19 @@ public class ResultSetQueryTypeRowForAllHaving {
         }
     }
 
-    private static class ResultSetQueryTypeAvgGroupWindow implements RegressionExecution {
+    private static class ResultSetQueryTypeAvgRowForAllWHavingGroupWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select istream avg(price) as aprice from SupportMarketDataBean#unique(symbol) having avg(price) <= 0";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEvent(env, "A", -1);
-            Assert.assertEquals(-1.0d, env.listener("s0").getLastNewData()[0].get("aprice"));
-            env.listener("s0").reset();
+            env.assertEqualsNew("s0", "aprice", -1.0);
 
             sendEvent(env, "A", 5);
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "B", -6);
-            Assert.assertEquals(-.5d, env.listener("s0").getLastNewData()[0].get("aprice"));
-            env.listener("s0").reset();
+            env.assertEqualsNew("s0", "aprice", -.5d);
 
             env.milestone(0);
 
@@ -89,8 +87,7 @@ public class ResultSetQueryTypeRowForAllHaving {
             env.milestone(1);
 
             sendEvent(env, "C", -2);
-            Assert.assertEquals(-1d, env.listener("s0").getLastNewData()[0].get("aprice"));
-            env.listener("s0").reset();
+            env.assertEqualsNew("s0", "aprice", -1d);
 
             env.undeployAll();
         }
@@ -98,7 +95,7 @@ public class ResultSetQueryTypeRowForAllHaving {
 
     private static void tryAssert(RegressionEnvironment env) {
         // assert select result type
-        Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("mySum")));
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
@@ -108,18 +105,19 @@ public class ResultSetQueryTypeRowForAllHaving {
 
         sendTimerEvent(env, 5000);
         sendEvent(env, 15);
-        Assert.assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertEqualsNew("s0", "mySum", 25L);
 
         sendTimerEvent(env, 8000);
         sendEvent(env, -5);
-        Assert.assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> Assert.assertEquals(20L, listener.getAndResetLastNewData()[0].get("mySum")));
 
         env.milestone(1);
 
         sendTimerEvent(env, 10000);
-        Assert.assertEquals(20L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertNull(env.listener("s0").getAndResetLastNewData());
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(20L, listener.getLastOldData()[0].get("mySum"));
+            assertNull(listener.getAndResetLastNewData());
+        });
     }
 
     private static Object sendEvent(RegressionEnvironment env, String symbol, double price) {

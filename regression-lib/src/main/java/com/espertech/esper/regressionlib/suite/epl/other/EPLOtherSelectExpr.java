@@ -52,13 +52,14 @@ public class EPLOtherSelectExpr {
         private static void tryPrecedenceNoColumnName(RegressionEnvironment env, String selectColumn, String expectedColumn, Object value) {
             String epl = "@name('s0') select " + selectColumn + " from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-            if (!env.statement("s0").getEventType().getPropertyNames()[0].equals(expectedColumn)) {
-                fail("Expected '" + expectedColumn + "' but was " + env.statement("s0").getEventType().getPropertyNames()[0]);
-            }
+            env.assertStatement("s0", statement -> {
+                if (!statement.getEventType().getPropertyNames()[0].equals(expectedColumn)) {
+                    fail("Expected '" + expectedColumn + "' but was " + statement.getEventType().getPropertyNames()[0]);
+                }
+            });
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(value, event.get(expectedColumn));
+            env.assertEqualsNew("s0", expectedColumn, value);
             env.undeployAll();
         }
     }
@@ -71,7 +72,8 @@ public class EPLOtherSelectExpr {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
-            assertNotNull(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> {
+            });
 
             env.undeployAll();
         }
@@ -83,24 +85,25 @@ public class EPLOtherSelectExpr {
             env.compileDeploy("@name('s0') select " + fields + " from SupportBeanKeywords").addListener("s0");
 
             env.sendEventBean(new SupportBeanKeywords());
-            EPAssertionUtil.assertEqualsExactOrder(env.statement("s0").getEventType().getPropertyNames(), fields.split(","));
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertEqualsExactOrder(statement.getEventType().getPropertyNames(), fields.split(",")));
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-
-            String[] fieldsArr = fields.split(",");
-            for (String aFieldsArr : fieldsArr) {
-                Assert.assertEquals(1, theEvent.get(aFieldsArr));
-            }
+            env.assertEventNew("s0", theEvent -> {
+                String[] fieldsArr = fields.split(",");
+                for (String aFieldsArr : fieldsArr) {
+                    Assert.assertEquals(1, theEvent.get(aFieldsArr));
+                }
+            });
             env.undeployAll();
 
             env.compileDeploy("@name('s0') select escape as stddev, count(*) as count, last from SupportBeanKeywords");
             env.addListener("s0");
             env.sendEventBean(new SupportBeanKeywords());
 
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(1, theEvent.get("stddev"));
-            Assert.assertEquals(1L, theEvent.get("count"));
-            Assert.assertEquals(1, theEvent.get("last"));
+            env.assertEventNew("s0", theEvent -> {
+                Assert.assertEquals(1, theEvent.get("stddev"));
+                Assert.assertEquals(1L, theEvent.get("count"));
+                Assert.assertEquals(1, theEvent.get("last"));
+            });
 
             env.undeployAll();
         }
@@ -120,9 +123,11 @@ public class EPLOtherSelectExpr {
             tryEscapeMatch(env, "A\"B", "'A\\u0022B'");   // unicode
 
             env.compileDeploy("@Name('A\\\'B') @Description(\"A\\\"B\") select * from SupportBean");
-            Assert.assertEquals("A\'B", env.statement("A\'B").getName());
-            Description desc = (Description) env.statement("A\'B").getAnnotations()[1];
-            Assert.assertEquals("A\"B", desc.value());
+            env.assertStatement("A\'B", statement -> {
+                assertEquals("A\'B", statement.getName());
+                Description desc = (Description) statement.getAnnotations()[1];
+                Assert.assertEquals("A\"B", desc.value());
+            });
             env.undeployAll();
 
             env.compileDeploy("@name('s0') select 'volume' as field1, \"sleep\" as field2, \"\\u0041\" as unicodeA from SupportBean");
@@ -146,7 +151,7 @@ public class EPLOtherSelectExpr {
             log.info("tryEscapeMatch for " + text);
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean(property, 1));
-            Assert.assertEquals(env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"), 1);
+            env.assertEqualsNew("s0", "intPrimitive", 1);
             env.undeployAll();
         }
 
@@ -155,7 +160,7 @@ public class EPLOtherSelectExpr {
             log.info("tryEscapeMatch for " + text);
             env.compileDeploy("@name('s0') " + epl).addListener("s0");
             env.sendEventBean(new SupportBean(property, 1));
-            Assert.assertEquals(env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"), 1);
+            env.assertEqualsNew("s0", "intPrimitive", 1);
             env.undeployAll();
         }
     }
@@ -167,13 +172,15 @@ public class EPLOtherSelectExpr {
                 " where boolBoxed = true";
             env.compileDeploy(epl).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            log.debug(".testGetEventType properties=" + Arrays.toString(type.getPropertyNames()));
-            EPAssertionUtil.assertEqualsAnyOrder(type.getPropertyNames(), new String[]{"3*intPrimitive", "theString", "result", "aBool"});
-            Assert.assertEquals(String.class, type.getPropertyType("theString"));
-            Assert.assertEquals(Boolean.class, type.getPropertyType("aBool"));
-            Assert.assertEquals(Float.class, type.getPropertyType("result"));
-            Assert.assertEquals(Integer.class, type.getPropertyType("3*intPrimitive"));
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                log.debug(".testGetEventType properties=" + Arrays.toString(type.getPropertyNames()));
+                EPAssertionUtil.assertEqualsAnyOrder(type.getPropertyNames(), new String[]{"3*intPrimitive", "theString", "result", "aBool"});
+                Assert.assertEquals(String.class, type.getPropertyType("theString"));
+                Assert.assertEquals(Boolean.class, type.getPropertyType("aBool"));
+                Assert.assertEquals(Float.class, type.getPropertyType("result"));
+                Assert.assertEquals(Integer.class, type.getPropertyType("3*intPrimitive"));
+            });
 
             env.undeployAll();
         }
@@ -188,13 +195,15 @@ public class EPLOtherSelectExpr {
 
             sendEvent(env, "a", false, 0, 0, 0);
             sendEvent(env, "b", false, 0, 0, 0);
-            assertTrue(env.listener("s0").getLastNewData() == null);
+            env.assertListener("s0", listener -> assertNull(listener.getLastNewData()));
             sendEvent(env, "c", true, 3, 10, 20);
 
-            EventBean received = env.listener("s0").getAndResetLastNewData()[0];
-            Assert.assertEquals("c", received.get("theString"));
-            Assert.assertEquals(true, received.get("aBool"));
-            Assert.assertEquals(30f, received.get("result"));
+            env.assertListener("s0", listener -> {
+                EventBean received = listener.getAndResetLastNewData()[0];
+                Assert.assertEquals("c", received.get("theString"));
+                Assert.assertEquals(true, received.get("aBool"));
+                Assert.assertEquals(30f, received.get("result"));
+            });
 
             env.undeployAll();
         }

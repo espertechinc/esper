@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.espertech.esper.common.client.type.EPTypePremade.*;
-import static org.junit.Assert.assertNull;
 
 public class ExprDTToDateCalMSec {
 
@@ -41,7 +39,7 @@ public class ExprDTToDateCalMSec {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("c"));
+            env.assertEqualsNew("s0", "c", null);
 
             env.undeployAll();
         }
@@ -76,7 +74,7 @@ public class ExprDTToDateCalMSec {
                 "zoneddate.toMillisec() as val17" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(),
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(), DATE.getEPType(),
                 CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(), CALENDAR.getEPType(),
                 LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType(), LONGBOXED.getEPType()});
 

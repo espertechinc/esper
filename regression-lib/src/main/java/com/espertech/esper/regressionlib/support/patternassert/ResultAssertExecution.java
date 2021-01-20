@@ -13,10 +13,9 @@ package com.espertech.esper.regressionlib.support.patternassert;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.UniformPair;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +50,11 @@ public class ResultAssertExecution {
         this.irTestSelector = irTestSelector;
     }
 
-    public void execute(boolean assertAllowAnyOrder) {
+    public void execute(boolean assertAllowAnyOrder, AtomicInteger milestone) {
         // run
         boolean isAssert = System.getProperty("ASSERTION_DISABLED") == null;
         boolean expectRemoveStream = epl.toLowerCase(Locale.ENGLISH).contains("select irstream");
-        execute(isAssert, !expectRemoveStream, assertAllowAnyOrder);
+        execute(isAssert, !expectRemoveStream, assertAllowAnyOrder, milestone);
         env.undeployAll();
 
         // Second execution is for IRSTREAM, asserting both the insert and remove stream
@@ -63,15 +62,13 @@ public class ResultAssertExecution {
             if (irTestSelector != ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED) {
                 String irStreamEPL = epl.replace("select ", "select irstream ");
                 env.compileDeploy(irStreamEPL).addListener("s0");
-                execute(isAssert, false, assertAllowAnyOrder);
+                execute(isAssert, false, assertAllowAnyOrder, milestone);
                 env.undeployAll();
             }
         }
     }
 
-    private void execute(boolean isAssert, boolean isExpectNullRemoveStream, boolean assertAllowAnyOrder) {
-        AtomicInteger milestone = new AtomicInteger(-1);
-
+    private void execute(boolean isAssert, boolean isExpectNullRemoveStream, boolean assertAllowAnyOrder, AtomicInteger milestone) {
         // For use in join tests, send join-to events
         env.sendEventBean(new SupportBean("IBM", 0));
         env.sendEventBean(new SupportBean("MSFT", 0));
@@ -155,55 +152,57 @@ public class ResultAssertExecution {
             return;
         }
 
-        StepDesc stepDesc = null;
+        StepDesc stepDesc;
         if (stepAssertions != null) {
             stepDesc = stepAssertions.get(step);
+        } else {
+            stepDesc = null;
         }
 
         // If there is no assertion, there should be no event received
-        SupportListener listener = env.listener("s0");
-        if (stepDesc == null) {
-            Assert.assertFalse("At time " + timeInSec + " expected no events but received one or more", listener.isInvoked());
-        } else {
-            // If we do expect remove stream events, asset both
-            if (!isExpectNullRemoveStream) {
-                String message = "At time " + timeInSec;
-                Assert.assertTrue(message + " expected events but received none", listener.isInvoked());
-                if (assertAllowAnyOrder) {
-                    EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), expected.getProperties(),
-                        stepDesc.getNewDataPerRow());
-                    EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastOldData(), expected.getProperties(),
-                        stepDesc.getOldDataPerRow());
-                } else {
-                    EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), expected.getProperties(),
-                        stepDesc.getNewDataPerRow(), "newData");
-                    EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), expected.getProperties(),
-                        stepDesc.getOldDataPerRow(), "oldData");
-                }
+        env.assertListener("s0", listener -> {
+            if (stepDesc == null) {
+                Assert.assertFalse("At time " + timeInSec + " expected no events but received one or more", listener.isInvoked());
             } else {
-                // If we don't expect remove stream events (istream only), then asset new data only if there
-                // If we do expect new data, assert
-                if (stepDesc.getNewDataPerRow() != null) {
-                    Assert.assertTrue("At time " + timeInSec + " expected events but received none", listener.isInvoked());
+                // If we do expect remove stream events, asset both
+                if (!isExpectNullRemoveStream) {
+                    String message = "At time " + timeInSec;
+                    Assert.assertTrue(message + " expected events but received none", listener.isInvoked());
                     if (assertAllowAnyOrder) {
-                        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getLastNewData(), expected.getProperties(), stepDesc.getNewDataPerRow());
+                        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), expected.getProperties(),
+                            stepDesc.getNewDataPerRow());
+                        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastOldData(), expected.getProperties(),
+                            stepDesc.getOldDataPerRow());
                     } else {
-                        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), expected.getProperties(),
+                        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), expected.getProperties(),
                             stepDesc.getNewDataPerRow(), "newData");
+                        EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), expected.getProperties(),
+                            stepDesc.getOldDataPerRow(), "oldData");
                     }
                 } else {
-                    // If we don't expect new data, make sure its null
-                    Assert.assertNull("At time " + timeInSec + " expected no insert stream events but received some", listener.getLastNewData());
-                }
+                    // If we don't expect remove stream events (istream only), then asset new data only if there
+                    // If we do expect new data, assert
+                    if (stepDesc.getNewDataPerRow() != null) {
+                        Assert.assertTrue("At time " + timeInSec + " expected events but received none", listener.isInvoked());
+                        if (assertAllowAnyOrder) {
+                            EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), expected.getProperties(), stepDesc.getNewDataPerRow());
+                        } else {
+                            EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), expected.getProperties(),
+                                stepDesc.getNewDataPerRow(), "newData");
+                        }
+                    } else {
+                        // If we don't expect new data, make sure its null
+                        Assert.assertNull("At time " + timeInSec + " expected no insert stream events but received some", listener.getLastNewData());
+                    }
 
-                Assert.assertNull("At time " + timeInSec + " expected no remove stream events but received some(check irstream/istream(default) test case)", listener.getLastOldData());
+                    Assert.assertNull("At time " + timeInSec + " expected no remove stream events but received some(check irstream/istream(default) test case)", listener.getLastOldData());
+                }
             }
-        }
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private UniformPair<String[]> renderReceived(String[] fields) {
-
         String[] renderNew = renderReceived(env.listener("s0").getNewDataListFlattened(), fields);
         String[] renderOld = renderReceived(env.listener("s0").getOldDataListFlattened(), fields);
         return new UniformPair<String[]>(renderNew, renderOld);

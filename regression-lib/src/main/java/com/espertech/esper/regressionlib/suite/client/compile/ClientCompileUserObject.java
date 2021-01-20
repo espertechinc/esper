@@ -16,10 +16,12 @@ import com.espertech.esper.compiler.client.option.StatementUserObjectContext;
 import com.espertech.esper.compiler.client.option.StatementUserObjectOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -47,6 +49,10 @@ public class ClientCompileUserObject {
             assertEquals(1, ctx.getAnnotations().length);
             assertEquals(0, ctx.getStatementNumber());
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileUserObjectDifferentTypes implements RegressionExecution {
@@ -55,6 +61,10 @@ public class ClientCompileUserObject {
             assertUserObject(env, new int[]{1, 2, 3});
             assertUserObject(env, null);
             assertUserObject(env, new MyUserObject("hello"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -67,14 +77,16 @@ public class ClientCompileUserObject {
         });
         EPCompiled compiled = env.compile("@name('s0') select * from SupportBean", args);
         env.deploy(compiled);
-        Object received = env.statement("s0").getUserObjectCompileTime();
-        if (received == null) {
-            assertNull(userObject);
-        } else if (received.getClass() == int[].class) {
-            assertTrue(Arrays.equals((int[]) received, (int[]) userObject));
-        } else {
-            assertEquals(userObject, env.statement("s0").getUserObjectCompileTime());
-        }
+        env.assertStatement("s0", statement -> {
+            Object received = statement.getUserObjectCompileTime();
+            if (received == null) {
+                assertNull(userObject);
+            } else if (received.getClass() == int[].class) {
+                assertTrue(Arrays.equals((int[]) received, (int[]) userObject));
+            } else {
+                assertEquals(userObject, statement.getUserObjectCompileTime());
+            }
+        });
 
         env.undeployAll();
     }

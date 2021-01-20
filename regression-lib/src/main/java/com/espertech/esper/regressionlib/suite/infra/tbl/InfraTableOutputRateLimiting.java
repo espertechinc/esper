@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -45,7 +44,7 @@ public class InfraTableOutputRateLimiting implements RegressionExecution {
 
         currentTime.set(currentTime.get() + 1000L);
         env.advanceTime(currentTime.get());
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "key,thesum".split(","),
+        env.assertPropsPerRowLastNewAnyOrder("s0", "key,thesum".split(","),
             new Object[][]{{"E1", 40}, {"E2", 20}});
 
         env.milestone(1);

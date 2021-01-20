@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetOutputLimitAggregateGrouped {
     private final static String SYMBOL_DELL = "DELL";
@@ -127,13 +128,15 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.sendEventBean(new SupportBean("ATT", 11));
             env.sendEventBean(new SupportBean("IBM", 100));
 
-            EventBean[] events = env.listener("s0").getNewDataListFlattened();
-            env.listener("s0").reset();
-            assertEquals(2, events.length);
-            Assert.assertEquals("ATT", events[0].get("theString"));
-            Assert.assertEquals(11, events[0].get("intPrimitive"));
-            Assert.assertEquals("IBM", events[1].get("theString"));
-            Assert.assertEquals(100, events[1].get("intPrimitive"));
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getNewDataListFlattened();
+                env.listenerReset("s0");
+                assertEquals(2, events.length);
+                Assert.assertEquals("ATT", events[0].get("theString"));
+                Assert.assertEquals(11, events[0].get("intPrimitive"));
+                Assert.assertEquals("IBM", events[1].get("theString"));
+                Assert.assertEquals(100, events[1].get("intPrimitive"));
+            });
             env.undeployAll();
 
             // All means each event
@@ -144,14 +147,16 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.sendEventBean(new SupportBean("ATT", 11));
             env.sendEventBean(new SupportBean("IBM", 100));
 
-            events = env.listener("s0").getNewDataListFlattened();
-            assertEquals(3, events.length);
-            Assert.assertEquals("IBM", events[0].get("theString"));
-            Assert.assertEquals(10, events[0].get("intPrimitive"));
-            Assert.assertEquals("ATT", events[1].get("theString"));
-            Assert.assertEquals(11, events[1].get("intPrimitive"));
-            Assert.assertEquals("IBM", events[2].get("theString"));
-            Assert.assertEquals(100, events[2].get("intPrimitive"));
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getNewDataListFlattened();
+                assertEquals(3, events.length);
+                Assert.assertEquals("IBM", events[0].get("theString"));
+                Assert.assertEquals(10, events[0].get("intPrimitive"));
+                Assert.assertEquals("ATT", events[1].get("theString"));
+                Assert.assertEquals(11, events[1].get("intPrimitive"));
+                Assert.assertEquals("IBM", events[2].get("theString"));
+                Assert.assertEquals(100, events[2].get("intPrimitive"));
+            });
 
             env.undeployAll();
         }
@@ -174,14 +179,14 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendBeanEvent(env, "C", 0, 13);
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
-                {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{
+                {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}}));
 
             sendBeanEvent(env, "A", 0, 14);
 
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
-                {"A", 0L, 14, 36}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 14, 36}}));
 
             env.undeployAll();
         }
@@ -204,14 +209,14 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendBeanEvent(env, "C", 0, 13);
 
             env.advanceTime(1000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
-                {"A", 0L, 10, 10}, {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 10, 10}, {"B", 1L, 11, 11}, {"A", 0L, 12, 22}, {"C", 0L, 13, 13}}));
 
             sendBeanEvent(env, "A", 0, 14);
 
             env.advanceTime(2000);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][] {
-                {"A", 0L, 14, 36}, {"B", 1L, 11, 11}, {"C", 0L, 13, 13}});
+            env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{
+                {"A", 0L, 14, 36}, {"B", 1L, 11, 11}, {"C", 0L, 13, 13}}));
 
             env.undeployAll();
         }
@@ -301,7 +306,7 @@ public class ResultSetOutputLimitAggregateGrouped {
             String stmtText = "@name('s0') select symbol, volume, sum(price) " +
                 "from SupportMarketDataBean#time(5.5 sec)" +
                 "group by symbol";
-            tryAssertion12(env, stmtText, "none");
+            tryAssertion12(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -311,7 +316,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol";
-            tryAssertion12(env, stmtText, "none");
+            tryAssertion12(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -321,7 +326,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "group by symbol " +
                 " having sum(price) > 50";
-            tryAssertion34(env, stmtText, "none");
+            tryAssertion34(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -332,7 +337,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
                 "having sum(price) > 50";
-            tryAssertion34(env, stmtText, "none");
+            tryAssertion34(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -342,7 +347,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "group by symbol " +
                 "output every 1 seconds";
-            tryAssertion56(env, stmtText, "default");
+            tryAssertion56(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -353,7 +358,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
                 "output every 1 seconds";
-            tryAssertion56(env, stmtText, "default");
+            tryAssertion56(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -364,7 +369,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "having sum(price) > 50" +
                 "output every 1 seconds";
-            tryAssertion78(env, stmtText, "default");
+            tryAssertion78(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -376,7 +381,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "having sum(price) > 50" +
                 "output every 1 seconds";
-            tryAssertion78(env, stmtText, "default");
+            tryAssertion78(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -387,7 +392,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "output all every 1 seconds " +
                 "order by symbol";
-            tryAssertion9_10(env, stmtText, "all");
+            tryAssertion9_10(env, stmtText, "all", new AtomicInteger());
         }
     }
 
@@ -399,22 +404,24 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "output all every 1 seconds " +
                 "order by symbol";
-            tryAssertion9_10(env, stmtText, "all");
+            tryAssertion9_10(env, stmtText, "all", new AtomicInteger());
         }
     }
 
     private static class ResultSet11AllHavingNoJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion11AllHavingNoJoin(env, outputLimitOpt);
+                runAssertion11AllHavingNoJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
     private static class ResultSet12AllHavingJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion12AllHavingJoin(env, outputLimitOpt);
+                runAssertion12AllHavingJoin(env, outputLimitOpt, milestone);
             }
         }
     }
@@ -426,7 +433,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "output last every 1 seconds " +
                 "order by symbol";
-            tryAssertion13_14(env, stmtText, "last");
+            tryAssertion13_14(env, stmtText, "last", new AtomicInteger());
         }
     }
 
@@ -438,34 +445,36 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "group by symbol " +
                 "output last every 1 seconds " +
                 "order by symbol";
-            tryAssertion13_14(env, stmtText, "last");
+            tryAssertion13_14(env, stmtText, "last", new AtomicInteger());
         }
     }
 
     private static class ResultSet15LastHavingNoJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion15LastHavingNoJoin(env, outputLimitOpt);
+                runAssertion15LastHavingNoJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
     private static class ResultSet16LastHavingJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion16LastHavingJoin(env, outputLimitOpt);
+                runAssertion16LastHavingJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion16LastHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion16LastHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec), " +
             "SupportBean#keepall where theString=symbol " +
             "group by symbol " +
             "having sum(price) > 50 " +
             "output last every 1 seconds";
-        tryAssertion15_16(env, stmtText, "last");
+        tryAssertion15_16(env, stmtText, "last", milestone);
     }
 
     private static class ResultSet17FirstNoHavingNoJoin implements RegressionExecution {
@@ -474,7 +483,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "group by symbol " +
                 "output first every 1 seconds";
-            tryAssertion17(env, stmtText, "first");
+            tryAssertion17(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -485,7 +494,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "SupportBean#keepall where theString=symbol " +
                 "group by symbol " +
                 "output first every 1 seconds";
-            tryAssertion17(env, stmtText, "first");
+            tryAssertion17(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -495,7 +504,7 @@ public class ResultSetOutputLimitAggregateGrouped {
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "group by symbol " +
                 "output snapshot every 1 seconds";
-            tryAssertion18(env, stmtText, "snapshot");
+            tryAssertion18(env, stmtText, "snapshot", new AtomicInteger());
         }
     }
 
@@ -551,16 +560,18 @@ public class ResultSetOutputLimitAggregateGrouped {
 
             sendEvent(env, "JOIN_KEY", 1d);
             sendEvent(env, "JOIN_KEY", 2d);
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             // moves all events out of the window,
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
-            UniformPair<EventBean[]> result = env.listener("s0").getDataListsFlattened();
-            Assert.assertEquals(2, result.getFirst().length);
-            Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-            Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-            Assert.assertEquals(1, result.getSecond().length);
-            Assert.assertEquals(2.0, result.getSecond()[0].get("maxVol"));
+            env.assertListener("s0", listener -> {
+                UniformPair<EventBean[]> result = listener.getDataListsFlattened();
+                Assert.assertEquals(2, result.getFirst().length);
+                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                Assert.assertEquals(1, result.getSecond().length);
+                Assert.assertEquals(2.0, result.getSecond()[0].get("maxVol"));
+            });
 
             env.undeployAll();
         }
@@ -582,36 +593,23 @@ public class ResultSetOutputLimitAggregateGrouped {
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "volume", "sumprice"};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"s0", 1L, 34d}, {"IBM", 2L, 16d}, {"s0", 3L, 34d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s0", 1L, 34d}, {"IBM", 2L, 16d}, {"s0", 3L, 34d}});
 
             sendTimer(env, 1500);
             sendEvent(env, "MSFT", 4, 18);
             sendEvent(env, "IBM", 5, 30);
 
             sendTimer(env, 10000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-                new Object[][]{{"s0", 1L, 34d}, {"IBM", 2L, 46d}, {"s0", 3L, 34d}, {"MSFT", 4L, 18d}, {"IBM", 5L, 46d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s0", 1L, 34d}, {"IBM", 2L, 46d}, {"s0", 3L, 34d}, {"MSFT", 4L, 18d}, {"IBM", 5L, 46d}});
 
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"MSFT", 4L, 18d}, {"IBM", 5L, 30d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"MSFT", 4L, 18d}, {"IBM", 5L, 30d}});
 
             sendTimer(env, 12000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, null);
 
             sendTimer(env, 13000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, null);
 
             env.undeployAll();
         }
@@ -638,38 +636,25 @@ public class ResultSetOutputLimitAggregateGrouped {
 
             sendTimer(env, 1000);
             String[] fields = new String[]{"symbol", "volume", "sumprice"};
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"ABC", 1L, 34d}, {"ABC", 3L, 34d}, {"IBM", 2L, 16d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"ABC", 1L, 34d}, {"ABC", 3L, 34d}, {"IBM", 2L, 16d}});
 
             sendTimer(env, 1500);
             sendEvent(env, "MSFT", 4, 18);
             sendEvent(env, "IBM", 5, 30);
 
             sendTimer(env, 10000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
-                new Object[][]{{"ABC", 1L, 34d}, {"ABC", 3L, 34d}, {"IBM", 2L, 46d}, {"IBM", 5L, 46d}, {"MSFT", 4L, 18d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"ABC", 1L, 34d}, {"ABC", 3L, 34d}, {"IBM", 2L, 46d}, {"IBM", 5L, 46d}, {"MSFT", 4L, 18d}});
 
             sendTimer(env, 10500);
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"IBM", 5L, 30d}, {"MSFT", 4L, 18d}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"IBM", 5L, 30d}, {"MSFT", 4L, 18d}});
 
             sendTimer(env, 11500);
             sendTimer(env, 12000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, null);
 
             sendTimer(env, 13000);
-            assertTrue(env.listener("s0").isInvoked());
-            assertNull(env.listener("s0").getLastNewData());
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, null);
 
             env.undeployAll();
         }
@@ -688,17 +673,19 @@ public class ResultSetOutputLimitAggregateGrouped {
 
             sendEvent(env, "SYM1", 1d);
             sendEvent(env, "SYM1", 2d);
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             // moves all events out of the window,
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
-            UniformPair<EventBean[]> result = env.listener("s0").getDataListsFlattened();
-            Assert.assertEquals(2, result.getFirst().length);
-            Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-            Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-            Assert.assertEquals(2, result.getSecond().length);
-            Assert.assertEquals(null, result.getSecond()[0].get("maxVol"));
-            Assert.assertEquals(null, result.getSecond()[1].get("maxVol"));
+            env.assertListener("s0", listener -> {
+                UniformPair<EventBean[]> result = listener.getDataListsFlattened();
+                Assert.assertEquals(2, result.getFirst().length);
+                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                Assert.assertEquals(2, result.getSecond().length);
+                Assert.assertEquals(null, result.getSecond()[0].get("maxVol"));
+                Assert.assertEquals(null, result.getSecond()[1].get("maxVol"));
+            });
 
             env.undeployAll();
         }
@@ -863,89 +850,104 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "IBM", 6, 1);
-        Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"IBM", 4L, 18.0});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[1], fields, new Object[]{"IBM", 5L, 18.0});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[2], fields, new Object[]{"IBM", 6L, 19.0});
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(3, listener.getLastNewData().length);
+            EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"IBM", 4L, 18.0});
+            EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"IBM", 5L, 18.0});
+            EPAssertionUtil.assertProps(listener.getLastNewData()[2], fields, new Object[]{"IBM", 6L, 19.0});
+            env.listenerReset("s0");
+        });
 
         sendTimer(env, 11000);
-        Assert.assertEquals(3, env.listener("s0").getLastOldData().length);
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"IBM", 1L, 11.0});
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[1], fields, new Object[]{"IBM", 2L, 11.0});
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(3, listener.getLastOldData().length);
+            EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"IBM", 1L, 11.0});
+            EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"IBM", 2L, 11.0});
+            env.listenerReset("s0");
+        });
     }
 
     private static void tryAssertionDefault(RegressionEnvironment env) {
         // assert select result type
-        EventType eventType = env.statement("s0").getEventType();
-        Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
-        Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
-        Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
+            Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
+            Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+        });
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         String[] fields = "symbol,volume,mySum".split(",");
-        UniformPair<EventBean[]> events = env.listener("s0").getDataListsFlattened();
-        if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 10000L, 51.0}});
-        } else {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_DELL, 10000L, 51.0}, {SYMBOL_IBM, 500L, 20.0}});
-        }
-        assertNull(env.listener("s0").getLastOldData());
-
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 10000L, 51.0}});
+            } else {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_DELL, 10000L, 51.0}, {SYMBOL_IBM, 500L, 20.0}});
+            }
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 40000, 45);
-        events = env.listener("s0").getDataListsFlattened();
-        EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-            new Object[][]{{SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}});
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                new Object[][]{{SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}});
+            assertNull(listener.getLastOldData());
+        });
     }
 
     private static void tryAssertionAll(RegressionEnvironment env) {
         // assert select result type
-        EventType eventType = env.statement("s0").getEventType();
-        Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
-        Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
-        Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
+            Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
+            Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+        });
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
         String[] fields = "symbol,volume,mySum".split(",");
-        UniformPair<EventBean[]> events = env.listener("s0").getDataListsFlattened();
-        if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 10000L, 51.0}});
-        } else {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_DELL, 10000L, 51.0}, {SYMBOL_IBM, 500L, 20.0}});
-        }
-        assertNull(env.listener("s0").getLastOldData());
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 10000L, 51.0}});
+            } else {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_DELL, 10000L, 51.0}, {SYMBOL_IBM, 500L, 20.0}});
+            }
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 40000, 45);
-        events = env.listener("s0").getDataListsFlattened();
-        if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}});
-        } else {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}, {SYMBOL_IBM, 500L, 20.0}});
-        }
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            if (events.getFirst()[0].get("symbol").equals(SYMBOL_IBM)) {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_IBM, 500L, 20.0}, {SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}});
+            } else {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_DELL, 20000L, 51.0 + 52.0}, {SYMBOL_DELL, 40000L, 51.0 + 52.0 + 45.0}, {SYMBOL_IBM, 500L, 20.0}});
+            }
+            assertNull(listener.getLastOldData());
+        });
     }
 
     private static void tryAssertionLast(RegressionEnvironment env) {
@@ -954,25 +956,29 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_DELL, 20000, 52);
-        UniformPair<EventBean[]> events = env.listener("s0").getDataListsFlattened();
-        EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-            new Object[][]{{SYMBOL_DELL, 20000L, 103.0}});
-        assertNull(env.listener("s0").getLastOldData());
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                new Object[][]{{SYMBOL_DELL, 20000L, 103.0}});
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         sendEvent(env, SYMBOL_DELL, 30000, 70);
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, SYMBOL_IBM, 10000, 20);
-        events = env.listener("s0").getDataListsFlattened();
-        if (events.getFirst()[0].get("symbol").equals(SYMBOL_DELL)) {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_DELL, 30000L, 173.0}, {SYMBOL_IBM, 10000L, 20.0}});
-        } else {
-            EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
-                new Object[][]{{SYMBOL_IBM, 10000L, 20.0}, {SYMBOL_DELL, 30000L, 173.0}});
-        }
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean[]> events = listener.getDataListsFlattened();
+            if (events.getFirst()[0].get("symbol").equals(SYMBOL_DELL)) {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_DELL, 30000L, 173.0}, {SYMBOL_IBM, 10000L, 20.0}});
+            } else {
+                EPAssertionUtil.assertPropsPerRow(events.getFirst(), fields,
+                    new Object[][]{{SYMBOL_IBM, 10000L, 20.0}, {SYMBOL_DELL, 30000L, 173.0}});
+            }
+            assertNull(listener.getLastOldData());
+        });
     }
 
     private static void tryOutputFirstHaving(RegressionEnvironment env, String statementText, AtomicInteger milestone) {
@@ -1054,7 +1060,7 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.undeployAll();
     }
 
-    private static void tryAssertion12(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion12(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1074,10 +1080,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultRemove(7000, 0, new Object[][]{{"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion34(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion34(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1088,10 +1094,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultRemove(5700, 0, new Object[][]{{"IBM", 100L, 72d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1106,10 +1112,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultRemove(7200, 0, new Object[][]{{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion15_16(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion15_16(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1124,10 +1130,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion78(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion78(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1142,10 +1148,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion56(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion56(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1160,10 +1166,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultRemove(7200, 0, new Object[][]{{"MSFT", 5000L, null}, {"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion9_10(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion9_10(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1178,10 +1184,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsRem(7200, 0, new Object[][]{{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10500L, 6d}}, new Object[][]{{"IBM", 150L, 48d}, {"MSFT", 5000L, null}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion11_12(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion11_12(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1196,10 +1202,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsRem(7200, 0, null, null);
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion17(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion17(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1218,10 +1224,10 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsert(7000, 0, new Object[][]{{"IBM", 150L, 48d}, {"YAH", 10000L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion18(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion18(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1236,45 +1242,45 @@ public class ResultSetOutputLimitAggregateGrouped {
         expected.addResultInsert(7200, 0, new Object[][]{{"IBM", 155L, 48d}, {"YAH", 11000L, 6d}, {"IBM", 150L, 48d}, {"YAH", 11500L, 6d}, {"YAH", 10500L, 6d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void runAssertion15LastHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion15LastHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec)" +
             "group by symbol " +
             "having sum(price) > 50 " +
             "output last every 1 seconds";
-        tryAssertion15_16(env, stmtText, "last");
+        tryAssertion15_16(env, stmtText, "last", milestone);
     }
 
-    private static void runAssertion12AllHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion12AllHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec), " +
             "SupportBean#keepall where theString=symbol " +
             "group by symbol " +
             "having sum(price) > 50 " +
             "output all every 1 seconds";
-        tryAssertion11_12(env, stmtText, "all");
+        tryAssertion11_12(env, stmtText, "all", milestone);
     }
 
-    private static void runAssertion6LastHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion6LastHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec), " +
             "SupportBean#keepall where theString=symbol " +
             "group by symbol " +
             "having sum(price) > 50 " +
             "output last every 1 seconds";
-        tryAssertion15_16(env, stmtText, "last");
+        tryAssertion15_16(env, stmtText, "last", milestone);
     }
 
-    private static void runAssertion11AllHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion11AllHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec) " +
             "group by symbol " +
             "having sum(price) > 50 " +
             "output all every 1 seconds";
-        tryAssertion11_12(env, stmtText, "all");
+        tryAssertion11_12(env, stmtText, "all", milestone);
     }
 
     private static void tryAssertionNoJoinLast(RegressionEnvironment env, SupportOutputLimitOpt opt) {
@@ -1294,26 +1300,25 @@ public class ResultSetOutputLimitAggregateGrouped {
     }
 
     private static void assertEvent(RegressionEnvironment env, String symbol, Double mySum, Long volume) {
-        EventBean[] newData = env.listener("s0").getLastNewData();
-
-        assertEquals(1, newData.length);
-
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
-        Assert.assertEquals(mySum, newData[0].get("mySum"));
-        Assert.assertEquals(volume, newData[0].get("volume"));
-
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+        env.assertListener("s0", listener -> {
+            EventBean[] newData = listener.getLastNewData();
+            assertEquals(1, newData.length);
+            Assert.assertEquals(symbol, newData[0].get("symbol"));
+            Assert.assertEquals(mySum, newData[0].get("mySum"));
+            Assert.assertEquals(volume, newData[0].get("volume"));
+            listener.reset();
+        });
     }
 
     private static void tryAssertionSingle(RegressionEnvironment env) {
         // assert select result type
-        Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("mySum"));
-        Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("volume"));
+        env.assertStatement("s0", statement -> {
+            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 10, 100);
-        assertTrue(env.listener("s0").isInvoked());
         assertEvent(env, SYMBOL_DELL, 100d, 10L);
 
         sendEvent(env, SYMBOL_IBM, 15, 50);

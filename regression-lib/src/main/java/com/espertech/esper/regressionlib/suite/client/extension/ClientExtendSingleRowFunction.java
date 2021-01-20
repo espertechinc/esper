@@ -71,7 +71,7 @@ public class ClientExtendSingleRowFunction {
             env.compileDeploy(textFilter).addListener("s0");
             env.sendEventBean(new SupportBean("E2", 1));
             env.sendEventBean(new SupportBean("E1", 2));
-            Assert.assertEquals(1, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             // test "first"
@@ -79,7 +79,7 @@ public class ClientExtendSingleRowFunction {
             env.compileDeploy(textAccessAgg).addListener("s0");
             env.sendEventBean(new SupportBean("E2", 1));
             env.sendEventBean(new SupportBean("E1", 2));
-            Assert.assertEquals(1, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListenerInvoked("s0");
             env.undeployAll();
 
             // test "window"
@@ -87,7 +87,7 @@ public class ClientExtendSingleRowFunction {
             env.compileDeploy(textWindowAgg).addListener("s0");
             env.sendEventBean(new SupportBean("E2", 1));
             env.sendEventBean(new SupportBean("E1", 2));
-            Assert.assertEquals(1, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListenerInvoked("s0");
             env.undeployAll();
         }
     }
@@ -144,12 +144,14 @@ public class ClientExtendSingleRowFunction {
 
             SupportSingleRowFunction.getMethodInvocationContexts().clear();
             tryAssertionSingleMethod(env);
-            EPLMethodInvocationContext context = SupportSingleRowFunction.getMethodInvocationContexts().get(0);
-            Assert.assertEquals("s0", context.getStatementName());
-            Assert.assertEquals(env.runtime().getURI(), context.getRuntimeURI());
-            Assert.assertEquals(-1, context.getContextPartitionId());
-            Assert.assertEquals("power3Context", context.getFunctionName());
-            Assert.assertEquals("my_user_object", context.getStatementUserObject());
+            env.assertThat(() -> {
+                EPLMethodInvocationContext context = SupportSingleRowFunction.getMethodInvocationContexts().get(0);
+                Assert.assertEquals("s0", context.getStatementName());
+                Assert.assertEquals(env.runtime().getURI(), context.getRuntimeURI());
+                Assert.assertEquals(-1, context.getContextPartitionId());
+                Assert.assertEquals("power3Context", context.getFunctionName());
+                Assert.assertEquals("my_user_object", context.getStatementUserObject());
+            });
 
             env.undeployAll();
 
@@ -161,22 +163,27 @@ public class ClientExtendSingleRowFunction {
 
             // rethrow
             env.compileDeploy("@Name('s0') select throwExceptionRethrow() from SupportBean").addListener("s0");
-            try {
-                env.sendEventBean(new SupportBean("E1", 1));
-                fail();
-            } catch (EPException ex) {
-                Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': Invocation exception when invoking method 'throwexception' of class '" + SupportSingleRowFunction.class.getName() + "' passing parameters [] for statement 's0': RuntimeException : This is a 'throwexception' generated exception", ex.getMessage());
-                env.undeployAll();
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventBean(new SupportBean("E1", 1));
+                    fail();
+                } catch (EPException ex) {
+                    Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': Invocation exception when invoking method 'throwexception' of class '" + SupportSingleRowFunction.class.getName() + "' passing parameters [] for statement 's0': RuntimeException : This is a 'throwexception' generated exception", ex.getMessage());
+                    env.undeployAll();
+                }
+            });
+            env.undeployAll();
 
             // NPE when boxed is null
             env.compileDeploy("@Name('s0') select power3Rethrow(intBoxed) from SupportBean").addListener("s0");
-            try {
-                env.sendEventBean(new SupportBean("E1", 1));
-                fail();
-            } catch (EPException ex) {
-                Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': NullPointerException invoking method 'computePower3' of class '" + SupportSingleRowFunction.class.getName() + "' in parameter 0 passing parameters [null] for statement 's0': The method expects a primitive int value but received a null value", ex.getMessage());
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventBean(new SupportBean("E1", 1));
+                    fail();
+                } catch (EPException ex) {
+                    Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': NullPointerException invoking method 'computePower3' of class '" + SupportSingleRowFunction.class.getName() + "' in parameter 0 passing parameters [null] for statement 's0': The method expects a primitive int value but received a null value", ex.getMessage());
+                }
+            });
 
             env.undeployAll();
         }

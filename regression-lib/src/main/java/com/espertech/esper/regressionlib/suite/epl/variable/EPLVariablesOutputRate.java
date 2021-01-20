@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.variable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -38,7 +37,7 @@ public class EPLVariablesOutputRate {
 
     private static class EPLVariableOutputRateEventsAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "var_output_limit", 3L);
+            env.runtimeSetVariable(null, "var_output_limit", 3L);
             String stmtTextSelect = "@name('s0') select count(*) as cnt from SupportBean output last every var_output_limit events";
             env.compileDeploy(stmtTextSelect).addListener("s0");
 
@@ -50,7 +49,7 @@ public class EPLVariablesOutputRate {
 
     private static class EPLVariableOutputRateEventsAllOM implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "var_output_limit", 3L);
+            env.runtimeSetVariable(null, "var_output_limit", 3L);
             EPStatementObjectModel model = new EPStatementObjectModel();
             model.setSelectClause(SelectClause.create().add(Expressions.countStar(), "cnt"));
             model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getSimpleName())));
@@ -69,7 +68,7 @@ public class EPLVariablesOutputRate {
 
     private static class EPLVariableOutputRateEventsAllCompile implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "var_output_limit", 3L);
+            env.runtimeSetVariable(null, "var_output_limit", 3L);
 
             String stmtTextSelect = "@name('s0') select count(*) as cnt from SupportBean output last every var_output_limit events";
             env.eplToModelCompileDeploy(stmtTextSelect).addListener("s0");
@@ -82,7 +81,8 @@ public class EPLVariablesOutputRate {
 
     private static class EPLVariableOutputRateTimeAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "var_output_limit", 3L);
+            String[] fields = new String[] {"cnt"};
+            env.runtimeSetVariable(null, "var_output_limit", 3L);
             sendTimer(env, 0);
 
             String stmtTextSelect = "@name('s0') select count(*) as cnt from SupportBean output snapshot every var_output_limit seconds";
@@ -95,8 +95,7 @@ public class EPLVariablesOutputRate {
             env.milestone(0);
 
             sendTimer(env, 3000);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{2L});
-            env.listener("s0").reset();
+            env.assertPropsNew("s0", fields, new Object[]{2L});
 
             // set output limit to 5
             String stmtTextSet = "on SupportMarketDataBean set var_output_limit = volume";
@@ -114,8 +113,7 @@ public class EPLVariablesOutputRate {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 4000);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
-            env.listener("s0").reset();
+            env.assertPropsNew("s0", fields, new Object[]{4L});
 
             // set output limit to 4 seconds (takes effect next time rescheduled, and is related to reference point which is 0)
             sendSetterBean(env, 4L);
@@ -125,14 +123,12 @@ public class EPLVariablesOutputRate {
             sendTimer(env, 4999);
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 5000);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
-            env.listener("s0").reset();
+            env.assertPropsNew("s0", fields, new Object[]{4L});
 
             sendTimer(env, 7999);
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 8000);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{4L});
-            env.listener("s0").reset();
+            env.assertPropsNew("s0", fields, new Object[]{4L});
 
             sendSupportBeans(env, "E5", "E6");   // varargs: sends 2 events
 
@@ -141,8 +137,7 @@ public class EPLVariablesOutputRate {
             sendTimer(env, 11999);
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 12000);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{6L});
-            env.listener("s0").reset();
+            env.assertPropsNew("s0", fields, new Object[]{6L});
 
             sendTimer(env, 13000);
             // set output limit to 2 seconds (takes effect next time event received, and is related to reference point which is 0)
@@ -165,12 +160,12 @@ public class EPLVariablesOutputRate {
     }
 
     private static void tryAssertionOutputRateEventsAll(RegressionEnvironment env) {
+        String[] fields = new String[] {"cnt"};
         sendSupportBeans(env, "E1", "E2");   // varargs: sends 2 events
         env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E3");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{3L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{3L});
 
         // set output limit to 5
         String stmtTextSet = "on SupportMarketDataBean set var_output_limit = volume";
@@ -181,8 +176,7 @@ public class EPLVariablesOutputRate {
         env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E8");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{8L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{8L});
 
         // set output limit to 2
         sendSetterBean(env, 2L);
@@ -191,26 +185,22 @@ public class EPLVariablesOutputRate {
         env.assertListenerNotInvoked("s0");
 
         sendSupportBeans(env, "E10");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{10L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{10L});
 
         // set output limit to 1
         sendSetterBean(env, 1L);
 
         sendSupportBeans(env, "E11");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{11L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{11L});
 
         sendSupportBeans(env, "E12");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{12L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{12L});
 
         // set output limit to null -- this continues at the current rate
         sendSetterBean(env, null);
 
         sendSupportBeans(env, "E13");
-        EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], new String[]{"cnt"}, new Object[]{13L});
-        env.listener("s0").reset();
+        env.assertPropsNew("s0", fields, new Object[]{13L});
     }
 
     private static void sendTimer(RegressionEnvironment env, long timeInMSec) {

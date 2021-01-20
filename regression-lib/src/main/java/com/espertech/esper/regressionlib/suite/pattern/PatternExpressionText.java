@@ -14,13 +14,18 @@ import com.espertech.esper.common.internal.epl.pattern.core.EvalRootForgeNode;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternExpressionPrecedenceEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.patternassert.SupportPatternCompileHook;
 
 import java.io.StringWriter;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 
 public class PatternExpressionText implements RegressionExecution {
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
 
     public void run(RegressionEnvironment env) {
         tryAssertion(env, "every a=SupportBean -> b=SupportBean@consume", null);

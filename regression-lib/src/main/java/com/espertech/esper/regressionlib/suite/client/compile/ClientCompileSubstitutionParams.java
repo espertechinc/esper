@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.client.compile;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.module.Module;
@@ -27,11 +26,10 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeployStatementName;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeploySubstitutionParameterException;
@@ -90,28 +88,23 @@ public class ClientCompileSubstitutionParams {
                 "from SupportBean";
             EPCompiled compiled = env.compile(soda, epl, new CompilerArguments(env.getConfiguration()));
 
-            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(new StatementSubstitutionParameterOption() {
-                public void setStatementParameters(StatementSubstitutionParameterContext env) {
-                    env.setObject("a0", new ArrayList<>(Arrays.asList("a")));
-                    env.setObject("a1", Collections.singletonMap("k1", 10));
-                }
-            });
-            try {
-                env.deployment().deploy(compiled, options);
-            } catch (EPDeployException e) {
-                throw new RuntimeException(e);
-            }
-            env.addListener("s0");
+            SupportPortableDeploySubstitutionParams param = new SupportPortableDeploySubstitutionParams();
+            param.add("a0", new ArrayList<>(Arrays.asList("a"))).add("a1", Collections.singletonMap("k1", 10));
+            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(param);
+            env.deploy(compiled, options).addListener("s0");
 
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(EPTypeClassParameterized.from(List.class, String.class), eventType.getPropertyEPType("c0"));
-            assertEquals(EPTypeClassParameterized.from(Map.class, String.class, Integer.class), eventType.getPropertyEPType("c1"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(EPTypeClassParameterized.from(List.class, String.class), eventType.getPropertyEPType("c0"));
+                assertEquals(EPTypeClassParameterized.from(Map.class, String.class, Integer.class), eventType.getPropertyEPType("c1"));
+            });
 
             env.sendEventBean(new SupportBean());
 
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a"}, ((List) event.get("c0")).toArray());
-            EPAssertionUtil.assertPropsMap((Map) event.get("c1"), "k1".split(","), 10);
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a"}, ((List) event.get("c0")).toArray());
+                EPAssertionUtil.assertPropsMap((Map) event.get("c1"), "k1".split(","), 10);
+            });
 
             env.undeployAll();
         }
@@ -142,6 +135,10 @@ public class ClientCompileSubstitutionParams {
                 SupportMessageAssertUtil.assertMessage(ex, "Exception processing statement: Invalid constant of type 'Object' encountered as the class has no compiler representation, please use substitution parameters instead");
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientCompileSubstParamArray implements RegressionExecution {
@@ -169,37 +166,30 @@ public class ClientCompileSubstitutionParams {
                 compiled = env.compile(epl);
             }
 
-            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(new StatementSubstitutionParameterOption() {
-                public void setStatementParameters(StatementSubstitutionParameterContext env) {
-                    env.setObject("a0", new Integer[]{1, 2});
-                    env.setObject("a1", new int[]{3, 4});
-                    env.setObject("a2", new Object[]{"a", "b"});
-                    env.setObject("a3", new String[][]{{"A"}});
-                    env.setObject("a4", new Object[][]{{5, 6}});
-                }
-            });
-            try {
-                env.deployment().deploy(compiled, options);
-            } catch (EPDeployException e) {
-                throw new RuntimeException(e);
-            }
-            env.addListener("s0");
+            SupportPortableDeploySubstitutionParams params = new SupportPortableDeploySubstitutionParams();
+            params.add("a0", new Integer[]{1, 2}).add("a1", new int[]{3, 4}).add("a2", new Object[]{"a", "b"})
+                .add("a3", new String[][]{{"A"}}).add("a4", new Object[][]{{5, 6}});
+            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(params);
+            env.deploy(compiled, options).addListener("s0");
 
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Integer[].class, eventType.getPropertyType("c0"));
-            assertEquals(int[].class, eventType.getPropertyType("c1"));
-            assertEquals(Object[].class, eventType.getPropertyType("c2"));
-            assertEquals(String[][].class, eventType.getPropertyType("c3"));
-            assertEquals(Object[][].class, eventType.getPropertyType("c4"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Integer[].class, eventType.getPropertyType("c0"));
+                assertEquals(int[].class, eventType.getPropertyType("c1"));
+                assertEquals(Object[].class, eventType.getPropertyType("c2"));
+                assertEquals(String[][].class, eventType.getPropertyType("c3"));
+                assertEquals(Object[][].class, eventType.getPropertyType("c4"));
+            });
 
             env.sendEventBean(new SupportBean());
 
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsExactOrder(new Integer[]{1, 2}, (Integer[]) event.get("c0"));
-            EPAssertionUtil.assertEqualsExactOrder(new int[]{3, 4}, (int[]) event.get("c1"));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a", "b"}, (Object[]) event.get("c2"));
-            EPAssertionUtil.assertEqualsExactOrder(new String[][]{{"A"}}, (String[][]) event.get("c3"));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{5, 6}}, (Object[][]) event.get("c4"));
+            env.assertEventNew("s0", event -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Integer[]{1, 2}, (Integer[]) event.get("c0"));
+                EPAssertionUtil.assertEqualsExactOrder(new int[]{3, 4}, (int[]) event.get("c1"));
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{"a", "b"}, (Object[]) event.get("c2"));
+                EPAssertionUtil.assertEqualsExactOrder(new String[][]{{"A"}}, (String[][]) event.get("c3"));
+                EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{5, 6}}, (Object[][]) event.get("c4"));
+            });
 
             env.undeployAll();
         }
@@ -241,6 +231,10 @@ public class ClientCompileSubstitutionParams {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientCompileSubstParamResolverContext implements RegressionExecution {
@@ -265,15 +259,16 @@ public class ClientCompileSubstitutionParams {
             assertEquals(Integer.class, ctx.getSubstitutionParameterTypes()[0]);
             assertEquals((Integer) 1, ctx.getSubstitutionParameterNames().get("p0"));
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ClientCompileSubstParamPrimitiveVsBoxed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile("select ?:p0:int as c0, ?:p1:Integer as c1 from SupportBean");
-            deployWithResolver(env, compiled, "s0", prepared -> {
-                prepared.setObject("p0", 10);
-                prepared.setObject("p1", 11);
-            });
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams().add("p0", 10).add("p1", 11));
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean());
@@ -310,11 +305,7 @@ public class ClientCompileSubstitutionParams {
 
             String epl = "@name('s0') select ?:pint:int as c0 from SupportBean(theString=?:pstring:string and intPrimitive=?:pint:int and longPrimitive=?:plong:long)";
             EPCompiled compiled = env.compile(soda, epl, new CompilerArguments(new Configuration()));
-            deployWithResolver(env, compiled, null, prepared -> {
-                prepared.setObject("pstring", "E1");
-                prepared.setObject("pint", 10);
-                prepared.setObject("plong", 100L);
-            });
+            deployWithResolver(env, compiled, null, new SupportPortableDeploySubstitutionParams().add("pstring", "E1").add("pint", 10).add("plong", 100L));
             env.addListener("s0");
 
             SupportBean event = new SupportBean("E1", 10);
@@ -333,6 +324,10 @@ public class ClientCompileSubstitutionParams {
         public String name() {
             return this.getClass().getSimpleName() + "soda_" + soda;
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileSubstParamUnnamedParameterWType implements RegressionExecution {
@@ -344,7 +339,7 @@ public class ClientCompileSubstitutionParams {
 
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile(soda, "@name('s0') select * from SupportBean(theString=(?::SupportBean.getTheString()))", new CompilerArguments(new Configuration()));
-            deployWithResolver(env, compiled, null, prepared -> prepared.setObject(1, new SupportBean("E1", 0)));
+            deployWithResolver(env, compiled, null, new SupportPortableDeploySubstitutionParams().add(1, new SupportBean("E1", 0)));
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
@@ -363,12 +358,16 @@ public class ClientCompileSubstitutionParams {
                 "soda=" + soda +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileSubstParamMethodInvocation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile("@name('s0') select * from SupportBean(theString = ?:psb:SupportBean.getTheString())");
-            deployWithResolver(env, compiled, null, prepared -> prepared.setObject("psb", new SupportBean("E1", 0)));
+            deployWithResolver(env, compiled, null, new SupportPortableDeploySubstitutionParams("psb", new SupportBean("E1", 0)));
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
@@ -383,20 +382,20 @@ public class ClientCompileSubstitutionParams {
             String epl = "select * from pattern[SupportBean(theString=?::string)]";
             EPCompiled compiled = env.compile(epl);
 
-            deployWithResolver(env, compiled, "s0", prepared -> prepared.setObject(1, "e1"));
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams(1, "e1"));
             env.addListener("s0");
-            assertEquals(epl, env.statement("s0").getProperty(StatementProperty.EPL));
+            env.assertStatement("s0", statement -> assertEquals(epl, statement.getProperty(StatementProperty.EPL)));
 
-            deployWithResolver(env, compiled, "s1", prepared -> prepared.setObject(1, "e2"));
+            deployWithResolver(env, compiled, "s1", new SupportPortableDeploySubstitutionParams(1, "e2"));
             env.addListener("s1");
-            assertEquals(epl, env.statement("s1").getProperty(StatementProperty.EPL));
+            env.assertStatement("s1", statement -> assertEquals(epl, statement.getProperty(StatementProperty.EPL)));
 
             env.sendEventBean(new SupportBean("e2", 10));
             env.assertListenerNotInvoked("s0");
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
+            env.assertListenerInvoked("s1");
 
             env.sendEventBean(new SupportBean("e1", 10));
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
             env.assertListenerInvoked("s0");
 
             env.undeployAll();
@@ -408,34 +407,34 @@ public class ClientCompileSubstitutionParams {
             String stmtText = "select (select symbol from SupportMarketDataBean(symbol=?::string)#lastevent) as mysymbol from SupportBean";
             EPCompiled compiled = env.compile(stmtText);
 
-            deployWithResolver(env, compiled, "s0", prepared -> prepared.setObject(1, "S1"));
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams(1, "S1"));
             env.addListener("s0");
 
-            deployWithResolver(env, compiled, "s1", prepared -> prepared.setObject(1, "S2"));
+            deployWithResolver(env, compiled, "s1", new SupportPortableDeploySubstitutionParams(1, "S2"));
             env.addListener("s1");
 
             // test no event, should return null
             env.sendEventBean(new SupportBean("e1", -1));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("mysymbol"));
-            assertNull(env.listener("s1").assertOneGetNewAndReset().get("mysymbol"));
+            env.assertEqualsNew("s0", "mysymbol", null);
+            env.assertEqualsNew("s1", "mysymbol", null);
 
             // test one non-matching event
             env.sendEventBean(new SupportMarketDataBean("XX", 0, 0L, ""));
             env.sendEventBean(new SupportBean("e1", -1));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("mysymbol"));
-            assertNull(env.listener("s1").assertOneGetNewAndReset().get("mysymbol"));
+            env.assertEqualsNew("s0", "mysymbol", null);
+            env.assertEqualsNew("s1", "mysymbol", null);
 
             // test S2 matching event
             env.sendEventBean(new SupportMarketDataBean("S2", 0, 0L, ""));
             env.sendEventBean(new SupportBean("e1", -1));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("mysymbol"));
-            assertEquals("S2", env.listener("s1").assertOneGetNewAndReset().get("mysymbol"));
+            env.assertEqualsNew("s0", "mysymbol", null);
+            env.assertEqualsNew("s1", "mysymbol", "S2");
 
             // test S1 matching event
             env.sendEventBean(new SupportMarketDataBean("S1", 0, 0L, ""));
             env.sendEventBean(new SupportBean("e1", -1));
-            assertEquals("S1", env.listener("s0").assertOneGetNewAndReset().get("mysymbol"));
-            assertEquals("S2", env.listener("s1").assertOneGetNewAndReset().get("mysymbol"));
+            env.assertEqualsNew("s0", "mysymbol", "S1");
+            env.assertEqualsNew("s1", "mysymbol", "S2");
 
             env.undeployAll();
         }
@@ -446,18 +445,18 @@ public class ClientCompileSubstitutionParams {
             String stmt = "select * from SupportBean(theString=cast(?, string))";
             EPCompiled compiled = env.compile(stmt);
 
-            deployWithResolver(env, compiled, "s0", prepared -> prepared.setObject(1, "e1"));
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams(1, "e1"));
             env.addListener("s0");
 
-            deployWithResolver(env, compiled, "s1", prepared -> prepared.setObject(1, "e2"));
+            deployWithResolver(env, compiled, "s1", new SupportPortableDeploySubstitutionParams(1, "e2"));
             env.addListener("s1");
 
             env.sendEventBean(new SupportBean("e2", 10));
             env.assertListenerNotInvoked("s0");
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
+            env.assertListenerInvoked("s1");
 
             env.sendEventBean(new SupportBean("e1", 10));
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
             env.assertListenerInvoked("s0");
 
             env.undeployAll();
@@ -469,14 +468,14 @@ public class ClientCompileSubstitutionParams {
             // Test substitution parameter and inheritance in key matching
             RegressionPath path = new RegressionPath();
             String types =
-                "create schema MyEventOne as " + MyEventOne.class.getName() + ";\n" +
-                    "create schema MyEventTwo as " + MyEventTwo.class.getName() + ";\n";
-            env.compileDeployWBusPublicType(types, path);
+                    "@buseventtype create schema MyEventOne as " + MyEventOne.class.getName() + ";\n" +
+                    "@buseventtype create schema MyEventTwo as " + MyEventTwo.class.getName() + ";\n";
+            env.compileDeploy(types, path);
 
             String epl = "select * from MyEventOne(key = ?::IKey)";
             EPCompiled compiled = env.compile(epl, path);
             MyObjectKeyInterface lKey = new MyObjectKeyInterface();
-            deployWithResolver(env, compiled, "s0", prepared -> prepared.setObject(1, lKey));
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams(1, lKey));
             env.addListener("s0");
 
             env.sendEventBean(new MyEventOne(lKey));
@@ -486,11 +485,11 @@ public class ClientCompileSubstitutionParams {
             epl = "select * from MyEventTwo where key = ?::MyObjectKeyConcrete";
             compiled = env.compile(epl, path);
             MyObjectKeyConcrete cKey = new MyObjectKeyConcrete();
-            deployWithResolver(env, compiled, "s1", prepared -> prepared.setObject(1, cKey));
+            deployWithResolver(env, compiled, "s1", new SupportPortableDeploySubstitutionParams(1, cKey));
             env.addListener("s1");
 
             env.sendEventBean(new MyEventTwo(cKey));
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
+            env.assertListenerInvoked("s1");
 
             env.undeployAll();
         }
@@ -513,8 +512,7 @@ public class ClientCompileSubstitutionParams {
     private static class ClientCompileSubstParamSimpleNoParameter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile("select * from SupportBean(theString=\"e1\")");
-            deployWithResolver(env, compiled, "s0", prepared -> {
-            });
+            deployWithResolver(env, compiled, "s0", new SupportPortableDeploySubstitutionParams());
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean("e2", 10));
@@ -532,6 +530,10 @@ public class ClientCompileSubstitutionParams {
             tryInvalidDeployNoCallbackProvided(env, "@name('s0') select * from SupportBean(theString=?::string)");
             tryInvalidDeployNoCallbackProvided(env, "@name('s0') select * from SupportBean(theString=cast(?,string))");
             tryInvalidDeployNoCallbackProvided(env, "@name('s0') select * from SupportBean(theString=?:myname:string)");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -552,6 +554,10 @@ public class ClientCompileSubstitutionParams {
                 });
             tryInvalidResolver(env, compiled, "Substitution parameters have not been provided: Missing value for substitution parameter 'p1' for statement 's0'",
                 prepared -> prepared.setObject("p0", "x"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -586,6 +592,10 @@ public class ClientCompileSubstitutionParams {
             });
             deployWithOptionsWUndeploy(env, compiled, options);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientCompileSubstParamInvalidParametersTyped implements RegressionExecution {
@@ -618,52 +628,46 @@ public class ClientCompileSubstitutionParams {
             });
             deployWithOptionsWUndeploy(env, compiled, options);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static void runSimpleTwoParameter(RegressionEnvironment env, String stmtText, String statementName, boolean compareText) {
         EPCompiled compiled = env.compile(stmtText);
 
-        deployWithResolver(env, compiled, statementName, prepared -> {
-            prepared.setObject(1, "e1");
-            prepared.setObject(2, 1);
-        });
+        deployWithResolver(env, compiled, statementName, new SupportPortableDeploySubstitutionParams(1, "e1", 2, 1));
         env.addListener(statementName);
         if (compareText) {
-            assertEquals("select * from SupportBean(theString=?::string,intPrimitive=?::int)", env.statement(statementName).getProperty(StatementProperty.EPL));
+            env.assertStatement(statementName, statement -> assertEquals("select * from SupportBean(theString=?::string,intPrimitive=?::int)", statement.getProperty(StatementProperty.EPL)));
         }
 
-        deployWithResolver(env, compiled, statementName + "__1", prepared -> {
-            prepared.setObject(1, "e2");
-            prepared.setObject(2, 2);
-        });
+        deployWithResolver(env, compiled, statementName + "__1", new SupportPortableDeploySubstitutionParams().add(1, "e2").add(2, 2));
         env.addListener(statementName + "__1");
         if (compareText) {
-            assertEquals("select * from SupportBean(theString=?::string,intPrimitive=?::int)", env.statement(statementName + "__1").getProperty(StatementProperty.EPL));
+            env.assertStatement(statementName + "__1", statement -> assertEquals("select * from SupportBean(theString=?::string,intPrimitive=?::int)", statement.getProperty(StatementProperty.EPL)));
         }
 
         env.sendEventBean(new SupportBean("e2", 2));
-        assertFalse(env.listener(statementName).isInvoked());
-        assertTrue(env.listener(statementName + "__1").getAndClearIsInvoked());
+        env.assertListenerNotInvoked(statementName);
+        env.assertListenerInvoked(statementName + "__1");
 
         env.sendEventBean(new SupportBean("e1", 1));
-        assertFalse(env.listener(statementName + "__1").isInvoked());
-        assertTrue(env.listener(statementName).getAndClearIsInvoked());
+        env.assertListenerInvoked(statementName);
+        env.assertListenerNotInvoked(statementName + "__1");
 
         env.sendEventBean(new SupportBean("e1", 2));
-        assertFalse(env.listener(statementName).isInvoked());
-        assertFalse(env.listener(statementName + "__1").isInvoked());
+        env.assertListenerNotInvoked(statementName);
+        env.assertListenerNotInvoked(statementName + "__1");
 
         env.undeployAll();
     }
 
-    private static void deployWithResolver(RegressionEnvironment env, EPCompiled compiled, String statementName, StatementSubstitutionParameterOption resolver) {
+    private static void deployWithResolver(RegressionEnvironment env, EPCompiled compiled, String statementName, SupportPortableDeploySubstitutionParams resolver) {
         DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(resolver);
-        options.setStatementNameRuntime(context -> statementName);
-        try {
-            env.deployment().deploy(compiled, options);
-        } catch (EPDeployException e) {
-            throw new RuntimeException(e);
-        }
+        options.setStatementNameRuntime(new SupportPortableDeployStatementName(statementName));
+        env.deploy(compiled, options);
     }
 
     private static void tryInvalidDeployNoCallbackProvided(RegressionEnvironment env, String stmt) {
@@ -719,10 +723,18 @@ public class ClientCompileSubstitutionParams {
     public interface IKey extends Serializable {
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyObjectKeyInterface implements IKey {
+        private static final long serialVersionUID = 7269809189145438135L;
     }
 
-    public static class MyEventOne {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyEventOne implements Serializable {
+        private static final long serialVersionUID = 188967224166816051L;
         private IKey key;
 
         public MyEventOne(IKey key) {
@@ -734,10 +746,18 @@ public class ClientCompileSubstitutionParams {
         }
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyObjectKeyConcrete implements Serializable {
+        private static final long serialVersionUID = -1433373824226539405L;
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyEventTwo implements Serializable {
+        private static final long serialVersionUID = -8374901696890458360L;
         private MyObjectKeyConcrete key;
 
         public MyEventTwo(MyObjectKeyConcrete key) {

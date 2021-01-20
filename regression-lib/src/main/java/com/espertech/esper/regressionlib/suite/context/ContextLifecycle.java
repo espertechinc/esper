@@ -11,10 +11,7 @@
 package com.espertech.esper.regressionlib.suite.context;
 
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.context.SupportContextMgmtHelper;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDW;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDWFactory;
@@ -24,6 +21,7 @@ import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
@@ -91,13 +89,15 @@ public class ContextLifecycle {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
-            assertEquals(2, SupportVirtualDWFactory.getWindows().size());   // Independent windows for independent contexts
+            env.assertThat(() -> assertEquals(2, SupportVirtualDWFactory.getWindows().size()));   // Independent windows for independent contexts
 
             env.undeployAll();
-            for (SupportVirtualDW vdw : SupportVirtualDWFactory.getWindows()) {
-                TestCase.assertTrue(vdw.isDestroyed());
-            }
-            TestCase.assertTrue(SupportVirtualDWFactory.isDestroyed());
+            env.assertThat(() -> {
+                for (SupportVirtualDW vdw : SupportVirtualDWFactory.getWindows()) {
+                    TestCase.assertTrue(vdw.isDestroyed());
+                }
+                TestCase.assertTrue(SupportVirtualDWFactory.isDestroyed());
+            });
         }
     }
 
@@ -169,6 +169,10 @@ public class ContextLifecycle {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ContextLifecycleInvalid implements RegressionExecution {
@@ -208,6 +212,10 @@ public class ContextLifecycle {
                 "Failed to validate select-clause expression 'context.sb.theString': Failed to resolve property 'context.sb.theString' to a stream or nested property in a stream");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 }

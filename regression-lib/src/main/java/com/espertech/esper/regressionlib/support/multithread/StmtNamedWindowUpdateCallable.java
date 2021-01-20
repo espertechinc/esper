@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.multithread;
 
-import com.espertech.esper.regressionlib.suite.multithread.MultithreadStmtNamedWindowUpdate;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.suite.multithread.MultithreadStmtNamedWindowUpdate;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceSPI;
 import org.slf4j.Logger;

@@ -53,7 +53,7 @@ public class InfraNamedWindowSubquery {
 
         private void sendAssert(RegressionEnvironment env, boolean expected) {
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
@@ -67,7 +67,7 @@ public class InfraNamedWindowSubquery {
             env.compileDeploy(epl);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(1L, env.runtime().getVariableService().getVariableValue(env.deploymentId("assign"), "myvar"));   // if the subquery-consumer executes first, this will be null
+            env.assertRuntime(runtime -> assertEquals(1L, runtime.getVariableService().getVariableValue(env.deploymentId("assign"), "myvar")));   // if the subquery-consumer executes first, this will be null
 
             env.undeployAll();
         }

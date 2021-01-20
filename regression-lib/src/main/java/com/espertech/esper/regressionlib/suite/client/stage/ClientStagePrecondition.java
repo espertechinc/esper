@@ -38,7 +38,7 @@ public class ClientStagePrecondition {
         return execs;
     }
 
-    private static class ClientStageUnstagePrecondition implements RegressionExecution {
+    private static class ClientStageUnstagePrecondition implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('context') @public create context MyContext initiated by SupportBean", path);
@@ -58,7 +58,7 @@ public class ClientStagePrecondition {
         }
     }
 
-    private static class ClientStageStagePreconditionVariable implements RegressionExecution {
+    private static class ClientStageStagePreconditionVariable implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('variable') @public create variable int MyVariable", path);
@@ -75,7 +75,7 @@ public class ClientStagePrecondition {
         }
     }
 
-    private static class ClientStageStagePreconditionContext implements RegressionExecution {
+    private static class ClientStageStagePreconditionContext implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('context') @public create context MyContext initiated by SupportBean", path);
@@ -99,7 +99,7 @@ public class ClientStagePrecondition {
         }
     }
 
-    private static class ClientStageStagePreconditionNamedWindow implements RegressionExecution {
+    private static class ClientStageStagePreconditionNamedWindow implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('create') @public create window MyWindow#keepall as SupportBean", path);

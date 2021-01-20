@@ -10,8 +10,11 @@
  */
 package com.espertech.esper.regressionlib.support.lrreport;
 
-public class Item {
+import java.io.Serializable;
 
+public class Item implements Serializable {
+
+    private static final long serialVersionUID = -503023256347013156L;
     private String assetId;
     private Location location;
     private String type;

@@ -13,12 +13,15 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
+
+import static org.junit.Assert.assertFalse;
 
 public class PatternOperatorEvery {
 
@@ -64,14 +67,18 @@ public class PatternOperatorEvery {
             env.undeployModuleContaining("s0");
 
             sendSupportBean(env, "E5", 0);
-            Assert.assertFalse(listener.isInvoked());
+            assertFalse(listener.isInvoked());
 
             env.milestone(4);
 
             sendSupportBean(env, "E6", 0);
-            Assert.assertFalse(listener.isInvoked());
+            assertFalse(listener.isInvoked());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -244,7 +251,7 @@ public class PatternOperatorEvery {
             env.milestone(0);
 
             sendTimer(env, 8000);
-            Assert.assertEquals("No event within 6 seconds", env.listener("s0").assertOneGetNewAndReset().get("alert"));
+            env.assertEqualsNew("s0", "alert", "No event within 6 seconds");
 
             sendTimer(env, 12000);
             env.sendEventBean(new SupportBean());
@@ -260,7 +267,7 @@ public class PatternOperatorEvery {
             env.milestone(2);
 
             sendTimer(env, 19000);
-            Assert.assertEquals("No event within 6 seconds", env.listener("s0").assertOneGetNewAndReset().get("alert"));
+            env.assertEqualsNew("s0", "alert", "No event within 6 seconds");
 
             env.undeployAll();
         }

@@ -51,38 +51,41 @@ public class EventXMLSchemaEventTypes {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         String stmtSelectWild = "@name('s0') select * from " + eventTypeName;
         env.compileDeploy(stmtSelectWild, path).addListener("s0");
-        EventType type = env.statement("s0").getEventType();
-        SupportEventTypeAssertionUtil.assertConsistency(type);
 
-        Object[][] types = new Object[][]{
-            {"attrNonPositiveInteger", Integer.class},
-            {"attrNonNegativeInteger", Integer.class},
-            {"attrNegativeInteger", Integer.class},
-            {"attrPositiveInteger", Integer.class},
-            {"attrLong", Long.class},
-            {"attrUnsignedLong", Long.class},
-            {"attrInt", Integer.class},
-            {"attrUnsignedInt", Integer.class},
-            {"attrDecimal", Double.class},
-            {"attrInteger", Integer.class},
-            {"attrFloat", Float.class},
-            {"attrDouble", Double.class},
-            {"attrString", String.class},
-            {"attrShort", Short.class},
-            {"attrUnsignedShort", Short.class},
-            {"attrByte", Byte.class},
-            {"attrUnsignedByte", Byte.class},
-            {"attrBoolean", Boolean.class},
-            {"attrDateTime", String.class},
-            {"attrDate", String.class},
-            {"attrTime", String.class}};
+        env.assertStatement("s0", statement -> {
+            EventType type = statement.getEventType();
+            SupportEventTypeAssertionUtil.assertConsistency(type);
 
-        for (int i = 0; i < types.length; i++) {
-            String name = types[i][0].toString();
-            EventPropertyDescriptor desc = type.getPropertyDescriptor(name);
-            Class expected = (Class) types[i][1];
-            assertEquals("Failed for " + name, expected, desc.getPropertyType());
-        }
+            Object[][] types = new Object[][]{
+                {"attrNonPositiveInteger", Integer.class},
+                {"attrNonNegativeInteger", Integer.class},
+                {"attrNegativeInteger", Integer.class},
+                {"attrPositiveInteger", Integer.class},
+                {"attrLong", Long.class},
+                {"attrUnsignedLong", Long.class},
+                {"attrInt", Integer.class},
+                {"attrUnsignedInt", Integer.class},
+                {"attrDecimal", Double.class},
+                {"attrInteger", Integer.class},
+                {"attrFloat", Float.class},
+                {"attrDouble", Double.class},
+                {"attrString", String.class},
+                {"attrShort", Short.class},
+                {"attrUnsignedShort", Short.class},
+                {"attrByte", Byte.class},
+                {"attrUnsignedByte", Byte.class},
+                {"attrBoolean", Boolean.class},
+                {"attrDateTime", String.class},
+                {"attrDate", String.class},
+                {"attrTime", String.class}};
+
+            for (int i = 0; i < types.length; i++) {
+                String name = types[i][0].toString();
+                EventPropertyDescriptor desc = type.getPropertyDescriptor(name);
+                Class expected = (Class) types[i][1];
+                assertEquals("Failed for " + name, expected, desc.getPropertyType());
+            }
+        });
 
         env.undeployAll();
     }

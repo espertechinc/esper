@@ -31,7 +31,7 @@ public class ClientBasicFilter implements RegressionExecution {
     }
 
     private void sendAssert(RegressionEnvironment env, int intPrimitive, boolean expected) {
-        env.sendEventBean(new SupportBean("E", intPrimitive))
-            .listener("s0").assertInvokedFlagAndReset(expected);
+        env.sendEventBean(new SupportBean("E", intPrimitive));
+        env.assertListenerInvokedFlag("s0", expected);
     }
 }

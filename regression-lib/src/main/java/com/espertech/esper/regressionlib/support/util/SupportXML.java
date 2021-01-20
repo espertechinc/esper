@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.support.util;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.runtime.client.EPEventService;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -57,15 +56,13 @@ public class SupportXML {
             "\t</nested3>\n" +
             "</simpleEvent>";
 
-    public static Document sendDefaultEvent(EPEventService runtime, String value, String eventTypeName) {
+    public static Document makeDefaultEvent(String value) {
         String xml = XML.replaceAll("VAL1", value);
-
         InputSource source = new InputSource(new StringReader(xml));
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
         try {
             Document simpleDoc = builderFactory.newDocumentBuilder().parse(source);
-            runtime.sendEventXMLDOM(simpleDoc, eventTypeName);
             return simpleDoc;
         } catch (Throwable t) {
             t.printStackTrace();

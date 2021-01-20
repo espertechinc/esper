@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.runtime.client.DeploymentOptions;
@@ -21,6 +22,7 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertTrue;
@@ -31,6 +33,10 @@ public class ClientRuntimeThreadedConfigTimer implements RegressionExecutionWith
     @Override
     public boolean enableHATest() {
         return false;
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     public void configure(Configuration configuration) {

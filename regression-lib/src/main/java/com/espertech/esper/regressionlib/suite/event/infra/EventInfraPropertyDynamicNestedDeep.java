@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -110,7 +109,7 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema nestedSchema = AvroSchemaUtil.findUnionRecordSchemaSingle(schema.getField("item").schema().getField("nested").schema());
         Schema nestedNestedSchema = AvroSchemaUtil.findUnionRecordSchemaSingle(nestedSchema.getField("nestedNested").schema());
         GenericData.Record nestedNestedDatum = new GenericData.Record(nestedNestedSchema);
@@ -118,13 +117,14 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         GenericData.Record nestedDatum = new GenericData.Record(nestedSchema);
         nestedDatum.put("nestedValue", 100);
         nestedDatum.put("nestedNested", nestedNestedDatum);
-        GenericData.Record emptyDatum = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
+        Schema emptySchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME).fields().endRecord();
+        GenericData.Record emptyDatum = new GenericData.Record(emptySchema);
         Pair[] avroTests = new Pair[]{
             new Pair<>(nestedDatum, allExist(100, 100, 101, 101, 101, 101)),
             new Pair<>(emptyDatum, notExists),
             new Pair<>(null, notExists)
         };
-        runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path);
+        env.assertThat(() -> runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path));
 
         // Json
         Pair[] jsonTests = new Pair[]{
@@ -199,8 +199,7 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         env.compileDeploy(stmtText, path).addListener("s0");
 
         send.apply(env, underlyingComplete, typename);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        SupportEventTypeAssertionUtil.assertConsistency(event);
+        env.assertEventNew("s0", SupportEventTypeAssertionUtil::assertConsistency);
 
         env.undeployModuleContaining("s0");
     }
@@ -228,29 +227,30 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         env.compileDeploy(stmtText, path).addListener("s0");
 
         String[] propertyNames = "n1,n2,n3,n4,n5,n6".split(",");
-        EventType eventType = env.statement("s0").getEventType();
-        for (String propertyName : propertyNames) {
-            assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
-            assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String propertyName : propertyNames) {
+                assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
+                assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
+            }
+        });
 
         for (Pair pair : tests) {
             send.apply(env, pair.getFirst(), typename);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion);
+            env.assertEventNew("s0", event -> SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion));
         }
 
         env.undeployModuleContaining("s0");
     }
 
     private static final SupportEventInfra.FunctionSendEvent FAVRO = (env, value, typename) -> {
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema itemSchema = schema.getField("item").schema();
         GenericData.Record itemDatum = new GenericData.Record(itemSchema);
         itemDatum.put("nested", value);
-        GenericData.Record datum = new GenericData.Record(schema);
-        datum.put("item", itemDatum);
-        env.sendEventAvro(datum, typename);
+        GenericData.Record event = new GenericData.Record(schema);
+        event.put("item", itemDatum);
+        env.sendEventAvro(event, typename);
     };
 
     public static class MyLocalJsonProvided implements Serializable {

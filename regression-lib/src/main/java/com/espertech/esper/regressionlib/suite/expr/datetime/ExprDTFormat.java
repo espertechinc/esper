@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
@@ -47,7 +46,7 @@ public class ExprDTFormat {
                 "zoneddate.format() as val5" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.STRING.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, EPTypePremade.STRING.getEPType());
 
             env.sendEventBean(SupportDateTime.make(startTime));
             Object[] expected = SupportDateTime.getArrayCoerced(startTime, "sdf", "sdf", "sdf", "sdf", "dtf_isodt", "dtf_isozdt");
@@ -80,7 +79,7 @@ public class ExprDTFormat {
                 "localdate.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) as val6" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.STRING.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, EPTypePremade.STRING.getEPType());
 
             SupportDateTime sdt = SupportDateTime.make(startTime);
             env.sendEventBean(SupportDateTime.make(startTime));

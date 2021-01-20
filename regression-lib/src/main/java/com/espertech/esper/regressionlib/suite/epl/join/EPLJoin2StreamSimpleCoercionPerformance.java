@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EPLJoin2StreamSimpleCoercionPerformance {
@@ -33,7 +32,7 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
     private static class EPLJoinPerformanceCoercionForward implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -52,7 +51,7 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 env.sendEventBean(makeSupportEvent("B", index, 0));
-                assertEquals((long) index, env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", (long) index);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -65,7 +64,7 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
     private static class EPLJoinPerformanceCoercionBack implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -84,7 +83,7 @@ public class EPLJoin2StreamSimpleCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 env.sendEventBean(makeSupportEvent("B", 0, index));
-                assertEquals(index, env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", index);
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;

@@ -51,7 +51,7 @@ public class ClientStageObjectResolution {
         return execs;
     }
 
-    private static class ClientStageObjectAlreadyExists implements RegressionExecution {
+    private static class ClientStageObjectAlreadyExists implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             EPCompiled compiled = env.compile(EPL_OBJECTS);
             env.deploy(compiled);
@@ -81,7 +81,7 @@ public class ClientStageObjectResolution {
         }
     }
 
-    private static class ClientStageObjectResolutionAfterStaging implements RegressionExecution {
+    private static class ClientStageObjectResolutionAfterStaging implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy(EPL_OBJECTS, path);

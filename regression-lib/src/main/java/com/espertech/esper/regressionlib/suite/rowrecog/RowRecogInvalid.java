@@ -12,7 +12,9 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
+import java.util.EnumSet;
 
 
 public class RowRecogInvalid implements RegressionExecution {
@@ -137,5 +139,9 @@ public class RowRecogInvalid implements RegressionExecution {
             "    A as A.theString like 'A%'" +
             ")";
         env.tryInvalidCompile(text, "Joins are not allowed when using match-recognize");
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.INVALIDITY);
     }
 }

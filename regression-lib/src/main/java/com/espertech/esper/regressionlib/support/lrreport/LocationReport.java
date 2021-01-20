@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.regressionlib.support.lrreport;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class LocationReport {
+public class LocationReport implements Serializable {
 
+    private static final long serialVersionUID = -527984670941127607L;
     private List<Item> items;
 
     public LocationReport(List<Item> items) {

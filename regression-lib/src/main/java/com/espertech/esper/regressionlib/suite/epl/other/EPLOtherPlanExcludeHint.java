@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.epl.lookupsubord.SubordWMatchExprLook
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.epl.SupportExprNodeFactory;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
@@ -33,7 +34,9 @@ import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHelpe
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 import org.junit.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
@@ -78,6 +81,10 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
             Assert.assertEquals(SubordWMatchExprLookupStrategyAllFilteredForge.class.getSimpleName(), onExpr.getStrategyName());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -164,6 +171,10 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class EPLOtherInvalid implements RegressionExecution {
@@ -200,7 +211,11 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
         env.undeployAll();
     }
 
-    public static class AEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class AEvent implements Serializable {
+        private static final long serialVersionUID = 3707362041456853176L;
         private final String aprop;
 
         private AEvent(String aprop) {
@@ -212,7 +227,11 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
         }
     }
 
-    public static class BEvent {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class BEvent implements Serializable {
+        private static final long serialVersionUID = 4537886706714904169L;
         private final String bprop;
 
         private BEvent(String bprop) {

@@ -12,11 +12,8 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -26,7 +23,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -34,7 +31,7 @@ import static org.junit.Assert.assertNull;
 public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, Nullable2Lvl> bean = (type, val) -> {
+        Consumer<Nullable2Lvl> bean = val -> {
             LocalEvent event;
             if (val.isNullAtRoot()) {
                 event = new LocalEvent(null);
@@ -49,7 +46,7 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, Nullable2Lvl> map = (type, val) -> {
+        Consumer<Nullable2Lvl> map = val -> {
             Map<String, Object> event = new LinkedHashMap<>();
             if (val.isNullAtRoot()) {
                 // no change
@@ -66,7 +63,7 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         runAssertion(env, getEpl("map"), map);
 
         // Object-array
-        BiConsumer<EventType, Nullable2Lvl> oa = (type, val) -> {
+        Consumer<Nullable2Lvl> oa = val -> {
             Object[] event = new Object[1];
             if (val.isNullAtRoot()) {
                 // no change
@@ -83,7 +80,7 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         runAssertion(env, getEpl("objectarray"), oa);
 
         // Json
-        BiConsumer<EventType, Nullable2Lvl> json = (type, val) -> {
+        Consumer<Nullable2Lvl> json = val -> {
             JsonObject event = new JsonObject();
             if (val.isNullAtRoot()) {
                 // no change
@@ -103,8 +100,8 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         runAssertion(env, eplJsonProvided, json);
 
         // Avro
-        BiConsumer<EventType, Nullable2Lvl> avro = (type, val) -> {
-            Schema schema = SupportAvroUtil.getAvroSchema(type);
+        Consumer<Nullable2Lvl> avro = val -> {
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
             GenericData.Record event = new GenericData.Record(schema);
             if (val.isNullAtRoot()) {
                 // no change
@@ -120,50 +117,44 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
             }
             env.sendEventAvro(event, "LocalEvent");
         };
-        runAssertion(env, getEpl("avro"), avro);
+        env.assertThat(() -> runAssertion(env, getEpl("avro"), avro));
     }
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, Nullable2Lvl> sender) {
+                             Consumer<Nullable2Lvl> sender) {
 
         String epl = createSchemaEPL +
             "@name('s0') select * from LocalEvent;\n" +
             "@name('s1') select property.leaf.id as c0, exists(property.leaf.id) as c1, typeof(property.leaf.id) as c2 from LocalEvent;\n";
         env.compileDeploy(epl).addListener("s0").addListener("s1");
-        EventType eventType = env.statement("s0").getEventType();
 
-        EventPropertyGetter g0 = eventType.getGetter("property.leaf.id");
-
-        sender.accept(eventType, new Nullable2Lvl(false, false, "a"));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "a");
+        sender.accept(new Nullable2Lvl(false, false, "a"));
+        env.assertEventNew("s0", event -> assertGetter(event, true, "a"));
         assertProps(env, true, "a");
 
-        sender.accept(eventType, new Nullable2Lvl(false, false, null));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, null);
+        sender.accept(new Nullable2Lvl(false, false, null));
+        env.assertEventNew("s0", event -> assertGetter(event, true, null));
         assertProps(env, true, null);
 
-        sender.accept(eventType, new Nullable2Lvl(false, true, null));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
+        sender.accept(new Nullable2Lvl(false, true, null));
+        env.assertEventNew("s0", event -> assertGetter(event, false, null));
         assertProps(env, false, null);
 
-        sender.accept(eventType, new Nullable2Lvl(true, false, null));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
+        sender.accept(new Nullable2Lvl(true, false, null));
+        env.assertEventNew("s0", event -> assertGetter(event, false, null));
         assertProps(env, false, null);
 
         env.undeployAll();
     }
 
     private void assertProps(RegressionEnvironment env, boolean exists, String expected) {
-        EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "c0,c1,c2".split(","),
+        env.assertPropsNew("s1", "c0,c1,c2".split(","),
             new Object[]{expected, exists, expected != null ? String.class.getSimpleName() : null});
     }
 
-    private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists, String value) {
+    private void assertGetter(EventBean event, boolean exists, String value) {
+        EventPropertyGetter getter = event.getEventType().getGetter("property.leaf.id");
         assertEquals(exists, getter.isExistsProperty(event));
         assertEquals(value, getter.get(event));
         assertNull(getter.getFragment(event));
@@ -172,10 +163,11 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
     private String getEpl(String underlying) {
         return "@public @buseventtype create " + underlying + " schema LocalLeafEvent(id string);\n" +
             "@public @buseventtype create " + underlying + " schema LocalInnerEvent(leaf LocalLeafEvent);\n" +
-            "@public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent);\n";
+            "@name('schema') @public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent);\n";
     }
 
-    public static class LocalLeafEvent {
+    public static class LocalLeafEvent implements Serializable {
+        private static final long serialVersionUID = 1882923000981895938L;
         private final String id;
 
         public LocalLeafEvent(String id) {
@@ -187,7 +179,8 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         }
     }
 
-    public static class LocalInnerEvent {
+    public static class LocalInnerEvent implements Serializable {
+        private static final long serialVersionUID = 4682265371414981401L;
         private final LocalLeafEvent leaf;
 
         public LocalInnerEvent(LocalLeafEvent leaf) {
@@ -199,7 +192,8 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         }
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -1315383268249956930L;
         private LocalInnerEvent property;
 
         public LocalEvent(LocalInnerEvent property) {
@@ -211,7 +205,8 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
         }
     }
 
-    private static class Nullable2Lvl {
+    private static class Nullable2Lvl implements Serializable {
+        private static final long serialVersionUID = 1175450645798351344L;
         private final boolean nullAtRoot;
         private final boolean nullAtInner;
         private final String id;
@@ -236,14 +231,17 @@ public class EventInfraGetterNestedSimpleDeep implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = -3507245469422648353L;
         public MyLocalJsonProvidedInnerEvent property;
     }
 
     public static class MyLocalJsonProvidedInnerEvent implements Serializable {
+        private static final long serialVersionUID = 238505898641597341L;
         public MyLocalJsonProvidedLeafEvent leaf;
     }
 
     public static class MyLocalJsonProvidedLeafEvent implements Serializable {
+        private static final long serialVersionUID = -4618532340851736222L;
         public String id;
     }
 }

@@ -18,12 +18,14 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraph
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +51,10 @@ public class EPLDataflowOpBeaconSource {
 
             MyEventNoDefaultCtor resultNoDefCtor = (MyEventNoDefaultCtor) runAssertionBeans(env, "MyEventNoDefaultCtor");
             assertEquals("abc", resultNoDefCtor.getMyfield());
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -76,6 +82,10 @@ public class EPLDataflowOpBeaconSource {
             }
             assertEquals(3, output.length);
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -135,6 +145,10 @@ public class EPLDataflowOpBeaconSource {
                 "Failed to obtain operator 'BeaconSource': BeaconSource operator requires one output stream but produces 0 streams");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -293,6 +307,10 @@ public class EPLDataflowOpBeaconSource {
                 "}", path);
             env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyDataFlowFive");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

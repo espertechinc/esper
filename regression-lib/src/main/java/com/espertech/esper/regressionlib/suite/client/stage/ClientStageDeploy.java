@@ -31,7 +31,7 @@ public class ClientStageDeploy {
         return execs;
     }
 
-    private static class ClientStageDeployInvalidUndeployWhileStaged implements RegressionExecution {
+    private static class ClientStageDeployInvalidUndeployWhileStaged implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') select * from SupportBean");
             String deploymentId = env.deploymentId("s0");

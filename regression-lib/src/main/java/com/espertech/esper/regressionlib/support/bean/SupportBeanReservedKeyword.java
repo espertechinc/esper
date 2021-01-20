@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class SupportBeanReservedKeyword {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportBeanReservedKeyword implements Serializable {
+    private static final long serialVersionUID = -8999757230563910277L;
     private int seconds;
     private int order;
     private Inner timestamp;
@@ -62,7 +68,8 @@ public class SupportBeanReservedKeyword {
         this.timestamp = timestamp;
     }
 
-    public static class Inner {
+    public static class Inner implements Serializable {
+        private static final long serialVersionUID = 6062457966312995327L;
         private int hour;
 
         public int getHour() {

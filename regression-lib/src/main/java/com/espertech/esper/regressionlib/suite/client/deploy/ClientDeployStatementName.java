@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.option.StatementNameRuntimeContext;
 import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -45,18 +47,24 @@ public class ClientDeployStatementName {
                 fail(e.getMessage());
             }
 
-            StatementNameRuntimeContext ctx = MyStatementNameRuntimeResolver.getContexts().get(0);
-            assertEquals("s0", ctx.getStatementName());
-            assertEquals(env.deploymentId("hello"), ctx.getDeploymentId());
-            assertSame(env.statement("hello").getAnnotations(), ctx.getAnnotations());
-            assertEquals(epl, ctx.getEpl());
-            assertEquals("hello", env.statement("hello").getName());
+            env.assertThat(() -> {
+                StatementNameRuntimeContext ctx = MyStatementNameRuntimeResolver.getContexts().get(0);
+                assertEquals("s0", ctx.getStatementName());
+                assertEquals(env.deploymentId("hello"), ctx.getDeploymentId());
+                assertSame(env.statement("hello").getAnnotations(), ctx.getAnnotations());
+                assertEquals(epl, ctx.getEpl());
+                assertEquals("hello", env.statement("hello").getName());
+            });
 
             env.milestone(0);
 
-            assertEquals("hello", env.statement("hello").getName());
+            env.assertStatement("hello", statement -> assertEquals("hello", statement.getName()));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 

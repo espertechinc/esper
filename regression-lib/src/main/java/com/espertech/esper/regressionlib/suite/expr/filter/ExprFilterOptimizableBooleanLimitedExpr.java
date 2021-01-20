@@ -64,9 +64,11 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.sendEventBean(new SupportBean_S0(10));
 
             if (hasFilterIndexPlanAdvanced(env)) {
-                FilterItem[] params = getFilterSvcMultiAssertNonEmpty(env.statement("s0"));
-                assertEquals(EQUAL, params[0].getOp());
-                assertEquals(EQUAL, params[1].getOp());
+                env.assertStatement("s0", statement -> {
+                    FilterItem[] params = getFilterSvcMultiAssertNonEmpty(statement);
+                    assertEquals(EQUAL, params[0].getOp());
+                    assertEquals(EQUAL, params[1].getOp());
+                });
             }
 
             env.milestone(0);
@@ -87,15 +89,17 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.milestone(0);
 
             if (hasFilterIndexPlanAdvanced(env)) {
-                Map<String, FilterItem[]> filters = getFilterSvcAllStmtForTypeMulti(env.runtime(), "SupportBean_S0");
-                FilterItem[] s0 = filters.get("s0");
-                FilterItem[] s1 = filters.get("s1");
-                assertEquals(REBOOL, s0[0].getOp());
-                assertEquals(".p00 regexp ?", s0[0].getName());
-                assertEquals(REBOOL, s0[1].getOp());
-                assertEquals(".p01 regexp ?", s0[1].getName());
-                assertEquals(s0[0], s1[0]);
-                assertEquals(s0[1], s1[1]);
+                env.assertThat(() -> {
+                    Map<String, FilterItem[]> filters = getFilterSvcAllStmtForTypeMulti(env.runtime(), "SupportBean_S0");
+                    FilterItem[] s0 = filters.get("s0");
+                    FilterItem[] s1 = filters.get("s1");
+                    assertEquals(REBOOL, s0[0].getOp());
+                    assertEquals(".p00 regexp ?", s0[0].getName());
+                    assertEquals(REBOOL, s0[1].getOp());
+                    assertEquals(".p01 regexp ?", s0[1].getName());
+                    assertEquals(s0[0], s1[0]);
+                    assertEquals(s0[1], s1[1]);
+                });
             }
 
             sendS0Assert(env, "AX", "AZ", false);
@@ -112,7 +116,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), ".p10||\"abc\" regexp ?", REBOOL);
+                assertFilterSvcSingle(env, "s0", ".p10||\"abc\" regexp ?", REBOOL);
             }
 
             env.milestone(0);
@@ -131,7 +135,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "x.*abc"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), ".p10||\"abc\" regexp ?", REBOOL);
+                assertFilterSvcSingle(env, "s0", ".p10||\"abc\" regexp ?", REBOOL);
             }
 
             env.milestone(0);
@@ -150,7 +154,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, ".*X"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), ".p10 regexp p11||?", REBOOL);
+                assertFilterSvcSingle(env, "s0", ".p10 regexp p11||?", REBOOL);
             }
 
             env.milestone(0);
@@ -241,6 +245,10 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ExprFilterOptReboolConstValueRegexpRHS implements RegressionExecution {
@@ -254,7 +262,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
                 assertEquals(FilterOperator.REBOOL, forge.getFilterOperator());
                 assertEquals(".theString regexp ?", forge.getLookupable().getExpression());
                 assertEquals(String.class, forge.getLookupable().getReturnType().getType());
-                assertFilterSvcSingle(env.statement("s0"), ".theString regexp ?", REBOOL);
+                assertFilterSvcSingle(env, "s0", ".theString regexp ?", REBOOL);
             }
 
             epl = "@name('s1') select * from SupportBean(theString regexp '.*a.*')";
@@ -285,12 +293,16 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ExprFilterOptReboolConstValueRegexpRHSPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
         }
 
         public void run(RegressionEnvironment env) {
@@ -330,7 +342,6 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
             assertTrue("Delta is " + delta, delta < 1000); // ~7 seconds without optimization
             env.undeployAll();
-
         }
     }
 
@@ -346,7 +357,7 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
             }
         }
         for (int i = 0; i < count; i++) {
-            env.statement("s" + i).addListener(env.listenerNew());
+            env.addListener("s" + i);
         }
     }
 
@@ -397,6 +408,10 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
                 "select * from SupportBean(theString regexp LocalHelper.doit('abc'))";
             assertDisqualified(env, path, "SupportBean", eplWithLocalHelper);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     protected static void assertDisqualified(RegressionEnvironment env, RegressionPath path, String typeName, String epl) {
@@ -408,23 +423,19 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static void sendS0Assert(RegressionEnvironment env, String p00, String p01, boolean receivedS0) {
         env.sendEventBean(new SupportBean_S0(0, p00, p01));
-        assertEquals(receivedS0, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", receivedS0);
     }
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, boolean receivedS0, boolean receivedS1, boolean receivedS2) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertEquals(receivedS0, env.listener("s0").getIsInvokedAndReset());
-        assertEquals(receivedS1, env.listener("s1").getIsInvokedAndReset());
-        assertEquals(receivedS2, env.listener("s2").getIsInvokedAndReset());
-    }
-
-    private static void sendSBAssert(RegressionEnvironment env, String theString, boolean receivedS0) {
-        sendSBAssert(env, theString, -1, receivedS0);
+        env.assertListenerInvokedFlag("s0", receivedS0);
+        env.assertListenerInvokedFlag("s1", receivedS1);
+        env.assertListenerInvokedFlag("s2", receivedS2);
     }
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, int intPrimitive, boolean receivedS0) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        assertEquals(receivedS0, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", receivedS0);
     }
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, Collection<String> names, boolean expected) {
@@ -434,23 +445,25 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
 
     private static void assertReceived(RegressionEnvironment env, Collection<String> names, boolean expected) {
         for (String name : names) {
-            assertEquals("failed for '" + name + "'", expected, env.listener(name).getIsInvokedAndReset());
+            env.assertListenerInvokedFlag(name, expected, "failed for '" + name + "'");
         }
     }
 
     private static void assertSameFilterEntry(RegressionEnvironment env, String eventTypeName) {
-        Map<String, FilterItem> filters = SupportFilterServiceHelper.getFilterSvcAllStmtForTypeSingleFilter(env.runtime(), eventTypeName);
-        FilterItem s0 = filters.get("s0");
-        FilterItem s1 = filters.get("s1");
-        assertEquals(FilterOperator.REBOOL, s0.getOp());
-        assertNotNull(s0.getIndex());
-        assertSame(s0.getIndex(), s1.getIndex());
-        assertSame(s0.getOptionalValue(), s1.getOptionalValue());
+        env.assertThat(() -> {
+            Map<String, FilterItem> filters = SupportFilterServiceHelper.getFilterSvcAllStmtForTypeSingleFilter(env.runtime(), eventTypeName);
+            FilterItem s0 = filters.get("s0");
+            FilterItem s1 = filters.get("s1");
+            assertEquals(FilterOperator.REBOOL, s0.getOp());
+            assertNotNull(s0.getIndex());
+            assertSame(s0.getIndex(), s1.getIndex());
+            assertSame(s0.getOptionalValue(), s1.getOptionalValue());
+        });
     }
 
     private static void sendS1Assert(RegressionEnvironment env, String p10, String p11, boolean expected) {
         env.sendEventBean(new SupportBean_S1(1, p10, p11));
-        assertEquals(expected, env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvokedFlag("s0", expected);
     }
 
     private static void sendS1Assert(RegressionEnvironment env, String p10, boolean expected) {
@@ -462,12 +475,12 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         env.compileDeploy("@name('s0') " + eplZero).addListener("s0");
         boolean advanced = hasFilterIndexPlanAdvanced(env);
         if (advanced) {
-            assertFilterSvcSingle(env.statement("s0"), reboolExpressionText, REBOOL);
+            assertFilterSvcSingle(env, "s0", reboolExpressionText, REBOOL);
         }
 
         env.compileDeploy("@name('s1') " + eplOne).addListener("s1");
         if (advanced) {
-            assertFilterSvcSingle(env.statement("s1"), reboolExpressionText, REBOOL);
+            assertFilterSvcSingle(env, "s1", reboolExpressionText, REBOOL);
         }
         List<String> statementNames = Arrays.asList("s0", "s1");
 

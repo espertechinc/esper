@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-
 public class ContextInitTermWithNow {
 
     public static Collection<RegressionExecution> executions() {
@@ -55,7 +53,7 @@ public class ContextInitTermWithNow {
 
         private void assertSendCount(RegressionEnvironment env, long expected) {
             env.sendEventBean(new SupportBean());
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 

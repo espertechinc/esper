@@ -18,9 +18,11 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptu
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.dataflow.MyObjectArrayGraphSource;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -63,6 +65,10 @@ public class EPLDataflowExampleVwapFilterSelectJoin implements RegressionExecuti
 
         runAssertion(env);
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 
     private static void runAssertion(RegressionEnvironment env) {

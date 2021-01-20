@@ -60,7 +60,7 @@ public class ClientExtendEnumMethod {
             String epl = "@name('s0') select strvals.enumPlugInLambdaScalarWStateAndValue('X', (r, v) => r || v) as c0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(EPTypePremade.STRING.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, "Xa", "a");
             sendAssert(env, "Xab", "a,b");
@@ -79,7 +79,7 @@ public class ClientExtendEnumMethod {
             String epl = "@name('s0') select intvals.enumPlugInLambdaScalarWPredicateAndIndex((v, ind) => v > 0 and ind < 3) as c0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(INTEGERBOXED.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, 0, "-1,-2");
             sendAssert(env, 1, "-1,2");
@@ -102,7 +102,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInLambdaEventWPredicateAndIndex((v, ind) => v.intPrimitive > 0 and ind < 3) as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(INTEGERBOXED.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, null);
 
@@ -123,7 +123,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, Integer expected) {
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
@@ -133,7 +133,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInTwoLambda(l1 -> 2*intPrimitive, l2 -> 3*intPrimitive) as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(INTEGERBOXED.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, null);
 
@@ -151,7 +151,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, Integer expected) {
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
@@ -161,7 +161,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInReturnSingleEvent(v => intPrimitive > 0).theString as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(EPTypePremade.STRING.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, null);
 
@@ -182,7 +182,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String expected) {
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
@@ -192,7 +192,7 @@ public class ClientExtendEnumMethod {
                 "(select * from SupportBean#keepall).enumPlugInReturnEvents(v => intPrimitive > 0).lastOf().theString as c0 " +
                 "from SupportBean_S0";
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(EPTypePremade.STRING.getEPType(), env.statement("s0").getEventType().getPropertyEPType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(EPTypePremade.STRING.getEPType(), statement.getEventType().getPropertyEPType("c0")));
 
             sendAssert(env, null);
 
@@ -213,7 +213,7 @@ public class ClientExtendEnumMethod {
 
         private static void sendAssert(RegressionEnvironment env, String expected) {
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
     }
 
@@ -224,7 +224,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInEarlyExit() as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()}));
 
             sendAssert(env, fields, 12, "12,1,1");
             sendAssert(env, fields, 10, "5,5,5");
@@ -245,7 +245,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInOne(10, 20) as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()}));
 
             sendAssert(env, fields, 11, "1,2,11,3");
             sendAssert(env, fields, 0, "");
@@ -269,7 +269,7 @@ public class ClientExtendEnumMethod {
                 "strvals.enumPlugInMedian((v, i, s) => extractNum(v) + i*10+s*100) as c2 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()}));
 
             sendAssert(env, fields, 3d, 18d, 418d, "E2,E1,E5,E4");
             sendAssert(env, fields, null, null, null, "E1");
@@ -293,7 +293,7 @@ public class ClientExtendEnumMethod {
                 "from SupportBean_ST0_Container";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()}));
 
             sendAssert(env, fields, 11d, "E1,12", "E2,11", "E3,2");
             sendAssert(env, fields, null, null);
@@ -315,7 +315,7 @@ public class ClientExtendEnumMethod {
             String eplFragment = "@name('s0') select intvals.enumPlugInMedian() as val0 from SupportCollection";
             env.compileDeploy(eplFragment).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()}));
 
             sendAssert(env, fields, 2d, "1,2,2,4");
             sendAssert(env, fields, 2d, "1,2,2,10");

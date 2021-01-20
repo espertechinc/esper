@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public interface DeploymentRecoveryService {
-    void add(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters);
+    void add(String deploymentId, int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters, String[] deploymentIdsConsumed);
 
     Iterator<Map.Entry<String, DeploymentRecoveryEntry>> deployments();
 

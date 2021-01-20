@@ -170,8 +170,7 @@ public class EPLDatabaseJoin {
             sendSupportBeanEvent(env, 5);
             env.sendEventBean(new SupportBean_A("A1"));
 
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(50, received.get("myint"));
+            env.assertEqualsNew("s0", "myint", 50);
             env.undeployModuleContaining("s0");
 
             stmtText = "@name('s0') select myint from " +
@@ -182,8 +181,7 @@ public class EPLDatabaseJoin {
             sendSupportBeanEvent(env, 6);
             env.sendEventBean(new SupportBean_A("A1"));
 
-            received = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(60, received.get("myint"));
+            env.assertEqualsNew("s0", "myint", 60);
 
             env.undeployAll();
         }
@@ -329,13 +327,13 @@ public class EPLDatabaseJoin {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.advanceTime(5000);
-            assertEquals("Y", env.listener("s0").assertOneGetNewAndReset().get("mychar"));
+            env.assertEqualsNew("s0", "mychar", "Y");
 
             env.advanceTime(9999);
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(10000);
-            assertEquals("Y", env.listener("s0").assertOneGetNewAndReset().get("mychar"));
+            env.assertEqualsNew("s0", "mychar", "Y");
 
             // with variable
             RegressionPath path = new RegressionPath();
@@ -394,7 +392,7 @@ public class EPLDatabaseJoin {
 
                 env.deploy(compiled).addListener("s0");
                 sendEventS0(env, 1);
-                assertEquals("Z", env.listener("s0").assertOneGetNewAndReset().get("mychar"));
+                env.assertEqualsNew("s0", "mychar", "Z");
             }
 
             env.undeployAll();
@@ -408,16 +406,18 @@ public class EPLDatabaseJoin {
                 "SupportBean_S0 as s1";
             env.compileDeploy(stmtText).addListener("s0");
 
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals(Long.class, eventType.getPropertyType("mybigint"));
-            assertEquals(Integer.class, eventType.getPropertyType("myint"));
-            assertEquals(String.class, eventType.getPropertyType("myvarchar"));
-            assertEquals(String.class, eventType.getPropertyType("mychar"));
-            assertEquals(Boolean.class, eventType.getPropertyType("mybool"));
-            assertEquals(BigDecimal.class, eventType.getPropertyType("mynumeric"));
-            assertEquals(BigDecimal.class, eventType.getPropertyType("mydecimal"));
-            assertEquals(Double.class, eventType.getPropertyType("mydouble"));
-            assertEquals(Double.class, eventType.getPropertyType("myreal"));
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Long.class, eventType.getPropertyType("mybigint"));
+                assertEquals(Integer.class, eventType.getPropertyType("myint"));
+                assertEquals(String.class, eventType.getPropertyType("myvarchar"));
+                assertEquals(String.class, eventType.getPropertyType("mychar"));
+                assertEquals(Boolean.class, eventType.getPropertyType("mybool"));
+                assertEquals(BigDecimal.class, eventType.getPropertyType("mynumeric"));
+                assertEquals(BigDecimal.class, eventType.getPropertyType("mydecimal"));
+                assertEquals(Double.class, eventType.getPropertyType("mydouble"));
+                assertEquals(Double.class, eventType.getPropertyType("myreal"));
+            });
 
             sendEventS0(env, 1);
             assertReceived(env, 1, 10, "A", "Z", true, new BigDecimal(5000), new BigDecimal(100), 1.2, 1.3);
@@ -475,11 +475,13 @@ public class EPLDatabaseJoin {
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{100}, {50}, {20}});
 
         env.advanceTime(10000);
-        EventBean[] received = env.listener("s0").getLastNewData();
-        assertEquals(3, received.length);
-        assertEquals(100, received[0].get("myint"));
-        assertEquals(50, received[1].get("myint"));
-        assertEquals(20, received[2].get("myint"));
+        env.assertListener("s0", listener -> {
+            EventBean[] received = listener.getLastNewData();
+            assertEquals(3, received.length);
+            assertEquals(100, received[0].get("myint"));
+            assertEquals(50, received[1].get("myint"));
+            assertEquals(20, received[2].get("myint"));
+        });
 
         env.assertPropsPerRowIterator("s0", fields, null);
 
@@ -493,8 +495,7 @@ public class EPLDatabaseJoin {
     }
 
     private static void assertReceived(RegressionEnvironment env, long mybigint, int myint, String myvarchar, String mychar, boolean mybool, BigDecimal mynumeric, BigDecimal mydecimal, Double mydouble, Double myreal) {
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertReceived(theEvent, mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal);
+        env.assertEventNew("s0", received -> assertReceived(received, mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal));
     }
 
     private static void assertReceived(EventBean theEvent, Long mybigint, Integer myint, String myvarchar, String mychar, Boolean mybool, BigDecimal mynumeric, BigDecimal mydecimal, Double mydouble, Double myreal) {

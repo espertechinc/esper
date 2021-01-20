@@ -66,15 +66,15 @@ public class RowRecogMaxStatesEngineWide4Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(RowRecogMaxStatesEngineWide3Instance.makeBean("A", 300, 1));
-        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 4, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "S1", 2, "S2", 2));
+        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 4, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "S1", 2, "S2", 2));
 
         // terminate B
         env.sendEventBean(RowRecogMaxStatesEngineWide3Instance.makeBean("B", 400, 2));
-        EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{400});
+        env.assertPropsNew("S2", fields, new Object[]{400});
 
         // terminate one of A
         env.sendEventBean(RowRecogMaxStatesEngineWide3Instance.makeBean("A", 100, 2));
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{100});
+        env.assertPropsNew("S1", fields, new Object[]{100});
 
         // fill up A
         env.sendEventBean(RowRecogMaxStatesEngineWide3Instance.makeBean("A", 300, 1));
@@ -84,7 +84,7 @@ public class RowRecogMaxStatesEngineWide4Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(RowRecogMaxStatesEngineWide3Instance.makeBean("B", 500, 1));
-        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "S1", 4, "S2", 0));
+        RowRecogMaxStatesEngineWide3Instance.assertContextEnginePool(env, "S2", handler.getAndResetContexts(), 4, RowRecogMaxStatesEngineWide3Instance.getExpectedCountMap(env, "S1", 4, "S2", 0));
 
         // destroy statement-1 freeing up all "A"
         env.undeployModuleContaining("S1");

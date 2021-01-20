@@ -16,7 +16,6 @@ import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -30,7 +29,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
@@ -57,7 +55,7 @@ public class InfraTableInsertInto {
             String[] fields = "pkey0,pkey1,c0".split(",");
             RegressionPath path = new RegressionPath();
 
-            String eplCreateTable = "@Name('S0') create table MyTable(c0 long, pkey1 int primary key, pkey0 string primary key)";
+            String eplCreateTable = "@Name('table') create table MyTable(c0 long, pkey1 int primary key, pkey0 string primary key)";
             env.compileDeploy(eplCreateTable, path);
 
             String eplIntoTable = "@Name('Insert-Into-Table') insert into MyTable select intPrimitive as pkey1, longPrimitive as c0, theString as pkey0 from SupportBean";
@@ -68,29 +66,29 @@ public class InfraTableInsertInto {
 
             env.milestone(1);
 
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[0][]);
 
             sendSupportBean(env, "E1", 10, 100); // insert E1
 
             env.milestone(2);
 
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 10, 100L}});
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[][]{{"E1", 10, 100L}});
             env.sendEventBean(new SupportBean_S0(10, "E1")); // delete E1
 
             env.milestone(3);
 
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[0][]);
             sendSupportBean(env, "E1", 11, 101); // insert E1 again
 
             env.milestone(4);
 
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 11, 101L}});
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[][]{{"E1", 11, 101L}});
 
             sendSupportBean(env, "E2", 20, 200); // insert E2
 
             env.milestone(5);
 
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 11, 101L}, {"E2", 20, 200L}});
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[][]{{"E1", 11, 101L}, {"E2", 20, 200L}});
             env.sendEventBean(new SupportBean_S0(20, "E2")); // delete E2
 
             env.milestone(6);
@@ -98,11 +96,11 @@ public class InfraTableInsertInto {
             env.sendEventBean(new SupportBean_S0(11, "E1")); // delete E1
 
             env.milestone(7);
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[0][]);
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[0][]);
 
             sendSupportBean(env, "E1", 12, 102); // insert E1
             sendSupportBean(env, "E2", 21, 201); // insert E2
-            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 12, 102L}, {"E2", 21, 201L}});
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[][]{{"E1", 12, 102L}, {"E2", 21, 201L}});
 
             env.undeployAll();
         }
@@ -115,14 +113,14 @@ public class InfraTableInsertInto {
                 "@name('tbl-insert') insert into MyTableSM select theString from SupportBean;\n";
             env.compileDeploy(epl);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("create", fields, new Object[0][]);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1"}});
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1"}});
 
             env.undeployAll();
         }
@@ -135,21 +133,21 @@ public class InfraTableInsertInto {
             env.compileDeploy("insert into MyTableIISA select theString as pkey from SupportBean where MyTableIISA[theString] is null", path);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}});
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}});
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}, {"E2"}});
 
             env.milestone(1);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}, {"E2"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}, {"E2"}});
             env.sendEventBean(new SupportBean("E2", 0));
 
             env.undeployAll();
@@ -165,7 +163,7 @@ public class InfraTableInsertInto {
                 "then insert into MyTableNWM select sb.theString as pkey", path);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "pkey".split(","), new Object[][]{{"E1"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}});
 
             env.undeployAll();
         }
@@ -195,19 +193,19 @@ public class InfraTableInsertInto {
 
             env.sendEventBean(new SupportBean("E3", -3));
             assertSplitStream(env, new Object[][]{{"E1", 1}}, new Object[][]{{"E2", -2}, {"E3", -3}});
-            assertFalse(env.listener("s1").isInvoked());
+            env.assertListenerNotInvoked("s1");
 
             env.sendEventBean(new SupportBean("E4", 0));
             assertSplitStream(env, new Object[][]{{"E1", 1}}, new Object[][]{{"E2", -2}, {"E3", -3}});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "pkey,col".split(","), new Object[]{"E4", 0});
+            env.assertPropsNew("s1", "pkey,col".split(","), new Object[]{"E4", 0});
 
             env.undeployAll();
         }
 
         private static void assertSplitStream(RegressionEnvironment env, Object[][] tableOneRows, Object[][] tableTwoRows) {
             String[] fields = "pkey,col".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("createOne"), fields, tableOneRows);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("createTwo"), fields, tableTwoRows);
+            env.assertPropsPerRowIteratorAnyOrder("createOne", fields, tableOneRows);
+            env.assertPropsPerRowIteratorAnyOrder("createTwo", fields, tableTwoRows);
         }
     }
 
@@ -225,9 +223,9 @@ public class InfraTableInsertInto {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S1(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 10}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 10}});
 
-            env.compileExecuteFAF("delete from MyTableIIF", path);
+            env.compileExecuteFAFNoResult("delete from MyTableIIF", path);
 
             env.sendEventBean(new SupportBean("E1", 10));
 
@@ -235,7 +233,7 @@ public class InfraTableInsertInto {
 
             env.sendEventBean(new SupportBean("E2", 20));
             env.sendEventBean(new SupportBean_S1(2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 10}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 10}, {"E2", 20}});
 
             env.undeployAll();
         }
@@ -248,21 +246,23 @@ public class InfraTableInsertInto {
             env.compileDeploy("@name('create') create table MyTableIIU(theString string)", path);
             env.compileDeploy("@name('tbl-insert') insert into MyTableIIU select theString from SupportBean", path);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[0][]);
+            env.assertPropsPerRowIterator("create", fields, new Object[0][]);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1"}});
 
             env.milestone(0);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1"}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1"}});
 
-            try {
-                env.sendEventBean(new SupportBean("E2", 0));
-                fail();
-            } catch (EPException ex) {
-                SupportMessageAssertUtil.assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 'tbl-insert': Unique index violation, table 'MyTableIIU' is a declared to hold a single un-keyed row");
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventBean(new SupportBean("E2", 0));
+                    fail();
+                } catch (EPException ex) {
+                    SupportMessageAssertUtil.assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 'tbl-insert': Unique index violation, table 'MyTableIIU' is a declared to hold a single un-keyed row");
+                }
+            });
 
             env.undeployAll();
         }
@@ -281,22 +281,22 @@ public class InfraTableInsertInto {
             env.compileDeploy(epl);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", null}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", null}});
 
             env.sendEventBean(new SupportBean_S0(10, "E1"));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 10}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 10}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 10}, {"E2", null}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 10}, {"E2", null}});
 
             env.sendEventBean(new SupportBean_S0(20, "E2"));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(11, "E1"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 21}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 21}, {"E2", 20}});
 
             // assert on-insert and on-merge
             env.sendEventBean(new SupportBean_S1(0, "E3"));
@@ -306,7 +306,7 @@ public class InfraTableInsertInto {
 
             env.sendEventBean(new SupportBean_S0(3, "E3"));
             env.sendEventBean(new SupportBean_S0(4, "E4"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 21}, {"E2", 20}, {"E3", 3}, {"E4", 4}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 21}, {"E2", 20}, {"E3", 3}, {"E4", 4}});
 
             env.undeployAll();
         }
@@ -345,16 +345,16 @@ public class InfraTableInsertInto {
         } else if (rep.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{"a", "b"}, "MySchema");
         } else if (rep.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("MySchema")));
+            GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("MySchema"));
             theEvent.put("p0", "a");
             theEvent.put("p1", "b");
-            env.eventService().sendEventAvro(theEvent, "MySchema");
+            env.sendEventAvro(theEvent, "MySchema");
         } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
-            env.eventService().sendEventJson(new JsonObject().add("p0", "a").add("p1", "b").toString(), "MySchema");
+            env.sendEventJson(new JsonObject().add("p0", "a").add("p1", "b").toString(), "MySchema");
         } else {
             fail();
         }
-        EPAssertionUtil.assertProps(env.iterator("create").next(), "p0,p1".split(","), new Object[]{"a", "b"});
+        env.assertIterator("create", iterator -> EPAssertionUtil.assertProps(iterator.next(), "p0,p1".split(","), new Object[]{"a", "b"}));
         env.undeployAll();
     }
 

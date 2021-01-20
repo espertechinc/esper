@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.*;
 
@@ -91,6 +93,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraSelectIndexMultikeyWArrayCompositeArray implements RegressionExecution {
@@ -133,6 +139,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraSelectIndexMultikeyWArrayTwoField implements RegressionExecution {
@@ -172,6 +182,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -213,6 +227,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -287,6 +305,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
 
         private static void assertIndexChoiceJoin(RegressionEnvironment env, boolean namedWindow, String[] indexes, Object[] preloadedEvents, String datawindowOne, String datawindowTwo,
@@ -416,6 +438,10 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

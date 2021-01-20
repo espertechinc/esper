@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportThreeArrayEvent;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
-import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,10 +81,12 @@ public class ResultSetQueryTypeRollupDimensionality {
 
         private void sendAssert(RegressionEnvironment env, String id, int value, int[] ints, long[] longs, double[] doubles, int expectedIntArray, int expectedLongArray, int expectedDoubleArray) {
             env.sendEventBean(new SupportThreeArrayEvent(id, value, ints, longs, doubles));
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            assertEquals(expectedIntArray, events[0].get("thesum"));
-            assertEquals(expectedLongArray, events[1].get("thesum"));
-            assertEquals(expectedDoubleArray, events[2].get("thesum"));
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                assertEquals(expectedIntArray, events[0].get("thesum"));
+                assertEquals(expectedLongArray, events[1].get("thesum"));
+                assertEquals(expectedDoubleArray, events[2].get("thesum"));
+            });
         }
     }
 
@@ -137,10 +138,12 @@ public class ResultSetQueryTypeRollupDimensionality {
         private void sendAssertIntArray(RegressionEnvironment env, String id, int[] array, int value, long expectedTotal, long expectedByArray, long expectedByArrayAndValue) {
             final String[] fields = new String[] {"array", "value", "cnt"};
             env.sendEventBean(new SupportEventWithIntArray(id, array, value));
-            EventBean[] out = env.listener("s0").getAndResetLastNewData();
-            EPAssertionUtil.assertProps(out[0], fields, new Object[] {array, value, expectedByArrayAndValue});
-            EPAssertionUtil.assertProps(out[1], fields, new Object[] {array, null, expectedByArray});
-            EPAssertionUtil.assertProps(out[2], fields, new Object[] {null, null, expectedTotal});
+            env.assertListener("s0", listener -> {
+                EventBean[] out = listener.getAndResetLastNewData();
+                EPAssertionUtil.assertProps(out[0], fields, new Object[] {array, value, expectedByArrayAndValue});
+                EPAssertionUtil.assertProps(out[1], fields, new Object[] {array, null, expectedByArray});
+                EPAssertionUtil.assertProps(out[2], fields, new Object[] {null, null, expectedTotal});
+            });
         }
     }
 
@@ -163,7 +166,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "from SupportBean group by rollup(case when longPrimitive > 0 then 1 else 0 end)";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c0"));
+            env.assertStatement("s0", statement -> assertEquals(Long.class, statement.getEventType().getPropertyType("c0")));
             String[] fields = "c0,c1".split(",");
 
             env.sendEventBean(makeEvent("E1", 1, 10));
@@ -321,8 +324,10 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "group by " + groupBy;
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c2"));
+            env.assertStatement("s0", statement -> {
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("c1"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("c2"));
+            });
 
             env.sendEventBean(makeEvent("E1", 10, 100, 1000));
             env.assertPropsPerRowLastNew("s0", fields,
@@ -352,7 +357,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "group by grouping sets(theString, intPrimitive)";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
+            env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("c1")));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -395,7 +400,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "group by grouping sets((), (theString, intPrimitive))";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
+            env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("c1")));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -431,9 +436,11 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "group by cube(theString, intPrimitive, longPrimitive, doublePrimitive)";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c2"));
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("c3"));
+            env.assertStatement("s0", statement -> {
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("c1"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("c2"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("c3"));
+            });
 
             env.sendEventBean(makeEvent("E1", 1, 10, 100, 1000));
             env.assertPropsPerRowLastNew("s0", fields,
@@ -525,16 +532,17 @@ public class ResultSetQueryTypeRollupDimensionality {
 
     private static class ResultSetQueryTypeNamedWindowCube2Dim implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionNamedWindowCube2Dim(env, "cube(theString, intPrimitive)");
+            AtomicInteger milestone = new AtomicInteger();
+            tryAssertionNamedWindowCube2Dim(env, "cube(theString, intPrimitive)", milestone);
             tryAssertionNamedWindowCube2Dim(env, "grouping sets(" +
                 "(theString, intPrimitive)," +
                 "(theString)," +
                 "(intPrimitive)," +
                 "()" +
-                ")");
+                ")", milestone);
         }
 
-        private static void tryAssertionNamedWindowCube2Dim(RegressionEnvironment env, String groupBy) {
+        private static void tryAssertionNamedWindowCube2Dim(RegressionEnvironment env, String groupBy, AtomicInteger milestone) {
 
             String epl = "create window MyWindow#keepall as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean(intBoxed = 0);\n" +
@@ -551,7 +559,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 new Object[][]{{"E1", 10, 100L}, {"E1", null, 100L}, {null, 10, 100L}, {null, null, 100L}},
                 new Object[][]{{"E1", 10, null}, {"E1", null, null}, {null, 10, null}, {null, null, null}});
 
-            env.milestone(0);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(0, "E1", 11, 200));    // insert event
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -568,7 +576,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 new Object[][]{{"E2", 11, 400L}, {"E2", null, 400L}, {null, 11, 600L}, {null, null, 1000L}},
                 new Object[][]{{"E2", 11, null}, {"E2", null, null}, {null, 11, 200L}, {null, null, 600L}});
 
-            env.milestone(1);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(makeEvent(3, null, -1, -1));    // delete-all
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -679,7 +687,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.sendEventBean(makeEvent(0, "E1", 20, 200));   // insert
             env.sendEventBean(makeEvent(0, "E1", 10, 300));   // insert
             env.sendEventBean(makeEvent(0, "E1", 20, 400));   // insert
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             env.sendEventBean(makeEvent(1, "E1", 20, -1));   // delete (intBoxed = 1)
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -699,7 +707,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.sendEventBean(makeEvent(0, "E1", 10, 300));   // insert
             env.sendEventBean(makeEvent(0, "E1", 20, 400));   // insert
             env.sendEventBean(makeEvent(0, "E2", 20, 500));   // insert
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             env.sendEventBean(makeEvent(2, "E1", 10, 200));   // delete specific (intBoxed = 2)
             env.assertPropsPerRowIRPairFlattened("s0", fields,
@@ -843,7 +851,7 @@ public class ResultSetQueryTypeRollupDimensionality {
                 "group by rollup(theString, intPrimitive)";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
+            env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("c1")));
 
             env.sendEventBean(makeEvent("E1", 10, 100));
             env.assertPropsPerRowLastNew("s0", fields,
@@ -920,7 +928,7 @@ public class ResultSetQueryTypeRollupDimensionality {
             env.milestone(1);
 
             env.sendEventBean(makeEvent("E2", 20, 800));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getDataListsFlattened(), fields,
+            env.assertPropsPerRowIRPairFlattened("s0", fields,
                 new Object[][]{{"E1", 11, 1200L}, {"E2", 20, 1400L}, {"E1", 10, null},
                     {"E1", null, 1200L}, {"E2", null, 1400L},
                     {null, null, 2600L}},
@@ -987,21 +995,21 @@ public class ResultSetQueryTypeRollupDimensionality {
 
     private static class ResultSetQueryTypeNonBoxedTypeWithRollup implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            EPStatement stmtOne = env.compileDeploy("@name('s0') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
-                "from SupportBean group by intPrimitive, rollup(doublePrimitive, longPrimitive)").statement("s0");
-            assertTypesC0C1C2(stmtOne, Integer.class, Double.class, Long.class);
+            env.compileDeploy("@name('s0') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by intPrimitive, rollup(doublePrimitive, longPrimitive)");
+            assertTypesC0C1C2(env, "s0", Integer.class, Double.class, Long.class);
 
-            EPStatement stmtTwo = env.compileDeploy("@name('s1') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
-                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive))").statement("s1");
-            assertTypesC0C1C2(stmtTwo, Integer.class, Double.class, Long.class);
+            env.compileDeploy("@name('s1') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive))");
+            assertTypesC0C1C2(env, "s1", Integer.class, Double.class, Long.class);
 
-            EPStatement stmtThree = env.compileDeploy("@name('s2') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
-                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive), (intPrimitive, doublePrimitive))").statement("s2");
-            assertTypesC0C1C2(stmtThree, Integer.class, Double.class, Long.class);
+            env.compileDeploy("@name('s2') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((intPrimitive, doublePrimitive, longPrimitive), (intPrimitive, doublePrimitive))");
+            assertTypesC0C1C2(env, "s2", Integer.class, Double.class, Long.class);
 
-            EPStatement stmtFour = env.compileDeploy("@name('s3') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
-                "from SupportBean group by grouping sets ((doublePrimitive, intPrimitive), (longPrimitive, intPrimitive))").statement("s3");
-            assertTypesC0C1C2(stmtFour, Integer.class, Double.class, Long.class);
+            env.compileDeploy("@name('s3') select intPrimitive as c0, doublePrimitive as c1, longPrimitive as c2, sum(shortPrimitive) " +
+                "from SupportBean group by grouping sets ((doublePrimitive, intPrimitive), (longPrimitive, intPrimitive))");
+            assertTypesC0C1C2(env, "s3", Integer.class, Double.class, Long.class);
 
             env.undeployAll();
         }
@@ -1078,7 +1086,7 @@ public class ResultSetQueryTypeRollupDimensionality {
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0));
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "c0,c1".split(","),
+        env.assertPropsPerRowLastNewAnyOrder("s0", "c0,c1".split(","),
             new Object[][]{{"E2", 4}, {"E1", 11}, {null, 15}});
 
         env.undeployAll();
@@ -1184,8 +1192,10 @@ public class ResultSetQueryTypeRollupDimensionality {
             "group by " + groupBy;
         env.compileDeploy(epl).addListener("s0");
 
-        assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c1"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("c2"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(Integer.class, statement.getEventType().getPropertyType("c1"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("c2"));
+        });
 
         env.sendEventBean(makeEvent("E1", 10, 100, 1000));
         env.assertPropsPerRowLastNew("s0", fields,
@@ -1315,9 +1325,12 @@ public class ResultSetQueryTypeRollupDimensionality {
         return sb;
     }
 
-    private static void assertTypesC0C1C2(EPStatement stmtOne, Class expectedC0, Class expectedC1, Class expectedC2) {
-        assertEquals(expectedC0, stmtOne.getEventType().getPropertyType("c0"));
-        assertEquals(expectedC1, stmtOne.getEventType().getPropertyType("c1"));
-        assertEquals(expectedC2, stmtOne.getEventType().getPropertyType("c2"));
+    private static void assertTypesC0C1C2(RegressionEnvironment env, String stmtName, Class expectedC0, Class expectedC1, Class expectedC2) {
+        env.assertStatement("s0", statement -> {
+            assertEquals(expectedC0, statement.getEventType().getPropertyType("c0"));
+            assertEquals(expectedC1, statement.getEventType().getPropertyType("c1"));
+            assertEquals(expectedC2, statement.getEventType().getPropertyType("c2"));
+        });
+
     }
 }

@@ -28,7 +28,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportSpatialPoint;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 import com.espertech.esper.regressionlib.support.util.SupportSpatialUtil;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import static com.espertech.esper.regressionlib.support.util.SupportSpatialUtil.
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLSpatialPointRegionQuadTreeEventIndex {
     private final static List<BoundingBox> BOXES = Arrays.asList(
@@ -82,7 +80,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexNWFireAndForgetPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -152,8 +150,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "@Name('win') create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "@Name('insert') insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@Name('idx') create unique index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n" +
-                "@Name('out') on SupportSpatialAABB select mpw.id as c0 from MyPointWindow as mpw where point(px, py).inside(rectangle(x, y, width, height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@Name('s0') on SupportSpatialAABB select mpw.id as c0 from MyPointWindow as mpw where point(px, py).inside(rectangle(x, y, width, height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendPoint(env, "P1", 10, 15);
             try {
@@ -166,12 +164,16 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLSpatialPREventIndexPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -191,7 +193,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             for (int x = 0; x < 100; x++) {
                 for (int y = 0; y < 100; y++) {
                     env.sendEventBean(new SupportSpatialAABB("R", x, y, 0.5, 0.5));
-                    assertEquals(Integer.toString(x) + "_" + Integer.toString(y), env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                    env.assertEqualsNew("s0", "c0", Integer.toString(x) + "_" + Integer.toString(y));
                 }
             }
             long delta = System.currentTimeMillis() - start;
@@ -207,12 +209,16 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
             env.compileDeploy(epl, path);
 
             env.compileExecuteFAF("delete from PointWindow where id='P1'", path);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -231,29 +237,34 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class EPLSpatialPREventIndexExpression implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            SupportQueryPlanIndexHook.reset();
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create table MyTable(id string primary key, tx double, ty double)", path);
-            env.compileExecuteFAF("insert into MyTable values ('P1', 50, 30)", path);
-            env.compileExecuteFAF("insert into MyTable values ('P2', 50, 28)", path);
-            env.compileExecuteFAF("insert into MyTable values ('P3', 50, 30)", path);
-            env.compileExecuteFAF("insert into MyTable values ('P4', 49, 29)", path);
+            env.compileExecuteFAFNoResult("insert into MyTable values ('P1', 50, 30)", path);
+            env.compileExecuteFAFNoResult("insert into MyTable values ('P2', 50, 28)", path);
+            env.compileExecuteFAFNoResult("insert into MyTable values ('P3', 50, 30)", path);
+            env.compileExecuteFAFNoResult("insert into MyTable values ('P4', 49, 29)", path);
             env.compileDeploy("create index MyIdxWithExpr on MyTable((tx*10, ty*10) pointregionquadtree(0, 0, 1000, 1000))", path);
 
             String eplOne = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyTable as tbl where point(tx, ty).inside(rectangle(x, y, width, height))";
             env.compileDeploy(eplOne, path).addListener("s0");
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIdxWithExpr", "non-unique hash={} btree={} advanced={pointregionquadtree(tx*10,ty*10)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIdxWithExpr", "non-unique hash={} btree={} advanced={pointregionquadtree(tx*10,ty*10)}"));
             // Invalid use of index, the properties match and the bounding boxes do not match due to "x*10" missing.
             env.undeployModuleContaining("s0");
 
             String eplTwo = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyTable as tbl where point(tx*10, tbl.ty*10).inside(rectangle(x, y, width, height))";
             env.compileDeploy(eplTwo, path).addListener("s0");
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIdxWithExpr", "non-unique hash={} btree={} advanced={pointregionquadtree(tx*10,ty*10)}");
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, null, null, null, null, null);
-            assertRectanglesManyRow(env, env.listener("s0"), Collections.singletonList(new BoundingBox(500, 300, 501, 301)), "P1,P3");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIdxWithExpr", "non-unique hash={} btree={} advanced={pointregionquadtree(tx*10,ty*10)}"));
+            assertRectanglesManyRow(env, BOXES, null, null, null, null, null);
+            assertRectanglesManyRow(env, Collections.singletonList(new BoundingBox(500, 300, 501, 301)), "P1,P3");
 
             env.undeployAll();
         }
@@ -261,6 +272,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     private static class EPLSpatialPREventIndexChoiceOfTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            SupportQueryPlanIndexHook.reset();
             RegressionPath path = new RegressionPath();
             String epl =
                 "create table MyPointTable(" +
@@ -276,18 +288,22 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String textOne = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyPointTable as tbl where point(x1, y1).inside(rectangle(x, y, width, height))";
             env.compileDeploy(textOne, path).statement("s0").addListener(listener);
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx1", "non-unique hash={} btree={} advanced={pointregionquadtree(x1,y1)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx1", "non-unique hash={} btree={} advanced={pointregionquadtree(x1,y1)}"));
 
             String textTwo = "@name('s1') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyPointTable as tbl where point(tbl.x2, y2).inside(rectangle(x, y, width, height))";
             env.compileDeploy(textTwo, path).statement("s1").addListener(listener);
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx2", "non-unique hash={} btree={} advanced={pointregionquadtree(x2,y2)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("Idx2", "non-unique hash={} btree={} advanced={pointregionquadtree(x2,y2)}"));
 
             env.sendEventBean(new SupportSpatialDualPoint("P1", 10, 10, 60, 60));
             env.sendEventBean(new SupportSpatialDualPoint("P2", 55, 20, 4, 88));
 
-            assertRectanglesSingleValue(env, listener, BOXES, "P1", "P2", "P2", "P1", "P1");
+            assertRectanglesSingleValueAssertS0S1(env, listener, BOXES, "P1", "P2", "P2", "P1", "P1");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -297,16 +313,18 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
                 "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into MyWindow select * from SupportSpatialPoint;\n" +
                 IndexBackingTableInfo.INDEX_CALLBACK_HOOK +
-                "@name('out') select (select id from MyWindow as mw where point(mw.px,mw.py).inside(rectangle(aabb.x,aabb.y,aabb.width,aabb.height))).aggregate('', \n" +
+                "@name('s0') select (select id from MyWindow as mw where point(mw.px,mw.py).inside(rectangle(aabb.x,aabb.y,aabb.width,aabb.height))).aggregate('', \n" +
                 "  (result, item) => result || (case when result='' then '' else ',' end) || item) as c0 from SupportSpatialAABB aabb";
-            env.compileDeploy(epl).addListener("out");
+            env.compileDeploy(epl).addListener("s0");
 
-            QueryPlanIndexDescSubquery subquery = SupportQueryPlanIndexHook.assertSubqueryAndReset();
-            assertEquals("non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}", subquery.getTables()[0].getIndexDesc());
-            assertEquals("MyIndex", subquery.getTables()[0].getIndexName());
+            env.assertThat(() -> {
+                QueryPlanIndexDescSubquery subquery = SupportQueryPlanIndexHook.assertSubqueryAndReset();
+                assertEquals("non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}", subquery.getTables()[0].getIndexDesc());
+                assertEquals("MyIndex", subquery.getTables()[0].getIndexName());
+            });
 
             sendPoint(env, "P1", 10, 40);
-            assertRectanglesSingleValue(env, env.listener("out"), BOXES, "P1", "", "", "", "");
+            assertRectanglesSingleValueAssertS0(env, BOXES, "P1", "", "", "", "");
 
             env.undeployAll();
         }
@@ -335,9 +353,9 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
                 "from MyWindow as points where point(px, py).inside(rectangle(px,py,1,1))";
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null));
 
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1,P2", "P1,P2", "P1,P2", "P1,P2", "P1,P2");
+            assertRectanglesManyRow(env, BOXES, "P1,P2", "P1,P2", "P1,P2", "P1,P2", "P1,P2");
 
             env.undeployModuleContaining("s0");
         }
@@ -347,21 +365,22 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
                 "from MyWindow as points where point(px + x, py + y).inside(rectangle(x,y,width,height))";
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null));
 
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1", "P1", "P1", "P1", "P1");
+            assertRectanglesManyRow(env, BOXES, "P1", "P1", "P1", "P1", "P1");
 
             env.undeployModuleContaining("s0");
         }
 
         private void runIndexUnusedConstantsOnly(RegressionEnvironment env, RegressionPath path) {
-            String epl = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('out') on SupportSpatialAABB as aabb select points.id as c0 " +
+            SupportQueryPlanIndexHook.reset();
+            String epl = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('s0') on SupportSpatialAABB as aabb select points.id as c0 " +
                 "from MyWindow as points where point(0, 0).inside(rectangle(x,y,width,height))";
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null));
 
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1,P2", null, null, null, null);
+            assertRectanglesManyRow(env, BOXES, "P1,P2", null, null, null, null);
 
             env.undeployModuleContaining("s0");
         }
@@ -372,26 +391,26 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             env.compileDeploy("@name('s0') select point(xOffset, yOffset).inside(rectangle(x, y, width, height)) as c0 from SupportEventRectangleWithOffset");
             env.addListener("s0");
 
-            sendAssert(env, env.listener("s0"), 1, 1, 0, 0, 2, 2, true);
-            sendAssert(env, env.listener("s0"), 3, 1, 0, 0, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 2, 1, 0, 0, 2, 2, false);
+            sendAssert(env, 1, 1, 0, 0, 2, 2, true);
+            sendAssert(env, 3, 1, 0, 0, 2, 2, false);
+            sendAssert(env, 2, 1, 0, 0, 2, 2, false);
 
             env.milestone(0);
 
-            sendAssert(env, env.listener("s0"), 1, 3, 0, 0, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 1, 2, 0, 0, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 0, 0, 1, 1, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 1, 0, 1, 1, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 0, 1, 1, 1, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 1, 1, 1, 1, 2, 2, true);
-            sendAssert(env, env.listener("s0"), 2.9999, 2.9999, 1, 1, 2, 2, true);
+            sendAssert(env, 1, 3, 0, 0, 2, 2, false);
+            sendAssert(env, 1, 2, 0, 0, 2, 2, false);
+            sendAssert(env, 0, 0, 1, 1, 2, 2, false);
+            sendAssert(env, 1, 0, 1, 1, 2, 2, false);
+            sendAssert(env, 0, 1, 1, 1, 2, 2, false);
+            sendAssert(env, 1, 1, 1, 1, 2, 2, true);
+            sendAssert(env, 2.9999, 2.9999, 1, 1, 2, 2, true);
 
             env.milestone(1);
 
-            sendAssert(env, env.listener("s0"), 3, 2.9999, 1, 1, 2, 2, false);
-            sendAssert(env, env.listener("s0"), 2.9999, 3, 1, 1, 2, 2, false);
-            sendAssertWNull(env, env.listener("s0"), null, 0d, 0d, 0d, 0d, 0d, null);
-            sendAssertWNull(env, env.listener("s0"), 0d, 0d, 0d, null, 0d, 0d, null);
+            sendAssert(env, 3, 2.9999, 1, 1, 2, 2, false);
+            sendAssert(env, 2.9999, 3, 1, 1, 2, 2, false);
+            sendAssertWNull(env, null, 0d, 0d, 0d, 0d, 0d, null);
+            sendAssertWNull(env, 0d, 0d, 0d, null, 0d, 0d, null);
 
             env.undeployAll();
         }
@@ -413,10 +432,10 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             sendPoint(env, "P2", 5, 20, "NW");
 
             env.sendEventBean(new SupportSpatialAABB("R1", 60, 60, 40, 40, "SE"));
-            assertEquals("P1", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "P1");
 
             env.sendEventBean(new SupportSpatialAABB("R2", 0, 0, 5.0001, 20.0001, "NW"));
-            assertEquals("P2", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "P2");
 
             env.milestone(0);
 
@@ -437,6 +456,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
+            SupportQueryPlanIndexHook.reset();
             env.compileDeploy(soda, "create window MyWindow#length(5) as select * from SupportSpatialPoint", path);
             env.compileDeploy(soda, "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100))", path);
             env.compileDeploy(soda, "insert into MyWindow select * from SupportSpatialPoint", path);
@@ -445,48 +465,48 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
                 "select points.id as c0 from MyWindow as points where point(px,py).inside(rectangle(x,y,width,height))";
             env.compileDeploy(soda, epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}"));
 
             sendPoint(env, "P1", 10, 40);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1", null, null, null, null);
+            assertRectanglesManyRow(env, BOXES, "P1", null, null, null, null);
 
             env.milestone(0);
 
             sendPoint(env, "P2", 80, 80);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1", null, null, "P2", null);
+            assertRectanglesManyRow(env, BOXES, "P1", null, null, "P2", null);
 
             sendPoint(env, "P3", 10, 40);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1,P3", null, null, "P2", null);
+            assertRectanglesManyRow(env, BOXES, "P1,P3", null, null, "P2", null);
 
             env.milestone(1);
 
             sendPoint(env, "P4", 60, 40);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1,P3", "P4", null, "P2", "P4");
+            assertRectanglesManyRow(env, BOXES, "P1,P3", "P4", null, "P2", "P4");
 
             sendPoint(env, "P5", 20, 75);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P1,P3", "P4", "P5", "P2", "P4");
+            assertRectanglesManyRow(env, BOXES, "P1,P3", "P4", "P5", "P2", "P4");
 
             sendPoint(env, "P6", 50, 50);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P3", "P4", "P5", "P2,P6", "P4,P6");
+            assertRectanglesManyRow(env, BOXES, "P3", "P4", "P5", "P2,P6", "P4,P6");
 
             env.milestone(2);
 
             sendPoint(env, "P7", 0, 0);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P3,P7", "P4", "P5", "P6", "P4,P6");
+            assertRectanglesManyRow(env, BOXES, "P3,P7", "P4", "P5", "P6", "P4,P6");
 
             sendPoint(env, "P8", 99.999, 0);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P7", "P4,P8", "P5", "P6", "P4,P6");
+            assertRectanglesManyRow(env, BOXES, "P7", "P4,P8", "P5", "P6", "P4,P6");
 
             env.milestone(3);
 
             sendPoint(env, "P9", 0, 99.999);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P7", "P8", "P5,P9", "P6", "P6");
+            assertRectanglesManyRow(env, BOXES, "P7", "P8", "P5,P9", "P6", "P6");
 
             sendPoint(env, "P10", 99.999, 99.999);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P7", "P8", "P9", "P6,P10", "P6");
+            assertRectanglesManyRow(env, BOXES, "P7", "P8", "P9", "P6,P10", "P6");
 
             sendPoint(env, "P11", 0, 0);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P7,P11", "P8", "P9", "P10", null);
+            assertRectanglesManyRow(env, BOXES, "P7,P11", "P8", "P9", "P10", null);
 
             env.undeployAll();
         }
@@ -501,6 +521,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexOnTriggerTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
+            SupportQueryPlanIndexHook.reset();
             String epl =
                 "create table MyPointTable(my_x double primary key, my_y double primary key, my_id string);\n" +
                     "@Audit create index MyIndex on MyPointTable( (my_x, my_y) pointregionquadtree(0, 0, 100, 100));\n" +
@@ -509,22 +530,22 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
                     "@Audit @name('s0') on SupportSpatialAABB select my_id as c0 from MyPointTable as c0 where point(my_x, my_y).inside(rectangle(x, y, width, height))";
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(my_x,my_y)}");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(my_x,my_y)}"));
 
             sendPoint(env, "P1", 55, 45);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, null, "P1", null, null, "P1");
+            assertRectanglesManyRow(env, BOXES, null, "P1", null, null, "P1");
 
             sendPoint(env, "P2", 45, 45);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P2", "P1", null, null, "P1,P2");
+            assertRectanglesManyRow(env, BOXES, "P2", "P1", null, null, "P1,P2");
 
             env.milestone(0);
 
             sendPoint(env, "P3", 55, 55);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P2", "P1", null, "P3", "P1,P2,P3");
+            assertRectanglesManyRow(env, BOXES, "P2", "P1", null, "P3", "P1,P2,P3");
 
-            env.compileExecuteFAF("delete from MyPointTable where my_x = 55 and my_y = 45", path);
+            env.compileExecuteFAFNoResult("delete from MyPointTable where my_x = 55 and my_y = 45", path);
             sendPoint(env, "P4", 45, 55);
-            assertRectanglesManyRow(env, env.listener("s0"), BOXES, "P2", null, "P4", "P3", "P2,P3,P4");
+            assertRectanglesManyRow(env, BOXES, "P2", null, "P4", "P3", "P2,P3,P4");
 
             env.undeployAll();
         }
@@ -534,7 +555,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -542,8 +563,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,5));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Set<BoundingBox> boxesLevel4 = getLevel5Boxes();
             int count = 0;
@@ -667,7 +688,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -676,8 +697,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             List<SupportSpatialPoint> points = randomPoints(random, NUM_POINTS, X, Y, WIDTH, HEIGHT);
@@ -738,7 +759,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -746,8 +767,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create unique index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,1000,1000));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             Collection<SupportSpatialPoint> points = generateCoordinates(random);
@@ -758,11 +779,12 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             env.milestone(0);
 
             // find all individually
-            SupportListener listener = env.listener("out");
-            for (SupportSpatialPoint p : points) {
-                env.sendEventBean(new SupportSpatialAABB("", p.getPx(), p.getPy(), 1, 1));
-                assertEquals(p.getId(), listener.assertOneGetNewAndReset().get("c0"));
-            }
+            env.assertListener("s0", listener -> {
+                for (SupportSpatialPoint p : points) {
+                    env.sendEventBean(new SupportSpatialAABB("", p.getPx(), p.getPy(), 1, 1));
+                    assertEquals(p.getId(), listener.assertOneGetNewAndReset().get("c0"));
+                }
+            });
 
             // get all content
             assertAllPoints(env, points, 0, 0, SIZE, SIZE);
@@ -792,12 +814,12 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             }
 
             env.sendEventBean(new SupportSpatialAABB("", 0, 0, SIZE, SIZE));
-            assertFalse(env.listener("out").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.milestone(2);
 
             env.sendEventBean(new SupportSpatialAABB("", 0, 0, SIZE, SIZE));
-            assertFalse(env.listener("out").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -824,7 +846,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -832,8 +854,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create table PointTable as (id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             Random random = new Random();
             List<SupportSpatialPoint> points = generateCoordinates(random, NUM_POINTS, WIDTH, HEIGHT);
@@ -908,8 +930,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendPoint(env, "P0", 1.9290410254557688, 79.2596477701767);
             sendPoint(env, "P1", 22.481380138332298, 38.21826613078289);
@@ -938,8 +960,10 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
             BoundingBox bb = new BoundingBox(32.53403315866078, 2.7359221041404314, 69.34282527128134, 80.49662463068397);
             env.sendEventBean(new SupportSpatialAABB("", bb.getMinX(), bb.getMinY(), bb.getMaxX() - bb.getMinX(), bb.getMaxY() - bb.getMinY()));
-            String received = sortJoinProperty(env.listener("out").getAndResetLastNewData(), "c0");
-            assertEquals("P7,P8,P9,P11,P13,P14,P16", received);
+            env.assertListener("s0", listener -> {
+                String received = sortJoinProperty(listener.getAndResetLastNewData(), "c0");
+                assertEquals("P7,P8,P9,P11,P13,P14,P16", received);
+            });
 
             env.undeployAll();
         }
@@ -950,8 +974,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create table PointTable(id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             List<SupportSpatialPoint> points = new ArrayList<>();
             BoundingBox.BoundingBoxNode bbtree = new BoundingBox(0, 0, 100, 100).treeForPath("nw,se,sw,ne,nw,nw,nw,nw,nw,nw,nw,nw".split(","));
@@ -976,8 +1000,8 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create table PointTable(id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100,4,40));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl).addListener("s0");
 
             sendPoint(env, "P1", 80, 40);
             sendPoint(env, "P2", 81, 41);
@@ -985,13 +1009,13 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
             env.milestone(0);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, "P1,P2,P3", null, null, null);
+            assertRectanglesManyRow(env, BOXES, null, "P1,P2,P3", null, null, null);
             sendPoint(env, "P4", 80, 40);
             sendPoint(env, "P5", 81, 41);
 
             env.milestone(1);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, "P1,P2,P3,P4,P5", null, null, null);
+            assertRectanglesManyRow(env, BOXES, null, "P1,P2,P3,P4,P5", null, null, null);
 
             env.undeployAll();
         }
@@ -1003,41 +1027,44 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             String epl = "create table PointTable(id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100,4,40));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
-                "@name('out') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
-            env.compileDeploy(epl, path).addListener("out");
+                "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
+            env.compileDeploy(epl, path).addListener("s0");
 
             sendPoint(env, "P1", 80, 80);
             sendPoint(env, "P2", 81, 80);
             sendPoint(env, "P3", 80, 81);
             sendPoint(env, "P4", 80, 80);
             sendPoint(env, "P5", 45, 55);
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
 
             env.milestone(0);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
-            env.compileExecuteFAF("delete from PointTable where id = 'P4'", path);
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3,P4", "P5");
+            env.compileExecuteFAFNoResult("delete from PointTable where id = 'P4'", path);
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3", "P5");
 
             env.milestone(1);
 
-            assertRectanglesManyRow(env, env.listener("out"), BOXES, null, null, "P5", "P1,P2,P3", "P5");
+            assertRectanglesManyRow(env, BOXES, null, null, "P5", "P1,P2,P3", "P5");
 
             env.undeployAll();
         }
     }
 
     private static void assertIndexChoice(RegressionEnvironment env, RegressionPath path, String hint, String expectedIndexName) {
+        SupportQueryPlanIndexHook.reset();
         String epl = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + hint +
             "on SupportSpatialAABB as aabb select mpw.id as c0 from MyPointWindow as mpw " +
             "where aabb.category = mpw.category and point(px, py).inside(rectangle(x, y, width, height))\n";
         env.compileDeploy(epl, path).addListener("s0");
 
-        QueryPlanIndexDescOnExpr plan = SupportQueryPlanIndexHook.assertOnExprAndReset();
-        assertEquals(expectedIndexName, plan.getTables()[0].getIndexName());
+        env.assertThat(() -> {
+            QueryPlanIndexDescOnExpr plan = SupportQueryPlanIndexHook.assertOnExprAndReset();
+            assertEquals(expectedIndexName, plan.getTables()[0].getIndexName());
+        });
 
         env.sendEventBean(new SupportSpatialAABB("R1", 9, 14, 1.0001, 1.0001, "Y"));
-        assertEquals("P2", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", "P2");
 
         env.undeployModuleContaining("s0");
     }

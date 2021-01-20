@@ -40,8 +40,10 @@ public class ExprEnumNested {
 
             SupportBean_ST0_Container bean = SupportBean_ST0_Container.make2Value("E1,2", "E2,1", "E3,2");
             env.sendEventBean(bean);
-            Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) env.listener("s0").assertOneGetNewAndReset().get("val");
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{bean.getContained().get(1)}, result.toArray());
+            env.assertEventNew("s0", event -> {
+                Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) event.get("val");
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{bean.getContained().get(1)}, result.toArray());
+            });
 
             env.undeployAll();
         }
@@ -56,8 +58,10 @@ public class ExprEnumNested {
             PersonSales bean = PersonSales.make();
             env.sendEventBean(bean);
 
-            Collection<Sale> sales = (Collection<Sale>) env.listener("s0").assertOneGetNewAndReset().get("val");
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{bean.getSales().get(0)}, sales.toArray());
+            env.assertEventNew("s0", event -> {
+                Collection<Sale> sales = (Collection<Sale>) event.get("val");
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{bean.getSales().get(0)}, sales.toArray());
+            });
 
             env.undeployAll();
         }
@@ -71,8 +75,10 @@ public class ExprEnumNested {
 
             SupportBean_ST0_Container bean = SupportBean_ST0_Container.make2Value("E1,2", "E2,1", "E3,3");
             env.sendEventBean(bean);
-            Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) env.listener("s0").assertOneGetNewAndReset().get("val");
-            assertEquals(3, result.size());  // this would be 1 if the cache is invalid
+            env.assertEventNew("s0", event -> {
+                Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) event.get("val");
+                assertEquals(3, result.size());  // this would be 1 if the cache is invalid
+            });
 
             env.undeployAll();
         }

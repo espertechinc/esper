@@ -76,7 +76,7 @@ public class InfraTablePlugInAggregation {
     private static void sendWordAssert(RegressionEnvironment env, String word, String expected) {
         env.sendEventBean(new SupportBean(word, 0));
         env.sendEventBean(new SupportBean_S0(0));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static void sendWordAssert(RegressionEnvironment env, String word, String wordCSV, Integer[] counts) {
@@ -85,8 +85,11 @@ public class InfraTablePlugInAggregation {
         String[] words = wordCSV.split(",");
         for (int i = 0; i < words.length; i++) {
             env.sendEventBean(new SupportBean_S0(0, words[i]));
-            Integer count = (Integer) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals("failed for word '" + words[i] + "'", counts[i], count);
+            final int index = i;
+            env.assertEventNew("s0", event -> {
+                Integer count = (Integer) event.get("c0");
+                assertEquals("failed for word '" + words[index] + "'", counts[index], count);
+            });
         }
     }
 }

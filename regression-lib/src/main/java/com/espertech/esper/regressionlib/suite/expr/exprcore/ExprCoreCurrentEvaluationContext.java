@@ -11,20 +11,20 @@
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.expr.EPLExpressionEvaluationContext;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
-import com.espertech.esper.compiler.client.option.StatementUserObjectContext;
-import com.espertech.esper.compiler.client.option.StatementUserObjectOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
+import com.espertech.esper.regressionlib.support.client.SupportPortableCompileOptionStmtUserObject;
 import org.junit.Assert;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 public class ExprCoreCurrentEvaluationContext {
     public static Collection<RegressionExecution> executions() {
@@ -48,27 +48,27 @@ public class ExprCoreCurrentEvaluationContext {
                 "current_evaluation_context() as c0, " +
                 "current_evaluation_context(), " +
                 "current_evaluation_context().getRuntimeURI() as c2 from SupportBean";
-            StatementUserObjectOption resolver = new StatementUserObjectOption() {
-                public Serializable getValue(StatementUserObjectContext env) {
-                    return "my_user_object";
-                }
-            };
             CompilerArguments arguments = new CompilerArguments(new Configuration());
-            arguments.getOptions().setStatementUserObject(resolver);
+            arguments.getOptions().setStatementUserObject(new SupportPortableCompileOptionStmtUserObject("my_user_object"));
             EPCompiled compiled = env.compile(soda, epl, arguments);
             env.deploy(compiled).addListener("s0").milestone(0);
-            Assert.assertEquals(EPLExpressionEvaluationContext.class, env.statement("s0").getEventType().getPropertyType("current_evaluation_context()"));
+            env.assertStmtType("s0", "current_evaluation_context()", EPTypePremade.getOrCreate(EPLExpressionEvaluationContext.class));
 
             env.sendEventBean(new SupportBean());
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            EPLExpressionEvaluationContext ctx = (EPLExpressionEvaluationContext) event.get("c0");
-            Assert.assertEquals(env.runtimeURI(), ctx.getRuntimeURI());
-            Assert.assertEquals(env.statement("s0").getName(), ctx.getStatementName());
-            Assert.assertEquals(-1, ctx.getContextPartitionId());
-            Assert.assertEquals("my_user_object", ctx.getStatementUserObject());
-            Assert.assertEquals(env.runtimeURI(), event.get("c2"));
+            env.assertEventNew("s0", event -> {
+                EPLExpressionEvaluationContext ctx = (EPLExpressionEvaluationContext) event.get("c0");
+                Assert.assertEquals(env.runtimeURI(), ctx.getRuntimeURI());
+                Assert.assertEquals(env.statement("s0").getName(), ctx.getStatementName());
+                Assert.assertEquals(-1, ctx.getContextPartitionId());
+                Assert.assertEquals("my_user_object", ctx.getStatementUserObject());
+                Assert.assertEquals(env.runtimeURI(), event.get("c2"));
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
 
         public String name() {

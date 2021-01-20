@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -54,7 +53,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public EPLSubselectConstantValue(boolean indexShare, boolean buildIndex) {
@@ -103,7 +102,7 @@ public class EPLSubselectNamedWindowPerformance {
             startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "", -1, -1));
-                EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{9736});
+                env.assertPropsNew("s1", fields, new Object[]{9736});
             }
             delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -119,7 +118,7 @@ public class EPLSubselectNamedWindowPerformance {
             startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "", -1, -1));
-                EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fields, new Object[]{9735});
+                env.assertPropsNew("s2", fields, new Object[]{9735});
             }
             delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -132,7 +131,7 @@ public class EPLSubselectNamedWindowPerformance {
             startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "", -1, -1));
-                EPAssertionUtil.assertProps(env.listener("s3").assertOneGetNewAndReset(), fields, new Object[]{9738});
+                env.assertPropsNew("s3", fields, new Object[]{9738});
             }
             delta = System.currentTimeMillis() - startTime;
             assertTrue("delta=" + delta, delta < 500);
@@ -156,7 +155,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public EPLSubselectKeyAndRange(boolean indexShare, boolean buildIndex) {
@@ -213,7 +212,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public EPLSubselectRange(boolean indexShare, boolean buildIndex) {
@@ -265,7 +264,7 @@ public class EPLSubselectNamedWindowPerformance {
     private static class EPLSubselectKeyedRange implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -303,7 +302,7 @@ public class EPLSubselectNamedWindowPerformance {
     private static class EPLSubselectNoShare implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -314,7 +313,7 @@ public class EPLSubselectNamedWindowPerformance {
     private static class EPLSubselectShareCreate implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -325,7 +324,7 @@ public class EPLSubselectNamedWindowPerformance {
     private static class EPLSubselectDisableShare implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -336,7 +335,7 @@ public class EPLSubselectNamedWindowPerformance {
     private static class EPLSubselectDisableShareCreate implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -346,7 +345,7 @@ public class EPLSubselectNamedWindowPerformance {
 
     private static void tryAssertion(RegressionEnvironment env, boolean enableIndexShareCreate, boolean disableIndexShareConsumer, boolean createExplicitIndex) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType("create schema EventSchema(e0 string, e1 int, e2 string)", path);
+        env.compileDeploy("@buseventtype create schema EventSchema(e0 string, e1 int, e2 string)", path);
 
         String createEpl = "create window MyWindow#keepall as select * from SupportBean";
         if (enableIndexShareCreate) {

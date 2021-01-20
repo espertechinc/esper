@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -21,7 +20,8 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class EPLInsertIntoFromPattern {
     public static List<RegressionExecution> executions() {
@@ -100,7 +100,7 @@ public class EPLInsertIntoFromPattern {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 1));
-            assertTrue(env.listener("s1").isInvoked());
+            env.assertListenerInvoked("s1");
 
             env.undeployAll();
         }
@@ -108,16 +108,18 @@ public class EPLInsertIntoFromPattern {
 
     private static void sendEventsAndAssert(RegressionEnvironment env) {
         sendEventS1(env, 10, "");
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertNull(theEvent.get("es0id"));
-        assertEquals(10, theEvent.get("es1id"));
+        env.assertEventNew("s0", theEvent -> {
+            assertNull(theEvent.get("es0id"));
+            assertEquals(10, theEvent.get("es1id"));
+        });
 
         env.milestone(0);
 
         sendEventS0(env, 20, "");
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(20, theEvent.get("es0id"));
-        assertNull(theEvent.get("es1id"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals(20, theEvent.get("es0id"));
+            assertNull(theEvent.get("es1id"));
+        });
     }
 
     private static void sendEventS0(RegressionEnvironment env, int id, String p00) {

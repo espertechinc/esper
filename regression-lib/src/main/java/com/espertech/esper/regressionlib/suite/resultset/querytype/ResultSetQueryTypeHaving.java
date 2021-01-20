@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,12 +182,12 @@ public class ResultSetQueryTypeHaving {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, 1);
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+            env.assertEqualsNew("s0", "mysum", 2);
 
             env.milestone(0);
 
             sendEvent(env, 1);
-            Assert.assertEquals(2, env.listener("s0").assertOneGetOldAndReset().get("mysum"));
+            env.assertEqualsOld("s0", "mysum", 2);
 
             env.undeployAll();
         }
@@ -206,7 +205,7 @@ public class ResultSetQueryTypeHaving {
             env.milestone(0);
 
             sendEvent(env, 1);
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+            env.assertEqualsNew("s0", "mysum", 2);
 
             sendEvent(env, 1);
             env.assertListenerNotInvoked("s0");
@@ -217,9 +216,11 @@ public class ResultSetQueryTypeHaving {
 
     private static void tryAssertion(RegressionEnvironment env) {
         // assert select result type
-        Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("price"));
-        Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("avgPrice"));
+        env.assertStatement("s0", statement -> {
+            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("price"));
+            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("avgPrice"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 10);
         env.assertListenerNotInvoked("s0");
@@ -251,33 +252,37 @@ public class ResultSetQueryTypeHaving {
     private static void assertNewEvents(RegressionEnvironment env, String symbol,
                                         Double newPrice, Double newAvgPrice
     ) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
-        Assert.assertEquals(newPrice, newData[0].get("price"));
-        Assert.assertEquals(newAvgPrice, newData[0].get("avgPrice"));
+            Assert.assertEquals(symbol, newData[0].get("symbol"));
+            Assert.assertEquals(newPrice, newData[0].get("price"));
+            Assert.assertEquals(newAvgPrice, newData[0].get("avgPrice"));
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void assertOldEvents(RegressionEnvironment env, String symbol,
                                         Double oldPrice, Double oldAvgPrice
     ) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(newData);
-        assertEquals(1, oldData.length);
+            assertNull(newData);
+            assertEquals(1, oldData.length);
 
-        Assert.assertEquals(symbol, oldData[0].get("symbol"));
-        Assert.assertEquals(oldPrice, oldData[0].get("price"));
-        Assert.assertEquals(oldAvgPrice, oldData[0].get("avgPrice"));
+            Assert.assertEquals(symbol, oldData[0].get("symbol"));
+            Assert.assertEquals(oldPrice, oldData[0].get("price"));
+            Assert.assertEquals(oldAvgPrice, oldData[0].get("avgPrice"));
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void runNoAggregationJoin(RegressionEnvironment env, String filterClause) {
@@ -329,43 +334,47 @@ public class ResultSetQueryTypeHaving {
 
     private static void assertOldNewSpreadEvent(RegressionEnvironment env, double oldaprice, double oldbprice, double oldspread,
                                                 double newaprice, double newbprice, double newspread) {
-        Assert.assertEquals(1, env.listener("s0").getOldDataList().size());
-        Assert.assertEquals(1, env.listener("s0").getLastOldData().length);
-        Assert.assertEquals(1, env.listener("s0").getNewDataList().size());   // since event null is put into the list
-        Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(1, listener.getOldDataList().size());
+            Assert.assertEquals(1, listener.getLastOldData().length);
+            Assert.assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
+            Assert.assertEquals(1, listener.getLastNewData().length);
 
-        EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-        EventBean newEvent = env.listener("s0").getLastNewData()[0];
+            EventBean oldEvent = listener.getLastOldData()[0];
+            EventBean newEvent = listener.getLastNewData()[0];
 
-        compareSpreadEvent(oldEvent, oldaprice, oldbprice, oldspread);
-        compareSpreadEvent(newEvent, newaprice, newbprice, newspread);
+            compareSpreadEvent(oldEvent, oldaprice, oldbprice, oldspread);
+            compareSpreadEvent(newEvent, newaprice, newbprice, newspread);
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void assertOldSpreadEvent(RegressionEnvironment env, double aprice, double bprice, double spread) {
-        SupportListener listener = env.listener("s0");
-        Assert.assertEquals(1, listener.getOldDataList().size());
-        Assert.assertEquals(1, listener.getLastOldData().length);
-        Assert.assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
-        Assert.assertNull(listener.getLastNewData());
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(1, listener.getOldDataList().size());
+            Assert.assertEquals(1, listener.getLastOldData().length);
+            Assert.assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
+            Assert.assertNull(listener.getLastNewData());
 
-        EventBean theEvent = listener.getLastOldData()[0];
+            EventBean theEvent = listener.getLastOldData()[0];
 
-        compareSpreadEvent(theEvent, aprice, bprice, spread);
-        listener.reset();
+            compareSpreadEvent(theEvent, aprice, bprice, spread);
+            listener.reset();
+        });
     }
 
     private static void assertNewSpreadEvent(RegressionEnvironment env, double aprice, double bprice, double spread) {
-        SupportListener listener = env.listener("s0");
-        Assert.assertEquals(1, listener.getNewDataList().size());
-        Assert.assertEquals(1, listener.getLastNewData().length);
-        Assert.assertEquals(1, listener.getOldDataList().size());
-        Assert.assertNull(listener.getLastOldData());
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(1, listener.getNewDataList().size());
+            Assert.assertEquals(1, listener.getLastNewData().length);
+            Assert.assertEquals(1, listener.getOldDataList().size());
+            Assert.assertNull(listener.getLastOldData());
 
-        EventBean theEvent = listener.getLastNewData()[0];
-        compareSpreadEvent(theEvent, aprice, bprice, spread);
-        listener.reset();
+            EventBean theEvent = listener.getLastNewData()[0];
+            compareSpreadEvent(theEvent, aprice, bprice, spread);
+            listener.reset();
+        });
     }
 
     private static void compareSpreadEvent(EventBean theEvent, double aprice, double bprice, double spread) {

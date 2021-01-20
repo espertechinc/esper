@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.event.json;
 
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.util.EventSenderJson;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -45,10 +44,11 @@ public class EventJsonDocSamples {
             UUID uuid = UUID.randomUUID();
             JsonObject json = new JsonObject().add("person", new JsonObject().add("name", "Joe").add("id", uuid.toString()));
             env.sendEventJson(json.toString(), "JsonEvent");
-            MyLocalPersonEvent person = (MyLocalPersonEvent) env.listener("s0").assertOneGetNewAndReset().get("person");
-
-            assertEquals("Joe", person.name);
-            assertEquals(uuid, person.id);
+            env.assertEventNew("s0", event -> {
+                MyLocalPersonEvent person = (MyLocalPersonEvent) event.get("person");
+                assertEquals("Joe", person.name);
+                assertEquals(uuid, person.id);
+            });
 
             env.undeployAll();
         }
@@ -77,11 +77,13 @@ public class EventJsonDocSamples {
             env.assertPropsNew("s0", "entityId,temperature,status,entityName,vt,flags".split(","),
                 new Object[]{"cd9f930e", 70, true, Collections.singletonMap("english", "Cooling Water Temperature"), new Object[]{"2014-08-20T15:30:23.524Z"},
                     null});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "englishEntityName".split(","),
+            env.assertPropsNew("s1", "englishEntityName".split(","),
                 new Object[]{"Cooling Water Temperature"});
 
-            EventSenderJson sender = (EventSenderJson) env.runtime().getEventService().getEventSender("SensorEvent");
-            sender.parse(json);
+            env.assertThat(() -> {
+                EventSenderJson sender = (EventSenderJson) env.runtime().getEventService().getEventSender("SensorEvent");
+                sender.parse(json);
+            });
 
             env.undeployAll();
         }

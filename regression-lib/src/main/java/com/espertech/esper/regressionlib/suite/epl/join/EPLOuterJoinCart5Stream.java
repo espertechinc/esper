@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -254,13 +253,13 @@ public class EPLOuterJoinCart5Stream {
         //
         s1Events = SupportBean_S1.makeS1("B", new String[]{"B-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{null, s1Events[0], null, null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{null, s1Events[0], null, null, null}});
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{s0Events[0], s1Events[0], null, null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{s0Events[0], s1Events[0], null, null, null}});
 
         // Test s0 and s1=1, s2=1, s3=0, s4=0
         //
@@ -269,13 +268,13 @@ public class EPLOuterJoinCart5Stream {
 
         s2Events = SupportBean_S2.makeS2("C", new String[]{"C-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{null, s1Events[0], s2Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{null, s1Events[0], s2Events[0], null, null}});
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{s0Events[0], s1Events[0], s2Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{s0Events[0], s1Events[0], s2Events[0], null, null}});
 
         // Test s0 and s1=1, s2=1, s3=1, s4=0
         //
@@ -287,13 +286,13 @@ public class EPLOuterJoinCart5Stream {
 
         s3Events = SupportBean_S3.makeS3("D", new String[]{"D-s2-1"});
         sendEvent(env, s3Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{null, s1Events[0], s2Events[0], s3Events[0], null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{null, s1Events[0], s2Events[0], s3Events[0], null}});
 
         s0Events = SupportBean_S0.makeS0("D", new String[]{"D-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {s0Events[0], s1Events[0], s2Events[0], s3Events[0], null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], s1Events[0], s2Events[0], s3Events[0], null}});
 
         // Test s0 and s1=1, s2=1, s3=1, s4=1
         //
@@ -308,13 +307,13 @@ public class EPLOuterJoinCart5Stream {
 
         s4Events = SupportBean_S4.makeS4("E", new String[]{"E-s2-1"});
         sendEvent(env, s4Events);
-        EPAssertionUtil.assertSameAnyOrder(
-            new Object[][]{{null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, 
+            new Object[][]{{null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}});
 
         s0Events = SupportBean_S0.makeS0("E", new String[]{"E-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]}});
 
         // Test s0 and s1=2, s2=1, s3=1, s4=1
         //
@@ -332,9 +331,9 @@ public class EPLOuterJoinCart5Stream {
 
         s0Events = SupportBean_S0.makeS0("F", new String[]{"F-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
-            {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]}});
 
         // Test s0 and s1=2, s2=2, s3=1, s4=1
         //
@@ -352,11 +351,11 @@ public class EPLOuterJoinCart5Stream {
 
         s0Events = SupportBean_S0.makeS0("G", new String[]{"G-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[1], s3Events[0], s4Events[0]},
-            {s0Events[0], s1Events[1], s2Events[1], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[1], s3Events[0], s4Events[0]}});
 
         // Test s0 and s1=2, s2=2, s3=2, s4=1
         //
@@ -374,7 +373,7 @@ public class EPLOuterJoinCart5Stream {
 
         s0Events = SupportBean_S0.makeS0("H", new String[]{"H-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[1], s3Events[0], s4Events[0]},
@@ -382,7 +381,7 @@ public class EPLOuterJoinCart5Stream {
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[1], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[1], s3Events[1], s4Events[0]},
-            {s0Events[0], s1Events[1], s2Events[1], s3Events[1], s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[1], s3Events[1], s4Events[0]}});
 
         // Test s0 and s1=2, s2=2, s3=2, s4=2
         //
@@ -400,7 +399,7 @@ public class EPLOuterJoinCart5Stream {
 
         s0Events = SupportBean_S0.makeS0("I", new String[]{"I-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[1], s3Events[0], s4Events[0]},
@@ -416,7 +415,7 @@ public class EPLOuterJoinCart5Stream {
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[1]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[1], s4Events[1]},
             {s0Events[0], s1Events[0], s2Events[1], s3Events[1], s4Events[1]},
-            {s0Events[0], s1Events[1], s2Events[1], s3Events[1], s4Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[1], s3Events[1], s4Events[1]}});
 
         // Test s0 and s1=1, s2=1, s3=2, s4=3
         //
@@ -434,13 +433,13 @@ public class EPLOuterJoinCart5Stream {
 
         s0Events = SupportBean_S0.makeS0("J", new String[]{"J-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[1]},
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[2]},
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[1]},
-            {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[2]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[2]}});
 
         // Test s1 and s0=0, s2=1, s3=1, s4=1
         //
@@ -455,8 +454,8 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("K", new String[]{"K-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}});
 
         // Test s1 and s0=0, s2=1, s3=0, s4=1
         //
@@ -468,8 +467,8 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("L", new String[]{"L-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {null, s1Events[0], s2Events[0], null, s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, s1Events[0], s2Events[0], null, s4Events[0]}});
 
         // Test s1 and s0=2, s2=1, s3=0, s4=1
         //
@@ -484,9 +483,9 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("M", new String[]{"M-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], null, s4Events[0]},
-            {s0Events[1], s1Events[0], s2Events[0], null, s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[0], s2Events[0], null, s4Events[0]}});
 
         // Test s1 and s0=1, s2=0, s3=0, s4=0
         //
@@ -495,8 +494,8 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("N", new String[]{"N-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {s0Events[0], s1Events[0], null, null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], s1Events[0], null, null, null}});
 
         // Test s1 and s0=0, s2=0, s3=1, s4=0
         //
@@ -505,8 +504,8 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("O", new String[]{"O-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {null, s1Events[0], null, s3Events[0], null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, s1Events[0], null, s3Events[0], null}});
 
         // Test s1 and s0=0, s2=0, s3=0, s4=1
         //
@@ -515,8 +514,8 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("P", new String[]{"P-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {null, s1Events[0], null, null, s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, s1Events[0], null, null, s4Events[0]}});
 
         // Test s1 and s0=0, s2=0, s3=0, s4=2
         //
@@ -525,9 +524,9 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("Q", new String[]{"Q-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {null, s1Events[0], null, null, s4Events[0]},
-            {null, s1Events[0], null, null, s4Events[1]}}, getAndResetNewEvents(env));
+            {null, s1Events[0], null, null, s4Events[1]}});
 
         // Test s1 and s0=0, s2=0, s3=2, s4=2
         //
@@ -539,11 +538,11 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("R", new String[]{"R-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {null, s1Events[0], null, s3Events[0], s4Events[0]},
             {null, s1Events[0], null, s3Events[1], s4Events[0]},
             {null, s1Events[0], null, s3Events[0], s4Events[1]},
-            {null, s1Events[0], null, s3Events[1], s4Events[1]}}, getAndResetNewEvents(env));
+            {null, s1Events[0], null, s3Events[1], s4Events[1]}});
 
         // Test s1 and s0=0, s2=2, s3=0, s4=2
         //
@@ -555,11 +554,11 @@ public class EPLOuterJoinCart5Stream {
 
         s1Events = SupportBean_S1.makeS1("S", new String[]{"S-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {null, s1Events[0], s2Events[0], null, s4Events[0]},
             {null, s1Events[0], s2Events[0], null, s4Events[1]},
             {null, s1Events[0], s2Events[1], null, s4Events[0]},
-            {null, s1Events[0], s2Events[1], null, s4Events[1]}}, getAndResetNewEvents(env));
+            {null, s1Events[0], s2Events[1], null, s4Events[1]}});
 
         // Test s2 and s0=1, s1=2, s3=0, s4=2
         //
@@ -574,9 +573,9 @@ public class EPLOuterJoinCart5Stream {
 
         s2Events = SupportBean_S2.makeS2("U", new String[]{"U-s1-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], null, s4Events[0]},
-            {s0Events[0], s1Events[0], s2Events[0], null, s4Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[0], s2Events[0], null, s4Events[1]}});
 
         // Test s2 and s0=3, s1=1, s3=2, s4=1
         //
@@ -594,13 +593,13 @@ public class EPLOuterJoinCart5Stream {
 
         s2Events = SupportBean_S2.makeS2("V", new String[]{"V-s1-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[1], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[2], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[0]},
             {s0Events[1], s1Events[0], s2Events[0], s3Events[1], s4Events[0]},
-            {s0Events[2], s1Events[0], s2Events[0], s3Events[1], s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[2], s1Events[0], s2Events[0], s3Events[1], s4Events[0]}});
 
         // Test s2 and s0=2, s1=2, s3=2, s4=1
         //
@@ -618,7 +617,7 @@ public class EPLOuterJoinCart5Stream {
 
         s2Events = SupportBean_S2.makeS2("W", new String[]{"W-s1-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[1], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]},
@@ -634,7 +633,7 @@ public class EPLOuterJoinCart5Stream {
             {s0Events[0], s1Events[0], s2Events[0], s3Events[1], s4Events[1]},
             {s0Events[1], s1Events[0], s2Events[0], s3Events[1], s4Events[1]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[1], s4Events[1]},
-            {s0Events[1], s1Events[1], s2Events[0], s3Events[1], s4Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[1], s2Events[0], s3Events[1], s4Events[1]}});
 
         // Test s4 and s0=2, s1=2, s2=2, s3=2
         //
@@ -652,7 +651,7 @@ public class EPLOuterJoinCart5Stream {
 
         s4Events = SupportBean_S4.makeS4("X", new String[]{"X-s4-1"});
         sendEvent(env, s4Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[1], s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[0], s3Events[0], s4Events[0]},
@@ -668,7 +667,7 @@ public class EPLOuterJoinCart5Stream {
             {s0Events[0], s1Events[0], s2Events[1], s3Events[1], s4Events[0]},
             {s0Events[1], s1Events[0], s2Events[1], s3Events[1], s4Events[0]},
             {s0Events[0], s1Events[1], s2Events[1], s3Events[1], s4Events[0]},
-            {s0Events[1], s1Events[1], s2Events[1], s3Events[1], s4Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[1], s2Events[1], s3Events[1], s4Events[0]}});
 
         // Test s4 and s0=0, s1=1, s2=1, s3=1
         //
@@ -683,8 +682,8 @@ public class EPLOuterJoinCart5Stream {
 
         s4Events = SupportBean_S4.makeS4("Y", new String[]{"Y-s4-1"});
         sendEvent(env, s4Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
-            {null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]}});
 
         // Test s3 and s0=0, s1=2, s2=1, s4=1
         //
@@ -699,16 +698,16 @@ public class EPLOuterJoinCart5Stream {
 
         s3Events = SupportBean_S3.makeS3("Z", new String[]{"Z-s3-1"});
         sendEvent(env, s3Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {null, s1Events[0], s2Events[0], s3Events[0], s4Events[0]},
-            {null, s1Events[1], s2Events[0], s3Events[0], s4Events[0]}}, getAndResetNewEvents(env));
+            {null, s1Events[1], s2Events[0], s3Events[0], s4Events[0]}});
 
         env.undeployAll();
     }
 
     private static void sendEventsAndReset(RegressionEnvironment env, Object[] events) {
         sendEvent(env, events);
-        env.listener("s0").reset();
+        env.listenerReset("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, Object[] events) {
@@ -717,9 +716,10 @@ public class EPLOuterJoinCart5Stream {
         }
     }
 
-    private static Object[][] getAndResetNewEvents(RegressionEnvironment env) {
-        EventBean[] newEvents = env.listener("s0").getLastNewData();
-        env.listener("s0").reset();
-        return ArrayHandlingUtil.getUnderlyingEvents(newEvents, new String[]{"s0", "s1", "s2", "s3", "s4"});
+    private static void assertListenerUnd(RegressionEnvironment env, Object[][] expected) {
+        env.assertListener("s0", listener -> {
+            Object[][] und = ArrayHandlingUtil.getUnderlyingEvents(listener.getAndResetLastNewData(), new String[]{"s0", "s1", "s2", "s3", "s4"});
+            EPAssertionUtil.assertSameAnyOrder(expected, und);
+        });
     }
 }

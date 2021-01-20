@@ -13,10 +13,9 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class EPLOtherNestedClass {
     public static List<RegressionExecution> executions() {
@@ -35,13 +34,18 @@ public class EPLOtherNestedClass {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new MyEventWithColorEnum(MyEventWithColorEnum.Color.GREEN));
-            assertEquals(MyEventWithColorEnum.Color.RED, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", MyEventWithColorEnum.Color.RED);
 
             env.undeployAll();
         }
     }
 
-    public static class MyEventWithColorEnum {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyEventWithColorEnum implements Serializable {
+
+        private static final long serialVersionUID = -6156524967872658236L;
 
         public enum Color {
             GREEN,

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -248,17 +247,17 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[1]},
             {s0Events[0], s1Events[1], s2Events[1]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s0 outer join to s1 and s2, no results for each s1 and s2
         //
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, null}});
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-2"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, null}});
 
         // Test s0 outer join to s1 and s2, one row for s1 and no results for s2
         //
@@ -268,7 +267,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], s1Events[0], null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], s1Events[0], null}});
 
         // Test s0 outer join to s1 and s2, two rows for s1 and no results for s2
         //
@@ -278,9 +277,9 @@ public class EPLOuterJoinVarA3Stream {
 
         s0Events = SupportBean_S0.makeS0("D", new String[]{"D-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], null},
-            {s0Events[0], s1Events[1], null}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], null}});
 
         // Test s0 outer join to s1 and s2, one row for s2 and no results for s1
         //
@@ -290,7 +289,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s0Events = SupportBean_S0.makeS0("E", new String[]{"E-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, s2Events[0]}});
 
         // Test s0 outer join to s1 and s2, two rows for s2 and no results for s1
         //
@@ -300,9 +299,9 @@ public class EPLOuterJoinVarA3Stream {
 
         s0Events = SupportBean_S0.makeS0("F", new String[]{"F-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], null, s2Events[0]},
-            {s0Events[0], null, s2Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], null, s2Events[1]}});
 
         // Test s0 outer join to s1 and s2, one row for s1 and two rows s2
         //
@@ -320,7 +319,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[0], s2Events[1]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s0 outer join to s1 and s2, one row for s2 and two rows s1
         //
@@ -338,7 +337,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[1], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s0 outer join to s1 and s2, one row for each s1 and s2
         //
@@ -355,19 +354,19 @@ public class EPLOuterJoinVarA3Stream {
         expected = new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 1 rows, s2 with 2 rows
         //
         s0Events = SupportBean_S0.makeS0("Q", new String[]{"Q-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, null}});
 
         s2Events = SupportBean_S2.makeS2("Q", new String[]{"Q-s2-1", "Q-s2-2"});
         sendEvent(env, s2Events[0]);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, s2Events[0]}});
         sendEvent(env, s2Events[1]);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, s2Events[1]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, s2Events[1]}});
 
         s1Events = SupportBean_S1.makeS1("Q", new String[]{"Q-s1-1"});
         sendEvent(env, s1Events);
@@ -375,7 +374,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[0], s2Events[1]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 0 rows, s2 with 2 rows
         //
@@ -390,24 +389,24 @@ public class EPLOuterJoinVarA3Stream {
         //
         s0Events = SupportBean_S0.makeS0("S", new String[]{"S-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, null}});
 
         s1Events = SupportBean_S1.makeS1("S", new String[]{"S-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], s1Events[0], null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], s1Events[0], null}});
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 1 rows, s2 with 1 rows
         //
         s0Events = SupportBean_S0.makeS0("T", new String[]{"T-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, null}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, null}});
 
         s2Events = SupportBean_S2.makeS2("T", new String[]{"T-s2-1"});
         sendEventsAndReset(env, s2Events);
 
         s1Events = SupportBean_S1.makeS1("T", new String[]{"T-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}});
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 2 rows, s2 with 0 rows
         //
@@ -420,7 +419,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], null},
             {s0Events[1], s1Events[0], null},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 2 rows, s2 with 1 rows
         //
@@ -436,7 +435,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[1], s1Events[0], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s1 inner join to s0 and outer to s2:  s0 with 2 rows, s2 with 2 rows
         //
@@ -454,7 +453,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[1]},
             {s0Events[1], s1Events[0], s2Events[1]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 1 rows, s1 with 2 rows
         //
@@ -470,7 +469,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[1], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 0 rows, s1 with 2 rows
         //
@@ -488,7 +487,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s2Events = SupportBean_S2.makeS2("L", new String[]{"L-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, s2Events[0]}});
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 1 rows, s1 with 1 rows
         //
@@ -500,7 +499,7 @@ public class EPLOuterJoinVarA3Stream {
 
         s2Events = SupportBean_S2.makeS2("M", new String[]{"M-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertSameAnyOrder(new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}});
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 2 rows, s1 with 0 rows
         //
@@ -513,7 +512,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], null, s2Events[0]},
             {s0Events[1], null, s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 2 rows, s1 with 1 rows
         //
@@ -529,7 +528,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[1], s1Events[0], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         // Test s2 inner join to s0 and outer to s1:  s0 with 2 rows, s1 with 2 rows
         //
@@ -547,7 +546,7 @@ public class EPLOuterJoinVarA3Stream {
             {s0Events[0], s1Events[1], s2Events[0]},
             {s0Events[1], s1Events[1], s2Events[0]},
         };
-        EPAssertionUtil.assertSameAnyOrder(expected, getAndResetNewEvents(env));
+        assertListenerUnd(env, expected);
 
         env.undeployAll();
     }
@@ -558,7 +557,7 @@ public class EPLOuterJoinVarA3Stream {
 
     private static void sendEventsAndReset(RegressionEnvironment env, Object[] events) {
         sendEvent(env, events);
-        env.listener("s0").reset();
+        env.listenerReset("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, Object[] events) {
@@ -574,9 +573,10 @@ public class EPLOuterJoinVarA3Stream {
         env.sendEventMap(mapEvent, type);
     }
 
-    private static Object[][] getAndResetNewEvents(RegressionEnvironment env) {
-        EventBean[] newEvents = env.listener("s0").getLastNewData();
-        env.listener("s0").reset();
-        return ArrayHandlingUtil.getUnderlyingEvents(newEvents, new String[]{"s0", "s1", "s2"});
+    private static void assertListenerUnd(RegressionEnvironment env, Object[][] expected) {
+        env.assertListener("s0", listener -> {
+            Object[][] und = ArrayHandlingUtil.getUnderlyingEvents(listener.getAndResetLastNewData(), new String[]{"s0", "s1", "s2"});
+            EPAssertionUtil.assertSameAnyOrder(expected, und);
+        });
     }
 }

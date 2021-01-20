@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -109,17 +108,16 @@ public class PatternComplexPropertyAccess {
             String pattern = "@name('s0') select * from pattern[every a=SupportBeanComplexProps(indexed[0]=3)]";
             env.compileDeploy(pattern).addListener("s0");
 
-            Object theEvent = new SupportBeanComplexProps(new int[]{3, 4});
-            env.sendEventBean(theEvent);
-            assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("a"));
+            final Object theEventOne = new SupportBeanComplexProps(new int[]{3, 4});
+            env.sendEventBean(theEventOne);
+            env.assertEventNew("s0", event -> assertSame(theEventOne, event.get("a")));
 
-            theEvent = new SupportBeanComplexProps(new int[]{6});
-            env.sendEventBean(theEvent);
+            env.sendEventBean(new SupportBeanComplexProps(new int[]{6}));
             env.assertListenerNotInvoked("s0");
 
-            theEvent = new SupportBeanComplexProps(new int[]{3});
-            env.sendEventBean(theEvent);
-            assertSame(theEvent, env.listener("s0").assertOneGetNewAndReset().get("a"));
+            final Object theEventTwo = new SupportBeanComplexProps(new int[]{3});
+            env.sendEventBean(theEventTwo);
+            env.assertEventNew("s0", event -> assertSame(theEventTwo, event.get("a")));
 
             env.undeployAll();
         }
@@ -175,9 +173,10 @@ public class PatternComplexPropertyAccess {
 
         Object eventTwo = new SupportBeanComplexProps(new int[]{3});
         env.sendEventBean(eventTwo);
-        EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-        assertSame(eventOne, eventBean.get("a"));
-        assertSame(eventTwo, eventBean.get("b"));
+        env.assertEventNew("s0", event -> {
+            assertSame(eventOne, event.get("a"));
+            assertSame(eventTwo, event.get("b"));
+        });
     }
 }
 

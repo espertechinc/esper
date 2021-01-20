@@ -66,7 +66,7 @@ public class EPLFromClauseMethodVariable {
                 "@name('s0') select field1, field2 from method:MyMethodHandlerOA.getOAData()"
             }) {
                 env.compileDeploy(epl);
-                EPAssertionUtil.assertProps(env.iterator("s0").next(), "field1,field2".split(","), new Object[]{"a", "b"});
+                env.assertIterator("s0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "field1,field2".split(","), new Object[]{"a", "b"}));
                 env.undeployAll();
             }
         }

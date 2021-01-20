@@ -18,7 +18,6 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.avro.core.AvroConstant;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
@@ -66,8 +65,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
                 "create json schema " + JSON_TYPENAME + "_1(lvl1 int, l2 " + JSON_TYPENAME + "_2);\n" +
                 "@name('types') @public @buseventtype create json schema " + JSON_TYPENAME + "(l1 " + JSON_TYPENAME + "_1);\n";
         env.compileDeploy(epl, path);
-        EPTypeClass nestedClass = SupportJsonEventTypeUtil.getUnderlyingEPType(env, "types", JSON_TYPENAME + "_1");
-        runAssertion(env, JSON_TYPENAME, FJSON, nestedClass, JSON_TYPENAME + "_1", path);
+        runAssertion(env, JSON_TYPENAME, FJSON, null, JSON_TYPENAME + "_1", path);
 
         epl = "@JsonSchema(className='" + MyLocalJSONProvidedTop.class.getName() + "') @name('types') @public @buseventtype create json schema " + JSONPROVIDED_TYPENAME + "();\n";
         env.compileDeploy(epl, path);
@@ -79,8 +77,11 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
     private void runAssertion(RegressionEnvironment env, String typename, FunctionSendEvent4Int send, EPTypeClass nestedClass, String fragmentTypeName, RegressionPath path) {
         runAssertionSelectNested(env, typename, send, path);
         runAssertionBeanNav(env, typename, send, path);
-        runAssertionTypeValidProp(env, typename, send, nestedClass, fragmentTypeName);
-        runAssertionTypeInvalidProp(env, typename);
+        env.assertThat(() -> {
+            final EPTypeClass nestedType = typename.equals(JSON_TYPENAME) ? SupportJsonEventTypeUtil.getUnderlyingEPType(env, "types", JSON_TYPENAME + "_1") : nestedClass;
+            runAssertionTypeValidProp(env, typename, nestedType, fragmentTypeName);
+            runAssertionTypeInvalidProp(env, typename);
+        });
     }
 
     private void runAssertionBeanNav(RegressionEnvironment env, String typename, FunctionSendEvent4Int send, RegressionPath path) {
@@ -88,13 +89,14 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         env.compileDeploy(epl, path).addListener("s0");
 
         send.apply(typename, env, 1, 2, 3, 4);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "l1.lvl1,l1.l2.lvl2,l1.l2.l3.lvl3,l1.l2.l3.l4.lvl4".split(","), new Object[]{1, 2, 3, 4});
-        SupportEventTypeAssertionUtil.assertConsistency(event);
-        boolean nativeFragment = typename.equals(BEAN_TYPENAME) || typename.equals(JSONPROVIDED_TYPENAME);
-        SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1.l2");
-        SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1,l1.l2,l1.l2.l3,l1.l2.l3.l4");
-        runAssertionEventInvalidProp(event);
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, "l1.lvl1,l1.l2.lvl2,l1.l2.l3.lvl3,l1.l2.l3.l4.lvl4".split(","), new Object[]{1, 2, 3, 4});
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+            boolean nativeFragment = typename.equals(BEAN_TYPENAME) || typename.equals(JSONPROVIDED_TYPENAME);
+            SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1.l2");
+            SupportEventTypeAssertionUtil.assertFragments(event, nativeFragment, false, "l1,l1.l2,l1.l2.l3,l1.l2.l3.l4");
+            runAssertionEventInvalidProp(event);
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -113,15 +115,18 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         env.compileDeploy(epl, path).addListener("s0");
         String[] fields = "c0,exists_c0,c1,exists_c1,c2,exists_c2,c3,exists_c3".split(",");
 
-        EventType eventType = env.statement("s0").getEventType();
-        for (String property : fields) {
-            assertEquals(property.startsWith("exists") ? Boolean.class : Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(property)));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String property : fields) {
+                assertEquals(property.startsWith("exists") ? Boolean.class : Integer.class, JavaClassHelper.getBoxedType(eventType.getPropertyType(property)));
+            }
+        });
 
         send.apply(typename, env, 1, 2, 3, 4);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, fields, new Object[]{1, true, 2, true, 3, true, 4, true});
-        SupportEventTypeAssertionUtil.assertConsistency(event);
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, fields, new Object[]{1, true, 2, true, 3, true, 4, true});
+            SupportEventTypeAssertionUtil.assertConsistency(event);
+        });
 
         send.apply(typename, env, 10, 5, 50, 400);
         env.assertPropsNew("s0", fields, new Object[]{10, true, 5, true, 50, true, 400, true});
@@ -136,7 +141,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    private void runAssertionTypeValidProp(RegressionEnvironment env, String typeName, FunctionSendEvent4Int send, EPTypeClass nestedClass, String fragmentTypeName) {
+    private void runAssertionTypeValidProp(RegressionEnvironment env, String typeName, EPTypeClass nestedClass, String fragmentTypeName) {
         EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured(typeName);
 
         Object[][] expectedType = new Object[][]{{"l1", nestedClass.getType(), fragmentTypeName, false}};
@@ -232,7 +237,7 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
     };
 
     private static final FunctionSendEvent4Int FAVRO = (eventTypeName, env, lvl1, lvl2, lvl3, lvl4) -> {
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema lvl1Schema = schema.getField("l1").schema();
         Schema lvl2Schema = lvl1Schema.getField("l2").schema();
         Schema lvl3Schema = lvl2Schema.getField("l3").schema();
@@ -292,7 +297,8 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    public final static class InfraNestedSimplePropLvl1 {
+    public final static class InfraNestedSimplePropLvl1 implements Serializable {
+        private static final long serialVersionUID = -1282691826186832411L;
         private InfraNestedSimplePropLvl2 l2;
         private int lvl1;
 
@@ -310,7 +316,8 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    public final static class InfraNestedSimplePropLvl2 {
+    public final static class InfraNestedSimplePropLvl2 implements Serializable {
+        private static final long serialVersionUID = 129301846797476150L;
         private InfraNestedSimplePropLvl3 l3;
         private int lvl2;
 
@@ -328,7 +335,8 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    public final static class InfraNestedSimplePropLvl3 {
+    public final static class InfraNestedSimplePropLvl3 implements Serializable {
+        private static final long serialVersionUID = -9199212258888002877L;
         private InfraNestedSimplePropLvl4 l4;
         private int lvl3;
 
@@ -346,7 +354,8 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         }
     }
 
-    public final static class InfraNestedSimplePropLvl4 {
+    public final static class InfraNestedSimplePropLvl4 implements Serializable {
+        private static final long serialVersionUID = -4207503650871038068L;
         private int lvl4;
 
         public InfraNestedSimplePropLvl4(int lvl4) {
@@ -359,25 +368,30 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
     }
 
     public final static class MyLocalJSONProvidedTop implements Serializable {
+        private static final long serialVersionUID = 4302824901403789956L;
         public MyLocalJSONProvidedLvl1 l1;
     }
 
-    public final static class MyLocalJSONProvidedLvl1 {
+    public final static class MyLocalJSONProvidedLvl1 implements Serializable {
+        private static final long serialVersionUID = -839472989645896746L;
         public MyLocalJSONProvidedLvl2 l2;
         public int lvl1;
     }
 
-    public final static class MyLocalJSONProvidedLvl2 {
+    public final static class MyLocalJSONProvidedLvl2 implements Serializable {
+        private static final long serialVersionUID = -2611344716551052248L;
         public MyLocalJSONProvidedLvl3 l3;
         public int lvl2;
     }
 
-    public final static class MyLocalJSONProvidedLvl3 {
+    public final static class MyLocalJSONProvidedLvl3 implements Serializable {
+        private static final long serialVersionUID = -6611960721481250672L;
         public MyLocalJSONProvidedLvl4 l4;
         public int lvl3;
     }
 
-    public final static class MyLocalJSONProvidedLvl4 {
+    public final static class MyLocalJSONProvidedLvl4 implements Serializable {
+        private static final long serialVersionUID = -3787228946692069891L;
         public int lvl4;
     }
 }

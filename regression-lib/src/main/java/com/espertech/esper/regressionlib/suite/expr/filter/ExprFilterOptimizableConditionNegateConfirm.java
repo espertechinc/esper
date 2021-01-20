@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.filter.*;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
@@ -32,6 +33,7 @@ import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.EQUAL;
@@ -98,6 +100,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
                 assertPlanSingleByType("SupportBean_S1", plan);
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ExprFilterTwoPathAndLeftOrLVVRightLL implements RegressionExecution {
@@ -125,7 +131,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11", EQUAL)},
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p12", EQUAL)},
                 });
@@ -138,7 +144,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p11", EQUAL)},
                     new FilterItem[]{new FilterItem("p12", EQUAL)}
                 });
@@ -150,6 +156,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(2));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -187,7 +197,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p12", EQUAL)},
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p13", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL), new FilterItem("p12", EQUAL)},
@@ -204,7 +214,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p12", EQUAL)},
                     new FilterItem[]{new FilterItem("p13", EQUAL)}
                 });
@@ -216,7 +226,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(3, "y"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL)}
                 });
@@ -227,6 +237,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(3));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -260,7 +274,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p12", EQUAL)},
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p13", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL), new FilterItem("p12", EQUAL)},
@@ -277,7 +291,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p12", EQUAL)},
                     new FilterItem[]{new FilterItem("p13", EQUAL)}
                 });
@@ -288,6 +302,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(2));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -314,7 +332,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11", EQUAL)},
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p12", EQUAL)}
                 });
@@ -327,7 +345,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p11", EQUAL)},
                     new FilterItem[]{new FilterItem("p12", EQUAL)}
                 });
@@ -338,6 +356,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(1));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -360,24 +382,28 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", makeABCDCombinationFilterItems());
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", makeABCDCombinationFilterItems());
             }
             sendS1Assert(env, 10, "-", "-", "-", "-", false);
             sendS1Assert(env, 11, "a", "-", "c", "-", true);
 
             env.sendEventBean(new SupportBean_S0(2, "y"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", makeABCDCombinationFilterItems());
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", makeABCDCombinationFilterItems());
             }
             sendS1Assert(env, 20, "-", "b", "c", "-", true);
 
             env.sendEventBean(new SupportBean_S0(3, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcNone(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 30, "a", "-", "c", "-", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -400,18 +426,22 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", makeABCDCombinationFilterItems());
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", makeABCDCombinationFilterItems());
             }
             sendS1Assert(env, 10, "-", "-", "-", "-", false);
             sendS1Assert(env, 11, "a", "-", "c", "-", true);
 
             env.sendEventBean(new SupportBean_S0(2, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcNone(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 20, "a", "-", "c", "-", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -433,7 +463,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", makeABCDCombinationFilterItems());
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", makeABCDCombinationFilterItems());
             }
             sendS1Assert(env, 10, "-", "-", "-", "-", false);
             sendS1Assert(env, 11, "a", "-", "c", "-", true);
@@ -444,6 +474,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             sendS1Assert(env, 16, "-", "-", "c", "d", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -469,7 +503,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcNone(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 10, "a", false);
             sendS1Assert(env, 11, "b", false);
@@ -477,7 +511,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "1"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 20, "c", false);
             sendS1Assert(env, 21, "b", false);
@@ -485,7 +519,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(3, "2"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 30, "a", false);
             sendS1Assert(env, 31, "c", false);
@@ -493,13 +527,17 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(4, "3"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 40, "a", false);
             sendS1Assert(env, 41, "b", false);
             sendS1Assert(env, 42, "c", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -528,7 +566,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11", EQUAL), new FilterItem("p12", EQUAL)}
                 });
             }
@@ -538,7 +576,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "1"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p11", EQUAL), new FilterItem("p12", EQUAL)}
                 });
             }
@@ -548,7 +586,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(3, "2"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p11", EQUAL), new FilterItem("p12", EQUAL)}
                 });
             }
@@ -558,7 +596,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(4, "3"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p12", EQUAL)}
                 });
             }
@@ -568,7 +606,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(5, "4"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11", EQUAL)}
                 });
             }
@@ -578,11 +616,15 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(6, "1234"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 60, "-", "-", "-", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -609,14 +651,14 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcNone(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 10, "a", "b", false);
             env.sendEventBean(new SupportBean_S2(1));
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL)}
                 });
@@ -627,6 +669,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(2));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -651,7 +697,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-", "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem(".p10 regexp ?", REBOOL)},
                     new FilterItem[]{new FilterItem(".p11 regexp ?", REBOOL)}
                 });
@@ -665,19 +711,23 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x", "-"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 20, "-", "-", true);
             env.sendEventBean(new SupportBean_S2(2));
 
             env.sendEventBean(new SupportBean_S0(3, "-", "y"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 30, "-", "-", true);
             env.sendEventBean(new SupportBean_S2(2));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -703,7 +753,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "-"));
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem(".p11 regexp ?", REBOOL)}
                 });
             }
@@ -714,11 +764,15 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "x"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 20, "-", "-", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -760,6 +814,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             assertTrue(ExprNodeUtilityCompare.deepEquals(expectedNode, receivedNode, true));
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class ExprFilterOnePathAndLeftLOrVRightLOrV implements RegressionExecution {
@@ -785,7 +843,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(1, "-", "-"));
             env.milestoneInc(milestone);
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL), new FilterItem("p11", EQUAL)}
                 });
             }
@@ -796,14 +854,14 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(2, "x", "-"));
             env.milestoneInc(milestone);
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p11", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p11", EQUAL));
             }
             sendS1Assert(env, 21, "a", "-", false);
             sendS1Assert(env, 20, "-", "b", true);
 
             env.sendEventBean(new SupportBean_S0(2, "-", "y"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 30, "-", "b", false);
             sendS1Assert(env, 31, "a", "-", true);
@@ -811,11 +869,15 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(2, "x", "y"));
             env.milestoneInc(milestone);
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 40, "-", "-", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -842,7 +904,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S0(1, "x"));
             env.milestoneInc(milestone);
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL)}
                 });
@@ -857,12 +919,16 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(3, "-"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 30, "-", "b", false);
             sendS1Assert(env, 31, "a", "b", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -890,14 +956,14 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 10, "-", "-", true);
 
             env.sendEventBean(new SupportBean_S0(2, "y"));
             env.milestoneInc(milestone);
             if (advanced) {
-                assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean_S1", new FilterItem[][]{
+                assertFilterSvcByTypeMulti(env, "s0", "SupportBean_S1", new FilterItem[][]{
                     new FilterItem[]{new FilterItem("p10", EQUAL)},
                     new FilterItem[]{new FilterItem("p11", EQUAL)}
                 });
@@ -910,6 +976,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             sendS1Assert(env, 31, "-", "b", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -933,24 +1003,28 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x", "-"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 10, "-", true);
 
             env.sendEventBean(new SupportBean_S0(2, "-", "y"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean_S1");
+                assertFilterSvcEmpty(env, "s0", "SupportBean_S1");
             }
             sendS1Assert(env, 20, "-", true);
 
             env.sendEventBean(new SupportBean_S0(3, "-", "-"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean_S1", new FilterItem("p10", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean_S1", new FilterItem("p10", EQUAL));
             }
             sendS1Assert(env, 30, "-", false);
             sendS1Assert(env, 31, "a", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -976,7 +1050,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.compileDeploy(epl).addListener("s0");
             if (advanced) {
                 assertPlanSingle(new SupportFilterPlan(null, "1=2", makePathsFromEmpty()));
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
             String deploymentId = env.deploymentId("s0");
 
@@ -991,6 +1065,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             unstageIt(env, "P1", deploymentId);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -1018,6 +1096,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             df.cancel();
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class ExprFilterOnePathNegate1Eq2WithContextCategory implements RegressionExecution {
@@ -1029,6 +1111,10 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             if (advanced) {
                 SupportMessageAssertUtil.tryInvalidDeploy(env, compiled, "Failed to deploy: Category context 'MyContext' for category 'categoryOne' has evaluated to a condition that cannot become true");
             }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -1054,13 +1140,13 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(3, "S"));
             env.sendEventBean(new SupportBean_S2(4, "T"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean");
+                assertFilterSvcEmpty(env, "s0", "SupportBean");
             }
 
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean");
+                assertFilterSvcEmpty(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "x", true);
 
@@ -1069,18 +1155,22 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.sendEventBean(new SupportBean_S2(13, "-"));
             env.sendEventBean(new SupportBean_S2(14, "-"));
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
             sendSBAssert(env, "x", false);
             sendSBAssert(env, "abc", true);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -1105,24 +1195,28 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
             sendSBAssert(env, "def", false);
             sendSBAssert(env, "abc", true);
 
             env.sendEventBean(new SupportBean_S0(2, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
 
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "abc", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -1146,7 +1240,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x"));
             if (advanced) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+                assertFilterSvcSingle(env, "s0", "theString", EQUAL);
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", false);
@@ -1154,18 +1248,18 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+                assertFilterSvcSingle(env, "s0", "theString", EQUAL);
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", false);
             env.sendEventBean(new SupportBean_S1(1));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
 
             env.sendEventBean(new SupportBean_S0(2, "-"));
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "abc", false);
             sendSBAssert(env, "def", false);
@@ -1173,12 +1267,16 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcNone(env.statement("s0"), "SupportBean");
+                assertFilterSvcNone(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "abc", false);
             sendSBAssert(env, "def", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -1202,7 +1300,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(1, "x"));
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean");
+                assertFilterSvcEmpty(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", true);
@@ -1210,7 +1308,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcEmpty(env.statement("s0"), "SupportBean");
+                assertFilterSvcEmpty(env, "s0", "SupportBean");
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", true);
@@ -1218,7 +1316,7 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
             env.sendEventBean(new SupportBean_S0(2, "-"));
             if (advanced) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+                assertFilterSvcSingle(env, "s0", "theString", EQUAL);
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", false);
@@ -1226,12 +1324,16 @@ public class ExprFilterOptimizableConditionNegateConfirm {
             env.milestoneInc(milestone);
 
             if (advanced) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+                assertFilterSvcSingle(env, "s0", "theString", EQUAL);
             }
             sendSBAssert(env, "abc", true);
             sendSBAssert(env, "def", false);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -1254,12 +1356,12 @@ public class ExprFilterOptimizableConditionNegateConfirm {
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, boolean received) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void sendS1Assert(RegressionEnvironment env, int id, String p10, String p11, String p12, String p13, boolean expected) {
         env.sendEventBean(new SupportBean_S1(id, p10, p11, p12, p13));
-        assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", expected);
     }
 
     private static void sendS1Assert(RegressionEnvironment env, int id, String p10, String p11, String p12, boolean expected) {

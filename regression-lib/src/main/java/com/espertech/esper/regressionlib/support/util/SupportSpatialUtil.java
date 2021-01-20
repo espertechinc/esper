@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportSpatialAABB;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialEventRectangle;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialPoint;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class SupportSpatialUtil {
 
     public static void assertAllRectangles(RegressionEnvironment env, Collection<SupportSpatialEventRectangle> expected, double x, double y, double width, double height) {
         env.sendEventBean(new SupportSpatialAABB("", x, y, width, height));
-        EventBean[] events = env.listener("out").getAndResetLastNewData();
+        EventBean[] events = env.listener("s0").getAndResetLastNewData();
         if (events == null || events.length == 0) {
             TestCase.assertTrue(expected.isEmpty());
             return;
@@ -62,19 +63,19 @@ public class SupportSpatialUtil {
         }
     }
 
-    public static void assertBBTreeRectangles(RegressionEnvironment env, BoundingBox.BoundingBoxNode bbtree, List<SupportSpatialEventRectangle> rectangles) {
-        assertBBRectangles(env, bbtree.bb, rectangles);
+    public static void assertBBTreeRectangles(RegressionEnvironment env, String stmtName, BoundingBox.BoundingBoxNode bbtree, List<SupportSpatialEventRectangle> rectangles) {
+        assertBBRectangles(env, stmtName, bbtree.bb, rectangles);
         if (bbtree.nw != null) {
-            assertBBTreeRectangles(env, bbtree.nw, rectangles);
+            assertBBTreeRectangles(env, stmtName, bbtree.nw, rectangles);
         }
         if (bbtree.ne != null) {
-            assertBBTreeRectangles(env, bbtree.ne, rectangles);
+            assertBBTreeRectangles(env, stmtName, bbtree.ne, rectangles);
         }
         if (bbtree.sw != null) {
-            assertBBTreeRectangles(env, bbtree.sw, rectangles);
+            assertBBTreeRectangles(env, stmtName, bbtree.sw, rectangles);
         }
         if (bbtree.se != null) {
-            assertBBTreeRectangles(env, bbtree.se, rectangles);
+            assertBBTreeRectangles(env, stmtName, bbtree.se, rectangles);
         }
     }
 
@@ -118,7 +119,7 @@ public class SupportSpatialUtil {
 
     public static void assertAllPoints(RegressionEnvironment env, Collection<SupportSpatialPoint> expected, double x, double y, double width, double height) {
         env.sendEventBean(new SupportSpatialAABB("", x, y, width, height));
-        EventBean[] events = env.listener("out").getAndResetLastNewData();
+        EventBean[] events = env.listener("s0").getAndResetLastNewData();
         if (events == null || events.length == 0) {
             TestCase.assertTrue(expected.isEmpty());
             return;
@@ -142,9 +143,11 @@ public class SupportSpatialUtil {
 
     public static void assertBBPoints(RegressionEnvironment env, BoundingBox bb, List<SupportSpatialPoint> points) {
         env.sendEventBean(new SupportSpatialAABB("", bb.getMinX(), bb.getMinY(), bb.getMaxX() - bb.getMinX(), bb.getMaxY() - bb.getMinY()));
-        String received = sortJoinProperty(env.listener("out").getAndResetLastNewData(), "c0");
-        String expected = sortGetExpectedPoints(bb, points);
-        assertEquals(expected, received);
+        env.assertListener("s0", listener -> {
+            String received = sortJoinProperty(listener.getAndResetLastNewData(), "c0");
+            String expected = sortGetExpectedPoints(bb, points);
+            assertEquals(expected, received);
+        });
     }
 
     public static String sortGetExpectedPoints(BoundingBox bb, List<SupportSpatialPoint> points) {
@@ -163,22 +166,24 @@ public class SupportSpatialUtil {
         env.sendEventBean(rectangle);
     }
 
-    public static void assertBBRectangles(RegressionEnvironment env, BoundingBox bb, List<SupportSpatialEventRectangle> rectangles) {
+    public static void assertBBRectangles(RegressionEnvironment env, String stmtName, BoundingBox bb, List<SupportSpatialEventRectangle> rectangles) {
         env.sendEventBean(new SupportSpatialAABB("", bb.getMinX(), bb.getMinY(), bb.getMaxX() - bb.getMinX(), bb.getMaxY() - bb.getMinY()));
-        String received = sortJoinProperty(env.listener("out").getAndResetLastNewData(), "c0");
-        String expected = sortGetExpectedRectangles(bb, rectangles);
-        if (!received.equals(expected)) {
-            log.error("Expected: " + expected);
-            log.error("Received: " + received);
-        }
-        assertEquals(expected, received);
+        env.assertListener(stmtName, listener -> {
+            String received = sortJoinProperty(listener.getAndResetLastNewData(), "c0");
+            String expected = sortGetExpectedRectangles(bb, rectangles);
+            if (!received.equals(expected)) {
+                log.error("Expected: " + expected);
+                log.error("Received: " + received);
+            }
+            assertEquals(expected, received);
+        });
     }
 
     public static void sendEventRectangle(RegressionEnvironment env, String id, double x, double y, double width, double height) {
         env.sendEventBean(new SupportSpatialEventRectangle(id, x, y, width, height));
     }
 
-    public static void assertRectanglesSingleValue(RegressionEnvironment env, SupportListener listener, List<BoundingBox> rectangles, String... matches) {
+    public static void assertRectanglesSingleValueAssertS0S1(RegressionEnvironment env, SupportUpdateListener listener, List<BoundingBox> rectangles, String... matches) {
         for (int i = 0; i < rectangles.size(); i++) {
             BoundingBox box = rectangles.get(i);
             sendRectangle(env, "R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
@@ -187,20 +192,35 @@ public class SupportSpatialUtil {
         }
     }
 
-    public static void assertRectanglesManyRow(RegressionEnvironment env, SupportListener listener, List<BoundingBox> rectangles, String... matches) {
+    public static void assertRectanglesSingleValueAssertS0(RegressionEnvironment env, List<BoundingBox> rectangles, String... matches) {
         for (int i = 0; i < rectangles.size(); i++) {
             BoundingBox box = rectangles.get(i);
             sendRectangle(env, "R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
-            if (matches[i] == null) {
-                if (listener.isInvoked()) {
-                    fail("Unexpected output for box " + i + ": " + sortJoinProperty(listener.getAndResetLastNewData(), "c0"));
+            final int index = i;
+            env.assertEventNew("s0", event -> {
+                String c0 = event.get("c0").toString();
+                assertEquals("for box " + index, matches[index], c0);
+            });
+        }
+    }
+
+    public static void assertRectanglesManyRow(RegressionEnvironment env, List<BoundingBox> rectangles, String... matches) {
+        for (int i = 0; i < rectangles.size(); i++) {
+            BoundingBox box = rectangles.get(i);
+            sendRectangle(env, "R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
+            int index = i;
+            env.assertListener("s0", listener -> {
+                if (matches[index] == null) {
+                    if (listener.isInvoked()) {
+                        fail("Unexpected output for box " + index + ": " + sortJoinProperty(listener.getAndResetLastNewData(), "c0"));
+                    }
+                } else {
+                    if (!listener.isInvoked()) {
+                        fail("No output for box " + index);
+                    }
+                    assertEquals(matches[index], sortJoinProperty(listener.getAndResetLastNewData(), "c0"));
                 }
-            } else {
-                if (!listener.isInvoked()) {
-                    fail("No output for box " + i);
-                }
-                assertEquals(matches[i], sortJoinProperty(listener.getAndResetLastNewData(), "c0"));
-            }
+            });
         }
     }
 
@@ -216,13 +236,13 @@ public class SupportSpatialUtil {
         env.sendEventBean(new SupportSpatialAABB(id, x, y, width, height));
     }
 
-    public static void sendAssert(RegressionEnvironment env, SupportListener listener, double px, double py, double x, double y, double width, double height, boolean expected) {
-        sendAssertWNull(env, listener, px, py, x, y, width, height, expected);
+    public static void sendAssert(RegressionEnvironment env, double px, double py, double x, double y, double width, double height, boolean expected) {
+        sendAssertWNull(env, px, py, x, y, width, height, expected);
     }
 
-    public static void sendAssertWNull(RegressionEnvironment env, SupportListener listener, Double px, Double py, Double x, Double y, Double width, Double height, Boolean expected) {
+    public static void sendAssertWNull(RegressionEnvironment env, Double px, Double py, Double x, Double y, Double width, Double height, Boolean expected) {
         env.sendEventBean(new SupportEventRectangleWithOffset("E", px, py, x, y, width, height));
-        assertEquals(expected, listener.assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     public static String sortJoinProperty(EventBean[] events, String propertyName) {
@@ -266,6 +286,19 @@ public class SupportSpatialUtil {
             rows[index++] = new Object[]{id};
         }
         return rows;
+    }
+
+    public static void sendAssertSpatialAABB(RegressionEnvironment env, int numX, int numY, long deltaMSec) {
+        long start = System.currentTimeMillis();
+        for (int x = 0; x < numX; x++) {
+            for (int y = 0; y < numY; y++) {
+                env.sendEventBean(new SupportSpatialAABB("", x, y, 0.1, 0.1));
+                env.assertEventNew("s0", event -> {
+                });
+            }
+        }
+        long delta = System.currentTimeMillis() - start;
+        assertTrue("Delta: " + delta, delta < deltaMSec);
     }
 
     public static void sendAssertSpatialAABB(RegressionEnvironment env, SupportListener listener, int numX, int numY, long deltaMSec) {

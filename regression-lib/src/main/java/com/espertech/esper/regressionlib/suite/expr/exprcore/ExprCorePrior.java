@@ -61,21 +61,18 @@ public class ExprCorePrior {
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("E0"));
-            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{null}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowNewFlattened("s0", new String[]{"prior1"}, new Object[][]{{null}});
 
             env.milestone(1);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
-            env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{"E0"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowNewFlattened("s0", new String[]{"prior1"}, new Object[][]{{"E0"}});
 
             env.milestone(2);
 
             for (int i = 2; i < 9; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
-                env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1"}, new Object[][]{{"E" + (i - 1)}});
-                env.listener("s0").reset();
+                env.assertPropsPerRowNewFlattened("s0", new String[]{"prior1"}, new Object[][]{{"E" + (i - 1)}});
 
                 if (i % 3 == 0) {
                     env.milestone(i + 1);
@@ -203,13 +200,13 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             env.sendEventBean(new SupportBean("E1", 4));
-            Assert.assertEquals(1.0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 1.0);
 
             env.sendEventBean(new SupportBean("E1", 5));
-            Assert.assertEquals(2.5, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 2.5d);
 
             env.undeployAll();
         }
@@ -242,8 +239,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("priorSymbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+            });
 
             sendTimer(env, 0);
             env.assertListenerNotInvoked("s0");
@@ -300,18 +299,20 @@ public class ExprCorePrior {
             sendMarketEvent(env, "D9", 9);
             sendMarketEvent(env, "D10", 10);
             sendMarketEvent(env, "D11", 11);
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             // release batch
             sendTimer(env, 150000);
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            assertNull(env.listener("s0").getLastNewData());
-            assertEquals(5, oldData.length);
-            assertEvent(oldData[0], "D7", "D5", 5d);
-            assertEvent(oldData[1], "D8", "D6", 6d);
-            assertEvent(oldData[2], "D9", "D7", 7d);
-            assertEvent(oldData[3], "D10", "D8", 8d);
-            assertEvent(oldData[4], "D11", "D9", 9d);
+            env.assertListener("s0", listener -> {
+                EventBean[] oldData = listener.getLastOldData();
+                assertNull(listener.getLastNewData());
+                assertEquals(5, oldData.length);
+                assertEvent(oldData[0], "D7", "D5", 5d);
+                assertEvent(oldData[1], "D8", "D6", 6d);
+                assertEvent(oldData[2], "D9", "D7", 7d);
+                assertEvent(oldData[3], "D10", "D8", 8d);
+                assertEvent(oldData[4], "D11", "D9", 9d);
+            });
 
             env.undeployAll();
         }
@@ -326,8 +327,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("priorSymbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+            });
 
             sendMarketEvent(env, "D1", 1, 0);
             assertNewEvents(env, "D1", null, null);
@@ -348,29 +351,39 @@ public class ExprCorePrior {
             assertNewEvents(env, "D6", "D4", 3d);
 
             sendMarketEvent(env, "D7", 7, 60000);
-            assertEvent(env.listener("s0").getLastNewData()[0], "D7", "D5", 4d);
-            assertEvent(env.listener("s0").getLastOldData()[0], "D1", null, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEvent(listener.getLastNewData()[0], "D7", "D5", 4d);
+                assertEvent(listener.getLastOldData()[0], "D1", null, null);
+                listener.reset();
+            });
 
             sendMarketEvent(env, "D8", 8, 61000);
-            assertEvent(env.listener("s0").getLastNewData()[0], "D8", "D6", 5d);
-            assertEvent(env.listener("s0").getLastOldData()[0], "D2", null, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEvent(listener.getLastNewData()[0], "D8", "D6", 5d);
+                assertEvent(listener.getLastOldData()[0], "D2", null, null);
+                listener.reset();
+            });
 
             sendMarketEvent(env, "D9", 9, 63000);
-            assertEvent(env.listener("s0").getLastNewData()[0], "D9", "D7", 6d);
-            assertEvent(env.listener("s0").getLastOldData()[0], "D3", "D1", null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEvent(listener.getLastNewData()[0], "D9", "D7", 6d);
+                assertEvent(listener.getLastOldData()[0], "D3", "D1", null);
+                listener.reset();
+            });
 
             sendMarketEvent(env, "D10", 10, 64000);
-            assertEvent(env.listener("s0").getLastNewData()[0], "D10", "D8", 7d);
-            assertEvent(env.listener("s0").getLastOldData()[0], "D4", "D2", 1d);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEvent(listener.getLastNewData()[0], "D10", "D8", 7d);
+                assertEvent(listener.getLastOldData()[0], "D4", "D2", 1d);
+                listener.reset();
+            });
 
             sendMarketEvent(env, "D10", 10, 150000);
-            EventBean[] oldData = env.listener("s0").getLastOldData();
-            assertEquals(6, oldData.length);
-            assertEvent(oldData[0], "D5", "D3", 2d);
+            env.assertListener("s0", listener -> {
+                EventBean[] oldData = listener.getLastOldData();
+                assertEquals(6, oldData.length);
+                assertEvent(oldData[0], "D5", "D3", 2d);
+            });
 
             env.undeployAll();
         }
@@ -385,8 +398,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("priorSymbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+            });
 
             sendTimer(env, 0);
             env.assertListenerNotInvoked("s0");
@@ -396,22 +411,26 @@ public class ExprCorePrior {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
-            Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
-            assertEvent(env.listener("s0").getLastNewData()[0], "A", null, null);
-            assertEvent(env.listener("s0").getLastNewData()[1], "B", null, null);
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEvent(listener.getLastNewData()[0], "A", null, null);
+                assertEvent(listener.getLastNewData()[1], "B", null, null);
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendTimer(env, 80000);
             sendMarketEvent(env, "C", 3);
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEvent(env.listener("s0").getLastNewData()[0], "C", null, 1d);
-            Assert.assertEquals(2, env.listener("s0").getLastOldData().length);
-            assertEvent(env.listener("s0").getLastOldData()[0], "A", null, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(1, listener.getLastNewData().length);
+                assertEvent(listener.getLastNewData()[0], "C", null, 1d);
+                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEvent(listener.getLastOldData()[0], "A", null, null);
+                listener.reset();
+            });
 
             sendTimer(env, 300000);
             sendMarketEvent(env, "D", 4);
@@ -419,11 +438,13 @@ public class ExprCorePrior {
             sendMarketEvent(env, "F", 6);
             sendMarketEvent(env, "G", 7);
             sendTimer(env, 360000);
-            Assert.assertEquals(4, env.listener("s0").getLastNewData().length);
-            assertEvent(env.listener("s0").getLastNewData()[0], "D", "A", 2d);
-            assertEvent(env.listener("s0").getLastNewData()[1], "E", "B", 3d);
-            assertEvent(env.listener("s0").getLastNewData()[2], "F", "C", 4d);
-            assertEvent(env.listener("s0").getLastNewData()[3], "G", "D", 5d);
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(4, listener.getLastNewData().length);
+                assertEvent(listener.getLastNewData()[0], "D", "A", 2d);
+                assertEvent(listener.getLastNewData()[1], "E", "B", 3d);
+                assertEvent(listener.getLastNewData()[2], "F", "C", 4d);
+                assertEvent(listener.getLastNewData()[3], "G", "D", 5d);
+            });
 
             env.undeployAll();
         }
@@ -438,8 +459,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("priorSymbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+            });
 
             sendMarketEvent(env, "A", 1);
             assertNewEvents(env, "A", null, null);
@@ -508,7 +531,7 @@ public class ExprCorePrior {
                 sendMarketEvent(env, Integer.toString(random.nextInt()), 4);
 
                 if (i % 1000 == 0) {
-                    env.listener("s0").reset();
+                    env.listenerReset("s0");
                 }
             }
 
@@ -539,7 +562,7 @@ public class ExprCorePrior {
                 sendMarketEvent(env, Integer.toString(random.nextInt()), 4);
 
                 if (i % 1000 == 0) {
-                    env.listener("s0").reset();
+                    env.listenerReset("s0");
                 }
             }
 
@@ -577,7 +600,7 @@ public class ExprCorePrior {
                 sendMarketEvent(env, Integer.toString(random.nextInt()), 4);
 
                 if (i % 1000 == 0) {
-                    env.listener("s0").reset();
+                    env.listenerReset("s0");
                 }
             }
 
@@ -600,8 +623,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("prior0Symbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("prior0Price"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prior0Symbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prior0Price"));
+            });
 
             sendMarketEvent(env, "A", 1);
             assertNewEvents(env, "A", "A", 1d, null, null, null, null, null, null);
@@ -611,32 +636,42 @@ public class ExprCorePrior {
             assertNewEvents(env, "C", "C", 3d, "B", 2d, "A", 1d, null, null);
 
             sendMarketEvent(env, "D", 4);
-            EventBean newEvent = env.listener("s0").getLastNewData()[0];
-            EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-            assertEventProps(env, newEvent, "D", "D", 4d, "C", 3d, "B", 2d, "A", 1d);
-            assertEventProps(env, oldEvent, "A", "A", 1d, null, null, null, null, null, null);
+            env.assertListener("s0", listener -> {
+                EventBean newEvent = listener.getLastNewData()[0];
+                EventBean oldEvent = listener.getLastOldData()[0];
+                assertEventProps(env, newEvent, "D", "D", 4d, "C", 3d, "B", 2d, "A", 1d);
+                assertEventProps(env, oldEvent, "A", "A", 1d, null, null, null, null, null, null);
+            });
 
             sendMarketEvent(env, "E", 5);
-            newEvent = env.listener("s0").getLastNewData()[0];
-            oldEvent = env.listener("s0").getLastOldData()[0];
-            assertEventProps(env, newEvent, "E", "E", 5d, "D", 4d, "C", 3d, "B", 2d);
-            assertEventProps(env, oldEvent, "B", "B", 2d, "A", 1d, null, null, null, null);
+            env.assertListener("s0", listener -> {
+                EventBean newEvent = listener.getLastNewData()[0];
+                EventBean oldEvent = listener.getLastOldData()[0];
+                assertEventProps(env, newEvent, "E", "E", 5d, "D", 4d, "C", 3d, "B", 2d);
+                assertEventProps(env, oldEvent, "B", "B", 2d, "A", 1d, null, null, null, null);
+            });
 
             sendMarketEvent(env, "F", 6);
-            newEvent = env.listener("s0").getLastNewData()[0];
-            oldEvent = env.listener("s0").getLastOldData()[0];
-            assertEventProps(env, newEvent, "F", "F", 6d, "E", 5d, "D", 4d, "C", 3d);
-            assertEventProps(env, oldEvent, "C", "C", 3d, "B", 2d, "A", 1d, null, null);
+            env.assertListener("s0", listener -> {
+                EventBean newEvent = listener.getLastNewData()[0];
+                EventBean oldEvent = listener.getLastOldData()[0];
+                assertEventProps(env, newEvent, "F", "F", 6d, "E", 5d, "D", 4d, "C", 3d);
+                assertEventProps(env, oldEvent, "C", "C", 3d, "B", 2d, "A", 1d, null, null);
+            });
 
             sendMarketEvent(env, "G", 7);
-            newEvent = env.listener("s0").getLastNewData()[0];
-            oldEvent = env.listener("s0").getLastOldData()[0];
-            assertEventProps(env, newEvent, "G", "G", 7d, "F", 6d, "E", 5d, "D", 4d);
-            assertEventProps(env, oldEvent, "D", "D", 4d, "C", 3d, "B", 2d, "A", 1d);
+            env.assertListener("s0", listener -> {
+                EventBean newEvent = listener.getLastNewData()[0];
+                EventBean oldEvent = listener.getLastOldData()[0];
+                assertEventProps(env, newEvent, "G", "G", 7d, "F", 6d, "E", 5d, "D", 4d);
+                assertEventProps(env, oldEvent, "D", "D", 4d, "C", 3d, "B", 2d, "A", 1d);
+            });
 
             sendMarketEvent(env, "G", 8);
-            oldEvent = env.listener("s0").getLastOldData()[0];
-            assertEventProps(env, oldEvent, "E", "E", 5d, "D", 4d, "C", 3d, "B", 2d);
+            env.assertListener("s0", listener -> {
+                EventBean oldEvent = listener.getLastOldData()[0];
+                assertEventProps(env, oldEvent, "E", "E", 5d, "D", 4d, "C", 3d, "B", 2d);
+            });
 
             env.undeployAll();
         }
@@ -644,35 +679,32 @@ public class ExprCorePrior {
 
     public static class ExprCorePriorLengthWindowSceneTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String text = "@name('s0') select prior(1, symbol) as prior1, prior(2, symbol) as prior2 from SupportMarketDataBean#length(3)";
             env.compileDeploy(text).addListener("s0");
 
             env.sendEventBean(makeMarketDataEvent("E0"));
             env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{null, null}});
-            env.listener("s0").reset();
 
-            env.milestone(1);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(makeMarketDataEvent("E1"));
             env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{"E0", null}});
-            env.listener("s0").reset();
 
-            env.milestone(2);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(makeMarketDataEvent("E2"));
             env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"}, new Object[][]{{"E1", "E0"}});
-            env.listener("s0").reset();
 
-            env.milestone(3);
+            env.milestoneInc(milestone);
 
             for (int i = 3; i < 9; i++) {
                 env.sendEventBean(makeMarketDataEvent("E" + i));
                 env.assertPropsPerRowNewFlattened("s0",  new String[]{"prior1", "prior2"},
                     new Object[][]{{"E" + (i - 1), "E" + (i - 2)}});
-                env.listener("s0").reset();
 
                 if (i % 3 == 0) {
-                    env.milestone(i);
+                    env.milestoneInc(milestone);
                 }
             }
 
@@ -692,7 +724,7 @@ public class ExprCorePrior {
             sendMarketEvent(env, "C", 10);
             env.assertListenerNotInvoked("s0");
             sendMarketEvent(env, "D", 5);
-            Assert.assertEquals("B", env.listener("s0").assertOneGetNewAndReset().get("currSymbol"));
+            env.assertEqualsNew("s0", "currSymbol", "B");
 
             env.undeployAll();
         }
@@ -736,8 +768,10 @@ public class ExprCorePrior {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("priorSymbol"));
-            Assert.assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("priorPrice"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+            });
 
             sendTimer(env, 0);
             env.assertListenerNotInvoked("s0");
@@ -748,11 +782,13 @@ public class ExprCorePrior {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 60000);
-            Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
-            assertEvent(env.listener("s0").getLastNewData()[0], "X1", null, null);
-            assertEvent(env.listener("s0").getLastNewData()[1], "X1", null, 1d);
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEvent(listener.getLastNewData()[0], "X1", null, null);
+                assertEvent(listener.getLastNewData()[1], "X1", null, 1d);
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendMarketEvent(env, "C1", 11);
             sendMarketEvent(env, "C2", 12);
@@ -760,10 +796,12 @@ public class ExprCorePrior {
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 120000);
-            Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
-            assertEvent(env.listener("s0").getLastNewData()[0], "X1", "A", 2d);
-            assertEvent(env.listener("s0").getLastNewData()[1], "X1", "B", 11d);
-            assertEvent(env.listener("s0").getLastNewData()[2], "X1", "C1", 12d);
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(3, listener.getLastNewData().length);
+                assertEvent(listener.getLastNewData()[0], "X1", "A", 2d);
+                assertEvent(listener.getLastNewData()[1], "X1", "B", 11d);
+                assertEvent(listener.getLastNewData()[2], "X1", "C1", 12d);
+            });
 
             env.undeployAll();
         }
@@ -775,13 +813,13 @@ public class ExprCorePrior {
 
         SupportBean_S0 e1 = new SupportBean_S0(3);
         env.sendEventBean(e1);
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+        env.assertEqualsNew("s0", "result", null);
 
         env.milestone(milestone.getAndIncrement());
 
         env.sendEventBean(new SupportBean_S0(3));
-        Assert.assertEquals(e1, env.listener("s0").assertOneGetNewAndReset().get("result"));
-        Assert.assertEquals(SupportBean_S0.class, env.statement("s0").getEventType().getPropertyType("result"));
+        env.assertEqualsNew("s0", "result", e1);
+        env.assertStatement("s0", statement -> assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("result")));
 
         env.undeployAll();
         path.clear();
@@ -800,33 +838,43 @@ public class ExprCorePrior {
         assertNewEvents(env, "MSFT", "MSFT", 33d, "IBM", 45d, "COX", 30d, null, null);
 
         sendMarketEvent(env, "XXX", 55);
-        EventBean newEvent = env.listener("s0").getLastNewData()[0];
-        EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-        assertEventProps(env, newEvent, "XXX", "XXX", 55d, "MSFT", 33d, "IBM", 45d, "COX", 30d);
-        assertEventProps(env, oldEvent, "XXX", "XXX", 55d, "MSFT", 33d, "IBM", 45d, "COX", 30d);
+        env.assertListener("s0", listener -> {
+            EventBean newEvent = listener.getLastNewData()[0];
+            EventBean oldEvent = listener.getLastOldData()[0];
+            assertEventProps(env, newEvent, "XXX", "XXX", 55d, "MSFT", 33d, "IBM", 45d, "COX", 30d);
+            assertEventProps(env, oldEvent, "XXX", "XXX", 55d, "MSFT", 33d, "IBM", 45d, "COX", 30d);
+        });
 
         sendMarketEvent(env, "BOO", 20);
-        newEvent = env.listener("s0").getLastNewData()[0];
-        oldEvent = env.listener("s0").getLastOldData()[0];
-        assertEventProps(env, newEvent, "BOO", "BOO", 20d, "XXX", 55d, "MSFT", 33d, "IBM", 45d);
-        assertEventProps(env, oldEvent, "MSFT", "MSFT", 33d, "IBM", 45d, "COX", 30d, null, null);
+        env.assertListener("s0", listener -> {
+            EventBean newEvent = listener.getLastNewData()[0];
+            EventBean oldEvent = listener.getLastOldData()[0];
+            assertEventProps(env, newEvent, "BOO", "BOO", 20d, "XXX", 55d, "MSFT", 33d, "IBM", 45d);
+            assertEventProps(env, oldEvent, "MSFT", "MSFT", 33d, "IBM", 45d, "COX", 30d, null, null);
+        });
 
         sendMarketEvent(env, "DOR", 1);
-        newEvent = env.listener("s0").getLastNewData()[0];
-        oldEvent = env.listener("s0").getLastOldData()[0];
-        assertEventProps(env, newEvent, "DOR", "DOR", 1d, "BOO", 20d, "XXX", 55d, "MSFT", 33d);
-        assertEventProps(env, oldEvent, "IBM", "IBM", 45d, "COX", 30d, null, null, null, null);
+        env.assertListener("s0", listener -> {
+            EventBean newEvent = listener.getLastNewData()[0];
+            EventBean oldEvent = listener.getLastOldData()[0];
+            assertEventProps(env, newEvent, "DOR", "DOR", 1d, "BOO", 20d, "XXX", 55d, "MSFT", 33d);
+            assertEventProps(env, oldEvent, "IBM", "IBM", 45d, "COX", 30d, null, null, null, null);
+        });
 
         sendMarketEvent(env, "AAA", 2);
-        newEvent = env.listener("s0").getLastNewData()[0];
-        oldEvent = env.listener("s0").getLastOldData()[0];
-        assertEventProps(env, newEvent, "AAA", "AAA", 2d, "DOR", 1d, "BOO", 20d, "XXX", 55d);
-        assertEventProps(env, oldEvent, "DOR", "DOR", 1d, "BOO", 20d, "XXX", 55d, "MSFT", 33d);
+        env.assertListener("s0", listener -> {
+            EventBean newEvent = listener.getLastNewData()[0];
+            EventBean oldEvent = listener.getLastOldData()[0];
+            assertEventProps(env, newEvent, "AAA", "AAA", 2d, "DOR", 1d, "BOO", 20d, "XXX", 55d);
+            assertEventProps(env, oldEvent, "DOR", "DOR", 1d, "BOO", 20d, "XXX", 55d, "MSFT", 33d);
+        });
 
         sendMarketEvent(env, "AAB", 2);
-        oldEvent = env.listener("s0").getLastOldData()[0];
-        assertEventProps(env, oldEvent, "COX", "COX", 30d, null, null, null, null, null, null);
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean oldEvent = listener.getLastOldData()[0];
+            assertEventProps(env, oldEvent, "COX", "COX", 30d, null, null, null, null, null, null);
+            listener.reset();
+        });
 
         env.undeployAll();
     }
@@ -834,15 +882,17 @@ public class ExprCorePrior {
     private static void assertNewEvents(RegressionEnvironment env, String currSymbol,
                                         String priorSymbol,
                                         Double priorPrice) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        assertEvent(newData[0], currSymbol, priorSymbol, priorPrice);
+            assertEvent(newData[0], currSymbol, priorSymbol, priorPrice);
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void assertEvent(EventBean eventBean,
@@ -863,14 +913,16 @@ public class ExprCorePrior {
                                         Double prior2Price,
                                         String prior3Symbol,
                                         Double prior3Price) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
-        assertEventProps(env, newData[0], currSymbol, prior0Symbol, prior0Price, prior1Symbol, prior1Price, prior2Symbol, prior2Price, prior3Symbol, prior3Price);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
+            assertEventProps(env, newData[0], currSymbol, prior0Symbol, prior0Price, prior1Symbol, prior1Price, prior2Symbol, prior2Price, prior3Symbol, prior3Price);
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void assertEventProps(RegressionEnvironment env, EventBean eventBean,
@@ -893,7 +945,7 @@ public class ExprCorePrior {
         Assert.assertEquals(prior3Symbol, eventBean.get("prior3Symbol"));
         Assert.assertEquals(prior3Price, eventBean.get("prior3Price"));
 
-        env.listener("s0").reset();
+        env.listenerReset("s0");
     }
 
     private static void sendTimer(RegressionEnvironment env, long timeInMSec) {
@@ -923,17 +975,19 @@ public class ExprCorePrior {
     private static void assertOldEvents(RegressionEnvironment env, String currSymbol,
                                         String priorSymbol,
                                         Double priorPrice) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(newData);
-        assertEquals(1, oldData.length);
+            assertNull(newData);
+            assertEquals(1, oldData.length);
 
-        Assert.assertEquals(currSymbol, oldData[0].get("currSymbol"));
-        Assert.assertEquals(priorSymbol, oldData[0].get("priorSymbol"));
-        Assert.assertEquals(priorPrice, oldData[0].get("priorPrice"));
+            Assert.assertEquals(currSymbol, oldData[0].get("currSymbol"));
+            Assert.assertEquals(priorSymbol, oldData[0].get("priorSymbol"));
+            Assert.assertEquals(priorPrice, oldData[0].get("priorPrice"));
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static SupportMarketDataBean makeMarketDataEvent(String symbol) {

@@ -36,11 +36,13 @@ public class ExprCoreDotExpressionDuckTyping implements RegressionExecution {
             {"commonintval", Object.class},
             {"commondoubleval", Double.class}   // this one is strongly typed
         };
-        for (int i = 0; i < rows.length; i++) {
-            EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-            Assert.assertEquals(rows[i][0], prop.getPropertyName());
-            Assert.assertEquals(rows[i][1], prop.getPropertyType());
-        }
+        env.assertStatement("s0", statement -> {
+            for (int i = 0; i < rows.length; i++) {
+                EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                Assert.assertEquals(rows[i][0], prop.getPropertyName());
+                Assert.assertEquals(rows[i][1], prop.getPropertyType());
+            }
+        });
 
         String[] fields = "strval,intval,commonstrval,commonintval,commondoubleval".split(",");
 

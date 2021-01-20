@@ -15,10 +15,12 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -65,9 +67,11 @@ public class ClientRuntimeEPStatement {
             env.sendEventBean(new SupportBean("E2", 1));
             env.statement("s0").addListenerWithReplay(listener);
             EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), new String[]{"theString"}, new Object[][]{{"E1"}, {"E2"}});
-            EPStatement stmt = env.statement("s0");
             env.undeployAll();
-            listener.reset();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 
@@ -85,6 +89,10 @@ public class ClientRuntimeEPStatement {
             tryInvalid(statement, stmt -> stmt.addListener(new SupportUpdateListener()));
             tryInvalid(statement, stmt -> stmt.setSubscriber(this));
             tryInvalid(statement, stmt -> stmt.setSubscriber(this, "somemethod"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

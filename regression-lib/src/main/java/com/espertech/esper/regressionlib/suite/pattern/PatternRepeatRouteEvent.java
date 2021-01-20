@@ -14,12 +14,14 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +35,7 @@ public class PatternRepeatRouteEvent {
     }
 
     /**
-     * Test route of an event within a env.listener("s0").
+     * Test route of an event within a listener.
      * The Listener when it receives an event will generate a single new event
      * that it routes back into the eventService, up to X number of times.
      */
@@ -53,10 +55,14 @@ public class PatternRepeatRouteEvent {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     /**
-     * Test route of multiple events within a env.listener("s0").
+     * Test route of multiple events within a listener.
      * The Listener when it receives an event will generate multiple new events
      * that it routes back into the eventService, up to X number of times.
      */
@@ -82,6 +88,10 @@ public class PatternRepeatRouteEvent {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class PatternRouteTimer implements RegressionExecution {
@@ -105,6 +115,10 @@ public class PatternRepeatRouteEvent {
             assertEquals(1000, eventListener.getCount());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 

@@ -12,8 +12,11 @@ package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.patternassert.*;
+
+import java.util.EnumSet;
 
 public class PatternSuperAndInterfaces implements RegressionExecution {
     private final static String INTERFACE_A = ISupportA.class.getSimpleName();
@@ -29,6 +32,10 @@ public class PatternSuperAndInterfaces implements RegressionExecution {
     private final static String OVERRIDE_ONE = SupportOverrideOne.class.getSimpleName();
     private final static String OVERRIDE_ONEA = SupportOverrideOneA.class.getSimpleName();
     private final static String OVERRIDE_ONEB = SupportOverrideOneB.class.getSimpleName();
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+    }
 
     public void run(RegressionEnvironment env) {
         EventCollection events = EventCollectionFactory.getSetFiveInterfaces();

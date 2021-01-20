@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.support.sales;
 
-public class Person {
+import java.io.Serializable;
+
+public class Person implements Serializable {
+    private static final long serialVersionUID = -239606683377262323L;
     private String name;
     private int age;
 

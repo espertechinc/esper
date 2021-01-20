@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -60,7 +59,7 @@ public class InfraNWTableOnUpdate {
                 "@name('create') create window MyInfra#keepall() as (value int)" :
                 "@name('create') create table MyInfra(value int)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
-            env.compileExecuteFAF("insert into MyInfra select 0 as value", path);
+            env.compileExecuteFAFNoResult("insert into MyInfra select 0 as value", path);
 
             String epl = "on SupportBean update MyInfra set value = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array)";
             env.compileDeploy(epl, path);
@@ -84,7 +83,7 @@ public class InfraNWTableOnUpdate {
 
         private void assertUpdate(RegressionEnvironment env, Integer expected) {
             env.sendEventBean(new SupportBean());
-            assertEquals(expected, env.iterator("create").next().get("value"));
+            env.assertIterator("create", iterator -> assertEquals(expected, iterator.next().get("value")));
         }
 
         public String name() {
@@ -124,31 +123,27 @@ public class InfraNWTableOnUpdate {
             // create onUpdate
             String stmtTextOnUpdate = "@name('update') on SupportBean_S0 update MyInfra set theString = p00 where intPrimitive = id";
             env.compileDeploy(stmtTextOnUpdate, path).addListener("update");
-            assertEquals(StatementType.ON_UPDATE, env.statement("update").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("update", statement -> assertEquals(StatementType.ON_UPDATE, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1, "X1"));
-            EPAssertionUtil.assertProps(env.listener("update").assertOneGetOld(), fields, new Object[]{"A1", 1});
-            EPAssertionUtil.assertProps(env.listener("update").getLastNewData()[0], fields, new Object[]{"X1", 1});
-            env.listener("update").reset();
+            env.assertPropsIRPair("update", fields, new Object[]{"X1", 1}, new Object[]{"A1", 1});
             if (namedWindow) {
-                EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"B2", 2}, {"X1", 1}});
+                env.assertPropsPerRowIterator("create", fields, new Object[][]{{"B2", 2}, {"X1", 1}});
             } else {
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"B2", 2}, {"X1", 1}});
+                env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"B2", 2}, {"X1", 1}});
             }
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S0(2, "X2"));
-            EPAssertionUtil.assertProps(env.listener("update").assertOneGetOld(), fields, new Object[]{"B2", 2});
-            EPAssertionUtil.assertProps(env.listener("update").getLastNewData()[0], fields, new Object[]{"X2", 2});
-            env.listener("update").reset();
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"X1", 1}, {"X2", 2}});
+            env.assertPropsIRPair("update", fields, new Object[]{"X2", 2}, new Object[]{"B2", 2});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"X1", 1}, {"X2", 2}});
 
             env.milestone(3);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"X1", 1}, {"X2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"X1", 1}, {"X2", 2}});
 
             env.undeployModuleContaining("insert");
             env.undeployModuleContaining("update");
@@ -188,18 +183,18 @@ public class InfraNWTableOnUpdate {
 
             env.sendEventBean(makeSupportBean("E1", 1, 2));
             env.sendEventBean(new SupportBean_S0(5, "E1"));
-            EPAssertionUtil.assertProps(env.listener("update").getAndResetLastNewData()[0], fields, new Object[]{5, 5, 1.0});
+            env.assertPropsPerRowLastNew("update", fields, new Object[][]{{5, 5, 1.0}});
 
             env.milestone(0);
 
             env.sendEventBean(makeSupportBean("E2", 10, 20));
             env.sendEventBean(new SupportBean_S0(6, "E2"));
-            EPAssertionUtil.assertProps(env.listener("update").getAndResetLastNewData()[0], fields, new Object[]{6, 6, 10.0});
+            env.assertPropsPerRowLastNew("update", fields, new Object[][]{{6, 6, 10.0}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(7, "E1"));
-            EPAssertionUtil.assertProps(env.listener("update").getAndResetLastNewData()[0], fields, new Object[]{7, 7, 5.0});
+            env.assertPropsPerRowLastNew("update", fields, new Object[][]{{7, 7, 5.0}});
 
             env.undeployAll();
         }
@@ -244,7 +239,7 @@ public class InfraNWTableOnUpdate {
             env.sendEventBean(new SupportBean_A("E1"));
             env.sendEventBean(new SupportBean_A("E2"));
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 3}, {"E2", 7}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "theString,intPrimitive".split(","), new Object[][]{{"E1", 3}, {"E2", 7}});
             env.undeployAll();
         }
 

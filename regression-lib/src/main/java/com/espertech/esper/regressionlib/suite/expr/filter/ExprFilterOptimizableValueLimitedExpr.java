@@ -19,19 +19,22 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterPlanHook;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.*;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcByTypeSingle;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.assertFilterSvcSingle;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ExprFilterOptimizableValueLimitedExpr {
@@ -62,7 +65,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(1, "a", "b"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", IN_LIST_OF_VALUES);
+                assertFilterSvcSingle(env, "s0", "theString", IN_LIST_OF_VALUES);
             }
 
             sendSBAssert(env, "ab", true);
@@ -76,23 +79,24 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     private static class ExprFilterOptValInRangeWCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive in [a.id - 2 : b.id + 2])];\n";
-            runAssertionInRange(env, epl, false);
+            runAssertionInRange(env, epl, false, milestone);
 
             epl = "@name('s0') select * from pattern [" +
                 "a=SupportBean_S0 -> b=SupportBean_S1 -> every SupportBean(longPrimitive not in [a.id - 2 : b.id + 2])];\n";
-            runAssertionInRange(env, epl, true);
+            runAssertionInRange(env, epl, true, milestone);
         }
 
-        private void runAssertionInRange(RegressionEnvironment env, String epl, boolean not) {
+        private void runAssertionInRange(RegressionEnvironment env, String epl, boolean not, AtomicInteger milestone) {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(10));
             env.sendEventBean(new SupportBean_S1(200));
 
-            env.milestone(0);
+            env.milestoneInc(milestone);
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "longPrimitive", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
+                assertFilterSvcSingle(env, "s0", "longPrimitive", not ? NOT_RANGE_CLOSED : RANGE_CLOSED);
             }
 
             sendSBAssert(env, 7, not);
@@ -117,7 +121,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.milestone(0);
 
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "longPrimitive", IN_LIST_OF_VALUES);
+                assertFilterSvcSingle(env, "s0", "longPrimitive", IN_LIST_OF_VALUES);
             }
 
             sendSBAssert(env, 0, false);
@@ -135,7 +139,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean("E1", 1));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "theString", EQUAL);
+                assertFilterSvcSingle(env, "s0", "theString", EQUAL);
             }
             env.sendEventBean(new SupportBean("E1", 2));
             env.assertPropsNew("s0", "a.intPrimitive,b.intPrimitive".split(","), new Object[]{1, 2});
@@ -158,7 +162,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             String epl = "@name('s0') select * from SupportBean(doublePrimitive = Integer.parseInt('10') + Long.parseLong('20'))";
             env.compileDeploy(epl).addListener("s0");
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcSingle(env.statement("s0"), "doublePrimitive", EQUAL);
+                assertFilterSvcSingle(env, "s0", "doublePrimitive", EQUAL);
             }
 
             sendSBAssert(env, 30d, true);
@@ -172,8 +176,9 @@ public class ExprFilterOptimizableValueLimitedExpr {
     public static class ExprFilterOptValEqualsConstantVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String variable = "create constant variable string MYCONST = 'a';\n";
-            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(theString = MYCONST || 'x')", EQUAL);
-            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(MYCONST || 'x' = theString)", EQUAL);
+            AtomicInteger milestone = new AtomicInteger();
+            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(theString = MYCONST || 'x')", EQUAL, milestone);
+            tryDeployAndAssertionSB(env, variable + "@name('s0') select * from SupportBean(MYCONST || 'x' = theString)", EQUAL, milestone);
         }
     }
 
@@ -182,16 +187,17 @@ public class ExprFilterOptimizableValueLimitedExpr {
             String epl = "@name('s0') select * from SupportBean(theString = ?::string)";
             EPCompiled compiled = env.compile(epl);
             DeploymentOptions options = new DeploymentOptions();
-            options.setStatementSubstitutionParameter(opt -> opt.setObject(1, "ax"));
+            options.setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, "ax"));
             env.deploy(compiled, options).addListener("s0");
-            runAssertionSB(env, epl, EQUAL);
+            runAssertionSB(env, epl, EQUAL, new AtomicInteger());
         }
     }
 
     public static class ExprFilterOptValEqualsIsConstant implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean(theString = 'a' || 'x')", EQUAL);
-            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean('a' || 'x' is theString)", IS);
+            AtomicInteger milestone = new AtomicInteger();
+            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean(theString = 'a' || 'x')", EQUAL, milestone);
+            tryDeployAndAssertionSB(env, "@name('s0') select * from SupportBean('a' || 'x' is theString)", IS, milestone);
         }
     }
 
@@ -202,7 +208,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(0, "a", "x"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             sendSBAssert(env, "a", false);
@@ -226,7 +232,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(2));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             sendSBAssert(env, "a", false);
@@ -244,7 +250,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(2, "x"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             sendSBAssert(env, "a", false);
@@ -263,7 +269,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.sendEventBean(new SupportBean_S0(2, "b"));
             env.sendEventBean(new SupportBean_S1(2, "x"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             sendSBAssert(env, "a", false);
@@ -290,7 +296,7 @@ public class ExprFilterOptimizableValueLimitedExpr {
             env.compileDeploy(epl).addListener("s0");
             env.sendEventBean(new SupportBean_S0(0, "a", "x"));
             if (hasFilterIndexPlanAdvanced(env)) {
-                assertFilterSvcByTypeSingle(env.statement("s0"), "SupportBean", new FilterItem("theString", EQUAL));
+                assertFilterSvcByTypeSingle(env, "s0", "SupportBean", new FilterItem("theString", EQUAL));
             }
 
             sendSBAssert(env, "a", false);
@@ -338,22 +344,26 @@ public class ExprFilterOptimizableValueLimitedExpr {
             assertDisqualified(env, path, "SupportBean", "theString = MyJavaScript('a')");
             assertDisqualified(env, path, "SupportBean", "theString = MyHandThrough('a')");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
-    private static void tryDeployAndAssertionSB(RegressionEnvironment env, String epl, FilterOperator op) {
+    private static void tryDeployAndAssertionSB(RegressionEnvironment env, String epl, FilterOperator op, AtomicInteger milestone) {
         env.compileDeploy(epl).addListener("s0");
-        runAssertionSB(env, epl, op);
+        runAssertionSB(env, epl, op, milestone);
     }
 
-    private static void runAssertionSB(RegressionEnvironment env, String epl, FilterOperator op) {
+    private static void runAssertionSB(RegressionEnvironment env, String epl, FilterOperator op, AtomicInteger milestone) {
         if (hasFilterIndexPlanAdvanced(env)) {
-            assertFilterSvcSingle(env.statement("s0"), "theString", op);
+            assertFilterSvcSingle(env, "s0", "theString", op);
         }
 
         sendSBAssert(env, "ax", true);
         sendSBAssert(env, "a", false);
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         sendSBAssert(env, "bx", false);
         sendSBAssert(env, "ax", true);
@@ -374,27 +384,27 @@ public class ExprFilterOptimizableValueLimitedExpr {
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, boolean received) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void sendSBAssert(RegressionEnvironment env, double doublePrimitive, boolean received) {
         SupportBean sb = new SupportBean("E", 0);
         sb.setDoublePrimitive(doublePrimitive);
         env.sendEventBean(sb);
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void sendSBAssert(RegressionEnvironment env, long longPrimitive, boolean received) {
         SupportBean sb = new SupportBean("E", 0);
         sb.setLongPrimitive(longPrimitive);
         env.sendEventBean(sb);
-        assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", received);
     }
 
     private static void runAssertionRelOpCoercion(RegressionEnvironment env, String epl) {
         env.compileDeploy(epl).addListener("s0");
         if (hasFilterIndexPlanAdvanced(env)) {
-            assertFilterSvcSingle(env.statement("s0"), "doublePrimitive", LESS);
+            assertFilterSvcSingle(env, "s0", "doublePrimitive", LESS);
         }
 
         sendSBAssert(env, 3d, true);

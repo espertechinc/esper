@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -118,8 +116,7 @@ public class EPLSubselectAllAnySomeExpr {
             env.assertPropsNew("s0", fields, new Object[]{null, true});
 
             sendEvent(env, "E7", 0, null);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, fields, new Object[]{false, false});
+            env.assertPropsNew("s0", fields, new Object[]{false, false});
 
             env.undeployAll();
         }

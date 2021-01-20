@@ -14,8 +14,10 @@ import com.espertech.esper.common.client.json.util.EventSenderJson;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class EventJsonEventSender {
@@ -37,9 +39,13 @@ public class EventJsonEventSender {
             JsonEventObject underlying = (JsonEventObject) sender.parse("{\"p1\": \"abc\"}");
 
             sender.sendEvent(underlying);
-            env.listener("s0").assertInvokedAndReset();
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 }

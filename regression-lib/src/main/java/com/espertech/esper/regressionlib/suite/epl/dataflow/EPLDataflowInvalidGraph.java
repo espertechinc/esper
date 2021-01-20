@@ -20,10 +20,12 @@ import com.espertech.esper.common.internal.epl.dataflow.interfaces.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
@@ -143,6 +145,10 @@ public class EPLDataflowInvalidGraph {
             env.tryInvalidCompile(epl,
                 "Schema name 'ABC' is declared more then once [");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLDataflowInvalidInstantiate implements RegressionExecution {
@@ -153,6 +159,10 @@ public class EPLDataflowInvalidGraph {
                 "MySBInputOp(out1) {}";
             tryInvalidInstantiate(env, "MyGraph", epl,
                 "Failed to instantiate data flow 'MyGraph': Failed to find onInput method on for operator 'MySBInputOp#1(out1)' class " + MySBInputOp.class.getName() + ", expected an onInput method that takes any of {Object, Object[");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY, RegressionFlag.DATAFLOW);
         }
     }
 

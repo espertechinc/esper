@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -22,8 +21,6 @@ import com.espertech.esper.regressionlib.support.util.ArrayHandlingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertNotNull;
 
 public class EPLOuterJoinVarB3Stream {
 
@@ -113,7 +110,7 @@ public class EPLOuterJoinVarB3Stream {
 
         s0Events = SupportBean_S0.makeS0("B", new String[]{"B-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{{s0Events[0], null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], null, s2Events[0]}});
 
         // Test s0 ... s1 with 1 rows, s2 with 1 rows
         //
@@ -128,7 +125,7 @@ public class EPLOuterJoinVarB3Stream {
 
         s0Events = SupportBean_S0.makeS0("C", new String[]{"C-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{{s0Events[0], s1Events[0], s2Events[0]}});
 
         // Test s0 ... s1 with 2 rows, s2 with 1 rows
         //
@@ -141,9 +138,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s0Events = SupportBean_S0.makeS0("D", new String[]{"D-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
-            {s0Events[0], s1Events[1], s2Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[0]}});
 
         // Test s0 ... s1 with 2 rows, s2 with 2 rows
         //
@@ -156,11 +153,11 @@ public class EPLOuterJoinVarB3Stream {
 
         s0Events = SupportBean_S0.makeS0("E", new String[]{"E-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[1], s2Events[0]},
             {s0Events[0], s1Events[0], s2Events[1]},
-            {s0Events[0], s1Events[1], s2Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[1]}});
 
         // Test s0 ... s1 with 0 rows, s2 with 2 rows
         //
@@ -169,9 +166,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s0Events = SupportBean_S0.makeS0("F", new String[]{"F-s0-1"});
         sendEvent(env, s0Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], null, s2Events[0]},
-            {s0Events[0], null, s2Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], null, s2Events[1]}});
 
         // Test s1 ... s0 with 0 rows, s2 with 1 rows
         //
@@ -201,8 +198,8 @@ public class EPLOuterJoinVarB3Stream {
 
         s1Events = SupportBean_S1.makeS1("J", new String[]{"J-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
-            {s0Events[0], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], s1Events[0], s2Events[0]}});
 
         // Test s1 ... s0 with 1 rows, s2 with 2 rows
         //
@@ -216,9 +213,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s1Events = SupportBean_S1.makeS1("K", new String[]{"K-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
-            {s0Events[0], s1Events[0], s2Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[0], s2Events[1]}});
 
         // Test s1 ... s0 with 2 rows, s2 with 2 rows
         //
@@ -230,11 +227,11 @@ public class EPLOuterJoinVarB3Stream {
 
         s1Events = SupportBean_S1.makeS1("L", new String[]{"L-s1-1"});
         sendEvent(env, s1Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[0], s2Events[1]},
             {s0Events[1], s1Events[0], s2Events[0]},
-            {s0Events[1], s1Events[0], s2Events[1]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[0], s2Events[1]}});
 
         // Test s2 ... s0 with 0 rows, s1 with 1 rows
         //
@@ -243,8 +240,8 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("P", new String[]{"P-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
-            {null, null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {null, null, s2Events[0]}});
 
         // Test s2 ... s1 with 0 rows, s0 with 1 rows
         //
@@ -253,8 +250,8 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("Q", new String[]{"Q-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
-            {s0Events[0], null, s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], null, s2Events[0]}});
 
         // Test s2 ... s1 with 1 rows, s0 with 1 rows
         //
@@ -266,8 +263,8 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("R", new String[]{"R-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
-            {s0Events[0], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+        assertListenerUnd(env, new Object[][]{
+            {s0Events[0], s1Events[0], s2Events[0]}});
 
         // Test s2 ... s1 with 2 rows, s0 with 1 rows
         //
@@ -279,9 +276,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("S", new String[]{"S-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
-            {s0Events[0], s1Events[1], s2Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[0], s1Events[1], s2Events[0]}});
 
         // Test s2 ... s1 with 0 rows, s0 with 2 rows
         //
@@ -290,9 +287,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("T", new String[]{"T-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], null, s2Events[0]},
-            {s0Events[1], null, s2Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[1], null, s2Events[0]}});
 
         // Test s2 ... s1 with 1 rows, s0 with 2 rows
         //
@@ -304,9 +301,9 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("U", new String[]{"U-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
-            {s0Events[1], s1Events[0], s2Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[0], s2Events[0]}});
 
         // Test s2 ... s1 with 2 rows, s0 with 2 rows
         //
@@ -318,18 +315,18 @@ public class EPLOuterJoinVarB3Stream {
 
         s2Events = SupportBean_S2.makeS2("V", new String[]{"V-s2-1"});
         sendEvent(env, s2Events);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[][]{
+        assertListenerUnd(env, new Object[][]{
             {s0Events[0], s1Events[0], s2Events[0]},
             {s0Events[0], s1Events[1], s2Events[0]},
             {s0Events[1], s1Events[0], s2Events[0]},
-            {s0Events[1], s1Events[1], s2Events[0]}}, getAndResetNewEvents(env));
+            {s0Events[1], s1Events[1], s2Events[0]}});
 
         env.undeployAll();
     }
 
     private static void sendEventsAndReset(RegressionEnvironment env, Object[] events) {
         sendEvent(env, events);
-        env.listener("s0").reset();
+        env.listenerReset("s0");
     }
 
     private static void sendEvent(RegressionEnvironment env, Object[] events) {
@@ -338,10 +335,10 @@ public class EPLOuterJoinVarB3Stream {
         }
     }
 
-    private static Object[][] getAndResetNewEvents(RegressionEnvironment env) {
-        EventBean[] newEvents = env.listener("s0").getLastNewData();
-        assertNotNull("no events received", newEvents);
-        env.listener("s0").reset();
-        return ArrayHandlingUtil.getUnderlyingEvents(newEvents, new String[]{"s0", "s1", "s2"});
+    private static void assertListenerUnd(RegressionEnvironment env, Object[][] expected) {
+        env.assertListener("s0", listener -> {
+            Object[][] und = ArrayHandlingUtil.getUnderlyingEvents(listener.getAndResetLastNewData(), new String[]{"s0", "s1", "s2"});
+            EPAssertionUtil.assertEqualsAnyOrder(expected, und);
+        });
     }
 }

@@ -14,8 +14,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanFinal;
 
-import static org.junit.Assert.assertEquals;
-
 public class EventBeanFinalClass implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -24,7 +22,7 @@ public class EventBeanFinalClass implements RegressionExecution {
 
         SupportBeanFinal theEvent = new SupportBeanFinal(10);
         env.sendEventBean(theEvent, "MyFinalEvent");
-        assertEquals(10, env.listener("s0").getLastNewData()[0].get("intPrimitive"));
+        env.assertEqualsNew("s0", "intPrimitive", 10);
 
         env.undeployAll();
     }

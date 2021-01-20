@@ -35,9 +35,11 @@ public class ExprDTPerfIntervalOps implements RegressionExecution {
         env.compileDeploy("@name('create') create window AWindow#keepall as SupportTimeStartEndA", path);
         env.compileDeploy("insert into AWindow select * from SupportTimeStartEndA", path);
 
-        EventType eventTypeNW = env.statement("create").getEventType();
-        assertEquals("longdateStart", eventTypeNW.getStartTimestampPropertyName());
-        assertEquals("longdateEnd", eventTypeNW.getEndTimestampPropertyName());
+        env.assertStatement("create", statement -> {
+            EventType eventTypeNW = statement.getEventType();
+            assertEquals("longdateStart", eventTypeNW.getStartTimestampPropertyName());
+            assertEquals("longdateEnd", eventTypeNW.getEndTimestampPropertyName());
+        });
 
         // preload
         for (int i = 0; i < 10000; i++) {
@@ -119,7 +121,7 @@ public class ExprDTPerfIntervalOps implements RegressionExecution {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(SupportTimeStartEndB.make("B", timestampB, durationB));
-            assertEquals(expectedAKey, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expectedAKey);
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;

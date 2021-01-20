@@ -16,10 +16,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -63,7 +65,7 @@ public class InfraNamedWindowOnUpdate {
             env.sendEventBean(new SupportEventWithIntArray("IDX", new int[] {1}, 14));
             env.sendEventBean(new SupportEventWithIntArray("ID1", new int[] {1, 2, 3}, 15));
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "id,value".split(","),
+            env.assertPropsPerRowIteratorAnyOrder("create", "id,value".split(","),
                 new Object[][] {{"ID1", 12}, {"ID2", 10}, {"ID3", 11}});
 
             env.undeployAll();
@@ -92,7 +94,7 @@ public class InfraNamedWindowOnUpdate {
             env.sendEventBean(new SupportEventWithIntArray("U3", new int[] {}, 12));
             env.sendEventBean(new SupportEventWithIntArray("U4", new int[] {1, 2}, 13));
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "id,value".split(","),
+            env.assertPropsPerRowIteratorAnyOrder("create", "id,value".split(","),
                 new Object[][] {{"E1", 13}, {"E2", 10}, {"E3", 11}, {"E4", 12}});
 
             env.undeployAll();
@@ -107,7 +109,7 @@ public class InfraNamedWindowOnUpdate {
             env.compileDeploy(epl);
             env.sendEventBean(new SupportBean("E1", 100));
             env.sendEventBean(new SupportBean_S0(-1));
-            EPAssertionUtil.assertProps(env.iterator("window").next(), new String[]{"theString", "p0"}, new Object[]{"x", 2});
+            env.assertPropsPerRowIterator("window", new String[]{"theString", "p0"}, new Object[][]{{"x", 2}});
 
             env.undeployAll();
         }
@@ -121,9 +123,13 @@ public class InfraNamedWindowOnUpdate {
             env.compileDeploy(epl);
             env.sendEventBean(new SupportBeanCopyMethod("a", "b"));
             env.sendEventBean(new SupportBean());
-            assertEquals("x", env.iterator("window").next().get("valOne"));
+            env.assertIterator("window", iterator -> assertEquals("x", iterator.next().get("valOne")));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -140,7 +146,7 @@ public class InfraNamedWindowOnUpdate {
             String[] fields = "intPrimitive,longPrimitive".split(",");
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertProps(env.listener("update").getAndResetLastNewData()[0], fields, new Object[]{10, 999L});
+            env.assertPropsPerRowLastNew("update", fields, new Object[][]{{10, 999L}});
 
             env.undeployAll();
         }
@@ -156,16 +162,18 @@ public class InfraNamedWindowOnUpdate {
             env.sendEventBean(new SupportBean("E1", 2));
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean_A("E2"));
-            EventBean[] newevents = env.listener("create").getLastNewData();
-            EventBean[] oldevents = env.listener("create").getLastOldData();
+            env.assertListener("create", listener -> {
+                EventBean[] newevents = listener.getLastNewData();
+                EventBean[] oldevents = listener.getLastOldData();
 
-            assertEquals(1, newevents.length);
-            EPAssertionUtil.assertProps(newevents[0], "intPrimitive".split(","), new Object[]{300});
-            assertEquals(1, oldevents.length);
-            oldevents = EPAssertionUtil.sort(oldevents, "theString");
-            EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
+                assertEquals(1, newevents.length);
+                EPAssertionUtil.assertProps(newevents[0], "intPrimitive".split(","), new Object[]{300});
+                assertEquals(1, oldevents.length);
+                oldevents = EPAssertionUtil.sort(oldevents, "theString");
+                EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
+            });
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
+            env.assertPropsPerRowIteratorAnyOrder("create", "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
 
             env.undeployAll();
         }
@@ -181,16 +189,19 @@ public class InfraNamedWindowOnUpdate {
             env.sendEventBean(new SupportBean("E1", 2));
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean_A("E2"));
-            EventBean[] newevents = env.listener("create").getLastNewData();
-            EventBean[] oldevents = env.listener("create").getLastOldData();
+            env.assertListener("create", listener -> {
+                EventBean[] newevents = listener.getLastNewData();
+                EventBean[] oldevents = listener.getLastOldData();
 
-            assertEquals(1, newevents.length);
-            EPAssertionUtil.assertProps(newevents[0], "intPrimitive".split(","), new Object[]{300});
-            assertEquals(1, oldevents.length);
-            EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
-
-            EventBean[] events = EPAssertionUtil.sort(env.iterator("create"), "theString");
-            EPAssertionUtil.assertPropsPerRow(events, "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
+                assertEquals(1, newevents.length);
+                EPAssertionUtil.assertProps(newevents[0], "intPrimitive".split(","), new Object[]{300});
+                assertEquals(1, oldevents.length);
+                EPAssertionUtil.assertPropsPerRow(oldevents, "theString,intPrimitive".split(","), new Object[][]{{"E2", 3}});
+            });
+            env.assertIterator("create", iterator -> {
+                EventBean[] events = EPAssertionUtil.sort(iterator, "theString");
+                EPAssertionUtil.assertPropsPerRow(events, "theString,intPrimitive".split(","), new Object[][]{{"E1", 2}, {"E2", 300}});
+            });
 
             env.undeployAll();
         }
@@ -204,10 +215,10 @@ public class InfraNamedWindowOnUpdate {
             env.compileDeploy(epl).addListener("create");
 
             env.sendEventBean(new SupportBeanAbstractSub("value2"));
-            env.listener("create").reset();
+            env.listenerReset("create");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("create").getLastNewData()[0], new String[]{"v1", "v2"}, new Object[]{"E1", "E1"});
+            env.assertPropsPerRowLastNew("create", new String[]{"v1", "v2"}, new Object[][]{{"E1", "E1"}});
 
             env.undeployAll();
         }

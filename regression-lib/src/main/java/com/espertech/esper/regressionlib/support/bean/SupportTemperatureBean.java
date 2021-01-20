@@ -10,7 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class SupportTemperatureBean {
+import java.io.Serializable;
+
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportTemperatureBean implements Serializable {
+    private static final long serialVersionUID = -7708003300834316969L;
     private String geom;
 
     private SupportTemperatureBean() {

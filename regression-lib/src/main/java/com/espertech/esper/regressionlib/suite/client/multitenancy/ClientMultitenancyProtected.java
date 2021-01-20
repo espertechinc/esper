@@ -14,8 +14,10 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -66,6 +68,10 @@ public class ClientMultitenancyProtected {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientMultitenancyProtectedVariable implements RegressionExecution {
@@ -93,6 +99,10 @@ public class ClientMultitenancyProtected {
 
             env.undeploy(idTwo);
             assertNull(env.runtime().getDeploymentService().getStatement(idTwo, "create"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -123,6 +133,10 @@ public class ClientMultitenancyProtected {
             assertContext(env, idTwo, 4);
 
             env.undeploy(idTwo);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -160,6 +174,10 @@ public class ClientMultitenancyProtected {
 
             env.undeploy(idTwo);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientMultitenancyProtectedExpr implements RegressionExecution {
@@ -182,6 +200,10 @@ public class ClientMultitenancyProtected {
             assertSelect(env, idTwo, 2);
 
             env.undeploy(idTwo);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

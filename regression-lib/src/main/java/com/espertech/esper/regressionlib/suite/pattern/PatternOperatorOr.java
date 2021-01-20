@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.pattern;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -68,11 +67,13 @@ public class PatternOperatorOr {
             tryOrAndNot(env, "a=SupportBean_A -> (b=SupportBean_B or not SupportBean_B)", milestone);
 
             // try zero-time start
-            env.advanceTime(0);
-            SupportUpdateListener listener = new SupportUpdateListener();
-            env.compileDeploy("@name('s0') select * from pattern [timer:interval(0) or every timer:interval(1 min)]").statement("s0").addListenerWithReplay(listener);
-            assertTrue(listener.isInvoked());
-            env.undeployAll();
+            env.assertThat(() -> {
+                env.advanceTime(0);
+                SupportUpdateListener listener = new SupportUpdateListener();
+                env.compileDeploy("@name('s0') select * from pattern [timer:interval(0) or every timer:interval(1 min)]").statement("s0").addListenerWithReplay(listener);
+                assertTrue(listener.isInvoked());
+                env.undeployAll();
+            });
         }
     }
 
@@ -176,17 +177,19 @@ public class PatternOperatorOr {
 
         Object eventA1 = new SupportBean_A("A1");
         env.sendEventBean(eventA1);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals(eventA1, theEvent.get("a"));
-        assertNull(theEvent.get("b"));
+        env.assertEventNew("s0", theEvent -> {
+            Assert.assertEquals(eventA1, theEvent.get("a"));
+            assertNull(theEvent.get("b"));
+        });
 
         env.milestoneInc(milestone);
 
         Object eventB1 = new SupportBean_B("B1");
         env.sendEventBean(eventB1);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals(eventA1, theEvent.get("a"));
-        Assert.assertEquals(eventB1, theEvent.get("b"));
+        env.assertEventNew("s0", theEvent -> {
+            Assert.assertEquals(eventA1, theEvent.get("a"));
+            Assert.assertEquals(eventB1, theEvent.get("b"));
+        });
 
         env.undeployAll();
     }

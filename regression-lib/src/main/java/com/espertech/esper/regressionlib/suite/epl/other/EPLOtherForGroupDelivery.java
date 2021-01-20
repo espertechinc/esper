@@ -17,10 +17,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -53,11 +55,13 @@ public class EPLOtherForGroupDelivery {
 
             env.advanceTime(1000);
 
-            List<EventBean[]> received = env.listener("s0").getNewDataList();
-            assertEquals(3, received.size());
-            EPAssertionUtil.assertPropsPerRow(received.get(0), fields, new Object[][]{{"E1", 1, 10L}, {"E5", 1, 10L}});
-            EPAssertionUtil.assertPropsPerRow(received.get(1), fields, new Object[][]{{"E2", 2, 10L}, {"E4", 2, 10L}});
-            EPAssertionUtil.assertPropsPerRow(received.get(2), fields, new Object[][]{{"E3", 1, 11L}});
+            env.assertListener("s0", listener -> {
+                List<EventBean[]> received = listener.getNewDataList();
+                assertEquals(3, received.size());
+                EPAssertionUtil.assertPropsPerRow(received.get(0), fields, new Object[][]{{"E1", 1, 10L}, {"E5", 1, 10L}});
+                EPAssertionUtil.assertPropsPerRow(received.get(1), fields, new Object[][]{{"E2", 2, 10L}, {"E4", 2, 10L}});
+                EPAssertionUtil.assertPropsPerRow(received.get(2), fields, new Object[][]{{"E3", 1, 11L}});
+            });
 
             env.undeployAll();
         }
@@ -79,11 +83,13 @@ public class EPLOtherForGroupDelivery {
 
             env.advanceTime(1000);
 
-            List<EventBean[]> received = env.listener("s0").getNewDataList();
-            assertEquals(3, received.size());
-            EPAssertionUtil.assertPropsPerRow(received.get(0), fields, new Object[][]{{"E1", new int[]{1, 2}}, {"E3", new int[]{1, 2}}});
-            EPAssertionUtil.assertPropsPerRow(received.get(1), fields, new Object[][]{{"E2", new int[]{1, 3}}});
-            EPAssertionUtil.assertPropsPerRow(received.get(2), fields, new Object[][]{{"E4", new int[]{1, 4}}, {"E5", new int[]{1, 4}}});
+            env.assertListener("s0", listener -> {
+                List<EventBean[]> received = listener.getNewDataList();
+                assertEquals(3, received.size());
+                EPAssertionUtil.assertPropsPerRow(received.get(0), fields, new Object[][]{{"E1", new int[]{1, 2}}, {"E3", new int[]{1, 2}}});
+                EPAssertionUtil.assertPropsPerRow(received.get(1), fields, new Object[][]{{"E2", new int[]{1, 3}}});
+                EPAssertionUtil.assertPropsPerRow(received.get(2), fields, new Object[][]{{"E4", new int[]{1, 4}}, {"E5", new int[]{1, 4}}});
+            });
 
             env.undeployAll();
         }
@@ -150,6 +156,10 @@ public class EPLOtherForGroupDelivery {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class EPLOtherDiscreteDelivery implements RegressionExecution {
@@ -161,10 +171,12 @@ public class EPLOtherForGroupDelivery {
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 1));
             sendTimer(env, 1000);
-            assertEquals(3, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(2), "theString,intPrimitive".split(","), new Object[][]{{"E3", 1}});
+            env.assertListener("s0", listener -> {
+                assertEquals(3, listener.getNewDataList().size());
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(2), "theString,intPrimitive".split(","), new Object[][]{{"E3", 1}});
+            });
             env.undeployAll();
 
             // test no-event delivery
@@ -177,6 +189,10 @@ public class EPLOtherForGroupDelivery {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -192,11 +208,13 @@ public class EPLOtherForGroupDelivery {
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 1));
             sendTimer(env, 1000);
-            assertEquals(2, env.listener("s0").getNewDataList().size());
-            assertEquals(2, env.listener("s0").getNewDataList().get(0).length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}, {"E3", 1}});
-            assertEquals(1, env.listener("s0").getNewDataList().get(1).length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
+            env.assertListener("s0", listener -> {
+                assertEquals(2, listener.getNewDataList().size());
+                assertEquals(2, listener.getNewDataList().get(0).length);
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}, {"E3", 1}});
+                assertEquals(1, listener.getNewDataList().get(1).length);
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
+            });
 
             // test sorted
             env.undeployAll();
@@ -207,16 +225,19 @@ public class EPLOtherForGroupDelivery {
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 1));
             sendTimer(env, 2000);
-            assertEquals(2, env.listener("s0").getNewDataList().size());
-            assertEquals(1, env.listener("s0").getNewDataList().get(0).length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
-            assertEquals(2, env.listener("s0").getNewDataList().get(1).length);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}, {"E3", 1}});
+            env.assertListener("s0", listener -> {
+                assertEquals(2, listener.getNewDataList().size());
+                assertEquals(1, listener.getNewDataList().get(0).length);
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(0), "theString,intPrimitive".split(","), new Object[][]{{"E2", 2}});
+                assertEquals(2, listener.getNewDataList().get(1).length);
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(1), "theString,intPrimitive".split(","), new Object[][]{{"E1", 1}, {"E3", 1}});
+            });
 
             // test multiple criteria
             env.undeployAll();
             String stmtText = "@name('s0') select theString, doubleBoxed, enumValue from SupportBean#time_batch(1) order by theString, doubleBoxed, enumValue for grouped_delivery(doubleBoxed, enumValue)";
             env.compileDeploy(stmtText).addListener("s0");
+            String[] fields = "theString,doubleBoxed,enumValue".split(",");
 
             sendEvent(env, "E1", 10d, SupportEnum.ENUM_VALUE_2); // A (1)
             sendEvent(env, "E2", 11d, SupportEnum.ENUM_VALUE_1); // B (2)
@@ -227,16 +248,17 @@ public class EPLOtherForGroupDelivery {
             sendEvent(env, "E7", 11d, SupportEnum.ENUM_VALUE_1); // B
             sendEvent(env, "E8", 10d, SupportEnum.ENUM_VALUE_1); // D
             sendTimer(env, 3000);
-            assertEquals(4, env.listener("s0").getNewDataList().size());
-            String[] fields = "theString,doubleBoxed,enumValue".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(0), fields,
-                new Object[][]{{"E1", 10d, SupportEnum.ENUM_VALUE_2}, {"E4", 10d, SupportEnum.ENUM_VALUE_2}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(1), fields,
-                new Object[][]{{"E2", 11d, SupportEnum.ENUM_VALUE_1}, {"E7", 11d, SupportEnum.ENUM_VALUE_1}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(2), fields,
-                new Object[][]{{"E3", 9d, SupportEnum.ENUM_VALUE_2}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(3), fields,
-                new Object[][]{{"E5", 10d, SupportEnum.ENUM_VALUE_1}, {"E6", 10d, SupportEnum.ENUM_VALUE_1}, {"E8", 10d, SupportEnum.ENUM_VALUE_1}});
+            env.assertListener("s0", listener -> {
+                assertEquals(4, listener.getNewDataList().size());
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(0), fields,
+                    new Object[][]{{"E1", 10d, SupportEnum.ENUM_VALUE_2}, {"E4", 10d, SupportEnum.ENUM_VALUE_2}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(1), fields,
+                    new Object[][]{{"E2", 11d, SupportEnum.ENUM_VALUE_1}, {"E7", 11d, SupportEnum.ENUM_VALUE_1}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(2), fields,
+                    new Object[][]{{"E3", 9d, SupportEnum.ENUM_VALUE_2}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(3), fields,
+                    new Object[][]{{"E5", 10d, SupportEnum.ENUM_VALUE_1}, {"E6", 10d, SupportEnum.ENUM_VALUE_1}, {"E8", 10d, SupportEnum.ENUM_VALUE_1}});
+            });
             env.undeployAll();
 
             // test SODA
@@ -248,11 +270,13 @@ public class EPLOtherForGroupDelivery {
             sendEvent(env, "E2", 11d, SupportEnum.ENUM_VALUE_1); // B (2)
             sendEvent(env, "E3", 11d, SupportEnum.ENUM_VALUE_1); // B (2)
             sendTimer(env, 4000);
-            assertEquals(2, env.listener("s0").getNewDataList().size());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(0), fields,
-                new Object[][]{{"E1", 10d, SupportEnum.ENUM_VALUE_2}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getNewDataList().get(1), fields,
-                new Object[][]{{"E2", 11d, SupportEnum.ENUM_VALUE_1}, {"E3", 11d, SupportEnum.ENUM_VALUE_1}});
+            env.assertListener("s0", listener -> {
+                assertEquals(2, listener.getNewDataList().size());
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(0), fields,
+                    new Object[][]{{"E1", 10d, SupportEnum.ENUM_VALUE_2}});
+                EPAssertionUtil.assertPropsPerRow(listener.getNewDataList().get(1), fields,
+                    new Object[][]{{"E2", 11d, SupportEnum.ENUM_VALUE_1}, {"E3", 11d, SupportEnum.ENUM_VALUE_1}});
+            });
 
             env.undeployAll();
         }

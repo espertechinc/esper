@@ -43,24 +43,26 @@ public class EPLDatabaseHintHook {
                 "select * from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where myint = ${myvariableOCC}']";
             env.compileDeploy(stmtText);
 
-            Assert.assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("myint"));
+            env.assertStatement("s0", statement ->  Assert.assertEquals(Boolean.class, statement.getEventType().getPropertyType("myint")));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{false}});
 
             // assert contexts
-            SQLColumnTypeContext type = SupportSQLColumnTypeConversion.getTypeContexts().get(0);
-            Assert.assertEquals(Types.INTEGER, type.getColumnSqlType());
-            Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
-            Assert.assertEquals("select myint from mytesttable where myint = ${myvariableOCC}", type.getSql());
-            Assert.assertEquals("myint", type.getColumnName());
-            Assert.assertEquals(1, type.getColumnNumber());
-            Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getColumnClassType());
+            env.assertThat(() -> {
+                SQLColumnTypeContext type = SupportSQLColumnTypeConversion.getTypeContexts().get(0);
+                Assert.assertEquals(Types.INTEGER, type.getColumnSqlType());
+                Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
+                Assert.assertEquals("select myint from mytesttable where myint = ${myvariableOCC}", type.getSql());
+                Assert.assertEquals("myint", type.getColumnName());
+                Assert.assertEquals(1, type.getColumnNumber());
+                Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getColumnClassType());
 
-            SQLColumnValueContext val = SupportSQLColumnTypeConversion.getValueContexts().get(0);
-            Assert.assertEquals(10, val.getColumnValue());
-            Assert.assertEquals("myint", val.getColumnName());
-            Assert.assertEquals(1, val.getColumnNumber());
+                SQLColumnValueContext val = SupportSQLColumnTypeConversion.getValueContexts().get(0);
+                Assert.assertEquals(10, val.getColumnValue());
+                Assert.assertEquals("myint", val.getColumnName());
+                Assert.assertEquals(1, val.getColumnNumber());
+            });
 
-            env.runtime().getVariableService().setVariableValue(null, "myvariableOCC", 60);    // greater 50 turns true
+            env.runtimeSetVariable(null, "myvariableOCC", 60);    // greater 50 turns true
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{true}});
 
             env.undeployAll();
@@ -76,12 +78,14 @@ public class EPLDatabaseHintHook {
                 "select * from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where myint = ${myvariableIPC}']";
             env.compileDeploy(stmtText);
 
-            env.runtime().getVariableService().setVariableValue(null, "myvariableIPC", "x60");    // greater 50 turns true
+            env.runtimeSetVariable(null, "myvariableIPC", "x60");    // greater 50 turns true
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{true}});
 
-            SQLInputParameterContext param = SupportSQLColumnTypeConversion.getParamContexts().get(0);
-            Assert.assertEquals(1, param.getParameterNumber());
-            Assert.assertEquals("x60", param.getParameterValue());
+            env.assertThat(() -> {
+                SQLInputParameterContext param = SupportSQLColumnTypeConversion.getParamContexts().get(0);
+                Assert.assertEquals(1, param.getParameterNumber());
+                Assert.assertEquals("x60", param.getParameterValue());
+            });
 
             env.undeployAll();
         }
@@ -96,21 +100,23 @@ public class EPLDatabaseHintHook {
                 "select * from sql:MyDBWithTxnIso1WithReadOnly ['select * from mytesttable where myint = ${myvariableORC}']";
             env.compileDeploy(stmtText);
 
-            Assert.assertEquals(SupportBean.class, env.statement("s0").getEventType().getUnderlyingType());
+            env.assertStatement("s0", statement -> Assert.assertEquals(SupportBean.class, statement.getEventType().getUnderlyingType()));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{">10<", 99010}});
 
-            SQLOutputRowTypeContext type = SupportSQLOutputRowConversion.getTypeContexts().get(0);
-            Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
-            Assert.assertEquals("select * from mytesttable where myint = ${myvariableORC}", type.getSql());
-            Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getFields().get("myint"));
+            env.assertThat(() -> {
+                SQLOutputRowTypeContext type = SupportSQLOutputRowConversion.getTypeContexts().get(0);
+                Assert.assertEquals("MyDBWithTxnIso1WithReadOnly", type.getDb());
+                Assert.assertEquals("select * from mytesttable where myint = ${myvariableORC}", type.getSql());
+                Assert.assertEquals(EPTypePremade.INTEGERBOXED.getEPType(), type.getFields().get("myint"));
 
-            SQLOutputRowValueContext val = SupportSQLOutputRowConversion.getValueContexts().get(0);
-            Assert.assertEquals(10, val.getValues().get("myint"));
+                SQLOutputRowValueContext val = SupportSQLOutputRowConversion.getValueContexts().get(0);
+                Assert.assertEquals(10, val.getValues().get("myint"));
+            });
 
-            env.runtime().getVariableService().setVariableValue(null, "myvariableORC", 60);    // greater 50 turns true
+            env.runtimeSetVariable(null, "myvariableORC", 60);    // greater 50 turns true
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{">60<", 99060}});
 
-            env.runtime().getVariableService().setVariableValue(null, "myvariableORC", 90);    // greater 50 turns true
+            env.runtimeSetVariable(null, "myvariableORC", 90);    // greater 50 turns true
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             env.undeployAll();

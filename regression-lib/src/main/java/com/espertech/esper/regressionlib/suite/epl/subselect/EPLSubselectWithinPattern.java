@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class EPLSubselectWithinPattern {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportBean_S1(1));
-            env.listener("s0").assertInvokedAndReset();
+            env.assertListenerInvoked("s0");
 
             env.undeployAll();
         }
@@ -126,7 +125,7 @@ public class EPLSubselectWithinPattern {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S1(4, "B", "B"));
-            Assert.assertEquals("Y+B", env.listener("s0").assertOneGetNewAndReset().get("myid"));
+            env.assertEqualsNew("s0", "myid", "Y+B");
 
             env.sendEventBean(new SupportBean_S1(4, "B", "C"));
             env.sendEventBean(new SupportBean_S1(5, "C", "B"));
@@ -179,17 +178,17 @@ public class EPLSubselectWithinPattern {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(5, "C"));
-        Assert.assertEquals(5, env.listener("s0").assertOneGetNewAndReset().get("myid"));
+        env.assertEqualsNew("s0", "myid", 5);
 
         env.sendEventBean(new SupportBean_S0(6, "A"));
-        Assert.assertEquals(6, env.listener("s0").assertOneGetNewAndReset().get("myid"));
+        env.assertEqualsNew("s0", "myid", 6);
 
         env.sendEventBean(new SupportBean_S0(7, "D"));
         env.sendEventBean(new SupportBean_S1(8, "E"));
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(9, "C"));
-        Assert.assertEquals(9, env.listener("s0").assertOneGetNewAndReset().get("myid"));
+        env.assertEqualsNew("s0", "myid", 9);
     }
 
     private static void tryAssertion(RegressionEnvironment env) {
@@ -200,7 +199,7 @@ public class EPLSubselectWithinPattern {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(5, "C"));
-        Assert.assertEquals(5, env.listener("s0").assertOneGetNewAndReset().get("myid"));
+        env.assertEqualsNew("s0", "myid", 5);
 
         env.sendEventBean(new SupportBean_S0(6, "A"));
         env.sendEventBean(new SupportBean_S0(7, "D"));
@@ -209,7 +208,7 @@ public class EPLSubselectWithinPattern {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean_S0(10, "E"));
-        Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("myid"));
+        env.assertEqualsNew("s0", "myid", 10);
     }
 
     public static boolean supportSingleRowFunction(Object... v) {

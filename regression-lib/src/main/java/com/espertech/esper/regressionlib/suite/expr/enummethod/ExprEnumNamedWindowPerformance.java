@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.enummethod;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -72,14 +71,15 @@ public class ExprEnumNamedWindowPerformance implements RegressionExecution {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 5000; i++) {
             env.sendEventBean(new SupportBean_ST0("ID", "K50", 1050));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            for (int j = 0; j < 10; j++) {
-                Collection coll = (Collection) theEvent.get("val" + j);
-                assertEquals(1, coll.size());
-                SupportBean bean = (SupportBean) coll.iterator().next();
-                assertEquals("K50", bean.getTheString());
-                assertEquals(1050, bean.getIntPrimitive());
-            }
+            env.assertEventNew("s0", event -> {
+                for (int j = 0; j < 10; j++) {
+                    Collection coll = (Collection) event.get("val" + j);
+                    assertEquals(1, coll.size());
+                    SupportBean bean = (SupportBean) coll.iterator().next();
+                    assertEquals("K50", bean.getTheString());
+                    assertEquals(1050, bean.getIntPrimitive());
+                }
+            });
         }
         long delta = System.currentTimeMillis() - start;
         assertTrue("Delta = " + delta, delta < 1000);
@@ -110,14 +110,15 @@ public class ExprEnumNamedWindowPerformance implements RegressionExecution {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 5000; i++) {
             env.sendEventBean(new SupportBean_ST0("ID", "K50", 1050));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            for (int j = 0; j < 10; j++) {
-                Collection coll = (Collection) theEvent.get("val" + j);
-                assertEquals(1, coll.size());
-                SupportBean bean = (SupportBean) coll.iterator().next();
-                assertEquals("K50", bean.getTheString());
-                assertEquals(1050, bean.getIntPrimitive());
-            }
+            env.assertEventNew("s0", event -> {
+                for (int j = 0; j < 10; j++) {
+                    Collection coll = (Collection) event.get("val" + j);
+                    assertEquals(1, coll.size());
+                    SupportBean bean = (SupportBean) coll.iterator().next();
+                    assertEquals("K50", bean.getTheString());
+                    assertEquals(1050, bean.getIntPrimitive());
+                }
+            });
         }
         long delta = System.currentTimeMillis() - start;
         assertTrue("Delta = " + delta, delta < 1000);

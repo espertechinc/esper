@@ -25,11 +25,13 @@ import com.espertech.esper.common.internal.event.core.EventServiceSendEventCommo
 import com.espertech.esper.common.internal.event.core.SendableEvent;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import static com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib.sleep;
@@ -86,6 +88,10 @@ public class EPLDataflowOpEventBusSource {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static void runAssertionAllTypes(RegressionEnvironment env, String typeName, SendableEvent[] events) {
@@ -133,7 +139,7 @@ public class EPLDataflowOpEventBusSource {
     private static class EPLDataflowSchemaObjectArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            EPCompiled compiled = env.compileWBusPublicType("create objectarray schema MyEventOA(p0 string, p1 long)");
+            EPCompiled compiled = env.compile("@public @buseventtype create objectarray schema MyEventOA(p0 string, p1 long)");
             env.deploy(compiled);
             path.add(compiled);
 
@@ -167,6 +173,10 @@ public class EPLDataflowOpEventBusSource {
             instance.cancel();
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

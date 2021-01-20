@@ -10,9 +10,14 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class SupportBeanRendererThree {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportBeanRendererThree implements Serializable {
+    private static final long serialVersionUID = 628510605320590670L;
     private Map stringObjectMap;
 
     public Map getStringObjectMap() {

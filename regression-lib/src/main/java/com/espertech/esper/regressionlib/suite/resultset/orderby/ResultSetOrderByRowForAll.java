@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -51,8 +50,8 @@ public class ResultSetOrderByRowForAll {
             env.sendEventBean(new SupportBean("E3", 12));
 
             String[] fields = "c0,c1".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{23, "E3"}, {21, "E2"}, {10, "E1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{21, "E2"}, {10, "E1"}, {null, null}});
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{23, "E3"}, {21, "E2"}, {10, "E1"}},
+                new Object[][]{{21, "E2"}, {10, "E1"}, {null, null}});
 
             env.undeployAll();
         }

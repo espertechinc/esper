@@ -11,16 +11,12 @@
 package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class ClientRuntimeSolutionPatternPortScan {
 
@@ -36,9 +32,9 @@ public class ClientRuntimeSolutionPatternPortScan {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             setCurrentTime(env, "8:00:00");
-            SupportUpdateListener listener = deployPortScan(env);
+            deployPortScan(env);
             sendEventMultiple(env, 20, "A", "B");
-            EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "type,cnt".split(","), new Object[]{"DETECTED", 20L});
+            env.assertPropsNew("output", "type,cnt".split(","), new Object[]{"DETECTED", 20L});
             env.undeployAll();
         }
     }
@@ -47,19 +43,19 @@ public class ClientRuntimeSolutionPatternPortScan {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             setCurrentTime(env, "8:00:00");
-            SupportUpdateListener listener = deployPortScan(env);
+            deployPortScan(env);
             sendEventMultiple(env, 20, "A", "B");
-            EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "type,cnt".split(","), new Object[]{"DETECTED", 20L});
+            env.assertPropsNew("output", "type,cnt".split(","), new Object[]{"DETECTED", 20L});
 
             setCurrentTime(env, "8:00:29");
             sendEventMultiple(env, 20, "A", "B");
 
             setCurrentTime(env, "8:00:59");
             sendEventMultiple(env, 20, "A", "B");
-            assertFalse(listener.isInvoked());
+            env.assertListenerNotInvoked("output");
 
             setCurrentTime(env, "8:01:00");
-            EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "type,cnt".split(","), new Object[]{"UPDATE", 20L});
+            env.assertPropsNew("output", "type,cnt".split(","), new Object[]{"UPDATE", 20L});
 
             env.undeployAll();
         }
@@ -69,12 +65,12 @@ public class ClientRuntimeSolutionPatternPortScan {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             setCurrentTime(env, "8:00:00");
-            SupportUpdateListener listener = deployPortScan(env);
+            deployPortScan(env);
             sendEventMultiple(env, 20, "A", "B");
-            EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "type,cnt".split(","), new Object[]{"DETECTED", 20L});
+            env.assertPropsNew("output", "type,cnt".split(","), new Object[]{"DETECTED", 20L});
 
             setCurrentTime(env, "8:01:00");
-            EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], "type,cnt".split(","), new Object[]{"DONE", 0L});
+            env.assertPropsPerRowLastNew("output", "type,cnt".split(","), new Object[][]{{"DONE", 0L}});
 
             env.undeployAll();
         }
@@ -97,9 +93,9 @@ public class ClientRuntimeSolutionPatternPortScan {
         env.advanceTimeSpan(current);
     }
 
-    private static SupportUpdateListener deployPortScan(RegressionEnvironment env) {
+    private static void deployPortScan(RegressionEnvironment env) {
         String epl =
-            "create objectarray schema PortScanEvent(src string, dst string, port int, marker string);\n" +
+                "@public @buseventtype create objectarray schema PortScanEvent(src string, dst string, port int, marker string);\n" +
                 "\n" +
                 "create table ScanCountTable(src string primary key, dst string primary key, cnt count(*), win window(*) @type(PortScanEvent));\n" +
                 "\n" +
@@ -133,10 +129,7 @@ public class ClientRuntimeSolutionPatternPortScan {
                 "\n" +
                 // For more output: "@audit() select * from CountStream;\n" +
                 "@name('output') select * from OutputAlerts;\n";
-        EPCompiled compiled = env.compileWBusPublicType(epl);
-        env.deploy(compiled);
-        SupportUpdateListener listener = new SupportUpdateListener();
-        env.statement("output").addListener(listener);
-        return listener;
+        EPCompiled compiled = env.compile(epl);
+        env.deploy(compiled).addListener("output");
     }
 }

@@ -14,7 +14,6 @@ import java.io.Serializable;
 
 public class SupportBean_S1 implements Serializable {
     private static final long serialVersionUID = -1197236754579629766L;
-    private static int idCounter;
 
     private int id;
     private String p10;
@@ -23,15 +22,12 @@ public class SupportBean_S1 implements Serializable {
     private String p13;
 
     public static Object[] makeS1(String propOne, String[] propTwo) {
-        idCounter++;
-
         Object[] events = new Object[propTwo.length];
         for (int i = 0; i < propTwo.length; i++) {
-            events[i] = new SupportBean_S1(idCounter, propOne, propTwo[i]);
+            events[i] = new SupportBean_S1(-1, propOne, propTwo[i]);
         }
         return events;
     }
-
 
     public SupportBean_S1(int id) {
         this.id = id;
@@ -123,5 +119,15 @@ public class SupportBean_S1 implements Serializable {
         result = 31 * result + (p12 != null ? p12.hashCode() : 0);
         result = 31 * result + (p13 != null ? p13.hashCode() : 0);
         return result;
+    }
+
+    public String toString() {
+        return "SupportBean_S1{" +
+            "id=" + id +
+            ", p10='" + p10 + '\'' +
+            ", p11='" + p11 + '\'' +
+            ", p12='" + p12 + '\'' +
+            ", p13='" + p13 + '\'' +
+            '}';
     }
 }

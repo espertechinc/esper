@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.internal.epl.join.support.QueryPlanIndexDescSubquery;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -31,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.appendArrayConditional;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
     private static final Logger log = LoggerFactory.getLogger(InfraNWTableSubqCorrelIndex.class);
@@ -109,11 +108,11 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
 
         private void sendAssertManyArray(RegressionEnvironment env, String stringOne, Integer expected) {
             env.sendEventBean(new SupportEventWithManyArray("id").withStringOne(stringOne.split(",")));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+            env.assertEqualsNew("s0", "v", expected);
         }
 
         private void insert(RegressionEnvironment env, RegressionPath path, String k, int v) {
-            env.compileExecuteFAF("insert into MyInfra(k,v) values (" + k + "," + v + ")", path);
+            env.compileExecuteFAFNoResult("insert into MyInfra(k,v) values (" + k + "," + v + ")", path);
         }
 
         public String name() {
@@ -166,11 +165,11 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
 
         private void sendAssertManyArray(RegressionEnvironment env, String stringOne, String stringTwo, Integer expected) {
             env.sendEventBean(new SupportEventWithManyArray("id").withStringOne(stringOne.split(",")).withStringTwo(stringTwo.split(",")));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("v"));
+            env.assertEqualsNew("s0", "v", expected);
         }
 
         private void insert(RegressionEnvironment env, RegressionPath path, String k1, String k2, int v) {
-            env.compileExecuteFAF("insert into MyInfra(k1,k2,v) values (" + k1 + "," + k2 + "," + v + ")", path);
+            env.compileExecuteFAFNoResult("insert into MyInfra(k1,k2,v) values (" + k1 + "," + k2 + "," + v + ")", path);
         }
     }
 
@@ -375,8 +374,10 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                     return o1.getTables()[0].getIndexName().compareTo(o2.getTables()[0].getIndexName());
                 }
             });
-            SupportQueryPlanIndexHook.assertSubquery(subqueries.get(0), 1, "I1", "unique hash={s1(string)} btree={} advanced={}");
-            SupportQueryPlanIndexHook.assertSubquery(subqueries.get(1), 0, "I2", "unique hash={i1(int)} btree={} advanced={}");
+            env.assertThat(() -> {
+                SupportQueryPlanIndexHook.assertSubquery(subqueries.get(0), 1, "I1", "unique hash={s1(string)} btree={} advanced={}");
+                SupportQueryPlanIndexHook.assertSubquery(subqueries.get(1), 0, "I2", "unique hash={i1(int)} btree={} advanced={}");
+            });
 
             env.undeployAll();
         }
@@ -413,21 +414,23 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                 (assertion.getHint() == null ? "" : assertion.getHint()) + "select *, " +
                 "(select * from MyInfra where " + assertion.getWhereClause() + ") @eventbean as ssb1 from SupportSimpleBeanTwo as ssb2";
 
-            EPCompiled compiled;
-            try {
-                compiled = env.compileWCheckedEx(consumeEpl, path);
-            } catch (EPCompileException ex) {
-                if (assertion.getEventSendAssertion() == null) {
-                    // no assertion, expected
-                    assertTrue(ex.getMessage().contains("index hint busted"));
-                    continue;
-                }
-                throw new RuntimeException("Unexpected statement exception: " + ex.getMessage(), ex);
+            if (assertion.getEventSendAssertion() == null) {
+                env.assertThat(() -> {
+                    try {
+                        env.compileWCheckedEx(consumeEpl, path);
+                        fail();
+                    } catch (EPCompileException ex) {
+                        // no assertion, expected
+                        assertTrue(ex.getMessage().contains("index hint busted"));
+                    }
+                });
+                continue;
             }
-            env.deploy(compiled);
+
+            env.compileDeploy(consumeEpl, path);
 
             // assert index and access
-            SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(0, assertion.getExpectedIndexName(), assertion.getIndexBackingClass());
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(0, assertion.getExpectedIndexName(), assertion.getIndexBackingClass()));
             env.addListener("s0");
             assertion.getEventSendAssertion().run();
             env.undeployModuleContaining("s0");
@@ -498,7 +501,7 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             env.assertPropsNew("s0", fields, new Object[]{2, "E2", 20});
 
             env.undeployModuleContaining("s0");
-            if (env.statement("index") != null) {
+            if (createExplicitIndex) {
                 env.undeployModuleContaining("index");
             }
             env.undeployAll();

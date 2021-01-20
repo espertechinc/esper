@@ -42,7 +42,7 @@ public class EPLJoin2StreamRangePerformance {
     private static class EPLJoinPerfKeyAndRangeOuterJoin implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -75,10 +75,10 @@ public class EPLJoin2StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBean("G", 9990));
-                assertEquals(4, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(4, listener.getAndResetLastNewData().length));
 
                 env.sendEventBean(new SupportBeanRange("R", "G", 4, 10));
-                assertEquals(7, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(7, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long endTime = System.currentTimeMillis();
@@ -92,7 +92,7 @@ public class EPLJoin2StreamRangePerformance {
     private static class EPLJoinPerfRelationalOp implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -120,10 +120,10 @@ public class EPLJoin2StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBean("B", 10));
-                assertEquals(10, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(10, listener.getAndResetLastNewData().length));
 
                 env.sendEventBean(new SupportBeanRange("R", 9990, -1));
-                assertEquals(9, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(9, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long endTime = System.currentTimeMillis();
@@ -137,7 +137,7 @@ public class EPLJoin2StreamRangePerformance {
     private static class EPLJoinPerfKeyAndRange implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -167,10 +167,10 @@ public class EPLJoin2StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBean("55", 10));
-                assertEquals(3, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(3, listener.getAndResetLastNewData().length));
 
                 env.sendEventBean(new SupportBeanRange("R", "56", 12, 20));
-                assertEquals(9, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(9, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long endTime = System.currentTimeMillis();
@@ -195,7 +195,7 @@ public class EPLJoin2StreamRangePerformance {
     private static class EPLJoinPerfKeyAndRangeInverted implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -220,7 +220,7 @@ public class EPLJoin2StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "E", 5, 9995));
-                assertEquals(9, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(9, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long endTime = System.currentTimeMillis();
@@ -234,7 +234,7 @@ public class EPLJoin2StreamRangePerformance {
     private static class EPLJoinPerfUnidirectionalRelOp implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {

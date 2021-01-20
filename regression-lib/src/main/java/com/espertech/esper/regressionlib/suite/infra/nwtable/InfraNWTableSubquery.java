@@ -14,17 +14,16 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class InfraNWTableSubquery {
 
@@ -91,8 +90,7 @@ public class InfraNWTableSubquery {
 
         private void assertSubquery(RegressionEnvironment env, String p00, int expected) {
             env.sendEventBean(new SupportBean_S0(0, p00));
-            EPAssertionUtil.assertProps(env.listener("Subq").assertOneGetNewAndReset(),
-                "c0".split(","), new Object[]{expected});
+            env.assertPropsNew("Subq", "c0".split(","), new Object[]{expected});
         }
 
         public String name() {
@@ -127,17 +125,17 @@ public class InfraNWTableSubquery {
 
             sendMarketBean(env, "M1");
             String[] fieldsStmt = new String[]{"value", "symbol"};
-            EPAssertionUtil.assertProps(env.listener("selectOne").assertOneGetNewAndReset(), fieldsStmt, new Object[]{null, "M1"});
+            env.assertPropsNew("selectOne",  fieldsStmt, new Object[]{null, "M1"});
 
             env.milestone(0);
 
             sendSupportBean(env, "S1", 5L, -1L);
             sendMarketBean(env, "M2");
-            EPAssertionUtil.assertProps(env.listener("selectOne").assertOneGetNewAndReset(), fieldsStmt, new Object[]{5L, "M2"});
+            env.assertPropsNew("selectOne",  fieldsStmt, new Object[]{5L, "M2"});
 
             sendSupportBean(env, "S2", 10L, -1L);
             sendMarketBean(env, "M3");
-            EPAssertionUtil.assertProps(env.listener("selectOne").assertOneGetNewAndReset(), fieldsStmt, new Object[]{15L, "M3"});
+            env.assertPropsNew("selectOne",  fieldsStmt, new Object[]{15L, "M3"});
 
             // create 2nd consumer
             env.compileDeploy("@name('selectTwo')" + stmtTextSelectOne, path).addListener("selectTwo"); // same stmt
@@ -146,8 +144,8 @@ public class InfraNWTableSubquery {
 
             sendSupportBean(env, "S3", 8L, -1L);
             sendMarketBean(env, "M4");
-            EPAssertionUtil.assertProps(env.listener("selectOne").assertOneGetNewAndReset(), fieldsStmt, new Object[]{23L, "M4"});
-            EPAssertionUtil.assertProps(env.listener("selectTwo").assertOneGetNewAndReset(), fieldsStmt, new Object[]{23L, "M4"});
+            env.assertPropsNew("selectOne",  fieldsStmt, new Object[]{23L, "M4"});
+            env.assertPropsNew("selectTwo",  fieldsStmt, new Object[]{23L, "M4"});
 
             env.undeployAll();
         }
@@ -192,6 +190,10 @@ public class InfraNWTableSubquery {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraSubqueryDeleteInsertReplace implements RegressionExecution {
@@ -221,27 +223,29 @@ public class InfraNWTableSubquery {
 
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsNew("create", fields, new Object[]{"E1", 1});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             env.milestone(0);
 
             sendSupportBean(env, "E2", 2);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+                env.assertPropsNew("create", fields, new Object[]{"E2", 2});
+                env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
             } else {
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+                env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
             }
 
             sendSupportBean(env, "E1", 3);
             if (namedWindow) {
-                assertEquals(2, env.listener("create").getNewDataList().size());
-                EPAssertionUtil.assertProps(env.listener("create").getOldDataList().get(0)[0], fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("create").getNewDataList().get(1)[0], fields, new Object[]{"E1", 3});
+                env.assertListener("create", listener -> {
+                    assertEquals(2, listener.getNewDataList().size());
+                    EPAssertionUtil.assertProps(listener.getOldDataList().get(0)[0], fields, new Object[]{"E1", 1});
+                    EPAssertionUtil.assertProps(listener.getNewDataList().get(1)[0], fields, new Object[]{"E1", 3});
+                });
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E2", 2}, {"E1", 3}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E2", 2}, {"E1", 3}});
 
             env.undeployAll();
         }
@@ -277,30 +281,30 @@ public class InfraNWTableSubquery {
 
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsNew("create", fields, new Object[]{"E1", 1});
             } else {
-                assertFalse(env.listener("create").isInvoked());
+                env.assertListenerNotInvoked("create");
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             sendSupportBean(env, "E2", 2);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+                env.assertPropsNew("create", fields, new Object[]{"E2", 2});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             sendSupportBean(env, "E1", 3);
-            assertFalse(env.listener("create").isInvoked());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertListenerNotInvoked("create");
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.milestone(0);
 
             sendSupportBean(env, "E3", 4);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 4});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
+                env.assertPropsNew("create", fields, new Object[]{"E3", 4});
+                env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
             } else {
-                EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
+                env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 4}});
             }
 
             // Add delete
@@ -310,17 +314,17 @@ public class InfraNWTableSubquery {
             // delete E2
             env.sendEventBean(new SupportBean_A("E2"));
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2});
+                env.assertPropsOld("create", fields, new Object[]{"E2", 2});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E3", 4}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E3", 4}});
 
             env.milestone(1);
 
             sendSupportBean(env, "E2", 5);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 5});
+                env.assertPropsNew("create", fields, new Object[]{"E2", 5});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E3", 4}, {"E2", 5}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E3", 4}, {"E2", 5}});
 
             env.undeployAll();
         }

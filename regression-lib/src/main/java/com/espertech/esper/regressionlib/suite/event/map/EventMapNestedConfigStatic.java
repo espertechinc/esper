@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.map;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -37,11 +36,12 @@ public class EventMapNestedConfigStatic implements RegressionExecution {
         Map<String, Object> mapEvent = getTestData();
         env.sendEventMap(mapEvent, "NestedMapWithSimpleProps");
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertSame(mapEvent.get("nested"), theEvent.get("a"));
-        assertSame("abc", theEvent.get("b"));
-        assertSame(((Map) mapEvent.get("nested")).get("n2"), theEvent.get("c"));
-        assertSame("def", theEvent.get("d"));
+        env.assertEventNew("s0", theEvent -> {
+            assertSame(mapEvent.get("nested"), theEvent.get("a"));
+            assertSame("abc", theEvent.get("b"));
+            assertSame(((Map) mapEvent.get("nested")).get("n2"), theEvent.get("c"));
+            assertSame("def", theEvent.get("d"));
+        });
 
         env.undeployAll();
     }

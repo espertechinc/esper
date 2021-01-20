@@ -23,10 +23,11 @@ public class ClientBasicAnnotation implements RegressionExecution {
         String epl = "@name('abc') @Tag(name='a', value='b') @Priority(1) @Drop select * from SupportBean";
         env.compileDeployAddListenerMileZero(epl, "abc");
 
-        Annotation[] annotations = env.statement("abc").getAnnotations();
-
-        assertEquals(Name.class, annotations[0].annotationType());
-        assertEquals("abc", ((Name) annotations[0]).value());
+        env.assertStatement("abc", statement -> {
+            Annotation[] annotations = statement.getAnnotations();
+            assertEquals(Name.class, annotations[0].annotationType());
+            assertEquals("abc", ((Name) annotations[0]).value());
+        });
 
         env.undeployAll();
     }

@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.collection.Pair;
@@ -20,16 +18,14 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.avro.SchemaBuilder.record;
 import static org.junit.Assert.assertEquals;
@@ -43,6 +39,7 @@ public class EPLInsertIntoTransposeStream {
         execs.add(new EPLInsertIntoTransposeFunctionToStreamWithProps());
         execs.add(new EPLInsertIntoTransposeFunctionToStream());
         execs.add(new EPLInsertIntoTransposeSingleColumnInsert());
+        execs.add(new EPLInsertIntoTransposeSingleColumnInsertInvalid());
         execs.add(new EPLInsertIntoTransposeEventJoinMap());
         execs.add(new EPLInsertIntoTransposeEventJoinPOJO());
         execs.add(new EPLInsertIntoTransposePOJOPropertyStream());
@@ -62,8 +59,8 @@ public class EPLInsertIntoTransposeStream {
             env.sendEventBean(new SupportBean("E1", 1));
 
             String[] fields = new String[] {"stringTwo"};
-            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), fields, new Object[] {"E1"});
-            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), fields, new Object[] {"E1"});
+            env.assertPropsNew("a", fields, new Object[] {"E1"});
+            env.assertPropsNew("b", fields, new Object[] {"E1"});
 
             env.undeployAll();
         }
@@ -79,8 +76,8 @@ public class EPLInsertIntoTransposeStream {
         private static void runTransposeMapAndObjectArray(RegressionEnvironment env, EventRepresentationChoice representation) {
             String[] fields = "p0,p1".split(",");
             RegressionPath path = new RegressionPath();
-            String schema = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "create schema MySchema(p0 string, p1 int)";
-            env.compileDeployWBusPublicType(schema, path);
+            String schema = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "@buseventtype create schema MySchema(p0 string, p1 int)";
+            env.compileDeploy(schema, path);
 
             String generateFunction;
             if (representation.isObjectArrayEvent()) {
@@ -109,7 +106,7 @@ public class EPLInsertIntoTransposeStream {
             env.undeployModuleContaining("s0");
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
+            env.assertPropsNew("s1", fields, new Object[]{"E3", 3});
 
             env.undeployAll();
         }
@@ -124,14 +121,14 @@ public class EPLInsertIntoTransposeStream {
             String stmtTextTwo = "@name('s0') select * from MyStream";
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(Pair.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> assertEquals(Pair.class, statement.getEventType().getUnderlyingType()));
 
             env.sendEventBean(new SupportBean("I1", 1));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            Pair underlying = (Pair) result.getUnderlying();
-            EPAssertionUtil.assertProps(result, "dummy,theString,intPrimitive".split(","), new Object[]{1, "OI1", 10});
-            assertEquals("OI1", ((SupportBean) underlying.getFirst()).getTheString());
+            env.assertEventNew("s0", result -> {
+                Pair underlying = (Pair) result.getUnderlying();
+                EPAssertionUtil.assertProps(result, "dummy,theString,intPrimitive".split(","), new Object[]{1, "OI1", 10});
+                assertEquals("OI1", ((SupportBean) underlying.getFirst()).getTheString());
+            });
 
             env.undeployAll();
         }
@@ -146,21 +143,25 @@ public class EPLInsertIntoTransposeStream {
             String stmtTextTwo = "@name('s0') select * from OtherStream(theString like 'O%')";
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(SupportBean.class, type.getUnderlyingType());
+            env.assertStatement("s0", statement -> assertEquals(SupportBean.class, statement.getEventType().getUnderlyingType()));
 
             env.sendEventBean(new SupportBean("I1", 1));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(result, "theString,intPrimitive".split(","), new Object[]{"OI1", 10});
-            assertEquals("OI1", ((SupportBean) result.getUnderlying()).getTheString());
+            env.assertEventNew("s0", result -> {
+                EPAssertionUtil.assertProps(result, "theString,intPrimitive".split(","), new Object[]{"OI1", 10});
+                assertEquals("OI1", ((SupportBean) result.getUnderlying()).getTheString());
+            });
 
             // try second statement as "OtherStream" now already exists
             env.compileDeploy("@name('second') " + stmtTextOne).addListener("second");
             env.undeployModuleContaining("s0");
             env.sendEventBean(new SupportBean("I2", 2));
-            EPAssertionUtil.assertProps(env.listener("second").assertOneGetNewAndReset(), "theString,intPrimitive".split(","), new Object[]{"OI2", 10});
+            env.assertPropsNew("second", "theString,intPrimitive".split(","), new Object[]{"OI2", 10});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -170,25 +171,32 @@ public class EPLInsertIntoTransposeStream {
             // with transpose and same input and output
             String stmtTextOne = "@name('s0') insert into SupportBean select transpose(customOne('O' || theString, 10)) from SupportBean(theString like 'I%')";
             env.compileDeploy(stmtTextOne).addListener("s0");
-            assertEquals(SupportBean.class, env.statement("s0").getEventType().getUnderlyingType());
+            env.assertStatement("s0", statement -> assertEquals(SupportBean.class, statement.getEventType().getUnderlyingType()));
 
             env.sendEventBean(new SupportBean("I1", 1));
-            EventBean resultOne = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(resultOne, "theString,intPrimitive".split(","), new Object[]{"OI1", 10});
-            assertEquals("OI1", ((SupportBean) resultOne.getUnderlying()).getTheString());
+            env.assertEventNew("s0", resultOne -> {
+                EPAssertionUtil.assertProps(resultOne, "theString,intPrimitive".split(","), new Object[]{"OI1", 10});
+                assertEquals("OI1", ((SupportBean) resultOne.getUnderlying()).getTheString());
+            });
             env.undeployModuleContaining("s0");
 
             // with transpose but different input and output (also test ignore column name)
             String stmtTextTwo = "@name('s0') insert into SupportBeanNumeric select transpose(customTwo(intPrimitive, intPrimitive+1)) as col1 from SupportBean(theString like 'I%')";
             env.compileDeploy(stmtTextTwo).addListener("s0");
-            assertEquals(SupportBeanNumeric.class, env.statement("s0").getEventType().getUnderlyingType());
+            env.assertStatement("s0", statement -> assertEquals(SupportBeanNumeric.class, statement.getEventType().getUnderlyingType()));
 
             env.sendEventBean(new SupportBean("I2", 10));
-            EventBean resultTwo = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(resultTwo, "intOne,intTwo".split(","), new Object[]{10, 11});
-            assertEquals(11, (int) ((SupportBeanNumeric) resultTwo.getUnderlying()).getIntTwo());
-            env.undeployModuleContaining("s0");
+            env.assertEventNew("s0", resultTwo -> {
+                EPAssertionUtil.assertProps(resultTwo, "intOne,intTwo".split(","), new Object[]{10, 11});
+                assertEquals(11, (int) ((SupportBeanNumeric) resultTwo.getUnderlying()).getIntTwo());
+            });
 
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLInsertIntoTransposeSingleColumnInsertInvalid implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
             // invalid wrong-bean target
             env.tryInvalidCompile("insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean",
                 "Expression-returned value of type '" + SupportBean.class.getName() + "' cannot be converted to target event type 'SupportBeanNumeric' with underlying type '" + SupportBeanNumeric.class.getName() + "' [insert into SupportBeanNumeric select transpose(customOne('O', 10)) from SupportBean]");
@@ -225,6 +233,10 @@ public class EPLInsertIntoTransposeStream {
                 "Invalid expression return type 'Object[]' for transpose function [insert into SomeOther select transpose(generateOA('a', 1)) from SupportBean]");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -306,6 +318,10 @@ public class EPLInsertIntoTransposeStream {
                 "Invalid expression return type 'null' for transpose function");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

@@ -69,13 +69,15 @@ public class ResultSetAggregateMedianAndDeviation {
 
             sendEvent(env, "D", 1d);
             sendEvent(env, "E", 2d);
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             env.milestoneInc(milestone);
 
             sendEvent(env, "F", 3d);
-            Double result = (Double) env.listener("s0").assertOneGetNewAndReset().get("val");
-            assertTrue(result.isNaN());
+            env.assertEventNew("s0", event -> {
+                Double result = (Double) event.get("val");
+                assertTrue(result.isNaN());
+            });
 
             env.undeployAll();
         }
@@ -156,11 +158,13 @@ public class ResultSetAggregateMedianAndDeviation {
 
     private static void tryAssertionStmt(RegressionEnvironment env, AtomicInteger milestone) {
         // assert select result type
-        assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("myMedian"));
-        assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("myDistMedian"));
-        assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("myStdev"));
-        assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("myAvedev"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myMedian"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myDistMedian"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myStdev"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myAvedev"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 10);
         assertEvents(env, SYMBOL_DELL,
@@ -208,38 +212,39 @@ public class ResultSetAggregateMedianAndDeviation {
                                      Double oldMedian, Double oldDistMedian, Double oldStdev, Double oldAvedev,
                                      Double newMedian, Double newDistMedian, Double newStdev, Double newAvedev
     ) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertEquals(1, oldData.length);
-        assertEquals(1, newData.length);
+            assertEquals(1, oldData.length);
+            assertEquals(1, newData.length);
 
-        assertEquals(symbol, oldData[0].get("symbol"));
-        assertEquals("oldData.myMedian wrong", oldMedian, oldData[0].get("myMedian"));
-        assertEquals("oldData.myDistMedian wrong", oldDistMedian, oldData[0].get("myDistMedian"));
-        assertEquals("oldData.myAvedev wrong", oldAvedev, oldData[0].get("myAvedev"));
+            assertEquals(symbol, oldData[0].get("symbol"));
+            assertEquals("oldData.myMedian wrong", oldMedian, oldData[0].get("myMedian"));
+            assertEquals("oldData.myDistMedian wrong", oldDistMedian, oldData[0].get("myDistMedian"));
+            assertEquals("oldData.myAvedev wrong", oldAvedev, oldData[0].get("myAvedev"));
 
-        Double oldStdevResult = (Double) oldData[0].get("myStdev");
-        if (oldStdevResult == null) {
-            assertNull(oldStdev);
-        } else {
-            assertEquals("oldData.myStdev wrong", Math.round(oldStdev * 1000), Math.round(oldStdevResult * 1000));
-        }
+            Double oldStdevResult = (Double) oldData[0].get("myStdev");
+            if (oldStdevResult == null) {
+                assertNull(oldStdev);
+            } else {
+                assertEquals("oldData.myStdev wrong", Math.round(oldStdev * 1000), Math.round(oldStdevResult * 1000));
+            }
 
-        assertEquals(symbol, newData[0].get("symbol"));
-        assertEquals("newData.myMedian wrong", newMedian, newData[0].get("myMedian"));
-        assertEquals("newData.myDistMedian wrong", newDistMedian, newData[0].get("myDistMedian"));
-        assertEquals("newData.myAvedev wrong", newAvedev, newData[0].get("myAvedev"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals("newData.myMedian wrong", newMedian, newData[0].get("myMedian"));
+            assertEquals("newData.myDistMedian wrong", newDistMedian, newData[0].get("myDistMedian"));
+            assertEquals("newData.myAvedev wrong", newAvedev, newData[0].get("myAvedev"));
 
-        Double newStdevResult = (Double) newData[0].get("myStdev");
-        if (newStdevResult == null) {
-            assertNull(newStdev);
-        } else {
-            assertEquals("newData.myStdev wrong", Math.round(newStdev * 1000), Math.round(newStdevResult * 1000));
-        }
+            Double newStdevResult = (Double) newData[0].get("myStdev");
+            if (newStdevResult == null) {
+                assertNull(newStdev);
+            } else {
+                assertEquals("newData.myStdev wrong", Math.round(newStdev * 1000), Math.round(newStdevResult * 1000));
+            }
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price) {

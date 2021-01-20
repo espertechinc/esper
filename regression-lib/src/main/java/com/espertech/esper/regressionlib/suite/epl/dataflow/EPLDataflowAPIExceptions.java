@@ -23,8 +23,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
@@ -82,6 +84,10 @@ public class EPLDataflowAPIExceptions implements RegressionExecution {
         assertEquals(1, contextTwo.getOperatorNumber());
         assertEquals("MyExceptionOp#1(outstream)", contextTwo.getOperatorPrettyPrint());
         assertEquals("Operator-thrown-exception", contextTwo.getThrowable().getMessage());
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 
     public static class MyExceptionHandler implements EPDataFlowExceptionHandler {

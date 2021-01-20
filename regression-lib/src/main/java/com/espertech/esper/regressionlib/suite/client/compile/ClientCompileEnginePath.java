@@ -17,10 +17,12 @@ import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.EPDeployment;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class ClientCompileEnginePath {
@@ -43,6 +45,10 @@ public class ClientCompileEnginePath {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientCompileEnginePathPreconfiguredEventTypeFromPath implements RegressionExecution {
@@ -51,6 +57,10 @@ public class ClientCompileEnginePath {
             createStmt(env, "@Name('B') into table MyTableAggs select count(*) as thecnt, window(*) as thewin from SupportBean#keepall() group by theString");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -63,6 +73,10 @@ public class ClientCompileEnginePath {
             createStmt(env, "@Name('Index') create unique index I1 on MyWindow(theString)");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -91,6 +105,10 @@ public class ClientCompileEnginePath {
                 new Object[]{10, "abc", 2, 5, "def"});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -42,7 +41,7 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneOne implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -64,10 +63,11 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "A", index, 0, 0);
-                EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals(index, theEvent.get("v1"));
-                assertEquals((long) index, theEvent.get("v2"));
-                assertEquals((double) index, theEvent.get("v3"));
+                env.assertEventNew("s0", theEvent -> {
+                    assertEquals(index, theEvent.get("v1"));
+                    assertEquals((long) index, theEvent.get("v2"));
+                    assertEquals((double) index, theEvent.get("v3"));
+                });
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -80,7 +80,7 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneTwo implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -98,15 +98,16 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
                 sendEvent(env, "A", i, 0, 0);
             }
 
-            env.listener("s0").reset();
+            env.listenerReset("s0");
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "C", 0, 0, index);
-                EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals(index, theEvent.get("v1"));
-                assertEquals((long) index, theEvent.get("v2"));
-                assertEquals((double) index, theEvent.get("v3"));
+                env.assertEventNew("s0", theEvent -> {
+                    assertEquals(index, theEvent.get("v1"));
+                    assertEquals((long) index, theEvent.get("v2"));
+                    assertEquals((double) index, theEvent.get("v3"));
+                });
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -119,7 +120,7 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     private static class EPLJoinPerfCoercion3waySceneThree implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -137,15 +138,16 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
                 sendEvent(env, "C", 0, 0, i);
             }
 
-            env.listener("s0").reset();
+            env.listenerReset("s0");
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 5000; i++) {
                 int index = 5000 + i % 1000;
                 sendEvent(env, "B", 0, index, 0);
-                EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals(index, theEvent.get("v1"));
-                assertEquals((long) index, theEvent.get("v2"));
-                assertEquals((double) index, theEvent.get("v3"));
+                env.assertEventNew("s0", theEvent -> {
+                    assertEquals(index, theEvent.get("v1"));
+                    assertEquals((long) index, theEvent.get("v2"));
+                    assertEquals((double) index, theEvent.get("v3"));
+                });
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -158,7 +160,7 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
     private static class EPLJoinPerfCoercion3wayRange implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -186,16 +188,16 @@ public class EPLJoin3StreamOuterJoinCoercionPerformance {
             for (int i = 0; i < 100; i++) {
                 long index = 5000 + i;
                 env.sendEventBean(SupportBeanRange.makeLong("R", "K", index, index + 2));
-                assertEquals(30, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(30, listener.getAndResetLastNewData().length));
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
 
             env.sendEventBean(new SupportBean_ST0("ST0X", "K", 5000));
-            assertEquals(10, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(10, listener.getAndResetLastNewData().length));
 
             env.sendEventBean(new SupportBean_ST1("ST1X", "K", 5004));
-            assertEquals(301, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(301, listener.getAndResetLastNewData().length));
 
             assertTrue("Failed perf test, delta=" + delta, delta < 500);
             env.undeployAll();

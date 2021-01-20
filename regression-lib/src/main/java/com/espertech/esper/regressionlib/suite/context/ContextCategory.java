@@ -53,18 +53,24 @@ public class ContextCategory {
                 "@name('s0') context CategoryContext select count(*) as c0, context.label as c1 from SupportBean;\n";
             env.compileDeployAddListenerMileZero(epl, "s0");
 
-            String deploymentIdContext = env.deploymentId("context");
-            String[] statementNames = env.runtime().getContextPartitionService().getContextStatementNames(deploymentIdContext, "CategoryContext");
-            EPAssertionUtil.assertEqualsExactOrder(statementNames, "s0".split(","));
-            assertEquals(1, env.runtime().getContextPartitionService().getContextNestingLevel(deploymentIdContext, "CategoryContext"));
-            Set<Integer> ids = env.runtime().getContextPartitionService().getContextPartitionIds(deploymentIdContext, "CategoryContext", new ContextPartitionSelectorAll());
-            assertEquals(2, env.runtime().getContextPartitionService().getContextPartitionCount(deploymentIdContext, "CategoryContext"));
-            EPAssertionUtil.assertEqualsExactOrder(new Integer[]{0, 1}, ids.toArray());
+            env.assertThat(() -> {
+                String deploymentIdContext = env.deploymentId("context");
+                String[] statementNames = env.runtime().getContextPartitionService().getContextStatementNames(deploymentIdContext, "CategoryContext");
+                EPAssertionUtil.assertEqualsExactOrder(statementNames, "s0".split(","));
+                assertEquals(1, env.runtime().getContextPartitionService().getContextNestingLevel(deploymentIdContext, "CategoryContext"));
+                Set<Integer> ids = env.runtime().getContextPartitionService().getContextPartitionIds(deploymentIdContext, "CategoryContext", new ContextPartitionSelectorAll());
+                assertEquals(2, env.runtime().getContextPartitionService().getContextPartitionCount(deploymentIdContext, "CategoryContext"));
+                EPAssertionUtil.assertEqualsExactOrder(new Integer[]{0, 1}, ids.toArray());
+            });
 
-            assertNull(env.statement("context").getProperty(StatementProperty.CONTEXTNAME));
-            assertNull(env.statement("context").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
-            assertEquals("CategoryContext", env.statement("s0").getProperty(StatementProperty.CONTEXTNAME));
-            assertEquals(env.deploymentId("s0"), env.statement("s0").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            env.assertStatement("context", statement -> {
+                assertNull(statement.getProperty(StatementProperty.CONTEXTNAME));
+                assertNull(statement.getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            });
+            env.assertStatement("s0", statement -> {
+                assertEquals("CategoryContext", statement.getProperty(StatementProperty.CONTEXTNAME));
+                assertEquals(env.deploymentId("s0"), statement.getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            });
 
             sendAssert(env, "A", 1, "cat1", 1L);
             sendAssert(env, "C", 2, null, null);
@@ -133,20 +139,22 @@ public class ContextCategory {
         }
 
         private void assertPartitionInfo(RegressionEnvironment env) {
-            EPContextPartitionService partitionAdmin = env.runtime().getContextPartitionService();
-            String depIdCtx = env.deploymentId("CTX");
+            env.assertThat(() -> {
+                EPContextPartitionService partitionAdmin = env.runtime().getContextPartitionService();
+                String depIdCtx = env.deploymentId("CTX");
 
-            ContextPartitionCollection partitions = partitionAdmin.getContextPartitions(depIdCtx, "CtxCategory", ContextPartitionSelectorAll.INSTANCE);
-            assertEquals(2, partitions.getIdentifiers().size());
-            ContextPartitionIdentifier[] descs = partitions.getIdentifiers().values().toArray(new ContextPartitionIdentifier[2]);
-            ContextPartitionIdentifierCategory first = (ContextPartitionIdentifierCategory) descs[0];
-            ContextPartitionIdentifierCategory second = (ContextPartitionIdentifierCategory) descs[1];
-            EPAssertionUtil.assertEqualsAnyOrder("cat1,cat2".split(","), new Object[]{first.getLabel(), second.getLabel()});
+                ContextPartitionCollection partitions = partitionAdmin.getContextPartitions(depIdCtx, "CtxCategory", ContextPartitionSelectorAll.INSTANCE);
+                assertEquals(2, partitions.getIdentifiers().size());
+                ContextPartitionIdentifier[] descs = partitions.getIdentifiers().values().toArray(new ContextPartitionIdentifier[2]);
+                ContextPartitionIdentifierCategory first = (ContextPartitionIdentifierCategory) descs[0];
+                ContextPartitionIdentifierCategory second = (ContextPartitionIdentifierCategory) descs[1];
+                EPAssertionUtil.assertEqualsAnyOrder("cat1,cat2".split(","), new Object[]{first.getLabel(), second.getLabel()});
 
-            ContextPartitionIdentifier desc = partitionAdmin.getIdentifier(depIdCtx, "CtxCategory", 0);
-            assertEquals("cat1", ((ContextPartitionIdentifierCategory) desc).getLabel());
+                ContextPartitionIdentifier desc = partitionAdmin.getIdentifier(depIdCtx, "CtxCategory", 0);
+                assertEquals("cat1", ((ContextPartitionIdentifierCategory) desc).getLabel());
 
-            SupportContextPropUtil.assertContextProps(env, "CTX", "CtxCategory", new int[]{0, 1}, "label", new Object[][]{{"cat1"}, {"cat2"}});
+                SupportContextPropUtil.assertContextProps(env, "CTX", "CtxCategory", new int[]{0, 1}, "label", new Object[][]{{"cat1"}, {"cat2"}});
+            });
         }
     }
 
@@ -158,8 +166,10 @@ public class ContextCategory {
             String eplSum = "@name('s0') context Ctx600a select context.label as c0, count(*) as c1 from SupportBean";
             env.compileDeploy(eplSum, path).addListener("s0");
 
-            assertEquals("Ctx600a", env.statement("s0").getProperty(StatementProperty.CONTEXTNAME));
-            assertEquals(env.deploymentId("ctx"), env.statement("s0").getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            env.assertStatement("s0", statement -> {
+                assertEquals("Ctx600a", statement.getProperty(StatementProperty.CONTEXTNAME));
+                assertEquals(env.deploymentId("ctx"), statement.getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
+            });
 
             sendAssertBooleanExprFilter(env, "B1", "bgroup", 1);
 
@@ -204,35 +214,39 @@ public class ContextCategory {
 
             // test iterator targeted by context partition id
             SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(selectorById), env.statement("s0").safeIterator(selectorById), fields, new Object[][]{{1, "grp2", "E1", 3}, {1, "grp2", "E2", -5}});
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(selectorById), statement.safeIterator(selectorById), fields, new Object[][]{{1, "grp2", "E1", 3}, {1, "grp2", "E2", -5}}));
 
             // test iterator targeted for a given category
             SupportSelectorCategory selector = new SupportSelectorCategory(new HashSet<>(Arrays.asList("grp1", "grp3")));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, new Object[][]{{0, "grp1", "E3", -108}, {2, "grp3", "E1", 60}});
+            env.assertStatement("s0", statement -> EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(selector), statement.safeIterator(selector), fields, new Object[][]{{0, "grp1", "E3", -108}, {2, "grp3", "E1", 60}}));
 
             // test iterator targeted for a given filtered category
-            MySelectorFilteredCategory filtered = new MySelectorFilteredCategory("grp1");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(filtered), env.statement("s0").safeIterator(filtered), fields, new Object[][]{{0, "grp1", "E3", -108}});
-            TestCase.assertFalse(env.statement("s0").iterator(new SupportSelectorCategory((Set<String>) null)).hasNext());
-            TestCase.assertFalse(env.statement("s0").iterator(new SupportSelectorCategory(Collections.emptySet())).hasNext());
+            env.assertStatement("s0", statement -> {
+                MySelectorFilteredCategory filtered = new MySelectorFilteredCategory("grp1");
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(filtered), statement.safeIterator(filtered), fields, new Object[][]{{0, "grp1", "E3", -108}});
+                TestCase.assertFalse(statement.iterator(new SupportSelectorCategory((Set<String>) null)).hasNext());
+                TestCase.assertFalse(statement.iterator(new SupportSelectorCategory(Collections.emptySet())).hasNext());
+            });
 
             env.milestoneInc(milestone);
 
             // test always-false filter - compare context partition info
-            filtered = new MySelectorFilteredCategory(null);
-            TestCase.assertFalse(env.statement("s0").iterator(filtered).hasNext());
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"grp1", "grp2", "grp3"}, filtered.getCategories());
+            env.assertStatement("s0", statement -> {
+                MySelectorFilteredCategory filtered = new MySelectorFilteredCategory(null);
+                assertFalse(statement.iterator(filtered).hasNext());
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"grp1", "grp2", "grp3"}, filtered.getCategories());
 
-            try {
-                env.statement("s0").iterator(new ContextPartitionSelectorSegmented() {
-                    public List<Object[]> getPartitionKeys() {
-                        return null;
-                    }
-                });
-                fail();
-            } catch (InvalidContextPartitionSelector ex) {
-                TestCase.assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorCategory] interfaces but received com."));
-            }
+                try {
+                    statement.iterator(new ContextPartitionSelectorSegmented() {
+                        public List<Object[]> getPartitionKeys() {
+                            return null;
+                        }
+                    });
+                    fail();
+                } catch (InvalidContextPartitionSelector ex) {
+                    TestCase.assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorCategory] interfaces but received com."));
+                }
+            });
 
             env.undeployAll();
         }
@@ -275,8 +289,10 @@ public class ContextCategory {
                 "select context.name as c0, context.label as c1, sum(intPrimitive) as c2 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3, null, null, null);
+            env.assertThat(() -> {
+                assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3, null, null, null);
+            });
 
             env.milestoneInc(milestone);
 
@@ -307,13 +323,17 @@ public class ContextCategory {
 
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
 
-            assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
+                assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
 
             env.undeployModuleContaining("s0");
 
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
+            env.assertThat(() -> {
+                assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
+            });
         }
     }
 
@@ -358,9 +378,9 @@ public class ContextCategory {
         env.sendEventBean(new SupportBean("E1", 4));
         env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 5});
 
-        assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
+        env.assertThat(() -> assertEquals(1, SupportContextMgmtHelper.getContextCount(env)));
         env.undeployAll();
-        assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
+        env.assertThat(() -> assertEquals(0, SupportContextMgmtHelper.getContextCount(env)));
     }
 
     public static class ContextCategoryDeclaredExpr implements RegressionExecution {

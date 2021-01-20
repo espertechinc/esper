@@ -18,15 +18,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.EPDeployment;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -90,6 +88,10 @@ public class ClientCompileVisibility {
                 }, "create schema ABC()", message);
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY, RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientVisibilityDisambiguateWithUses implements RegressionExecution {
@@ -100,7 +102,7 @@ public class ClientCompileVisibility {
                 "select var_named from SupportBean",
                 () -> {
                     env.sendEventBean(new SupportBean());
-                    assertEquals("x", env.listener("s0").assertOneGetNewAndReset().get("var_named"));
+                    env.assertEqualsNew("s0", "var_named", "x");
                 });
 
             runAssertionDisambiguate(env,
@@ -130,7 +132,7 @@ public class ClientCompileVisibility {
                 "select MyExpr() as c0 from SupportBean",
                 () -> {
                     env.sendEventBean(new SupportBean());
-                    assertEquals("y", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                    env.assertEqualsNew("s0", "c0", "y");
                 });
 
             runAssertionDisambiguate(env,
@@ -139,7 +141,7 @@ public class ClientCompileVisibility {
                 "select myscript() as c0 from SupportBean",
                 () -> {
                     env.sendEventBean(new SupportBean());
-                    assertEquals("z", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                    env.assertEqualsNew("s0", "c0", "z");
                 });
 
             runAssertionDisambiguate(env,
@@ -157,7 +159,7 @@ public class ClientCompileVisibility {
                 "select MyClass.doIt() as c0 from SupportBean",
                 () -> {
                     env.sendEventBean(new SupportBean());
-                    assertEquals("def", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                    env.assertEqualsNew("s0", "c0", "def");
                 });
         }
     }
@@ -188,6 +190,10 @@ public class ClientCompileVisibility {
             runAssertionOptionModuleName(env, "select 1 from SupportBean");
             runAssertionOptionModuleName(env, "module x; select 1 from SupportBean");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientVisibilityAnnotationProtected implements RegressionExecution {
@@ -201,6 +207,10 @@ public class ClientCompileVisibility {
             env.compile("module a.b.c;\n" + USER_EPL, path);
 
             env.tryInvalidCompile(path, "module a.b.d;\n" + USER_EPL, FIRST_MESSAGE);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -231,6 +241,10 @@ public class ClientCompileVisibility {
             String epl = CREATE_EPL.replace("${PREFIX}", "@private") + USER_EPL;
             EPCompiled compiled = env.compile(epl);
             tryInvalidNotVisible(env, compiled);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
         }
     }
 
@@ -291,6 +305,10 @@ public class ClientCompileVisibility {
             env.tryInvalidCompile(path, "select 'test' from SupportBean_S1",
                 "The event type by name 'SupportBean_S1' is ambiguous as it exists in both the path space and the preconfigured space");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientVisibilityNamedWindowSimple implements RegressionExecution {
@@ -321,6 +339,10 @@ public class ClientCompileVisibility {
             env.assertPropsNew("s0", fields, new Object[]{"E4", 51});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 

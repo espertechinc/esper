@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class ISupportDImpl implements ISupportD {
+import java.io.Serializable;
+
+public class ISupportDImpl implements ISupportD, Serializable {
+    private static final long serialVersionUID = 3385488999281482651L;
     private String valueD;
     private String valueBaseD;
     private String valueBaseDBase;

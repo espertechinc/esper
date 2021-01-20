@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.client.util.StatementProperty;
@@ -31,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.buildMap;
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 /**
@@ -58,8 +56,8 @@ public class InfraNamedWindowInsertFrom {
 
             env.sendEventBean(new SupportBean("E1", 1));
             String[] fields = new String[]{"theString"};
-            EPAssertionUtil.assertProps(env.listener("windowOne").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("selectOne").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("windowOne", fields, new Object[]{"E1"});
+            env.assertPropsNew("selectOne", fields, new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -77,9 +75,9 @@ public class InfraNamedWindowInsertFrom {
             env.milestone(0);
 
             // populate some data
-            assertEquals(0, getCount(env, path, "window", "MyWindowIWT"));
+            env.assertRuntime(runtime -> assertEquals(0, getCount(env, path, "window", "MyWindowIWT")));
             env.sendEventBean(new SupportBean("A1", 1));
-            assertEquals(1, getCount(env, path, "window", "MyWindowIWT"));
+            env.assertRuntime(runtime -> assertEquals(1, getCount(env, path, "window", "MyWindowIWT")));
             env.sendEventBean(new SupportBean("B2", 1));
 
             env.milestone(1);
@@ -87,83 +85,103 @@ public class InfraNamedWindowInsertFrom {
             env.sendEventBean(new SupportBean("C3", 1));
             env.sendEventBean(new SupportBean("A4", 4));
             env.sendEventBean(new SupportBean("C5", 4));
-            assertEquals(5, getCount(env, path, "window", "MyWindowIWT"));
-            env.listener("window").reset();
+            env.assertRuntime(runtime -> assertEquals(5, getCount(env, path, "window", "MyWindowIWT")));
+            env.listenerReset("window");
 
             env.milestone(2);
 
             // create window with keep-all
             String stmtTextCreateTwo = "@name('windowTwo') create window MyWindowTwo#keepall as MyWindowIWT insert";
             env.compileDeploy(stmtTextCreateTwo, path).addListener("windowTwo");
-            EPAssertionUtil.assertPropsPerRow(env.iterator("windowTwo"), fields, new Object[][]{{"A1"}, {"B2"}, {"C3"}, {"A4"}, {"C5"}});
-            EventType eventTypeTwo = env.iterator("windowTwo").next().getEventType();
-            assertFalse(env.listener("windowTwo").isInvoked());
-            assertEquals(5, getCount(env, path, "windowTwo", "MyWindowTwo"));
-            assertEquals(StatementType.CREATE_WINDOW, env.statement("windowTwo").getProperty(StatementProperty.STATEMENTTYPE));
-            assertEquals("MyWindowTwo", env.statement("windowTwo").getProperty(StatementProperty.CREATEOBJECTNAME));
+            env.assertIterator("windowTwo", iterator -> EPAssertionUtil.assertPropsPerRow(iterator, fields, new Object[][]{{"A1"}, {"B2"}, {"C3"}, {"A4"}, {"C5"}}));
+            env.assertListenerNotInvoked("windowTwo");
+            env.assertRuntime(runtime -> assertEquals(5, getCount(env, path, "windowTwo", "MyWindowTwo")));
+            env.assertStatement("windowTwo", statement -> {
+                assertEquals(StatementType.CREATE_WINDOW, statement.getProperty(StatementProperty.STATEMENTTYPE));
+                assertEquals("MyWindowTwo", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
+            });
 
             // create window with keep-all and filter
             String stmtTextCreateThree = "@name('windowThree') create window MyWindowThree#keepall as MyWindowIWT insert where theString like 'A%'";
             env.compileDeploy(stmtTextCreateThree, path).addListener("windowThree");
-            EPAssertionUtil.assertPropsPerRow(env.iterator("windowThree"), fields, new Object[][]{{"A1"}, {"A4"}});
-            EventType eventTypeThree = env.iterator("windowThree").next().getEventType();
-            assertFalse(env.listener("windowThree").isInvoked());
+            env.assertPropsPerRowIterator("windowThree", fields, new Object[][]{{"A1"}, {"A4"}});
+            env.assertListenerNotInvoked("windowThree");
 
             env.milestone(3);
 
-            assertEquals(2, getCount(env, path, "windowThree", "MyWindowThree"));
+            env.assertRuntime(runtime -> assertEquals(2, getCount(env, path, "windowThree", "MyWindowThree")));
 
             // create window with last-per-id
             String stmtTextCreateFour = "@name('windowFour') create window MyWindowFour#unique(intPrimitive) as MyWindowIWT insert";
             env.compileDeploy(stmtTextCreateFour, path).addListener("windowFour");
-            EPAssertionUtil.assertPropsPerRow(env.iterator("windowFour"), fields, new Object[][]{{"C3"}, {"C5"}});
-            EventType eventTypeFour = env.iterator("windowFour").next().getEventType();
-            assertFalse(env.listener("windowFour").isInvoked());
+            env.assertPropsPerRowIterator("windowFour", fields, new Object[][]{{"C3"}, {"C5"}});
+            env.assertListenerNotInvoked("windowFour");
 
             env.milestone(4);
 
-            assertEquals(2, getCount(env, path, "windowFour", "MyWindowFour"));
+            env.assertRuntime(runtime -> assertEquals(2, getCount(env, path, "windowFour", "MyWindowFour")));
 
             env.compileDeploy("insert into MyWindowIWT select * from SupportBean(theString like 'A%')", path);
             env.compileDeploy("insert into MyWindowTwo select * from SupportBean(theString like 'B%')", path);
             env.compileDeploy("insert into MyWindowThree select * from SupportBean(theString like 'C%')", path);
             env.compileDeploy("insert into MyWindowFour select * from SupportBean(theString like 'D%')", path);
-            assertFalse(env.listener("window").isInvoked() || env.listener("windowTwo").isInvoked() || env.listener("windowThree").isInvoked() || env.listener("windowFour").isInvoked());
+            env.assertListenerNotInvoked("window");
+            env.assertListenerNotInvoked("windowTwo");
+            env.assertListenerNotInvoked("windowThree");
+            env.assertListenerNotInvoked("windowFour");
 
             env.sendEventBean(new SupportBean("B9", -9));
-            EventBean received = env.listener("windowTwo").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{"B9"});
-            if (!env.isHA()) {
-                assertSame(eventTypeTwo, received.getEventType());
-            }
-            assertFalse(env.listener("window").isInvoked() || env.listener("windowThree").isInvoked() || env.listener("windowFour").isInvoked());
-            assertEquals(6, getCount(env, path, "windowTwo", "MyWindowTwo"));
+            env.assertListener("windowTwo", listener -> {
+                final EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, fields, new Object[]{"B9"});
+                if (!env.isHA()) {
+                    assertSame(env.statement("windowTwo").getEventType(), received.getEventType());
+                }
+            });
+
+            env.assertRuntime(runtime -> assertEquals(6, getCount(env, path, "windowTwo", "MyWindowTwo")));
+            env.assertListenerNotInvoked("window");
+            env.assertListenerNotInvoked("windowThree");
+            env.assertListenerNotInvoked("windowFour");
 
             env.milestone(5);
 
             env.sendEventBean(new SupportBean("A8", -8));
-            received = env.listener("window").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{"A8"});
-            assertSame(env.statement("window").getEventType(), received.getEventType());
-            assertFalse(env.listener("windowTwo").isInvoked() || env.listener("windowThree").isInvoked() || env.listener("windowFour").isInvoked());
+            env.assertListener("window", listener -> {
+                EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, fields, new Object[]{"A8"});
+                assertSame(env.statement("window").getEventType(), received.getEventType());
+            });
+            env.assertListenerNotInvoked("windowTwo");
+            env.assertListenerNotInvoked("windowThree");
+            env.assertListenerNotInvoked("windowFour");
 
             env.milestone(6);
 
             env.sendEventBean(new SupportBean("C7", -7));
-            received = env.listener("windowThree").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{"C7"});
-            if (!env.isHA()) {
-                assertSame(eventTypeThree, received.getEventType());
-            }
-            assertFalse(env.listener("windowTwo").isInvoked() || env.listener("window").isInvoked() || env.listener("windowFour").isInvoked());
+            env.assertListener("windowThree", listener -> {
+                EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, fields, new Object[]{"C7"});
+                if (!env.isHA()) {
+                    assertSame(env.iterator("windowThree").next().getEventType(), received.getEventType());
+                }
+            });
+            env.assertListenerNotInvoked("window");
+            env.assertListenerNotInvoked("window");
+            env.assertListenerNotInvoked("windowTwo");
+            env.assertListenerNotInvoked("windowFour");
 
             env.sendEventBean(new SupportBean("D6", -6));
-            received = env.listener("windowFour").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(received, fields, new Object[]{"D6"});
-            if (!env.isHA()) {
-                assertSame(eventTypeFour, received.getEventType());
-            }
-            assertFalse(env.listener("windowTwo").isInvoked() || env.listener("window").isInvoked() || env.listener("windowThree").isInvoked());
+            env.assertListener("windowFour", listener -> {
+                EventBean received = listener.assertOneGetNewAndReset();
+                EPAssertionUtil.assertProps(received, fields, new Object[]{"D6"});
+                if (!env.isHA()) {
+                    assertSame(env.statement("windowFour").getEventType(), received.getEventType());
+                }
+            });
+            env.assertListenerNotInvoked("window");
+            env.assertListenerNotInvoked("windowTwo");
+            env.assertListenerNotInvoked("windowThree");
 
             env.undeployAll();
         }
@@ -180,9 +198,8 @@ public class InfraNamedWindowInsertFrom {
 
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOM.class) + " @name('window') create window MyWindowIWOM#keepall as select a, b from MyMapAB";
-            env.compileDeploy(stmtTextCreateOne, path);
-            assertTrue(eventRepresentationEnum.matchesClass(env.statement("window").getEventType().getUnderlyingType()));
-            env.addListener("window");
+            env.compileDeploy(stmtTextCreateOne, path).addListener("window");
+            env.assertStatement("window", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
             // create insert into
             String stmtTextInsertOne = "insert into MyWindowIWOM select a, b from MyMapAB";
@@ -206,12 +223,11 @@ public class InfraNamedWindowInsertFrom {
             assertEquals(text.trim(), modelTwo.toEPL());
             modelTwo.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("windowTwo")));
             env.compileDeploy(modelTwo, path).addListener("windowTwo");
-
-            EPAssertionUtil.assertPropsPerRow(env.iterator("windowTwo"), "a,b".split(","), new Object[][]{{"E2", 10}, {"E3", 10}});
+            env.assertPropsPerRowIterator("windowTwo", "a,b".split(","), new Object[][]{{"E2", 10}, {"E3", 10}});
 
             // test select individual fields and from an insert-from named window
             env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOMThree.class) + " @name('windowThree') create window MyWindowIWOMThree#keepall as select a from MyWindowIWOMTwo insert where a = 'E2'", path);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("windowThree"), "a".split(","), new Object[][]{{"E2"}});
+            env.assertPropsPerRowIterator("windowThree", "a".split(","), new Object[][]{{"E2"}});
 
             env.undeployAll();
         }
@@ -228,9 +244,11 @@ public class InfraNamedWindowInsertFrom {
             env.compileDeploy("insert into MyWindowVSTwo select * from VarStream", path);
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_B("B1"));
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("window"));
-            assertEquals("A1", events[0].get("id?"));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("window"), "id?".split(","), new Object[][]{{"A1"}, {"B1"}});
+            env.assertIterator("window", iterator -> {
+                EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
+                assertEquals("A1", events[0].get("id?"));
+            });
+            env.assertPropsPerRowIterator("window", "id?".split(","), new Object[][]{{"A1"}, {"B1"}});
 
             env.undeployAll();
         }

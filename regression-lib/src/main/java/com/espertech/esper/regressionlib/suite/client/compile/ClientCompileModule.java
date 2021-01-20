@@ -22,6 +22,7 @@ import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployment;
@@ -49,11 +50,22 @@ public class ClientCompileModule {
 
     private static class ClientCompileModuleEPLModuleText implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            EPDeployment deployment;
+
             String epl = "@name('s0') select * from SupportBean";
             env.compileDeploy(epl);
-            EPDeployment deployment = env.deployment().getDeployment(env.deploymentId("s0"));
+            deployment = env.deployment().getDeployment(env.deploymentId("s0"));
             assertEquals(epl, deployment.getModuleProperties().get(ModuleProperty.MODULETEXT));
             env.undeployAll();
+
+            env.eplToModelCompileDeploy(epl);
+            deployment = env.deployment().getDeployment(env.deploymentId("s0"));
+            assertEquals(epl, deployment.getModuleProperties().get(ModuleProperty.MODULETEXT));
+            env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -63,6 +75,10 @@ public class ClientCompileModule {
                 "@public @buseventtype create map schema Fubar as (foo String, bar Double);" + System.lineSeparator()
                     + "/** comment after */";
             env.compileDeploy(epl).undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -140,6 +156,10 @@ public class ClientCompileModule {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileModuleLineNumberAndComments implements RegressionExecution {
@@ -176,6 +196,10 @@ public class ClientCompileModule {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileModuleWImports implements RegressionExecution {
@@ -199,6 +223,10 @@ public class ClientCompileModule {
             assertEquals(7, env.listener("A").assertOneGetNewAndReset().get("val"));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -277,6 +305,10 @@ public class ClientCompileModule {
             module = env.readModule("regression/test_module_15.epl");
             assertEquals(1, module.getItems().size());
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
     }
 
     private static class ClientCompileModuleParseFail implements RegressionExecution {
@@ -313,6 +345,10 @@ public class ClientCompileModule {
 
             // try control chars
             tryInvalidControlCharacters(env);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
         }
     }
 

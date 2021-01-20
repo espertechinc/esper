@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import static com.espertech.esper.regressionlib.support.events.SupportEventInfra.*;
@@ -82,6 +84,11 @@ public class EventInfraSuperType implements RegressionExecution {
 
         env.undeployAll();
     }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
+    }
+
 
     public static class Bean_Type_Root {
     }

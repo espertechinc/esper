@@ -47,7 +47,7 @@ public class ClientStageEventService {
         return execs;
     }
 
-    private static class ClientStageEventServiceEventSend implements RegressionExecution {
+    private static class ClientStageEventServiceEventSend implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             EPStage stage = env.stageService().getStage("ST");
             RegressionPath path = new RegressionPath();

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -23,11 +22,13 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
+import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -58,12 +59,12 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 1);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("create", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetOldAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsOld("create", fields, new Object[]{"E1"});
 
             env.undeployAll();
 
@@ -83,51 +84,51 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
                 "@name('consumer') select * from MyStream;\n" +
                 "insert into MyStream select * from SupportBean(theString like 'I%');\n";
             env.compileDeploy(epl, path).addListener("select").addListener("consumer");
-            assertEquals(StatementType.ON_INSERT, env.statement("select").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("select", statement -> assertEquals(StatementType.ON_INSERT, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             // send event
             sendSupportBean(env, "E1", 1);
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("consumer").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("consumer");
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-            EPAssertionUtil.assertProps(env.listener("consumer").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 1});
+            env.assertPropsNew("consumer", fields, new Object[]{"E1", 1});
 
             // insert via 2nd insert into
             sendSupportBean(env, "I2", 2);
-            assertFalse(env.listener("select").isInvoked());
-            EPAssertionUtil.assertProps(env.listener("consumer").assertOneGetNewAndReset(), fields, new Object[]{"I2", 2});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertListenerNotInvoked("select");
+            env.assertPropsNew("consumer", fields, new Object[]{"I2", 2});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             // send event
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("consumer").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("consumer");
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
             // fire trigger
             sendSupportBean_A(env, "A2");
-            assertEquals(1, env.listener("select").getNewDataList().size());
-            EPAssertionUtil.assertPropsPerRow(env.listener("select").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
-            env.listener("select").reset();
-            assertEquals(2, env.listener("consumer").getNewDataList().size());
-            EPAssertionUtil.assertPropsPerRow(env.listener("consumer").getNewDataListFlattened(), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
-            env.listener("consumer").reset();
+            env.assertPropsPerRowNewOnly("select", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertPropsPerRowNewFlattened("consumer", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
             // check type
-            EventType consumerType = env.statement("consumer").getEventType();
-            assertEquals(String.class, consumerType.getPropertyType("theString"));
-            assertTrue(consumerType.getPropertyNames().length > 10);
-            assertEquals(SupportBean.class, consumerType.getUnderlyingType());
+            env.assertStatement("consumer", statement -> {
+                EventType consumerType = statement.getEventType();
+                assertEquals(String.class, consumerType.getPropertyType("theString"));
+                assertTrue(consumerType.getPropertyNames().length > 10);
+                assertEquals(SupportBean.class, consumerType.getUnderlyingType());
+            });
 
             // check type
-            EventType onSelectType = env.statement("select").getEventType();
-            assertEquals(String.class, onSelectType.getPropertyType("theString"));
-            assertTrue(onSelectType.getPropertyNames().length > 10);
-            assertEquals(SupportBean.class, onSelectType.getUnderlyingType());
+            env.assertStatement("select", statement -> {
+                EventType onSelectType = statement.getEventType();
+                assertEquals(String.class, onSelectType.getPropertyType("theString"));
+                assertTrue(onSelectType.getPropertyNames().length > 10);
+                assertEquals(SupportBean.class, onSelectType.getUnderlyingType());
+            });
 
             // delete all from named window
             String stmtTextDelete = "@name('delete') on SupportBean_B delete from MyWindow";
@@ -156,7 +157,7 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
 
             env.sendEventBean(new SupportBean("A", 1));
             env.sendEventBean(new SupportBean("B", 1));
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertListener("s0", SupportListener::assertOneGetNewAndReset);
 
             env.undeployAll();
         }

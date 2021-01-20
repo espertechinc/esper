@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.configuration.compiler.ConfigurationCom
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportExceptionHandlerFactory;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
@@ -24,6 +25,7 @@ import com.espertech.esper.regressionlib.support.util.SupportXML;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import static junit.framework.TestCase.fail;
@@ -50,6 +52,10 @@ public class ClientRuntimeThreadedConfigInbound implements RegressionExecutionWi
         configuration.getCommon().addEventType("XMLType", xmlDOMEventTypeDesc);
 
         configuration.getCompiler().addPlugInSingleRowFunction("throwException", this.getClass().getName(), "throwException", ConfigurationCompilerPlugInSingleRowFunction.ValueCache.DISABLED, ConfigurationCompilerPlugInSingleRowFunction.FilterOptimizable.DISABLED, true);
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.RUNTIMEOPS);
     }
 
     public void run(RegressionEnvironment env) {

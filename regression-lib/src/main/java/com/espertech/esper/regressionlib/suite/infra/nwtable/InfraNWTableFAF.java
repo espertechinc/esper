@@ -19,12 +19,12 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.context.SupportHashCodeFuncGranularCRC32;
@@ -37,7 +37,6 @@ import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
 import static junit.framework.TestCase.fail;
@@ -153,6 +152,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraExecuteFilter implements RegressionExecution {
@@ -186,6 +189,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraInvalid implements RegressionExecution {
@@ -204,7 +211,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             epl = "selectoo man";
             tryInvalidFAFCompile(env, path, epl, "Incorrect syntax near 'selectoo' [selectoo man]");
-            
+
             epl = "select * from MyInfra output every 10 seconds";
             tryInvalidFAFCompile(env, path, epl, "Output rate limiting is not a supported feature of on-demand queries [select * from MyInfra output every 10 seconds]");
 
@@ -246,6 +253,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class Infra3StreamInnerJoin implements RegressionExecution {
@@ -258,9 +269,9 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
         }
 
         public void run(RegressionEnvironment env) {
-            String eplEvents = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + " create schema Product (productId string, categoryId string);" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCategory.class) + " create schema Category (categoryId string, owner string);" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductOwnerDetails.class) + " create schema ProductOwnerDetails (productId string, owner string);";
+            String eplEvents = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + " @buseventtype create schema Product (productId string, categoryId string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCategory.class) + " @buseventtype create schema Category (categoryId string, owner string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductOwnerDetails.class) + " @buseventtype create schema ProductOwnerDetails (productId string, owner string);";
             String epl;
             if (namedWindow) {
                 epl = eplEvents +
@@ -281,7 +292,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             }
 
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType(epl, path);
+            env.compileDeploy(epl, path);
 
             sendEvent(eventRepresentationEnum, env, "Product", new String[]{"productId=Product1", "categoryId=Category1"});
             sendEvent(eventRepresentationEnum, env, "Product", new String[]{"productId=Product2", "categoryId=Category1"});
@@ -337,6 +348,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "eventRepresentationEnum=" + eventRepresentationEnum +
                 ", namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -405,6 +420,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraAggUngroupedRowForEvent implements RegressionExecution {
@@ -437,6 +456,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -491,6 +514,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 ", isSecondNW=" + isSecondNW +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraAggUngroupedRowForGroup implements RegressionExecution {
@@ -524,6 +551,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -568,6 +599,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -621,6 +656,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraSelectCountStar implements RegressionExecution {
@@ -672,6 +711,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraSelectWildcard implements RegressionExecution {
@@ -710,6 +753,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -767,6 +814,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
 
         private SupportBean sendBeanInt(RegressionEnvironment env, String string, int intBoxed) {
@@ -857,6 +908,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 '}';
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
+
         private EPFireAndForgetQueryResult compileExecuteFAF(RegressionEnvironment env, RegressionPath path, String epl, ContextPartitionSelector[] selectors) {
             EPCompiled compiled = env.compileFAF(epl, path);
             return env.runtime().getFireAndForgetService().executeQuery(compiled, selectors);
@@ -945,6 +1000,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraUpdate implements RegressionExecution {
@@ -965,7 +1024,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 env.sendEventBean(new SupportBean("E" + i, i));
             }
             EPFireAndForgetQueryResult result = compileExecute("update MyInfra set theString = 'ABC'", path, env);
-            EPAssertionUtil.assertPropsPerRow(env.iterator("TheInfra"), fields, new Object[][]{{"ABC", 0}, {"ABC", 1}});
+            env.assertPropsPerRowIterator("TheInfra", fields, new Object[][]{{"ABC", 0}, {"ABC", 1}});
             if (namedWindow) {
                 EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"ABC", 0}, {"ABC", 1}});
             }
@@ -979,7 +1038,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             if (namedWindow) {
                 EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"X", -1}});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("TheInfra"), fields, new Object[][]{{"E0", 0}, {"E2", 2}, {"X", -1}});
+            env.assertPropsPerRowIteratorAnyOrder("TheInfra", fields, new Object[][]{{"E0", 0}, {"E2", 2}, {"X", -1}});
 
             // test update with SODA
             String epl = "update MyInfra set intPrimitive=intPrimitive+10 where theString=\"E2\"";
@@ -989,14 +1048,14 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             if (namedWindow) {
                 EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"E2", 12}});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("TheInfra"), fields, new Object[][]{{"E0", 0}, {"X", -1}, {"E2", 12}});
+            env.assertPropsPerRowIteratorAnyOrder("TheInfra", fields, new Object[][]{{"E0", 0}, {"X", -1}, {"E2", 12}});
 
             // test update with initial value
             result = env.compileExecuteFAF("update MyInfra set intPrimitive=5, theString='x', theString = initial.theString || 'y', intPrimitive=initial.intPrimitive+100 where theString = 'E0'", path);
             if (namedWindow) {
                 EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"E0y", 100}});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("TheInfra"), fields, new Object[][]{{"X", -1}, {"E2", 12}, {"E0y", 100}});
+            env.assertPropsPerRowIteratorAnyOrder("TheInfra", fields, new Object[][]{{"X", -1}, {"E2", 12}, {"E0y", 100}});
 
             env.compileExecuteFAF("delete from MyInfra", path);
             for (int i = 0; i < 5; i++) {
@@ -1027,8 +1086,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 env.compileExecuteFAF("delete from MyInfra", path);
                 env.sendEventBean(new SupportBean("A", 10));
                 env.compileExecuteFAF("update MyInfra mw set mw.setTheString('XYZ'), doubleInt(mw)", path);
-                EPAssertionUtil.assertPropsPerRow(env.iterator("TheInfra"),
-                    "theString,intPrimitive".split(","), new Object[][]{{"XYZ", 20}});
+                env.assertPropsPerRowIterator("TheInfra", "theString,intPrimitive".split(","), new Object[][]{{"XYZ", 20}});
             }
 
             env.undeployAll();
@@ -1042,7 +1100,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.compileExecuteFAF("insert into MyInfra select new double[] {1, 2, 3} as mydoubles", path);
             env.compileExecuteFAF("update MyInfra set mydoubles[3-2] = 4", path);
             EPFireAndForgetQueryResult resultDoubles = env.compileExecuteFAF("select * from MyInfra", path);
-            assertArrayEquals(new double[] {1, 4, 3}, (double[]) resultDoubles.getArray()[0].get("mydoubles"), 0.0);
+            assertArrayEquals(new double[]{1, 4, 3}, (double[]) resultDoubles.getArray()[0].get("mydoubles"), 0.0);
 
             env.undeployAll();
         }
@@ -1051,6 +1109,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -1062,25 +1124,26 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
         }
 
         public void run(RegressionEnvironment env) {
-
             RegressionPath path = setupInfra(env, namedWindow);
-
-            Supplier<EPStatement> stmt = () -> env.statement("TheInfra");
             String[] propertyNames = "theString,intPrimitive".split(",");
 
             // try column name provided with insert-into
             String eplSelect = "insert into MyInfra (theString, intPrimitive) select 'a', 1";
             EPFireAndForgetQueryResult resultOne = env.compileExecuteFAF(eplSelect, path);
-            assertFAFInsertResult(resultOne, new Object[]{"a", 1}, propertyNames, stmt.get(), namedWindow);
-            EPAssertionUtil.assertPropsPerRow(stmt.get().iterator(), propertyNames, new Object[][]{{"a", 1}});
+            env.assertStatement("TheInfra", stmt -> {
+                assertFAFInsertResult(resultOne, new Object[]{"a", 1}, propertyNames, stmt, namedWindow);
+                EPAssertionUtil.assertPropsPerRow(stmt.iterator(), propertyNames, new Object[][]{{"a", 1}});
+            });
 
             // try SODA and column name not provided with insert-into
             String eplTwo = "insert into MyInfra select \"b\" as theString, 2 as intPrimitive";
             EPStatementObjectModel modelWSelect = env.eplToModel(eplTwo);
             assertEquals(eplTwo, modelWSelect.toEPL());
             EPFireAndForgetQueryResult resultTwo = env.compileExecuteFAF(modelWSelect, path);
-            assertFAFInsertResult(resultTwo, new Object[]{"b", 2}, propertyNames, stmt.get(), namedWindow);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.get().iterator(), propertyNames, new Object[][]{{"a", 1}, {"b", 2}});
+            env.assertStatement("TheInfra", stmt -> {
+                assertFAFInsertResult(resultTwo, new Object[]{"b", 2}, propertyNames, stmt, namedWindow);
+                EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), propertyNames, new Object[][]{{"a", 1}, {"b", 2}});
+            });
 
             // create unique index, insert duplicate row
             env.compileDeploy("create unique index I1 on MyInfra (theString)", path);
@@ -1090,7 +1153,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             } catch (EPException ex) {
                 assertEquals("Unique index violation, index 'I1' is a unique index and key 'a' already exists", ex.getMessage());
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("TheInfra"), propertyNames, new Object[][]{{"a", 1}, {"b", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("TheInfra", propertyNames, new Object[][]{{"a", 1}, {"b", 2}});
 
             // try second no-column-provided version
             String eplMyInfraThree = namedWindow ?
@@ -1098,7 +1161,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 "@name('InfraThree') create table MyInfraThree as (p0 string, p1 int)";
             env.compileDeploy(eplMyInfraThree, path);
             env.compileExecuteFAF("insert into MyInfraThree select 'a' as p0, 1 as p1", path);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("InfraThree"), "p0,p1".split(","), new Object[][]{{"a", 1}});
+            env.assertPropsPerRowIteratorAnyOrder("InfraThree", "p0,p1".split(","), new Object[][]{{"a", 1}});
 
             // try enum-value insert
             String epl = "create schema MyMode (mode " + SupportEnum.class.getName() + ");\n" +
@@ -1107,27 +1170,29 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                     "@name('enumwin') create table MyInfraTwo as (mode " + SupportEnum.class.getName() + ");\n");
             env.compileDeploy(epl, path);
             env.compileExecuteFAF("insert into MyInfraTwo select " + SupportEnum.class.getName() + "." + SupportEnum.ENUM_VALUE_2.name() + " as mode", path);
-            EPAssertionUtil.assertProps(env.iterator("enumwin").next(), "mode".split(","), new Object[]{SupportEnum.ENUM_VALUE_2});
+            env.assertIterator("enumwin", iterator -> EPAssertionUtil.assertProps(iterator.next(), "mode".split(","), new Object[]{SupportEnum.ENUM_VALUE_2}));
 
             // try insert-into with values-keyword and explicit column names
             env.compileExecuteFAF("delete from MyInfra", path);
             String eplValuesKW = "insert into MyInfra(theString, intPrimitive) values (\"a\", 1)";
             EPFireAndForgetQueryResult resultValuesKW = env.compileExecuteFAF(eplValuesKW, path);
-            assertFAFInsertResult(resultValuesKW, new Object[]{"a", 1}, propertyNames, stmt.get(), namedWindow);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.get().iterator(), propertyNames, new Object[][]{{"a", 1}});
+            env.assertStatement("TheInfra", stmt -> {
+                assertFAFInsertResult(resultValuesKW, new Object[]{"a", 1}, propertyNames, stmt, namedWindow);
+                EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), propertyNames, new Object[][]{{"a", 1}});
+            });
 
             // try insert-into with values model
             env.compileExecuteFAF("delete from MyInfra", path);
             EPStatementObjectModel modelWValuesKW = env.eplToModel(eplValuesKW);
             assertEquals(eplValuesKW, modelWValuesKW.toEPL());
             env.compileExecuteFAF(modelWValuesKW, path);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.get().iterator(), propertyNames, new Object[][]{{"a", 1}});
+            env.assertStatement("TheInfra", stmt -> EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), propertyNames, new Object[][]{{"a", 1}}));
 
             // try insert-into with values-keyword and as-names
             env.compileExecuteFAF("delete from MyInfraThree", path);
             String eplValuesWithoutCols = "insert into MyInfraThree values ('b', 2)";
             env.compileExecuteFAF(eplValuesWithoutCols, path);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("InfraThree"), "p0,p1".split(","), new Object[][]{{"b", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("InfraThree", "p0,p1".split(","), new Object[][]{{"b", 2}});
 
             env.undeployAll();
         }
@@ -1136,6 +1201,10 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -1197,13 +1266,13 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             }
             env.sendEventMap(eventMap, eventName);
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(eventName)));
+            GenericData.Record record = new GenericData.Record(env.runtimeAvroSchemaPreconfigured(eventName));
             for (String attribute : attributes) {
                 String key = attribute.split("=")[0];
                 String value = attribute.split("=")[1];
                 record.put(key, value);
             }
-            env.eventService().sendEventAvro(record, eventName);
+            env.sendEventAvro(record, eventName);
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             JsonObject event = new JsonObject();
             for (String attribute : attributes) {
@@ -1211,7 +1280,7 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
                 String value = attribute.split("=")[1];
                 event.add(key, value);
             }
-            env.eventService().sendEventJson(event.toString(), eventName);
+            env.sendEventJson(event.toString(), eventName);
         } else {
             fail();
         }

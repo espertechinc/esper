@@ -14,7 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportTradeEvent;
-import org.junit.Assert;
 
 public class ExprFilterLargeThreading implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -30,7 +29,7 @@ public class ExprFilterLargeThreading implements RegressionExecution {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportTradeEvent(2, "1234", 1001));
-        Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("event1.id"));
+        env.assertEqualsNew("s0", "event1.id", 2);
 
         env.undeployAll();
     }

@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public interface ISupportBaseAB {
+import java.io.Serializable;
+
+public interface ISupportBaseAB extends Serializable {
     public String getBaseAB();
 }

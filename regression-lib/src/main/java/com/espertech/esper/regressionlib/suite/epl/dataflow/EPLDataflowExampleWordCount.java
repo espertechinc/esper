@@ -15,10 +15,12 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptu
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.dataflow.MyLineFeedSource;
 import com.espertech.esper.regressionlib.support.dataflow.MyWordCountStats;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -55,5 +57,9 @@ public class EPLDataflowExampleWordCount implements RegressionExecution {
         assertEquals(23, stats.getChars());
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 }

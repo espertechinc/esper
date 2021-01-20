@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.resultset.aggregate;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
@@ -25,6 +24,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -90,28 +90,20 @@ public class ResultSetAggregateCountSum {
     private static class ResultSetAggregateCountPlusStar implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // Test for ESPER-118
+            String[] fields = "symbol,cnt".split(",");
             String statementText = "@name('s0') select *, count(*) as cnt from SupportMarketDataBean";
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "S0", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(1L, env.listener("s0").getLastNewData()[0].get("cnt"));
-            assertEquals("S0", env.listener("s0").getLastNewData()[0].get("symbol"));
+            env.assertPropsNew("s0", fields, new Object[] {"S0", 1L});
 
             sendEvent(env, "S1", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
-            assertEquals("S1", env.listener("s0").getLastNewData()[0].get("symbol"));
+            env.assertPropsNew("s0", fields, new Object[] {"S1", 2L});
 
             env.milestone(0);
 
             sendEvent(env, "S2", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(3L, env.listener("s0").getLastNewData()[0].get("cnt"));
-            assertEquals("S2", env.listener("s0").getLastNewData()[0].get("symbol"));
+            env.assertPropsNew("s0", fields, new Object[] {"S2", 3L});
 
             env.undeployAll();
         }
@@ -123,21 +115,15 @@ public class ResultSetAggregateCountSum {
             env.compileDeploy(statementText).addListener("s0");
 
             sendEvent(env, "DELL", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(1L, env.listener("s0").getLastNewData()[0].get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 1L);
 
             sendEvent(env, "DELL", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(2L, env.listener("s0").getLastNewData()[0].get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 2L);
 
             env.milestone(0);
 
             sendEvent(env, "DELL", 1L);
-            env.assertListenerInvoked("s0");
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(3L, env.listener("s0").getLastNewData()[0].get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 3L);
 
             // test invalid distinct
             env.tryInvalidCompile("select count(distinct *) from SupportMarketDataBean",
@@ -155,12 +141,12 @@ public class ResultSetAggregateCountSum {
             sendEvent(env);
             env.assertListenerNotInvoked("s0");
             sendEvent(env);
-            assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+            env.assertEqualsNew("s0", "mysum", 2);
 
             env.milestone(0);
 
             sendEvent(env);
-            assertEquals(2, env.listener("s0").assertOneGetOldAndReset().get("mysum"));
+            env.assertEqualsOld("s0", "mysum", 2);
 
             env.undeployAll();
         }
@@ -174,12 +160,12 @@ public class ResultSetAggregateCountSum {
             sendEvent(env);
             env.assertListenerNotInvoked("s0");
             sendEvent(env);
-            assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("mysum"));
+            env.assertEqualsNew("s0", "mysum", 2L);
 
             env.milestone(0);
 
             sendEvent(env);
-            assertEquals(2L, env.listener("s0").assertOneGetOldAndReset().get("mysum"));
+            env.assertEqualsOld("s0", "mysum", 2L);
 
             env.undeployAll();
         }
@@ -213,7 +199,7 @@ public class ResultSetAggregateCountSum {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
 
-            tryAssertionCount(env);
+            tryAssertionCount(env, new AtomicInteger());
 
             env.undeployAll();
         }
@@ -232,18 +218,15 @@ public class ResultSetAggregateCountSum {
             sendEvent(env, SYMBOL_DELL, 51L);
             env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 1.5d});
 
-            env.milestone(0);
+            env.milestone(1);
 
             sendEvent(env, SYMBOL_DELL, 52L);
             env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 3L, 2d});
 
             sendEvent(env, "IBM", 52L);
-            EventBean[] events = env.listener("s0").getLastNewData();
-            EPAssertionUtil.assertProps(events[0], "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2d});
-            EPAssertionUtil.assertProps(events[1], "symbol,cnt,val".split(","), new Object[]{"IBM", 1L, 1d});
-            env.listener("s0").reset();
+            env.assertPropsPerRowNewOnly("s0", "symbol,cnt,val".split(","), new Object[][]{{"DELL", 2L, 2d}, {"IBM", 1L, 1d}});
 
-            env.milestone(1);
+            env.milestone(2);
 
             sendEvent(env, SYMBOL_DELL, 53L);
             env.assertPropsNew("s0", "symbol,cnt,val".split(","), new Object[]{"DELL", 2L, 2.5d});
@@ -263,7 +246,7 @@ public class ResultSetAggregateCountSum {
                 "group by symbol";
             env.eplToModelCompileDeploy(epl).addListener("s0");
 
-            tryAssertionCount(env);
+            tryAssertionCount(env, new AtomicInteger());
 
             env.undeployAll();
         }
@@ -271,6 +254,7 @@ public class ResultSetAggregateCountSum {
 
     private static class ResultSetAggregateCountOneView implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select irstream symbol, " +
                 "count(*) as countAll," +
                 "count(distinct volume) as countDistVol," +
@@ -279,9 +263,9 @@ public class ResultSetAggregateCountSum {
                 "where symbol='DELL' or symbol='IBM' or symbol='GE' " +
                 "group by symbol";
 
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
-            tryAssertionCount(env);
+            tryAssertionCount(env, milestone);
 
             env.undeployAll();
         }
@@ -289,6 +273,7 @@ public class ResultSetAggregateCountSum {
 
     private static class ResultSetAggregateCountJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String epl = "@name('s0') select irstream symbol, " +
                 "count(*) as countAll," +
                 "count(distinct volume) as countDistVol," +
@@ -303,9 +288,9 @@ public class ResultSetAggregateCountSum {
             env.sendEventBean(new SupportBeanString(SYMBOL_DELL));
             env.sendEventBean(new SupportBeanString(SYMBOL_IBM));
 
-            env.milestone(0);
+            env.milestoneInc(milestone);
 
-            tryAssertionCount(env);
+            tryAssertionCount(env, milestone);
 
             env.undeployAll();
         }
@@ -380,12 +365,14 @@ public class ResultSetAggregateCountSum {
         }
     }
 
-    private static void tryAssertionCount(RegressionEnvironment env) {
+    private static void tryAssertionCount(RegressionEnvironment env, AtomicInteger milestone) {
         // assert select result type
-        assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("countAll"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("countDistVol"));
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("countVol"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("countAll"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("countDistVol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("countVol"));
+        });
 
         sendEvent(env, SYMBOL_DELL, 50L);
         assertEvents(env, SYMBOL_DELL, 0L, 0L, 0L,
@@ -397,7 +384,7 @@ public class ResultSetAggregateCountSum {
             SYMBOL_DELL, 2L, 1L, 1L
         );
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         sendEvent(env, SYMBOL_DELL, 25L);
         assertEvents(env, SYMBOL_DELL, 2L, 1L, 1L,
@@ -414,7 +401,7 @@ public class ResultSetAggregateCountSum {
             SYMBOL_DELL, 3L, 1L, 3L
         );
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         sendEvent(env, SYMBOL_IBM, 1L);
         sendEvent(env, SYMBOL_IBM, null);
@@ -427,24 +414,24 @@ public class ResultSetAggregateCountSum {
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, Long countAllOld, Long countDistVolOld, Long countVolOld,
                                      String symbolNew, Long countAllNew, Long countDistVolNew, Long countVolNew) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
+            listener.reset();
 
-        assertEquals(1, oldData.length);
-        assertEquals(1, newData.length);
+            assertEquals(1, oldData.length);
+            assertEquals(1, newData.length);
 
-        assertEquals(symbolOld, oldData[0].get("symbol"));
-        assertEquals(countAllOld, oldData[0].get("countAll"));
-        assertEquals(countDistVolOld, oldData[0].get("countDistVol"));
-        assertEquals(countVolOld, oldData[0].get("countVol"));
+            assertEquals(symbolOld, oldData[0].get("symbol"));
+            assertEquals(countAllOld, oldData[0].get("countAll"));
+            assertEquals(countDistVolOld, oldData[0].get("countDistVol"));
+            assertEquals(countVolOld, oldData[0].get("countVol"));
 
-        assertEquals(symbolNew, newData[0].get("symbol"));
-        assertEquals(countAllNew, newData[0].get("countAll"));
-        assertEquals(countDistVolNew, newData[0].get("countDistVol"));
-        assertEquals(countVolNew, newData[0].get("countVol"));
-
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            assertEquals(symbolNew, newData[0].get("symbol"));
+            assertEquals(countAllNew, newData[0].get("countAll"));
+            assertEquals(countDistVolNew, newData[0].get("countDistVol"));
+            assertEquals(countVolNew, newData[0].get("countVol"));
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, Long volume) {

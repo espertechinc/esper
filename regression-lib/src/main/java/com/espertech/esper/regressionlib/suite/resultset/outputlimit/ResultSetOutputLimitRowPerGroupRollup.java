@@ -75,7 +75,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
             sendTimer(env, 1000);
 
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), "c0,c1".split(","), new Object[][]{{"E3", 10}, {"E1", 12}, {"E4", 13}});
+            env.assertPropsPerRowLastNew("s0", "c0,c1".split(","), new Object[][]{{"E3", 10}, {"E1", 12}, {"E4", 13}});
 
             env.undeployAll();
         }
@@ -105,7 +105,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             expected.addResultInsRem(7000, 0, new Object[][]{{"IBM", 48d}, {"YAH", 6d}, {null, 54d}}, new Object[][]{{"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
             ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-            execution.execute(false);
+            execution.execute(false, new AtomicInteger());
         }
     }
 
@@ -141,22 +141,23 @@ public class ResultSetOutputLimitRowPerGroupRollup {
                 new Object[][]{{"MSFT", 9d}, {null, 88d}, {"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
             ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-            execution.execute(false);
+            execution.execute(false, new AtomicInteger());
         }
     }
 
     private static class ResultSet3OutputLimitAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
                 if (env.isHA() && outputLimitOpt == SupportOutputLimitOpt.DISABLED) {
                     continue;
                 }
-                runAssertion3OutputLimitAll(env, outputLimitOpt);
+                runAssertion3OutputLimitAll(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion3OutputLimitAll(RegressionEnvironment env, SupportOutputLimitOpt outputLimitOpt) {
+    private static void runAssertion3OutputLimitAll(RegressionEnvironment env, SupportOutputLimitOpt outputLimitOpt, AtomicInteger milestone) {
         String stmtText = outputLimitOpt.getHint() + "@name('s0') select symbol, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec)" +
             "group by rollup(symbol)" +
@@ -189,18 +190,19 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             new Object[][]{{"IBM", 72d}, {"MSFT", 9d}, {"YAH", 7d}, {null, 88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(true);
+        execution.execute(true, milestone);
     }
 
     private static class ResultSet4OutputLimitLast implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion4OutputLimitLast(env, outputLimitOpt);
+                runAssertion4OutputLimitLast(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion4OutputLimitLast(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion4OutputLimitLast(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, sum(price) " +
             "from SupportMarketDataBean#time(5.5 sec)" +
             "group by rollup(symbol)" +
@@ -231,7 +233,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             new Object[][]{{"MSFT", 9d}, {"IBM", 72d}, {"YAH", 7d}, {null, 88d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(true);
+        execution.execute(true, milestone);
     }
 
     private static class ResultSet5OutputLimitFirst implements RegressionExecution {
@@ -258,7 +260,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             expected.addResultInsRem(7000, 0, new Object[][]{{"IBM", 48d}, {"YAH", 6d}, {null, 54d}}, new Object[][]{{"IBM", 72d}, {"YAH", 7d}, {null, 79d}});
 
             ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-            execution.execute(false);
+            execution.execute(false, new AtomicInteger());
         }
     }
 
@@ -295,7 +297,7 @@ public class ResultSetOutputLimitRowPerGroupRollup {
             expected.addResultInsert(7200, 0, new Object[][]{{"IBM", 48d}, {"YAH", 6d}, {null, 54.0}});
 
             ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-            execution.execute(false);
+            execution.execute(false, new AtomicInteger());
         }
 
         public String name() {
@@ -833,40 +835,40 @@ public class ResultSetOutputLimitRowPerGroupRollup {
         env.sendEventBean(makeEvent("E1", 2, 20L));
         env.sendEventBean(makeEvent("E1", 1, 30L));
         env.advanceTime(1000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E1", null, 60L}, {null, null, 60L}},
-            new Object[][]{{"E1", 1, null}, {"E1", 2, null}, {"E1", null, null}, {null, null, null}});
+            new Object[][]{{"E1", 1, null}, {"E1", 2, null}, {"E1", null, null}, {null, null, null}}));
 
         env.sendEventBean(makeEvent("E2", 1, 40L));
         env.sendEventBean(makeEvent("E1", 2, 50L));
         env.advanceTime(2000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 110L}, {"E2", null, 40L}, {null, null, 150L}},
-            new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E2", 1, null}, {"E1", null, 60L}, {"E2", null, null}, {null, null, 60L}});
+            new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E2", 1, null}, {"E1", null, 60L}, {"E2", null, null}, {null, null, 60L}}));
 
         env.sendEventBean(makeEvent("E1", 1, 60L));
         env.advanceTime(3000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 170L}, {"E2", null, 40L}, {null, null, 210L}},
-            new Object[][]{{"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 110L}, {"E2", null, 40L}, {null, null, 150L}});
+            new Object[][]{{"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 110L}, {"E2", null, 40L}, {null, null, 150L}}));
 
         env.sendEventBean(makeEvent("E1", 1, 70L));    // removes the first 3 events
         env.advanceTimeSpan(4000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", 1, 40L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}},
-            new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 170L}, {"E2", null, 40L}, {null, null, 210L}});
+            new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 170L}, {"E2", null, 40L}, {null, null, 210L}}));
 
         env.sendEventBean(makeEvent("E1", 1, 80L));    // removes the second 2 events
         env.advanceTimeSpan(5000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 210L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}},
-            new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", 1, 40L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}});
+            new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", 1, 40L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}}));
 
         env.sendEventBean(makeEvent("E1", 1, 90L));    // removes the third 1 event
         env.advanceTimeSpan(6000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 240L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 240L}, {"E2", null, null}, {null, null, 240L}},
-            new Object[][]{{"E1", 1, 210L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}});
+            new Object[][]{{"E1", 1, 210L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}}));
 
         env.undeployAll();
     }
@@ -990,9 +992,9 @@ public class ResultSetOutputLimitRowPerGroupRollup {
         env.sendEventBean(makeEvent("E2", 1, 40L));
         env.sendEventBean(makeEvent("E1", 2, 50L));
         env.advanceTime(2000);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E2", 1, 40L}, {"E1", 2, 70L}, {"E2", null, 40L}, {"E1", null, 110L}, {null, null, 150L}},
-            new Object[][]{{"E2", 1, null}, {"E1", 2, 20L}, {"E2", null, null}, {"E1", null, 60L}, {null, null, 60L}});
+            new Object[][]{{"E2", 1, null}, {"E1", 2, 20L}, {"E2", null, null}, {"E1", null, 60L}, {null, null, 60L}}));
 
         env.milestoneInc(milestone);
 
@@ -1004,17 +1006,17 @@ public class ResultSetOutputLimitRowPerGroupRollup {
 
         env.sendEventBean(makeEvent("E1", 1, 70L));
         env.advanceTimeSpan(4000); // removes the first 3 events
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E1", null, 180L}, {null, null, 220L}},
-            new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E1", null, 170L}, {null, null, 210L}});
+            new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E1", null, 170L}, {null, null, 210L}}));
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(makeEvent("E1", 1, 80L));
         env.advanceTimeSpan(5000); // removes the second 2 events
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetDataListsFlattened(), fields,
+        env.assertListener("s0", listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
             new Object[][]{{"E1", 1, 210L}, {"E2", 1, null}, {"E1", 2, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}},
-            new Object[][]{{"E1", 1, 130L}, {"E2", 1, 40L}, {"E1", 2, 50L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}});
+            new Object[][]{{"E1", 1, 130L}, {"E2", 1, 40L}, {"E1", 2, 50L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}}));
 
         env.sendEventBean(makeEvent("E1", 1, 90L));
         env.advanceTimeSpan(6000); // removes the third 1 event

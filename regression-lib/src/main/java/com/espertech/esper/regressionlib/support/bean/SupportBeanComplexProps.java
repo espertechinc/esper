@@ -15,7 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportBeanComplexProps implements Serializable, SupportMarkerInterface {
+    private static final long serialVersionUID = -4873736062610995016L;
     private String simpleProperty;
     private Properties mappedProps;
     private int[] indexedProps;
@@ -118,6 +122,7 @@ public class SupportBeanComplexProps implements Serializable, SupportMarkerInter
     }
 
     public static class SupportBeanSpecialGetterNested implements Serializable {
+        private static final long serialVersionUID = -3426746081058909297L;
         private String nestedValue;
         private SupportBeanSpecialGetterNestedNested nestedNested;
 
@@ -161,6 +166,7 @@ public class SupportBeanComplexProps implements Serializable, SupportMarkerInter
     }
 
     public static class SupportBeanSpecialGetterNestedNested implements Serializable {
+        private static final long serialVersionUID = 8287167729468440974L;
         private String nestedNestedValue;
 
         public SupportBeanSpecialGetterNestedNested(String nestedNestedValue) {

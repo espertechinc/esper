@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.client.extension;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-
-
 
 public class ClientExtendView implements RegressionExecution {
 
@@ -89,6 +86,6 @@ public class ClientExtendView implements RegressionExecution {
     }
 
     private void assertReceived(RegressionEnvironment env, Long newTrendCount, Long oldTrendCount) {
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").assertInvokedAndReset(), "trendcount", new Object[]{newTrendCount}, new Object[]{oldTrendCount});
+        env.assertPropsIRPair("s0", "trendcount".split(","), new Object[]{newTrendCount}, new Object[]{oldTrendCount});
     }
 }

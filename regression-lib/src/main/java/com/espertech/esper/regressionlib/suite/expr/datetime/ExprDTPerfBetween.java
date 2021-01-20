@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndA;
 
 import java.util.EnumSet;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ExprDTPerfBetween implements RegressionExecution {
@@ -49,14 +48,14 @@ public class ExprDTPerfBetween implements RegressionExecution {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(SupportDateTime.make("2002-05-30T08:00:00.050"));
-            assertEquals("AEarlier", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "AEarlier");
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;
         assertTrue("Delta=" + delta / 1000d, delta < 500);
 
         env.sendEventBean(SupportDateTime.make("2002-05-30T10:00:00.050"));
-        assertEquals("ALater", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", "ALater");
 
         env.undeployAll();
     }

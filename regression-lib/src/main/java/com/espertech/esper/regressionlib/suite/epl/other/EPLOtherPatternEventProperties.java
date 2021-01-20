@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.other;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -40,8 +39,7 @@ public class EPLOtherPatternEventProperties {
             Object theEvent = new SupportBean();
             env.sendEventBean(theEvent);
 
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.get("a"));
+            env.assertEventNew("s0", event -> assertSame(theEvent, event.get("a")));
 
             env.undeployAll();
         }
@@ -51,17 +49,19 @@ public class EPLOtherPatternEventProperties {
         public void run(RegressionEnvironment env) {
             setupOrPattern(env, "*");
 
-            Object theEvent = new SupportBean();
-            env.sendEventBean(theEvent);
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.get("a"));
-            assertNull(eventBean.get("b"));
+            Object eventOne = new SupportBean();
+            env.sendEventBean(eventOne);
+            env.assertEventNew("s0", eventBean -> {
+                assertSame(eventOne, eventBean.get("a"));
+                assertNull(eventBean.get("b"));
+            });
 
-            theEvent = SupportBeanComplexProps.makeDefaultBean();
-            env.sendEventBean(theEvent);
-            eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.get("b"));
-            assertNull(eventBean.get("a"));
+            Object eventTwo = SupportBeanComplexProps.makeDefaultBean();
+            env.sendEventBean(eventTwo);
+            env.assertEventNew("s0", eventBean -> {
+                assertSame(eventTwo, eventBean.get("b"));
+                assertNull(eventBean.get("a"));
+            });
 
             env.undeployAll();
         }
@@ -76,11 +76,12 @@ public class EPLOtherPatternEventProperties {
             theEvent.setTheString("test");
             env.sendEventBean(theEvent);
 
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.get("a"));
-            assertSame(theEvent, eventBean.get("myEvent"));
-            Assert.assertEquals(1, eventBean.get("myInt"));
-            Assert.assertEquals("test", eventBean.get("a.theString"));
+            env.assertEventNew("s0", eventBean -> {
+                assertSame(theEvent, eventBean.get("a"));
+                assertSame(theEvent, eventBean.get("myEvent"));
+                Assert.assertEquals(1, eventBean.get("myInt"));
+                Assert.assertEquals("test", eventBean.get("a.theString"));
+            });
 
             env.undeployAll();
         }
@@ -93,28 +94,30 @@ public class EPLOtherPatternEventProperties {
 
             Object theEvent = SupportBeanComplexProps.makeDefaultBean();
             env.sendEventBean(theEvent);
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.get("b"));
-            Assert.assertEquals("simple", eventBean.get("simple"));
-            Assert.assertEquals(1, eventBean.get("indexed"));
-            Assert.assertEquals("nestedValue", eventBean.get("nestedVal"));
-            assertNull(eventBean.get("a"));
-            assertNull(eventBean.get("myAEvent"));
-            assertNull(eventBean.get("myInt"));
-            assertNull(eventBean.get("a.theString"));
+            env.assertEventNew("s0", eventBean -> {
+                assertSame(theEvent, eventBean.get("b"));
+                Assert.assertEquals("simple", eventBean.get("simple"));
+                Assert.assertEquals(1, eventBean.get("indexed"));
+                Assert.assertEquals("nestedValue", eventBean.get("nestedVal"));
+                assertNull(eventBean.get("a"));
+                assertNull(eventBean.get("myAEvent"));
+                assertNull(eventBean.get("myInt"));
+                assertNull(eventBean.get("a.theString"));
+            });
 
             SupportBean eventTwo = new SupportBean();
             eventTwo.setIntPrimitive(2);
             eventTwo.setTheString("test2");
             env.sendEventBean(eventTwo);
-            eventBean = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(2, eventBean.get("myInt"));
-            Assert.assertEquals("test2", eventBean.get("a.theString"));
-            assertNull(eventBean.get("b"));
-            assertNull(eventBean.get("myBEvent"));
-            assertNull(eventBean.get("simple"));
-            assertNull(eventBean.get("indexed"));
-            assertNull(eventBean.get("nestedVal"));
+            env.assertEventNew("s0", eventBean -> {
+                Assert.assertEquals(2, eventBean.get("myInt"));
+                Assert.assertEquals("test2", eventBean.get("a.theString"));
+                assertNull(eventBean.get("b"));
+                assertNull(eventBean.get("myBEvent"));
+                assertNull(eventBean.get("simple"));
+                assertNull(eventBean.get("indexed"));
+                assertNull(eventBean.get("nestedVal"));
+            });
 
             env.undeployAll();
         }

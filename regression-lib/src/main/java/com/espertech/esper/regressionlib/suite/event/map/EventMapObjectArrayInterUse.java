@@ -43,8 +43,10 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
         // test inserting from array to map
         env.compileDeploy("@name('s0') insert into MapType(im) select p0 from OAType").addListener("s0");
         env.sendEventObjectArray(new Object[]{"E1", null, null, null}, "OAType");
-        assertTrue(env.listener("s0").assertOneGetNew() instanceof MappedEventBean);
-        assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("im"));
+        env.assertEventNew("s0", event -> {
+            assertTrue(event instanceof MappedEventBean);
+            assertEquals("E1", event.get("im"));
+        });
 
         env.undeployAll();
     }
@@ -53,9 +55,9 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
     private void runAssertionMapWithObjectArray(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        String schema = "create objectarray schema OATypeInMap(p0 string, p1 int);\n" +
-            "create map schema MapTypeWOA(oa1 OATypeInMap, oa2 OATypeInMap[]);\n";
-        env.compileDeployWBusPublicType(schema, path);
+        String schema = "@buseventtype create objectarray schema OATypeInMap(p0 string, p1 int);\n" +
+            "@buseventtype create map schema MapTypeWOA(oa1 OATypeInMap, oa2 OATypeInMap[]);\n";
+        env.compileDeploy(schema, path);
 
         env.compileDeploy("@name('s0') select oa1.p0 as c0, oa1.p1 as c1, oa2[0].p0 as c2, oa2[1].p1 as c3 from MapTypeWOA", path);
         env.addListener("s0");
@@ -70,9 +72,11 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
         // test inserting from map to array
         env.compileDeploy("@name('s0') insert into OATypeInMap select 'a' as p0, 1 as p1 from MapTypeWOA", path).addListener("s0");
         env.sendEventMap(data, "MapTypeWOA");
-        assertTrue(env.listener("s0").assertOneGetNew() instanceof ObjectArrayBackedEventBean);
-        assertEquals("a", env.listener("s0").assertOneGetNew().get("p0"));
-        assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+        env.assertEventNew("s0", event -> {
+            assertTrue(event instanceof ObjectArrayBackedEventBean);
+            assertEquals("a", event.get("p0"));
+            assertEquals(1, event.get("p1"));
+        });
 
         env.undeployAll();
     }

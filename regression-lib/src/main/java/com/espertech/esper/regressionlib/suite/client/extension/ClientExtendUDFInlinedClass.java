@@ -165,13 +165,17 @@ public class ClientExtendUDFInlinedClass {
                 "    }\n" +
                 "  }\n" +
                 "\"\"\"\n select appendDelimiters(theString) as c0 from MyWindow";
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
-            assertEquals(">E1<", result.getArray()[0].get("c0"));
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
+                assertEquals(">E1<", result.getArray()[0].get("c0"));
+            });
 
             env.milestone(0);
 
-            result = env.compileExecuteFAF(eplFAF, path);
-            assertEquals(">E1<", result.getArray()[0].get("c0"));
+            env.assertThat(() -> {
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
+                assertEquals(">E1<", result.getArray()[0].get("c0"));
+            });
 
             env.undeployAll();
         }
@@ -232,6 +236,6 @@ public class ClientExtendUDFInlinedClass {
 
     private static void sendAssertIntMultiply(RegressionEnvironment env, int intPrimitive, int expected) {
         env.sendEventBean(new SupportBean("E1", intPrimitive));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 }

@@ -37,7 +37,7 @@ public class ClientExtendUDFReturnTypeIsEvents implements RegressionExecution {
     private static void tryAssertionReturnTypeIsEvents(RegressionEnvironment env, String methodName, AtomicInteger milestone) {
 
         RegressionPath path = new RegressionPath();
-        EPCompiled compiled = env.compileWBusPublicType("create schema MyItem(id string)");
+        EPCompiled compiled = env.compile("@public @buseventtype create schema MyItem(id string)");
         env.deploy(compiled);
         path.add(compiled);
 
@@ -45,8 +45,10 @@ public class ClientExtendUDFReturnTypeIsEvents implements RegressionExecution {
         env.addListener("s0");
 
         env.sendEventBean(new SupportBean("id0,id1,id2,id3,id4", 0));
-        Collection<Map> coll = (Collection<Map>) env.listener("s0").assertOneGetNewAndReset().get("c0");
-        EPAssertionUtil.assertPropsPerRow(coll.toArray(new Map[coll.size()]), "id".split(","), new Object[][]{{"id1"}, {"id3"}});
+        env.assertEventNew("s0", event -> {
+            Collection<Map> coll = (Collection<Map>) event.get("c0");
+            EPAssertionUtil.assertPropsPerRow(coll.toArray(new Map[coll.size()]), "id".split(","), new Object[][]{{"id1"}, {"id3"}});
+        });
 
         env.undeployAll();
     }

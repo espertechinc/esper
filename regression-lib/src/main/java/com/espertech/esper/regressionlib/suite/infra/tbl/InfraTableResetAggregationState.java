@@ -131,27 +131,31 @@ public class InfraTableResetAggregationState {
             sendBean(env, "E2", 10);
             SupportBean e3 = sendBean(env, "E3", 30);
 
-            EventBean row = env.iterator("table").next();
-            EPAssertionUtil.assertProps(row, fieldSetOne,
-                new Object[] {8.88888888888889d, 3L, 2L, 30, 10.0, 11.547005383792515d, "E1", 3L, e3});
-            assertEquals(-3, row.get("myPluginAggSingle"));
-            assertEquals(3, ((Map) row.get("myPluginAggAccess")).size());
+            env.assertIterator("table", iterator -> {
+                EventBean row = iterator.next();
+                EPAssertionUtil.assertProps(row, fieldSetOne,
+                    new Object[] {8.88888888888889d, 3L, 2L, 30, 10.0, 11.547005383792515d, "E1", 3L, e3});
+                assertEquals(-3, row.get("myPluginAggSingle"));
+                assertEquals(3, ((Map) row.get("myPluginAggAccess")).size());
+            });
 
             assertCountMinSketch(env, "E1", 1);
         }
 
         private void assertCountMinSketch(RegressionEnvironment env, String theString, long expected) {
             env.sendEventBean(new SupportBean_S1(0, theString));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
 
         private void sendResetAssert(RegressionEnvironment env, String[] fieldSetOne) {
             env.sendEventBean(new SupportBean_S0(0));
-            EventBean row = env.iterator("table").next();
-            EPAssertionUtil.assertProps(row, fieldSetOne,
-                new Object[] {null, 0L, 0L, null, null, null, null, 0L, null});
-            assertEquals(0, row.get("myPluginAggSingle"));
-            assertEquals(0, ((Map) row.get("myPluginAggAccess")).size());
+            env.assertIterator("table", iterator -> {
+                EventBean row = iterator.next();
+                EPAssertionUtil.assertProps(row, fieldSetOne,
+                    new Object[] {null, 0L, 0L, null, null, null, null, 0L, null});
+                assertEquals(0, row.get("myPluginAggSingle"));
+                assertEquals(0, ((Map) row.get("myPluginAggAccess")).size());
+            });
 
             assertCountMinSketch(env, "E1", 0);
         }
@@ -176,7 +180,7 @@ public class InfraTableResetAggregationState {
             SupportBean s1 = sendBean(env, "G2", 10);
             SupportBean s2 = sendBean(env, "G2", 2);
             SupportBean s3 = sendBean(env, "G1", 20);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("table"), propertyNames, new Object[][] {
+            env.assertPropsPerRowIteratorAnyOrder("table", propertyNames, new Object[][] {
                 {"G1", 10.5d, 10.5d, new SupportBean[] {s0, s3}, new SupportBean[] {s0, s3}},
                 {"G2", 6d, 6d, new SupportBean[] {s1, s2}, new SupportBean[] {s1, s2}}
                 });
@@ -184,7 +188,7 @@ public class InfraTableResetAggregationState {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(0, "G2"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("table"), propertyNames, new Object[][] {
+            env.assertPropsPerRowIteratorAnyOrder("table", propertyNames, new Object[][] {
                 {"G1", 10.5d, 10.5d, new SupportBean[] {s0, s3}, new SupportBean[] {s0, s3}},
                 {"G2", null, 6d, null, new SupportBean[] {s1, s2}}
             });
@@ -192,7 +196,7 @@ public class InfraTableResetAggregationState {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(0, "G1"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("table"), propertyNames, new Object[][] {
+            env.assertPropsPerRowIteratorAnyOrder("table", propertyNames, new Object[][] {
                 {"G1", 10.5d, null, new SupportBean[] {s0, s3}, null},
                 {"G2", null, 6d, null, new SupportBean[] {s1, s2}}
             });
@@ -254,6 +258,6 @@ public class InfraTableResetAggregationState {
     }
 
     private static void assertTableSum(RegressionEnvironment env, Integer expected) {
-        assertEquals(expected, env.iterator("table").next().get("asum"));
+        env.assertIterator("table", iterator -> assertEquals(expected, iterator.next().get("asum")));
     }
 }

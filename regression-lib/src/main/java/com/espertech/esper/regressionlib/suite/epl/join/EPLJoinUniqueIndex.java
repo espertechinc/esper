@@ -13,12 +13,14 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanOne;
 import com.espertech.esper.regressionlib.support.bean.SupportSimpleBeanTwo;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
 
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EPLJoinUniqueIndex implements RegressionExecution, IndexBackingTableInfo {
@@ -82,11 +84,14 @@ public class EPLJoinUniqueIndex implements RegressionExecution, IndexBackingTabl
         env.undeployAll();
     }
 
-    private static enum CaseEnum {
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
+
+    private enum CaseEnum {
         UNIDIRECTIONAL,
         MULTIDIRECTIONAL,
         UNIDIRECTIONAL_3STREAM,
         MULTIDIRECTIONAL_3STREAM
     }
-
 }

@@ -18,22 +18,20 @@ import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportInKeywordBean;
 import com.espertech.esper.regressionlib.support.bean.SupportOverrideBase;
 import com.espertech.esper.regressionlib.support.bean.SupportOverrideOne;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 import com.espertech.esper.runtime.internal.filtersvcimpl.FilterItem;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore;
-import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
@@ -70,7 +67,8 @@ public class ExprFilterOptimizable {
             env.compileDeployAddListenerMileZero(epl, "select");
 
             env.sendEventBean(new SupportBean("A", 1), SupportBean.class.getSimpleName());
-            env.listener("select").assertOneGetNewAndReset();
+            env.assertEventNew("select", event -> {
+            });
 
             env.undeployAll();
         }
@@ -175,7 +173,7 @@ public class ExprFilterOptimizable {
                 String epl = "@name('s0') select * from SupportBean(" + filter + ")";
                 env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
                 if (hasFilterIndexPlanBasicOrMore(env)) {
-                    SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "theString", FilterOperator.IN_LIST_OF_VALUES);
+                    SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "theString", FilterOperator.IN_LIST_OF_VALUES);
                 }
 
                 env.sendEventBean(new SupportBean("a", 0));
@@ -191,7 +189,7 @@ public class ExprFilterOptimizable {
             String epl = "@name('s0') select * from SupportBean(intPrimitive = 1 and (theString='a' or theString='b'))";
             env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
             if (hasFilterIndexPlanBasicOrMore(env)) {
-                SupportFilterServiceHelper.assertFilterSvcTwo(env.statement("s0"), "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
+                SupportFilterServiceHelper.assertFilterSvcTwo(env, "s0", "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
             }
             env.undeployAll();
         }
@@ -233,7 +231,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionBetweenWSubsWNumeric(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 10, "p1", 11));
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.RANGE_CLOSED);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.RANGE_CLOSED);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -242,7 +240,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionBetweenWVariableWNumeric(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.RANGE_CLOSED);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.RANGE_CLOSED);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -260,7 +258,7 @@ public class ExprFilterOptimizable {
 
     private static void tryAssertionBetweenDeplotTimeConst(RegressionEnvironment env, String epl) {
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "theString", FilterOperator.RANGE_CLOSED);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "theString", FilterOperator.RANGE_CLOSED);
         }
 
         env.sendEventBean(new SupportBean("b", 0));
@@ -281,7 +279,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionInWSubsWArray(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", new int[]{10, 11}));
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -290,7 +288,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionInWVariableWArray(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -313,7 +311,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionInWSubs(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 10, "p1", 11));
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -322,7 +320,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionInWVariable(RegressionEnvironment env, String epl) {
         env.compileDeploy("@name('s0') " + epl).addListener("s0");
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.IN_LIST_OF_VALUES);
         }
         tryAssertionWSubsFrom9To12(env);
         env.undeployAll();
@@ -340,7 +338,7 @@ public class ExprFilterOptimizable {
 
     private static void tryAssertionRelOpWDeployTimeConst(RegressionEnvironment env, String epl) {
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "intPrimitive", FilterOperator.GREATER);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "intPrimitive", FilterOperator.GREATER);
         }
 
         env.sendEventBean(new SupportBean("E1", 10));
@@ -364,7 +362,7 @@ public class ExprFilterOptimizable {
 
     private static void tryAssertionEqualsWDeployTimeConst(RegressionEnvironment env, String epl) {
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "theString", FilterOperator.EQUAL);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "theString", FilterOperator.EQUAL);
         }
 
         env.sendEventBean(new SupportBean("abc", 0));
@@ -379,7 +377,7 @@ public class ExprFilterOptimizable {
     private static void runAssertionEqualsWSubsWCoercion(RegressionEnvironment env, String epl) {
         compileDeployWSubstitution(env, epl, CollectionUtil.buildMap("p0", 100));
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcSingle(env.statement("s0"), "longPrimitive", FilterOperator.EQUAL);
+            SupportFilterServiceHelper.assertFilterSvcSingle(env, "s0", "longPrimitive", FilterOperator.EQUAL);
         }
 
         SupportBean sb = new SupportBean();
@@ -405,7 +403,7 @@ public class ExprFilterOptimizable {
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 3, false);
 
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env, "s0", "SupportBean", new FilterItem[][]{
                 {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
             });
         }
@@ -418,7 +416,7 @@ public class ExprFilterOptimizable {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         env.sendEventBean(SerializableObjectCopier.copyMayFail(prototype));
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
     }
@@ -433,7 +431,7 @@ public class ExprFilterOptimizable {
         env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
         env.sendEventBean(SerializableObjectCopier.copyMayFail(prototype));
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.undeployAll();
     }
@@ -447,7 +445,7 @@ public class ExprFilterOptimizable {
 
         assertInKeywordReceivedPattern(env, SerializableObjectCopier.copyMayFail(prototype), 1, false);
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s0"), "SupportBean", new FilterItem[][]{
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env, "s0", "SupportBean", new FilterItem[][]{
                 {new FilterItem("intPrimitive", FilterOperator.NOT_IN_LIST_OF_VALUES)},
             });
         }
@@ -464,16 +462,19 @@ public class ExprFilterOptimizable {
         env.sendEventBean(new SupportInKeywordBean(new int[]{1, 2}));
 
         env.sendEventBean(new SupportBean("E1", 1));
-        assertTrue(env.listener("s1").getIsInvokedAndReset() && env.listener("s2").getIsInvokedAndReset());
+        env.assertListenerInvoked("s1");
+        env.assertListenerInvoked("s2");
 
         env.sendEventBean(new SupportBean("E2", 2));
-        assertTrue(env.listener("s1").getIsInvokedAndReset() && env.listener("s2").getIsInvokedAndReset());
+        env.assertListenerInvoked("s1");
+        env.assertListenerInvoked("s2");
 
         env.sendEventBean(new SupportBean("E3", 3));
-        assertFalse(env.listener("s1").getIsInvokedAndReset() || env.listener("s2").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s1");
+        env.assertListenerNotInvoked("s2");
 
         if (hasFilterIndexPlanBasicOrMore(env)) {
-            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env.statement("s2"), "SupportBean", new FilterItem[][]{
+            SupportFilterServiceHelper.assertFilterSvcByTypeMulti(env, "s2", "SupportBean", new FilterItem[][]{
                 {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
             });
         }
@@ -498,7 +499,7 @@ public class ExprFilterOptimizable {
 
     public static class ExprFilterOptimizableVariableAndSeparateThread implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "myCheckServiceProvider", new MyCheckServiceProvider());
+            env.runtimeSetVariable(null, "myCheckServiceProvider", new MyCheckServiceProvider());
 
             env.compileDeploy("@name('s0') select * from SupportBean(myCheckServiceProvider.check())").addListener("s0");
             CountDownLatch latch = new CountDownLatch(1);
@@ -507,7 +508,7 @@ public class ExprFilterOptimizable {
             executorService.execute(new Runnable() {
                 public void run() {
                     env.sendEventBean(new SupportBean());
-                    assertTrue(env.listener("s0").getIsInvokedAndReset());
+                    env.assertListenerInvoked("s0");
                     latch.countDown();
                 }
             });
@@ -519,6 +520,10 @@ public class ExprFilterOptimizable {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -534,33 +539,34 @@ public class ExprFilterOptimizable {
             methodInvocationContextFilterOptimized = null;
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static void assertInKeywordReceivedPattern(RegressionEnvironment env, Object event, int intPrimitive, boolean expected) {
         env.sendEventBean(event);
         env.sendEventBean(new SupportBean(null, intPrimitive));
-        assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvokedFlag("s0", expected);
     }
 
     private static void assertFilterDeploySingle(RegressionEnvironment env, RegressionPath path, String epl, String expression, FilterOperator op, AtomicInteger milestone) {
         env.compileDeploy("@name('s0')" + epl, path).addListener("s0").milestoneInc(milestone);
-        EPStatementSPI statementSPI = (EPStatementSPI) env.statement("s0");
-        if (hasFilterIndexPlanBasicOrMore(env)) {
-            FilterItem param = SupportFilterServiceHelper.getFilterSvcSingle(statementSPI);
-            assertEquals("failed for '" + epl + "'", op, param.getOp());
-            assertEquals(expression, param.getName());
-        }
+        env.assertStatement("s0", statement -> {
+            EPStatementSPI statementSPI = (EPStatementSPI) statement;
+            if (hasFilterIndexPlanBasicOrMore(env)) {
+                FilterItem param = SupportFilterServiceHelper.getFilterSvcSingle(statementSPI);
+                assertEquals("failed for '" + epl + "'", op, param.getOp());
+                assertEquals(expression, param.getName());
+            }
+        });
         env.undeployModuleContaining("s0");
     }
 
     private static void compileDeployWSubstitution(RegressionEnvironment env, String epl, Map<String, Object> params) {
         EPCompiled compiled = env.compile("@name('s0') " + epl);
-        StatementSubstitutionParameterOption resolver = ctx -> {
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                ctx.setObject(entry.getKey(), entry.getValue());
-            }
-        };
-        env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(resolver));
+        env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(params)));
         env.addListener("s0");
     }
 

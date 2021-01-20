@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -58,9 +57,10 @@ public class EventXMLNoSchemaNamespaceXPathRelative {
         String xml = "<m0:getQuote xmlns:m0=\"http://services.samples/xsd\"><m0:request><m0:symbol>IBM</m0:symbol></m0:request></m0:getQuote>";
         sendXMLEvent(env, xml, eventTypeName);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("IBM", theEvent.get("symbol_a"));
-        assertEquals("IBM", theEvent.get("symbol_b"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("IBM", theEvent.get("symbol_a"));
+            assertEquals("IBM", theEvent.get("symbol_b"));
+        });
 
         env.undeployAll();
     }

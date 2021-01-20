@@ -12,8 +12,14 @@ package com.espertech.esper.regressionlib.support.bean;
 
 import com.espertech.esper.common.client.EventBean;
 
-public class SupportEventInnerTypeWGetIds {
+import java.io.Serializable;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportEventInnerTypeWGetIds implements Serializable {
+
+    private static final long serialVersionUID = -2409464759004736570L;
     private final int[] ids;
 
     public SupportEventInnerTypeWGetIds(int[] ids) {

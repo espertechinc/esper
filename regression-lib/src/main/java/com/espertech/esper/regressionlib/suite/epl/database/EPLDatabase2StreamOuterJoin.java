@@ -105,22 +105,25 @@ public class EPLDatabase2StreamOuterJoin {
 
             // Result as the SQL query returns 1 row and therefore the on-clause filters it out, but because of left out still getting a row
             sendEvent(env, 1, "xxx");
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(1, received.get("MyInt"));
-            assertReceived(received, null, null, null, null, null, null, null, null, null);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(1, received.get("MyInt"));
+                assertReceived(received, null, null, null, null, null, null, null, null, null);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
 
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
-            received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, received.get("MyInt"));
-            assertReceived(received, null, null, null, null, null, null, null, null, null);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(-1, received.get("MyInt"));
+                assertReceived(received, null, null, null, null, null, null, null, null, null);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
-            received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(2, received.get("MyInt"));
-            assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(2, received.get("MyInt"));
+                assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
 
             env.undeployAll();
@@ -139,22 +142,25 @@ public class EPLDatabase2StreamOuterJoin {
 
             // No result as the SQL query returns 1 row and therefore the on-clause filters it out
             sendEvent(env, 1, "xxx");
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(1, received.get("MyInt"));
-            assertReceived(received, null, null, null, null, null, null, null, null, null);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(1, received.get("MyInt"));
+                assertReceived(received, null, null, null, null, null, null, null, null, null);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
 
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
-            received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, received.get("MyInt"));
-            assertReceived(received, null, null, null, null, null, null, null, null, null);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(-1, received.get("MyInt"));
+                assertReceived(received, null, null, null, null, null, null, null, null, null);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
-            received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(2, received.get("MyInt"));
-            assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(2, received.get("MyInt"));
+                assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
 
             env.undeployAll();
@@ -179,9 +185,10 @@ public class EPLDatabase2StreamOuterJoin {
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendEvent(env, -1, "A");
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(-1, received.get("MyInt"));
-            Assert.assertEquals("A", received.get("MyVarChar"));
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(-1, received.get("MyInt"));
+                Assert.assertEquals("A", received.get("MyVarChar"));
+            });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, "A"}});
 
             env.undeployAll();
@@ -192,9 +199,10 @@ public class EPLDatabase2StreamOuterJoin {
         env.compileDeploy(statementText).addListener("s0");
 
         sendEvent(env, 2);
-        EventBean received = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals(2, received.get("MyInt"));
-        assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+        env.assertEventNew("s0", received -> {
+            Assert.assertEquals(2, received.get("MyInt"));
+            assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
+        });
 
         sendEvent(env, 11);
         env.assertListenerNotInvoked("s0");
@@ -206,14 +214,16 @@ public class EPLDatabase2StreamOuterJoin {
         env.compileDeploy(statementText).addListener("s0");
 
         sendEvent(env, 1);
-        EventBean received = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals(1, received.get("MyInt"));
-        assertReceived(received, 1L, 10, "A", "Z", true, new BigDecimal(5000), new BigDecimal(100), 1.2d, 1.3d);
+        env.assertEventNew("s0", received -> {
+            Assert.assertEquals(1, received.get("MyInt"));
+            assertReceived(received, 1L, 10, "A", "Z", true, new BigDecimal(5000), new BigDecimal(100), 1.2d, 1.3d);
+        });
 
         sendEvent(env, 11);
-        received = env.listener("s0").assertOneGetNewAndReset();
-        Assert.assertEquals(11, received.get("MyInt"));
-        assertReceived(received, null, null, null, null, null, null, null, null, null);
+        env.assertEventNew("s0", received -> {
+            Assert.assertEquals(11, received.get("MyInt"));
+            assertReceived(received, null, null, null, null, null, null, null, null, null);
+        });
 
         env.undeployAll();
     }

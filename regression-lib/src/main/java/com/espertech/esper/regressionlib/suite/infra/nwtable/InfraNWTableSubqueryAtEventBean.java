@@ -56,17 +56,17 @@ public class InfraNWTableSubqueryAtEventBean {
             env.compileDeploy(eplSubquery, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertReceived(env.listener("s0"), null);
+            env.assertListener("s0", listener -> assertReceived(listener, null));
 
             env.sendEventBean(new SupportBean("E1", 1));
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertReceived(env.listener("s0"), new Object[][]{{"E1", 1}});
+            env.assertListener("s0", listener -> assertReceived(listener, new Object[][]{{"E1", 1}}));
 
             env.sendEventBean(new SupportBean("E2", 2));
 
             env.sendEventBean(new SupportBean_S0(0));
-            assertReceived(env.listener("s0"), new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertListener("s0", listener -> assertReceived(listener, new Object[][]{{"E1", 1}, {"E2", 2}}));
 
             env.undeployAll();
         }

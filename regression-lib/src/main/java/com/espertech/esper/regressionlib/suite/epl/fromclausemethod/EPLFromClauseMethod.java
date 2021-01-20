@@ -19,12 +19,15 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -77,7 +80,7 @@ public class EPLFromClauseMethod {
 
         private void sendAssert(RegressionEnvironment env, int value, boolean expected) {
             env.sendEventBean(new SupportEventWithStaticMethod(value));
-            assertEquals(expected, env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvokedFlag("s0", expected);
         }
     }
 
@@ -113,7 +116,7 @@ public class EPLFromClauseMethod {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create schema ItemEvent(id string)", path);
+            env.compileDeploy("@buseventtype create schema ItemEvent(id string)", path);
 
             String script = "@name('script') create expression EventBean[] @type(ItemEvent) js:myItemProducerScript() [\n" +
                 "myItemProducerScript();" +
@@ -136,7 +139,7 @@ public class EPLFromClauseMethod {
     private static class EPLFromClauseMethodEventBeanArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create schema MyItemEvent(p0 string)", path);
+            env.compileDeploy("@buseventtype create schema MyItemEvent(p0 string)", path);
 
             tryAssertionEventBeanArray(env, path, "eventBeanArrayForString", false);
             tryAssertionEventBeanArray(env, path, "eventBeanArrayForString", true);
@@ -307,6 +310,10 @@ public class EPLFromClauseMethod {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class EPLFromClauseMethod2JoinHistoricalOnlyIndependent implements RegressionExecution {
@@ -381,6 +388,10 @@ public class EPLFromClauseMethod {
             tryAssertionReturnTypeMultipleRow(env, "fetchMapIteratorMR(theString, intPrimitive)");
             tryAssertionReturnTypeMultipleRow(env, "fetchOAIteratorMR(theString, intPrimitive)");
             tryAssertionReturnTypeMultipleRow(env, "fetchPOJOIteratorMR(theString, intPrimitive)");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -471,24 +482,24 @@ public class EPLFromClauseMethod {
             env.assertPropsNew("s0", fields, new Object[]{"A", "E3"});
 
             sendBeanEvent(env, "E4", 2);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E4"}, {"B", "E4"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"A", "E4"}, {"B", "E4"}});
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendBeanEvent(env, "E5", 3);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E5"}, {"B", "E5"}, {"C", "E5"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"A", "E5"}, {"B", "E5"}, {"C", "E5"}});
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendBeanEvent(env, "E6", 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E6"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"A", "E3"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"A", "E6"}}, new Object[][]{{"A", "E3"}});
 
             sendBeanEvent(env, "E7", 1);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"A", "E7"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"A", "E4"}, {"B", "E4"}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"A", "E7"}}, new Object[][]{{"A", "E4"}, {"B", "E4"}});
 
             env.undeployAll();
         }
@@ -552,6 +563,10 @@ public class EPLFromClauseMethod {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -705,11 +720,7 @@ public class EPLFromClauseMethod {
         sendSupportBeanEvent(env, 0, -1);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
-        SupportListener listener = env.listener("s0");
         env.undeployModuleContaining("s0");
-
-        sendSupportBeanEvent(env, 0, -1);
-        assertFalse(listener.isInvoked());
     }
 
     private static void tryAssertionSingleRowFetch(RegressionEnvironment env, String method) {
@@ -757,18 +768,17 @@ public class EPLFromClauseMethod {
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100}});
 
         sendBeanEvent(env, "E4", 2);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101}});
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100}, {"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101}});
 
         sendBeanEvent(env, "E5", 3);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields,
+        env.assertPropsPerRowLastNew("s0", fields,
             new Object[][]{{"E5", 3, "|E5_0|", 100}, {"E5", 3, "|E5_1|", 101}, {"E5", 3, "|E5_2|", 102}});
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E3", 1, "|E3_0|", 100},
             {"E4", 2, "|E4_0|", 100}, {"E4", 2, "|E4_1|", 101},
             {"E5", 3, "|E5_0|", 100}, {"E5", 3, "|E5_1|", 101}, {"E5", 3, "|E5_2|", 102}});
 
-        env.listener("s0").reset();
         env.undeployAll();
     }
 
@@ -784,7 +794,11 @@ public class EPLFromClauseMethod {
         return context.getStatementName();
     }
 
-    public static class SupportEventWithStaticMethod {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SupportEventWithStaticMethod implements Serializable {
+        private static final long serialVersionUID = -163145538591218826L;
         private final int value;
 
         public SupportEventWithStaticMethod(int value) {
@@ -804,7 +818,11 @@ public class EPLFromClauseMethod {
         }
     }
 
-    public static class SupportEventWithStaticMethodValue {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SupportEventWithStaticMethodValue implements Serializable {
+        private static final long serialVersionUID = -2936163345661285556L;
         private final int value;
 
         public SupportEventWithStaticMethodValue(int value) {

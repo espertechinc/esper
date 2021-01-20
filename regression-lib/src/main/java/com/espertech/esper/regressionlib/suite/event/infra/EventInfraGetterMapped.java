@@ -12,20 +12,19 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -33,28 +32,28 @@ import static org.junit.Assert.assertNull;
 public class EventInfraGetterMapped implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, Map<String, String>> bean = (type, entries) -> {
+        Consumer<Map<String, String>> bean = entries -> {
             env.sendEventBean(new LocalEvent(entries));
         };
         String beanepl = "@public @buseventtype create schema LocalEvent as " + LocalEvent.class.getName() + ";\n";
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, Map<String, String>> map = (type, entries) -> {
+        Consumer<Map<String, String>> map = entries -> {
             env.sendEventMap(Collections.singletonMap("mapped", entries), "LocalEvent");
         };
         String mapepl = "@public @buseventtype create schema LocalEvent(mapped java.util.Map);\n";
         runAssertion(env, mapepl, map);
 
         // Object-array
-        BiConsumer<EventType, Map<String, String>> oa = (type, entries) -> {
+        Consumer<Map<String, String>> oa = entries -> {
             env.sendEventObjectArray(new Object[]{entries}, "LocalEvent");
         };
         String oaepl = "@public @buseventtype create objectarray schema LocalEvent(mapped java.util.Map);\n";
         runAssertion(env, oaepl, oa);
 
         // Json
-        BiConsumer<EventType, Map<String, String>> json = (type, entries) -> {
+        Consumer<Map<String, String>> json = entries -> {
             if (entries == null) {
                 env.sendEventJson(new JsonObject().add("mapped", Json.NULL).toString(), "LocalEvent");
             } else {
@@ -73,25 +72,23 @@ public class EventInfraGetterMapped implements RegressionExecution {
         runAssertion(env, "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype create json schema LocalEvent();\n", json);
 
         // Avro
-        BiConsumer<EventType, Map<String, String>> avro = (type, entries) -> {
-            GenericData.Record event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
-            event.put("mapped", entries);
+        Consumer<Map<String, String>> avro = entries -> {
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
+            GenericData.Record event = new GenericData.Record(schema);
+            event.put("mapped", entries == null ? Collections.emptyMap() : entries);
             env.sendEventAvro(event, "LocalEvent");
         };
-        runAssertion(env, "@public @buseventtype create avro schema LocalEvent(mapped java.util.Map);\n", avro);
+        runAssertion(env, "@name('schema') @public @buseventtype create avro schema LocalEvent(mapped java.util.Map);\n", avro);
     }
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, Map<String, String>> sender) {
+                             Consumer<Map<String, String>> sender) {
 
         RegressionPath path = new RegressionPath();
         env.compileDeploy(createSchemaEPL, path);
 
         env.compileDeploy("@name('s0') select * from LocalEvent", path).addListener("s0");
-        EventType eventType = env.statement("s0").getEventType();
-        EventPropertyGetter g0 = eventType.getGetter("mapped('a')");
-        EventPropertyGetter g1 = eventType.getGetter("mapped('b')");
 
         String propepl = "@name('s1') select mapped('a') as c0, mapped('b') as c1," +
             "exists(mapped('a')) as c2, exists(mapped('b')) as c3, " +
@@ -101,37 +98,34 @@ public class EventInfraGetterMapped implements RegressionExecution {
         Map<String, String> values = new HashMap<>();
         values.put("a", "x");
         values.put("b", "y");
-        sender.accept(eventType, values);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "x");
-        assertGetter(event, g1, true, "y");
+        sender.accept(values);
+        env.assertEventNew("s0", event -> assertGetters(event, true, "x", true, "y"));
         assertProps(env, "x", "y");
 
-        sender.accept(eventType, Collections.singletonMap("a", "x"));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "x");
-        assertGetter(event, g1, false, null);
+        sender.accept(Collections.singletonMap("a", "x"));
+        env.assertEventNew("s0", event -> assertGetters(event, true, "x", false, null));
         assertProps(env, "x", null);
 
-        sender.accept(eventType, Collections.emptyMap());
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(Collections.emptyMap());
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, null, null);
 
-        sender.accept(eventType, null);
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(null);
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, null, null);
 
-        sender.accept(eventType, null);
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(null);
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, null, null);
 
         env.undeployAll();
+    }
+
+    private void assertGetters(EventBean event, boolean existsZero, String valueZero, boolean existsOne, String valueOne) {
+        EventPropertyGetter g0 = event.getEventType().getGetter("mapped('a')");
+        EventPropertyGetter g1 = event.getEventType().getGetter("mapped('b')");
+        assertGetter(event, g0, existsZero, valueZero);
+        assertGetter(event, g1, existsOne, valueOne);
     }
 
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists, String value) {
@@ -141,16 +135,18 @@ public class EventInfraGetterMapped implements RegressionExecution {
     }
 
     private void assertProps(RegressionEnvironment env, String valueA, String valueB) {
-        EventBean event = env.listener("s1").assertOneGetNewAndReset();
-        assertEquals(valueA, event.get("c0"));
-        assertEquals(valueB, event.get("c1"));
-        assertEquals(valueA != null, event.get("c2"));
-        assertEquals(valueB != null, event.get("c3"));
-        assertEquals(valueA == null ? null : "String", event.get("c4"));
-        assertEquals(valueB == null ? null : "String", event.get("c5"));
+        env.assertEventNew("s1", event -> {
+            assertEquals(valueA, event.get("c0"));
+            assertEquals(valueB, event.get("c1"));
+            assertEquals(valueA != null, event.get("c2"));
+            assertEquals(valueB != null, event.get("c3"));
+            assertEquals(valueA == null ? null : "String", event.get("c4"));
+            assertEquals(valueB == null ? null : "String", event.get("c5"));
+        });
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -5089568739529204564L;
         private Map<String, String> mapped;
 
         public LocalEvent(Map<String, String> mapped) {
@@ -163,6 +159,7 @@ public class EventInfraGetterMapped implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = 1826654020623258315L;
         public Map<String, String> mapped;
     }
 }

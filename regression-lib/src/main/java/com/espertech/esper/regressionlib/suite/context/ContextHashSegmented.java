@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.*;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -58,8 +57,8 @@ public class ContextHashSegmented {
         private static void tryAssertionScoringUseCase(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, AtomicInteger milestone) {
             String[] fields = "userId,keyword,sumScore".split(",");
             String epl =
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedScoreCycle.class) + "create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedUserKeywordTotalStream.class) + "create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedScoreCycle.class) + "@buseventtype create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedUserKeywordTotalStream.class) + "@buseventtype create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
                     "\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + " create context HashByUserCtx as " +
                     "coalesce by consistent_hash_crc32(userId) from ScoreCycle, " +
@@ -74,7 +73,7 @@ public class ContextHashSegmented {
                     "select userId, keyword, sum(score) as sumScore from ScoreCycleWindow group by keyword;\n" +
                     "\n" +
                     "@Name('outTwo') context HashByUserCtx on UserKeywordTotalStream(sumScore > 10000) delete from ScoreCycleWindow;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
             env.addListener("s0");
 
             makeSendScoreEvent(env, "ScoreCycle", eventRepresentationEnum, "Pete", "K1", "P1", 100);
@@ -122,35 +121,37 @@ public class ContextHashSegmented {
             env.milestone(2);
 
             // test iterator targeted hash
-            SupportSelectorByHashCode selector = new SupportSelectorByHashCode(Collections.singleton(15));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, new Object[][]{{15, "E2", 10}});
-            selector = new SupportSelectorByHashCode(new HashSet<>(Arrays.asList(1, 9, 5)));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(selector), env.statement("s0").safeIterator(selector), fields, new Object[][]{{5, "E1", 6}, {9, "E3", 201}});
-            assertFalse(env.statement("s0").iterator(new SupportSelectorByHashCode(Collections.singleton(99))).hasNext());
-            assertFalse(env.statement("s0").iterator(new SupportSelectorByHashCode(Collections.emptySet())).hasNext());
-            assertFalse(env.statement("s0").iterator(new SupportSelectorByHashCode(null)).hasNext());
+            env.assertStatement("s0", statement -> {
+                SupportSelectorByHashCode selector = new SupportSelectorByHashCode(Collections.singleton(15));
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(selector), statement.safeIterator(selector), fields, new Object[][]{{15, "E2", 10}});
+                selector = new SupportSelectorByHashCode(new HashSet<>(Arrays.asList(1, 9, 5)));
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(selector), statement.safeIterator(selector), fields, new Object[][]{{5, "E1", 6}, {9, "E3", 201}});
+                assertFalse(statement.iterator(new SupportSelectorByHashCode(Collections.singleton(99))).hasNext());
+                assertFalse(statement.iterator(new SupportSelectorByHashCode(Collections.emptySet())).hasNext());
+                assertFalse(statement.iterator(new SupportSelectorByHashCode(null)).hasNext());
 
-            // test iterator filtered
-            MySelectorFilteredHash filtered = new MySelectorFilteredHash(Collections.singleton(15));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(filtered), env.statement("s0").safeIterator(filtered), fields, new Object[][]{{15, "E2", 10}});
-            filtered = new MySelectorFilteredHash(new HashSet<>(Arrays.asList(1, 9, 5)));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(filtered), env.statement("s0").safeIterator(filtered), fields, new Object[][]{{5, "E1", 6}, {9, "E3", 201}});
+                // test iterator filtered
+                MySelectorFilteredHash filtered = new MySelectorFilteredHash(Collections.singleton(15));
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(filtered), statement.safeIterator(filtered), fields, new Object[][]{{15, "E2", 10}});
+                filtered = new MySelectorFilteredHash(new HashSet<>(Arrays.asList(1, 9, 5)));
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(filtered), statement.safeIterator(filtered), fields, new Object[][]{{5, "E1", 6}, {9, "E3", 201}});
 
-            // test always-false filter - compare context partition info
-            filtered = new MySelectorFilteredHash(Collections.emptySet());
-            assertFalse(env.statement("s0").iterator(filtered).hasNext());
-            assertEquals(16, filtered.getContexts().size());
+                // test always-false filter - compare context partition info
+                filtered = new MySelectorFilteredHash(Collections.emptySet());
+                assertFalse(statement.iterator(filtered).hasNext());
+                assertEquals(16, filtered.getContexts().size());
 
-            try {
-                env.statement("s0").iterator(new ContextPartitionSelectorSegmented() {
-                    public List<Object[]> getPartitionKeys() {
-                        return null;
-                    }
-                });
-                fail();
-            } catch (InvalidContextPartitionSelector ex) {
-                assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorHash] interfaces but received com."));
-            }
+                try {
+                    statement.iterator(new ContextPartitionSelectorSegmented() {
+                        public List<Object[]> getPartitionKeys() {
+                            return null;
+                        }
+                    });
+                    fail();
+                } catch (InvalidContextPartitionSelector ex) {
+                    assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorHash] interfaces but received com."));
+                }
+            });
 
             env.undeployAll();
 
@@ -391,11 +392,14 @@ public class ContextHashSegmented {
             String eplStmt = "@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString";
             env.compileDeploy(eplStmt, path).addListener("s0");
-            assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 4, null, null, null);
+            env.assertThat(() -> {
+                assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 4, null, null, null);
+            });
 
             tryAssertionHash(env, milestone, "s0", ctx); // equivalent to: SupportHashCodeFuncGranularCRC32(4)
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
             path.clear();
 
             // test same with SODA
@@ -413,11 +417,13 @@ public class ContextHashSegmented {
             env.compileDeploy("@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString", path);
             env.addListener("s0");
-            assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 6, null, null, null);
+            env.assertThat(() -> {
+                assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 6, null, null, null);
+            });
 
             tryAssertionHash(env, milestone, "s0", ctx);
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
             path.clear();
 
             // test no pre-allocate
@@ -428,11 +434,13 @@ public class ContextHashSegmented {
             env.compileDeploy("@name('s0') context " + ctx + " " +
                 "select context.name as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString", path);
             env.addListener("s0");
-            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0, null, null, null);
+            env.assertThat(() -> {
+                assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0, null, null, null);
+            });
 
             tryAssertionHash(env, milestone, "s0", ctx);
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.undeployAll();
         }
@@ -475,13 +483,13 @@ public class ContextHashSegmented {
             env.assertPropsNew("s0", fields, new Object[]{stmtNameContext, "E4", 19});
             assertIterator(env, stmtNameIterate, fields, new Object[][]{{stmtNameContext, "E5", 9}, {stmtNameContext, "E1", 15}, {stmtNameContext, "E3", 7}, {stmtNameContext, "E4", 19}, {stmtNameContext, "E2", 6}});
 
-            assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
+            env.assertThat(() -> assertEquals(1, SupportContextMgmtHelper.getContextCount(env)));
 
             env.undeployModuleContaining("s0");
-            assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
+            env.assertThat(() -> assertEquals(1, SupportContextMgmtHelper.getContextCount(env)));
 
             env.undeployAll();
-            assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
+            env.assertThat(() -> assertEquals(0, SupportContextMgmtHelper.getContextCount(env)));
         }
     }
 
@@ -537,7 +545,7 @@ public class ContextHashSegmented {
         } else if (eventRepresentationEnum.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{userId, keyword, productId, score}, typeName);
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(typeName)));
+            GenericData.Record record = new GenericData.Record(env.runtimeAvroSchemaPreconfigured(typeName));
             record.put("userId", userId);
             record.put("keyword", keyword);
             record.put("productId", productId);
@@ -556,11 +564,15 @@ public class ContextHashSegmented {
     }
 
     private static void assertIterator(RegressionEnvironment env, String statementName, String[] fields, Object[][] expected) {
-        EventBean[] rows = EPAssertionUtil.iteratorToArray(env.iterator(statementName));
-        assertIterator(rows, fields, expected);
+        env.assertIterator(statementName, iterator -> {
+            EventBean[] rows = EPAssertionUtil.iteratorToArray(iterator);
+            assertIterator(rows, fields, expected);
+        });
 
-        rows = EPAssertionUtil.iteratorToArray(env.statement(statementName).safeIterator());
-        assertIterator(rows, fields, expected);
+        env.assertSafeIterator(statementName, iterator -> {
+            EventBean[] rows = EPAssertionUtil.iteratorToArray(env.statement(statementName).safeIterator());
+            assertIterator(rows, fields, expected);
+        });
     }
 
     private static void assertIterator(EventBean[] events, String[] fields, Object[][] expected) {

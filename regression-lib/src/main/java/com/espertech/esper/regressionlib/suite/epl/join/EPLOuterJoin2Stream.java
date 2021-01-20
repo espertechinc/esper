@@ -27,12 +27,10 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class EPLOuterJoin2Stream {
     private final static String[] FIELDS = new String[]{"s0.id", "s0.p00", "s1.id", "s1.p10"};
@@ -104,7 +102,7 @@ public class EPLOuterJoin2Stream {
         }
 
         private void assertEvents(RegressionEnvironment env, Object[][] expected) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "one.id,two.id".split(","), expected);
+            env.assertPropsPerRowLastNewAnyOrder("s0", "one.id,two.id".split(","), expected);
         }
     }
 
@@ -205,36 +203,35 @@ public class EPLOuterJoin2Stream {
             sendEvent(env, "c2", 1);
             sendEvent(env, "c2", 2);
 
-            Iterator iterator = env.statement("s0").iterator();
-            EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
-            assertEquals(10, events.length);
+            env.assertIterator("s0", iterator -> {
+                EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
+                assertEquals(10, events.length);
+                EPAssertionUtil.assertPropsPerRow(events, "theString,intPrimitive,symbol,volume".split(","),
+                    new Object[][]{
+                        {null, null, "c3", 400L},
+                        {"c0", 0, "c0", 200L},
+                        {"c0", 1, "c0", 200L},
+                        {"c0", 2, "c0", 200L},
+                        {"c1", 0, null, null},
+                        {"c1", 1, null, null},
+                        {"c1", 2, null, null},
+                        {"c2", 0, null, null},
+                        {"c2", 1, null, null},
+                        {"c2", 2, null, null}
+                    });
+            });
 
-        /* For debugging, comment in
-        for (int i = 0; i < events.length; i++)
-        {
-            System.out.println(
-                   "string=" + events[i].get("string") +
-                   "  int=" + events[i].get("intPrimitive") +
-                   "  symbol=" + events[i].get("symbol") +
-                   "  volume="  + events[i].get("volume")
-                );
-        }
-        */
-
-            EPAssertionUtil.assertPropsPerRow(events, "theString,intPrimitive,symbol,volume".split(","),
-                new Object[][]{
-                    {null, null, "c3", 400L},
-                    {"c0", 0, "c0", 200L},
-                    {"c0", 1, "c0", 200L},
-                    {"c0", 2, "c0", 200L},
-                    {"c1", 0, null, null},
-                    {"c1", 1, null, null},
-                    {"c1", 2, null, null},
-                    {"c2", 0, null, null},
-                    {"c2", 1, null, null},
-                    {"c2", 2, null, null}
-                });
-
+            /* For debugging, comment in
+            for (int i = 0; i < events.length; i++)
+            {
+                System.out.println(
+                       "string=" + events[i].get("string") +
+                       "  int=" + events[i].get("intPrimitive") +
+                       "  symbol=" + events[i].get("symbol") +
+                       "  volume="  + events[i].get("volume")
+                    );
+            }
+            */
             env.undeployAll();
         }
     }
@@ -245,27 +242,27 @@ public class EPLOuterJoin2Stream {
 
             // Send S0[0]
             sendEvent(EVENTS_S0[0], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), 100, "0", null, null);
+            compareEventNew(env, 100, "0", null, null);
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null}});
 
             // Send S1[1]
             sendEvent(EVENTS_S1[1], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 201, "1");
+            compareEventNew(env, null, null, 201, "1");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"}});
 
             // Send S1[2] and S0[2]
             sendEvent(EVENTS_S1[2], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 202, "2");
+            compareEventNew(env, null, null, 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {null, null, 202, "2"}});
 
             sendEvent(EVENTS_S0[2], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), 102, "2", 202, "2");
+            compareEventNew(env, 102, "2", 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
@@ -273,14 +270,14 @@ public class EPLOuterJoin2Stream {
 
             // Send S0[3] and S1[3]
             sendEvent(EVENTS_S0[3], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), 103, "3", null, null);
+            compareEventNew(env, 103, "3", null, null);
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
                     {102, "2", 202, "2"},
                     {103, "3", null, null}});
             sendEvent(EVENTS_S1[3], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), 103, "3", 203, "3");
+            compareEventNew(env, 103, "3", 203, "3");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{100, "0", null, null},
                     {null, null, 201, "1"},
@@ -289,11 +286,13 @@ public class EPLOuterJoin2Stream {
 
             // Send S0[4], pushes S0[0] out of window
             sendEvent(EVENTS_S0[4], env);
-            EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-            EventBean newEvent = env.listener("s0").getLastNewData()[0];
-            compareEvent(oldEvent, 100, "0", null, null);
-            compareEvent(newEvent, 104, "4", null, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean oldEvent = listener.getLastOldData()[0];
+                EventBean newEvent = listener.getLastNewData()[0];
+                compareEvent(oldEvent, 100, "0", null, null);
+                compareEvent(newEvent, 104, "4", null, null);
+                listener.reset();
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
@@ -302,7 +301,7 @@ public class EPLOuterJoin2Stream {
 
             // Send S1[4]
             sendEvent(EVENTS_S1[4], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), 104, "4", 204, "4");
+            compareEventNew(env, 104, "4", 204, "4");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
@@ -311,7 +310,7 @@ public class EPLOuterJoin2Stream {
 
             // Send S1[5]
             sendEvent(EVENTS_S1[5], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 205, "5");
+            compareEventNew(env, null, null, 205, "5");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 201, "1"},
                     {102, "2", 202, "2"},
@@ -321,10 +320,12 @@ public class EPLOuterJoin2Stream {
 
             // Send S1[6], pushes S1[1] out of window
             sendEvent(EVENTS_S1[5], env);
-            oldEvent = env.listener("s0").getLastOldData()[0];
-            newEvent = env.listener("s0").getLastNewData()[0];
-            compareEvent(oldEvent, null, null, 201, "1");
-            compareEvent(newEvent, null, null, 205, "5");
+            env.assertListener("s0", listener -> {
+                EventBean oldEvent = listener.getLastOldData()[0];
+                EventBean newEvent = listener.getLastNewData()[0];
+                compareEvent(oldEvent, null, null, 201, "1");
+                compareEvent(newEvent, null, null, 205, "5");
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {103, "3", 203, "3"},
@@ -450,30 +451,26 @@ public class EPLOuterJoin2Stream {
 
             // Send S1[2]
             sendEvent(EVENTS_S1[2], env);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, null, null, 202, "2");
+            compareEventNew(env, null, null, 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"}});
 
             // Send S0[2] events, joined event expected
             sendEvent(EVENTS_S0[2], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 102, "2", 202, "2");
+            compareEventNew(env, 102, "2", 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
             // Send S1[3]
             sendEvent(EVENTS_S1[3], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, null, null, 203, "3");
+            compareEventNew(env, null, null, 203, "3");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {null, null, 203, "3"}});
 
             // Send some more S0 events
             sendEvent(EVENTS_S0[3], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 103, "3", 203, "3");
+            compareEventNew(env, 103, "3", 203, "3");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {103, "3", 203, "3"}});
@@ -487,19 +484,18 @@ public class EPLOuterJoin2Stream {
 
             // Push S0[2] out of the window
             sendEvent(EVENTS_S0[5], env);
-            theEvent = env.listener("s0").assertOneGetOldAndReset();
-            compareEvent(theEvent, 102, "2", 202, "2");
+            compareEventOld(env, 102, "2", 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"},
                     {103, "3", 203, "3"}});
 
             // Some more S1 events
             sendEvent(EVENTS_S1[6], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 206, "6");
+            compareEventNew(env, null, null, 206, "6");
             sendEvent(EVENTS_S1[7], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 207, "7");
+            compareEventNew(env, null, null, 207, "7");
             sendEvent(EVENTS_S1[8], env);
-            compareEvent(env.listener("s0").assertOneGetNewAndReset(), null, null, 208, "8");
+            compareEventNew(env, null, null, 208, "8");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{null, null, 202, "2"},
                     {103, "3", 203, "3"},
@@ -509,10 +505,12 @@ public class EPLOuterJoin2Stream {
 
             // Push S1[2] out of the window
             sendEvent(EVENTS_S1[9], env);
-            EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-            EventBean newEvent = env.listener("s0").getLastNewData()[0];
-            compareEvent(oldEvent, null, null, 202, "2");
-            compareEvent(newEvent, null, null, 209, "9");
+            env.assertListener("s0", listener -> {
+                EventBean oldEvent = listener.getLastOldData()[0];
+                EventBean newEvent = listener.getLastNewData()[0];
+                compareEvent(oldEvent, null, null, 202, "2");
+                compareEvent(newEvent, null, null, 209, "9");
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{103, "3", 203, "3"},
                     {null, null, 206, "6"},
@@ -532,20 +530,18 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S1[0], env);
             sendEvent(EVENTS_S1[1], env);
             sendEvent(EVENTS_S1[3], env);
-            assertNull(env.listener("s0").getLastNewData());    // No events expected
+            env.assertListenerNotInvoked("s0");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS, null);
 
             // Send S0 event, expect event back from outer join
             sendEvent(EVENTS_S0[2], env);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 102, "2", null, null);
+            compareEventNew(env, 102, "2", null, null);
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null}});
 
             // Send S1 event matching S0, expect event back
             sendEvent(EVENTS_S1[2], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 102, "2", 202, "2");
+            compareEventNew(env, 102, "2", 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
@@ -553,14 +549,13 @@ public class EPLOuterJoin2Stream {
             sendEvent(EVENTS_S1[4], env);
             sendEvent(EVENTS_S1[5], env);
             sendEvent(EVENTS_S1[6], env);
-            assertNull(env.listener("s0").getLastNewData());    // No events expected
+            env.assertListenerNotInvoked("s0");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"}});
 
             // Send event, expect a join result
             sendEvent(EVENTS_S0[5], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 105, "5", 205, "5");
+            compareEventNew(env, 105, "5", 205, "5");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", 202, "2"},
                     {105, "5", 205, "5"}});
@@ -568,16 +563,14 @@ public class EPLOuterJoin2Stream {
             // Let S1[2] go out of the window (lenght 5), expected old join event
             sendEvent(EVENTS_S1[7], env);
             sendEvent(EVENTS_S1[8], env);
-            theEvent = env.listener("s0").assertOneGetOldAndReset();
-            compareEvent(theEvent, 102, "2", 202, "2");
+            compareEventOld(env, 102, "2", 202, "2");
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null},
                     {105, "5", 205, "5"}});
 
             // S0[9] should generate an outer join event
             sendEvent(EVENTS_S0[9], env);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            compareEvent(theEvent, 109, "9", null, null);
+            compareEventNew(env, 109, "9", null, null);
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{102, "2", null, null},
                     {109, "9", null, null},
@@ -585,10 +578,12 @@ public class EPLOuterJoin2Stream {
 
             // S0[2] Should leave the window (length 3), should get OLD and NEW event
             sendEvent(EVENTS_S0[10], env);
-            EventBean oldEvent = env.listener("s0").getLastOldData()[0];
-            EventBean newEvent = env.listener("s0").getLastNewData()[0];
-            compareEvent(oldEvent, 102, "2", null, null);     // S1[2] has left the window already
-            compareEvent(newEvent, 110, "10", null, null);
+            env.assertListener("s0", listener -> {
+                EventBean oldEvent = listener.getLastOldData()[0];
+                EventBean newEvent = listener.getLastNewData()[0];
+                compareEvent(oldEvent, 102, "2", null, null);     // S1[2] has left the window already
+                compareEvent(newEvent, 110, "10", null, null);
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", FIELDS,
                 new Object[][]{{110, "10", null, null},
                     {109, "9", null, null},
@@ -602,14 +597,24 @@ public class EPLOuterJoin2Stream {
         public void run(RegressionEnvironment env) {
             setupStatement(env, "left");
 
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("s0.p00"));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("s0.id"));
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("s1.p10"));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("s1.id"));
-            assertEquals(4, env.statement("s0").getEventType().getPropertyNames().length);
+            env.assertStatement("s0", statement -> {
+                assertEquals(String.class, statement.getEventType().getPropertyType("s0.p00"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("s0.id"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("s1.p10"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("s1.id"));
+                assertEquals(4, statement.getEventType().getPropertyNames().length);
+            });
 
             env.undeployAll();
         }
+    }
+
+    private static void compareEventNew(RegressionEnvironment env, Integer idS0, String p00, Integer idS1, String p10) {
+        env.assertEventNew("s0", event -> compareEvent(event, idS0, p00, idS1, p10));
+    }
+
+    private static void compareEventOld(RegressionEnvironment env, Integer idS0, String p00, Integer idS1, String p10) {
+        env.assertEventOld("s0", event -> compareEvent(event, idS0, p00, idS1, p10));
     }
 
     private static void compareEvent(EventBean receivedEvent, Integer idS0, String p00, Integer idS1, String p10) {

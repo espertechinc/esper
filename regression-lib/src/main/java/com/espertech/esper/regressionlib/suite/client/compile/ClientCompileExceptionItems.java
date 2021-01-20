@@ -15,8 +15,10 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompileExceptionItem;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
@@ -55,6 +57,10 @@ public class ClientCompileExceptionItems {
                 assertItem(ex.getItems().get(1), "create schema MySchemaTwo (   col1 WrongTwo )", 6, "Nestable type configuration encountered an unexpected property type name 'WrongTwo' for property 'col1'");
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientCompileExceptionTwoItems implements RegressionExecution {
@@ -71,6 +77,10 @@ public class ClientCompileExceptionItems {
                 assertItem(ex.getItems().get(1), "create schema MySchemaTwo (col1 WrongTwo)", 2, "Nestable type configuration encountered an unexpected property type name 'WrongTwo' for property 'col1'");
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientCompileExeptionEPLWNewline implements RegressionExecution {
@@ -83,6 +93,10 @@ public class ClientCompileExceptionItems {
                 assertEquals(1, ex.getItems().size());
                 assertItem(ex.getItems().get(0), "XX X", 1, "Incorrect syntax near 'XX'");
             }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS, RegressionFlag.INVALIDITY);
         }
     }
 

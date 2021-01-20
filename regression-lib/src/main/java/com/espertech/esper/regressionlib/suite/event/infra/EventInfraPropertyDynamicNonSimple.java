@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -85,7 +83,7 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
         runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         GenericData.Record datumOne = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
         GenericData.Record datumTwo = new GenericData.Record(schema);
         datumTwo.put("indexed", Arrays.asList(1, 2));
@@ -133,16 +131,17 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
         env.compileDeploy(stmtText, path).addListener("s0");
 
         String[] propertyNames = "indexed1,indexed2,mapped1,mapped2".split(",");
-        EventType eventType = env.statement("s0").getEventType();
-        for (String propertyName : propertyNames) {
-            assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
-            assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String propertyName : propertyNames) {
+                assertEquals(expectedPropertyType, eventType.getPropertyType(propertyName));
+                assertEquals(Boolean.class, eventType.getPropertyType("exists_" + propertyName));
+            }
+        });
 
         for (Pair pair : tests) {
             send.apply(env, pair.getFirst(), typename);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion);
+            env.assertEventNew("s0", event -> SupportEventInfra.assertValuesMayConvert(event, propertyNames, (ValueWithExistsFlag[]) pair.getSecond(), optionalValueConversion));
         }
 
         env.undeployAll();

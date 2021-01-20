@@ -14,8 +14,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportLegacyBean;
 
-import static org.junit.Assert.assertEquals;
-
 public class EventBeanPropertyResolutionAccessorStyleGlobalPublic implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -24,7 +22,7 @@ public class EventBeanPropertyResolutionAccessorStyleGlobalPublic implements Reg
         SupportLegacyBean theEvent = new SupportLegacyBean("E1");
         theEvent.fieldLegacyVal = "val1";
         env.sendEventBean(theEvent);
-        assertEquals("val1", env.listener("s0").assertOneGetNewAndReset().get("fieldLegacyVal"));
+        env.assertEqualsNew("s0", "fieldLegacyVal", "val1");
 
         env.undeployAll();
     }

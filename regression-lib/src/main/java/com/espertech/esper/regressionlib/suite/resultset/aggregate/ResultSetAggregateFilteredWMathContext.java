@@ -28,7 +28,7 @@ public class ResultSetAggregateFilteredWMathContext implements RegressionExecuti
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(0, 2, RoundingMode.HALF_UP)));
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(0, 2, RoundingMode.HALF_UP)));
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(1, 2, RoundingMode.HALF_UP)));
-        assertEquals(0.33, ((BigDecimal) env.listener("s0").getAndResetLastNewData()[0].get("c0")).doubleValue());
+        env.assertListener("s0", listener -> assertEquals(0.33, ((BigDecimal) listener.getAndResetLastNewData()[0].get("c0")).doubleValue()));
 
         env.undeployAll();
     }

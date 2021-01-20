@@ -22,9 +22,6 @@ public class SupportGroupRollupPlanHook implements GroupByRollupPlanHook {
     }
 
     public void query(GroupByRollupPlanDesc desc) {
-        if (plan != null) {
-            throw new IllegalStateException();
-        }
         plan = desc;
     }
 

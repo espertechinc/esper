@@ -64,9 +64,11 @@ public class EventXMLSchemaWithAll {
                 "<event-page-visit xmlns=\"samples:schemas:simpleSchemaWithAll\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"samples:schemas:simpleSchemaWithAll simpleSchemaWithAll.xsd\">\n" +
                 "<url>page1</url>" +
                 "</event-page-visit>", eventTypeName);
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
-        assertEquals("page1", theEvent.get("sesja"));
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean theEvent = listener.getLastNewData()[0];
+            assertEquals("page1", theEvent.get("sesja"));
+            listener.reset();
+        });
 
         SupportXML.sendXMLEvent(env,
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -75,12 +77,15 @@ public class EventXMLSchemaWithAll {
                 "</event-page-visit>", eventTypeName);
         env.assertListenerNotInvoked("s0");
 
-        EventType type = env.compileDeploy("@name('s1') select * from " + eventTypeName, path).statement("s1").getEventType();
-        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-            new SupportEventPropDesc("sessionId", Node.class).fragment(),
-            new SupportEventPropDesc("customerId", Node.class).fragment(),
-            new SupportEventPropDesc("url", String.class),
-            new SupportEventPropDesc("method", Node.class).fragment());
+        env.compileDeploy("@name('s1') select * from " + eventTypeName, path);
+        env.assertStatement("s1", statement -> {
+            EventType type = statement.getEventType();
+            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                new SupportEventPropDesc("sessionId", Node.class).fragment(),
+                new SupportEventPropDesc("customerId", Node.class).fragment(),
+                new SupportEventPropDesc("url", String.class),
+                new SupportEventPropDesc("method", Node.class).fragment());
+        });
 
         env.undeployAll();
     }

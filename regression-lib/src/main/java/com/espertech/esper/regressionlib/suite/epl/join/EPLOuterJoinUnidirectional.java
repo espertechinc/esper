@@ -12,13 +12,13 @@ package com.espertech.esper.regressionlib.suite.epl.join;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.bean.*;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 
 public class EPLOuterJoinUnidirectional {
@@ -52,6 +52,10 @@ public class EPLOuterJoinUnidirectional {
             SupportMessageAssertUtil.tryInvalidIterate(env,
                 "@name('s0') select * from SupportBean_A unidirectional full outer join SupportBean_B unidirectional",
                 "Iteration over a unidirectional join is not supported");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -173,7 +177,7 @@ public class EPLOuterJoinUnidirectional {
 
     private static void sendAssert(RegressionEnvironment env, SupportBeanAtoFBase event, boolean b) {
         env.sendEventBean(event);
-        assertEquals(b, env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvokedFlag("s0", b);
     }
 
     private static void assertReceived2Stream(RegressionEnvironment env, String a, String b) {

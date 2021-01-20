@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeploymentService;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.util.ArrayList;
@@ -84,7 +83,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfTrueDeclaredExpr implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
         }
 
         public void run(RegressionEnvironment env) {
@@ -98,7 +97,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfOr implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
         }
 
         public void run(RegressionEnvironment env) {
@@ -138,8 +137,8 @@ public class ExprFilterOptimizablePerf {
         int loops = 1000;
         for (int i = 0; i < loops; i++) {
             env.sendEventBean(new SupportBean("E_" + i % numStatements, 0));
-            SupportListener listener = env.listener("s" + i % numStatements);
-            assertTrue(listener.getAndClearIsInvoked());
+            String stmtName = "s" + i % numStatements;
+            env.assertListenerInvoked(stmtName);
         }
         long delta = System.currentTimeMillis() - startTime;
         assertEquals(loops, SupportStaticMethodLib.getCountInvoked());

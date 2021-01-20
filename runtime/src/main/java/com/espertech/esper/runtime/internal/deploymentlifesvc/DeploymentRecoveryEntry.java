@@ -20,13 +20,15 @@ public class DeploymentRecoveryEntry {
     private final Map<Integer, Object> userObjectsRuntime;
     private final Map<Integer, String> statementNamesWhenProvidedByAPI;
     private final Map<Integer, Map<Integer, Object>> substitutionParameters;
+    private final String[] deploymentIdsConsumed;
 
-    public DeploymentRecoveryEntry(int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters) {
+    public DeploymentRecoveryEntry(int statementIdFirstStatement, EPCompiled compiled, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters, String[] deploymentIdsConsumed) {
         this.statementIdFirstStatement = statementIdFirstStatement;
         this.compiled = compiled;
         this.userObjectsRuntime = userObjectsRuntime;
         this.statementNamesWhenProvidedByAPI = statementNamesWhenProvidedByAPI;
         this.substitutionParameters = substitutionParameters;
+        this.deploymentIdsConsumed = deploymentIdsConsumed;
     }
 
     public int getStatementIdFirstStatement() {
@@ -47,6 +49,10 @@ public class DeploymentRecoveryEntry {
 
     public Map<Integer, Map<Integer, Object>> getSubstitutionParameters() {
         return substitutionParameters;
+    }
+
+    public String[] getDeploymentIdsConsumed() {
+        return deploymentIdsConsumed;
     }
 
     public void setCompiled(EPCompiled compiled) {

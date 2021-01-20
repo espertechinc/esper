@@ -17,16 +17,18 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.BookDesc;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static junit.framework.TestCase.fail;
@@ -80,7 +82,7 @@ public class ExprEnumDataSources {
 
         private void sendAssert(RegressionEnvironment env, String mapKey, List<String> values, boolean received) {
             env.sendEventBean(new SupportEventWithMapOfCollOfString(mapKey, values), "MyEvent");
-            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvokedFlag("s0", received);
         }
     }
 
@@ -98,6 +100,10 @@ public class ExprEnumDataSources {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
+
         private void sendEvent(RegressionEnvironment env, int i) {
             env.sendEventMap(Collections.singletonMap("item", Optional.of(i)), "MyEvent");
         }
@@ -109,7 +115,7 @@ public class ExprEnumDataSources {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            assertEquals(30, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 30);
 
             env.undeployAll();
         }
@@ -138,6 +144,10 @@ public class ExprEnumDataSources {
         private Optional<Integer>[] makeOptional(int first, int second) {
             return (Optional<Integer>[]) new Optional[]{Optional.of(first), Optional.of(second)};
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
     }
 
     private static class ExprEnumCast implements RegressionExecution {
@@ -147,7 +157,7 @@ public class ExprEnumDataSources {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new MyLocalEvent(new MyLocalWithCollection(Arrays.asList("a", "b"))));
-            assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("cnt"));
+            env.assertEqualsNew("s0", "cnt", 2);
 
             env.undeployAll();
         }
@@ -155,17 +165,19 @@ public class ExprEnumDataSources {
 
     private static class ExprEnumPropertySchema implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create schema OrderDetail(itemId string);\n" +
-                "create schema OrderEvent(details OrderDetail[]);\n" +
+            String epl = "@buseventtype create schema OrderDetail(itemId string);\n" +
+                "@buseventtype create schema OrderEvent(details OrderDetail[]);\n" +
                 "@name('s0') select details.where(i => i.itemId = '001') as c0 from OrderEvent;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             Map<String, Object> detailOne = CollectionUtil.populateNameValueMap("itemId", "002");
             Map<String, Object> detailTwo = CollectionUtil.populateNameValueMap("itemId", "001");
             env.sendEventMap(CollectionUtil.populateNameValueMap("details", new Map[]{detailOne, detailTwo}), "OrderEvent");
 
-            Collection c = (Collection) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            EPAssertionUtil.assertEqualsExactOrder(c.toArray(), new Map[]{detailTwo});
+            env.assertEventNew("s0", event -> {
+                Collection c = (Collection) event.get("c0");
+                EPAssertionUtil.assertEqualsExactOrder(c.toArray(), new Map[]{detailTwo});
+            });
 
             env.undeployAll();
         }
@@ -173,17 +185,17 @@ public class ExprEnumDataSources {
 
     private static class ExprEnumPropertyInsertIntoAtEventBean implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create objectarray schema StockTick(id string, price int);\n" +
+            String epl = "@buseventtype create objectarray schema StockTick(id string, price int);\n" +
                 "insert into TicksLarge select window(*).where(e => e.price > 100) @eventbean as ticksLargePrice\n" +
                 "from StockTick#time(10) having count(*) > 2;\n" +
                 "@name('s0') select ticksLargePrice.where(e => e.price < 200) as ticksLargeLess200 from TicksLarge;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{"E1", 90}, "StockTick");
             env.sendEventObjectArray(new Object[]{"E2", 120}, "StockTick");
             env.sendEventObjectArray(new Object[]{"E3", 95}, "StockTick");
 
-            assertEquals(1, ((Collection) env.listener("s0").assertOneGetNewAndReset().get("ticksLargeLess200")).size());
+            env.assertEventNew("s0", event -> assertEquals(1, ((Collection) event.get("ticksLargeLess200")).size()));
 
             env.undeployAll();
         }
@@ -203,10 +215,12 @@ public class ExprEnumDataSources {
             sendEvent(env, "E3", 11);
             Map<String, Object> e4 = sendEvent(env, "E4", 4);
 
-            Map<String, Object> result = (Map<String, Object>) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            EventBean[] events = (EventBean[]) result.get("melt");
-            assertSame(e1, events[0].getUnderlying());
-            assertSame(e4, events[1].getUnderlying());
+            env.assertEventNew("s0", event -> {
+                Map<String, Object> result = (Map<String, Object>) event.getUnderlying();
+                EventBean[] events = (EventBean[]) result.get("melt");
+                assertSame(e1, events[0].getUnderlying());
+                assertSame(e4, events[1].getUnderlying());
+            });
 
             env.undeployAll();
         }
@@ -241,14 +255,14 @@ public class ExprEnumDataSources {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E3", 1));
-            assertColl("E1,E2,E3", env.listener("s0").assertOneGetNewAndReset().get("ids"));
+            env.assertEventNew("s0", event -> assertColl("E1,E2,E3", event.get("ids")));
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.sendEventBean(new SupportBean("E5", 1));
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E6", 1));
-            assertColl("E4,E5,E6", env.listener("s0").assertOneGetNewAndReset().get("ids"));
+            env.assertEventNew("s0", event -> assertColl("E4,E5,E6", event.get("ids")));
 
             env.undeployAll();
         }
@@ -281,7 +295,7 @@ public class ExprEnumDataSources {
             env.addListener("s0");
 
             env.sendEventBean(new SupportBean_A("A0"));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", true);
 
             env.undeployAll();
         }
@@ -431,24 +445,20 @@ public class ExprEnumDataSources {
                 "from SupportBean_ST0#sort(3, p00 asc) as st0";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val0,val1".split(","), new EPTypeClass[]{new EPTypeClass(SupportBean_ST0[].class),
+            env.assertStmtTypes("s0", "val0,val1".split(","), new EPTypeClass[]{new EPTypeClass(SupportBean_ST0[].class),
                 EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", 5));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertST0IdWReset(env, "val1", "E1");
 
             env.sendEventBean(new SupportBean_ST0("E2", 6));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E1,E2");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertST0IdWReset(env, "val1", "E1,E2");
 
             env.sendEventBean(new SupportBean_ST0("E3", 4));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E3,E1,E2");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertST0IdWReset(env, "val1", "E3,E1,E2");
 
             env.sendEventBean(new SupportBean_ST0("E5", 3));
-            LambdaAssertionUtil.assertST0Id(env.listener("s0"), "val1", "E5,E3,E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertST0IdWReset(env, "val1", "E5,E3,E1");
             env.undeployAll();
 
             // Scalar version
@@ -456,23 +466,19 @@ public class ExprEnumDataSources {
             String stmtScalar = "@name('s0') select prevwindow(id).where(x => x not like '%ignore%') as val0 " +
                 "from SupportBean_ST0#keepall as st0";
             env.compileDeploy(stmtScalar).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
 
             env.sendEventBean(new SupportBean_ST0("E1", 5));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertValuesArrayScalarWReset(env, "val0", "E1");
 
             env.sendEventBean(new SupportBean_ST0("E2ignore", 6));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertValuesArrayScalarWReset(env, "val0", "E1");
 
             env.sendEventBean(new SupportBean_ST0("E3", 4));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E3", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertValuesArrayScalarWReset(env, "val0", "E3", "E1");
 
             env.sendEventBean(new SupportBean_ST0("ignoreE5", 3));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val0", "E3", "E1");
-            env.listener("s0").reset();
+            LambdaAssertionUtil.assertValuesArrayScalarWReset(env, "val0", "E3", "E1");
 
             env.undeployAll();
         }
@@ -488,14 +494,14 @@ public class ExprEnumDataSources {
 
             env.compileDeploy("@name('s0') select MyWindow.allOf(x => x.p00 < 5) as allOfX from SupportBean#keepall", path);
             env.addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "allOfX".split(","), new EPTypeClass[]{EPTypePremade.BOOLEANBOXED.getEPType()});
+            env.assertStmtTypes("s0", "allOfX".split(","), new EPTypeClass[]{EPTypePremade.BOOLEANBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", null);
 
             env.sendEventBean(new SupportBean_ST0("ST0", "1", 10));
             env.sendEventBean(new SupportBean("E2", 10));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", false);
 
             env.undeployModuleContaining("s0");
             env.sendEventBean(new SupportBean_A("A1"));
@@ -505,14 +511,14 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplNamedWindowCorrelated, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", null);
 
             env.sendEventBean(new SupportBean_ST0("E2", "KEY1", 1));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", null);
 
             env.sendEventBean(new SupportBean("KEY1", 0));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", true);
 
             env.undeployAll();
         }
@@ -527,11 +533,11 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean_ST0("ST0", "1", 0));
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", true);
 
             env.sendEventBean(new SupportBean_ST0("ST0", "1", 10));
             env.sendEventBean(new SupportBean("E2", 2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", false);
             env.undeployAll();
 
             // test subselect scalar return
@@ -540,11 +546,11 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean_ST0("B1", 0));
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", true);
 
             env.sendEventBean(new SupportBean_ST0("A1", 0));
             env.sendEventBean(new SupportBean("E2", 2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", false);
             env.undeployAll();
 
             // test subselect-correlated scalar return
@@ -553,15 +559,15 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean_ST0("A1", "hello", 0));
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", null);
 
             env.sendEventBean(new SupportBean_ST0("A2", "hello", 0));
             env.sendEventBean(new SupportBean("A2", 1));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", true);
 
             env.sendEventBean(new SupportBean_ST0("A3", "test", 0));
             env.sendEventBean(new SupportBean("A3", 1));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", false);
             env.undeployAll();
 
             // test subselect multivalue return
@@ -571,26 +577,26 @@ public class ExprEnumDataSources {
 
             env.sendEventBean(new SupportBean_ST0("B1", 10));
             env.sendEventBean(new SupportBean("E1", 0));
-            assertPropsMapRows((Collection) env.listener("s0").assertOneGetNewAndReset().get("c0"), fields, new Object[][]{{"B1", 10}});
+            env.assertEventNew("s0", event -> assertPropsMapRows((Collection) event.get("c0"), fields, new Object[][]{{"B1", 10}}));
 
             env.sendEventBean(new SupportBean_ST0("B2", 20));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertPropsMapRows((Collection) env.listener("s0").assertOneGetNewAndReset().get("c0"), fields, new Object[][]{{"B1", 10}, {"B2", 20}});
+            env.assertEventNew("s0", event -> assertPropsMapRows((Collection) event.get("c0"), fields, new Object[][]{{"B1", 10}, {"B2", 20}}));
             env.undeployAll();
 
             // test subselect that delivers events
-            String epl = "create schema AEvent (symbol string);\n" +
-                "create schema BEvent (a AEvent);\n" +
+            String epl = "@buseventtype create schema AEvent (symbol string);\n" +
+                "@buseventtype create schema BEvent (a AEvent);\n" +
                 "@name('s0') select (select a from BEvent#keepall).anyOf(v => symbol = 'GE') as flag from SupportBean;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventMap(makeBEvent("XX"), "BEvent");
             env.sendEventBean(new SupportBean());
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("flag"));
+            env.assertEqualsNew("s0", "flag", false);
 
             env.sendEventMap(makeBEvent("GE"), "BEvent");
             env.sendEventBean(new SupportBean());
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("flag"));
+            env.assertEqualsNew("s0", "flag", true);
 
             env.undeployAll();
         }
@@ -666,10 +672,10 @@ public class ExprEnumDataSources {
             env.compileDeploy(eplFragment).addListener("s0");
 
             env.sendEventBean(SupportBean_ST0_Container.make3Value("ID1,KEY1,1"));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", true);
 
             env.sendEventBean(SupportBean_ST0_Container.make3Value("ID1,KEY1,10"));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("allOfX"));
+            env.assertEqualsNew("s0", "allOfX", false);
             env.undeployAll();
 
             // test array and iterable
@@ -686,7 +692,7 @@ public class ExprEnumDataSources {
 
             // test map event type with object-array prop
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType("create schema MySchema (books BookDesc[])", path);
+            env.compileDeploy("@buseventtype create schema MySchema (books BookDesc[])", path);
 
             env.compileDeploy("@name('s0') select books.max(i => i.price) as mymax from MySchema", path);
             env.addListener("s0");
@@ -774,41 +780,46 @@ public class ExprEnumDataSources {
     private static class ExprEnumUDFStaticMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String[] fields = "val1,val2,val3,val4".split(",");
+            final String[] fields = "val0,val1,val2,val3".split(",");
             String epl = "@name('s0') select " +
-                "SupportBean_ST0_Container.makeSampleList().where(x => x.p00 < 5) as val1, " +
-                "SupportBean_ST0_Container.makeSampleArray().where(x => x.p00 < 5) as val2, " +
-                "makeSampleList().where(x => x.p00 < 5) as val3, " +
-                "makeSampleArray().where(x => x.p00 < 5) as val4 " +
+                "SupportBean_ST0_Container.makeSampleList().where(x => x.p00 < 5) as val0, " +
+                "SupportBean_ST0_Container.makeSampleArray().where(x => x.p00 < 5) as val1, " +
+                "makeSampleList().where(x => x.p00 < 5) as val2, " +
+                "makeSampleArray().where(x => x.p00 < 5) as val3 " +
                 "from SupportBean#length(2) as sb";
             env.compileDeploy(epl).addListener("s0");
 
             SupportBean_ST0_Container.setSamples(new String[]{"E1,1", "E2,20", "E3,3"});
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                SupportBean_ST0[] result = toArray((Collection) env.listener("s0").assertOneGetNew().get(field));
-                assertEquals("Failed for field " + field, 2, result.length);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                for (String field : fields) {
+                    SupportBean_ST0[] result = toArray((Collection) listener.assertOneGetNew().get(field));
+                    assertEquals("Failed for field " + field, 2, result.length);
+                }
+                listener.reset();
+            });
 
             SupportBean_ST0_Container.setSamples(null);
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                assertNull(env.listener("s0").assertOneGetNew().get(field));
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                for (String field : fields) {
+                    assertNull(listener.assertOneGetNew().get(field));
+                }
+                listener.reset();
+            });
 
             SupportBean_ST0_Container.setSamples(new String[0]);
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                SupportBean_ST0[] result = toArray((Collection) env.listener("s0").assertOneGetNew().get(field));
-                assertEquals(0, result.length);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                for (String field : fields) {
+                    SupportBean_ST0[] result = toArray((Collection) listener.assertOneGetNew().get(field));
+                    assertEquals(0, result.length);
+                }
+                listener.reset();
+            });
             env.undeployAll();
 
             // test UDF returning scalar values collection
-            fields = "val0,val1,val2,val3".split(",");
             String eplScalar = "@name('s0') select " +
                 "SupportCollection.makeSampleListString().where(x => x != 'E1') as val0, " +
                 "SupportCollection.makeSampleArrayString().where(x => x != 'E1') as val1, " +
@@ -816,28 +827,34 @@ public class ExprEnumDataSources {
                 "makeSampleArrayString().where(x => x != 'E1') as val3 " +
                 "from SupportBean#length(2) as sb";
             env.compileDeploy(eplScalar).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypeClassParameterized.from(Collection.class, String.class));
+            env.assertStatement("s0", statement -> env.assertStmtTypesAllSame("s0",  fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             SupportCollection.setSampleCSV("E1,E2,E3");
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field, "E2", "E3");
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean event = listener.assertOneGetNewAndReset();
+                for (String field : fields) {
+                    LambdaAssertionUtil.assertValuesArrayScalar(event, field, "E2", "E3");
+                }
+            });
 
             SupportCollection.setSampleCSV(null);
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field, null);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean event = listener.assertOneGetNewAndReset();
+                for (String field : fields) {
+                    LambdaAssertionUtil.assertValuesArrayScalar(event, field, null);
+                }
+            });
 
             SupportCollection.setSampleCSV("");
             env.sendEventBean(new SupportBean());
-            for (String field : fields) {
-                LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), field);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean event = listener.assertOneGetNewAndReset();
+                for (String field : fields) {
+                    LambdaAssertionUtil.assertValuesArrayScalar(event, field);
+                }
+            });
 
             env.undeployAll();
         }
@@ -846,7 +863,7 @@ public class ExprEnumDataSources {
     private static void trySubstitutionParameter(RegressionEnvironment env, String substitution, Object parameter) {
 
         EPCompiled compiled = env.compile("@name('s0') select * from SupportBean(" + substitution + ".sequenceEqual({1, intPrimitive, 100}))");
-        env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> prepared.setObject(1, parameter)));
+        env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, parameter)));
         env.addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 10));
@@ -881,7 +898,8 @@ public class ExprEnumDataSources {
         EPAssertionUtil.assertEqualsExactOrder(expected.split(","), ((Collection) value).toArray());
     }
 
-    public static class MyLocalEvent {
+    public static class MyLocalEvent implements Serializable {
+        private static final long serialVersionUID = 7831666209757672187L;
         private Object value;
 
         public MyLocalEvent(Object value) {
@@ -893,7 +911,8 @@ public class ExprEnumDataSources {
         }
     }
 
-    public static class MyLocalWithCollection {
+    public static class MyLocalWithCollection implements Serializable {
+        private static final long serialVersionUID = -770597812826108976L;
         private final Collection someCollection;
 
         public MyLocalWithCollection(Collection someCollection) {
@@ -905,7 +924,8 @@ public class ExprEnumDataSources {
         }
     }
 
-    public static class SupportEventWithMapOfCollOfString {
+    public static class SupportEventWithMapOfCollOfString implements Serializable {
+        private static final long serialVersionUID = -6440296126743879784L;
         private final Map<String, Collection<String>> mymap;
 
         public SupportEventWithMapOfCollOfString(String mapkey, Collection<String> mymap) {

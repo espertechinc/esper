@@ -21,7 +21,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -149,14 +148,14 @@ public class EPLJoinUnidirectionalStream {
             env.assertPropsPerRowLastNew("s0", fields3FOJ, new Object[][]{{"S0_2", null, null}});
 
             env.sendEventBean(new SupportBean_S1(1, "S1_0"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields3FOJ, new Object[][]{{"S0_1", "S1_0", "E10"}, {"S0_2", "S1_0", "E10"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields3FOJ, new Object[][]{{"S0_1", "S1_0", "E10"}, {"S0_2", "S1_0", "E10"}});
 
             env.sendEventBean(new SupportBean_S0(2, "S0_3"));
             env.assertPropsPerRowLastNew("s0", fields3FOJ, new Object[][]{{"S0_3", "S1_0", "E10"}});
 
             env.sendEventBean(new SupportBean("E11", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields3FOJ, new Object[][]{{"S0_1", "S1_0", "E11"}, {"S0_2", "S1_0", "E11"}, {"S0_3", "S1_0", "E11"}});
-            assertEquals(6, EPAssertionUtil.iteratorCount(env.iterator("s0")));
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields3FOJ, new Object[][]{{"S0_1", "S1_0", "E11"}, {"S0_2", "S1_0", "E11"}, {"S0_3", "S1_0", "E11"}});
+            env.assertIterator("s0", iterator -> assertEquals(6, EPAssertionUtil.iteratorCount(iterator)));
 
             env.undeployAll();
 
@@ -202,31 +201,27 @@ public class EPLJoinUnidirectionalStream {
             env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 2L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E1", 1L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1", 0L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E1", 1L}, new Object[]{"E1", 0L});
 
             sendEvent(env, "E1", 20);
             env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 3L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E1", 2L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E1", 0L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E1", 2L}, new Object[]{"E1", 0L});
 
-            try {
-                env.statement("s0").iterator();
-                fail();
-            } catch (UnsupportedOperationException ex) {
-                assertEquals("Iteration over a unidirectional join is not supported", ex.getMessage());
-            }
+            env.assertThat(() -> {
+                try {
+                    env.statement("s0").iterator();
+                    fail();
+                } catch (UnsupportedOperationException ex) {
+                    assertEquals("Iteration over a unidirectional join is not supported", ex.getMessage());
+                }
+            });
+
             // assure lock given up by sending more events
-
             sendEvent(env, "E2", 40);
             sendEventMD(env, "E2", 4L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{"E2", 1L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{"E2", 0L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{"E2", 1L}, new Object[]{"E2", 0L});
 
             env.undeployAll();
         }
@@ -238,7 +233,7 @@ public class EPLJoinUnidirectionalStream {
                 "from SupportMarketDataBean unidirectional, SupportBean#keepall " +
                 "where theString = symbol";
             env.compileDeployAddListenerMileZero(stmtText, "s0");
-            tryUnsupportedIterator(env.statement("s0"));
+            tryUnsupportedIterator(env);
 
             // send event, expect result
             sendEventMD(env, "E1", 1L);
@@ -249,22 +244,17 @@ public class EPLJoinUnidirectionalStream {
             env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 2L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{1L}, new Object[]{0L});
 
             sendEvent(env, "E1", 20);
             env.assertListenerNotInvoked("s0");
 
             sendEventMD(env, "E1", 3L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{2L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
-            env.listener("s0").reset();
+            env.assertPropsIRPair("s0", fields, new Object[]{2L}, new Object[]{0L});
 
             sendEvent(env, "E2", 40);
             sendEventMD(env, "E2", 4L);
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{1L});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fields, new Object[]{0L});
+            env.assertPropsIRPair("s0", fields, new Object[]{1L}, new Object[]{0L});
 
             env.undeployAll();
         }
@@ -316,10 +306,10 @@ public class EPLJoinUnidirectionalStream {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(70000);
-            assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("num"));
+            env.assertEqualsNew("s0", "num", 2L);
 
             env.advanceTime(140000);
-            assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("num"));
+            env.assertEqualsNew("s0", "num", 2L);
 
             env.undeployAll();
         }
@@ -347,8 +337,10 @@ public class EPLJoinUnidirectionalStream {
             env.advanceTime(140000);
 
             env.advanceTime(210000);
-            assertEquals(2L, env.listener("s0").getLastNewData()[0].get("num"));
-            assertEquals(2L, env.listener("s0").getLastNewData()[1].get("num"));
+            env.assertListener("s0", listener -> {
+                assertEquals(2L, listener.getLastNewData()[0].get("num"));
+                assertEquals(2L, listener.getLastNewData()[1].get("num"));
+            });
 
             env.undeployAll();
         }
@@ -506,7 +498,7 @@ public class EPLJoinUnidirectionalStream {
     }
 
     private static void tryFullOuterPassive2Stream(RegressionEnvironment env) {
-        tryUnsupportedIterator(env.statement("s0"));
+        tryUnsupportedIterator(env);
 
         // send event, expect result
         sendEventMD(env, "E1", 1L);
@@ -525,7 +517,7 @@ public class EPLJoinUnidirectionalStream {
 
     private static void tryJoinPassive2Stream(RegressionEnvironment env, String stmtText) {
         env.compileDeployAddListenerMileZero(stmtText, "s0");
-        tryUnsupportedIterator(env.statement("s0"));
+        tryUnsupportedIterator(env);
 
         // send event, expect result
         sendEventMD(env, "E1", 1L);
@@ -579,11 +571,11 @@ public class EPLJoinUnidirectionalStream {
     }
 
     private static void tryAssertion2StreamInnerWGroupBy(RegressionEnvironment env) {
-        String epl = "create objectarray schema E1 (id string, grp string, value int);\n" +
-            "create objectarray schema E2 (id string, value2 int);\n" +
+        String epl = "@buseventtype create objectarray schema E1 (id string, grp string, value int);\n" +
+            "@buseventtype create objectarray schema E2 (id string, value2 int);\n" +
             "@name('s0') select count(*) as c0, sum(E1.value) as c1, E1.id as c2 " +
             "from E1 unidirectional inner join E2#keepall on E1.id = E2.id group by E1.grp";
-        env.compileDeployWBusPublicType(epl, new RegressionPath());
+        env.compileDeploy(epl, new RegressionPath());
         env.addListener("s0");
         String[] fields = "c0,c1,c2".split(",");
 
@@ -661,12 +653,14 @@ public class EPLJoinUnidirectionalStream {
         env.assertListenerNotInvoked("s0");
     }
 
-    private static void tryUnsupportedIterator(EPStatement stmt) {
-        try {
-            stmt.iterator();
-            fail();
-        } catch (UnsupportedOperationException ex) {
-            assertEquals("Iteration over a unidirectional join is not supported", ex.getMessage());
-        }
+    private static void tryUnsupportedIterator(RegressionEnvironment env) {
+        env.assertStatement("s0", statement -> {
+            try {
+                statement.iterator();
+                fail();
+            } catch (UnsupportedOperationException ex) {
+                assertEquals("Iteration over a unidirectional join is not supported", ex.getMessage());
+            }
+        });
     }
 }

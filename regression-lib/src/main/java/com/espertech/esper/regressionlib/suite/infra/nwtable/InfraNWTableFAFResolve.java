@@ -19,6 +19,7 @@ import com.espertech.esper.compiler.client.option.ModuleUsesContext;
 import com.espertech.esper.compiler.client.option.ModuleUsesOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.*;
@@ -66,6 +67,10 @@ public class InfraNWTableFAFResolve implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

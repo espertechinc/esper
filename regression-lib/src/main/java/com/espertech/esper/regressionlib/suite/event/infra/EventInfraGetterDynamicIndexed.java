@@ -16,7 +16,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.Json;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.util.NullableObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -28,7 +27,7 @@ import org.apache.avro.generic.GenericData;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertNull;
 public class EventInfraGetterDynamicIndexed implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, NullableObject<String[]>> bean = (type, nullable) -> {
+        Consumer<NullableObject<String[]>> bean = nullable -> {
             if (nullable == null) {
                 env.sendEventBean(new LocalEvent());
             } else {
@@ -48,7 +47,7 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, NullableObject<String[]>> map = (type, nullable) -> {
+        Consumer<NullableObject<String[]>> map = nullable -> {
             if (nullable == null) {
                 env.sendEventMap(Collections.emptyMap(), "LocalEvent");
             } else {
@@ -64,7 +63,7 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
         runAssertion(env, oaepl, null);
 
         // Json
-        BiConsumer<EventType, NullableObject<String[]>> json = (type, nullable) -> {
+        Consumer<NullableObject<String[]>> json = nullable -> {
             if (nullable == null) {
                 env.sendEventJson("{}", "LocalEvent");
             } else if (nullable.getObject() == null) {
@@ -85,16 +84,18 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
         runAssertion(env, "@JsonSchema(className='" + MyLocalJsonProvided.class.getName() + "') @public @buseventtype @JsonSchema() create json schema LocalEvent();\n", json);
 
         // Avro
-        BiConsumer<EventType, NullableObject<String[]>> avro = (type, nullable) -> {
+        Consumer<NullableObject<String[]>> avro = nullable -> {
             Schema schema = SchemaBuilder.record("name").fields()
                 .name("array").type(SchemaBuilder.array().items().stringType()).noDefault()
                 .endRecord();
             GenericData.Record event;
             if (nullable == null) {
                 // no action
-                event = new GenericData.Record(SupportAvroUtil.getAvroSchema(type));
+                event = new GenericData.Record(schema);
+                event.put("array", Collections.emptyList());
             } else if (nullable.getObject() == null) {
                 event = new GenericData.Record(schema);
+                event.put("array", Collections.emptyList());
             } else {
                 event = new GenericData.Record(schema);
                 event.put("array", Arrays.asList(nullable.getObject()));
@@ -106,59 +107,56 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, NullableObject<String[]>> sender) {
+                             Consumer<NullableObject<String[]>> sender) {
 
         RegressionPath path = new RegressionPath();
         env.compileDeploy(createSchemaEPL, path);
-
         env.compileDeploy("@name('s0') select * from LocalEvent", path).addListener("s0");
-        EventType eventType = env.statement("s0").getEventType();
-        EventPropertyGetter g0 = eventType.getGetter("array[0]?");
-        EventPropertyGetter g1 = eventType.getGetter("array[1]?");
 
         if (sender == null) {
-            assertNull(g0);
-            assertNull(g1);
+            env.assertStatement("s0", statement -> {
+                EventType eventType = statement.getEventType();
+                EventPropertyGetter g0 = eventType.getGetter("array[0]?");
+                EventPropertyGetter g1 = eventType.getGetter("array[1]?");
+                assertNull(g0);
+                assertNull(g1);
+            });
             env.undeployAll();
             return;
-        } else {
-            String propepl = "@name('s1') select array[0]? as c0, array[1]? as c1," +
-                "exists(array[0]?) as c2, exists(array[1]?) as c3, " +
-                "typeof(array[0]?) as c4, typeof(array[1]?) as c5 from LocalEvent;\n";
-            env.compileDeploy(propepl, path).addListener("s1");
         }
 
-        sender.accept(eventType, new NullableObject<>(new String[]{"a", "b"}));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "a");
-        assertGetter(event, g1, true, "b");
+        String propepl = "@name('s1') select array[0]? as c0, array[1]? as c1," +
+            "exists(array[0]?) as c2, exists(array[1]?) as c3, " +
+            "typeof(array[0]?) as c4, typeof(array[1]?) as c5 from LocalEvent;\n";
+        env.compileDeploy(propepl, path).addListener("s1");
+
+        sender.accept(new NullableObject<>(new String[]{"a", "b"}));
+        env.assertEventNew("s0", event -> assertGetters(event, true, "a", true, "b"));
         assertProps(env, "a", "b");
 
-        sender.accept(eventType, new NullableObject<>(new String[]{"a"}));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, true, "a");
-        assertGetter(event, g1, false, null);
+        sender.accept(new NullableObject<>(new String[]{"a"}));
+        env.assertEventNew("s0", event -> assertGetters(event, true, "a", false, null));
         assertProps(env, "a", null);
 
-        sender.accept(eventType, new NullableObject<>(new String[0]));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(new NullableObject<>(new String[0]));
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, null, null);
 
-        sender.accept(eventType, new NullableObject<>(null));
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
+        sender.accept(new NullableObject<>(null));
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
         assertProps(env, null, null);
 
-        sender.accept(eventType, null);
-        event = env.listener("s0").assertOneGetNewAndReset();
-        assertGetter(event, g0, false, null);
-        assertGetter(event, g1, false, null);
-        assertProps(env, null, null);
+        sender.accept(null);
+        env.assertEventNew("s0", event -> assertGetters(event, false, null, false, null));
 
         env.undeployAll();
+    }
+
+    private void assertGetters(EventBean event, boolean existsZero, String valueZero, boolean existsOne, String valueOne) {
+        EventPropertyGetter g0 = event.getEventType().getGetter("array[0]?");
+        EventPropertyGetter g1 = event.getEventType().getGetter("array[1]?");
+        assertGetter(event, g0, existsZero, valueZero);
+        assertGetter(event, g1, existsOne, valueOne);
     }
 
     private void assertGetter(EventBean event, EventPropertyGetter getter, boolean exists, String value) {
@@ -168,19 +166,22 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
     }
 
     private void assertProps(RegressionEnvironment env, String valueA, String valueB) {
-        EventBean event = env.listener("s1").assertOneGetNewAndReset();
-        assertEquals(valueA, event.get("c0"));
-        assertEquals(valueB, event.get("c1"));
-        assertEquals(valueA != null, event.get("c2"));
-        assertEquals(valueB != null, event.get("c3"));
-        assertEquals(valueA == null ? null : "String", event.get("c4"));
-        assertEquals(valueB == null ? null : "String", event.get("c5"));
+        env.assertEventNew("s1", event -> {
+            assertEquals(valueA, event.get("c0"));
+            assertEquals(valueB, event.get("c1"));
+            assertEquals(valueA != null, event.get("c2"));
+            assertEquals(valueB != null, event.get("c3"));
+            assertEquals(valueA == null ? null : "String", event.get("c4"));
+            assertEquals(valueB == null ? null : "String", event.get("c5"));
+        });
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -6780954827765049620L;
     }
 
     public static class LocalEventSubA extends LocalEvent {
+        private static final long serialVersionUID = 2119812618250886483L;
         private String[] array;
 
         public LocalEventSubA(String[] array) {
@@ -193,6 +194,7 @@ public class EventInfraGetterDynamicIndexed implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = -4565597414944608305L;
         public String[] array;
     }
 }

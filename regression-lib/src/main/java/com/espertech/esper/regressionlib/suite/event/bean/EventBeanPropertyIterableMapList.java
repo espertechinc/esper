@@ -47,6 +47,7 @@ public class EventBeanPropertyIterableMapList implements RegressionExecution {
     }
 
     public static class MyEventWithMethod implements Serializable {
+        private static final long serialVersionUID = 1382390226857382577L;
         private final Iterable<OtherEvent> otherEventsIterable;
         private final Map<String, OtherEvent> otherEventsMap;
         private final List<OtherEvent> otherEventsList;
@@ -71,12 +72,14 @@ public class EventBeanPropertyIterableMapList implements RegressionExecution {
     }
 
     public static class MyEventWithField implements Serializable {
+        private static final long serialVersionUID = -8436145442105781637L;
         public Iterable<OtherEvent> otherEventsIterable;
         public Map<String, OtherEvent> otherEventsMap;
         public List<OtherEvent> otherEventsList;
     }
 
-    public static class OtherEvent {
+    public static class OtherEvent implements Serializable {
+        private static final long serialVersionUID = 8679270883856221490L;
         private final String id;
 
         public OtherEvent(String id) {

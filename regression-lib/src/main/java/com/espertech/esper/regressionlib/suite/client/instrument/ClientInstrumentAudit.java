@@ -32,7 +32,6 @@ import java.util.List;
 
 import static com.espertech.esper.runtime.client.EPRuntimeProvider.DEFAULT_RUNTIME_URI;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ClientInstrumentAudit {
 
@@ -48,7 +47,7 @@ public class ClientInstrumentAudit {
 
     private static class ClientInstrumentAuditDocSample implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            EPCompiled compiled = env.compileWBusPublicType("create schema OrderEvent(price double)");
+            EPCompiled compiled = env.compile("@public @buseventtype create schema OrderEvent(price double)");
             env.deploy(compiled);
             RegressionPath path = new RegressionPath();
             path.add(compiled);
@@ -77,14 +76,16 @@ public class ClientInstrumentAudit {
             AUDITLOG.info("*** Stream: ");
             env.compileDeploy("@Name('ABC') @Audit('stream') select * from SupportBean(theString = 'E1')");
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(1, callback.getAudits().size());
-            AuditContext cb = callback.getAudits().get(0);
-            assertEquals("SupportBean(theString=...) inserted SupportBean[SupportBean(E1, 1)]", cb.getMessage());
-            assertEquals(env.deploymentId("ABC"), cb.getDeploymentId());
-            assertEquals("ABC", cb.getStatementName());
-            assertEquals(DEFAULT_RUNTIME_URI, cb.getRuntimeURI());
-            assertEquals(AuditEnum.STREAM, cb.getCategory());
-            assertEquals(1, cb.getRuntimeTime());
+            env.assertThat(() -> {
+                assertEquals(1, callback.getAudits().size());
+                AuditContext cb = callback.getAudits().get(0);
+                assertEquals("SupportBean(theString=...) inserted SupportBean[SupportBean(E1, 1)]", cb.getMessage());
+                assertEquals(env.deploymentId("ABC"), cb.getDeploymentId());
+                assertEquals("ABC", cb.getStatementName());
+                assertEquals(DEFAULT_RUNTIME_URI, cb.getRuntimeURI());
+                assertEquals(AuditEnum.STREAM, cb.getCategory());
+                assertEquals(1, cb.getRuntimeTime());
+            });
             AuditPath.setAuditCallback(null);
             env.undeployAll();
 
@@ -105,24 +106,24 @@ public class ClientInstrumentAudit {
             env.advanceTime(0);
             env.compileDeploy("@Name('ABC') @Audit('schedule') select irstream * from SupportBean#time(1 sec)").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 1));
-            env.listener("ABC").reset();
+            env.listenerReset("ABC");
             log.info("Sending time");
             env.advanceTime(2000);
-            assertTrue(env.listener("ABC").isInvoked());
+            env.assertListenerInvoked("ABC");
             env.undeployAll();
 
             // property
             AUDITLOG.info("*** Property: ");
             env.compileDeploy("@Name('ABC') @Audit('property') select intPrimitive from SupportBean").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 50));
-            assertEquals(50, env.listener("ABC").assertOneGetNewAndReset().get("intPrimitive"));
+            env.assertEqualsNew("ABC", "intPrimitive", 50);
             env.undeployAll();
 
             // view
             AUDITLOG.info("*** View: ");
             env.compileDeploy("@Name('ABC') @Audit('view') select intPrimitive from SupportBean#lastevent").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 50));
-            assertEquals(50, env.listener("ABC").assertOneGetNewAndReset().get("intPrimitive"));
+            env.assertEqualsNew("ABC", "intPrimitive", 50);
             env.undeployAll();
 
             env.compileDeploy("@name('s0') @Audit Select * From SupportBean#groupwin(theString)#length(2)").addListener("s0");
@@ -137,15 +138,17 @@ public class ClientInstrumentAudit {
             AUDITLOG.info("*** Expression: ");
             env.compileDeploy("@Name('ABC') @Audit('expression') select intPrimitive*100 as val0, sum(intPrimitive) as val1 from SupportBean").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 50));
-            assertEquals(5000, env.listener("ABC").assertOneGetNew().get("val0"));
-            assertEquals(50, env.listener("ABC").assertOneGetNewAndReset().get("val1"));
+            env.assertEventNew("ABC", event -> {
+                assertEquals(5000, event.get("val0"));
+                assertEquals(50, event.get("val1"));
+            });
             env.undeployAll();
 
             // expression-detail
             AUDITLOG.info("*** Expression-Nested: ");
             env.compileDeploy("@Name('ABC') @Audit('expression-nested') select ('A'||theString)||'X' as val0 from SupportBean").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 50));
-            assertEquals("AE1X", env.listener("ABC").assertOneGetNewAndReset().get("val0"));
+            env.assertEqualsNew("ABC", "val0", "AE1X");
             env.undeployAll();
 
             // pattern
@@ -153,7 +156,7 @@ public class ClientInstrumentAudit {
             env.compileDeploy("@Name('ABC') @Audit('pattern') select a.intPrimitive as val0 from pattern [a=SupportBean -> b=SupportBean_ST0]").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_ST0("E2", 2));
-            assertEquals(1, env.listener("ABC").assertOneGetNewAndReset().get("val0"));
+            env.assertEqualsNew("ABC", "val0", 1);
             env.undeployAll();
 
             // pattern-instances
@@ -176,7 +179,7 @@ public class ClientInstrumentAudit {
                 "expression OUT { x => INN(x) } " +
                 "select DEF(), OUT(sb) from SupportBean sb").addListener("ABC");
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(1, env.listener("ABC").assertOneGetNewAndReset().get("DEF()"));
+            env.assertEqualsNew("ABC", "DEF()", 1);
             env.undeployAll();
 
             // data flow
@@ -184,10 +187,12 @@ public class ClientInstrumentAudit {
                 "EventBusSource -> a<SupportBean> {filter:theString like 'I%'} " +
                 "Filter(a) -> b {filter: true}" +
                 "LogSink(b) {log:false}");
-            EPDataFlowInstance df = env.runtime().getDataFlowService().instantiate(env.deploymentId("df"), "MyFlow");
-            df.start();
-            env.sendEventBean(new SupportBean("I1", 1));
-            df.cancel();
+            env.assertThat(() -> {
+                EPDataFlowInstance df = env.runtime().getDataFlowService().instantiate(env.deploymentId("df"), "MyFlow");
+                df.start();
+                env.sendEventBean(new SupportBean("I1", 1));
+                df.cancel();
+            });
 
             // context partitions
             env.compileDeploy("create context WhenEventArrives " +

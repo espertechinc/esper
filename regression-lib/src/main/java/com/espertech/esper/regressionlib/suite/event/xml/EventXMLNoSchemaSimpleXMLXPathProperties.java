@@ -78,18 +78,20 @@ public class EventXMLNoSchemaSimpleXMLXPathProperties {
 
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         // assert type metadata
-        EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
-        assertEquals(EventTypeApplicationType.XML, type.getMetadata().getApplicationType());
+        env.assertThat(() -> {
+            EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured(eventTypeName);
+            assertEquals(EventTypeApplicationType.XML, type.getMetadata().getApplicationType());
 
-        SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-            new SupportEventPropDesc("xpathElement1", String.class),
-            new SupportEventPropDesc("xpathCountE21", Double.class),
-            new SupportEventPropDesc("xpathAttrString", String.class),
-            new SupportEventPropDesc("xpathAttrNum", Double.class),
-            new SupportEventPropDesc("xpathAttrBool", Boolean.class),
-            new SupportEventPropDesc("stringCastLong", Long.class),
-            new SupportEventPropDesc("stringCastDouble", Double.class),
-            new SupportEventPropDesc("numCastInt", Integer.class));
+            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                new SupportEventPropDesc("xpathElement1", String.class),
+                new SupportEventPropDesc("xpathCountE21", Double.class),
+                new SupportEventPropDesc("xpathAttrString", String.class),
+                new SupportEventPropDesc("xpathAttrNum", Double.class),
+                new SupportEventPropDesc("xpathAttrBool", Boolean.class),
+                new SupportEventPropDesc("stringCastLong", Long.class),
+                new SupportEventPropDesc("stringCastDouble", Double.class),
+                new SupportEventPropDesc("numCastInt", Integer.class));
+        });
 
         String stmt = "@name('s0') select xpathElement1, xpathCountE21, xpathAttrString, xpathAttrNum, xpathAttrBool," +
             "stringCastLong," +
@@ -109,17 +111,19 @@ public class EventXMLNoSchemaSimpleXMLXPathProperties {
     }
 
     protected static void assertDataSimpleXPath(RegressionEnvironment env, String element1) {
-        assertNotNull(env.listener("s0").getLastNewData());
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
+        env.assertListener("s0", listener -> {
+            assertNotNull(listener.getLastNewData());
+            EventBean theEvent = listener.getLastNewData()[0];
 
-        assertEquals(element1, theEvent.get("xpathElement1"));
-        assertEquals(2.0, theEvent.get("xpathCountE21"));
-        assertEquals("VAL3", theEvent.get("xpathAttrString"));
-        assertEquals(5d, theEvent.get("xpathAttrNum"));
-        assertEquals(true, theEvent.get("xpathAttrBool"));
-        assertEquals(5L, theEvent.get("stringCastLong"));
-        assertEquals(5d, theEvent.get("stringCastDouble"));
-        assertEquals(5, theEvent.get("numCastInt"));
+            assertEquals(element1, theEvent.get("xpathElement1"));
+            assertEquals(2.0, theEvent.get("xpathCountE21"));
+            assertEquals("VAL3", theEvent.get("xpathAttrString"));
+            assertEquals(5d, theEvent.get("xpathAttrNum"));
+            assertEquals(true, theEvent.get("xpathAttrBool"));
+            assertEquals(5L, theEvent.get("stringCastLong"));
+            assertEquals(5d, theEvent.get("stringCastDouble"));
+            assertEquals(5, theEvent.get("numCastInt"));
+        });
     }
 
     public static void sendEvent(RegressionEnvironment env, String value, String typeName) {

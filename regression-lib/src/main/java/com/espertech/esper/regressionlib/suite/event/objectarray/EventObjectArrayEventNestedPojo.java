@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.objectarray;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -20,6 +19,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,35 +47,38 @@ public class EventObjectArrayEventNestedPojo implements RegressionExecution {
         env.sendEventObjectArray(testdata, "NestedObjectArr");
 
         // test all properties exist
-        EventBean received = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
-            new Object[]{"abc", new SupportBean_A("A1"), testdata[2], testdata[3]});
-        EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
-            new Object[]{"A1", "val1", null, null});
-        EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
-            new Object[]{getNestedKeyOA(testdata, 3, "objectOne"), 10, "val2", 300});
-        EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{2, "nestedValue"});
-        EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
-            new Object[]{300, getNestedKeyOA(testdata, 3, "mapOne", "objectTwo"), getNestedKeyOA(testdata, 3, "mapOne", "nodefmapTwo")});
-        EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
-            new Object[]{getNestedKeyOA(testdata, 3, "mapOne", "mapTwo"), 4000L, new SupportBean_B("B1")});
-        EPAssertionUtil.assertProps(received, "f1,f2".split(","),
-            new Object[]{"1ma0", "B1"});
+        env.assertEventNew("s0", received -> {
+            EPAssertionUtil.assertProps(received, "simple,object,nodefmap,map".split(","),
+                new Object[]{"abc", new SupportBean_A("A1"), testdata[2], testdata[3]});
+            EPAssertionUtil.assertProps(received, "a1,a2,a3,a4".split(","),
+                new Object[]{"A1", "val1", null, null});
+            EPAssertionUtil.assertProps(received, "b1,b2,b3,b4".split(","),
+                new Object[]{getNestedKeyOA(testdata, 3, "objectOne"), 10, "val2", 300});
+            EPAssertionUtil.assertProps(received, "c1,c2".split(","), new Object[]{2, "nestedValue"});
+            EPAssertionUtil.assertProps(received, "d1,d2,d3".split(","),
+                new Object[]{300, getNestedKeyOA(testdata, 3, "mapOne", "objectTwo"), getNestedKeyOA(testdata, 3, "mapOne", "nodefmapTwo")});
+            EPAssertionUtil.assertProps(received, "e1,e2,e3".split(","),
+                new Object[]{getNestedKeyOA(testdata, 3, "mapOne", "mapTwo"), 4000L, new SupportBean_B("B1")});
+            EPAssertionUtil.assertProps(received, "f1,f2".split(","),
+                new Object[]{"1ma0", "B1"});
+        });
         env.undeployModuleContaining("s0");
 
         // assert type info
         env.compileDeploy("@name('s0') select * from NestedObjectArr").addListener("s0");
-        EventType eventType = env.statement("s0").getEventType();
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
 
-        String[] propertiesReceived = eventType.getPropertyNames();
-        String[] propertiesExpected = new String[]{"simple", "object", "nodefmap", "map"};
-        EPAssertionUtil.assertEqualsAnyOrder(propertiesReceived, propertiesExpected);
-        assertEquals(String.class, eventType.getPropertyType("simple"));
-        assertEquals(Map.class, eventType.getPropertyType("map"));
-        assertEquals(Map.class, eventType.getPropertyType("nodefmap"));
-        assertEquals(SupportBean_A.class, eventType.getPropertyType("object"));
+            String[] propertiesReceived = eventType.getPropertyNames();
+            String[] propertiesExpected = new String[]{"simple", "object", "nodefmap", "map"};
+            EPAssertionUtil.assertEqualsAnyOrder(propertiesReceived, propertiesExpected);
+            assertEquals(String.class, eventType.getPropertyType("simple"));
+            assertEquals(Map.class, eventType.getPropertyType("map"));
+            assertEquals(Map.class, eventType.getPropertyType("nodefmap"));
+            assertEquals(SupportBean_A.class, eventType.getPropertyType("object"));
 
-        assertNull(eventType.getPropertyType("map.mapOne.simpleOne"));
+            assertNull(eventType.getPropertyType("map.mapOne.simpleOne"));
+        });
 
         // nested POJO with generic return type
         env.undeployModuleContaining("s0");
@@ -111,7 +114,8 @@ public class EventObjectArrayEventNestedPojo implements RegressionExecution {
         return levelZero;
     }
 
-    public static class MyNested {
+    public static class MyNested implements Serializable {
+        private static final long serialVersionUID = -7910598762240962748L;
         private final List<MyInside> insides;
 
         private MyNested(List<MyInside> insides) {
@@ -123,7 +127,8 @@ public class EventObjectArrayEventNestedPojo implements RegressionExecution {
         }
     }
 
-    public static class MyInside {
+    public static class MyInside implements Serializable {
+        private static final long serialVersionUID = -8064436119425443762L;
         private final String id;
 
         private MyInside(String id) {

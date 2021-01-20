@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class InfraNWTableOnDelete {
     public static Collection<RegressionExecution> executions() {
@@ -59,7 +58,7 @@ public class InfraNWTableOnDelete {
             // create delete stmt
             String stmtTextDelete = "@Name('OnDelete') on SupportBean_A delete from MyInfra";
             env.compileDeploy(stmtTextDelete, path).addListener("OnDelete");
-            EPAssertionUtil.assertEqualsAnyOrder(env.statement("OnDelete").getEventType().getPropertyNames(), new String[]{"a", "b"});
+            env.assertStatement("OnDelete", statement -> EPAssertionUtil.assertEqualsAnyOrder(statement.getEventType().getPropertyNames(), new String[]{"a", "b"}));
 
             // create insert into
             String stmtTextInsertOne = "@Name('Insert') insert into MyInfra select theString as a, intPrimitive as b from SupportBean";
@@ -72,59 +71,62 @@ public class InfraNWTableOnDelete {
 
             // Delete all events, no result expected
             sendSupportBean_A(env, "A1");
-            assertFalse(env.listener("CreateInfra").isInvoked());
-            assertFalse(env.listener("Select").isInvoked());
-            assertFalse(env.listener("OnDelete").isInvoked());
-            assertEquals(0, getCount(env, path, "MyInfra"));
+            env.assertListenerNotInvoked("CreateInfra");
+            env.assertListenerNotInvoked("Select");
+            env.assertListenerNotInvoked("OnDelete");
+            env.assertThat(() -> assertEquals(0, getCount(env, path, "MyInfra")));
 
             // send 1 event
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("Select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsNew("CreateInfra", fields, new Object[]{"E1", 1});
+                env.assertPropsNew("Select", fields, new Object[]{"E1", 1});
             } else {
-                assertFalse(env.listener("CreateInfra").isInvoked());
-                assertFalse(env.listener("Select").isInvoked());
+                env.assertListenerNotInvoked("CreateInfra");
+                env.assertListenerNotInvoked("Select");
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, new Object[][]{{"E1", 1}});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("OnDelete"), fields, null);
-            assertEquals(1, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("OnDelete", fields, null);
+            env.assertThat(() -> assertEquals(1, getCount(env, path, "MyInfra")));
 
             env.milestone(0);
 
             // Delete all events, 1 row expected
             sendSupportBean_A(env, "A2");
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetOldAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("Select").assertOneGetOldAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("OnDelete"), fields, new Object[0][]);
+                env.assertPropsOld("CreateInfra", fields, new Object[]{"E1", 1});
+                env.assertPropsOld("Select", fields, new Object[]{"E1", 1});
+                env.assertPropsPerRowIterator("OnDelete", fields, new Object[0][]);
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, null);
-            EPAssertionUtil.assertProps(env.listener("OnDelete").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-            assertEquals(0, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, null);
+            env.assertPropsNew("OnDelete", fields, new Object[]{"E1", 1});
+            env.assertThat(() -> assertEquals(0, getCount(env, path, "MyInfra")));
 
             // send 2 events
             sendSupportBean(env, "E2", 2);
             sendSupportBean(env, "E3", 3);
-            env.listener("CreateInfra").reset();
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, new Object[][]{{"E2", 2}, {"E3", 3}});
-            assertFalse(env.listener("OnDelete").isInvoked());
-            assertEquals(2, getCount(env, path, "MyInfra"));
+            env.listenerReset("CreateInfra");
+            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E2", 2}, {"E3", 3}});
+            env.assertListenerNotInvoked("OnDelete");
+            env.assertThat(() -> assertEquals(2, getCount(env, path, "MyInfra")));
 
             env.milestone(1);
 
             // Delete all events, 2 rows expected
             sendSupportBean_A(env, "A2");
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").getLastOldData()[0], fields, new Object[]{"E2", 2});
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").getLastOldData()[1], fields, new Object[]{"E3", 3});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("OnDelete"), fields, new Object[0][]);
+                env.assertListener("CreateInfra", listener -> {
+                    EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"E2", 2});
+                    EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"E3", 3});
+                });
+                env.assertPropsPerRowIterator("OnDelete", fields, new Object[0][]);
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, null);
-            assertEquals(2, env.listener("OnDelete").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("OnDelete").getLastNewData()[0], fields, new Object[]{"E2", 2});
-            EPAssertionUtil.assertProps(env.listener("OnDelete").getLastNewData()[1], fields, new Object[]{"E3", 3});
-            assertEquals(0, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, null);
+            env.assertListener("OnDelete", listener -> {
+                EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"E2", 2});
+                EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"E3", 3});
+            });
+            env.assertThat(() -> assertEquals(0, getCount(env, path, "MyInfra")));
 
             env.undeployAll();
         }
@@ -163,39 +165,39 @@ public class InfraNWTableOnDelete {
             String[] fields = new String[]{"a", "b"};
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("OnDelete"), fields, null);
+                env.assertPropsNew("CreateInfra", fields, new Object[]{"E1", 1});
+                env.assertPropsPerRowIterator("OnDelete", fields, null);
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, new Object[][]{{"E1", 1}});
-            assertEquals(1, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E1", 1}});
+            env.assertThat(() -> assertEquals(1, getCount(env, path, "MyInfra")));
 
             // Delete all events using A, 1 row expected
             sendSupportBean_A(env, "A1");
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetOldAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsOld("CreateInfra", fields, new Object[]{"E1", 1});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, null);
-            EPAssertionUtil.assertProps(env.listener("OnDelete").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-            assertEquals(0, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, null);
+            env.assertPropsNew("OnDelete", fields, new Object[]{"E1", 1});
+            env.assertThat(() -> assertEquals(0, getCount(env, path, "MyInfra")));
 
             env.milestone(0);
 
             // send 1 event
             sendSupportBean(env, "E2", 2);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+                env.assertPropsNew("CreateInfra", fields, new Object[]{"E2", 2});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, new Object[][]{{"E2", 2}});
-            assertEquals(1, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E2", 2}});
+            env.assertThat(() -> assertEquals(1, getCount(env, path, "MyInfra")));
 
             // Delete all events using B, 1 row expected
             sendSupportBean_B(env, "B1");
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").assertOneGetOldAndReset(), fields, new Object[]{"E2", 2});
+                env.assertPropsOld("CreateInfra", fields, new Object[]{"E2", 2});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("CreateInfra"), fields, null);
-            EPAssertionUtil.assertProps(env.listener("OnDelete").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
-            assertEquals(0, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIterator("CreateInfra", fields, null);
+            env.assertPropsNew("OnDelete", fields, new Object[]{"E2", 2});
+            env.assertThat(() -> assertEquals(0, getCount(env, path, "MyInfra")));
 
             env.undeployAll();
         }
@@ -242,36 +244,37 @@ public class InfraNWTableOnDelete {
             env.milestone(0);
 
             sendSupportBean(env, "E3", 3);
-            assertEquals(3, getCount(env, path, "MyInfra"));
-            env.listener("CreateInfra").reset();
+            env.assertThat(() -> assertEquals(3, getCount(env, path, "MyInfra")));
+            env.listenerReset("CreateInfra");
             String[] fields = new String[]{"a", "b"};
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("CreateInfra").iterator(), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             // delete E2
             sendSupportBean_A(env, "XE2X");
             if (namedWindow) {
-                assertEquals(1, env.listener("CreateInfra").getLastOldData().length);
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").getLastOldData()[0], fields, new Object[]{"E2", 2});
+                env.assertPropsOld("CreateInfra", fields, new Object[]{"E2", 2});
             }
-            env.listener("CreateInfra").reset();
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("CreateInfra").iterator(), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
-            assertEquals(2, getCount(env, path, "MyInfra"));
+            env.listenerReset("CreateInfra");
+            env.assertPropsPerRowIteratorAnyOrder("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertThat(() -> assertEquals(2, getCount(env, path, "MyInfra")));
 
             sendSupportBean(env, "E7", 7);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("CreateInfra").iterator(), fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E7", 7}});
-            assertEquals(3, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIteratorAnyOrder("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E7", 7}});
+            env.assertThat(() -> assertEquals(3, getCount(env, path, "MyInfra")));
 
             env.milestone(1);
 
             // delete all under 5
             sendSupportBean_B(env, "B1");
             if (namedWindow) {
-                assertEquals(2, env.listener("CreateInfra").getLastOldData().length);
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").getLastOldData()[0], fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("CreateInfra").getLastOldData()[1], fields, new Object[]{"E3", 3});
+                env.assertListener("CreateInfra", listener -> {
+                    assertEquals(2, listener.getLastOldData().length);
+                    EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"E1", 1});
+                    EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"E3", 3});
+                });
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("CreateInfra").iterator(), fields, new Object[][]{{"E7", 7}});
-            assertEquals(1, getCount(env, path, "MyInfra"));
+            env.assertPropsPerRowIteratorAnyOrder("CreateInfra",  fields, new Object[][]{{"E7", 7}});
+            env.assertThat(() -> assertEquals(1, getCount(env, path, "MyInfra")));
 
             env.undeployAll();
         }

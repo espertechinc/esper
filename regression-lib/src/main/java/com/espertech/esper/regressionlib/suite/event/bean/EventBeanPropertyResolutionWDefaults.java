@@ -45,17 +45,19 @@ public class EventBeanPropertyResolutionWDefaults {
 
             Object theEvent = new SupportBeanReservedKeyword(1, 2);
             env.sendEventBean(theEvent, "SomeKeywords");
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(1, eventBean.get("seconds"));
-            assertEquals(2, eventBean.get("order"));
+            env.assertEventNew("s0", eventBean -> {
+                assertEquals(1, eventBean.get("seconds"));
+                assertEquals(2, eventBean.get("order"));
+            });
 
             env.undeployAll();
             env.compileDeploy("@name('s0') select * from `Order`").addListener("s0");
 
             env.sendEventBean(theEvent, "Order");
-            eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(1, eventBean.get("seconds"));
-            assertEquals(2, eventBean.get("order"));
+            env.assertEventNew("s0", eventBean -> {
+                assertEquals(1, eventBean.get("seconds"));
+                assertEquals(2, eventBean.get("order"));
+            });
 
             env.undeployAll();
             env.compileDeploy("@name('s0') select timestamp.`hour` as val from SomeKeywords").addListener("s0");
@@ -64,8 +66,7 @@ public class EventBeanPropertyResolutionWDefaults {
             bean.setTimestamp(new SupportBeanReservedKeyword.Inner());
             bean.getTimestamp().setHour(10);
             env.sendEventBean(bean, "SomeKeywords");
-            eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(10, eventBean.get("val"));
+            env.assertEqualsNew("s0", "val", 10);
             env.undeployAll();
 
             // test back-tick with spaces etc
@@ -93,16 +94,20 @@ public class EventBeanPropertyResolutionWDefaults {
 
             // test escape in column name
             env.compileDeploy("@name('s0') select theString as `order`, theString as `price.for.goods` from SupportBean").addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("order"));
-            assertEquals("price.for.goods", env.statement("s0").getEventType().getPropertyDescriptors()[1].getPropertyName());
+            env.assertStatement("s0", statement -> {
+                assertEquals(String.class, statement.getEventType().getPropertyType("order"));
+                assertEquals("price.for.goods", statement.getEventType().getPropertyDescriptors()[1].getPropertyName());
+            });
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Map<String, Object> out = (Map<String, Object>) env.listener("s0").assertOneGetNew().getUnderlying();
-            assertEquals("E1", out.get("order"));
-            assertEquals("E1", out.get("price.for.goods"));
+            env.assertEventNew("s0", eventBean -> {
+                Map<String, Object> out = (Map<String, Object>) eventBean.getUnderlying();
+                assertEquals("E1", out.get("order"));
+                assertEquals("E1", out.get("price.for.goods"));
 
-            // try control character
-            tryInvalidControlCharacter(env.listener("s0").assertOneGetNew());
+                // try control character
+                tryInvalidControlCharacter(eventBean);
+            });
 
             // try enum with keyword
             tryEnumWithKeyword(env);
@@ -119,11 +124,12 @@ public class EventBeanPropertyResolutionWDefaults {
 
             Object theEvent = new SupportBeanWriteOnly();
             env.sendEventBean(theEvent);
-            EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-            assertSame(theEvent, eventBean.getUnderlying());
+            env.assertEventNew("s0", eventBean -> assertSame(theEvent, eventBean.getUnderlying()));
 
-            EventType type = env.statement("s0").getEventType();
-            assertEquals(0, type.getPropertyNames().length);
+            env.assertStatement("s0", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(0, type.getPropertyNames().length);
+            });
 
             env.undeployAll();
         }
@@ -134,10 +140,11 @@ public class EventBeanPropertyResolutionWDefaults {
             env.compileDeploy("@name('s0') select MYPROPERTY, myproperty, myProperty from SupportBeanDupProperty").addListener("s0");
 
             env.sendEventBean(new SupportBeanDupProperty("lowercamel", "uppercamel", "upper", "lower"));
-            EventBean result = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("upper", result.get("MYPROPERTY"));
-            assertEquals("lower", result.get("myproperty"));
-            assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
+            env.assertEventNew("s0", result -> {
+                assertEquals("upper", result.get("MYPROPERTY"));
+                assertEquals("lower", result.get("myproperty"));
+                assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
+            });
 
             env.undeployAll();
             env.tryInvalidCompile("select MyProperty from SupportBeanDupProperty",

@@ -17,16 +17,17 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum.NAME;
 import static com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum.TYPE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class ExprDefineValueParameter {
 
@@ -54,7 +55,7 @@ public class ExprDefineValueParameter {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean_S1(0));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", null);
 
             env.undeployAll();
         }
@@ -144,13 +145,13 @@ public class ExprDefineValueParameter {
 
             env.sendEventBean(new SupportBean_S0(1, "A", "B"));
             env.sendEventBean(new SupportBean_S1(2, "X", "Y"));
-            assertEquals("ABXY", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "ABXY");
 
             env.sendEventBean(new SupportBean_S1(2, "Z", "P"));
-            assertEquals("ABZP", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "ABZP");
 
             env.sendEventBean(new SupportBean_S0(1, "D", "E"));
-            assertEquals("DEZP", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "DEZP");
 
             env.undeployAll();
         }
@@ -165,13 +166,13 @@ public class ExprDefineValueParameter {
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
             env.sendEventBean(new SupportBean_S1(2, "1"));
-            assertEquals("Ax1", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "Ax1");
 
             env.sendEventBean(new SupportBean_S1(2, "2"));
-            assertEquals("Ax2", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "Ax2");
 
             env.sendEventBean(new SupportBean_S0(1, "B"));
-            assertEquals("Bx2", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "Bx2");
 
             env.undeployAll();
         }
@@ -197,9 +198,9 @@ public class ExprDefineValueParameter {
             env.sendEventBean(new SupportBean_S0(1, "A"));
             env.sendEventBean(new SupportBean_S0(3, "C"));
             env.sendEventBean(new SupportBean_S0(2, "B"));
-            assertEquals("BxCyA", env.listener("s0").assertOneGetNewAndReset().get("c0"));
-            assertEquals("BxAyC", env.listener("s1").assertOneGetNewAndReset().get("c0"));
-            assertEquals("CxByA", env.listener("s2").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "BxCyA");
+            env.assertEqualsNew("s1", "c0", "BxAyC");
+            env.assertEqualsNew("s2", "c0", "CxByA");
 
             env.undeployAll();
         }
@@ -222,15 +223,19 @@ public class ExprDefineValueParameter {
             ExprDefineLocalService service = ExprDefineLocalService.services.get(0);
 
             env.sendEventBean(new SupportBean("E10", -1));
-            assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 10);
             assertEquals(1, service.getCalculations().size());
 
             env.sendEventBean(new SupportBean("E10", -1));
-            assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 10);
             assertEquals(2, service.getCalculations().size());
 
             ExprDefineLocalService.services.clear();
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -250,7 +255,7 @@ public class ExprDefineValueParameter {
             env.assertPropsNew("s0", fields,
                 new Object[] {1.5d, 1.2d, 1.5d});
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "D", 1.1d);
+            env.runtimeSetVariable("s0", "D", 1.1d);
 
             env.sendEventMap(CollectionUtil.buildMap("value1", 1.8d, "value2", 1.5d), "A");
             env.assertPropsNew("s0", fields,
@@ -264,7 +269,7 @@ public class ExprDefineValueParameter {
         Object[][] expectedColTypes = new Object[][]{
             {"c0", clazz},
         };
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedColTypes, env.statement("s0").getEventType(), NAME, TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedColTypes, statement.getEventType(), NAME, TYPE));
     }
 
     private static void sendAssert(RegressionEnvironment env, String expected, String p00, String p01) {

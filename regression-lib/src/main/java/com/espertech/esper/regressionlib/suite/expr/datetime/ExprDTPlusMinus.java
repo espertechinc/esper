@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.expr.datetime;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -56,7 +55,7 @@ public class ExprDTPlusMinus {
                 "zoneddate.minus(varmsec) as val11" +
                 " from SupportDateTime";
             env.compileDeploy(epl, path).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
                 LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(null));
@@ -68,14 +67,14 @@ public class ExprDTPlusMinus {
             env.sendEventBean(SupportDateTime.make(startTime));
             env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "varmsec", 1000);
+            env.runtimeSetVariable("var", "varmsec", 1000);
             env.sendEventBean(SupportDateTime.make(startTime));
-            //System.out.println("===> " + SupportDateTime.print(env.listener("s0").assertOneGetNew().get("val4")));
+            //System.out.println("===> " + SupportDateTime.print(listener.assertOneGetNew().get("val4")));
             expectedPlus = SupportDateTime.getArrayCoerced("2002-05-30T09:00:01.000", "long", "util", "long", "cal", "ldt", "zdt");
             expectedMinus = SupportDateTime.getArrayCoerced("2002-05-30T08:59:59.000", "long", "util", "long", "cal", "ldt", "zdt");
             env.assertPropsNew("s0", fields, EPAssertionUtil.concatenateArray(expectedPlus, expectedMinus));
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "varmsec", 2 * 24 * 60 * 60 * 1000);
+            env.runtimeSetVariable("var", "varmsec", 2 * 24 * 60 * 60 * 1000);
             env.sendEventBean(SupportDateTime.make(startTime));
             expectedMinus = SupportDateTime.getArrayCoerced("2002-05-28T09:00:00.000", "long", "util", "long", "cal", "ldt", "zdt");
             expectedPlus = SupportDateTime.getArrayCoerced("2002-06-1T09:00:00.000", "long", "util", "long", "cal", "ldt", "zdt");
@@ -107,7 +106,7 @@ public class ExprDTPlusMinus {
                 "zoneddate.minus(1 hour 10 sec 20 msec) as val11" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType(),
                 LONGBOXED.getEPType(), DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
             env.sendEventBean(SupportDateTime.make(startTime));

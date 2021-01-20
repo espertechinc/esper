@@ -18,12 +18,15 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
+import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PatternGuardTimerWithin {
 
@@ -43,7 +46,7 @@ public class PatternGuardTimerWithin {
         public void run(RegressionEnvironment env) {
             EventCollection events = EventCollectionFactory.getEventSetOne(0, 1000);
             CaseList testCaseList = new CaseList();
-            EventExpressionCase testCase = null;
+            EventExpressionCase testCase;
 
             testCase = new EventExpressionCase("b=SupportBean_B(id='B1') where timer:within(2 sec)");
             testCaseList.addTest(testCase);
@@ -228,7 +231,7 @@ public class PatternGuardTimerWithin {
         public void run(RegressionEnvironment env) {
             // External clocking
             sendTimer(0, env);
-            Assert.assertEquals(0, env.eventService().getCurrentTime());
+            env.assertRuntime(runtime -> Assert.assertEquals(0, runtime.getEventService().getCurrentTime()));
 
             // Set up a timer:within
             env.compileDeploy("@name('s0') select * from pattern [(every SupportBean) where timer:within(1 days 2 hours 3 minutes 4 seconds 5 milliseconds)]");
@@ -266,13 +269,7 @@ public class PatternGuardTimerWithin {
 
             // Set up a timer:within
             EPCompiled compiled = env.compile("@name('s0') select * from pattern [(every SupportBean) where timer:within(?::int days ?::int hours ?::int minutes ?::int seconds ?::int milliseconds)]");
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> {
-                prepared.setObject(1, 1);
-                prepared.setObject(2, 2);
-                prepared.setObject(3, 3);
-                prepared.setObject(4, 4);
-                prepared.setObject(5, 5);
-            }));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams().add(1, 1).add(2, 2).add(3, 3).add(4, 4).add(5, 5)));
             env.addListener("s0");
 
             tryAssertion(env);
@@ -295,13 +292,13 @@ public class PatternGuardTimerWithin {
 
             sendTimer(2000, env);
             env.sendEventBean(new SupportBean("E2", -1));
-            Assert.assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", "E2");
 
             env.milestone(0);
 
             sendTimer(2999, env);
             env.sendEventBean(new SupportBean("E3", -1));
-            Assert.assertEquals("E3", env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", "E3");
 
             env.milestone(1);
 
@@ -339,12 +336,13 @@ public class PatternGuardTimerWithin {
 
     private static class PatternWithinMayMaxMonthScoped implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            tryAssertionWithinMayMaxMonthScoped(env, false);
-            tryAssertionWithinMayMaxMonthScoped(env, true);
+            AtomicInteger milestone = new AtomicInteger();
+            tryAssertionWithinMayMaxMonthScoped(env, false, milestone);
+            tryAssertionWithinMayMaxMonthScoped(env, true, milestone);
         }
     }
 
-    private static void tryAssertionWithinMayMaxMonthScoped(RegressionEnvironment env, boolean hasMax) {
+    private static void tryAssertionWithinMayMaxMonthScoped(RegressionEnvironment env, boolean hasMax, AtomicInteger milestone) {
         sendCurrentTime(env, "2002-02-01T09:00:00.000");
 
         String epl = "@name('s0') select * from pattern [(every SupportBean) where " +
@@ -358,7 +356,7 @@ public class PatternGuardTimerWithin {
         env.sendEventBean(new SupportBean("E2", 0));
         env.assertListenerInvoked("s0");
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2002-03-01T09:00:00.000");
         env.sendEventBean(new SupportBean("E3", 0));
@@ -377,13 +375,13 @@ public class PatternGuardTimerWithin {
 
     private static void tryAssertion(RegressionEnvironment env) {
         sendEvent(env);
-        env.listener("s0").assertOneGetNewAndReset();
+        env.assertListener("s0", SupportListener::assertOneGetNewAndReset);
 
         long time = 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000 + 3 * 60 * 1000 + 4 * 1000 + 5;
         sendTimer(time - 1, env);
-        Assert.assertEquals(time - 1, env.eventService().getCurrentTime());
+        env.assertRuntime(runtime -> Assert.assertEquals(time - 1, runtime.getEventService().getCurrentTime()));
         sendEvent(env);
-        env.listener("s0").assertOneGetNewAndReset();
+        env.assertListener("s0", SupportListener::assertOneGetNewAndReset);
 
         env.milestone(0);
 

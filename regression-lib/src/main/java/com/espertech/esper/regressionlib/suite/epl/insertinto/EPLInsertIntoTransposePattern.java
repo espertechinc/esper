@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -45,17 +43,17 @@ public class EPLInsertIntoTransposePattern {
                 " from pattern [every quote=SupportBeanWithThis(theString='B')] as stream0", path);
 
             env.sendEventBean(new SupportBeanWithThis("A", 10));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}});
+            env.assertPropsPerRowIteratorAnyOrder("window", new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}});
 
             env.sendEventBean(new SupportBeanWithThis("B", 20));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window"), new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}, {"2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("window", new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}, {"2", 20}});
 
             env.compileDeploy("@Name('window-2') create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBeanWithThis", path);
             env.compileDeploy("insert into TwoWindow select '3' as alertId, quote.* " +
                 " from pattern [every quote=SupportBeanWithThis(theString='C')] as stream0", path);
 
             env.sendEventBean(new SupportBeanWithThis("C", 30));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("window-2"), new String[]{"alertId", "intPrimitive"}, new Object[][]{{"3", 30}});
+            env.assertPropsPerRowIteratorAnyOrder("window-2", new String[]{"alertId", "intPrimitive"}, new Object[][]{{"3", 30}});
 
             env.undeployAll();
         }
@@ -84,13 +82,17 @@ public class EPLInsertIntoTransposePattern {
             RegressionPath path = new RegressionPath();
             String stmtTextOne = "@name('i1') insert into MyStreamABMap select a, b from pattern [a=AEventMap -> b=BEventMap]";
             env.compileDeploy(stmtTextOne, path).addListener("i1");
-            assertEquals(Map.class, env.statement("i1").getEventType().getPropertyType("a"));
-            assertEquals(Map.class, env.statement("i1").getEventType().getPropertyType("b"));
+            env.assertStatement("i1", statement -> {
+                assertEquals(Map.class, statement.getEventType().getPropertyType("a"));
+                assertEquals(Map.class, statement.getEventType().getPropertyType("b"));
+            });
 
             String stmtTextTwo = "@name('s0') select a.id, b.id from MyStreamABMap";
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("a.id"));
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("b.id"));
+            env.assertStatement("s0", statement -> {
+                assertEquals(String.class, statement.getEventType().getPropertyType("a.id"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("b.id"));
+            });
 
             Map<String, Object> eventOne = makeMap(new Object[][]{{"id", "A1"}});
             Map<String, Object> eventTwo = makeMap(new Object[][]{{"id", "B1"}});
@@ -98,11 +100,8 @@ public class EPLInsertIntoTransposePattern {
             env.sendEventMap(eventOne, "AEventMap");
             env.sendEventMap(eventTwo, "BEventMap");
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, "a.id,b.id".split(","), new Object[]{"A1", "B1"});
-
-            theEvent = env.listener("i1").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, "a,b".split(","), new Object[]{eventOne, eventTwo});
+            env.assertPropsNew("s0", "a.id,b.id".split(","), new Object[]{"A1", "B1"});
+            env.assertPropsNew("i1", "a,b".split(","), new Object[]{eventOne, eventTwo});
 
             env.undeployAll();
         }

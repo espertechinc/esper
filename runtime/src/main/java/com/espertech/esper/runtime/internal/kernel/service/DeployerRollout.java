@@ -113,7 +113,7 @@ public class DeployerRollout {
 
                 // register for recovery
                 DeploymentRecoveryInformation recoveryInformation = getRecoveryInformation(deployments[i]);
-                runtime.getServicesContext().getDeploymentRecoveryService().add(deploymentIds[i], stmtLightweights[i].getStatementIdFirstStatement(), items[i].getCompiled(), recoveryInformation.getStatementUserObjectsRuntime(), recoveryInformation.getStatementNamesWhenProvidedByAPI(), stmtLightweights[i].getSubstitutionParameters());
+                runtime.getServicesContext().getDeploymentRecoveryService().add(deploymentIds[i], stmtLightweights[i].getStatementIdFirstStatement(), items[i].getCompiled(), recoveryInformation.getStatementUserObjectsRuntime(), recoveryInformation.getStatementNamesWhenProvidedByAPI(), stmtLightweights[i].getSubstitutionParameters(), deployments[i].getDeploymentIdDependencies());
             } catch (Throwable t) {
                 rolloutCleanStatements(statements, stmtLightweights, inits, deploymentIds, moduleProviders, runtime.getServicesContext());
                 throw new EPDeployException(t.getMessage(), t, i);

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -64,12 +63,12 @@ public class InfraNWTableContext {
 
             env.sendEventBean(new SupportBean_S1(0));  // end
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s1").getAndResetLastNewData(), "pkey0,pkey1,c0".split(","), new Object[][]{{"E1", 10, 100L}, {"E2", 20, 200L}});
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), "thecnt".split(","), new Object[]{2L});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s3").getAndResetLastNewData(), "pkey0,thecnt".split(","), new Object[][]{{"E1", 2L}, {"E2", 2L}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s4").getAndResetLastNewData(), "pkey0,thecnt".split(","), new Object[][]{{"E1", 1L}, {"E2", 1L}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s5").getAndResetLastNewData(), "pkey0,pkey1,thecnt".split(","), new Object[][]{{"E1", 10, 1L}, {"E2", 20, 1L}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s6").getAndResetLastNewData(), "pkey0,pkey1,thecnt".split(","), new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s1", "pkey0,pkey1,c0".split(","), new Object[][]{{"E1", 10, 100L}, {"E2", 20, 200L}});
+            env.assertPropsNew("s2", "thecnt".split(","), new Object[]{2L});
+            env.assertPropsPerRowLastNewAnyOrder("s3", "pkey0,thecnt".split(","), new Object[][]{{"E1", 2L}, {"E2", 2L}});
+            env.assertPropsPerRowLastNewAnyOrder("s4", "pkey0,thecnt".split(","), new Object[][]{{"E1", 1L}, {"E2", 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s5", "pkey0,pkey1,thecnt".split(","), new Object[][]{{"E1", 10, 1L}, {"E2", 20, 1L}});
+            env.assertPropsPerRowLastNewAnyOrder("s6", "pkey0,pkey1,thecnt".split(","), new Object[][]{
                 {"E1", 10, 1L}, {"E2", 20, 1L}, {"E1", null, 1L}, {"E2", null, 1L}, {null, null, 2L}});
 
             env.undeployAll();

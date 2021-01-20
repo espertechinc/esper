@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -53,12 +52,10 @@ public class EPLContainedEventNested {
             env.compileDeploy(stmtText, path).addListener("s0");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}, {2}, {10}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1}, {2}, {10}});
 
             env.sendEventBean(OrderBeanFactory.makeEventFour());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{201}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{201}});
 
             env.undeployAll();
         }
@@ -77,13 +74,11 @@ public class EPLContainedEventNested {
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 24d + 35d + 27d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 24d + 35d + 27d}});
 
             env.sendEventBean(OrderBeanFactory.makeEventFour());
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 15d + 13d}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 15d + 13d}});
 
             env.undeployAll();
         }
@@ -108,7 +103,7 @@ public class EPLContainedEventNested {
 
             env.sendEventBean(new SupportBean("Foundation 2", 2));
             env.sendEventBean(OrderBeanFactory.makeEventFour());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"Foundation 2", 2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"Foundation 2", 2}});
 
             env.undeployAll();
         }
@@ -123,12 +118,10 @@ public class EPLContainedEventNested {
             assertStatelessStmt(env, "s0", true);
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}, {2}, {10}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1}, {2}, {10}});
 
             env.sendEventBean(OrderBeanFactory.makeEventFour());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{201}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{201}});
 
             env.undeployAll();
         }
@@ -143,8 +136,7 @@ public class EPLContainedEventNested {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}, {2}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1}, {2}});
 
             // try where in different levels
             env.undeployAll();
@@ -152,8 +144,7 @@ public class EPLContainedEventNested {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1}});
 
             // try where in combination
             env.undeployAll();
@@ -161,9 +152,7 @@ public class EPLContainedEventNested {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{1}});
-            env.listener("s0").reset();
-            env.assertListenerNotInvoked("s0");
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1}});
 
             env.undeployAll();
         }
@@ -273,13 +262,11 @@ public class EPLContainedEventNested {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
                 {"PO200901", "10020", 1}, {"PO200901", "10020", 2}, {"PO200901", "10021", 10}});
-            env.listener("s0").reset();
 
             env.sendEventBean(OrderBeanFactory.makeEventFour());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"PO200904", "10031", 201}});
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"PO200904", "10031", 201}});
 
             env.undeployAll();
         }
@@ -321,12 +308,10 @@ public class EPLContainedEventNested {
         String[] fields = "orderId,bookId,reviewId".split(",");
 
         env.sendEventBean(OrderBeanFactory.makeEventOne());
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{
             {"PO200901", "10020", 1}, {"PO200901", "10020", 2}, {"PO200901", "10021", 10}});
-        env.listener("s0").reset();
 
         env.sendEventBean(OrderBeanFactory.makeEventFour());
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"PO200904", "10031", 201}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"PO200904", "10031", 201}});
     }
 }

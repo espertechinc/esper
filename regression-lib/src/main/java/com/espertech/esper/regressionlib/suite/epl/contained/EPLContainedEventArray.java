@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class EPLContainedEventArray {
 
@@ -53,7 +52,7 @@ public class EPLContainedEventArray {
             Map<String, Object> data = CollectionUtil.buildMap("idsBefore", idsBeforeCSV.split(","), "idsAfter", idsAfterCSV.split(","));
             env.sendEventMap(data, "MyEvent");
             if (expected == null) {
-                assertFalse(env.listener("s0").getIsInvokedAndReset());
+                env.assertListenerNotInvoked("s0");
             } else {
                 env.assertPropsPerRowLastNew("s0", "id".split(","), expected);
             }
@@ -100,6 +99,6 @@ public class EPLContainedEventArray {
     }
 
     private static void assertCount(RegressionEnvironment env, RegressionPath path, long i) {
-        assertEquals(i, env.compileExecuteFAF("select count(*) as c0 from MyWindow", path).getArray()[0].get("c0"));
+        env.assertThat(() -> assertEquals(i, env.compileExecuteFAF("select count(*) as c0 from MyWindow", path).getArray()[0].get("c0")));
     }
 }

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -28,9 +27,10 @@ public class EventBeanPropertyResolutionCaseInsensitiveEngineDefault implements 
         env.compileDeploy(stmtText).addListener("s0");
 
         env.sendEventBean(new SupportBean("A", 10), eventTypeName);
-        EventBean result = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("A", result.get(propOneName));
-        assertEquals(10, result.get(propTwoName));
+        env.assertEventNew("s0", result -> {
+            assertEquals("A", result.get(propOneName));
+            assertEquals(10, result.get(propTwoName));
+        });
 
         env.undeployAll();
     }

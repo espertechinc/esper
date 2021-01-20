@@ -13,11 +13,13 @@ package com.espertech.esper.regressionlib.suite.epl.variable;
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.EPUndeployException;
 import com.espertech.esper.runtime.client.EPUndeployPreconditionException;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -52,6 +54,10 @@ public class EPLVariablesDestroy {
             String deploymentIdCDE = env.deploymentId("CDE");
             env.undeployModuleContaining("CDE");
             assertNotFound(env, deploymentIdCDE, "varDRR");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -100,6 +106,10 @@ public class EPLVariablesDestroy {
             env.undeployModuleContaining("T2");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
@@ -73,16 +72,17 @@ public class InfraTableNonAccessDotSubqueryAndJoin implements RegressionExecutio
             {"c3_1", Integer.class}, {"c3_2", Integer.class},
             {"c4_1", SupportBean[].class}
         };
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         makeSendSupportBean(env, null, -1);
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "c0_1,c0_2,c1_1,c1_2".split(","), new Object[]{"x", "x", 41, 41});
-        EPAssertionUtil.assertProps(event, "c2_1,c2_2".split(","), new Object[]{sentSB, sentSB});
-        EPAssertionUtil.assertProps(event, "c2_3,c2_4".split(","), new Object[]{sentSB[0], sentSB[1]});
-        EPAssertionUtil.assertProps(event, "c2_5,c2_6".split(","), new Object[]{sentSB[0], sentSB[0]});
-        EPAssertionUtil.assertProps(event, "c3_1,c3_2".split(","), new Object[]{2, 2});
-        EPAssertionUtil.assertProps(event, "c4_1".split(","), new Object[]{sentSB});
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, "c0_1,c0_2,c1_1,c1_2".split(","), new Object[]{"x", "x", 41, 41});
+            EPAssertionUtil.assertProps(event, "c2_1,c2_2".split(","), new Object[]{sentSB, sentSB});
+            EPAssertionUtil.assertProps(event, "c2_3,c2_4".split(","), new Object[]{sentSB[0], sentSB[1]});
+            EPAssertionUtil.assertProps(event, "c2_5,c2_6".split(","), new Object[]{sentSB[0], sentSB[0]});
+            EPAssertionUtil.assertProps(event, "c3_1,c3_2".split(","), new Object[]{2, 2});
+            EPAssertionUtil.assertProps(event, "c4_1".split(","), new Object[]{sentSB});
+        });
 
         // unnamed column
         String eplSelectUnnamed = "@name('s1') select col2.sorted().firstOf(), mt.col2.sorted().firstOf()" +
@@ -90,7 +90,7 @@ public class InfraTableNonAccessDotSubqueryAndJoin implements RegressionExecutio
         env.compileDeploy(eplSelectUnnamed, path);
         Object[][] expectedTypeUnnamed = new Object[][]{{"col2.sorted().firstOf()", SupportBean.class},
             {"mt.col2.sorted().firstOf()", SupportBean.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedTypeUnnamed, env.statement("s1").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s1", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedTypeUnnamed, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         // invalid: ambiguous resolution
         env.tryInvalidCompile(path, "" +

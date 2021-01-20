@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.insertinto;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.avro.core.AvroGenericDataBackedEventBean;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
@@ -28,6 +25,7 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
 import java.util.HashMap;
@@ -62,13 +60,15 @@ public class EPLInsertIntoPopulateSingleColByMethodCall implements RegressionExe
         runAssertionConversionConfiguredType(env, path, "OAOne", "convertEventObjectArray", "OATwo", ObjectArrayBackedEventBean.class, Object[].class, new Object[]{"3", "4"}, FOAWTYPE, "one,two".split(","), new Object[]{"3", "|4|"});
 
         // Avro
-        GenericData.Record rowOne = new GenericData.Record(AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("AvroOne")));
+        Schema schemaOne = env.runtimeAvroSchemaPreconfigured("AvroOne");
+        GenericData.Record rowOne = new GenericData.Record(schemaOne);
         rowOne.put("one", "1");
         rowOne.put("two", "2");
         runAssertionConversionImplicitType(env, path, "Avro", "AvroOne", "convertEventAvro", WrapperEventType.class, GenericData.Record.class,
             "AvroTwo", rowOne, FAVROWTYPE, "one,two".split(","), new Object[]{"1", "|2|"});
 
-        GenericData.Record rowTwo = new GenericData.Record(AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("AvroTwo")));
+        Schema schemaTwo = env.runtimeAvroSchemaPreconfigured("AvroTwo");
+        GenericData.Record rowTwo = new GenericData.Record(schemaTwo);
         rowTwo.put("one", "3");
         rowTwo.put("two", "4");
         runAssertionConversionConfiguredType(env, path, "AvroOne", "convertEventAvro", "AvroTwo", AvroGenericDataBackedEventBean.class, GenericData.Record.class, rowTwo, FAVROWTYPE, "one,two".split(","), new Object[]{"3", "|4|"});
@@ -103,19 +103,18 @@ public class EPLInsertIntoPopulateSingleColByMethodCall implements RegressionExe
         String textTwo = "@name('s2') insert into " + streamName + " select " + SupportStaticMethodLib.class.getName() + "." + functionName + "(s0) from " + typeNameEvent + " as s0";
 
         env.compileDeploy(textOne, path).addListener("s1");
-        EventType type = env.statement("s1").getEventType();
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(type.getUnderlyingType(), underlyingType));
+        env.assertStatement("s1", statement -> assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(statement.getEventType().getUnderlyingType(), underlyingType)));
 
         env.compileDeploy(textTwo, path).addListener("s2");
-        type = env.statement("s2").getEventType();
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(type.getUnderlyingType(), underlyingType));
+        env.assertStatement("s2", statement -> assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(statement.getEventType().getUnderlyingType(), underlyingType)));
 
         sendEvent.apply(env, event, typeNameEvent);
 
-        EventBean theEvent = env.listener("s2").assertOneGetNewAndReset();
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getEventType().getClass(), eventTypeType));
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getUnderlying().getClass(), underlyingType));
-        EPAssertionUtil.assertProps(theEvent, propertyName, propertyValues);
+        env.assertEventNew("s2", theEvent -> {
+            assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getEventType().getClass(), eventTypeType));
+            assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getUnderlying().getClass(), underlyingType));
+            EPAssertionUtil.assertProps(theEvent, propertyName, propertyValues);
+        });
 
         env.undeployModuleContaining("s2");
         env.undeployModuleContaining("s1");
@@ -139,10 +138,11 @@ public class EPLInsertIntoPopulateSingleColByMethodCall implements RegressionExe
 
         sendEvent.apply(env, event, typeNameOrigin);
 
-        EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getUnderlying().getClass(), underlyingType));
-        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getClass(), eventBeanType));
-        EPAssertionUtil.assertProps(eventBean, propertyName, propertyValues);
+        env.assertEventNew("s0", eventBean -> {
+            assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getUnderlying().getClass(), underlyingType));
+            assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getClass(), eventBeanType));
+            EPAssertionUtil.assertProps(eventBean, propertyName, propertyValues);
+        });
 
         env.undeployModuleContaining("s0");
         env.undeployModuleContaining("insert");

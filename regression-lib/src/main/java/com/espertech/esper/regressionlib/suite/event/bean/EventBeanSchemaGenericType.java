@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanParameterizedSingle;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanParameterizedTwo;
 
@@ -64,6 +65,10 @@ public class EventBeanSchemaGenericType {
             env.tryInvalidCompile(epl,
                 "Failed to resolve type parameter 0 of type 'int': Could not load class by name 'int', please check imports");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class EventBeanSchemaParamsSingleParameter implements RegressionExecution {
@@ -91,6 +96,10 @@ public class EventBeanSchemaGenericType {
             runAssertionSingleParam(env, MyLocalBoundParameter.class.getName() + "<Long>", EPTypeClassParameterized.from(MyLocalBoundParameter.class, Long.class), new EPTypeClass(Long.class),
                 new MyLocalBoundParameter<>(100L), 100L);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
     }
 
     public static class EventBeanSchemaParamsTwoParameter implements RegressionExecution {
@@ -108,6 +117,10 @@ public class EventBeanSchemaGenericType {
             runAssertionTwoParam(env, two, new EPTypeClass(SupportBeanParameterizedTwo.class),
                 new EPTypeClass(Object.class), new EPTypeClass(Object.class), new SupportBeanParameterizedTwo<>(1, "a"), 1, "a");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
     }
 
     private static void runAssertionSingleParam(RegressionEnvironment env, String typeName, EPTypeClass expectedUnderlying, EPTypeClass expectedProperty, Object event, Object expected) {
@@ -116,19 +129,21 @@ public class EventBeanSchemaGenericType {
                 "@name('s0') select simpleProperty as c0 from MyEvent;\n";
         env.compileDeploy(epl).addListener("s0");
 
-        EventType schemaType = env.statement("schema").getEventType();
-        assertEquals(expectedUnderlying, schemaType.getUnderlyingEPType());
-        EventPropertyDescriptor[] received = schemaType.getPropertyDescriptors();
-        boolean fragment = received[0].isFragment(); // ignore fragment, mapped, indexed flags
-        boolean indexed = received[0].isIndexed(); // ignore fragment, mapped, indexed flags
-        boolean mapped = received[0].isMapped(); // ignore fragment, mapped, indexed flags
-        SupportEventPropUtil.assertPropsEquals(received, new SupportEventPropDesc("simpleProperty", expectedProperty).fragment(fragment).indexed(indexed).mapped(mapped));
+        env.assertStatement("schema", statement -> {
+            EventType schemaType = statement.getEventType();
+            assertEquals(expectedUnderlying, schemaType.getUnderlyingEPType());
+            EventPropertyDescriptor[] received = schemaType.getPropertyDescriptors();
+            boolean fragment = received[0].isFragment(); // ignore fragment, mapped, indexed flags
+            boolean indexed = received[0].isIndexed(); // ignore fragment, mapped, indexed flags
+            boolean mapped = received[0].isMapped(); // ignore fragment, mapped, indexed flags
+            SupportEventPropUtil.assertPropsEquals(received, new SupportEventPropDesc("simpleProperty", expectedProperty).fragment(fragment).indexed(indexed).mapped(mapped));
 
-        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("c0", expectedProperty).fragment(fragment).indexed(indexed).mapped(mapped));
+            SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("c0", expectedProperty).fragment(fragment).indexed(indexed).mapped(mapped));
+        });
 
         env.sendEventBean(event, "MyEvent");
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
 
         env.undeployAll();
     }
@@ -139,14 +154,16 @@ public class EventBeanSchemaGenericType {
                 "@name('s0') select one as c0, two as c1 from MyEvent;\n";
         env.compileDeploy(epl).addListener("s0");
 
-        EventType schemaType = env.statement("schema").getEventType();
-        assertEquals(expectedUnderlying, schemaType.getUnderlyingEPType());
-        assertEquals(expectedOne, schemaType.getPropertyEPType("one"));
-        assertEquals(expectedTwo, schemaType.getPropertyEPType("two"));
+        env.assertStatement("s0", statement -> {
+            EventType schemaType = env.statement("schema").getEventType();
+            assertEquals(expectedUnderlying, schemaType.getUnderlyingEPType());
+            assertEquals(expectedOne, schemaType.getPropertyEPType("one"));
+            assertEquals(expectedTwo, schemaType.getPropertyEPType("two"));
 
-        EventType s0Type = env.statement("s0").getEventType();
-        assertEquals(expectedOne, s0Type.getPropertyEPType("c0"));
-        assertEquals(expectedTwo, s0Type.getPropertyEPType("c1"));
+            EventType s0Type = statement.getEventType();
+            assertEquals(expectedOne, s0Type.getPropertyEPType("c0"));
+            assertEquals(expectedTwo, s0Type.getPropertyEPType("c1"));
+        });
 
         env.sendEventBean(event, "MyEvent");
         env.assertPropsNew("s0", "c0,c1".split(","), new Object[]{valueOne, valueTwo});

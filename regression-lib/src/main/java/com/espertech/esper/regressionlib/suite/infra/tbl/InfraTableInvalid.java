@@ -13,10 +13,12 @@ package com.espertech.esper.regressionlib.suite.infra.tbl;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -120,6 +122,10 @@ public class InfraTableInvalid {
             tryInvalidAggMatch(env, "var1", "myaggsingle()", false, "leaving()",
                 "Incompatible aggregation function for table 'var1' column 'value', expecting 'myaggsingle(*)' and received 'leaving(*)': The table declares 'myaggsingle(*)' and provided is 'leaving(*)'");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraInvalidAggMatchMultiFunc implements RegressionExecution {
@@ -148,6 +154,10 @@ public class InfraTableInvalid {
             tryInvalidAggMatch(env, "var1", "se1() @type(SupportBean)", true, "window(*)",
                 "Incompatible aggregation function for table 'var1' column 'value', expecting 'se1(*)' and received 'window(*)': The table declares 'se1(*)' and provided is 'window(*)'");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraInvalidAnnotations implements RegressionExecution {
@@ -171,6 +181,10 @@ public class InfraTableInvalid {
             // unknown type provided
             env.tryInvalidCompile("create table v1 (abc window(*) @type(xx))",
                 "For column 'abc' failed to find event type 'xx' [");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -332,6 +346,10 @@ public class InfraTableInvalid {
                 "Incorrect syntax near 'null' (a reserved keyword)");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

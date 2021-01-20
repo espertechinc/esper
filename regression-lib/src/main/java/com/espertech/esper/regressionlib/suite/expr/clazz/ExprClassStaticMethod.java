@@ -17,10 +17,12 @@ import com.espertech.esper.compiler.client.option.InlinedClassInspectionContext;
 import com.espertech.esper.compiler.client.option.InlinedClassInspectionOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -61,9 +63,11 @@ public class ExprClassStaticMethod {
             MySupportInlinedClassInspection support = new MySupportInlinedClassInspection();
             env.compile(epl, compilerOptions -> compilerOptions.setInlinedClassInspection(support));
 
-            assertEquals(1, support.contexts.size());
-            InlinedClassInspectionContext ctx = support.contexts.get(0);
-            assertEquals("MyUtility", ctx.getJaninoClassFiles()[0].getThisClassName());
+            env.assertThat(() -> {
+                assertEquals(1, support.contexts.size());
+                InlinedClassInspectionContext ctx = support.contexts.get(0);
+                assertEquals("MyUtility", ctx.getJaninoClassFiles()[0].getThisClassName());
+            });
         }
     }
 
@@ -189,6 +193,10 @@ public class ExprClassStaticMethod {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class ExprClassStaticMethodLocalFAFQuery implements RegressionExecution {
@@ -216,6 +224,10 @@ public class ExprClassStaticMethod {
             assertEquals(">E1<", result.getArray()[0].get("c0"));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -350,7 +362,7 @@ public class ExprClassStaticMethod {
 
     private static void sendSBAssert(RegressionEnvironment env, String theString, int intPrimitive, Object expected) {
         env.sendEventBean(new SupportBean(theString, intPrimitive));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static class MyClass {

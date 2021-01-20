@@ -52,12 +52,12 @@ public class EPLInsertIntoEventTypedColumnFromProp {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertReceivedPojo(env.listener("s0").assertOneGetNewAndReset(), "online", "E1");
+            env.assertEventNew("s0", event -> assertReceivedPojo(event, "online", "E1"));
 
             env.milestone(0);
 
             env.advanceTime(60000);
-            assertReceivedPojo(env.listener("s0").assertOneGetNewAndReset(), "offline", "E1");
+            env.assertEventNew("s0", event -> assertReceivedPojo(event, "offline", "E1"));
 
             env.undeployAll();
         }
@@ -84,12 +84,12 @@ public class EPLInsertIntoEventTypedColumnFromProp {
             env.compileDeploy(epl).addListener("s0");
 
             sendCarMap(env, "C1");
-            assertReceivedMap(env.listener("s0").assertOneGetNewAndReset(), "online", "C1");
+            env.assertEventNew("s0", event -> assertReceivedMap(event, "online", "C1"));
 
             env.milestone(0);
 
             env.advanceTime(60000);
-            assertReceivedMap(env.listener("s0").assertOneGetNewAndReset(), "offline", "C1");
+            env.assertEventNew("s0", event -> assertReceivedMap(event, "offline", "C1"));
 
             env.undeployAll();
         }

@@ -14,11 +14,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,6 +43,10 @@ public class EPLOtherInvalid {
             env.tryInvalidCompile("select leaving(theString) from SupportBean",
                 "Failed to validate select-clause expression 'leaving(theString)': The 'leaving' function expects no parameters");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLOtherInvalidSyntax implements RegressionExecution {
@@ -55,6 +60,10 @@ public class EPLOtherInvalid {
             env.tryInvalidCompile("select * from SupportBean(1=2=3)",
                 "Failed to validate filter expression '1=2': Invalid use of equals, expecting left-hand side and right-hand side but received 3 expressions");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLOtherLongTypeConstant implements RegressionExecution {
@@ -63,7 +72,7 @@ public class EPLOtherInvalid {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            Assert.assertEquals(2512570244L, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 2512570244L);
 
             env.undeployAll();
         }
@@ -153,6 +162,10 @@ public class EPLOtherInvalid {
             tryValid(env, outerJoinDef + "on sb.intPrimitive = sa.intBoxed");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

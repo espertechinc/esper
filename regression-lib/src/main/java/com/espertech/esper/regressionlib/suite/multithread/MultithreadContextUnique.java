@@ -40,9 +40,9 @@ public class MultithreadContextUnique implements RegressionExecution {
     }
 
     public void run(RegressionEnvironment env) {
-        String epl = "create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
+        String epl = "@buseventtype create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
             "\n" +
-            "create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
+            "@buseventtype create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
             "\n" +
             "create context HashByUserCtx as\n" +
             "coalesce by consistent_hash_crc32(userId) from ScoreCycle,\n" +
@@ -55,7 +55,7 @@ public class MultithreadContextUnique implements RegressionExecution {
             "\n" +
             "@Name('Select') context HashByUserCtx insert into UserKeywordTotalStream\n" +
             "select userId, keyword, sum(score) as sumScore from ScoreCycleWindow group by userId, keyword;";
-        env.compileDeployWBusPublicType(epl, new RegressionPath());
+        env.compileDeploy(epl, new RegressionPath());
         MyUpdateListener listener = new MyUpdateListener();
         env.statement("Select").addListener(listener);
 

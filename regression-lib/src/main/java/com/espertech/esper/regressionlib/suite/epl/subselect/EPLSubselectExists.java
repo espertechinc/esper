@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class EPLSubselectExists {
 
     public static List<RegressionExecution> executions() {
@@ -96,11 +94,11 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(3));
-            Assert.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 3);
 
             env.undeployAll();
         }
@@ -120,13 +118,13 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(-2));
             env.sendEventBean(new SupportBean_S0(-2));
-            Assert.assertEquals(-2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", -2);
 
             env.sendEventBean(new SupportBean_S1(1));
             env.sendEventBean(new SupportBean_S1(2));
             env.sendEventBean(new SupportBean_S1(3));
             env.sendEventBean(new SupportBean_S0(3));
-            Assert.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 3);
 
             env.undeployAll();
         }
@@ -149,13 +147,13 @@ public class EPLSubselectExists {
 
             env.sendEventBean(new SupportBean_S1(3));
             env.sendEventBean(new SupportBean_S0(3));
-            Assert.assertEquals(3, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 3);
 
             env.sendEventBean(new SupportBean_S1(1));
             env.sendEventBean(new SupportBean_S1(2));
             env.sendEventBean(new SupportBean_S2(1));
             env.sendEventBean(new SupportBean_S0(1));
-            Assert.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 1);
 
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean_S0(0));
@@ -184,7 +182,7 @@ public class EPLSubselectExists {
             env.compileDeploy(model).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
@@ -204,7 +202,7 @@ public class EPLSubselectExists {
             env.eplToModelCompileDeploy(stmtText).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
@@ -224,7 +222,7 @@ public class EPLSubselectExists {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(1));
@@ -240,10 +238,10 @@ public class EPLSubselectExists {
 
     private static void runTestExistsInSelect(RegressionEnvironment env) {
         env.sendEventBean(new SupportBean_S0(2));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", false);
 
         env.sendEventBean(new SupportBean_S1(-1));
         env.sendEventBean(new SupportBean_S0(2));
-        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", true);
     }
 }

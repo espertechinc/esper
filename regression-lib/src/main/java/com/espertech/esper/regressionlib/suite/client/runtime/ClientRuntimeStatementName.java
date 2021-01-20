@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployment;
@@ -21,6 +22,7 @@ import com.espertech.esper.runtime.client.option.StatementNameRuntimeContext;
 import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
@@ -51,6 +53,10 @@ public class ClientRuntimeStatementName {
                 assertMessage(e, "Duplicate statement name provide by statement name resolver for statement name 'x'");
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientRuntimeStatementNameUnassigned implements RegressionExecution {
@@ -65,6 +71,10 @@ public class ClientRuntimeStatementName {
             assertEquals("stmt-0", deployment.getStatements()[0].getName());
             assertEquals("stmt-1", deployment.getStatements()[1].getName());
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -96,8 +106,8 @@ public class ClientRuntimeStatementName {
 
         private void sendAssert(RegressionEnvironment env, String theString, int intPrimitive) {
             env.sendEventBean(new SupportBean(theString, intPrimitive));
-            assertEquals(intPrimitive, env.listener("s0").assertOneGetNewAndReset().get("intPrimitive"));
-            assertEquals(theString, env.listener("s1").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "intPrimitive", intPrimitive);
+            env.assertEqualsNew("s1", "theString", theString);
         }
     }
 }

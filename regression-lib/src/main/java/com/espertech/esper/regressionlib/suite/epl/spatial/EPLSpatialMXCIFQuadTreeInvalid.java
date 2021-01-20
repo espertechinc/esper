@@ -10,13 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.spatial;
 
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialEventRectangle;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class EPLSpatialMXCIFQuadTreeInvalid {
@@ -70,6 +68,10 @@ public class EPLSpatialMXCIFQuadTreeInvalid {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

@@ -22,16 +22,14 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithEnum;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.common.client.type.EPTypeClassParameterized.from;
 import static org.junit.Assert.assertEquals;
@@ -64,6 +62,7 @@ public class ExprCoreCase {
         executions.add(new ExprCoreCaseSyntax2NoAsName());
         executions.add(new ExprCoreCaseWithArrayResult());
         executions.add(new ExprCoreCaseWithTypeParameterizedProperty());
+        executions.add(new ExprCoreCaseWithTypeParameterizedPropertyInvalid());
         return executions;
     }
 
@@ -74,14 +73,11 @@ public class ExprCoreCase {
             runAssertion(env, "List<int[primitive]>", "List<int[primitive]>", from(List.class, int[].class));
 
             runAssertion(env, "Integer[]", "String[]", new EPTypeClass(Object[].class));
-            runInvalid(env, "int[primitive]", "String[]", "Cannot coerce to int[] type String[]");
-            runInvalid(env, "long[primitive]", "long[]", "Cannot coerce to long[] type Long[]");
 
             runAssertion(env, "List<Integer>", "List<Object>", new EPTypeClass(List.class));
             runAssertion(env, "Collection<Integer>", "List<Object>", EPTypePremade.OBJECT.getEPType());
 
             runAssertion(env, "Collection<Integer>", "null", from(Collection.class, Integer.class));
-            runInvalid(env, "null", "null", "Null-type return value is not allowed");
         }
 
         private void runAssertion(RegressionEnvironment env, String typeOne, String typeTwo, EPType expected) {
@@ -94,8 +90,30 @@ public class ExprCoreCase {
 
         private void runAssertionEPL(RegressionEnvironment env, String epl, EPType expected) {
             env.compileDeploy(epl);
-            assertEquals(expected, env.statement("s0").getEventType().getPropertyEPType("thecase"));
+            env.assertStatement("s0", statement -> assertEquals(expected, statement.getEventType().getPropertyEPType("thecase")));
             env.undeployAll();
+        }
+
+        private String getEPLSyntaxOne(String typeOne, String typeTwo) {
+            return "create schema MyEvent(switch boolean, fieldOne " + typeOne + ", fieldTwo " + typeTwo + ");\n" +
+                "@name('s0') select case when switch then fieldOne else fieldTwo end as thecase from MyEvent;\n";
+        }
+
+        private String getEPLSyntaxTwo(String typeOne, String typeTwo) {
+            return "create schema MyEvent(switch boolean, fieldOne " + typeOne + ", fieldTwo " + typeTwo + ");\n" +
+                "@name('s0') select case switch when true then fieldOne when false then fieldTwo end as thecase from MyEvent;\n";
+        }
+    }
+
+    private static class ExprCoreCaseWithTypeParameterizedPropertyInvalid implements RegressionExecution {
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
+
+        public void run(RegressionEnvironment env) {
+            runInvalid(env, "int[primitive]", "String[]", "Cannot coerce to int[] type String[]");
+            runInvalid(env, "long[primitive]", "long[]", "Cannot coerce to long[] type Long[]");
+            runInvalid(env, "null", "null", "Null-type return value is not allowed");
         }
 
         private void runInvalid(RegressionEnvironment env, String typeOne, String typeTwo, String detail) {
@@ -134,7 +152,7 @@ public class ExprCoreCase {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertEqualsExactOrder((Integer[]) env.listener("s0").assertOneGetNewAndReset().get("c1"), new Integer[]{1, 2});
+            env.assertEventNew("s0", event -> EPAssertionUtil.assertEqualsExactOrder((Integer[]) event.get("c1"), new Integer[]{1, 2}));
 
             env.undeployAll();
         }
@@ -150,7 +168,7 @@ public class ExprCoreCase {
                 "end as p1 from SupportMarketDataBean#length(10)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax1Sum(env);
 
@@ -176,7 +194,7 @@ public class ExprCoreCase {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
 
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax1Sum(env);
 
@@ -192,7 +210,7 @@ public class ExprCoreCase {
                 "end as p1 from SupportMarketDataBean#length(10)";
             env.eplToModelCompileDeploy(epl).addListener("s0").milestone(0);
 
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax1Sum(env);
 
@@ -202,20 +220,16 @@ public class ExprCoreCase {
 
     private static void runCaseSyntax1Sum(RegressionEnvironment env) {
         sendMarketDataEvent(env, "DELL", 10000, 50);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(50.0, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", 50.0);
 
         sendMarketDataEvent(env, "DELL", 10000, 50);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(100.0, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", 100.0);
 
         sendMarketDataEvent(env, "CSCO", 4000, 5);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(null, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", null);
 
         sendMarketDataEvent(env, "GE", 20, 30);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(20.0, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", 20.0);
     }
 
     private static class ExprCoreCaseSyntax1WithElse implements RegressionExecution {
@@ -228,7 +242,7 @@ public class ExprCoreCase {
                 "end as p1 from SupportMarketDataBean#length(3)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.LONGBOXED.getEPType());
 
             runCaseSyntax1WithElse(env);
 
@@ -254,7 +268,7 @@ public class ExprCoreCase {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
 
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.LONGBOXED.getEPType());
 
             runCaseSyntax1WithElse(env);
 
@@ -270,7 +284,7 @@ public class ExprCoreCase {
                 "end as p1 from SupportMarketDataBean#length(10)";
             env.eplToModelCompileDeploy(epl).addListener("s0");
 
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.LONGBOXED.getEPType());
 
             runCaseSyntax1WithElse(env);
 
@@ -280,12 +294,10 @@ public class ExprCoreCase {
 
     private static void runCaseSyntax1WithElse(RegressionEnvironment env) {
         sendMarketDataEvent(env, "CSCO", 4000, 0);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(4000L, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", 4000L);
 
         sendMarketDataEvent(env, "DELL", 20, 0);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(3 * 20L, theEvent.get("p1"));
+        env.assertEqualsNew("s0", "p1", 3 * 20L);
     }
 
     private static class ExprCoreCaseSyntax1Branches3 implements RegressionExecution {
@@ -364,82 +376,70 @@ public class ExprCoreCase {
                 " from SupportBean#length(1)";
 
             env.compileDeploy(epl).addListener("s0");
-
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.STRING.getEPType());
 
             sendSupportBeanEvent(env, true, new Boolean(false), 1, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("true", theEvent.get("p1"));
+            assertP1(env, "true");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 2, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("false", theEvent.get("p1"));
+            assertP1(env, "false");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 3, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("3", theEvent.get("p1"));
+            assertP1(env, "3");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 4, new Integer(4), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("4", theEvent.get("p1"));
+            assertP1(env, "4");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 5, new Integer(0), 5L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("5", theEvent.get("p1"));
+            assertP1(env, "5");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 6, new Integer(0), 0L, new Long(6L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("6", theEvent.get("p1"));
+            assertP1(env, "6");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 7, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("A", theEvent.get("p1"));
+            assertP1(env, "A");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 8, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("a", theEvent.get("p1"));
+            assertP1(env, "a");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 9, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("9", theEvent.get("p1"));
+            assertP1(env, "9");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 10, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("10", theEvent.get("p1"));
+            assertP1(env, "10");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 11, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("11", theEvent.get("p1"));
+            assertP1(env, "11");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 12, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("12", theEvent.get("p1"));
+            assertP1(env, "12");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 13, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("13.0", theEvent.get("p1"));
+            assertP1(env, "13.0");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 14, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("14.0", theEvent.get("p1"));
+            assertP1(env, "14.0");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 15, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("15.0", theEvent.get("p1"));
+            assertP1(env, "15.0");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 16, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("16.0", theEvent.get("p1"));
+            assertP1(env, "16.0");
 
             sendSupportBeanEvent(env, true, new Boolean(false), 17, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("testCoercion", theEvent.get("p1"));
+            assertP1(env, "testCoercion");
 
             sendSupportBeanEvent(env, true, new Boolean(false), -1, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("x", theEvent.get("p1"));
+            assertP1(env, "x");
 
             env.undeployAll();
+        }
+
+        private void assertP1(RegressionEnvironment env, String expected) {
+            env.assertListener("s0", listener -> {
+                EventBean theEvent = listener.getAndResetLastNewData()[0];
+                assertEquals(expected, theEvent.get("p1"));
+            });
         }
     }
 
@@ -451,19 +451,19 @@ public class ExprCoreCase {
                 " from SupportBean#length(100)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.BOOLEANBOXED.getEPType());
 
             sendSupportBeanEvent(env, "x");
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             sendSupportBeanEvent(env, "null");
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             sendSupportBeanEvent(env, null);
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", true);
 
             sendSupportBeanEvent(env, "");
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", false);
 
             env.undeployAll();
         }
@@ -477,19 +477,19 @@ public class ExprCoreCase {
                 " from SupportBean#length(100)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.BOOLEANBOXED.getEPType());
 
             sendSupportBeanEvent(env, "x");
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             sendSupportBeanEvent(env, "null");
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             sendSupportBeanEvent(env, null);
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", true);
 
             sendSupportBeanEvent(env, "");
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", false);
 
             env.undeployAll();
         }
@@ -516,7 +516,7 @@ public class ExprCoreCase {
             assertEquals(epl, model.toEPL());
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax2WithNull(env);
 
@@ -534,7 +534,7 @@ public class ExprCoreCase {
                 "end as p1 from SupportBean#length(100)";
 
             env.eplToModelCompileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax2WithNull(env);
 
@@ -552,7 +552,7 @@ public class ExprCoreCase {
                 " end as p1 from SupportBean#length(100)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             runCaseSyntax2WithNull(env);
 
@@ -562,13 +562,13 @@ public class ExprCoreCase {
 
     private static void runCaseSyntax2WithNull(RegressionEnvironment env) {
         sendSupportBeanEvent(env, 4);
-        assertEquals(2.0, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+        env.assertEqualsNew("s0", "p1", 2.0);
         sendSupportBeanEvent(env, 1);
-        assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+        env.assertEqualsNew("s0", "p1", null);
         sendSupportBeanEvent(env, 2);
-        assertEquals(1.0, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+        env.assertEqualsNew("s0", "p1", 1.0);
         sendSupportBeanEvent(env, 3);
-        assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+        env.assertEqualsNew("s0", "p1", null);
     }
 
     private static class ExprCoreCaseSyntax2WithNullBool implements RegressionExecution {
@@ -580,14 +580,14 @@ public class ExprCoreCase {
                 " end as p1 from SupportBean#length(100)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.LONGBOXED.getEPType());
 
             sendSupportBeanEvent(env, null);
-            assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", 1L);
             sendSupportBeanEvent(env, false);
-            assertEquals(3L, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", 3L);
             sendSupportBeanEvent(env, true);
-            assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", 2L);
 
             env.undeployAll();
         }
@@ -601,14 +601,15 @@ public class ExprCoreCase {
                 " end as p1 from SupportBean#length(100)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.STRING.getEPType());
 
             sendSupportBeanEvent(env, 1);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
+
             sendSupportBeanEvent(env, 2);
-            assertEquals("x", env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", "x");
             sendSupportBeanEvent(env, 3);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             env.undeployAll();
         }
@@ -623,19 +624,16 @@ public class ExprCoreCase {
                 " from SupportBean#length(1)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.INTEGERBOXED.getEPType());
 
             sendSupportBeanEvent(env, 1);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(4, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 4);
 
             sendSupportBeanEvent(env, 2);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(6, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 6);
 
             sendSupportBeanEvent(env, 3);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(20, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 20);
 
             env.undeployAll();
         }
@@ -649,31 +647,25 @@ public class ExprCoreCase {
                 " from SupportBean#length(10)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Double.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.DOUBLEBOXED.getEPType());
 
             sendSupportBeanEvent(env, 1, 10L, 3.0f, 4.0);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(10d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 10d);
 
             sendSupportBeanEvent(env, 1, 15L, 3.0f, 4.0);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(25d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 25d);
 
             sendSupportBeanEvent(env, 2, 1L, 3.0f, 4.0);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(9d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 9d);
 
             sendSupportBeanEvent(env, 2, 1L, 3.0f, 4.0);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(12.0d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 12d);
 
             sendSupportBeanEvent(env, 5, 1L, 1.0f, 1.0);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(11.0d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 11d);
 
             sendSupportBeanEvent(env, 5, 1L, 1.0f, 1.0);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(16d, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 16d);
 
             env.undeployAll();
         }
@@ -688,19 +680,16 @@ public class ExprCoreCase {
                 " from " + SupportBeanWithEnum.class.getSimpleName() + "#length(10)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.INTEGERBOXED.getEPType());
 
             sendSupportBeanEvent(env, "a", SupportEnum.ENUM_VALUE_1);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(1, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 1);
 
             sendSupportBeanEvent(env, "b", SupportEnum.ENUM_VALUE_2);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(2, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", 2);
 
             sendSupportBeanEvent(env, "c", SupportEnum.ENUM_VALUE_3);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(null, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", null);
 
             env.undeployAll();
         }
@@ -716,19 +705,16 @@ public class ExprCoreCase {
                 " from SupportBean#length(10)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(SupportEnum.class, env.statement("s0").getEventType().getPropertyType("p1"));
+            env.assertStmtType("s0", "p1", EPTypePremade.getOrCreate(SupportEnum.class));
 
             sendSupportBeanEvent(env, 1);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(SupportEnum.ENUM_VALUE_1, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", SupportEnum.ENUM_VALUE_1);
 
             sendSupportBeanEvent(env, 2);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(SupportEnum.ENUM_VALUE_2, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", SupportEnum.ENUM_VALUE_2);
 
             sendSupportBeanEvent(env, 3);
-            theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(SupportEnum.ENUM_VALUE_3, theEvent.get("p1"));
+            env.assertEqualsNew("s0", "p1", SupportEnum.ENUM_VALUE_3);
 
             env.undeployAll();
         }
@@ -741,11 +727,10 @@ public class ExprCoreCase {
                 " from SupportBean#length(10)";
 
             env.compileDeploy(epl).addListener("s0");
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(caseSubExpr));
+            env.assertStmtType("s0", caseSubExpr, EPTypePremade.INTEGERBOXED.getEPType());
 
             sendSupportBeanEvent(env, 1);
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals(0, theEvent.get(caseSubExpr));
+            env.assertEqualsNew("s0", caseSubExpr, 0);
 
             env.undeployAll();
         }

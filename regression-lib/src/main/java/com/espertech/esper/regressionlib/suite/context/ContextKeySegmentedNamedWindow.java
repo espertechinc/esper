@@ -16,13 +16,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportGroupSubgroupEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.Assert.assertTrue;
+import java.util.EnumSet;
 
 public class ContextKeySegmentedNamedWindow {
 
@@ -59,6 +59,10 @@ public class ContextKeySegmentedNamedWindow {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class ContextKeyedNamedWindowBasic implements RegressionExecution {
@@ -72,7 +76,7 @@ public class ContextKeySegmentedNamedWindow {
             env.compileDeploy(epl);
             env.addListener("Test");
             env.sendEventBean(new SupportGroupSubgroupEvent("G1", "SG1", 1, 10.45));
-            assertTrue(env.listener("Test").isInvoked());
+            env.assertListenerInvoked("Test");
             env.undeployAll();
         }
     }

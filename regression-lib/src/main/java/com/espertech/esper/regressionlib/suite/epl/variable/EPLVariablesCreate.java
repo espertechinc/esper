@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.variable;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.CreateVariableClause;
@@ -25,6 +24,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 import java.util.*;
@@ -51,19 +51,22 @@ public class EPLVariablesCreate {
                 "@name('s0') select mylist as c0, mylist.where(v => v = 'a') as c1 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "c0,c1".split(","), new EPTypeClass[] {
+            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), "c0,c1".split(","), new EPTypeClass[] {
                 EPTypeClassParameterized.from(List.class, String.class), EPTypeClassParameterized.from(Collection.class, String.class)
-            });
+            }));
 
             env.milestone(0);
 
-            List<String> list = (List<String>) env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "mylist");
-            EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), list.toArray());
+            env.assertThat(() -> {
+                List<String> list = (List<String>) env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "mylist");
+                EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), list.toArray());
+            });
 
             env.sendEventBean(new SupportBean());
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), ((List) received.get("c0")).toArray());
-            EPAssertionUtil.assertEqualsExactOrder("a".split(","), ((Collection) received.get("c1")).toArray());
+            env.assertEventNew("s0", received -> {
+                EPAssertionUtil.assertEqualsExactOrder("a,b".split(","), ((List) received.get("c0")).toArray());
+                EPAssertionUtil.assertEqualsExactOrder("a".split(","), ((Collection) received.get("c1")).toArray());
+            });
 
             env.undeployAll();
         }
@@ -97,6 +100,9 @@ public class EPLVariablesCreate {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static void runAssertionSetGet(RegressionEnvironment env, String deploymentId, String variableName, Object value, BiConsumer<Object, Object> assertion) {
@@ -162,19 +168,23 @@ public class EPLVariablesCreate {
             env.compileDeploy(createText, path);
             env.compileDeploy("on pattern [every SupportBean] set FOO = FOO + 1", path);
             env.sendEventBean(new SupportBean());
-            assertEquals(1, env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "FOO"));
+            env.assertThat(() -> assertEquals(1, env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "FOO")));
 
             env.undeployAll();
 
             env.compileDeploy(createText);
-            assertEquals(0, env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "FOO"));
+            env.assertThat(() -> assertEquals(0, env.runtime().getVariableService().getVariableValue(env.deploymentId("create"), "FOO")));
 
             // cleanup of variable when statement exception occurs
-            env.compileDeploy("create variable int x = 123");
+            env.compileDeploy("@private create variable int x = 123");
             env.tryInvalidCompile("select missingScript(x) from SupportBean", "skip");
-            env.compileDeploy("create variable int x = 123");
+            env.compileDeploy("@private create variable int x = 123");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -182,57 +192,52 @@ public class EPLVariablesCreate {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtCreateTextOne = "@name('create-one') create variable long var1SAI = null";
-            env.compileDeploy(stmtCreateTextOne, path);
-            assertEquals(StatementType.CREATE_VARIABLE, env.statement("create-one").getProperty(StatementProperty.STATEMENTTYPE));
-            assertEquals("var1SAI", env.statement("create-one").getProperty(StatementProperty.CREATEOBJECTNAME));
-            env.addListener("create-one");
+            env.compileDeploy(stmtCreateTextOne, path).addListener("create-one");
+            env.assertStatement("create-one", statement -> {
+                assertEquals(StatementType.CREATE_VARIABLE, statement.getProperty(StatementProperty.STATEMENTTYPE));
+                assertEquals("var1SAI", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
+            });
 
             String[] fieldsVar1 = new String[]{"var1SAI"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create-one"), fieldsVar1, new Object[][]{{null}});
-            assertFalse(env.listener("create-one").isInvoked());
+            env.assertPropsPerRowIterator("create-one", fieldsVar1, new Object[][]{{null}});
+            env.assertListenerNotInvoked("create-one");
 
-            EventType typeCreateOne = env.statement("create-one").getEventType();
-            assertEquals(Long.class, typeCreateOne.getPropertyType("var1SAI"));
-            assertEquals(Map.class, typeCreateOne.getUnderlyingType());
-            assertTrue(Arrays.equals(typeCreateOne.getPropertyNames(), new String[]{"var1SAI"}));
+            env.assertStatement("create-one", statement -> {
+                EventType typeCreateOne = statement.getEventType();
+                assertEquals(Long.class, typeCreateOne.getPropertyType("var1SAI"));
+                assertEquals(Map.class, typeCreateOne.getUnderlyingType());
+                assertArrayEquals(typeCreateOne.getPropertyNames(), new String[]{"var1SAI"});
+            });
 
             String stmtCreateTextTwo = "@name('create-two') create variable long var2SAI = 20";
             env.compileDeploy(stmtCreateTextTwo, path).addListener("create-two");
             String[] fieldsVar2 = new String[]{"var2SAI"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create-two"), fieldsVar2, new Object[][]{{20L}});
-            assertFalse(env.listener("create-two").isInvoked());
+            env.assertPropsPerRowIterator("create-two", fieldsVar2, new Object[][]{{20L}});
+            env.assertListenerNotInvoked("create-two");
 
             String stmtTextSet = "@name('set') on SupportBean set var1SAI = intPrimitive * 2, var2SAI = var1SAI + 1";
             env.compileDeploy(stmtTextSet, path);
 
             sendSupportBean(env, "E1", 100);
-            EPAssertionUtil.assertProps(env.listener("create-one").getLastNewData()[0], fieldsVar1, new Object[]{200L});
-            EPAssertionUtil.assertProps(env.listener("create-one").getLastOldData()[0], fieldsVar1, new Object[]{null});
-            env.listener("create-one").reset();
-            EPAssertionUtil.assertProps(env.listener("create-two").getLastNewData()[0], fieldsVar2, new Object[]{201L});
-            EPAssertionUtil.assertProps(env.listener("create-two").getLastOldData()[0], fieldsVar2, new Object[]{20L});
-            env.listener("create-one").reset();
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-one").iterator(), fieldsVar1, new Object[][]{{200L}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-two").iterator(), fieldsVar2, new Object[][]{{201L}});
+            env.assertPropsIRPair("create-one", fieldsVar1, new Object[]{200L}, new Object[]{null});
+            env.assertPropsIRPair("create-two", fieldsVar2, new Object[]{201L}, new Object[]{20L});
+            env.assertPropsPerRowIterator("create-one", fieldsVar1, new Object[][]{{200L}});
+            env.assertPropsPerRowIterator("create-two", fieldsVar2, new Object[][]{{201L}});
 
             env.milestone(0);
 
             sendSupportBean(env, "E2", 200);
-            EPAssertionUtil.assertProps(env.listener("create-one").getLastNewData()[0], fieldsVar1, new Object[]{400L});
-            EPAssertionUtil.assertProps(env.listener("create-one").getLastOldData()[0], fieldsVar1, new Object[]{200L});
-            env.listener("create-one").reset();
-            EPAssertionUtil.assertProps(env.listener("create-two").getLastNewData()[0], fieldsVar2, new Object[]{401L});
-            EPAssertionUtil.assertProps(env.listener("create-two").getLastOldData()[0], fieldsVar2, new Object[]{201L});
-            env.listener("create-one").reset();
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-one").iterator(), fieldsVar1, new Object[][]{{400L}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-two").iterator(), fieldsVar2, new Object[][]{{401L}});
+            env.assertPropsIRPair("create-one", fieldsVar1, new Object[]{400L}, new Object[]{200L});
+            env.assertPropsIRPair("create-two", fieldsVar2, new Object[]{401L}, new Object[]{201L});
+            env.assertPropsPerRowIterator("create-one", fieldsVar1, new Object[][]{{400L}});
+            env.assertPropsPerRowIterator("create-two", fieldsVar2, new Object[][]{{401L}});
 
             env.undeployModuleContaining("set");
             env.undeployModuleContaining("create-two");
             env.compileDeploy(stmtCreateTextTwo);
 
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-one").iterator(), fieldsVar1, new Object[][]{{400L}});
-            EPAssertionUtil.assertPropsPerRow(env.statement("create-two").iterator(), fieldsVar2, new Object[][]{{20L}});
+            env.assertPropsPerRowIterator("create-one", fieldsVar1, new Object[][]{{400L}});
+            env.assertPropsPerRowIterator("create-two", fieldsVar2, new Object[][]{{20L}});
             env.undeployAll();
         }
     }
@@ -296,10 +301,11 @@ public class EPLVariablesCreate {
 
             // assert initialization values
             sendSupportBean(env, "E1", 1);
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            for (int i = 0; i < variables.length; i++) {
-                assertEquals("Failed for " + Arrays.toString(variables[i]), variables[i][3], received.get((String) variables[i][0]));
-            }
+            env.assertEventNew("s0", received -> {
+                for (int i = 0; i < variables.length; i++) {
+                    assertEquals("Failed for " + Arrays.toString(variables[i]), variables[i][3], received.get((String) variables[i][0]));
+                }
+            });
 
             env.undeployAll();
         }

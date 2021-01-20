@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.client.deploy;
 
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.EPUndeployException;
 import com.espertech.esper.runtime.client.EPUndeployNotFoundException;
 import com.espertech.esper.runtime.client.EPUndeployPreconditionException;
@@ -21,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -57,6 +55,10 @@ public class ClientDeployUndeploy {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientUndeployInvalid implements RegressionExecution {
@@ -70,6 +72,10 @@ public class ClientDeployUndeploy {
                 fail();
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepNamedWindow implements RegressionExecution {
@@ -82,6 +88,10 @@ public class ClientDeployUndeploy {
             tryDeployInvalidUndeploy(env, path, "infra", "@name('B') select (select * from SimpleWindow) from SupportBean", "B", text);
 
             env.undeployModuleContaining("infra");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -97,6 +107,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("infra");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepVariable implements RegressionExecution {
@@ -110,6 +124,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("variable");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepContext implements RegressionExecution {
@@ -121,6 +139,10 @@ public class ClientDeployUndeploy {
             tryDeployInvalidUndeploy(env, path, "ctx", "@name('A') context MyContext select count(*) from SupportBean", "A", text);
 
             env.undeployModuleContaining("ctx");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -135,6 +157,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("schema");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepExprDecl implements RegressionExecution {
@@ -148,6 +174,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("expr");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepClass implements RegressionExecution {
@@ -160,6 +190,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("clazz");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientUndeployPrecondDepScript implements RegressionExecution {
@@ -171,6 +205,10 @@ public class ClientDeployUndeploy {
             tryDeployInvalidUndeploy(env, path, "script", "@name('A') select myscript('a') as col from SupportBean", "A", text);
 
             env.undeployModuleContaining("script");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -199,7 +237,10 @@ public class ClientDeployUndeploy {
 
             env.undeployModuleContaining("index");
             env.undeployModuleContaining("infra");
+        }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

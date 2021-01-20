@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCarEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportCarInfoEvent;
@@ -22,9 +23,12 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.FIREANDFORGET;
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.INVALIDITY;
 import static org.junit.Assert.assertEquals;
 
 public class ResultSetQueryTypeRollupGroupingFuncs {
@@ -74,6 +78,10 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
                 {null, null, 30100, 1, 1, 3}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(FIREANDFORGET);
         }
     }
 
@@ -140,11 +148,13 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
             env.sendEventBean(new SupportCarInfoEvent("a", "b", "c01"));
 
             env.sendEventBean(new SupportCarEvent("skoda", "france", 10000));
-            EPAssertionUtil.assertEqualsExactOrder(new Object[][]{
-                {"skoda", "france", 10000, 0, 0, 0, "c01", "|skoda|"},
-                {"skoda", null, 10000, 0, 1, 1, "c01", "|skoda|"},
-                {null, "france", 10000, 1, 0, 2, "c01", "|skoda|"},
-                {null, null, 10000, 1, 1, 3, "c01", "|skoda|"}}, GroupingSupportFunc.assertGetAndClear(4));
+            env.assertThat(() -> {
+                EPAssertionUtil.assertEqualsExactOrder(new Object[][]{
+                    {"skoda", "france", 10000, 0, 0, 0, "c01", "|skoda|"},
+                    {"skoda", null, 10000, 0, 1, 1, "c01", "|skoda|"},
+                    {null, "france", 10000, 1, 0, 2, "c01", "|skoda|"},
+                    {null, null, 10000, 1, 1, 3, "c01", "|skoda|"}}, GroupingSupportFunc.assertGetAndClear(4));
+            });
             env.undeployAll();
 
             // test "prev" and "prior"
@@ -188,6 +198,10 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
 
             env.tryInvalidCompile("select theString, sum(intPrimitive), grouping_id(theString, theString) from SupportBean group by rollup(theString)",
                 "Duplicate expression 'theString' among grouping function parameters [select theString, sum(intPrimitive), grouping_id(theString, theString) from SupportBean group by rollup(theString)]");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(INVALIDITY);
         }
     }
 

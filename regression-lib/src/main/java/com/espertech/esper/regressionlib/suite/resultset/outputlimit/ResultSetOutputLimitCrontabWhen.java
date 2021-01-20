@@ -17,12 +17,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import com.espertech.esper.runtime.client.EPStatement;
-import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ResultSetOutputLimitCrontabWhen {
 
@@ -115,12 +114,12 @@ public class ResultSetOutputLimitCrontabWhen {
 
     private static class ResultSetOutputWhenThenExpression implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "myvar", 0);
+            env.runtimeSetVariable(null, "myvar", 0);
             sendTimeEvent(env, 1, 8, 0, 0, 0);
             env.compileDeploy("on SupportBean set myvar = intPrimitive");
 
             String expression = "@name('s0') select symbol from SupportMarketDataBean#length(2) output when myvar=1 then set myvar=0, count_insert_var=count_insert";
-            env.compileDeploy(expression).addListener("s0");
+            env.compileDeploy(expression).addListener("s0").setSubscriber("s0");
             tryAssertion(env, 1);
             env.undeployAll();
         }
@@ -128,7 +127,7 @@ public class ResultSetOutputLimitCrontabWhen {
 
     private static class ResultSetOutputWhenThenExpressionSODA implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            env.runtime().getVariableService().setVariableValue(null, "myvar", 0);
+            env.runtimeSetVariable(null, "myvar", 0);
             sendTimeEvent(env, 1, 8, 0, 0, 0);
             env.compileDeploy("on SupportBean set myvar = intPrimitive");
 
@@ -142,7 +141,7 @@ public class ResultSetOutputLimitCrontabWhen {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             String epl = model.toEPL();
             assertEquals(expression, epl);
-            env.runtime().getVariableService().setVariableValue(null, "myvar", 0);
+            env.runtimeSetVariable(null, "myvar", 0);
             env.compileDeploy(model).addListener("s0");
 
             env.undeployAll();
@@ -160,13 +159,13 @@ public class ResultSetOutputLimitCrontabWhen {
             env.sendEventBean(new SupportMarketDataBean("ABC", "E2", 100));
 
             sendTimer(env, 1000);
-            assertFalse(env.listener("s1").isInvoked());
-            assertFalse(env.listener("s2").isInvoked());
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
 
-            env.runtime().getVariableService().setVariableValue(null, "myvar", 100);
+            env.runtimeSetVariable(null, "myvar", 100);
             sendTimer(env, 2000);
-            assertTrue(env.listener("s2").isInvoked());
-            assertTrue(env.listener("s1").isInvoked());
+            env.assertListenerInvoked("s1");
+            env.assertListenerInvoked("s2");
 
             env.undeployModuleContaining("s1");
             env.undeployModuleContaining("s2");
@@ -186,17 +185,17 @@ public class ResultSetOutputLimitCrontabWhen {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 2));
-            assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E2");
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.sendEventBean(new SupportBean("E4", 4));
             env.assertListenerNotInvoked("s0");
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("s0"), "varOutputTriggered", false); // turns true right away as triggering output
+            env.runtimeSetVariable("s0", "varOutputTriggered", false); // turns true right away as triggering output
 
             env.sendEventBean(new SupportBean("E5", 5));
             sendTimeEvent(env, 2, 8, 0, 1, 0);
-            assertEquals("E5", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E5");
 
             env.sendEventBean(new SupportBean("E6", 6));
             env.assertListenerNotInvoked("s0");
@@ -220,7 +219,7 @@ public class ResultSetOutputLimitCrontabWhen {
             env.sendEventBean(new SupportBean("E3", 1));
             env.assertPropsPerRowLastNew("s0", "theString".split(","), new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "var_cnt_total", -1);
+            env.runtimeSetVariable("var", "var_cnt_total", -1);
 
             env.sendEventBean(new SupportBean("E4", 1));
             env.assertListenerNotInvoked("s0");
@@ -238,35 +237,37 @@ public class ResultSetOutputLimitCrontabWhen {
             env.compileDeploy("on SupportBean set myint = intPrimitive, mystring = theString");
 
             String expression = "@name('s0') select symbol from SupportMarketDataBean#length(2) output when myint = 1 and mystring like 'F%'";
-            env.compileDeploy(expression);
-            EPStatement stmt = env.statement("s0");
-            SupportSubscriber subscriber = new SupportSubscriber();
-            stmt.setSubscriber(subscriber);
-
+            env.compileDeploy(expression).setSubscriber("s0");
             sendEvent(env, "S1", 0);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals(1, env.runtime().getVariableService().getVariableValue(null, "myint"));
-            assertEquals("E1", env.runtime().getVariableService().getVariableValue(null, "mystring"));
+            env.assertRuntime(runtime -> {
+                assertEquals(1, runtime.getVariableService().getVariableValue(null, "myint"));
+                assertEquals("E1", runtime.getVariableService().getVariableValue(null, "mystring"));
+            });
 
             sendEvent(env, "S2", 0);
             sendTimeEvent(env, 1, 8, 0, 1, 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             env.sendEventBean(new SupportBean("F1", 0));
-            assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myint"));
-            assertEquals("F1", env.runtime().getVariableService().getVariableValue(null, "mystring"));
+            env.assertRuntime(runtime -> {
+                assertEquals(0, runtime.getVariableService().getVariableValue(null, "myint"));
+                assertEquals("F1", runtime.getVariableService().getVariableValue(null, "mystring"));
+            });
 
             sendTimeEvent(env, 1, 8, 0, 2, 0);
             sendEvent(env, "S3", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             env.sendEventBean(new SupportBean("F2", 1));
-            assertEquals(1, env.runtime().getVariableService().getVariableValue(null, "myint"));
-            assertEquals("F2", env.runtime().getVariableService().getVariableValue(null, "mystring"));
+            env.assertRuntime(runtime -> {
+                assertEquals(1, runtime.getVariableService().getVariableValue(null, "myint"));
+                assertEquals("F2", runtime.getVariableService().getVariableValue(null, "mystring"));
+            });
 
             sendEvent(env, "S4", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3", "S4"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3", "S4"}, subscriber.getAndResetLastNewData()));
 
             env.undeployAll();
         }
@@ -275,26 +276,24 @@ public class ResultSetOutputLimitCrontabWhen {
     private static class ResultSetOutputWhenBuiltInCountInsert implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select symbol from SupportMarketDataBean#length(2) output when count_insert >= 3";
-            EPStatement stmt = env.compileDeploy(expression).statement("s0");
-            SupportSubscriber subscriber = new SupportSubscriber();
-            stmt.setSubscriber(subscriber);
+            env.compileDeploy(expression).setSubscriber("s0");
 
             sendEvent(env, "S1", 0);
             sendEvent(env, "S2", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendEvent(env, "S3", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3"}, subscriber.getAndResetLastNewData()));
 
             sendEvent(env, "S4", 0);
             sendEvent(env, "S5", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendEvent(env, "S6", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S4", "S5", "S6"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S4", "S5", "S6"}, subscriber.getAndResetLastNewData()));
 
             sendEvent(env, "S7", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             env.undeployAll();
         }
@@ -303,26 +302,24 @@ public class ResultSetOutputLimitCrontabWhen {
     private static class ResultSetOutputWhenBuiltInCountRemove implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String expression = "@name('s0') select symbol from SupportMarketDataBean#length(2) output when count_remove >= 2";
-            EPStatement stmt = env.compileDeploy(expression).statement("s0");
-            SupportSubscriber subscriber = new SupportSubscriber();
-            stmt.setSubscriber(subscriber);
+            env.compileDeploy(expression).setSubscriber("s0");
 
             sendEvent(env, "S1", 0);
             sendEvent(env, "S2", 0);
             sendEvent(env, "S3", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendEvent(env, "S4", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3", "S4"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3", "S4"}, subscriber.getAndResetLastNewData()));
 
             sendEvent(env, "S5", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendEvent(env, "S6", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S5", "S6"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S5", "S6"}, subscriber.getAndResetLastNewData()));
 
             sendEvent(env, "S7", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             env.undeployAll();
         }
@@ -332,9 +329,7 @@ public class ResultSetOutputLimitCrontabWhen {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, 1, 8, 0, 0, 0);
             String expression = "@name('s0') select symbol from SupportMarketDataBean#length(2) output when current_timestamp - last_output_timestamp >= 2000";
-            EPStatement stmt = env.compileDeploy(expression).statement("s0");
-            SupportSubscriber subscriber = new SupportSubscriber();
-            stmt.setSubscriber(subscriber);
+            env.compileDeploy(expression).setSubscriber("s0");
 
             sendEvent(env, "S1", 0);
 
@@ -342,21 +337,21 @@ public class ResultSetOutputLimitCrontabWhen {
             sendEvent(env, "S2", 0);
 
             sendTimeEvent(env, 1, 8, 0, 2, 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendEvent(env, "S3", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "S2", "S3"}, subscriber.getAndResetLastNewData()));
 
             sendTimeEvent(env, 1, 8, 0, 3, 0);
             sendEvent(env, "S4", 0);
 
             sendTimeEvent(env, 1, 8, 0, 3, 500);
             sendEvent(env, "S5", 0);
-            assertFalse(subscriber.isInvoked());
+            env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
             sendTimeEvent(env, 1, 8, 0, 4, 0);
             sendEvent(env, "S6", 0);
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S4", "S5", "S6"}, subscriber.getAndResetLastNewData());
+            env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S4", "S5", "S6"}, subscriber.getAndResetLastNewData()));
 
             env.undeployAll();
         }
@@ -434,39 +429,41 @@ public class ResultSetOutputLimitCrontabWhen {
     }
 
     private static void tryAssertion(RegressionEnvironment env, int days) {
-        SupportSubscriber subscriber = new SupportSubscriber();
-        env.statement("s0").setSubscriber(subscriber);
 
         sendEvent(env, "S1", 0);
 
         // now scheduled for output
         env.sendEventBean(new SupportBean("E1", 1));
-        assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar"));
-        assertFalse(subscriber.isInvoked());
+        env.assertRuntime(runtime -> assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar")));
+        env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
         sendTimeEvent(env, days, 8, 0, 1, 0);
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1"}, subscriber.getAndResetLastNewData());
-        assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar"));
-        assertEquals(1, env.runtime().getVariableService().getVariableValue(null, "count_insert_var"));
+        env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1"}, subscriber.getAndResetLastNewData()));
+        env.assertRuntime(runtime -> {
+            assertEquals(0, runtime.getVariableService().getVariableValue(null, "myvar"));
+            assertEquals(1, runtime.getVariableService().getVariableValue(null, "count_insert_var"));
+        });
 
         sendEvent(env, "S2", 0);
         sendEvent(env, "S3", 0);
         sendTimeEvent(env, days, 8, 0, 2, 0);
         sendTimeEvent(env, days, 8, 0, 3, 0);
         env.sendEventBean(new SupportBean("E2", 1));
-        assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar"));
-        assertEquals(2, env.runtime().getVariableService().getVariableValue(null, "count_insert_var"));
+        env.assertRuntime(runtime -> {
+            assertEquals(0, runtime.getVariableService().getVariableValue(null, "myvar"));
+            assertEquals(2, runtime.getVariableService().getVariableValue(null, "count_insert_var"));
+        });
 
-        assertFalse(subscriber.isInvoked());
+        env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
         sendTimeEvent(env, days, 8, 0, 4, 0);
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S2", "S3"}, subscriber.getAndResetLastNewData());
-        assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar"));
+        env.assertSubscriber("s0", subscriber -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S2", "S3"}, subscriber.getAndResetLastNewData()));
+        env.assertRuntime(runtime -> assertEquals(0, runtime.getVariableService().getVariableValue(null, "myvar")));
 
         sendTimeEvent(env, days, 8, 0, 5, 0);
-        assertFalse(subscriber.isInvoked());
+        env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
         env.sendEventBean(new SupportBean("E1", 1));
-        assertEquals(0, env.runtime().getVariableService().getVariableValue(null, "myvar"));
-        assertFalse(subscriber.isInvoked());
+        env.assertRuntime(runtime -> assertEquals(0, runtime.getVariableService().getVariableValue(null, "myvar")));
+        env.assertSubscriber("s0", subscriber -> assertFalse(subscriber.isInvoked()));
 
         env.undeployAll();
     }

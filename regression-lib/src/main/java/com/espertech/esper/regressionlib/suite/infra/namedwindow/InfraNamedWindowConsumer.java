@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -44,12 +43,12 @@ public class InfraNamedWindowConsumer {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("select", fields, new Object[]{"E1"});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsNew("select", fields, new Object[]{"E2"});
 
             env.undeployAll();
 
@@ -88,12 +87,12 @@ public class InfraNamedWindowConsumer {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = "create schema IncomingEvent(id int);\n" +
+            String epl = "@buseventtype create schema IncomingEvent(id int);\n" +
                 "create schema RetainedEvent(id int);\n" +
                 "insert into RetainedEvent select * from IncomingEvent#expr_batch(current_count >= 10000);\n" +
                 "create window RetainedEventWindow#keepall as RetainedEvent;\n" +
                 "insert into RetainedEventWindow select * from RetainedEvent;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             Map<String, Object> event = new HashMap<>();
             event.put("id", 1);

@@ -24,6 +24,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
@@ -63,18 +64,18 @@ public class ResultSetAggregationMethodSorted {
             env.compileDeploy(epl).addListener("a").addListener("b").addListener("c").addListener("d");
 
             env.sendEventMap(CollectionUtil.buildMap("orderId", "A", "price", 10d), "OrderEvent");
-            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), "lowerPrice".split(","), new Object[] {null});
-            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), "lowerPriceOrderId".split(","), new Object[] {null});
-            EPAssertionUtil.assertProps(env.listener("c").assertOneGetNewAndReset(), "lowestPrice,highestPrice".split(","), new Object[] {10d, 10d});
-            EPAssertionUtil.assertProps(env.listener("d").assertOneGetNewAndReset(), "lowestPrice".split(","), new Object[] {10d});
+            env.assertPropsNew("a", "lowerPrice".split(","), new Object[] {null});
+            env.assertPropsNew("b", "lowerPriceOrderId".split(","), new Object[] {null});
+            env.assertPropsNew("c", "lowestPrice,highestPrice".split(","), new Object[] {10d, 10d});
+            env.assertPropsNew("d", "lowestPrice".split(","), new Object[] {10d});
 
             env.milestone(0);
 
             env.sendEventMap(CollectionUtil.buildMap("orderId", "B", "price", 20d), "OrderEvent");
-            EPAssertionUtil.assertProps(env.listener("a").assertOneGetNewAndReset(), "lowerPrice".split(","), new Object[] {10d});
-            EPAssertionUtil.assertProps(env.listener("b").assertOneGetNewAndReset(), "lowerPriceOrderId".split(","), new Object[] {"A"});
-            EPAssertionUtil.assertProps(env.listener("c").assertOneGetNewAndReset(), "lowestPrice,highestPrice".split(","), new Object[] {10d, 20d});
-            EPAssertionUtil.assertProps(env.listener("d").assertOneGetNewAndReset(), "lowestPrice".split(","), new Object[] {10d});
+            env.assertPropsNew("a", "lowerPrice".split(","), new Object[] {10d});
+            env.assertPropsNew("b", "lowerPriceOrderId".split(","), new Object[] {"A"});
+            env.assertPropsNew("c", "lowestPrice,highestPrice".split(","), new Object[] {10d, 20d});
+            env.assertPropsNew("d", "lowestPrice".split(","), new Object[] {10d});
 
             env.undeployAll();
         }
@@ -167,11 +168,12 @@ public class ResultSetAggregationMethodSorted {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            compareKeys(event.get("firstkey"), "E1a", 1);
-            compareKeys(event.get("lastkey"), "E9", 9);
-            compareKeys(event.get("lowerkey"), "E1b", 1);
-            compareKeys(event.get("higherkey"), "E4b", 4);
+            env.assertEventNew("s0", event -> {
+                compareKeys(event.get("firstkey"), "E1a", 1);
+                compareKeys(event.get("lastkey"), "E9", 9);
+                compareKeys(event.get("lowerkey"), "E1b", 1);
+                compareKeys(event.get("higherkey"), "E4b", 4);
+            });
 
             env.undeployAll();
         }
@@ -205,9 +207,10 @@ public class ResultSetAggregationMethodSorted {
                         for (boolean includeEnd : new boolean[]{false, true}) {
                             MySubmapEvent sme = new MySubmapEvent(start, includeStart, end, includeEnd);
                             env.sendEventBean(sme);
-                            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                            assertEventsBetween(treemap, sme, (SupportBean[]) event.get("eb"), (SupportBean) event.get("eblastof"));
-                            assertSubmap(treemap, sme, (NavigableMap<Object, SupportBean[]>) event.get("sm"));
+                            env.assertEventNew("s0", event -> {
+                                assertEventsBetween(treemap, sme, (SupportBean[]) event.get("eb"), (SupportBean) event.get("eblastof"));
+                                assertSubmap(treemap, sme, (NavigableMap<Object, SupportBean[]>) event.get("sm"));
+                            });
                         }
                     }
                 }
@@ -236,8 +239,7 @@ public class ResultSetAggregationMethodSorted {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertNavigableMap(treemap, (NavigableMap<Object, Collection<EventBean>>) event.get("nmr"));
+            env.assertEventNew("s0", event -> assertNavigableMap(treemap, (NavigableMap<Object, Collection<EventBean>>) event.get("nmr")));
 
             env.undeployAll();
         }
@@ -272,16 +274,18 @@ public class ResultSetAggregationMethodSorted {
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                String message = "failed at " + i;
-                assertEquals(message, firstEvent(treemap.get(i)), event.get("ge"));
-                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.get(i)), (SupportBean[]) event.get("ges"));
-                assertEquals(message, treemap.containsKey(i), event.get("ck"));
-                assertEquals(message, 7, event.get("cnte"));
-                assertEquals(message, 5, event.get("cntk"));
-                assertEquals(message, firstEventString(treemap.get(i)), event.get("geid"));
-                assertEquals(message, firstEvent(treemap.get(i)), event.get("gefo"));
-                assertEquals(message, lastEvent(treemap.get(i)), event.get("geslo"));
+                final int index = i;
+                env.assertEventNew("s0", event -> {
+                    String message = "failed at " + index;
+                    assertEquals(message, firstEvent(treemap.get(index)), event.get("ge"));
+                    EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.get(index)), (SupportBean[]) event.get("ges"));
+                    assertEquals(message, treemap.containsKey(index), event.get("ck"));
+                    assertEquals(message, 7, event.get("cnte"));
+                    assertEquals(message, 5, event.get("cntk"));
+                    assertEquals(message, firstEventString(treemap.get(index)), event.get("geid"));
+                    assertEquals(message, firstEvent(treemap.get(index)), event.get("gefo"));
+                    assertEquals(message, lastEvent(treemap.get(index)), event.get("geslo"));
+                });
             }
 
             env.undeployAll();
@@ -311,13 +315,14 @@ public class ResultSetAggregationMethodSorted {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(firstEventString(treemap.firstEntry()), event.get("feid"));
-            assertEquals(firstEvent(treemap.firstEntry()), event.get("fefo"));
-            assertEquals(lastEvent(treemap.firstEntry()), event.get("feslo"));
-            assertEquals(firstEventString(treemap.lastEntry()), event.get("leid"));
-            assertEquals(firstEvent(treemap.lastEntry()), event.get("lefo"));
-            assertEquals(lastEvent(treemap.lastEntry()), event.get("leslo"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(firstEventString(treemap.firstEntry()), event.get("feid"));
+                assertEquals(firstEvent(treemap.firstEntry()), event.get("fefo"));
+                assertEquals(lastEvent(treemap.firstEntry()), event.get("feslo"));
+                assertEquals(firstEventString(treemap.lastEntry()), event.get("leid"));
+                assertEquals(firstEvent(treemap.lastEntry()), event.get("lefo"));
+                assertEquals(lastEvent(treemap.lastEntry()), event.get("leslo"));
+            });
 
             env.undeployAll();
         }
@@ -349,15 +354,16 @@ public class ResultSetAggregationMethodSorted {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(firstEvent(treemap.firstEntry()), event.get("fe"));
-            assertEquals(firstEvent(treemap.firstEntry()), event.get("minb"));
-            EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.firstEntry()), (SupportBean[]) event.get("fes"));
-            assertEquals(treemap.firstKey(), event.get("fk"));
-            assertEquals(firstEvent(treemap.lastEntry()), event.get("le"));
-            assertEquals(firstEvent(treemap.lastEntry()), event.get("maxb"));
-            EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.lastEntry()), (SupportBean[]) event.get("les"));
-            assertEquals(treemap.lastKey(), event.get("lk"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(firstEvent(treemap.firstEntry()), event.get("fe"));
+                assertEquals(firstEvent(treemap.firstEntry()), event.get("minb"));
+                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.firstEntry()), (SupportBean[]) event.get("fes"));
+                assertEquals(treemap.firstKey(), event.get("fk"));
+                assertEquals(firstEvent(treemap.lastEntry()), event.get("le"));
+                assertEquals(firstEvent(treemap.lastEntry()), event.get("maxb"));
+                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.lastEntry()), (SupportBean[]) event.get("les"));
+                assertEquals(treemap.lastKey(), event.get("lk"));
+            });
 
             env.undeployAll();
         }
@@ -393,20 +399,22 @@ public class ResultSetAggregationMethodSorted {
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                String message = "failed at " + i;
-                assertEquals(message, firstEventString(treemap.ceilingEntry(i)), event.get("ceid"));
-                assertEquals(message, firstEvent(treemap.ceilingEntry(i)), event.get("cefo"));
-                assertEquals(message, lastEvent(treemap.ceilingEntry(i)), event.get("ceslo"));
-                assertEquals(message, firstEventString(treemap.floorEntry(i)), event.get("feid"));
-                assertEquals(message, firstEvent(treemap.floorEntry(i)), event.get("fefo"));
-                assertEquals(message, lastEvent(treemap.floorEntry(i)), event.get("feslo"));
-                assertEquals(message, firstEventString(treemap.higherEntry(i)), event.get("heid"));
-                assertEquals(message, firstEvent(treemap.higherEntry(i)), event.get("hefo"));
-                assertEquals(message, lastEvent(treemap.higherEntry(i)), event.get("heslo"));
-                assertEquals(message, firstEventString(treemap.lowerEntry(i)), event.get("leid"));
-                assertEquals(message, firstEvent(treemap.lowerEntry(i)), event.get("lefo"));
-                assertEquals(message, lastEvent(treemap.lowerEntry(i)), event.get("leslo"));
+                final int index = i;
+                env.assertEventNew("s0", event -> {
+                    String message = "failed at " + index;
+                    assertEquals(message, firstEventString(treemap.ceilingEntry(index)), event.get("ceid"));
+                    assertEquals(message, firstEvent(treemap.ceilingEntry(index)), event.get("cefo"));
+                    assertEquals(message, lastEvent(treemap.ceilingEntry(index)), event.get("ceslo"));
+                    assertEquals(message, firstEventString(treemap.floorEntry(index)), event.get("feid"));
+                    assertEquals(message, firstEvent(treemap.floorEntry(index)), event.get("fefo"));
+                    assertEquals(message, lastEvent(treemap.floorEntry(index)), event.get("feslo"));
+                    assertEquals(message, firstEventString(treemap.higherEntry(index)), event.get("heid"));
+                    assertEquals(message, firstEvent(treemap.higherEntry(index)), event.get("hefo"));
+                    assertEquals(message, lastEvent(treemap.higherEntry(index)), event.get("heslo"));
+                    assertEquals(message, firstEventString(treemap.lowerEntry(index)), event.get("leid"));
+                    assertEquals(message, firstEvent(treemap.lowerEntry(index)), event.get("lefo"));
+                    assertEquals(message, lastEvent(treemap.lowerEntry(index)), event.get("leslo"));
+                });
             }
 
             env.undeployAll();
@@ -448,19 +456,21 @@ public class ResultSetAggregationMethodSorted {
 
             for (int i = 0; i < 12; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals(firstEvent(treemap.ceilingEntry(i)), event.get("ce"));
-                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.ceilingEntry(i)), (SupportBean[]) event.get("ces"));
-                assertEquals(treemap.ceilingKey(i), event.get("ck"));
-                assertEquals(firstEvent(treemap.floorEntry(i)), event.get("fe"));
-                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.floorEntry(i)), (SupportBean[]) event.get("fes"));
-                assertEquals(treemap.floorKey(i), event.get("fk"));
-                assertEquals(firstEvent(treemap.higherEntry(i)), event.get("he"));
-                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.higherEntry(i)), (SupportBean[]) event.get("hes"));
-                assertEquals(treemap.higherKey(i), event.get("hk"));
-                assertEquals(firstEvent(treemap.lowerEntry(i)), event.get("le"));
-                EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.lowerEntry(i)), (SupportBean[]) event.get("les"));
-                assertEquals(treemap.lowerKey(i), event.get("lk"));
+                final int index = i;
+                env.assertEventNew("s0", event -> {
+                    assertEquals(firstEvent(treemap.ceilingEntry(index)), event.get("ce"));
+                    EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.ceilingEntry(index)), (SupportBean[]) event.get("ces"));
+                    assertEquals(treemap.ceilingKey(index), event.get("ck"));
+                    assertEquals(firstEvent(treemap.floorEntry(index)), event.get("fe"));
+                    EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.floorEntry(index)), (SupportBean[]) event.get("fes"));
+                    assertEquals(treemap.floorKey(index), event.get("fk"));
+                    assertEquals(firstEvent(treemap.higherEntry(index)), event.get("he"));
+                    EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.higherEntry(index)), (SupportBean[]) event.get("hes"));
+                    assertEquals(treemap.higherKey(index), event.get("hk"));
+                    assertEquals(firstEvent(treemap.lowerEntry(index)), event.get("le"));
+                    EPAssertionUtil.assertEqualsExactOrder(allEvents(treemap.lowerEntry(index)), (SupportBean[]) event.get("les"));
+                    assertEquals(treemap.lowerKey(index), event.get("lk"));
+                });
             }
 
             env.undeployAll();
@@ -506,13 +516,14 @@ public class ResultSetAggregationMethodSorted {
             makeSendBean(env, treemap, "E3", 30);
 
             env.sendEventBean(new SupportBean_S0(15));
-            assertEquals(floorEntryFirstEvent(treemap, 15), env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEventNew("s0", event -> assertEquals(floorEntryFirstEvent(treemap, 15), event.get("c0")));
 
             env.milestone(0);
 
             for (int i = 0; i < 40; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
-                assertEquals(floorEntryFirstEvent(treemap, i), env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                final int index = i;
+                env.assertEventNew("s0", event -> assertEquals(floorEntryFirstEvent(treemap, index), event.get("c0")));
             }
 
             env.undeployAll();
@@ -537,7 +548,8 @@ public class ResultSetAggregationMethodSorted {
 
             for (int i = 0; i < 40; i++) {
                 env.sendEventBean(new SupportBean_S0(i));
-                assertEquals(floorEntryFirstEvent(treemap, i), env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                final int index = i;
+                env.assertEventNew("s0", event -> assertEquals(floorEntryFirstEvent(treemap, index), event.get("c0")));
             }
 
             env.undeployAll();
@@ -604,10 +616,12 @@ public class ResultSetAggregationMethodSorted {
 
     static void assertType(RegressionEnvironment env, EPTypeClass expected, String csvProps) {
         String[] props = csvProps.split(",");
-        EventType eventType = env.statement("s0").getEventType();
-        for (String prop : props) {
-            assertEquals("failed for prop '" + prop + "'", expected, eventType.getPropertyEPType(prop));
-        }
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            for (String prop : props) {
+                assertEquals("failed for prop '" + prop + "'", expected, eventType.getPropertyEPType(prop));
+            }
+        });
     }
 
     private static void assertEventsBetween(TreeMap<Integer, List<SupportBean>> treemap, MySubmapEvent sme, SupportBean[] events, SupportBean lastOf) {
@@ -759,7 +773,8 @@ public class ResultSetAggregationMethodSorted {
         EPAssertionUtil.assertEqualsExactOrder(((HashableMultiKey) key).getKeys(), keys);
     }
 
-    public static class MySubmapEvent {
+    public static class MySubmapEvent implements Serializable {
+        private static final long serialVersionUID = 5055643452464631039L;
         private final int fromKey;
         private final boolean fromInclusive;
         private final int toKey;

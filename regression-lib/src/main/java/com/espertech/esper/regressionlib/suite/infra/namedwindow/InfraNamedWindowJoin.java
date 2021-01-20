@@ -13,29 +13,26 @@ package com.espertech.esper.regressionlib.suite.infra.namedwindow;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.util.IndexAssertion;
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -80,22 +77,22 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.sendEventBean(beans[0]);
             env.sendEventBean(beans[1]);
             env.sendEventBean(new SupportBean_S0(10));
-            assertReceived(env.listener("s0"), beans, new int[]{0, 1}, new int[]{0, 1}, "E0,E1".split(","), new Object[]{0, 1});
+            assertReceived(env, beans, new int[]{0, 1}, new int[]{0, 1}, "E0,E1".split(","), new Object[]{0, 1});
 
             // add bean
             env.sendEventBean(beans[2]);
             env.sendEventBean(new SupportBean_S0(10));
-            assertReceived(env.listener("s0"), beans, new int[]{0, 1, 2}, new int[]{0, 1}, "E0,E1,E2".split(","), new Object[]{0, 1, 2});
+            assertReceived(env, beans, new int[]{0, 1, 2}, new int[]{0, 1}, "E0,E1,E2".split(","), new Object[]{0, 1, 2});
 
             // delete bean
             env.sendEventBean(new SupportBean_S1(11, "E1"));
             env.sendEventBean(new SupportBean_S0(12));
-            assertReceived(env.listener("s0"), beans, new int[]{0, 2}, new int[]{0}, "E0,E2".split(","), new Object[]{0, 2});
+            assertReceived(env, beans, new int[]{0, 2}, new int[]{0}, "E0,E2".split(","), new Object[]{0, 2});
 
             // delete another bean
             env.sendEventBean(new SupportBean_S1(13, "E0"));
             env.sendEventBean(new SupportBean_S0(14));
-            assertReceived(env.listener("s0"), beans, new int[]{2}, new int[0], "E2".split(","), new Object[]{2});
+            assertReceived(env, beans, new int[]{2}, new int[0], "E2".split(","), new Object[]{2});
 
             // delete last bean
             env.sendEventBean(new SupportBean_S1(15, "E2"));
@@ -215,6 +212,10 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class InfraInnerJoinLateStart implements RegressionExecution {
@@ -225,15 +226,15 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         }
 
         private static void tryAssertionInnerJoinLateStart(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String schemaEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + "@name('schema') create schema Product (product string, size int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedPortfolio.class) + " create schema Portfolio (portfolio string, product string);\n";
+            String schemaEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + "@name('schema') @buseventtype create schema Product (product string, size int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedPortfolio.class) + " @buseventtype create schema Portfolio (portfolio string, product string);\n";
             RegressionPath path = new RegressionPath();
-            env.compileDeployWBusPublicType(schemaEPL, path);
+            env.compileDeploy(schemaEPL, path);
 
             env.compileDeploy("@name('window') create window ProductWin#keepall as Product", path);
 
-            assertTrue(eventRepresentationEnum.matchesClass(env.statement("schema").getEventType().getUnderlyingType()));
-            assertTrue(eventRepresentationEnum.matchesClass(env.statement("window").getEventType().getUnderlyingType()));
+            env.assertStatement("schema", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
+            env.assertStatement("window", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
             env.compileDeploy("insert into ProductWin select * from Product", path);
             env.compileDeploy("create window PortfolioWin#keepall as Portfolio", path);
@@ -248,14 +249,14 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.compileDeploy(stmtText, path).addListener("Query2");
 
             sendPortfolio(env, eventRepresentationEnum, "Portfolio", "productB");
-            EPAssertionUtil.assertProps(env.listener("Query2").assertOneGetNewAndReset(), new String[]{"portfolio", "ProductWin.product", "size"}, new Object[]{"Portfolio", "productB", 2});
+            env.assertPropsNew("Query2", new String[]{"portfolio", "ProductWin.product", "size"}, new Object[]{"Portfolio", "productB", 2});
 
             sendPortfolio(env, eventRepresentationEnum, "Portfolio", "productC");
-            env.listener("Query2").reset();
+            env.listenerReset("Query2");
 
             sendProduct(env, eventRepresentationEnum, "productC", 3);
             sendPortfolio(env, eventRepresentationEnum, "Portfolio", "productC");
-            EPAssertionUtil.assertProps(env.listener("Query2").assertOneGetNewAndReset(), new String[]{"portfolio", "ProductWin.product", "size"}, new Object[]{"Portfolio", "productC", 3});
+            env.assertPropsNew("Query2", new String[]{"portfolio", "ProductWin.product", "size"}, new Object[]{"Portfolio", "productC", 3});
 
             env.undeployAll();
         }
@@ -269,15 +270,16 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("size", size);
                 env.sendEventMap(theEvent, "Product");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("Product")));
+                Schema schema = env.runtimeAvroSchemaPreconfigured("Product");
+                GenericData.Record theEvent = new GenericData.Record(schema);
                 theEvent.put("product", product);
                 theEvent.put("size", size);
-                env.eventService().sendEventAvro(theEvent, "Product");
+                env.sendEventAvro(theEvent, "Product");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 JsonObject object = new JsonObject();
                 object.add("product", product);
                 object.add("size", size);
-                env.eventService().sendEventJson(object.toString(), "Product");
+                env.sendEventJson(object.toString(), "Product");
             } else {
                 fail();
             }
@@ -292,15 +294,15 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 theEvent.put("product", product);
                 env.sendEventMap(theEvent, "Portfolio");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("Portfolio")));
+                GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("Portfolio"));
                 theEvent.put("portfolio", portfolio);
                 theEvent.put("product", product);
-                env.eventService().sendEventAvro(theEvent, "Portfolio");
+                env.sendEventAvro(theEvent, "Portfolio");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
                 JsonObject object = new JsonObject();
                 object.add("portfolio", portfolio);
                 object.add("product", product);
-                env.eventService().sendEventJson(object.toString(), "Portfolio");
+                env.sendEventJson(object.toString(), "Portfolio");
             } else {
                 fail();
             }
@@ -403,12 +405,20 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             };
 
             // assert iterator results
-            EventBean[] received = EPAssertionUtil.iteratorToArray(env.iterator("s2"));
-            EPAssertionUtil.assertPropsPerRow(received, "loc,sku,avgTime,cntEnter,cntLeave,diff".split(","), expected);
-            received = EPAssertionUtil.iteratorToArray(env.iterator("s1"));
-            EPAssertionUtil.assertPropsPerRow(received, "loc,sku,avgTime,cntEnter,cntLeave,diff".split(","), expected);
+            env.assertIterator("s2", iterator -> {
+                EventBean[] received = EPAssertionUtil.iteratorToArray(iterator);
+                EPAssertionUtil.assertPropsPerRow(received, "loc,sku,avgTime,cntEnter,cntLeave,diff".split(","), expected);
+            });
+            env.assertIterator("s1", iterator -> {
+                EventBean[] received = EPAssertionUtil.iteratorToArray(iterator);
+                EPAssertionUtil.assertPropsPerRow(received, "loc,sku,avgTime,cntEnter,cntLeave,diff".split(","), expected);
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -434,8 +444,10 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             bean.setBoolPrimitive(true);
             env.sendEventBean(bean);
 
-            EventBean[] received = EPAssertionUtil.iteratorToArray(env.iterator("create"));
-            assertEquals(19, received.length);
+            env.assertIterator("create", iterator -> {
+                EventBean[] received = EPAssertionUtil.iteratorToArray(iterator);
+                assertEquals(19, received.length);
+            });
 
             // create select stmt
             String stmtTextSelect = "@name('select') select theString, intPrimitive, count(boolPrimitive) as cntBool, symbol " +
@@ -449,20 +461,22 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             sendMarketBean(env, "c3");
 
             // get iterator results
-            received = EPAssertionUtil.iteratorToArray(env.iterator("select"));
-            EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive,cntBool,symbol".split(","),
-                new Object[][]{
-                    {null, null, 0L, "c3"},
-                    {"c0", 0, 2L, "c0"},
-                    {"c0", 1, 2L, "c0"},
-                    {"c0", 2, 2L, "c0"},
-                    {"c1", 0, 2L, null},
-                    {"c1", 1, 2L, null},
-                    {"c1", 2, 3L, null},
-                    {"c2", 0, 2L, null},
-                    {"c2", 1, 2L, null},
-                    {"c2", 2, 2L, null},
-                });
+            env.assertIterator("select", iterator -> {
+                EventBean[] received = EPAssertionUtil.iteratorToArray(iterator);
+                EPAssertionUtil.assertPropsPerRow(received, "theString,intPrimitive,cntBool,symbol".split(","),
+                    new Object[][]{
+                        {null, null, 0L, "c3"},
+                        {"c0", 0, 2L, "c0"},
+                        {"c0", 1, 2L, "c0"},
+                        {"c0", 2, 2L, "c0"},
+                        {"c1", 0, 2L, null},
+                        {"c1", 1, 2L, null},
+                        {"c1", 2, 3L, null},
+                        {"c2", 0, 2L, null},
+                        {"c2", 1, 2L, null},
+                        {"c2", 2, 2L, null},
+                    });
+            });
         /*
         for (int i = 0; i < received.length; i++)
         {
@@ -493,10 +507,12 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
                 "MyWindowJNS as s1 where s1.a = symbol";
             env.compileDeploy(epl, path).addListener("s0");
 
-            EPAssertionUtil.assertEqualsAnyOrder(env.statement("s0").getEventType().getPropertyNames(), new String[]{"symbol", "a", "b"});
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-            assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("a"));
-            assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("b"));
+            env.assertStatement("s0", statement -> {
+                EPAssertionUtil.assertEqualsAnyOrder(statement.getEventType().getPropertyNames(), new String[]{"symbol", "a", "b"});
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("a"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("b"));
+            });
 
             sendMarketBean(env, "S1");
             env.assertListenerNotInvoked("s0");
@@ -521,12 +537,10 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.assertListenerNotInvoked("s0");
 
             sendMarketBean(env, "S3");
-            assertEquals(2, env.listener("s0").getLastNewData().length);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastNewData().length));
 
             sendSupportBean_A(env, "S3"); // deletes from window
-            assertEquals(2, env.listener("s0").getLastOldData().length);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastOldData().length));
 
             sendMarketBean(env, "S3");
             env.assertListenerNotInvoked("s0");
@@ -564,8 +578,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.assertPropsNew("s0", fields, new Object[]{"S1", 5, "S1", 3});
 
             sendSupportBean(env, false, "S1", 6);
-            assertEquals(2, env.listener("s0").getLastNewData().length);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastNewData().length));
 
             // delete and insert back in
             sendMarketBean(env, "S0", 0);
@@ -625,37 +638,39 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.compileDeploy(epl).addListener("select");
 
             sendSupportBean(env, true, "S0", 1);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             sendSupportBean(env, false, "S0", 2);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S0", 1, "S0", 2});
+            env.assertPropsNew("select", fields, new Object[]{"S0", 1, "S0", 2});
 
             sendSupportBean(env, false, "S1", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             sendSupportBean(env, true, "S1", 4);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S1", 4, "S1", 3});
+            env.assertPropsNew("select", fields, new Object[]{"S1", 4, "S1", 3});
 
             sendSupportBean(env, true, "S1", 5);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S1", 5, "S1", 3});
+            env.assertPropsNew("select", fields, new Object[]{"S1", 5, "S1", 3});
 
             sendSupportBean(env, false, "S1", 6);
-            assertEquals(2, env.listener("select").getLastNewData().length);
-            env.listener("select").reset();
+            env.assertListener("select", listener -> {
+                assertEquals(2, listener.getLastNewData().length);
+                listener.reset();
+            });
 
             // delete and insert back in
             sendMarketBean(env, "S0", 0);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"S0", 1, "S0", 2});
+            env.assertPropsOld("select", fields, new Object[]{"S0", 1, "S0", 2});
 
             sendSupportBean(env, false, "S0", 7);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S0", 1, "S0", 7});
+            env.assertPropsNew("select", fields, new Object[]{"S0", 1, "S0", 7});
 
             // delete and insert back in
             sendMarketBean(env, "S0", 1);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetOldAndReset(), fields, new Object[]{"S0", 1, "S0", 7});
+            env.assertPropsOld("select", fields, new Object[]{"S0", 1, "S0", 7});
 
             sendSupportBean(env, true, "S0", 8);
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S0", 8, "S0", 7});
+            env.assertPropsNew("select", fields, new Object[]{"S0", 8, "S0", 7});
 
             env.undeployAll();
         }
@@ -669,14 +684,14 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             env.compileDeploy(epl).addListener("select");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
             env.sendEventBean(new SupportBean_A("E1"));
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
             env.sendEventBean(new SupportBean_A("E2"));
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.sendEventBean(new SupportBean("E2", 1));
-            assertTrue(env.listener("select").isInvoked());
+            env.assertListenerInvoked("select");
 
             env.undeployAll();
         }
@@ -712,11 +727,12 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         env.sendEventBean(bean);
     }
 
-    private static void assertReceived(SupportListener listenerStmtOne, SupportBean[] beans, int[] indexesAll, int[] indexesWhere, String[] mapKeys, Object[] mapValues) {
-        EventBean received = listenerStmtOne.assertOneGetNewAndReset();
-        EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesAll), (Object[]) received.get("c0"));
-        EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesWhere), (Collection) received.get("c1"));
-        EPAssertionUtil.assertPropsMap((Map) received.get("c2"), mapKeys, mapValues);
+    private static void assertReceived(RegressionEnvironment env, SupportBean[] beans, int[] indexesAll, int[] indexesWhere, String[] mapKeys, Object[] mapValues) {
+        env.assertEventNew("s0", received -> {
+            EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesAll), (Object[]) received.get("c0"));
+            EPAssertionUtil.assertEqualsExactOrder(SupportBean.getBeansPerIndex(beans, indexesWhere), (Collection) received.get("c1"));
+            EPAssertionUtil.assertPropsMap((Map) received.get("c2"), mapKeys, mapValues);
+        });
     }
 
     public static class MyLocalJsonProvidedProduct implements Serializable {

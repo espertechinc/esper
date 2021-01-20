@@ -286,7 +286,7 @@ public class ViewExpressionBatch {
 
             ViewExpressionWindow.LocalUDF.setResult(true);
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertThis(() -> {
+            env.assertThat(() -> {
                 assertEquals("E1", ViewExpressionWindow.LocalUDF.getKey());
                 assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
                 assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());
@@ -296,7 +296,7 @@ public class ViewExpressionBatch {
 
             ViewExpressionWindow.LocalUDF.setResult(false);
             env.sendEventBean(new SupportBean("E3", 0));
-            env.assertThis(() -> {
+            env.assertThat(() -> {
                 assertEquals("E3", ViewExpressionWindow.LocalUDF.getKey());
                 assertEquals(0, (int) ViewExpressionWindow.LocalUDF.getExpiryCount());
                 assertNotNull(ViewExpressionWindow.LocalUDF.getViewref());

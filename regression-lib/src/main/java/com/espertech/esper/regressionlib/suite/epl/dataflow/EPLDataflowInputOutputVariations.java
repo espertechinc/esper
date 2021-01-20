@@ -25,11 +25,9 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraph
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
@@ -95,6 +93,10 @@ public class EPLDataflowInputOutputVariations {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFanInOut implements RegressionExecution {
@@ -145,6 +147,10 @@ public class EPLDataflowInputOutputVariations {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFactorial implements RegressionExecution {
@@ -179,6 +185,10 @@ public class EPLDataflowInputOutputVariations {
             assertEquals((long) 5 * 4 * 3 * 2, ((Object[]) result[0])[0]);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

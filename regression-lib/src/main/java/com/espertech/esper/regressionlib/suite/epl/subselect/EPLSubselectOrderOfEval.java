@@ -39,13 +39,16 @@ public class EPLSubselectOrderOfEval {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportTradeEventTwo(System.currentTimeMillis(), 1000, 50, 1));
-            assertEquals(1, ((Object[]) env.listener("s0").assertOneGetNew().get("longItems")).length);
-            assertEquals(1, ((Object[]) env.listener("s0").assertOneGetNew().get("shortItems")).length);
-            env.listener("s0").reset();
+            env.assertEventNew("s0", event -> {
+                assertEquals(1, ((Object[]) event.get("longItems")).length);
+                assertEquals(1, ((Object[]) event.get("shortItems")).length);
+            });
 
             env.sendEventBean(new SupportTradeEventTwo(System.currentTimeMillis() + 10, 1000, 50, 1));
-            assertEquals(2, ((Object[]) env.listener("s0").assertOneGetNew().get("longItems")).length);
-            assertEquals(2, ((Object[]) env.listener("s0").assertOneGetNew().get("shortItems")).length);
+            env.assertEventNew("s0", event -> {
+                assertEquals(2, ((Object[]) event.get("longItems")).length);
+                assertEquals(2, ((Object[]) event.get("shortItems")).length);
+            });
 
             env.undeployAll();
         }

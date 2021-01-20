@@ -28,9 +28,11 @@ public class EPLOtherIStreamRStreamConfigSelectorRStream implements RegressionEx
         env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "d");
-        assertTrue(env.listener("s0").isInvoked());
-        assertSame(theEvent, env.listener("s0").getLastNewData()[0].getUnderlying());    // receive 'a' as new data
-        assertNull(env.listener("s0").getLastOldData());  // receive no more old data
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
+            assertNull(listener.getLastOldData());  // receive no more old data
+        });
 
         env.undeployAll();
     }

@@ -19,10 +19,6 @@ import java.util.Collection;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
-
-
-
 public class ResultSetAggregateRate {
 
     public static Collection<RegressionExecution> executions() {
@@ -67,25 +63,25 @@ public class ResultSetAggregateRate {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, 1000, 10);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.milestone(0);
 
             sendEvent(env, 1200, 0);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             sendEvent(env, 1300, 0);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null, null});
+            env.assertPropsNew("s0", fields, new Object[]{null, null});
 
             env.milestone(1);
 
             sendEvent(env, 1500, 14);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
+            env.assertPropsNew("s0", fields, new Object[]{3 * 1000 / 500d, 14 * 1000 / 500d});
 
             env.milestone(2);
 
             sendEvent(env, 2000, 11);
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
+            env.assertPropsNew("s0", fields, new Object[]{3 * 1000 / 800d, 25 * 1000 / 800d});
 
             env.tryInvalidCompile("select rate(longPrimitive) as myrate from SupportBean",
                 "Failed to validate select-clause expression 'rate(longPrimitive)': The rate aggregation function in the timestamp-property notation requires data windows [select rate(longPrimitive) as myrate from SupportBean]");
@@ -103,57 +99,57 @@ public class ResultSetAggregateRate {
 
         sendTimer(env, 1000);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 1200);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         sendTimer(env, 1600);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 1600);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         sendTimer(env, 9000);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         sendTimer(env, 9200);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 10999);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{null});
+        env.assertPropsNew("s0", fields, new Object[]{null});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 11100);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0.7});
+        env.assertPropsNew("s0", fields, new Object[]{0.7});
 
         sendTimer(env, 11101);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0.8});
+        env.assertPropsNew("s0", fields, new Object[]{0.8});
 
         env.milestoneInc(milestone);
 
         sendTimer(env, 11200);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0.8});
+        env.assertPropsNew("s0", fields, new Object[]{0.8});
 
         sendTimer(env, 11600);
         sendEvent(env);
-        assertProps(env.listener("s0").assertOneGetNewAndReset(), fields, new Object[]{0.7});
+        env.assertPropsNew("s0", fields, new Object[]{0.7});
     }
 
     /**
@@ -173,7 +169,7 @@ public class ResultSetAggregateRate {
         //String viewExpr = "select RATE(longPrimitive) as myrate from SupportBean#time(10) output every 1 sec";
         String viewExpr = "select RATE(10) as myrate from SupportBean output snapshot every 1 sec";
         EPStatement stmt = runtime.getDeploymentService().createEPL(viewExpr);
-        env.statement("s0").addListener(new UpdateListener() {
+        statement.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 System.out.println(newEvents[0].get("myrate"));
             }

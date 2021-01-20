@@ -46,7 +46,7 @@ public class EventMapCore {
 
     private static class EventMapCoreMapNestedEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            assertNotNull(env.runtime().getEventTypeService().getEventTypePreconfigured("MyMap"));
+            env.assertThat(() -> assertNotNull(env.runtime().getEventTypeService().getEventTypePreconfigured("MyMap")));
             env.compileDeploy("@name('s0') select lev0name.lev1name.sb.theString as val from MyMap").addListener("s0");
 
             Map<String, Object> lev2data = new HashMap<String, Object>();
@@ -57,29 +57,33 @@ public class EventMapCore {
             lev0data.put("lev0name", lev1data);
 
             env.sendEventMap(lev0data, "MyMap");
-            assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", "E1");
 
-            try {
-                env.sendEventObjectArray(new Object[0], "MyMap");
-                fail();
-            } catch (EPException ex) {
-                assertEquals("Event type named 'MyMap' has not been defined or is not a Object-array event type, the name 'MyMap' refers to a java.util.Map event type", ex.getMessage());
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventObjectArray(new Object[0], "MyMap");
+                    fail();
+                } catch (EPException ex) {
+                    assertEquals("Event type named 'MyMap' has not been defined or is not a Object-array event type, the name 'MyMap' refers to a java.util.Map event type", ex.getMessage());
+                }
+            });
             env.undeployAll();
         }
     }
 
     private static class EventMapCoreMetadata implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("myMapEvent");
-            assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
-            assertEquals("myMapEvent", type.getMetadata().getName());
+            env.assertThat(() -> {
+                EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("myMapEvent");
+                assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
+                assertEquals("myMapEvent", type.getMetadata().getName());
 
-            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-                new SupportEventPropDesc("myInt", Integer.class),
-                new SupportEventPropDesc("myString", String.class),
-                new SupportEventPropDesc("beanA", SupportBeanComplexProps.class).fragment(),
-                new SupportEventPropDesc("myStringArray", String[].class).componentType(String.class).indexed());
+                SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                    new SupportEventPropDesc("myInt", Integer.class),
+                    new SupportEventPropDesc("myString", String.class),
+                    new SupportEventPropDesc("beanA", SupportBeanComplexProps.class).fragment(),
+                    new SupportEventPropDesc("myStringArray", String[].class).componentType(String.class).indexed());
+            });
         }
     }
 
@@ -93,9 +97,11 @@ public class EventMapCore {
             env.compileDeploy(statementText).addListener("s0");
 
             env.sendEventMap(map, "myMapEvent");
-            assertEquals("nestedValue", env.listener("s0").getLastNewData()[0].get("nested"));
-            assertEquals(2, env.listener("s0").getLastNewData()[0].get("indexed"));
-            assertEquals("nestedNestedValue", env.listener("s0").getLastNewData()[0].get("nestednested"));
+            env.assertEventNew("s0", event -> {
+                assertEquals("nestedValue", event.get("nested"));
+                assertEquals(2, event.get("indexed"));
+                assertEquals("nestedNestedValue", event.get("nestednested"));
+            });
 
             env.undeployAll();
         }
@@ -109,16 +115,20 @@ public class EventMapCore {
 
             // send Map<String, Object> event
             env.sendEventMap(map, "myMapEvent");
-            assertEquals(3, env.listener("s0").getLastNewData()[0].get("intVal"));
-            assertEquals("some string", env.listener("s0").getLastNewData()[0].get("stringVal"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(3, event.get("intVal"));
+                assertEquals("some string", event.get("stringVal"));
+            });
 
             // send Map base event
             Map mapNoType = new HashMap();
             mapNoType.put("myInt", 4);
             mapNoType.put("myString", "string2");
             env.sendEventMap(mapNoType, "myMapEvent");
-            assertEquals(4, env.listener("s0").getLastNewData()[0].get("intVal"));
-            assertEquals("string2", env.listener("s0").getLastNewData()[0].get("stringVal"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(4, event.get("intVal"));
+                assertEquals("string2", event.get("stringVal"));
+            });
 
             env.undeployAll();
         }

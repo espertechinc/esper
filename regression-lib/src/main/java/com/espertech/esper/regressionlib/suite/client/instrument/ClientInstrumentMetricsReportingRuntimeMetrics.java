@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.client.instrument;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.metric.RuntimeMetric;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -41,16 +39,14 @@ public class ClientInstrumentMetricsReportingRuntimeMetrics implements Regressio
         env.compileDeploy("select * from pattern[timer:interval(5 sec)]");
 
         sendTimer(env, 11000);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(theEvent, fields, new Object[]{"default", 11000L, 1L, 1L, 1L});
+        env.assertPropsNew("s0", fields, new Object[]{"default", 11000L, 1L, 1L, 1L});
 
         env.sendEventBean(new SupportBean());
         env.sendEventBean(new SupportBean());
 
         sendTimer(env, 20000);
         sendTimer(env, 21000);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(theEvent, fields, new Object[]{"default", 21000L, 4L, 3L, 0L});
+        env.assertPropsNew("s0", fields, new Object[]{"default", 21000L, 4L, 3L, 0L});
 
         // Try MBean
         ThreadMXBean mbean = ManagementFactory.getThreadMXBean();

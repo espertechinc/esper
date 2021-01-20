@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -23,7 +22,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PatternObserverTimerSchedule {
@@ -314,12 +312,12 @@ public class PatternObserverTimerSchedule {
         SupportBean b1 = makeSendEvent(env, "E1", 5);
 
         sendCurrentTime(env, "2012-10-01T05:51:9.999GMT-0:00");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-10-01T05:51:10.000GMT-0:00");
-        Assert.assertEquals(b1, env.listener("s0").assertOneGetNewAndReset().get("sb"));
+        env.assertEqualsNew("s0", "sb", b1);
 
         env.undeployAll();
     }
@@ -333,12 +331,12 @@ public class PatternObserverTimerSchedule {
         SupportBean b1 = makeSendEvent(env, "E1");
 
         sendCurrentTime(env, "2012-10-01T05:51:14.999GMT-0:00");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-10-01T05:51:15.000GMT-0:00");
-        Assert.assertEquals(b1, env.listener("s0").assertOneGetNewAndReset().get("sb"));
+        env.assertEqualsNew("s0", "sb", b1);
 
         sendCurrentTime(env, "2012-10-01T05:51:16.000GMT-0:00");
         SupportBean b2 = makeSendEvent(env, "E2");
@@ -603,17 +601,17 @@ public class PatternObserverTimerSchedule {
         env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-01-01T00:0:15.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         sendCurrentTime(env, "2012-01-01T00:0:20.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.milestoneInc(milestone);
 
         assertReceivedAtTime(env, "2012-01-01T00:0:30.000GMT-0:00");
 
         sendCurrentTime(env, "2012-01-01T00:0:55.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         assertReceivedAtTime(env, "2012-01-01T00:1:00.000GMT-0:00");
 
@@ -628,19 +626,19 @@ public class PatternObserverTimerSchedule {
         env.compileDeploy(epl).addListener("s0");
 
         sendCurrentTime(env, "2012-01-01T00:0:15.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-01-01T00:0:20.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         assertReceivedAtTime(env, "2012-01-01T00:0:30.000GMT-0:00");
 
         env.milestoneInc(milestone);
 
         sendCurrentTime(env, "2012-01-01T00:0:55.000GMT-0:00");
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         assertReceivedAtTime(env, "2012-01-01T00:1:00.000GMT-0:00");
 
@@ -682,19 +680,19 @@ public class PatternObserverTimerSchedule {
 
     private static void assertSendNoMoreCallback(RegressionEnvironment env, String time) {
         sendCurrentTime(env, time);
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
         sendCurrentTime(env, "2999-01-01T00:0:00.000GMT-0:00");
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
     }
 
     private static void assertReceivedAtTime(RegressionEnvironment env, String time) {
         long msec = DateTime.parseDefaultMSecWZone(time);
 
         env.advanceTime(msec - 1);
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.advanceTime(msec);
-        assertTrue("expected but not received at " + time, env.listener("s0").getIsInvokedAndReset());
+        env.assertListener("s0", listener -> assertTrue("expected but not received at " + time, listener.getIsInvokedAndReset()));
     }
 
     private static void sendTimeEvent(RegressionEnvironment env, String time) {
@@ -711,7 +709,7 @@ public class PatternObserverTimerSchedule {
 
     private static SupportBean makeSendEvent(RegressionEnvironment env, String theString, int intPrimitive) {
         SupportBean b = new SupportBean(theString, intPrimitive);
-        env.eventService().sendEventBean(b, b.getClass().getSimpleName());
+        env.sendEventBean(b, b.getClass().getSimpleName());
         return b;
     }
 

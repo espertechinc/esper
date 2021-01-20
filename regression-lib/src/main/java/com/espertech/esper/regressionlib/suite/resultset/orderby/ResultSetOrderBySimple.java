@@ -60,6 +60,7 @@ public class ResultSetOrderBySimple {
     private static class ResultSetOrderByMultiDelivery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // test for QWY-933597 or ESPER-409
+            AtomicInteger milestone = new AtomicInteger();
             env.advanceTime(0);
 
             // try pattern
@@ -68,14 +69,16 @@ public class ResultSetOrderBySimple {
 
             env.sendEventBean(new SupportBean("A1", 1));
 
-            env.milestone(1);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A2", 2));
             env.sendEventBean(new SupportBean("B", 3));
 
-            EventBean[] received = env.listener("s0").getNewDataListFlattened();
-            assertEquals(2, received.length);
-            EPAssertionUtil.assertPropsPerRow(received, "a.theString".split(","), new Object[][]{{"A2"}, {"A1"}});
+            env.assertListener("s0", listener -> {
+                EventBean[] received = listener.getNewDataListFlattened();
+                assertEquals(2, received.length);
+                EPAssertionUtil.assertPropsPerRow(received, "a.theString".split(","), new Object[][]{{"A2"}, {"A1"}});
+            });
 
             env.undeployAll();
 
@@ -87,14 +90,16 @@ public class ResultSetOrderBySimple {
             env.sendEventBean(new SupportBean("A1", 1));
             env.sendEventBean(new SupportBean("A2", 2));
 
-            env.milestone(1);
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean("A3", 3));
             env.sendEventBean(new SupportBean("B", 3));
 
-            EventBean[] receivedThree = env.listener("s0").getNewDataListFlattened();
-            assertEquals(3, receivedThree.length);
-            EPAssertionUtil.assertPropsPerRow(receivedThree, "a.theString".split(","), new Object[][]{{"A3"}, {"A2"}, {"A1"}});
+            env.assertListener("s0", listener -> {
+                EventBean[] receivedThree = listener.getNewDataListFlattened();
+                assertEquals(3, receivedThree.length);
+                EPAssertionUtil.assertPropsPerRow(receivedThree, "a.theString".split(","), new Object[][]{{"A3"}, {"A2"}, {"A1"}});
+            });
 
             env.undeployAll();
 
@@ -106,12 +111,14 @@ public class ResultSetOrderBySimple {
             env.sendEventBean(new SupportBean("A1", 1));
             env.sendEventBean(new SupportBean("A2", 1));
 
-            env.milestone(2);
+            env.milestoneInc(milestone);
 
             env.advanceTime(11000);
-            EventBean[] receivedTwo = env.listener("s0").getNewDataListFlattened();
-            assertEquals(2, receivedTwo.length);
-            EPAssertionUtil.assertPropsPerRow(receivedTwo, "theString".split(","), new Object[][]{{"A2"}, {"A1"}});
+            env.assertListener("s0", listener -> {
+                EventBean[] receivedTwo = listener.getNewDataListFlattened();
+                assertEquals(2, receivedTwo.length);
+                EPAssertionUtil.assertPropsPerRow(receivedTwo, "theString".split(","), new Object[][]{{"A2"}, {"A1"}});
+            });
 
             env.undeployAll();
         }
@@ -932,37 +939,43 @@ public class ResultSetOrderBySimple {
     }
 
     private static void assertOnlyProperties(RegressionEnvironment env, List<String> requiredProperties) {
-        EventBean[] events = env.listener("s0").getLastNewData();
-        if (events == null || events.length == 0) {
-            return;
-        }
-        EventType type = events[0].getEventType();
-        List<String> actualProperties = new ArrayList<String>(Arrays.asList(type.getPropertyNames()));
-        log.debug(".assertOnlyProperties actualProperties==" + actualProperties);
-        assertTrue(actualProperties.containsAll(requiredProperties));
-        actualProperties.removeAll(requiredProperties);
-        assertTrue(actualProperties.isEmpty());
+        env.assertListener("s0", listener -> {
+            EventBean[] events = listener.getLastNewData();
+            if (events == null || events.length == 0) {
+                return;
+            }
+            EventType type = events[0].getEventType();
+            List<String> actualProperties = new ArrayList<String>(Arrays.asList(type.getPropertyNames()));
+            log.debug(".assertOnlyProperties actualProperties==" + actualProperties);
+            assertTrue(actualProperties.containsAll(requiredProperties));
+            actualProperties.removeAll(requiredProperties);
+            assertTrue(actualProperties.isEmpty());
+        });
     }
 
     private static void assertSymbolsJoinWildCard(RegressionEnvironment env, List<String> symbols) {
-        EventBean[] events = env.listener("s0").getLastNewData();
-        log.debug(".assertValuesMayConvert event type = " + events[0].getEventType());
-        log.debug(".assertValuesMayConvert values: " + symbols);
-        log.debug(".assertValuesMayConvert events.length==" + events.length);
-        for (int i = 0; i < events.length; i++) {
-            SupportMarketDataBean theEvent = (SupportMarketDataBean) events[i].get("one");
-            Assert.assertEquals(symbols.get(i), theEvent.getSymbol());
-        }
+        env.assertListener("s0", listener -> {
+            EventBean[] events = listener.getLastNewData();
+            log.debug(".assertValuesMayConvert event type = " + events[0].getEventType());
+            log.debug(".assertValuesMayConvert values: " + symbols);
+            log.debug(".assertValuesMayConvert events.length==" + events.length);
+            for (int i = 0; i < events.length; i++) {
+                SupportMarketDataBean theEvent = (SupportMarketDataBean) events[i].get("one");
+                Assert.assertEquals(symbols.get(i), theEvent.getSymbol());
+            }
+        });
     }
 
     private static void assertValues(RegressionEnvironment env, List values, String valueName) {
-        EventBean[] events = env.listener("s0").getLastNewData();
-        assertEquals(values.size(), events.length);
-        log.debug(".assertValuesMayConvert values: " + values);
-        for (int i = 0; i < events.length; i++) {
-            log.debug(".assertValuesMayConvert events[" + i + "]==" + events[i].get(valueName));
-            Assert.assertEquals(values.get(i), events[i].get(valueName));
-        }
+        env.assertListener("s0", listener -> {
+            EventBean[] events = listener.getLastNewData();
+            assertEquals(values.size(), events.length);
+            log.debug(".assertValuesMayConvert values: " + values);
+            for (int i = 0; i < events.length; i++) {
+                log.debug(".assertValuesMayConvert events[" + i + "]==" + events[i].get(valueName));
+                Assert.assertEquals(values.get(i), events[i].get(valueName));
+            }
+        });
     }
 
     private static void clearValuesDropStmt(RegressionEnvironment env, SymbolPricesVolumes spv) {

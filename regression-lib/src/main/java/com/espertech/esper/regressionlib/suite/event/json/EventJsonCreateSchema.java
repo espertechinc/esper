@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -38,12 +37,11 @@ public class EventJsonCreateSchema {
                     "@name('s0') select * from JsonEvent#keepall").addListener("s0");
 
             env.sendEventJson(new JsonObject().add("p q", "v1").add("ABC", "v2").add("abc", "v3").add("AbC", "v4").toString(), "JsonEvent");
-            assertEvent(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEvent(it.next());
+            env.assertIterator("s0", iterator -> assertEvent(iterator.next()));
 
             env.undeployAll();
         }

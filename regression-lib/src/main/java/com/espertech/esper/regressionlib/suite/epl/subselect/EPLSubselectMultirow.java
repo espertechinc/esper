@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.subselect;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -23,7 +22,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class EPLSubselectMultirow {
@@ -48,25 +46,28 @@ public class EPLSubselectMultirow {
 
             String[] fields = "p00,val".split(",");
 
-            Object[][] rows = new Object[][]{
-                {"p00", String.class},
-                {"val", Integer[].class}
-            };
-            for (int i = 0; i < rows.length; i++) {
-                String message = "Failed assertion for " + rows[i][0];
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                Object[][] rows = new Object[][]{
+                    {"p00", String.class},
+                    {"val", Integer[].class}
+                };
+                for (int i = 0; i < rows.length; i++) {
+                    String message = "Failed assertion for " + rows[i][0];
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                }
+            });
 
             env.sendEventBean(new SupportBean("T1", 5));
             env.sendEventBean(new SupportBean("T2", 10));
             env.sendEventBean(new SupportBean("T3", 15));
             env.sendEventBean(new SupportBean("T1", 6));
             env.sendEventBean(new SupportBean_S0(0));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertTrue(event.get("val") instanceof Integer[]);
-            EPAssertionUtil.assertProps(event, fields, new Object[]{null, new Integer[]{5, 10, 15, 6}});
+            env.assertEventNew("s0", event -> {
+                assertTrue(event.get("val") instanceof Integer[]);
+                EPAssertionUtil.assertProps(event, fields, new Object[]{null, new Integer[]{5, 10, 15, 6}});
+            });
 
             // test named window and late start
             env.undeployModuleContaining("s0");
@@ -92,27 +93,30 @@ public class EPLSubselectMultirow {
                 "from SupportBean_S0 as s0";
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
-            Object[][] rows = new Object[][]{
-                {"p00", String.class},
-                {"val", SupportBean[].class}
-            };
-            for (int i = 0; i < rows.length; i++) {
-                String message = "Failed assertion for " + rows[i][0];
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                Object[][] rows = new Object[][]{
+                    {"p00", String.class},
+                    {"val", SupportBean[].class}
+                };
+                for (int i = 0; i < rows.length; i++) {
+                    String message = "Failed assertion for " + rows[i][0];
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                }
+            });
 
             env.sendEventBean(new SupportBean_S0(1, "T1"));
-            assertNull(env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", null);
 
             SupportBean sb1 = new SupportBean("T1", 10);
             env.sendEventBean(sb1);
             env.sendEventBean(new SupportBean_S0(2, "T1"));
 
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(SupportBean[].class, received.get("val").getClass());
-            EPAssertionUtil.assertEqualsAnyOrder((Object[]) received.get("val"), new Object[]{sb1});
+            env.assertEventNew("s0", received -> {
+                Assert.assertEquals(SupportBean[].class, received.get("val").getClass());
+                EPAssertionUtil.assertEqualsAnyOrder((Object[]) received.get("val"), new Object[]{sb1});
+            });
 
             SupportBean sb2 = new SupportBean("T2", 20);
             env.sendEventBean(sb2);
@@ -120,8 +124,7 @@ public class EPLSubselectMultirow {
             env.sendEventBean(sb3);
             env.sendEventBean(new SupportBean_S0(3, "T2"));
 
-            received = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertEqualsAnyOrder((Object[]) received.get("val"), new Object[]{sb2, sb3});
+            env.assertEventNew("s0", received -> EPAssertionUtil.assertEqualsAnyOrder((Object[]) received.get("val"), new Object[]{sb2, sb3}));
 
             env.undeployAll();
         }

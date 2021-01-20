@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.rowrecog;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.annotation.HookType;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
@@ -22,32 +20,39 @@ import com.espertech.esper.common.internal.epl.rowrecog.expr.RowRecogExprNodePre
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.util.SupportStatementCompileHook;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 
-public class RowRecogRepetition implements RegressionExecution {
+public class RowRecogRepetition {
 
-    public void run(RegressionEnvironment env) {
-        runAssertionRepeat(env, false);
-        runAssertionRepeat(env, true);
-        runAssertionPrev(env);
-        runAssertionInvalid(env);
-        runAssertionDocSamples(env);
-        runAssertionEquivalent(env);
+    public static Collection<RegressionExecution> executions() {
+        ArrayList<RegressionExecution> execs = new ArrayList<>();
+        execs.add(new RowRecogRepetitionRepeats(false));
+        execs.add(new RowRecogRepetitionRepeats(true));
+        execs.add(new RowRecogRepetitionPrev());
+        execs.add(new RowRecogRepetitionInvalid());
+        execs.add(new RowRecogRepetitionDocSamples());
+        execs.add(new RowRecogRepetitionEquivalent());
+        return execs;
     }
 
-    private void runAssertionDocSamples(RegressionEnvironment env) {
-        runDocSampleExactlyN(env);
-        runDocSampleNOrMore_and_BetweenNandM(env, "A{2,} B");
-        runDocSampleNOrMore_and_BetweenNandM(env, "A{2,3} B");
-        runDocSampleUpToN(env);
+    private static class RowRecogRepetitionDocSamples implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
+            runDocSampleExactlyN(env, milestone);
+            runDocSampleNOrMore_and_BetweenNandM(env, "A{2,} B", milestone);
+            runDocSampleNOrMore_and_BetweenNandM(env, "A{2,3} B", milestone);
+            runDocSampleUpToN(env, milestone);
+        }
     }
 
-    private void runDocSampleUpToN(RegressionEnvironment env) {
+    private static void runDocSampleUpToN(RegressionEnvironment env, AtomicInteger milestone) {
         String[] fields = "a0_id,a1_id,b_id".split(",");
         String epl = "@name('s0') select * from TemperatureSensorEvent\n" +
             "match_recognize (\n" +
@@ -63,7 +68,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
@@ -72,7 +77,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runDocSampleNOrMore_and_BetweenNandM(RegressionEnvironment env, String pattern) {
+    private static void runDocSampleNOrMore_and_BetweenNandM(RegressionEnvironment env, String pattern, AtomicInteger milestone) {
         String[] fields = "a0_id,a1_id,a2_id,b_id".split(",");
         String epl = "@name('s0') select * from TemperatureSensorEvent\n" +
             "match_recognize (\n" +
@@ -86,7 +91,7 @@ public class RowRecogRepetition implements RegressionExecution {
 
         env.sendEventObjectArray(new Object[]{"E1", 1, 99d}, "TemperatureSensorEvent");
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventObjectArray(new Object[]{"E2", 1, 100d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
@@ -97,7 +102,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runDocSampleExactlyN(RegressionEnvironment env) {
+    private static void runDocSampleExactlyN(RegressionEnvironment env, AtomicInteger milestone) {
         String[] fields = "a0_id,a1_id".split(",");
         String epl = "@name('s0') select * from TemperatureSensorEvent\n" +
             "match_recognize (\n" +
@@ -114,7 +119,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.sendEventObjectArray(new Object[]{"E3", 1, 100d}, "TemperatureSensorEvent");
         env.assertPropsNew("s0", fields, new Object[]{"E2", "E3"});
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventObjectArray(new Object[]{"E4", 1, 101d}, "TemperatureSensorEvent");
         env.sendEventObjectArray(new Object[]{"E5", 1, 102d}, "TemperatureSensorEvent");
@@ -123,175 +128,199 @@ public class RowRecogRepetition implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runAssertionInvalid(RegressionEnvironment env) {
-        String template = "select * from SupportBean " +
-            "match_recognize (" +
-            "  measures A as a" +
-            "  pattern (REPLACE) " +
-            ")";
-        env.compileDeploy("create variable int myvariable = 0");
+    private static class RowRecogRepetitionInvalid implements RegressionExecution {
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
 
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{}"),
-            "Invalid match-recognize quantifier '{}', expecting an expression");
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{null}"),
-            "Pattern quantifier 'null' must return an integer-type value");
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{myvariable}"),
-            "Pattern quantifier 'myvariable' must return a constant value");
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{prev(A)}"),
-            "Invalid match-recognize pattern expression 'prev(A)': Aggregation, sub-select, previous or prior functions are not supported in this context");
+        public void run(RegressionEnvironment env) {
+            String template = "select * from SupportBean " +
+                "match_recognize (" +
+                "  measures A as a" +
+                "  pattern (REPLACE) " +
+                ")";
+            env.compileDeploy("create variable int myvariable = 0");
 
-        String expected = "Invalid pattern quantifier value -1, expecting a minimum of 1";
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1}"), expected);
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{,-1}"), expected);
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,10}"), expected);
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,}"), expected);
-        env.tryInvalidCompile(template.replaceAll("REPLACE", "A{5,3}"),
-            "Invalid pattern quantifier value 5, expecting a minimum of 1 and maximum of 3");
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{}"),
+                "Invalid match-recognize quantifier '{}', expecting an expression");
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{null}"),
+                "Pattern quantifier 'null' must return an integer-type value");
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{myvariable}"),
+                "Pattern quantifier 'myvariable' must return a constant value");
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{prev(A)}"),
+                "Invalid match-recognize pattern expression 'prev(A)': Aggregation, sub-select, previous or prior functions are not supported in this context");
 
-        env.undeployAll();
+            String expected = "Invalid pattern quantifier value -1, expecting a minimum of 1";
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1}"), expected);
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{,-1}"), expected);
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,10}"), expected);
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{-1,}"), expected);
+            env.tryInvalidCompile(template.replaceAll("REPLACE", "A{5,3}"),
+                "Invalid pattern quantifier value 5, expecting a minimum of 1 and maximum of 3");
+
+            env.undeployAll();
+        }
     }
 
-    private void runAssertionPrev(RegressionEnvironment env) {
-        String text = "@name('s0') select * from SupportBean " +
-            "match_recognize (" +
-            "  measures A as a" +
-            "  pattern (A{3}) " +
-            "  define " +
-            "    A as A.intPrimitive > prev(A.intPrimitive)" +
-            ")";
+    private static class RowRecogRepetitionPrev implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String text = "@name('s0') select * from SupportBean " +
+                "match_recognize (" +
+                "  measures A as a" +
+                "  pattern (A{3}) " +
+                "  define " +
+                "    A as A.intPrimitive > prev(A.intPrimitive)" +
+                ")";
 
-        env.compileDeploy(text).addListener("s0");
+            env.compileDeploy(text).addListener("s0");
 
-        sendEvent("A1", 1, env);
-        sendEvent("A2", 4, env);
-        sendEvent("A3", 2, env);
+            sendEvent("A1", 1, env);
+            sendEvent("A2", 4, env);
+            sendEvent("A3", 2, env);
 
-        env.milestone(0);
+            env.milestone(0);
 
-        sendEvent("A4", 6, env);
-        sendEvent("A5", 5, env);
-        SupportBean b6 = sendEvent("A6", 6, env);
-        SupportBean b7 = sendEvent("A7", 7, env);
-        SupportBean b8 = sendEvent("A9", 8, env);
-        env.assertPropsNew("s0", "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
+            sendEvent("A4", 6, env);
+            sendEvent("A5", 5, env);
+            SupportBean b6 = sendEvent("A6", 6, env);
+            SupportBean b7 = sendEvent("A7", 7, env);
+            SupportBean b8 = sendEvent("A9", 8, env);
+            env.assertPropsNew("s0", "a".split(","), new Object[]{new Object[]{b6, b7, b8}});
 
-        env.undeployAll();
+            env.undeployAll();
+        }
     }
 
-    private void runAssertionRepeat(RegressionEnvironment env, boolean soda) {
-        // Atom Assertions
-        //
-        //
+    private static class RowRecogRepetitionRepeats implements RegressionExecution {
+        private final boolean soda;
 
-        // single-bound assertions
-        runAssertionRepeatSingleBound(env, soda);
+        public RowRecogRepetitionRepeats(boolean soda) {
+            this.soda = soda;
+        }
 
-        // defined-range assertions
-        runAssertionsRepeatRange(env, soda);
+        public void run(RegressionEnvironment env) {
+            // Atom Assertions
+            //
+            //
 
-        // lower-bounds assertions
-        runAssertionsUpTo(env, soda);
+            // single-bound assertions
+            runAssertionRepeatSingleBound(env, soda);
 
-        // upper-bounds assertions
-        runAssertionsAtLeast(env, soda);
+            // defined-range assertions
+            runAssertionsRepeatRange(env, soda);
 
-        // Nested Assertions
-        //
-        //
+            // lower-bounds assertions
+            runAssertionsUpTo(env, soda);
 
-        // single-bound nested assertions
-        runAssertionNestedRepeatSingle(env, soda);
+            // upper-bounds assertions
+            runAssertionsAtLeast(env, soda);
 
-        // defined-range nested assertions
-        runAssertionNestedRepeatRange(env, soda);
+            // Nested Assertions
+            //
+            //
 
-        // lower-bounds nested assertions
-        runAssertionsNestedUpTo(env, soda);
+            // single-bound nested assertions
+            runAssertionNestedRepeatSingle(env, soda);
 
-        // upper-bounds nested assertions
-        runAssertionsNestedAtLeast(env, soda);
+            // defined-range nested assertions
+            runAssertionNestedRepeatRange(env, soda);
+
+            // lower-bounds nested assertions
+            runAssertionsNestedUpTo(env, soda);
+
+            // upper-bounds nested assertions
+            runAssertionsNestedAtLeast(env, soda);
+        }
+
+        public String name() {
+            return "RowRecogRepetitionRepeats{" +
+                    "soda=" + soda +
+                    '}';
+        }
     }
 
-    private static void runAssertionEquivalent(RegressionEnvironment env) {
-        //
-        // Single-bounds Repeat.
-        //
-        runEquivalent(env, "A{1}", "A");
-        runEquivalent(env, "A{2}", "A A");
-        runEquivalent(env, "A{3}", "A A A");
-        runEquivalent(env, "A{1} B{2}", "A B B");
-        runEquivalent(env, "A{1} B{2} C{3}", "A B B C C C");
-        runEquivalent(env, "(A{2})", "(A A)");
-        runEquivalent(env, "A?{2}", "A? A?");
-        runEquivalent(env, "A*{2}", "A* A*");
-        runEquivalent(env, "A+{2}", "A+ A+");
-        runEquivalent(env, "A??{2}", "A?? A??");
-        runEquivalent(env, "A*?{2}", "A*? A*?");
-        runEquivalent(env, "A+?{2}", "A+? A+?");
-        runEquivalent(env, "(A B){1}", "(A B)");
-        runEquivalent(env, "(A B){2}", "(A B) (A B)");
-        runEquivalent(env, "(A B)?{2}", "(A B)? (A B)?");
-        runEquivalent(env, "(A B)*{2}", "(A B)* (A B)*");
-        runEquivalent(env, "(A B)+{2}", "(A B)+ (A B)+");
+    private static class RowRecogRepetitionEquivalent implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            //
+            // Single-bounds Repeat.
+            //
+            runEquivalent(env, "A{1}", "A");
+            runEquivalent(env, "A{2}", "A A");
+            runEquivalent(env, "A{3}", "A A A");
+            runEquivalent(env, "A{1} B{2}", "A B B");
+            runEquivalent(env, "A{1} B{2} C{3}", "A B B C C C");
+            runEquivalent(env, "(A{2})", "(A A)");
+            runEquivalent(env, "A?{2}", "A? A?");
+            runEquivalent(env, "A*{2}", "A* A*");
+            runEquivalent(env, "A+{2}", "A+ A+");
+            runEquivalent(env, "A??{2}", "A?? A??");
+            runEquivalent(env, "A*?{2}", "A*? A*?");
+            runEquivalent(env, "A+?{2}", "A+? A+?");
+            runEquivalent(env, "(A B){1}", "(A B)");
+            runEquivalent(env, "(A B){2}", "(A B) (A B)");
+            runEquivalent(env, "(A B)?{2}", "(A B)? (A B)?");
+            runEquivalent(env, "(A B)*{2}", "(A B)* (A B)*");
+            runEquivalent(env, "(A B)+{2}", "(A B)+ (A B)+");
 
-        runEquivalent(env, "A B{2} C", "A B B C");
-        runEquivalent(env, "A (B{2}) C", "A (B B) C");
-        runEquivalent(env, "(A{2}) C", "(A A) C");
-        runEquivalent(env, "A (B{2}|C{2})", "A (B B|C C)");
-        runEquivalent(env, "A{2} B{2} C{2}", "A A B B C C");
-        runEquivalent(env, "A{2} B C{2}", "A A B C C");
-        runEquivalent(env, "A B{2} C{2}", "A B B C C");
+            runEquivalent(env, "A B{2} C", "A B B C");
+            runEquivalent(env, "A (B{2}) C", "A (B B) C");
+            runEquivalent(env, "(A{2}) C", "(A A) C");
+            runEquivalent(env, "A (B{2}|C{2})", "A (B B|C C)");
+            runEquivalent(env, "A{2} B{2} C{2}", "A A B B C C");
+            runEquivalent(env, "A{2} B C{2}", "A A B C C");
+            runEquivalent(env, "A B{2} C{2}", "A B B C C");
 
-        // range bounds
-        runEquivalent(env, "A{1, 3}", "A A? A?");
-        runEquivalent(env, "A{2, 4}", "A A A? A?");
-        runEquivalent(env, "A?{1, 3}", "A? A? A?");
-        runEquivalent(env, "A*{1, 3}", "A* A* A*");
-        runEquivalent(env, "A+{1, 3}", "A+ A* A*");
-        runEquivalent(env, "A??{1, 3}", "A?? A?? A??");
-        runEquivalent(env, "A*?{1, 3}", "A*? A*? A*?");
-        runEquivalent(env, "A+?{1, 3}", "A+? A*? A*?");
-        runEquivalent(env, "(A B)?{1, 3}", "(A B)? (A B)? (A B)?");
-        runEquivalent(env, "(A B)*{1, 3}", "(A B)* (A B)* (A B)*");
-        runEquivalent(env, "(A B)+{1, 3}", "(A B)+ (A B)* (A B)*");
+            // range bounds
+            runEquivalent(env, "A{1, 3}", "A A? A?");
+            runEquivalent(env, "A{2, 4}", "A A A? A?");
+            runEquivalent(env, "A?{1, 3}", "A? A? A?");
+            runEquivalent(env, "A*{1, 3}", "A* A* A*");
+            runEquivalent(env, "A+{1, 3}", "A+ A* A*");
+            runEquivalent(env, "A??{1, 3}", "A?? A?? A??");
+            runEquivalent(env, "A*?{1, 3}", "A*? A*? A*?");
+            runEquivalent(env, "A+?{1, 3}", "A+? A*? A*?");
+            runEquivalent(env, "(A B)?{1, 3}", "(A B)? (A B)? (A B)?");
+            runEquivalent(env, "(A B)*{1, 3}", "(A B)* (A B)* (A B)*");
+            runEquivalent(env, "(A B)+{1, 3}", "(A B)+ (A B)* (A B)*");
 
-        // lower-only bounds
-        runEquivalent(env, "A{2,}", "A A A*");
-        runEquivalent(env, "A?{2,}", "A? A? A*");
-        runEquivalent(env, "A*{2,}", "A* A* A*");
-        runEquivalent(env, "A+{2,}", "A+ A+ A*");
-        runEquivalent(env, "A??{2,}", "A?? A?? A*?");
-        runEquivalent(env, "A*?{2,}", "A*? A*? A*?");
-        runEquivalent(env, "A+?{2,}", "A+? A+? A*?");
-        runEquivalent(env, "(A B)?{2,}", "(A B)? (A B)? (A B)*");
-        runEquivalent(env, "(A B)*{2,}", "(A B)* (A B)* (A B)*");
-        runEquivalent(env, "(A B)+{2,}", "(A B)+ (A B)+ (A B)*");
+            // lower-only bounds
+            runEquivalent(env, "A{2,}", "A A A*");
+            runEquivalent(env, "A?{2,}", "A? A? A*");
+            runEquivalent(env, "A*{2,}", "A* A* A*");
+            runEquivalent(env, "A+{2,}", "A+ A+ A*");
+            runEquivalent(env, "A??{2,}", "A?? A?? A*?");
+            runEquivalent(env, "A*?{2,}", "A*? A*? A*?");
+            runEquivalent(env, "A+?{2,}", "A+? A+? A*?");
+            runEquivalent(env, "(A B)?{2,}", "(A B)? (A B)? (A B)*");
+            runEquivalent(env, "(A B)*{2,}", "(A B)* (A B)* (A B)*");
+            runEquivalent(env, "(A B)+{2,}", "(A B)+ (A B)+ (A B)*");
 
-        // upper-only bounds
-        runEquivalent(env, "A{,2}", "A? A?");
-        runEquivalent(env, "A?{,2}", "A? A?");
-        runEquivalent(env, "A*{,2}", "A* A*");
-        runEquivalent(env, "A+{,2}", "A* A*");
-        runEquivalent(env, "A??{,2}", "A?? A??");
-        runEquivalent(env, "A*?{,2}", "A*? A*?");
-        runEquivalent(env, "A+?{,2}", "A*? A*?");
-        runEquivalent(env, "(A B){,2}", "(A B)? (A B)?");
-        runEquivalent(env, "(A B)?{,2}", "(A B)? (A B)?");
-        runEquivalent(env, "(A B)*{,2}", "(A B)* (A B)*");
-        runEquivalent(env, "(A B)+{,2}", "(A B)* (A B)*");
+            // upper-only bounds
+            runEquivalent(env, "A{,2}", "A? A?");
+            runEquivalent(env, "A?{,2}", "A? A?");
+            runEquivalent(env, "A*{,2}", "A* A*");
+            runEquivalent(env, "A+{,2}", "A* A*");
+            runEquivalent(env, "A??{,2}", "A?? A??");
+            runEquivalent(env, "A*?{,2}", "A*? A*?");
+            runEquivalent(env, "A+?{,2}", "A*? A*?");
+            runEquivalent(env, "(A B){,2}", "(A B)? (A B)?");
+            runEquivalent(env, "(A B)?{,2}", "(A B)? (A B)?");
+            runEquivalent(env, "(A B)*{,2}", "(A B)* (A B)*");
+            runEquivalent(env, "(A B)+{,2}", "(A B)* (A B)*");
 
-        //
-        // Nested Repeat.
-        //
-        runEquivalent(env, "(A B){2}", "(A B) (A B)");
-        runEquivalent(env, "(A){2}", "A A");
-        runEquivalent(env, "(A B C){3}", "(A B C) (A B C) (A B C)");
-        runEquivalent(env, "(A B){2} (C D){2}", "(A B) (A B) (C D) (C D)");
-        runEquivalent(env, "((A B){2} C){2}", "((A B) (A B) C) ((A B) (A B) C)");
-        runEquivalent(env, "((A|B){2} (C|D){2}){2}", "((A|B) (A|B) (C|D) (C|D)) ((A|B) (A|B) (C|D) (C|D))");
+            //
+            // Nested Repeat.
+            //
+            runEquivalent(env, "(A B){2}", "(A B) (A B)");
+            runEquivalent(env, "(A){2}", "A A");
+            runEquivalent(env, "(A B C){3}", "(A B C) (A B C) (A B C)");
+            runEquivalent(env, "(A B){2} (C D){2}", "(A B) (A B) (C D) (C D)");
+            runEquivalent(env, "((A B){2} C){2}", "((A B) (A B) C) ((A B) (A B) C)");
+            runEquivalent(env, "((A|B){2} (C|D){2}){2}", "((A|B) (A|B) (C|D) (C|D)) ((A|B) (A|B) (C|D) (C|D))");
+        }
     }
 
-    private void runAssertionNestedRepeatSingle(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionNestedRepeatSingle(RegressionEnvironment env, boolean soda) {
         runTwiceAB(env, soda, "(A B) (A B)");
         runTwiceAB(env, soda, "(A B){2}");
 
@@ -299,38 +328,38 @@ public class RowRecogRepetition implements RegressionExecution {
         runAThenTwiceBC(env, soda, "A (B C){2}");
     }
 
-    private void runAssertionNestedRepeatRange(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionNestedRepeatRange(RegressionEnvironment env, boolean soda) {
         runOnceOrTwiceABThenC(env, soda, "(A B) (A B)? C");
         runOnceOrTwiceABThenC(env, soda, "(A B){1,2} C");
     }
 
-    private void runAssertionsAtLeast(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionsAtLeast(RegressionEnvironment env, boolean soda) {
         runAtLeast2AThenB(env, soda, "A A A* B");
         runAtLeast2AThenB(env, soda, "A{2,} B");
         runAtLeast2AThenB(env, soda, "A{2,4} B");
     }
 
-    private void runAssertionsUpTo(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionsUpTo(RegressionEnvironment env, boolean soda) {
         runUpTo2AThenB(env, soda, "A? A? B");
         runUpTo2AThenB(env, soda, "A{,2} B");
     }
 
-    private void runAssertionsRepeatRange(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionsRepeatRange(RegressionEnvironment env, boolean soda) {
         run2To3AThenB(env, soda, "A A A? B");
         run2To3AThenB(env, soda, "A{2,3} B");
     }
 
-    private void runAssertionsNestedUpTo(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionsNestedUpTo(RegressionEnvironment env, boolean soda) {
         runUpTo2ABThenC(env, soda, "(A B)? (A B)? C");
         runUpTo2ABThenC(env, soda, "(A B){,2} C");
     }
 
-    private void runAssertionsNestedAtLeast(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionsNestedAtLeast(RegressionEnvironment env, boolean soda) {
         runAtLeast2ABThenC(env, soda, "(A B) (A B) (A B)* C");
         runAtLeast2ABThenC(env, soda, "(A B){2,} C");
     }
 
-    private void runAssertionRepeatSingleBound(RegressionEnvironment env, boolean soda) {
+    private static void runAssertionRepeatSingleBound(RegressionEnvironment env, boolean soda) {
         runExactly2A(env, soda, "A A");
         runExactly2A(env, soda, "A{2}");
         runExactly2A(env, soda, "(A{2})");
@@ -352,28 +381,28 @@ public class RowRecogRepetition implements RegressionExecution {
         run2AThen2B(env, soda, "A{2} B{2}");
     }
 
-    private void runAtLeast2ABThenC(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runAtLeast2ABThenC(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{true, true, false}, new String[]{
             "A1,B1,A2,B2,C1",
             "A1,B1,A2,B2,A3,B3,C1"
         }, new String[]{"A1,B1,C1", "A1,B1,A2,C1", "B1,A1,B2,C1"});
     }
 
-    private void runOnceOrTwiceABThenC(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runOnceOrTwiceABThenC(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{true, true, false}, new String[]{
             "A1,B1,C1",
             "A1,B1,A2,B2,C1"
         }, new String[]{"C1", "A1,A2,C2", "B1,A1,C1"});
     }
 
-    private void runAtLeast2AThenB(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runAtLeast2AThenB(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b", new boolean[]{true, false}, new String[]{
             "A1,A2,B1",
             "A1,A2,A3,B1"
         }, new String[]{"A1,B1", "B1"});
     }
 
-    private void runUpTo2AThenB(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runUpTo2AThenB(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b", new boolean[]{true, false}, new String[]{
             "B1",
             "A1,B1",
@@ -381,13 +410,13 @@ public class RowRecogRepetition implements RegressionExecution {
         }, new String[]{"A1"});
     }
 
-    private void run2AThen2B(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void run2AThen2B(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b", new boolean[]{true, true}, new String[]{
             "A1,A2,B1,B2",
         }, new String[]{"A1,A2,B1", "B1,B2,A1,A2", "A1,B1,A2,B2"});
     }
 
-    private void runUpTo2ABThenC(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runUpTo2ABThenC(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{true, true, false}, new String[]{
             "C1",
             "A1,B1,C1",
@@ -395,46 +424,46 @@ public class RowRecogRepetition implements RegressionExecution {
         }, new String[]{"A1,B1,A2,B2", "A1,A2"});
     }
 
-    private void run2To3AThenB(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void run2To3AThenB(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b", new boolean[]{true, false}, new String[]{
             "A1,A2,A3,B1",
             "A1,A2,B1",
         }, new String[]{"A1,B1", "A1,A2", "B1"});
     }
 
-    private void runAThen2BOr2C(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runAThen2BOr2C(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{false, true, true}, new String[]{
             "A1,C1,C2",
             "A2,B1,B2",
         }, new String[]{"B1,B2", "C1,C2", "A1,B1,C1", "A1,C1,B1"});
     }
 
-    private void runTwiceAB(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runTwiceAB(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b", new boolean[]{true, true}, new String[]{
             "A1,B1,A2,B2",
         }, new String[]{"A1,A2,B1", "A1,A2,B1,B2", "A1,B1,B2,A2"});
     }
 
-    private void runAThenTwiceBC(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runAThenTwiceBC(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{false, true, true}, new String[]{
             "A1,B1,C1,B2,C2",
         }, new String[]{"A1,B1,C1,B2", "A1,B1,C1,C2", "A1,B1,B2,C1,C2"});
     }
 
-    private void runAThen2BThenC(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runAThen2BThenC(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a,b,c", new boolean[]{false, true, false}, new String[]{
             "A1,B1,B2,C1",
         }, new String[]{"B1,B2,C1", "A1,B1,C1", "A1,B1,B2"});
     }
 
-    private void runExactly2A(RegressionEnvironment env, boolean soda, String pattern) {
+    private static void runExactly2A(RegressionEnvironment env, boolean soda, String pattern) {
         runAssertion(env, soda, pattern, "a", new boolean[]{true}, new String[]{
             "A1,A2",
             "A3,A4",
         }, new String[]{"A5"});
     }
 
-    private void runAssertion(RegressionEnvironment env, boolean soda, String pattern, String propertyNames, boolean[] arrayProp,
+    private static void runAssertion(RegressionEnvironment env, boolean soda, String pattern, String propertyNames, boolean[] arrayProp,
                               String[] sequencesWithMatch,
                               String[] sequencesNoMatch) {
         String[] props = propertyNames.split(",");
@@ -464,7 +493,7 @@ public class RowRecogRepetition implements RegressionExecution {
         env.undeployAll();
     }
 
-    private void runAssertionSequence(RegressionEnvironment env, boolean match, String[] propertyNames, boolean[] arrayProp, int sequenceNum, String sequence) {
+    private static void runAssertionSequence(RegressionEnvironment env, boolean match, String[] propertyNames, boolean[] arrayProp, int sequenceNum, String sequence) {
 
         // send events
         String[] events = sequence.split(",");
@@ -494,14 +523,13 @@ public class RowRecogRepetition implements RegressionExecution {
         }
 
         if (match) {
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(event, propertyNames, expected);
+            env.assertPropsNew("s0", propertyNames, expected);
         } else {
-            assertFalse("Failed at " + sequence, env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
         }
     }
 
-    private String makeDefines(String[] props) {
+    private static String makeDefines(String[] props) {
         String delimiter = "";
         StringWriter buf = new StringWriter();
         for (String prop : props) {
@@ -517,7 +545,7 @@ public class RowRecogRepetition implements RegressionExecution {
         return buf.toString();
     }
 
-    private String makeMeasures(String[] props) {
+    private static String makeMeasures(String[] props) {
         String delimiter = "";
         StringWriter buf = new StringWriter();
         for (String prop : props) {
@@ -530,7 +558,7 @@ public class RowRecogRepetition implements RegressionExecution {
         return buf.toString();
     }
 
-    private SupportBean sendEvent(String theString, int intPrimitive, RegressionEnvironment env) {
+    private static SupportBean sendEvent(String theString, int intPrimitive, RegressionEnvironment env) {
         SupportBean sb = new SupportBean(theString, intPrimitive);
         env.sendEventBean(sb);
         return sb;
@@ -550,15 +578,17 @@ public class RowRecogRepetition implements RegressionExecution {
         env.compileDeploy(model);
         env.undeployAll();
 
-        StatementSpecCompiled spec = SupportStatementCompileHook.getSpecs().get(0);
-        RowRecogExprNode expanded = null;
-        try {
-            expanded = RowRecogPatternExpandUtil.expand(spec.getRaw().getMatchRecognizeSpec().getPattern(), null);
-        } catch (ExprValidationException e) {
-            fail(e.getMessage());
-        }
-        StringWriter writer = new StringWriter();
-        expanded.toEPL(writer, RowRecogExprNodePrecedenceEnum.MINIMUM);
-        assertEquals(after, writer.toString());
+        env.assertThat(() -> {
+            StatementSpecCompiled spec = SupportStatementCompileHook.getSpecs().get(0);
+            RowRecogExprNode expanded = null;
+            try {
+                expanded = RowRecogPatternExpandUtil.expand(spec.getRaw().getMatchRecognizeSpec().getPattern(), null);
+            } catch (ExprValidationException e) {
+                fail(e.getMessage());
+            }
+            StringWriter writer = new StringWriter();
+            expanded.toEPL(writer, RowRecogExprNodePrecedenceEnum.MINIMUM);
+            assertEquals(after, writer.toString());
+        });
     }
 }

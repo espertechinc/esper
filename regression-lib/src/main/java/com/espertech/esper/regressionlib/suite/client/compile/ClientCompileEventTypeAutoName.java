@@ -18,8 +18,6 @@ import com.espertech.esper.regressionlib.support.autoname.two.MyAutoNameEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class ClientCompileEventTypeAutoName {
 
     public static List<RegressionExecution> executions() {
@@ -31,13 +29,13 @@ public class ClientCompileEventTypeAutoName {
 
     public static class ClientCompileAutoNameResolve implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create schema MANE as MyAutoNameEvent;\n" +
+            String epl = "@public @buseventtype create schema MANE as MyAutoNameEvent;\n" +
                 "@name('s0') select p0 from MANE;\n";
-            EPCompiled compiled = env.compileWBusPublicType(epl);
+            EPCompiled compiled = env.compile(epl);
             env.deploy(compiled).addListener("s0");
 
             env.sendEventBean(new MyAutoNameEvent("test"), "MANE");
-            assertEquals("test", env.listener("s0").assertOneGetNewAndReset().get("p0"));
+            env.assertEqualsNew("s0", "p0", "test");
 
             env.undeployAll();
         }

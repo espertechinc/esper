@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 import com.espertech.esper.regressionlib.support.client.SupportDeploymentStateListener;
 import com.espertech.esper.runtime.client.*;
@@ -22,6 +23,7 @@ import com.espertech.esper.runtime.client.option.StatementNameRuntimeOption;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.compiler.internal.parse.ParseHelper.NEWLINE;
@@ -54,6 +56,10 @@ public class ClientDeployResult {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientDeployResultSimple implements RegressionExecution {
@@ -71,15 +77,19 @@ public class ClientDeployResult {
             assertNotNull(result.getDeploymentId());
             assertEquals(2, result.getStatements().length);
             assertEquals(1, env.deployment().getDeployments().length);
-            assertEquals("@Name(\"StmtOne\")" + NEWLINE +
-                "create schema MyEvent(id String, val1 int, val2 int)", env.statement("StmtOne").getProperty(StatementProperty.EPL));
-            assertEquals("@Name(\"StmtTwo\")" + NEWLINE +
-                "select * from MyEvent", env.statement("StmtTwo").getProperty(StatementProperty.EPL));
+            env.assertStatement("StmtOne", statement -> assertEquals("@Name(\"StmtOne\")" + NEWLINE +
+                "create schema MyEvent(id String, val1 int, val2 int)", statement.getProperty(StatementProperty.EPL)));
+            env.assertStatement("StmtTwo", statement -> assertEquals("@Name(\"StmtTwo\")" + NEWLINE +
+                "select * from MyEvent", statement.getProperty(StatementProperty.EPL)));
             assertEquals(0, result.getDeploymentIdDependencies().length);
 
             env.undeployAll();
 
             assertFalse(env.runtime().getDeploymentService().isDeployed(result.getDeploymentId()));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 
@@ -115,6 +125,10 @@ public class ClientDeployResult {
             env.deployment().removeAllDeploymentStateListeners();
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -152,6 +166,10 @@ public class ClientDeployResult {
             assertNotNull(env.deployment().getStatement(env.deploymentId("stmt0"), "stmt0"));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

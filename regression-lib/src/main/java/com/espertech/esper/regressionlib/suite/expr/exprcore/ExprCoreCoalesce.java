@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.soda.*;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -45,15 +45,17 @@ public class ExprCoreCoalesce {
                 " from pattern [every (a=SupportBean(theString='s0') or b=SupportBean(theString='s1'))]";
             env.compileDeploy(epl).addListener("s0");
 
-            SupportBean theEvent = sendEvent(env, "s0");
-            EventBean eventReceived = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("s0", eventReceived.get("myString"));
-            assertSame(theEvent, eventReceived.get("myBean"));
+            SupportBean theEventOne = sendEvent(env, "s0");
+            env.assertEventNew("s0", eventReceived -> {
+                assertEquals("s0", eventReceived.get("myString"));
+                assertSame(theEventOne, eventReceived.get("myBean"));
+            });
 
-            theEvent = sendEvent(env, "s1");
-            eventReceived = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals("s1", eventReceived.get("myString"));
-            assertSame(theEvent, eventReceived.get("myBean"));
+            SupportBean theEventTwo = sendEvent(env, "s1");
+            env.assertEventNew("s0", eventReceived -> {
+                assertEquals("s1", eventReceived.get("myString"));
+                assertSame(theEventTwo, eventReceived.get("myBean"));
+            });
 
             env.undeployAll();
         }
@@ -63,7 +65,7 @@ public class ExprCoreCoalesce {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0')  select coalesce(longBoxed, intBoxed, shortBoxed) as result from SupportBean").addListener("s0");
 
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStmtType("s0", "result", EPTypePremade.LONGBOXED.getEPType());
 
             tryCoalesceLong(env);
 
@@ -85,7 +87,7 @@ public class ExprCoreCoalesce {
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStmtType("s0", "result", EPTypePremade.LONGBOXED.getEPType());
 
             tryCoalesceLong(env);
 
@@ -99,7 +101,7 @@ public class ExprCoreCoalesce {
                 " from SupportBean#length(1000)";
 
             env.eplToModelCompileDeploy(epl).addListener("s0");
-            assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("result"));
+            env.assertStmtType("s0", "result", EPTypePremade.LONGBOXED.getEPType());
 
             tryCoalesceLong(env);
 
@@ -168,16 +170,16 @@ public class ExprCoreCoalesce {
 
     private static void tryCoalesceLong(RegressionEnvironment env) {
         sendEvent(env, 1L, 2, (short) 3);
-        assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("result"));
+        env.assertEqualsNew("s0", "result", 1L);
 
         sendBoxedEvent(env, null, 2, null);
-        assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("result"));
+        env.assertEqualsNew("s0", "result", 2L);
 
         sendBoxedEvent(env, null, null, Short.parseShort("3"));
-        assertEquals(3L, env.listener("s0").assertOneGetNewAndReset().get("result"));
+        env.assertEqualsNew("s0", "result", 3L);
 
         sendBoxedEvent(env, null, null, null);
-        assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("result"));
+        env.assertEqualsNew("s0", "result", null);
     }
 
     private static SupportBean sendEvent(RegressionEnvironment env, String theString) {

@@ -173,12 +173,12 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             String eplUnique = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('s0') select id as c0, " +
                 "(select intPrimitive from SupportBean#unique(theString) where theString = s0.p00) as c1 " +
                 "from SupportBean_S0 as s0";
-            env.compileDeployAddListenerMile(eplUnique, "s0", milestone.getAndIncrement());
-
-            SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE);
+            env.compileDeploy(eplUnique).addListener("s0");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE));
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
+            env.milestoneInc(milestone);
             env.sendEventBean(new SupportBean("E1", 3));
             env.sendEventBean(new SupportBean("E2", 4));
 
@@ -195,11 +195,11 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             String eplFirstUnique = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('s0') select id as c0, " +
                 "(select intPrimitive from SupportBean#firstunique(theString) where theString = s0.p00) as c1 " +
                 "from SupportBean_S0 as s0";
-            env.compileDeployAddListenerMile(eplFirstUnique, "s0", milestone.getAndIncrement());
-
-            SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE);
+            env.compileDeploy(eplFirstUnique).addListener("s0");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE));
 
             env.sendEventBean(new SupportBean("E1", 1));
+            env.milestoneInc(milestone);
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E1", 3));
             env.sendEventBean(new SupportBean("E2", 4));
@@ -217,14 +217,15 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             String eplIntersection = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('s0') select id as c0, " +
                 "(select intPrimitive from SupportBean#time(1)#unique(theString) where theString = s0.p00) as c1 " +
                 "from SupportBean_S0 as s0";
-            env.compileDeployAddListenerMile(eplIntersection, "s0", milestone.getAndIncrement());
-
-            SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE);
+            env.compileDeploy(eplIntersection).addListener("s0");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_SINGLE_UNIQUE));
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E1", 2));
             env.sendEventBean(new SupportBean("E1", 3));
             env.sendEventBean(new SupportBean("E2", 4));
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_S0(10, "E2"));
             env.assertPropsNew("s0", fields, new Object[]{10, 4});
@@ -239,13 +240,14 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
             String eplGrouped = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@name('s0') select id as c0, " +
                 "(select longPrimitive from SupportBean#groupwin(theString)#unique(intPrimitive) where theString = s0.p00 and intPrimitive = s0.id) as c1 " +
                 "from SupportBean_S0 as s0";
-            env.compileDeployAddListenerMile(eplGrouped, "s0", milestone.getAndIncrement());
-
-            SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_MULTI_UNIQUE);
+            env.compileDeploy(eplGrouped).addListener("s0");
+            env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, IndexBackingTableInfo.BACKING_MULTI_UNIQUE));
 
             env.sendEventBean(makeBean("E1", 1, 100));
             env.sendEventBean(makeBean("E1", 2, 101));
             env.sendEventBean(makeBean("E1", 1, 102));
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_S0(1, "E1"));
             env.assertPropsNew("s0", fields, new Object[]{1, 102L});
@@ -264,7 +266,7 @@ public class EPLSubselectIndex implements IndexBackingTableInfo {
         }
         env.compileDeploy(eplUnique).addListener("s0");
 
-        SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, backingTable);
+        env.assertThat(() -> SupportQueryPlanIndexHook.assertSubqueryBackingAndReset(SUBQUERY_NUM_FIRST, null, backingTable));
 
         assertion.run();
 

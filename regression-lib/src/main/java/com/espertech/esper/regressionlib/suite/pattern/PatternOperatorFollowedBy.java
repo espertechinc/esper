@@ -11,13 +11,11 @@
 package com.espertech.esper.regressionlib.suite.pattern;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import com.espertech.esper.runtime.client.EPEventService;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class PatternOperatorFollowedBy {
 
@@ -166,8 +163,7 @@ public class PatternOperatorFollowedBy {
             sendTimer(9999, env);
             env.assertListenerNotInvoked("s0");
             sendTimer(10000, env);
-            received = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(eventA, received.get("a"));
+            env.assertEqualsNew("s0", "a", eventA);
 
             env.milestone(0);
 
@@ -196,8 +192,7 @@ public class PatternOperatorFollowedBy {
             sendB("B4", env);
             sendC("A5", env);
             sendTimer(50000, env);
-            received = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(eventA, received.get("a"));
+            env.assertEqualsNew("s0", "a", eventA);
 
             env.undeployAll();
         }
@@ -212,22 +207,25 @@ public class PatternOperatorFollowedBy {
 
             env.addListener("s0");
 
-            SupportCallEvent eventOne = sendEvent(env.eventService(), 2000002601, "18", "123456789014795", dateToLong("2005-09-26 13:02:53.200"), dateToLong("2005-09-26 13:03:34.400"));
-            SupportCallEvent eventTwo = sendEvent(env.eventService(), 2000002607, "20", "123456789014795", dateToLong("2005-09-26 13:03:17.300"), dateToLong("2005-09-26 13:03:58.600"));
+            SupportCallEvent eventOne = sendEvent(env, 2000002601, "18", "123456789014795", dateToLong("2005-09-26 13:02:53.200"), dateToLong("2005-09-26 13:03:34.400"));
+            SupportCallEvent eventTwo = sendEvent(env, 2000002607, "20", "123456789014795", dateToLong("2005-09-26 13:03:17.300"), dateToLong("2005-09-26 13:03:58.600"));
 
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            TestCase.assertSame(eventOne, theEvent.get("A"));
-            TestCase.assertSame(eventTwo, theEvent.get("B"));
+            env.assertEventNew("s0", theEvent -> {
+                assertSame(eventOne, theEvent.get("A"));
+                assertSame(eventTwo, theEvent.get("B"));
+            });
 
-            SupportCallEvent eventThree = sendEvent(env.eventService(), 2000002610, "22", "123456789014795", dateToLong("2005-09-26 13:03:31.300"), dateToLong("2005-09-26 13:04:12.100"));
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(2, env.listener("s0").getLastNewData().length);
-            theEvent = env.listener("s0").getLastNewData()[0];
-            TestCase.assertSame(eventOne, theEvent.get("A"));
-            TestCase.assertSame(eventThree, theEvent.get("B"));
-            theEvent = env.listener("s0").getLastNewData()[1];
-            TestCase.assertSame(eventTwo, theEvent.get("A"));
-            TestCase.assertSame(eventThree, theEvent.get("B"));
+            SupportCallEvent eventThree = sendEvent(env, 2000002610, "22", "123456789014795", dateToLong("2005-09-26 13:03:31.300"), dateToLong("2005-09-26 13:04:12.100"));
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                assertEquals(2, listener.getLastNewData().length);
+                EventBean theEvent = listener.getLastNewData()[0];
+                TestCase.assertSame(eventOne, theEvent.get("A"));
+                TestCase.assertSame(eventThree, theEvent.get("B"));
+                theEvent = listener.getLastNewData()[1];
+                TestCase.assertSame(eventTwo, theEvent.get("A"));
+                TestCase.assertSame(eventThree, theEvent.get("B"));
+            });
 
             env.undeployAll();
         }
@@ -288,7 +286,7 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("a", "2");
             env.sendEventBean(theEvent);
-            assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
+            env.assertEqualsNew("s0", "b", theEvent);
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
@@ -302,7 +300,7 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
-            assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
+            env.assertEqualsNew("s0", "b", theEvent);
 
             env.undeployAll();
         }
@@ -334,7 +332,7 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("a", "1");
             env.sendEventBean(theEvent);
-            assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
+            env.assertEqualsNew("s0", "b", theEvent);
 
             theEvent = new SupportRFIDEvent("b", "2");
             env.sendEventBean(theEvent);
@@ -348,7 +346,7 @@ public class PatternOperatorFollowedBy {
 
             theEvent = new SupportRFIDEvent("b", "1");
             env.sendEventBean(theEvent);
-            assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().get("b"));
+            env.assertEqualsNew("s0", "b", theEvent);
 
             env.undeployAll();
         }
@@ -373,8 +371,10 @@ public class PatternOperatorFollowedBy {
             env.sendEventBean(eventTwo);
 
             env.advanceTime(1000);
-            assertEquals(1, env.listener("s0").getNewDataList().size());
-            assertEquals(2, env.listener("s0").getNewDataList().get(0).length);
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getNewDataList().size());
+                assertEquals(2, listener.getNewDataList().get(0).length);
+            });
 
             env.undeployAll();
         }
@@ -408,10 +408,8 @@ public class PatternOperatorFollowedBy {
 
             events[4] = new SupportBean_D("D1");
             env.sendEventBean(events[4]);
-            assertEquals(2, env.listener("s0").getLastNewData().length);
             String[] fields = new String[]{"a", "b", "c", "d"};
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields, new Object[]{events[0], events[2], events[3], events[4]});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[1], fields, new Object[]{events[1], events[2], events[3], events[4]});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][] {{events[0], events[2], events[3], events[4]}, {events[1], events[2], events[3], events[4]}});
 
             env.undeployAll();
         }
@@ -483,9 +481,9 @@ public class PatternOperatorFollowedBy {
         return -1;
     }
 
-    private static SupportCallEvent sendEvent(EPEventService runtime, long callId, String source, String destination, long startTime, long endTime) {
+    private static SupportCallEvent sendEvent(RegressionEnvironment env, long callId, String source, String destination, long startTime, long endTime) {
         SupportCallEvent theEvent = new SupportCallEvent(callId, source, destination, startTime, endTime);
-        runtime.sendEventBean(theEvent, SupportCallEvent.class.getSimpleName());
+        env.sendEventBean(theEvent, SupportCallEvent.class.getSimpleName());
         return theEvent;
     }
 

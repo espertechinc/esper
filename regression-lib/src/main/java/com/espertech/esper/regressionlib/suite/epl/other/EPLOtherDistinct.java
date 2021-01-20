@@ -22,19 +22,16 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
-import com.espertech.esper.runtime.client.EPStatement;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
 import org.junit.Assert;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -80,9 +77,9 @@ public class EPLOtherDistinct {
             sendManyArray(env, new int[]{3, 4}, new int[]{1, 2});
             sendManyArray(env, new int[]{1, 2}, new int[]{3, 4});
 
-            assertEquals(3, EPAssertionUtil.iteratorToArray(env.iterator("s0")).length);
-            assertEquals(2, EPAssertionUtil.iteratorToArray(env.iterator("s1")).length);
-            assertEquals(3, EPAssertionUtil.iteratorToArray(env.iterator("s2")).length);
+            env.assertIterator("s0", iterator -> assertEquals(3, EPAssertionUtil.iteratorToArray(iterator).length));
+            env.assertIterator("s1", iterator -> assertEquals(2, EPAssertionUtil.iteratorToArray(iterator).length));
+            env.assertIterator("s2", iterator -> assertEquals(3, EPAssertionUtil.iteratorToArray(iterator).length));
 
             env.undeployAll();
         }
@@ -107,7 +104,7 @@ public class EPLOtherDistinct {
                 new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
 
             env.sendEventBean(new SupportBean_S1(0));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s1").getAndResetLastNewData(), "intOne,intTwo".split(","),
+            env.assertPropsPerRowLastNew("s1", "intOne,intTwo".split(","),
                 new Object[][]{
                     {new int[]{1, 2}, new int[]{3, 4}},
                     {new int[]{3, 4}, new int[]{1, 2}},
@@ -134,7 +131,7 @@ public class EPLOtherDistinct {
             env.assertPropsPerRowIterator("s0", "intOne".split(","),
                 new Object[][]{{new int[]{1, 2}}, {new int[]{3, 4}}});
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("s1"), "intOne,intTwo".split(","),
+            env.assertPropsPerRowIterator("s1", "intOne,intTwo".split(","),
                 new Object[][]{
                     {new int[]{1, 2}, new int[]{3, 4}},
                     {new int[]{3, 4}, new int[]{1, 2}},
@@ -171,6 +168,10 @@ public class EPLOtherDistinct {
                 });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -290,6 +291,10 @@ public class EPLOtherDistinct {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
+
         private static void sendEvent(RegressionEnvironment env, String theString, int intPrimitive, long longPrimitive) {
             SupportBean bean = new SupportBean(theString, intPrimitive);
             bean.setLongPrimitive(longPrimitive);
@@ -312,14 +317,16 @@ public class EPLOtherDistinct {
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E1", 1));
 
-            String query = "select distinct theString, intPrimitive from MyWindow order by theString, intPrimitive";
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF(query, path);
-            EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 2}});
+            env.assertThat(() -> {
+                String query = "select distinct theString, intPrimitive from MyWindow order by theString, intPrimitive";
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF(query, path);
+                EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 2}});
+            });
 
             env.compileDeploy("@name('s0') on SupportBean_A select distinct theString, intPrimitive from MyWindow order by theString, intPrimitive asc", path).addListener("s0");
 
             env.sendEventBean(new SupportBean_A("x"));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E1", 2}, {"E2", 2}});
 
             env.undeployAll();
         }
@@ -445,7 +452,7 @@ public class EPLOtherDistinct {
             String statementText = "@name('s0') select distinct theString, intPrimitive from SupportBean#keepall";
             env.compileDeploy(statementText).addListener("s0");
 
-            tryAssertionSimpleColumn(env, env.listener("s0"), env.statement("s0"), fields);
+            tryAssertionSimpleColumn(env, fields);
             env.undeployAll();
 
             // test join
@@ -454,7 +461,7 @@ public class EPLOtherDistinct {
 
             env.sendEventBean(new SupportBean_A("E1"));
             env.sendEventBean(new SupportBean_A("E2"));
-            tryAssertionSimpleColumn(env, env.listener("s0"), env.statement("s0"), fields);
+            tryAssertionSimpleColumn(env, fields);
 
             env.undeployAll();
         }
@@ -462,11 +469,12 @@ public class EPLOtherDistinct {
 
     private static class EPLOtherOutputLimitEveryColumn implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             String[] fields = new String[]{"theString", "intPrimitive"};
             String statementText = "@name('s0') @IterableUnbound select distinct theString, intPrimitive from SupportBean output every 3 events";
             env.compileDeploy(statementText).addListener("s0");
 
-            tryAssertionOutputEvery(env, fields);
+            tryAssertionOutputEvery(env, fields, milestone);
             env.undeployAll();
 
             // test join
@@ -475,7 +483,7 @@ public class EPLOtherDistinct {
 
             env.sendEventBean(new SupportBean_A("E1"));
             env.sendEventBean(new SupportBean_A("E2"));
-            tryAssertionOutputEvery(env, fields);
+            tryAssertionOutputEvery(env, fields, milestone);
 
             env.undeployAll();
         }
@@ -487,7 +495,7 @@ public class EPLOtherDistinct {
             String statementText = "@name('s0') select distinct theString, intPrimitive from SupportBean#keepall output snapshot every 3 events order by theString asc";
             env.compileDeploy(statementText).addListener("s0");
 
-            tryAssertionSnapshotColumn(env, env.listener("s0"), env.statement("s0"), fields);
+            tryAssertionSnapshotColumn(env, fields);
             env.undeployAll();
 
             statementText = "@name('s0') select distinct theString, intPrimitive from SupportBean#keepall a, SupportBean_A#keepall b where a.theString = b.id output snapshot every 3 events order by theString asc";
@@ -499,7 +507,7 @@ public class EPLOtherDistinct {
 
             env.sendEventBean(new SupportBean_A("E2"));
             env.sendEventBean(new SupportBean_A("E3"));
-            tryAssertionSnapshotColumn(env, env.listener("s0"), env.statement("s0"), fields);
+            tryAssertionSnapshotColumn(env, fields);
 
             env.undeployAll();
         }
@@ -566,17 +574,17 @@ public class EPLOtherDistinct {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 2}, {"E1", 1}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 2}, {"E1", 1}});
 
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean("E2", 3));
             env.sendEventBean(new SupportBean("E2", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 3}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 3}});
 
             env.undeployAll();
         }
@@ -603,39 +611,38 @@ public class EPLOtherDistinct {
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 3));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("s0").getNewDataListFlattened()[0], fields, new Object[]{"E2", 2});
-            EPAssertionUtil.assertProps(env.listener("s0").getNewDataListFlattened()[1], fields, new Object[]{"E3", 3});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertProps(listener.getNewDataListFlattened()[0], fields, new Object[]{"E2", 2});
+                EPAssertionUtil.assertProps(listener.getNewDataListFlattened()[1], fields, new Object[]{"E3", 3});
+            });
 
             env.undeployAll();
         }
     }
 
-    private static void tryAssertionOutputEvery(RegressionEnvironment env, String[] fields) {
+    private static void tryAssertionOutputEvery(RegressionEnvironment env, String[] fields, AtomicInteger milestone) {
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
         env.sendEventBean(new SupportBean("E2", 2));
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 2}, {"E1", 1}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 2}, {"E1", 1}});
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 3));
         env.sendEventBean(new SupportBean("E2", 3));
         env.sendEventBean(new SupportBean("E2", 3));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E2", 3}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E2", 3}});
     }
 
-    private static void tryAssertionSimpleColumn(RegressionEnvironment env, SupportListener listener, EPStatement stmt, String[] fields) {
+    private static void tryAssertionSimpleColumn(RegressionEnvironment env, String[] fields) {
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
         env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
@@ -665,29 +672,27 @@ public class EPLOtherDistinct {
         env.assertPropsNew("s0", fields, new Object[]{"E1", 1});
     }
 
-    private static void tryAssertionSnapshotColumn(RegressionEnvironment env, SupportListener listener, EPStatement stmt, String[] fields) {
+    private static void tryAssertionSnapshotColumn(RegressionEnvironment env, String[] fields) {
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E1", 1));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}});
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new SupportBean("E2", 2));
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
         env.sendEventBean(new SupportBean("E2", 2));
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E2", 2));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
         env.sendEventBean(new SupportBean("E3", 3));
         env.sendEventBean(new SupportBean("E1", 1));
         env.sendEventBean(new SupportBean("E2", 2));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
-        env.listener("s0").reset();
+        env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
     }
 
     private static void sendEvent(RegressionEnvironment env, String theString, int intPrimitive, long longPrimitive) {

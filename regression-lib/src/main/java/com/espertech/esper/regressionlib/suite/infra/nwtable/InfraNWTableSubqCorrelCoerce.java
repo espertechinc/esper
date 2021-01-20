@@ -53,8 +53,8 @@ public class InfraNWTableSubqCorrelCoerce {
         }
 
         public void run(RegressionEnvironment env) {
-            EPCompiled c1 = env.compileWBusPublicType("create schema EventSchema(e0 string, e1 int, e2 string)");
-            EPCompiled c2 = env.compileWBusPublicType("create schema WindowSchema(col0 string, col1 long, col2 string)");
+            EPCompiled c1 = env.compile("@public @buseventtype create schema EventSchema(e0 string, e1 int, e2 string)");
+            EPCompiled c2 = env.compile("@public @buseventtype create schema WindowSchema(col0 string, col1 long, col2 string)");
             RegressionPath path = new RegressionPath();
             path.add(c1);
             path.add(c2);
@@ -112,7 +112,7 @@ public class InfraNWTableSubqCorrelCoerce {
             env.assertPropsNew("s0", fields, new Object[]{"E6", "W4"});
 
             env.undeployModuleContaining("s0");
-            if (env.statement("index") != null) {
+            if (createExplicitIndex) {
                 env.undeployModuleContaining("index");
             }
 

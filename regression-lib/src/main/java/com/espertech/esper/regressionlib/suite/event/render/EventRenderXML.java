@@ -49,28 +49,32 @@ public class EventRenderXML {
             env.compileDeploy("@name('s0') select * from SupportBean");
             env.sendEventBean(bean);
 
-            String result = env.runtime().getRenderEventService().renderXML("supportBean", env.iterator("s0").next());
-            //System.out.println(result);
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<supportBean>\n" +
-                "  <boolPrimitive>false</boolPrimitive>\n" +
-                "  <bytePrimitive>0</bytePrimitive>\n" +
-                "  <charPrimitive>x</charPrimitive>\n" +
-                "  <doublePrimitive>0.0</doublePrimitive>\n" +
-                "  <enumValue>ENUM_VALUE_2</enumValue>\n" +
-                "  <floatPrimitive>0.0</floatPrimitive>\n" +
-                "  <intBoxed>992</intBoxed>\n" +
-                "  <intPrimitive>1</intPrimitive>\n" +
-                "  <longPrimitive>0</longPrimitive>\n" +
-                "  <shortPrimitive>0</shortPrimitive>\n" +
-                "  <theString>a\\u000ac</theString>\n" +
-                "</supportBean>";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderXML("supportBean", env.iterator("s0").next());
+                //System.out.println(result);
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<supportBean>\n" +
+                    "  <boolPrimitive>false</boolPrimitive>\n" +
+                    "  <bytePrimitive>0</bytePrimitive>\n" +
+                    "  <charPrimitive>x</charPrimitive>\n" +
+                    "  <doublePrimitive>0.0</doublePrimitive>\n" +
+                    "  <enumValue>ENUM_VALUE_2</enumValue>\n" +
+                    "  <floatPrimitive>0.0</floatPrimitive>\n" +
+                    "  <intBoxed>992</intBoxed>\n" +
+                    "  <intPrimitive>1</intPrimitive>\n" +
+                    "  <longPrimitive>0</longPrimitive>\n" +
+                    "  <shortPrimitive>0</shortPrimitive>\n" +
+                    "  <theString>a\\u000ac</theString>\n" +
+                    "</supportBean>";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
-            result = env.runtime().getRenderEventService().renderXML("supportBean", env.iterator("s0").next(), new XMLRenderingOptions().setDefaultAsAttribute(true));
-            // System.out.println(result);
-            expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <supportBean boolPrimitive=\"false\" bytePrimitive=\"0\" charPrimitive=\"x\" doublePrimitive=\"0.0\" enumValue=\"ENUM_VALUE_2\" floatPrimitive=\"0.0\" intBoxed=\"992\" intPrimitive=\"1\" longPrimitive=\"0\" shortPrimitive=\"0\" theString=\"a\\u000ac\"/>";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderXML("supportBean", env.iterator("s0").next(), new XMLRenderingOptions().setDefaultAsAttribute(true));
+                // System.out.println(result);
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <supportBean boolPrimitive=\"false\" bytePrimitive=\"0\" charPrimitive=\"x\" doublePrimitive=\"0.0\" enumValue=\"ENUM_VALUE_2\" floatPrimitive=\"0.0\" intBoxed=\"992\" intPrimitive=\"1\" longPrimitive=\"0\" shortPrimitive=\"0\" theString=\"a\\u000ac\"/>";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.undeployAll();
         }
@@ -98,50 +102,54 @@ public class EventRenderXML {
             dataOuter.put("prop0", new SupportBean_A("A1"));
             env.sendEventMap(dataOuter, "OuterMap");
 
-            String result = env.runtime().getRenderEventService().renderXML("outerMap", env.iterator("s0").next());
-            // System.out.println(result);
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<outerMap>\n" +
-                "  <intarr>1</intarr>\n" +
-                "  <intarr>2</intarr>\n" +
-                "  <innersimple>\n" +
-                "    <prop1></prop1>\n" +
-                "    <stringarr>a</stringarr>\n" +
-                "  </innersimple>\n" +
-                "  <innerarray>\n" +
-                "    <prop1>abcdef</prop1>\n" +
-                "  </innerarray>\n" +
-                "  <innerarray>\n" +
-                "    <prop1></prop1>\n" +
-                "    <stringarr>R&amp;R</stringarr>\n" +
-                "    <stringarr>a&gt;b</stringarr>\n" +
-                "  </innerarray>\n" +
-                "  <innerarray>\n" +
-                "  </innerarray>\n" +
-                "  <prop0>\n" +
-                "    <id>A1</id>\n" +
-                "  </prop0>\n" +
-                "</outerMap>";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderXML("outerMap", env.iterator("s0").next());
+                // System.out.println(result);
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<outerMap>\n" +
+                    "  <intarr>1</intarr>\n" +
+                    "  <intarr>2</intarr>\n" +
+                    "  <innersimple>\n" +
+                    "    <prop1></prop1>\n" +
+                    "    <stringarr>a</stringarr>\n" +
+                    "  </innersimple>\n" +
+                    "  <innerarray>\n" +
+                    "    <prop1>abcdef</prop1>\n" +
+                    "  </innerarray>\n" +
+                    "  <innerarray>\n" +
+                    "    <prop1></prop1>\n" +
+                    "    <stringarr>R&amp;R</stringarr>\n" +
+                    "    <stringarr>a&gt;b</stringarr>\n" +
+                    "  </innerarray>\n" +
+                    "  <innerarray>\n" +
+                    "  </innerarray>\n" +
+                    "  <prop0>\n" +
+                    "    <id>A1</id>\n" +
+                    "  </prop0>\n" +
+                    "</outerMap>";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
-            result = env.runtime().getRenderEventService().renderXML("outerMap xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", env.iterator("s0").next(), new XMLRenderingOptions().setDefaultAsAttribute(true));
-            // System.out.println(result);
-            expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<outerMap xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
-                "  <intarr>1</intarr>\n" +
-                "  <intarr>2</intarr>\n" +
-                "  <innersimple prop1=\"\">\n" +
-                "    <stringarr>a</stringarr>\n" +
-                "  </innersimple>\n" +
-                "  <innerarray prop1=\"abcdef\"/>\n" +
-                "  <innerarray prop1=\"\">\n" +
-                "    <stringarr>R&amp;R</stringarr>\n" +
-                "    <stringarr>a&gt;b</stringarr>\n" +
-                "  </innerarray>\n" +
-                "  <innerarray/>\n" +
-                "  <prop0 id=\"A1\"/>\n" +
-                "</outerMap>";
-            assertEquals(removeNewline(expected), removeNewline(result));
+            env.assertThat(() -> {
+                String result = env.runtime().getRenderEventService().renderXML("outerMap xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", env.iterator("s0").next(), new XMLRenderingOptions().setDefaultAsAttribute(true));
+                // System.out.println(result);
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<outerMap xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                    "  <intarr>1</intarr>\n" +
+                    "  <intarr>2</intarr>\n" +
+                    "  <innersimple prop1=\"\">\n" +
+                    "    <stringarr>a</stringarr>\n" +
+                    "  </innersimple>\n" +
+                    "  <innerarray prop1=\"abcdef\"/>\n" +
+                    "  <innerarray prop1=\"\">\n" +
+                    "    <stringarr>R&amp;R</stringarr>\n" +
+                    "    <stringarr>a&gt;b</stringarr>\n" +
+                    "  </innerarray>\n" +
+                    "  <innerarray/>\n" +
+                    "  <prop0 id=\"A1\"/>\n" +
+                    "</outerMap>";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.undeployAll();
         }
@@ -153,16 +161,19 @@ public class EventRenderXML {
             env.compileDeploy("@name('s0') select java.sql.Date.valueOf(\"2010-01-31\") as mySqlDate from SupportBean");
             env.sendEventBean(new SupportBean());
 
-            EventBean theEvent = env.iterator("s0").next();
-            assertEquals(java.sql.Date.valueOf("2010-01-31"), theEvent.get("mySqlDate"));
-            EventPropertyGetter getter = env.statement("s0").getEventType().getGetter("mySqlDate");
-            assertEquals(java.sql.Date.valueOf("2010-01-31"), getter.get(theEvent));
+            env.assertIterator("s0", iterator -> {
+                EventBean theEvent = iterator.next();
+                assertEquals(java.sql.Date.valueOf("2010-01-31"), theEvent.get("mySqlDate"));
 
-            String result = env.runtime().getRenderEventService().renderXML("testsqldate", theEvent);
+                EventPropertyGetter getter = theEvent.getEventType().getGetter("mySqlDate");
+                assertEquals(java.sql.Date.valueOf("2010-01-31"), getter.get(theEvent));
 
-            // System.out.println(result);
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <testsqldate> <mySqlDate>2010-01-31</mySqlDate> </testsqldate>";
-            assertEquals(removeNewline(expected), removeNewline(result));
+                String result = env.runtime().getRenderEventService().renderXML("testsqldate", theEvent);
+
+                // System.out.println(result);
+                String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <testsqldate> <mySqlDate>2010-01-31</mySqlDate> </testsqldate>";
+                assertEquals(removeNewline(expected), removeNewline(result));
+            });
 
             env.undeployAll();
         }

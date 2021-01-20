@@ -24,6 +24,7 @@ import com.espertech.esper.regressionlib.support.json.SupportJsonFieldAdapterStr
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,10 +60,11 @@ public class EventJsonAdapter {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventJson("{\"myDate\" : \"22-09-2018\"}", "JsonEvent");
-            assertEquals(date, env.listener("s0").assertOneGetNew().get("myDate"));
-
-            JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(env.runtime().getEventTypeService().getBusEventType("JsonEvent"));
-            assertEquals("{\"hello\":{\"myDate\":\"22-09-2018\"}}", renderer.render("hello", env.listener("s0").assertOneGetNewAndReset()));
+            env.assertEventNew("s0", event -> {
+                assertEquals(date, event.get("myDate"));
+                JSONEventRenderer renderer = env.runtime().getRenderEventService().getJSONRenderer(env.runtime().getEventTypeService().getBusEventType("JsonEvent"));
+                assertEquals("{\"hello\":{\"myDate\":\"22-09-2018\"}}", renderer.render("hello", event));
+            });
 
             env.undeployAll();
         }
@@ -132,11 +134,14 @@ public class EventJsonAdapter {
     private static void doAssert(RegressionEnvironment env, String json, Object[] expected) {
         env.assertPropsNew("s0", "point,mydate".split(","), expected);
 
-        JsonEventObject event = (JsonEventObject) env.listener("s1").assertOneGetNewAndReset().getUnderlying();
-        assertEquals(json, event.toString());
+        env.assertEventNew("s1", out -> {
+            JsonEventObject event = (JsonEventObject) out.getUnderlying();
+            assertEquals(json, event.toString());
+        });
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -5130281267047507449L;
         private final Point point;
         private final Date mydate;
 

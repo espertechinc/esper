@@ -95,9 +95,11 @@ public class ExprDTDataSources {
                 "localdate.gethourOfDay() as val5" +
                 " from SupportDateTime";
             env.compileDeploy(eplFragment).addListener("s0");
-            for (String field : fields) {
-                assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType(field));
-            }
+            env.assertStatement("s0", statement -> {
+                for (String field : fields) {
+                    assertEquals(Integer.class, statement.getEventType().getPropertyType(field));
+                }
+            });
 
             env.sendEventBean(SupportDateTime.make(startTime));
             env.assertPropsNew("s0", fields, new Object[]{
@@ -113,38 +115,44 @@ public class ExprDTDataSources {
             RegressionPath path = new RegressionPath();
 
             // test Map inheritance via create-schema
-            String eplMap = "create schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "create schema ChildType as (foo string) inherits ParentType;\n";
-            env.compileDeployWBusPublicType(eplMap, path);
+            String eplMap = "@buseventtype create schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype create schema ChildType as (foo string) inherits ParentType;\n";
+            env.compileDeploy(eplMap, path);
 
             env.compileDeploy("@name('s0') select * from ChildType dt where dt.before(current_timestamp())", path);
-            assertEquals("startTS", env.statement("s0").getEventType().getStartTimestampPropertyName());
-            assertEquals("endTS", env.statement("s0").getEventType().getEndTimestampPropertyName());
+            env.assertStatement("s0", statement -> {
+                assertEquals("startTS", statement.getEventType().getStartTimestampPropertyName());
+                assertEquals("endTS", statement.getEventType().getEndTimestampPropertyName());
+            });
 
             env.undeployAll();
 
             // test Object-array inheritance via create-schema
             path.clear();
-            String eplObjectArray = "create objectarray schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "create objectarray schema ChildType as (foo string) inherits ParentType;\n";
-            env.compileDeployWBusPublicType(eplObjectArray, path);
+            String eplObjectArray = "@buseventtype create objectarray schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype create objectarray schema ChildType as (foo string) inherits ParentType;\n";
+            env.compileDeploy(eplObjectArray, path);
 
             env.compileDeploy("@name('s0') select * from ChildType dt where dt.before(current_timestamp())", path);
-            assertEquals("startTS", env.statement("s0").getEventType().getStartTimestampPropertyName());
-            assertEquals("endTS", env.statement("s0").getEventType().getEndTimestampPropertyName());
+            env.assertStatement("s0", statement -> {
+                assertEquals("startTS", statement.getEventType().getStartTimestampPropertyName());
+                assertEquals("endTS", statement.getEventType().getEndTimestampPropertyName());
+            });
 
             env.undeployAll();
 
             // test POJO inheritance via create-schema
             path.clear();
-            String eplPOJO = "create schema InterfaceType as " + SupportStartTSEndTSInterface.class.getName() + " starttimestamp startTS endtimestamp endTS;\n" +
-                "create schema DerivedType as " + SupportStartTSEndTSImpl.class.getName() + " inherits InterfaceType";
-            env.compileDeployWBusPublicType(eplPOJO, path);
+            String eplPOJO = "@buseventtype create schema InterfaceType as " + SupportStartTSEndTSInterface.class.getName() + " starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype create schema DerivedType as " + SupportStartTSEndTSImpl.class.getName() + " inherits InterfaceType";
+            env.compileDeploy(eplPOJO, path);
 
             EPCompiled compiled = env.compile("@name('s2') select * from DerivedType dt where dt.before(current_timestamp())", path);
             env.deploy(compiled);
-            assertEquals("startTS", env.statement("s2").getEventType().getStartTimestampPropertyName());
-            assertEquals("endTS", env.statement("s2").getEventType().getEndTimestampPropertyName());
+            env.assertStatement("s2", statement -> {
+                assertEquals("startTS", statement.getEventType().getStartTimestampPropertyName());
+                assertEquals("endTS", statement.getEventType().getEndTimestampPropertyName());
+            });
 
             env.undeployAll();
 
@@ -153,21 +161,23 @@ public class ExprDTDataSources {
             String eplXML = "@XMLSchema(rootElementName='root', schemaText='') " +
                 "@XMLSchemaField(name='startTS', xpath='/abc', type='string', castToType='long')" +
                 "@XMLSchemaField(name='endTS', xpath='/def', type='string', castToType='long')" +
-                "create xml schema MyXMLEvent() starttimestamp startTS endtimestamp endTS;\n";
-            env.compileDeployWBusPublicType(eplXML, path);
+                "@buseventtype create xml schema MyXMLEvent() starttimestamp startTS endtimestamp endTS;\n";
+            env.compileDeploy(eplXML, path);
 
             compiled = env.compile("@name('s2') select * from MyXMLEvent dt where dt.before(current_timestamp())", path);
             env.deploy(compiled);
-            assertEquals("startTS", env.statement("s2").getEventType().getStartTimestampPropertyName());
-            assertEquals("endTS", env.statement("s2").getEventType().getEndTimestampPropertyName());
+            env.assertStatement("s2", statement -> {
+                assertEquals("startTS", statement.getEventType().getStartTimestampPropertyName());
+                assertEquals("endTS", statement.getEventType().getEndTimestampPropertyName());
+            });
 
             env.undeployAll();
 
             // test incompatible
             path.clear();
-            String eplT1T2 = "create schema T1 as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "create schema T2 as (startTSOne long, endTSOne long) starttimestamp startTSOne endtimestamp endTSOne;\n";
-            env.compileDeployWBusPublicType(eplT1T2, path);
+            String eplT1T2 = "@buseventtype create schema T1 as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype create schema T2 as (startTSOne long, endTSOne long) starttimestamp startTSOne endtimestamp endTSOne;\n";
+            env.compileDeploy(eplT1T2, path);
 
             env.tryInvalidCompile(path, "create schema T12 as () inherits T1,T2",
                 "Event type declares start timestamp as property 'startTS' however inherited event type 'T2' declares start timestamp as property 'startTSOne'");

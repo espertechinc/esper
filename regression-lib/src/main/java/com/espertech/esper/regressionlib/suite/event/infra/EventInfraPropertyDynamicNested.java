@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.EventType;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -139,34 +137,36 @@ public class EventInfraPropertyDynamicNested implements RegressionExecution {
             "@name('s1') select * from " + typename + ";\n";
         env.compileDeploy(stmtText, path).addListener("s0").addListener("s1");
 
-        EventType eventType = env.statement("s0").getEventType();
-        assertEquals(expectedPropertyType, eventType.getPropertyType("myid"));
-        assertEquals(Boolean.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("exists_myid")));
-        assertTrue(eventRepresentationEnum.matchesClass(eventType.getUnderlyingType()));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            assertEquals(expectedPropertyType, eventType.getPropertyType("myid"));
+            assertEquals(Boolean.class, JavaClassHelper.getBoxedType(eventType.getPropertyType("exists_myid")));
+            assertTrue(eventRepresentationEnum.matchesClass(eventType.getUnderlyingType()));
+        });
 
         for (Pair pair : tests) {
             send.apply(env, pair.getFirst(), typename);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
             ValueWithExistsFlag expected = (ValueWithExistsFlag) pair.getSecond();
-            SupportEventInfra.assertValueMayConvert(event, "myid", expected, optionalValueConversion);
+            env.assertEventNew("s0", event -> SupportEventInfra.assertValueMayConvert(event, "myid", expected, optionalValueConversion));
 
-            EventBean out = env.listener("s1").assertOneGetNewAndReset();
-            EventPropertyGetter getter = out.getEventType().getGetter("item.id?");
+            env.assertEventNew("s1", out -> {
+                EventPropertyGetter getter = out.getEventType().getGetter("item.id?");
 
-            if (!typename.equals(XML_TYPENAME)) {
-                assertEquals(expected.getValue(), getter.get(out));
-            } else {
-                Node item = (Node) getter.get(out);
-                assertEquals(expected.getValue(), item == null ? null : item.getTextContent());
-            }
-            assertEquals(expected.isExists(), getter.isExistsProperty(out));
+                if (!typename.equals(XML_TYPENAME)) {
+                    assertEquals(expected.getValue(), getter.get(out));
+                } else {
+                    Node item = (Node) getter.get(out);
+                    assertEquals(expected.getValue(), item == null ? null : item.getTextContent());
+                }
+                assertEquals(expected.isExists(), getter.isExistsProperty(out));
+            });
         }
 
         env.undeployAll();
     }
 
     private static final SupportEventInfra.FunctionSendEvent FAVRO = (env, value, typeName) -> {
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(typeName));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(typeName);
         Schema itemSchema = schema.getField("item").schema();
         GenericData.Record itemDatum = new GenericData.Record(itemSchema);
         itemDatum.put("id", value);

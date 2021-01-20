@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.option.StatementUserObjectRuntimeContext;
@@ -20,6 +21,7 @@ import com.espertech.esper.runtime.client.option.StatementUserObjectRuntimeOptio
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +58,10 @@ public class ClientDeployUserObject {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientDeployUserObjectValues implements RegressionExecution {
@@ -66,6 +72,10 @@ public class ClientDeployUserObject {
             assertDeploy(env, compiled, milestone, null);
             assertDeploy(env, compiled, milestone, "ABC");
             assertDeploy(env, compiled, milestone, new MyUserObject("hello"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

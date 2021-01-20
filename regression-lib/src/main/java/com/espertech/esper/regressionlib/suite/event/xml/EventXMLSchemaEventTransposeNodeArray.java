@@ -18,6 +18,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -55,38 +56,48 @@ public class EventXMLSchemaEventTransposeNodeArray {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
         // try array property insert
         env.compileDeploy("@name('s0') select nested3.nested4 as narr from " + eventTypeName + "#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("s0").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("narr", Node[].class).indexed().fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
+        env.assertStatement("s0", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("narr", Node[].class).indexed().fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
+        Document doc = SupportXML.makeDefaultEvent("test");
+        env.sendEventXMLDOM(doc, eventTypeName);
 
-        EventBean result = env.statement("s0").iterator().next();
-        SupportEventTypeAssertionUtil.assertConsistency(result);
-        EventBean[] fragments = (EventBean[]) result.getFragment("narr");
-        assertEquals(3, fragments.length);
-        assertEquals("SAMPLE_V8", fragments[0].get("prop5[1]"));
-        assertEquals("SAMPLE_V11", fragments[2].get("prop5[1]"));
+        env.assertIterator("s0", it -> {
+            EventBean result = it.next();
+            SupportEventTypeAssertionUtil.assertConsistency(result);
+            EventBean[] fragments = (EventBean[]) result.getFragment("narr");
+            assertEquals(3, fragments.length);
+            assertEquals("SAMPLE_V8", fragments[0].get("prop5[1]"));
+            assertEquals("SAMPLE_V11", fragments[2].get("prop5[1]"));
 
-        EventBean fragmentItem = (EventBean) result.getFragment("narr[2]");
-        assertEquals(eventTypeName + ".nested3.nested4", fragmentItem.getEventType().getName());
-        assertEquals("SAMPLE_V10", fragmentItem.get("prop5[0]"));
+            EventBean fragmentItem = (EventBean) result.getFragment("narr[2]");
+            assertEquals(eventTypeName + ".nested3.nested4", fragmentItem.getEventType().getName());
+            assertEquals("SAMPLE_V10", fragmentItem.get("prop5[0]"));
+        });
 
         // try array index property insert
         env.compileDeploy("@name('ii') select nested3.nested4[1] as narr from " + eventTypeName + "#lastevent", path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("ii").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("narr", Node.class).fragment());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("ii").getEventType());
+        env.assertStatement("ii", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("narr", Node.class).fragment());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
+        Document docTwo = SupportXML.makeDefaultEvent("test");
+        env.sendEventXMLDOM(docTwo, eventTypeName);
 
-        EventBean resultItem = env.iterator("ii").next();
-        assertEquals("b", resultItem.get("narr.id"));
-        SupportEventTypeAssertionUtil.assertConsistency(resultItem);
-        EventBean fragmentsInsertItem = (EventBean) resultItem.getFragment("narr");
-        SupportEventTypeAssertionUtil.assertConsistency(fragmentsInsertItem);
-        assertEquals("b", fragmentsInsertItem.get("id"));
-        assertEquals("SAMPLE_V9", fragmentsInsertItem.get("prop5[0]"));
+        env.assertIterator("ii", iterator -> {
+            EventBean resultItem = iterator.next();
+            assertEquals("b", resultItem.get("narr.id"));
+            SupportEventTypeAssertionUtil.assertConsistency(resultItem);
+            EventBean fragmentsInsertItem = (EventBean) resultItem.getFragment("narr");
+            SupportEventTypeAssertionUtil.assertConsistency(fragmentsInsertItem);
+            assertEquals("b", fragmentsInsertItem.get("id"));
+            assertEquals("SAMPLE_V9", fragmentsInsertItem.get("prop5[0]"));
+        });
 
         env.undeployAll();
     }

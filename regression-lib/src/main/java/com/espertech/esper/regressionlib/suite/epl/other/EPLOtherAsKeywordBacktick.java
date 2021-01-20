@@ -16,10 +16,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class EPLOtherAsKeywordBacktick {
@@ -51,7 +53,7 @@ public class EPLOtherAsKeywordBacktick {
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
             env.sendEventBean(new SupportBean_S1(2));
-            Assert.assertEquals("A", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "A");
 
             env.undeployAll();
         }
@@ -61,7 +63,7 @@ public class EPLOtherAsKeywordBacktick {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create window MyWindowMerge#keepall as (p0 string, p1 string)", path);
-            env.compileExecuteFAF("insert into MyWindowMerge select 'a' as p0, 'b' as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyWindowMerge select 'a' as p0, 'b' as p1", path);
             env.compileDeploy("on SupportBean_S0 merge MyWindowMerge as `order` when matched then update set `order`.p1 = `order`.p0", path);
             env.compileDeploy("on SupportBean_S1 update MyWindowMerge as `order` set p0 = 'x'", path);
 
@@ -78,9 +80,13 @@ public class EPLOtherAsKeywordBacktick {
             env.compileDeploy("@name('s0') on SupportBean select `order`.p0 as c0 from MyWindowMerge as `order`", path).addListener("s0");
 
             env.sendEventBean(new SupportBean());
-            Assert.assertEquals("x", env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", "x");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -101,6 +107,10 @@ public class EPLOtherAsKeywordBacktick {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class EPLOtherUpdateIStream implements RegressionExecution {
@@ -110,7 +120,7 @@ public class EPLOtherAsKeywordBacktick {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "a", "x"));
-            Assert.assertEquals("x", env.listener("s0").assertOneGetNewAndReset().get("p00"));
+            env.assertEqualsNew("s0", "p00", "x");
 
             env.undeployAll();
         }
@@ -120,14 +130,14 @@ public class EPLOtherAsKeywordBacktick {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("create table MyTable(k1 string primary key, v1 string)", path);
-            env.compileExecuteFAF("insert into MyTable select 'x' as k1, 'y' as v1", path);
-            env.compileExecuteFAF("insert into MyTable select 'a' as k1, 'b' as v1", path);
+            env.compileExecuteFAFNoResult("insert into MyTable select 'x' as k1, 'y' as v1", path);
+            env.compileExecuteFAFNoResult("insert into MyTable select 'a' as k1, 'b' as v1", path);
 
             String epl = "@name('s0') on SupportBean_S0 as `order` select v1 from MyTable where `order`.p00 = k1";
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S0(1, "a"));
-            Assert.assertEquals("b", env.listener("s0").assertOneGetNewAndReset().get("v1"));
+            env.assertEqualsNew("s0", "v1", "b");
 
             env.undeployAll();
         }

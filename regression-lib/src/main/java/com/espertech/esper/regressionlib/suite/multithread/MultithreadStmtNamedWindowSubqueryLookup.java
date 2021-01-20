@@ -44,9 +44,9 @@ public class MultithreadStmtNamedWindowSubqueryLookup implements RegressionExecu
 
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread) {
         RegressionPath path = new RegressionPath();
-        String schemas = "create schema MyUpdateEvent as (key string, intupd int);\n" +
-            "create schema MySchema as (theString string, intval int);\n";
-        env.compileDeployWBusPublicType(schemas, path);
+        String schemas = "@buseventtype create schema MyUpdateEvent as (key string, intupd int);\n" +
+            "@buseventtype create schema MySchema as (theString string, intval int);\n";
+        env.compileDeploy(schemas, path);
 
         env.compileDeploy("@name('window') create window MyWindow#keepall as MySchema", path);
         env.compileDeploy("on MyUpdateEvent mue merge MyWindow mw " +

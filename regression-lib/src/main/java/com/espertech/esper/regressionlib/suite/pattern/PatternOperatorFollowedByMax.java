@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.hook.condition.ConditionHandlerFactoryC
 import com.espertech.esper.common.client.hook.condition.ConditionPatternSubexpressionMax;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -79,6 +81,10 @@ public class PatternOperatorFollowedByMax {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class PatternMixed implements RegressionExecution {
@@ -116,6 +122,10 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_C("C1"));
             assertTrue(handler.getContexts().isEmpty());
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}});
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -191,6 +201,10 @@ public class PatternOperatorFollowedByMax {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
     }
 
     private static class PatternSingleMaxSimple implements RegressionExecution {
@@ -217,6 +231,10 @@ public class PatternOperatorFollowedByMax {
             runAssertionSingleMaxSimple(env, handler);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 
@@ -260,14 +278,16 @@ public class PatternOperatorFollowedByMax {
     }
 
     private static void assertContext(RegressionEnvironment env, List<ConditionHandlerContext> contexts, int max) {
-        assertEquals(1, contexts.size());
-        ConditionHandlerContext context = contexts.get(0);
-        Assert.assertEquals("default", context.getRuntimeURI());
-        Assert.assertEquals(env.statement("s0").getDeploymentId(), context.getDeploymentId());
-        Assert.assertEquals("s0", context.getStatementName());
-        ConditionPatternSubexpressionMax condition = (ConditionPatternSubexpressionMax) context.getCondition();
-        Assert.assertEquals(max, condition.getMax());
-        contexts.clear();
+        env.assertThat(() -> {
+            assertEquals(1, contexts.size());
+            ConditionHandlerContext context = contexts.get(0);
+            Assert.assertEquals("default", context.getRuntimeURI());
+            Assert.assertEquals(env.statement("s0").getDeploymentId(), context.getDeploymentId());
+            Assert.assertEquals("s0", context.getStatementName());
+            ConditionPatternSubexpressionMax condition = (ConditionPatternSubexpressionMax) context.getCondition();
+            Assert.assertEquals(max, condition.getMax());
+            contexts.clear();
+        });
     }
 
     private final static Logger log = LoggerFactory.getLogger(PatternOperatorFollowedByMax.class);

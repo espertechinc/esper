@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.support.bean;
 
 import com.espertech.esper.common.client.util.DateTime;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -21,8 +22,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
-public class SupportDateTime {
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
+public class SupportDateTime implements Serializable {
 
+    private static final long serialVersionUID = 1936275041701680220L;
     private String key;
     private Long longdate;
     private Date utildate;

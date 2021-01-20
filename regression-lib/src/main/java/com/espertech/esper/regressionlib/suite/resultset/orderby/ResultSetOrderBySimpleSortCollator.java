@@ -74,7 +74,7 @@ public class ResultSetOrderBySimpleSortCollator implements RegressionExecution {
         env.sendEventBean(new SupportBean(frenchForFruit, 1));
         env.sendEventBean(new SupportBean("abc", 1));
 
-        Assert.assertEquals(frenchForSin, env.listener("s0").getLastOldData()[0].get("theString"));
+        env.assertListener("s0", listener -> Assert.assertEquals(frenchForSin, listener.getLastOldData()[0].get("theString")));
         Locale.setDefault(Locale.US);
 
         env.undeployAll();

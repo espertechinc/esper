@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -50,7 +49,7 @@ public class InfraTableOnSelect implements RegressionExecution {
         env.milestone(1);
 
         env.sendEventBean(new SupportBean_S1(0, "G2"));
-        assertEquals(500, env.listener("i1").assertOneGetNewAndReset().get("total"));
+        env.assertEqualsNew("i1", "total", 500);
 
         env.undeployAll();
     }
@@ -62,8 +61,8 @@ public class InfraTableOnSelect implements RegressionExecution {
             if (values[i] == null) {
                 env.assertListenerNotInvoked("s0");
             } else {
-                EventBean event = env.listener("s0").assertOneGetNewAndReset();
-                assertEquals("Failed for key '" + keyarr[i] + "'", values[i], event.get("value"));
+                final int index = i;
+                env.assertEventNew("s0", event -> assertEquals("Failed for key '" + keyarr[index] + "'", values[index], event.get("value")));
             }
         }
     }

@@ -15,7 +15,9 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
+import java.util.EnumSet;
 
 
 public class EPLDataflowOpLogSink implements RegressionExecution {
@@ -50,6 +52,10 @@ public class EPLDataflowOpLogSink implements RegressionExecution {
         env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyDataFlow");
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 
     private void runAssertion(RegressionEnvironment env, String format, Boolean log, String layout, String title, Boolean linefeed) {

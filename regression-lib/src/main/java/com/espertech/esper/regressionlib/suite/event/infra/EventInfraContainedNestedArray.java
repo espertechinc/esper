@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonArray;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -24,14 +22,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.BiConsumer;
-
-import static org.junit.Assert.assertEquals;
+import java.util.function.Consumer;
 
 public class EventInfraContainedNestedArray implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         // Bean
-        BiConsumer<EventType, String[]> bean = (type, ids) -> {
+        Consumer<String[]> bean = ids -> {
             LocalInnerEvent[] property = new LocalInnerEvent[ids.length];
             for (int i = 0; i < ids.length; i++) {
                 property[i] = new LocalInnerEvent(new LocalLeafEvent(ids[i]));
@@ -44,7 +40,7 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         runAssertion(env, beanepl, bean);
 
         // Map
-        BiConsumer<EventType, String[]> map = (type, ids) -> {
+        Consumer<String[]> map = ids -> {
             Map[] property = new Map[ids.length];
             for (int i = 0; i < ids.length; i++) {
                 property[i] = Collections.singletonMap("leaf", Collections.singletonMap("id", ids[i]));
@@ -54,7 +50,7 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         runAssertion(env, getEpl("map"), map);
 
         // Object-array
-        BiConsumer<EventType, String[]> oa = (type, ids) -> {
+        Consumer<String[]> oa = ids -> {
             Object[][] property = new Object[ids.length][];
             for (int i = 0; i < ids.length; i++) {
                 property[i] = new Object[]{new Object[]{ids[i]}};
@@ -64,7 +60,7 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         runAssertion(env, getEpl("objectarray"), oa);
 
         // Json
-        BiConsumer<EventType, String[]> json = (type, ids) -> {
+        Consumer<String[]> json = ids -> {
             JsonArray property = new JsonArray();
             for (int i = 0; i < ids.length; i++) {
                 JsonObject inner = new JsonObject().add("leaf", new JsonObject().add("id", ids[i]));
@@ -79,8 +75,8 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         runAssertion(env, eplJsonProvided, json);
 
         // Avro
-        BiConsumer<EventType, String[]> avro = (type, ids) -> {
-            Schema schema = SupportAvroUtil.getAvroSchema(type);
+        Consumer<String[]> avro = ids -> {
+            Schema schema = env.runtimeAvroSchemaByDeployment("schema", "LocalEvent");
             Collection property = new ArrayList();
             for (int i = 0; i < ids.length; i++) {
                 GenericData.Record leaf = new GenericData.Record(schema.getField("property").schema().getElementType().getField("leaf").schema());
@@ -99,26 +95,26 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
     private String getEpl(String underlying) {
         return "create " + underlying + " schema LocalLeafEvent(id string);\n" +
             "create " + underlying + " schema LocalInnerEvent(leaf LocalLeafEvent);\n" +
-            "@public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent[]);\n";
+            "@name('schema') @public @buseventtype create " + underlying + " schema LocalEvent(property LocalInnerEvent[]);\n";
     }
 
     public void runAssertion(RegressionEnvironment env,
                              String createSchemaEPL,
-                             BiConsumer<EventType, String[]> sender) {
+                             Consumer<String[]> sender) {
 
         env.compileDeploy(createSchemaEPL +
             "@name('s0') select * from LocalEvent[property[0].leaf];\n" +
             "@name('s1') select * from LocalEvent[property[1].leaf];\n").addListener("s0").addListener("s1");
-        EventType eventType = env.runtime().getEventTypeService().getEventType(env.deploymentId("s0"), "LocalEvent");
 
-        sender.accept(eventType, "a,b".split(","));
-        assertEquals("a", env.listener("s0").assertOneGetNewAndReset().get("id"));
-        assertEquals("b", env.listener("s1").assertOneGetNewAndReset().get("id"));
+        sender.accept("a,b".split(","));
+        env.assertEqualsNew("s0", "id", "a");
+        env.assertEqualsNew("s1", "id", "b");
 
         env.undeployAll();
     }
 
-    public static class LocalLeafEvent {
+    public static class LocalLeafEvent implements Serializable {
+        private static final long serialVersionUID = -6706060567462620132L;
         private final String id;
 
         public LocalLeafEvent(String id) {
@@ -130,7 +126,8 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         }
     }
 
-    public static class LocalInnerEvent {
+    public static class LocalInnerEvent implements Serializable {
+        private static final long serialVersionUID = -2404899553754447634L;
         private final LocalLeafEvent leaf;
 
         public LocalInnerEvent(LocalLeafEvent leaf) {
@@ -142,7 +139,8 @@ public class EventInfraContainedNestedArray implements RegressionExecution {
         }
     }
 
-    public static class LocalEvent {
+    public static class LocalEvent implements Serializable {
+        private static final long serialVersionUID = -1479180038835764450L;
         private LocalInnerEvent[] property;
 
         public LocalEvent(LocalInnerEvent[] property) {

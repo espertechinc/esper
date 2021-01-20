@@ -25,7 +25,6 @@ import org.junit.Assert;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class ExprCoreDotExpression {
     public static Collection<RegressionExecution> executions() {
@@ -79,9 +78,9 @@ public class ExprCoreDotExpression {
         private void sendAssert(RegressionEnvironment env, String p00, String p01, Integer sizeExpected) {
             env.sendEventBean(new SupportBean_S0(0, p00, p01));
             if (sizeExpected == null) {
-                assertFalse(env.listener("s0").getIsInvokedAndReset());
+                env.assertListenerNotInvoked("s0");
             } else {
-                assertEquals(sizeExpected, env.listener("s0").assertOneGetNewAndReset().get("sz"));
+                env.assertEqualsNew("s0", "sz", sizeExpected);
             }
         }
     }
@@ -147,10 +146,12 @@ public class ExprCoreDotExpression {
                 "from SupportEventTypeErasure as s0";
             env.compileDeploy(epl).addListener("s0");
 
-            Assert.assertEquals(SupportEventInnerTypeWGetIds.class, env.statement("s0").getEventType().getPropertyType("c0"));
-            Assert.assertEquals(SupportEventInnerTypeWGetIds.class, env.statement("s0").getEventType().getPropertyType("c1"));
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c2"));
-            Assert.assertEquals(Integer.class, env.statement("s0").getEventType().getPropertyType("c3"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c0"));
+                Assert.assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c1"));
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("c2"));
+                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("c3"));
+            });
 
             SupportEventTypeErasure event = new SupportEventTypeErasure("key1", 2, Collections.singletonMap("key1", new SupportEventInnerTypeWGetIds(new int[]{20, 30, 40})), new SupportEventInnerTypeWGetIds[]{new SupportEventInnerTypeWGetIds(new int[]{2, 3}), new SupportEventInnerTypeWGetIds(new int[]{4, 5}), new SupportEventInnerTypeWGetIds(new int[]{6, 7, 8})});
             env.sendEventBean(event);
@@ -224,11 +225,13 @@ public class ExprCoreDotExpression {
             Object[][] rows = new Object[][]{
                 {"nested.getNestedValue()", String.class}
             };
-            for (int i = 0; i < rows.length; i++) {
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(rows[i][1], prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                for (int i = 0; i < rows.length; i++) {
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                }
+            });
 
             env.sendEventBean(bean);
             env.assertPropsNew("s0", "nested.getNestedValue()".split(","), new Object[]{bean.getNested().getNestedValue()});
@@ -270,11 +273,13 @@ public class ExprCoreDotExpression {
                 {"get2", Integer.class},
                 {"get3", Integer.class}
             };
-            for (int i = 0; i < rows.length; i++) {
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals("failed for " + rows[i][0], rows[i][0], prop.getPropertyName());
-                Assert.assertEquals("failed for " + rows[i][0], rows[i][1], prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                for (int i = 0; i < rows.length; i++) {
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals("failed for " + rows[i][0], rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals("failed for " + rows[i][0], rows[i][1], prop.getPropertyType());
+                }
+            });
 
             env.sendEventBean(bean);
             env.assertPropsNew("s0", "size,get0,get1,get2,get3".split(","),
@@ -297,11 +302,13 @@ public class ExprCoreDotExpression {
                 {"size", Integer.class},
                 {"get0", String.class},
             };
-            for (int i = 0; i < rows.length; i++) {
-                EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(rows[i][1], prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                for (int i = 0; i < rows.length; i++) {
+                    EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                    Assert.assertEquals(rows[i][0], prop.getPropertyName());
+                    Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                }
+            });
 
             env.sendEventBean(bean);
             env.assertPropsNew("s0", "size,get0".split(","),
@@ -316,15 +323,19 @@ public class ExprCoreDotExpression {
         Object[][] rows = new Object[][]{
             {subexpr, SupportChainChildTwo.class}
         };
-        for (int i = 0; i < rows.length; i++) {
-            EventPropertyDescriptor prop = env.statement("s0").getEventType().getPropertyDescriptors()[i];
-            assertEquals(rows[i][0], prop.getPropertyName());
-            assertEquals(rows[i][1], prop.getPropertyType());
-        }
+        env.assertStatement("s0", statement -> {
+            for (int i = 0; i < rows.length; i++) {
+                EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
+                assertEquals(rows[i][0], prop.getPropertyName());
+                assertEquals(rows[i][1], prop.getPropertyType());
+            }
+        });
 
         env.sendEventBean(new SupportChainTop());
-        Object result = env.listener("s0").assertOneGetNewAndReset().get(subexpr);
-        assertEquals("abcappend", ((SupportChainChildTwo) result).getText());
+        env.assertEventNew("s0", event -> {
+            Object result = event.get(subexpr);
+            assertEquals("abcappend", ((SupportChainChildTwo) result).getText());
+        });
     }
 
     private static void sendAssertDotObjectEquals(RegressionEnvironment env, int intPrimitive, boolean expected) {

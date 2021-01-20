@@ -165,7 +165,7 @@ public class ResultSetAggregateMinMax {
                     }
                 }
 
-                env.listener("s0").reset();
+                env.listenerReset("s0");
                 loopCount++;
                 if (loopCount > loopcount) {
                     break;

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.bean;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDupProperty;
@@ -24,10 +23,11 @@ public class EventBeanPropertyResolutionCaseDistinctInsensitive implements Regre
         env.addListener("s0");
 
         env.sendEventBean(new SupportBeanDupProperty("lowercamel", "uppercamel", "upper", "lower"));
-        EventBean result = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("upper", result.get("MYPROPERTY"));
-        assertEquals("lower", result.get("myproperty"));
-        assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
+        env.assertEventNew("s0", result -> {
+            assertEquals("upper", result.get("MYPROPERTY"));
+            assertEquals("lower", result.get("myproperty"));
+            assertTrue(result.get("myProperty").equals("lowercamel") || result.get("myProperty").equals("uppercamel")); // JDK6 versus JDK7 JavaBean inspector
+        });
 
         env.tryInvalidCompile("select MyProperty from SupportBeanDupProperty",
             "Unable to determine which property to use for \"MyProperty\" because more than one property matched [");

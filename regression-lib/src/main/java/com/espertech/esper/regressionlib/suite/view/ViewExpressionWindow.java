@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.view;
 
+import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -214,7 +215,11 @@ public class ViewExpressionWindow {
             env.advanceTime(3500);
             env.sendEventBean(new SupportBean("E7", 7));
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}, {"E5"}, {"E6"}, {"E7"}});
-            env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E7"}}, new Object[][]{{"E2"}, {"E3"}});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, new Object[][]{{"E7"}});
+                EPAssertionUtil.assertPropsPerRow(listener.getLastOldData(), fields, new Object[][]{{"E2"}, {"E3"}});
+                listener.reset();
+            });
 
             env.advanceTime(10000);
             env.sendEventBean(new SupportBean("E8", 8));
@@ -310,7 +315,7 @@ public class ViewExpressionWindow {
 
             LocalUDF.setResult(true);
             env.sendEventBean(new SupportBean("E1", 0));
-            env.assertThis(() -> {
+            env.assertThat(() -> {
                 assertEquals("E1", LocalUDF.getKey());
                 assertEquals(0, (int) LocalUDF.getExpiryCount());
                 assertNotNull(LocalUDF.getViewref());
@@ -320,7 +325,7 @@ public class ViewExpressionWindow {
 
             LocalUDF.setResult(false);
             env.sendEventBean(new SupportBean("E3", 0));
-            env.assertThis(() -> {
+            env.assertThat(() -> {
                 assertEquals("E3", LocalUDF.getKey());
                 assertEquals(2, (int) LocalUDF.getExpiryCount());
                 assertNotNull(LocalUDF.getViewref());
@@ -351,6 +356,7 @@ public class ViewExpressionWindow {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
             env.sendEventBean(new SupportBean("E3", 3));
+            env.listenerReset("s0");
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E1"}, {"E2"}, {"E3"}});
 
             env.milestone(0);

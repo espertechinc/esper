@@ -129,31 +129,33 @@ public class ResultSetQueryTypeRowPerGroupHaving {
     }
 
     private static void assertNewEvent(RegressionEnvironment env, String symbol, double newSum) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals(newSum, newData[0].get("mySum"));
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
+            Assert.assertEquals(newSum, newData[0].get("mySum"));
+            Assert.assertEquals(symbol, newData[0].get("symbol"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void assertOldEvent(RegressionEnvironment env, String symbol, double newSum) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(newData);
-        assertEquals(1, oldData.length);
+            assertNull(newData);
+            assertEquals(1, oldData.length);
 
-        Assert.assertEquals(newSum, oldData[0].get("mySum"));
-        Assert.assertEquals(symbol, oldData[0].get("symbol"));
+            Assert.assertEquals(newSum, oldData[0].get("mySum"));
+            Assert.assertEquals(symbol, oldData[0].get("symbol"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price) {

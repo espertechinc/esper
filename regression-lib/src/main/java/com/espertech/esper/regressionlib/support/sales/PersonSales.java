@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.regressionlib.support.sales;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonSales {
+public class PersonSales implements Serializable {
+    private static final long serialVersionUID = 7789831398054742650L;
     private List<Person> persons;
     private List<Sale> sales;
 

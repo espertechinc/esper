@@ -18,11 +18,13 @@ import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -106,10 +108,12 @@ public class EventJsonParserLaxness {
             sendAssert(env, new JsonObject().add("cbool", new JsonObject()).toString(), event -> assertNull(event.get("cbool")));
             sendAssert(env, new JsonObject().add("cbool", new JsonArray()).toString(), event -> assertNull(event.get("cbool")));
 
-            tryInvalid(env, new JsonObject().add("cbool", "x").toString(), "Failed to parse json member name 'cbool' as a boolean-type from value 'x'");
-            tryInvalid(env, new JsonObject().add("cboola1", new JsonArray().add("x")).toString(), "Failed to parse json member name 'cboola1' as a boolean-type from value 'x'");
-            tryInvalid(env, new JsonObject().add("cboola2", new JsonArray().add(new JsonArray().add("x"))).toString(), "Failed to parse json member name 'cboola2' as a boolean-type from value 'x'");
-            tryInvalid(env, new JsonObject().add("cbool", "null").toString(), "Failed to parse json member name 'cbool' as a boolean-type from value 'null'");
+            env.assertThat(() -> {
+                tryInvalid(env, new JsonObject().add("cbool", "x").toString(), "Failed to parse json member name 'cbool' as a boolean-type from value 'x'");
+                tryInvalid(env, new JsonObject().add("cboola1", new JsonArray().add("x")).toString(), "Failed to parse json member name 'cboola1' as a boolean-type from value 'x'");
+                tryInvalid(env, new JsonObject().add("cboola2", new JsonArray().add(new JsonArray().add("x"))).toString(), "Failed to parse json member name 'cboola2' as a boolean-type from value 'x'");
+                tryInvalid(env, new JsonObject().add("cbool", "null").toString(), "Failed to parse json member name 'cbool' as a boolean-type from value 'null'");
+            });
 
             env.undeployAll();
         }
@@ -127,16 +131,18 @@ public class EventJsonParserLaxness {
 
             // lax parsing is the default, allowing string values
             for (String propertyName : eventType.getPropertyNames()) {
-                EventBean event = makeSendJson(env, propertyName, "1");
-                Object value = event.get(propertyName);
-                assertNotNull("Null for property " + propertyName, value);
-                if (propertyName.endsWith("a2")) {
-                    assertAsNumber(propertyName, 1, ((Object[][]) value)[0][0]);
-                } else if (propertyName.endsWith("a1")) {
-                    assertAsNumber(propertyName, 1, ((Object[]) value)[0]);
-                } else {
-                    assertAsNumber(propertyName, 1, value);
-                }
+                makeSendJson(env, propertyName, "1");
+                env.assertEventNew("s0", event -> {
+                    Object value = event.get(propertyName);
+                    assertNotNull("Null for property " + propertyName, value);
+                    if (propertyName.endsWith("a2")) {
+                        assertAsNumber(propertyName, 1, ((Object[][]) value)[0][0]);
+                    } else if (propertyName.endsWith("a1")) {
+                        assertAsNumber(propertyName, 1, ((Object[]) value)[0]);
+                    } else {
+                        assertAsNumber(propertyName, 1, value);
+                    }
+                });
             }
 
             // invalid number
@@ -167,7 +173,11 @@ public class EventJsonParserLaxness {
             env.undeployAll();
         }
 
-        private EventBean makeSendJson(RegressionEnvironment env, String propertyName, String value) {
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
+        }
+
+        private void makeSendJson(RegressionEnvironment env, String propertyName, String value) {
             JsonObject json = new JsonObject();
             if (propertyName.endsWith("a2")) {
                 json.add(propertyName, new JsonArray().add(new JsonArray().add(value)));
@@ -177,7 +187,6 @@ public class EventJsonParserLaxness {
                 json.add(propertyName, value);
             }
             env.sendEventJson(json.toString(), "JsonEvent");
-            return env.listener("s0").assertOneGetNewAndReset();
         }
     }
 
@@ -212,6 +221,10 @@ public class EventJsonParserLaxness {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static void sendAssertP1(RegressionEnvironment env, String json, Object expected) {
@@ -220,7 +233,7 @@ public class EventJsonParserLaxness {
 
     private static void sendAssert(RegressionEnvironment env, String json, Consumer<EventBean> assertion) {
         env.sendEventJson(json, "JsonEvent");
-        assertion.accept(env.listener("s0").assertOneGetNewAndReset());
+        env.assertEventNew("s0", assertion::accept);
     }
 
     private static void tryInvalid(RegressionEnvironment env, String json, String message) {

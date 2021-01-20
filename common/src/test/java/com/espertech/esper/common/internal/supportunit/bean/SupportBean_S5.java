@@ -13,8 +13,6 @@ package com.espertech.esper.common.internal.supportunit.bean;
 import java.io.Serializable;
 
 public class SupportBean_S5 implements Serializable {
-    private static int idCounter;
-
     private int id;
     private String p50;
     private String p51;
@@ -22,11 +20,9 @@ public class SupportBean_S5 implements Serializable {
     private String p53;
 
     public static Object[] makeS5(String propOne, String[] propTwo) {
-        idCounter++;
-
         Object[] events = new Object[propTwo.length];
         for (int i = 0; i < propTwo.length; i++) {
-            events[i] = new SupportBean_S5(idCounter, propOne, propTwo[i]);
+            events[i] = new SupportBean_S5(-1, propOne, propTwo[i]);
         }
         return events;
     }

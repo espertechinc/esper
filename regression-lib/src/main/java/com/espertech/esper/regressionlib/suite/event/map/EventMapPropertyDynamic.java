@@ -10,10 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.event.map;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,10 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         runAssertionMapWithinMap(env);
         runAssertionMapWithinMapExists(env);
         runAssertionMapWithinMap2LevelsInvalid(env);
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.SERDEREQUIRED);
     }
 
     private void runAssertionMapWithinMap(RegressionEnvironment env) {
@@ -51,7 +56,7 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         map.put("indexed", new float[]{-1, -2, -3});
         map.put("mapped", makeMap("keyOne", "abc"));
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{10, 30d, 99, null, 20L, -2.0f, "abc", -10, "def"});
+        assertResults(env, new Object[]{10, 30d, 99, null, 20L, -2.0f, "abc", -10, "def"});
 
         map = new HashMap<String, Object>();
         map.put("innermap", makeMap(
@@ -61,17 +66,17 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         map.put("indexed", new float[]{});
         map.put("mapped", makeMap("xxx", "yyy"));
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{null, null, null, null, null, null, null, null, null});
+        assertResults(env, new Object[]{null, null, null, null, null, null, null, null, null});
 
         env.sendEventMap(new HashMap<String, Object>(), "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{null, null, null, null, null, null, null, null, null});
+        assertResults(env, new Object[]{null, null, null, null, null, null, null, null, null});
 
         map = new HashMap<String, Object>();
         map.put("innermap", "xxx");
         map.put("indexed", null);
         map.put("mapped", "xxx");
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{null, null, null, null, null, null, null, null, null});
+        assertResults(env, new Object[]{null, null, null, null, null, null, null, null, null});
 
         env.undeployAll();
     }
@@ -102,7 +107,7 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         map.put("indexed", new float[]{-1, -2, -3});
         map.put("mapped", makeMap("keyOne", "abc"));
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{true, true, true, false, true, true, true, true, true});
+        assertResults(env, new Object[]{true, true, true, false, true, true, true, true, true});
 
         map = new HashMap<String, Object>();
         map.put("innermap", makeMap(
@@ -112,17 +117,17 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         map.put("indexed", new float[]{});
         map.put("mapped", makeMap("xxx", "yyy"));
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{false, false, false, false, false, false, false, false, false});
+        assertResults(env, new Object[]{false, false, false, false, false, false, false, false, false});
 
         env.sendEventMap(new HashMap<String, Object>(), "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{false, false, false, false, false, false, false, false, false});
+        assertResults(env, new Object[]{false, false, false, false, false, false, false, false, false});
 
         map = new HashMap<String, Object>();
         map.put("innermap", "xxx");
         map.put("indexed", null);
         map.put("mapped", "xxx");
         env.sendEventMap(map, "MyLevel2");
-        assertResults(env.listener("s0").assertOneGetNewAndReset(), new Object[]{false, false, false, false, false, false, false, false, false});
+        assertResults(env, new Object[]{false, false, false, false, false, false, false, false, false});
 
         env.undeployAll();
     }
@@ -133,10 +138,12 @@ public class EventMapPropertyDynamic implements RegressionExecution {
         env.tryInvalidCompile("select innermap.int.inner2? as t0 from MyLevel2#length(5)", "skip");
     }
 
-    private void assertResults(EventBean theEvent, Object[] result) {
-        for (int i = 0; i < result.length; i++) {
-            assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
-        }
+    private void assertResults(RegressionEnvironment env, Object[] result) {
+        env.assertEventNew("s0", event -> {
+            for (int i = 0; i < result.length; i++) {
+                assertEquals("failed for index " + i, result[i], event.get("t" + i));
+            }
+        });
     }
 
     private Map makeMap(Object... keysAndValues) {

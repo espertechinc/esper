@@ -83,18 +83,22 @@ public class ResultSetQueryTypeRowPerEvent {
             // test SB-direction
             SupportBean b1 = new SupportBean("K1", 0);
             env.sendEventBean(b1);
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            assertEquals(2, events.length);
-            for (EventBean event : events) {
-                Assert.assertEquals(b1, event.get("sb"));
-                assertEquals(2, ((SupportBean_S0[]) event.get("rows")).length);
-            }
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                assertEquals(2, events.length);
+                for (EventBean event : events) {
+                    Assert.assertEquals(b1, event.get("sb"));
+                    assertEquals(2, ((SupportBean_S0[]) event.get("rows")).length);
+                }
+            });
 
             // test S0-direction
             env.sendEventBean(new SupportBean_S0(1, "K1", "V3"));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            Assert.assertEquals(b1, event.get("sb"));
-            assertEquals(3, ((SupportBean_S0[]) event.get("rows")).length);
+            env.assertListener("s0", listener -> {
+                EventBean event = listener.assertOneGetNewAndReset();
+                Assert.assertEquals(b1, event.get("sb"));
+                assertEquals(3, ((SupportBean_S0[]) event.get("rows")).length);
+            });
 
             env.undeployAll();
         }
@@ -107,7 +111,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.compileDeploy(epl).addListener("s0");
 
             sendEvent(env, "E1", 10, 1);
-            Assert.assertEquals(10, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", 10);
 
             sendEvent(env, "E2", 10, 11);
             env.assertListenerNotInvoked("s0");
@@ -115,10 +119,10 @@ public class ResultSetQueryTypeRowPerEvent {
             env.milestone(0);
 
             sendEvent(env, "E3", 15, 11);
-            Assert.assertEquals(15, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", 15);
 
             sendEvent(env, "E4", 20, 11);
-            Assert.assertEquals(20, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", 20);
 
             env.milestone(1);
 
@@ -165,8 +169,10 @@ public class ResultSetQueryTypeRowPerEvent {
             env.compileDeploy(epl).addListener("s0");
 
             // assert select result type
-            Assert.assertEquals(String.class, env.statement("s0").getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("volSum"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volSum"));
+            });
 
             sendEvent(env, SYMBOL_DELL, 10000);
             assertEvents(env, SYMBOL_DELL, 10000);
@@ -250,17 +256,19 @@ public class ResultSetQueryTypeRowPerEvent {
     }
 
     private static void assertPostedNew(RegressionEnvironment env, Double newAvg, Long newSum) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals("IBM stats", newData[0].get("title"));
-        Assert.assertEquals(newAvg, newData[0].get("myAvg"));
-        Assert.assertEquals(newSum, newData[0].get("mySum"));
+            Assert.assertEquals("IBM stats", newData[0].get("title"));
+            Assert.assertEquals(newAvg, newData[0].get("myAvg"));
+            Assert.assertEquals(newSum, newData[0].get("mySum"));
 
-        env.listener("s0").reset();
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, long longBoxed, int intBoxed, short shortBoxed, AtomicInteger eventCount) {
@@ -292,79 +300,87 @@ public class ResultSetQueryTypeRowPerEvent {
         String[] fields = new String[]{"longPrimitive", "mySum"};
 
         // assert select result type
-        assertEquals(Long.class, env.statement("s0").getEventType().getPropertyType("mySum"));
+        env.assertStatement("s0", statement -> assertEquals(Long.class, statement.getEventType().getPropertyType("mySum")));
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
         AtomicInteger eventCount = new AtomicInteger();
 
         sendEvent(env, eventCount, 10);
-        assertEquals(10L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertEqualsNew("s0", "mySum", 10L);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 10L}});
 
         env.milestone(1);
 
         sendEvent(env, eventCount, 15);
-        assertEquals(25L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertEqualsNew("s0", "mySum", 25L);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 25L}, {2L, 25L}});
 
         env.milestone(2);
 
         sendEvent(env, eventCount, -5);
-        assertEquals(20L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertEqualsNew("s0", "mySum", 20L);
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{1L, 20L}, {2L, 20L}, {3L, 20L}});
 
         env.milestone(3);
 
         sendEvent(env, eventCount, -2);
-        assertEquals(8L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertEquals(8L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertListener("s0", listener -> {
+            assertEquals(8L, listener.getLastOldData()[0].get("mySum"));
+            assertEquals(8L, listener.getAndResetLastNewData()[0].get("mySum"));
+        });
+
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 8L}, {2L, 8L}, {3L, 8L}});
 
         env.milestone(4);
 
         sendEvent(env, eventCount, 100);
-        assertEquals(93L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertEquals(93L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertListener("s0", listener -> {
+            assertEquals(93L, listener.getLastOldData()[0].get("mySum"));
+            assertEquals(93L, listener.getAndResetLastNewData()[0].get("mySum"));
+        });
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 93L}, {5L, 93L}, {3L, 93L}});
 
         env.milestone(5);
 
         sendEvent(env, eventCount, 1000);
-        assertEquals(1098L, env.listener("s0").getLastOldData()[0].get("mySum"));
-        assertEquals(1098L, env.listener("s0").getAndResetLastNewData()[0].get("mySum"));
+        env.assertListener("s0", listener -> {
+            assertEquals(1098L, listener.getLastOldData()[0].get("mySum"));
+            assertEquals(1098L, listener.getAndResetLastNewData()[0].get("mySum"));
+        });
         env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, 1098L}, {5L, 1098L}, {6L, 1098L}});
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbol, long volSum) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertNull(oldData);
-        assertEquals(1, newData.length);
+            assertNull(oldData);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
-        Assert.assertEquals(volSum, newData[0].get("volSum"));
+            Assert.assertEquals(symbol, newData[0].get("symbol"));
+            Assert.assertEquals(volSum, newData[0].get("volSum"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void assertEvents(RegressionEnvironment env, String symbolOld, long volSumOld,
                                      String symbolNew, long volSumNew) {
-        EventBean[] oldData = env.listener("s0").getLastOldData();
-        EventBean[] newData = env.listener("s0").getLastNewData();
+        env.assertListener("s0", listener -> {
+            EventBean[] oldData = listener.getLastOldData();
+            EventBean[] newData = listener.getLastNewData();
 
-        assertEquals(1, oldData.length);
-        assertEquals(1, newData.length);
+            assertEquals(1, oldData.length);
+            assertEquals(1, newData.length);
 
-        Assert.assertEquals(symbolOld, oldData[0].get("symbol"));
-        Assert.assertEquals(volSumOld, oldData[0].get("volSum"));
+            Assert.assertEquals(symbolOld, oldData[0].get("symbol"));
+            Assert.assertEquals(volSumOld, oldData[0].get("volSum"));
 
-        Assert.assertEquals(symbolNew, newData[0].get("symbol"));
-        Assert.assertEquals(volSumNew, newData[0].get("volSum"));
+            Assert.assertEquals(symbolNew, newData[0].get("symbol"));
+            Assert.assertEquals(volSumNew, newData[0].get("volSum"));
 
-        env.listener("s0").reset();
-        env.assertListenerNotInvoked("s0");
+            listener.reset();
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume) {

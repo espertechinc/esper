@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportDateTime;
@@ -30,7 +29,7 @@ public class ExprDTNested implements RegressionExecution {
             "zoneddate.set('hour', 1).set('minute', 2).set('second', 3) as val4" +
             " from SupportDateTime";
         env.compileDeploy(eplFragment).addListener("s0");
-        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
+        env.assertStmtTypes("s0", fields, new EPTypeClass[]{DATE.getEPType(), LONGBOXED.getEPType(), CALENDAR.getEPType(), LOCALDATETIME.getEPType(), ZONEDDATETIME.getEPType()});
 
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-05-30T01:02:03.000";
@@ -47,7 +46,7 @@ public class ExprDTNested implements RegressionExecution {
             "zoneddate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val4" +
             " from SupportDateTime";
         env.compileDeployAddListenerMile(eplFragment, "s0", 1);
-        SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, CALENDAR.getEPType());
+        env.assertStmtTypesAllSame("s0",  fields, CALENDAR.getEPType());
 
         env.sendEventBean(SupportDateTime.make(startTime));
         env.assertPropsNew("s0", fields, SupportDateTime.getArrayCoerced(expectedTime, "cal", "cal", "cal", "cal", "cal"));

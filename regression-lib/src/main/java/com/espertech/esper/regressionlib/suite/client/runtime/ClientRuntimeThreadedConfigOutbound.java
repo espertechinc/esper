@@ -14,8 +14,11 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.util.SupportListenerSleeping;
 import org.junit.Assert;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 
@@ -48,5 +51,9 @@ public class ClientRuntimeThreadedConfigOutbound implements RegressionExecutionW
         Assert.assertEquals(5, listener.getNewEvents().size());
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.RUNTIMEOPS);
     }
 }

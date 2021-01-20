@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
@@ -24,6 +25,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
@@ -44,8 +46,10 @@ public class EPLOtherCreateExpression {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@name('s0') create expression E1 {''}", path);
-            assertEquals(StatementType.CREATE_EXPRESSION, env.statement("s0").getProperty(StatementProperty.STATEMENTTYPE));
-            assertEquals("E1", env.statement("s0").getProperty(StatementProperty.CREATEOBJECTNAME));
+            env.assertStatement("s0", statement -> {
+                assertEquals(StatementType.CREATE_EXPRESSION, statement.getProperty(StatementProperty.STATEMENTTYPE));
+                assertEquals("E1", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
+            });
 
             env.tryInvalidCompile(path, "create expression E1 {''}",
                 "Expression 'E1' has already been declared [create expression E1 {''}]");
@@ -83,7 +87,7 @@ public class EPLOtherCreateExpression {
             env.compileDeploy(eplSelect, path).addListener("s0");
             assertStatelessStmt(env, "s0", true);
             env.sendEventBean(SupportCollection.makeString("E1,E2,E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E3", "E4");
+            LambdaAssertionUtil.assertValuesArrayScalar(env, "val1", "E3", "E4");
             env.undeployAll();
 
             // test script chained synax
@@ -116,13 +120,13 @@ public class EPLOtherCreateExpression {
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
             Assert.assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
-            Assert.assertEquals(eplExpr, env.statement("expr").getProperty(StatementProperty.EPL));
+            env.assertStatement("expr", statement -> assertEquals(eplExpr, statement.getProperty(StatementProperty.EPL)));
 
             String eplSelect = "@name('select') select somescript(1) from SupportBean";
             EPStatementObjectModel modelSelect = env.eplToModel(eplSelect);
             Assert.assertEquals(eplSelect, modelSelect.toEPL());
             env.compileDeploy(modelSelect, path);
-            Assert.assertEquals(eplSelect, env.statement("select").getProperty(StatementProperty.EPL));
+            env.assertStatement("select", statement -> assertEquals(eplSelect, statement.getProperty(StatementProperty.EPL)));
 
             env.undeployAll();
         }
@@ -161,14 +165,14 @@ public class EPLOtherCreateExpression {
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
             Assert.assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
-            Assert.assertEquals(eplExpr, env.statement("expr").getProperty(StatementProperty.EPL));
+            env.assertStatement("expr", statement -> assertEquals(eplExpr, statement.getProperty(StatementProperty.EPL)));
 
             // test SODA and join and 2-stream parameter
             String eplJoin = "@name('join') select JoinMultiplication(sb,s0) from SupportBean#lastevent as sb, SupportBean_S0#lastevent as s0";
             EPStatementObjectModel modelJoin = env.eplToModel(eplJoin);
             Assert.assertEquals(eplJoin, modelJoin.toEPL());
             env.compileDeploy(modelJoin, path);
-            Assert.assertEquals(eplJoin, env.statement("join").getProperty(StatementProperty.EPL));
+            env.assertStatement("join", statement -> assertEquals(eplJoin, statement.getProperty(StatementProperty.EPL)));
             env.undeployAll();
 
             // test subquery against named window and table defined in declared expression
@@ -210,6 +214,10 @@ public class EPLOtherCreateExpression {
                 "select * from SupportBean(MyFilter(intPrimitive)) as sb",
                 "create expression boolean js:MyFilter(intPrimitive) [intPrimitive==2]");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static void tryAssertionLifecycleAndFilter(RegressionEnvironment env, String expressionBefore,
@@ -220,9 +228,9 @@ public class EPLOtherCreateExpression {
         env.compileDeploy("@name('s1') " + selector, path).addListener("s1");
 
         env.sendEventBean(new SupportBean("E1", 0));
-        assertFalse(env.listener("s1").getAndClearIsInvoked());
+        env.assertListenerNotInvoked("s1");
         env.sendEventBean(new SupportBean("E2", 1));
-        assertTrue(env.listener("s1").getAndClearIsInvoked());
+        env.assertListenerInvoked("s1");
 
         SupportListener listenerS1 = env.listener("s1");
         path.clear();

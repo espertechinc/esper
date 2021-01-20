@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportIdAndValueEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportValueEvent;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -336,7 +335,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             env.sendEventBean(new SupportIdAndValueEvent("E1", 19));
             sendVEAndAssert(env, fields, new Object[]{true, false});
 
-            env.compileExecuteFAF("delete from MyWindow", path);
+            env.compileExecuteFAFNoResult("delete from MyWindow", path);
 
             sendVEAndAssert(env, fields, new Object[]{false, true});
 
@@ -362,7 +361,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             env.sendEventBean(new SupportIdAndValueEvent("E2", 12));
             sendVEAndAssert(env, fields, new Object[]{true, false});
 
-            env.compileExecuteFAF("delete from MyWindow", path);
+            env.compileExecuteFAFNoResult("delete from MyWindow", path);
 
             sendVEAndAssert(env, fields, new Object[]{false, true});
 
@@ -426,11 +425,11 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventS0(env, 1);
-            Assert.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 1);
 
             sendEventS1(env, 100);
             sendEventS0(env, 2);
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 2);
 
             env.undeployAll();
         }
@@ -449,7 +448,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             env.assertListenerNotInvoked("s0");
 
             sendEventS0(env, 100);
-            Assert.assertEquals(100, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 100);
 
             sendEventS0(env, 200);
             env.assertListenerNotInvoked("s0");
@@ -457,7 +456,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
             sendEventS1(env, -1);
             sendEventS1(env, -1);
             sendEventS0(env, -1);
-            Assert.assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", -1);
 
             env.undeployAll();
         }

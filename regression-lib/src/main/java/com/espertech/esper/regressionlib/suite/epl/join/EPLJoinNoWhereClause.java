@@ -68,17 +68,19 @@ public class EPLJoinNoWhereClause {
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, null);
 
             sendEvent(env, setTwo[0]);
-            assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertEquals(setOne[0], env.listener("s0").getLastNewData()[0].get("stream_0"));
-            assertEquals(setTwo[0], env.listener("s0").getLastNewData()[0].get("stream_1"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertEquals(1, listener.getLastNewData().length);
+                assertEquals(setOne[0], listener.getLastNewData()[0].get("stream_0"));
+                assertEquals(setTwo[0], listener.getLastNewData()[0].get("stream_1"));
+                listener.reset();
+            });
             env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{0L, 0L}});
 
             sendEvent(env, setOne[1]);
             sendEvent(env, setOne[2]);
             sendEvent(env, setTwo[1]);
-            assertEquals(3, env.listener("s0").getLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(3, listener.getLastNewData().length));
             env.assertPropsPerRowIteratorAnyOrder("s0", fields,
                 new Object[][]{{0L, 0L},
                     {1L, 0L},

@@ -62,10 +62,12 @@ public class EventXMLSchemaWithRestriction {
                 "<order>\n" +
                 "<order_amount>202.1</order_amount>" +
                 "</order>", eventTypeName);
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
-        assertEquals(Double.class, theEvent.get("order_amount").getClass());
-        assertEquals(202.1d, theEvent.get("order_amount"));
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean theEvent = listener.getLastNewData()[0];
+            assertEquals(Double.class, theEvent.get("order_amount").getClass());
+            assertEquals(202.1d, theEvent.get("order_amount"));
+            listener.reset();
+        });
 
         env.undeployAll();
     }

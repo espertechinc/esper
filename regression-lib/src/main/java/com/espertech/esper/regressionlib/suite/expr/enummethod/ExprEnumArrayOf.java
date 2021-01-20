@@ -52,7 +52,7 @@ public class ExprEnumArrayOf {
             builder.expression(fields[3], "strvals.arrayOf( (v, i, s) => v || '_' || Integer.toString(i) || '_' || Integer.toString(s))");
             builder.expression(fields[4], "strvals.arrayOf( (v, i) => i)");
 
-            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.INTEGERBOXEDARRAY.getEPType()}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.STRINGARRAY.getEPType(), EPTypePremade.INTEGERBOXEDARRAY.getEPType()}));
 
             builder.assertion(SupportCollection.makeString("A,B,C"))
                 .expect(fields, csv("A,B,C"), csv("A,B,C"), csv("A_0,B_1,C_2"), csv("A_0_3,B_1_3,C_2_3"), new Integer[]{0, 1, 2});

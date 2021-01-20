@@ -14,7 +14,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportInKeywordBean implements Serializable {
+    private static final long serialVersionUID = -3807667014530279593L;
     private int[] ints;
     private long[] longs;
     private Map<Integer, String> mapOfIntKey;

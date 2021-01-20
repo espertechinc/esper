@@ -128,10 +128,11 @@ public class PatternMicrosecondResolution implements RegressionExecution {
         int count = 0;
         for (long flipTime : flipTimes) {
             env.advanceTime(flipTime - 1);
-            assertFalse("Failed for flip " + count, env.listener("s0").getAndClearIsInvoked());
+            int cnt = count;
+            env.assertListener("s0", listener -> assertFalse("Failed for flip " + cnt, listener.getAndClearIsInvoked()));
 
             env.advanceTime(flipTime);
-            assertTrue("Failed for flip " + count, env.listener("s0").getAndClearIsInvoked());
+            env.assertListener("s0", listener -> assertTrue("Failed for flip " + cnt, listener.getAndClearIsInvoked()));
             count++;
         }
 

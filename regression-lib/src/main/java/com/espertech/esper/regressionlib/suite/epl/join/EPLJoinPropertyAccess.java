@@ -46,10 +46,12 @@ public class EPLJoinPropertyAccess {
             env.sendEventBean(combined);
             env.sendEventBean(complex);
 
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertSame(complex.getNested(), theEvent.get("nested.nested"));
-            assertSame(combined.getIndexed(0), theEvent.get("s1.indexed[0]"));
-            assertEquals(complex.getIndexed(1), theEvent.get("nested.indexed[1]"));
+            env.assertListener("s0", listener -> {
+                EventBean theEvent = listener.getAndResetLastNewData()[0];
+                assertSame(complex.getNested(), theEvent.get("nested.nested"));
+                assertSame(combined.getIndexed(0), theEvent.get("s1.indexed[0]"));
+                assertEquals(complex.getIndexed(1), theEvent.get("nested.indexed[1]"));
+            });
 
             env.undeployAll();
         }
@@ -72,10 +74,12 @@ public class EPLJoinPropertyAccess {
             // double check that outer join criteria match
             assertEquals(complex.getMapped("keyOne"), combined.getIndexed(2).getMapped("2ma").getValue());
 
-            EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-            assertEquals("simple", theEvent.get("s0.simpleProperty"));
-            assertSame(complex, theEvent.get("s0"));
-            assertSame(combined, theEvent.get("s1"));
+            env.assertListener("s0", listener -> {
+                EventBean theEvent = listener.getAndResetLastNewData()[0];
+                assertEquals("simple", theEvent.get("s0.simpleProperty"));
+                assertSame(complex, theEvent.get("s0"));
+                assertSame(combined, theEvent.get("s1"));
+            });
 
             env.undeployAll();
         }

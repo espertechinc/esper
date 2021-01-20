@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -114,7 +112,7 @@ public class ExprCoreBigNumberSupport {
             env.undeployAll();
 
             // test float
-            env.compileDeployAddListenerMile("@name('s0') select * from SupportBeanNumeric where floatOne < 10f and floatTwo > 10f", "s0", 1);
+            env.compileDeployAddListenerMile("@name('s0') select * from SupportBeanNumeric where floatOne < 10f and floatTwo > 10f", "s0", 2);
 
             env.sendEventBean(new SupportBeanNumeric(true, 1f, 20f));
             env.assertListenerInvoked("s0");
@@ -206,28 +204,31 @@ public class ExprCoreBigNumberSupport {
 
             env.compileDeployAddListenerMile("@name('s0') select bigdec+bigint as v1, bigdec+2 as v2, bigdec+3d as v3, bigint+5L as v4, bigint+5d as v5 " +
                 " from SupportBeanNumeric", "s0", 1);
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
-            Assert.assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("v1"));
-            Assert.assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("v2"));
-            Assert.assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("v3"));
-            Assert.assertEquals(BigInteger.class, env.statement("s0").getEventType().getPropertyType("v4"));
-            Assert.assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("v5"));
+            env.assertStatement("s0", statement -> {
+                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v1"));
+                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v2"));
+                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v3"));
+                Assert.assertEquals(BigInteger.class, statement.getEventType().getPropertyType("v4"));
+                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v5"));
+            });
 
             sendBigNumEvent(env, 1, 2);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, "v1,v2,v3,v4,v5".split(","),
+            env.assertPropsNew("s0", "v1,v2,v3,v4,v5".split(","),
                 new Object[]{new BigDecimal(3), new BigDecimal(4), new BigDecimal(5d), BigInteger.valueOf(6), new BigDecimal(6d)});
 
             // test aggregation-sum, multiplication and division all together; test for ESPER-340
             env.undeployAll();
 
             env.compileDeployAddListenerMile("@name('s0') select (sum(bigdecTwo * bigdec)/sum(bigdec)) as avgRate from SupportBeanNumeric", "s0", 2);
-            Assert.assertEquals(BigDecimal.class, env.statement("s0").getEventType().getPropertyType("avgRate"));
+            env.assertStatement("s0", statement -> assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("avgRate")));
             sendBigNumEvent(env, 0, 5);
-            Object avgRate = env.listener("s0").assertOneGetNewAndReset().get("avgRate");
-            assertTrue(avgRate instanceof BigDecimal);
-            assertEquals(new BigDecimal(5d), avgRate);
+            env.assertEventNew("s0", event -> {
+                Object avgRate = event.get("avgRate");
+                assertTrue(avgRate instanceof BigDecimal);
+                assertEquals(new BigDecimal(5d), avgRate);
+            });
 
             env.undeployAll();
         }
@@ -246,8 +247,7 @@ public class ExprCoreBigNumberSupport {
 
             String[] fieldList = fields.split(",");
             sendBigNumEvent(env, 1, 2);
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, fieldList,
+            env.assertPropsNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(1), new BigDecimal(2d),        // sum
                     new BigDecimal(1), new BigDecimal(2),               // avg
                     1d, 2d,               // median
@@ -259,8 +259,7 @@ public class ExprCoreBigNumberSupport {
             env.milestone(1);
 
             sendBigNumEvent(env, 4, 5);
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(theEvent, fieldList,
+            env.assertPropsNew("s0", fieldList,
                 new Object[]{BigInteger.valueOf(5), BigDecimal.valueOf(7),        // sum
                     BigDecimal.valueOf(2.5d), BigDecimal.valueOf(3.5d),               // avg
                     2.5d, 3.5d,               // median

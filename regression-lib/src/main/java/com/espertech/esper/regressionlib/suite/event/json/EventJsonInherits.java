@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.json.SupportJsonEventTypeUtil;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.junit.Assert.*;
@@ -76,12 +77,11 @@ public class EventJsonInherits {
             env.compileDeploy("@name('s0') select * from C#keepall", path).addListener("s0");
 
             env.sendEventJson("{ \"a1\": \"a\", \"b1\": \"b\", \"c1\": \"c\"}", "C");
-            assertEvent(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEvent(it.next());
+            env.assertIterator("s0", iterator -> assertEvent(iterator.next()));
 
             env.undeployAll();
         }
@@ -100,12 +100,11 @@ public class EventJsonInherits {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventJson("{ \"pn\": {\"n1\": \"a\"}, \"pa\": [1, 2], \"cn\": {\"n1\": \"b\"}, \"ca\": [3, 4] }", "C");
-            assertEvent(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEvent(it.next());
+            env.assertIterator("s0", iterator -> assertEvent(iterator.next()));
 
             env.undeployAll();
         }
@@ -137,34 +136,25 @@ public class EventJsonInherits {
 
             String jsonOne = "{\"p1\":\"PA\",\"c11\":\"x\",\"c12\":50}";
             env.sendEventJson(jsonOne, "C1");
-            EventBean eventOne = assertInvoked(env, "sc1", "sp", "sc2,sc3");
-            assertC1(jsonOne, eventOne);
+            assertInvoked(env, "sc1", "sp", "sc2,sc3", event -> assertC1(jsonOne, event));
 
             String jsonTwo = "{\"p1\":\"PB\",\"c21\":\"y\"}";
             env.sendEventJson(jsonTwo, "C2");
-            EventBean eventTwo = assertInvoked(env, "sc2", "sp", "sc1,sc3");
-            assertC2(jsonTwo, eventTwo);
+            assertInvoked(env, "sc2", "sp", "sc1,sc3", event -> assertC2(jsonTwo, event));
 
             String jsonThree = "{\"p1\":\"PC\"}";
             env.sendEventJson(jsonThree, "C3");
-            EventBean eventThree = assertInvoked(env, "sc3", "sp", "sc1,sc2");
-            assertC3(jsonThree, eventThree);
+            assertInvoked(env, "sc3", "sp", "sc1,sc2", event -> assertC3(jsonThree, event));
 
             String jsonFour = "{\"p1\":\"PD\"}";
             env.sendEventJson(jsonFour, "P");
-            EventBean eventFour = assertInvoked(env, "sp", null, "sc1,sc2,sc3");
-            assertP(jsonFour, eventFour);
+            assertInvoked(env, "sp", null, "sc1,sc2,sc3", event -> assertP(jsonFour, event));
 
             env.milestone(0);
 
-            Iterator<EventBean> itSC1 = env.statement("sc1").iterator();
-            assertC1(jsonOne, itSC1.next());
-
-            Iterator<EventBean> itSC2 = env.statement("sc2").iterator();
-            assertC2(jsonTwo, itSC2.next());
-
-            Iterator<EventBean> itSC3 = env.statement("sc3").iterator();
-            assertC3(jsonThree, itSC3.next());
+            env.assertIterator("sc1", it -> assertC1(jsonOne, it.next()));
+            env.assertIterator("sc2", it -> assertC2(jsonTwo, it.next()));
+            env.assertIterator("sc3", it -> assertC3(jsonThree, it.next()));
 
             env.undeployAll();
         }
@@ -202,16 +192,17 @@ public class EventJsonInherits {
             assertEquals(jsonOne, und.toString());
         }
 
-        private EventBean assertInvoked(RegressionEnvironment env, String undStmt, String invokedOther, String notInvokedCsv) {
-            EventBean event = env.listener(undStmt).assertOneGetNewAndReset();
-            if (invokedOther != null) {
-                env.listener(invokedOther).assertInvokedAndReset();
-            }
-            String[] splitNotInvoked = notInvokedCsv.split(",");
-            for (String s : splitNotInvoked) {
-                assertFalse(env.listener(s).isInvoked());
-            }
-            return event;
+        private void assertInvoked(RegressionEnvironment env, String undStmt, String invokedOther, String notInvokedCsv, Consumer<EventBean> assertion) {
+            env.assertEventNew(undStmt, event -> {
+                if (invokedOther != null) {
+                    env.listener(invokedOther).assertInvokedAndReset();
+                }
+                String[] splitNotInvoked = notInvokedCsv.split(",");
+                for (String s : splitNotInvoked) {
+                    assertFalse(env.listener(s).isInvoked());
+                }
+                assertion.accept(event);
+            });
         }
     }
 
@@ -226,12 +217,11 @@ public class EventJsonInherits {
             env.compileDeploy(epl).addListener("sd");
 
             env.sendEventJson("{}", "D");
-            assertEvent(env.listener("sd").assertOneGetNewAndReset());
+            env.assertEventNew("sd", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("sd").iterator();
-            assertEvent(it.next());
+            env.assertIterator("sd", it -> assertEvent(it.next()));
 
             env.undeployAll();
         }
@@ -262,12 +252,11 @@ public class EventJsonInherits {
             env.compileDeploy(epl).addListener("sd");
 
             env.sendEventJson("{\"b1\": 4, \"d1\": \"def\"}", "D");
-            assertEvent(env.listener("sd").assertOneGetNewAndReset());
+            env.assertEventNew("sd", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("sd").iterator();
-            assertEvent(it.next());
+            env.assertIterator("sd", it -> assertEvent(it.next()));
 
             env.undeployAll();
         }
@@ -302,12 +291,11 @@ public class EventJsonInherits {
             env.compileDeploy(epl).addListener("sd");
 
             env.sendEventJson("{\"a1\": 4, \"c1\": \"def\"}", "D");
-            assertEvent(env.listener("sd").assertOneGetNewAndReset());
+            env.assertEventNew("sd", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("sd").iterator();
-            assertEvent(it.next());
+            env.assertIterator("sd", it -> assertEvent(it.next()));
 
             env.undeployAll();
         }
@@ -345,11 +333,10 @@ public class EventJsonInherits {
             env.compileDeploy("@name('sd') select * from D#keepall", path).addListener("sd");
 
             env.sendEventJson("{\"d2\": 1, \"d1\": 2, \"c1\": \"def\", \"b2\": 3, \"b1\": \"x\", \"a1\": 4}", "D");
-            EventBean eventOne = env.listener("sd").assertOneGetNewAndReset();
-            assertEvent(eventOne);
-            env.listener("sa").assertInvokedAndReset();
-            env.listener("sb").assertInvokedAndReset();
-            env.listener("sc").assertInvokedAndReset();
+            env.assertEventNew("sd", this::assertEvent);
+            env.assertListenerInvoked("sa");
+            env.assertListenerInvoked("sb");
+            env.assertListenerInvoked("sc");
 
             env.undeployModuleContaining("sa");
             env.undeployModuleContaining("sb");
@@ -357,8 +344,7 @@ public class EventJsonInherits {
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("sd").iterator();
-            assertEvent(it.next());
+            env.assertIterator("sd", it -> assertEvent(it.next()));
 
             env.undeployAll();
         }
@@ -394,12 +380,11 @@ public class EventJsonInherits {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventJson("{\"p1\": \"abc\", \"p2\": 10, \"c1\": \"def\", \"c2\": 20}", "ChildJson");
-            assertEvent(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEvent);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEvent(it.next());
+            env.assertIterator("s0", iterator -> assertEvent(iterator.next()));
 
             env.undeployAll();
         }
@@ -465,20 +450,21 @@ public class EventJsonInherits {
 
         env.milestone(0);
 
-        Iterator<EventBean> itS0 = env.statement("s0").iterator();
-        assertEquals(10, itS0.next().get("c0"));
-        assertEquals("abc", itS0.next().get("c0"));
+        env.assertIterator("s0", itS0 -> {
+            assertEquals(10, itS0.next().get("c0"));
+            assertEquals("abc", itS0.next().get("c0"));
+        });
 
-        Iterator<EventBean> itS1 = env.statement("s1").iterator();
-        assertEventJson(itS1.next(), jsonOne, expectedOne);
-        assertEventJson(itS1.next(), jsonTwo, expectedTwo);
+        env.assertIterator("s1", itS1 -> {
+            assertEventJson(itS1.next(), jsonOne, expectedOne);
+            assertEventJson(itS1.next(), jsonTwo, expectedTwo);
+        });
     }
 
     private static void sendAssertDynamicProp(RegressionEnvironment env, String json, String eventTypeName, Object expected) {
         env.sendEventJson(json, eventTypeName);
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
-
-        assertEventJson(env.listener("s1").assertOneGetNewAndReset(), json, expected);
+        env.assertEqualsNew("s0", "c0", expected);
+        env.assertEventNew("s1", event -> assertEventJson(event, json, expected));
     }
 
     private static void assertEventJson(EventBean eventBean, String json, Object expected) {

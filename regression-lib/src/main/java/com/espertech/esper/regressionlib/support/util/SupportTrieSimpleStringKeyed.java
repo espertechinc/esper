@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class SupportTrieSimpleStringKeyed<V> implements SupportTrie<String, V> {
     private final Map<String, V> simple = new HashMap<>();

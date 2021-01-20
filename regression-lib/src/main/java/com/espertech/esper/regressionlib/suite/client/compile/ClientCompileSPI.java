@@ -18,9 +18,11 @@ import com.espertech.esper.compiler.internal.util.EPCompilerSPI;
 import com.espertech.esper.compiler.internal.util.EPCompilerSPIExpression;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -58,6 +60,10 @@ public class ClientCompileSPI {
             } catch (EPCompileException e) {
                 fail(e.getMessage());
             }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 

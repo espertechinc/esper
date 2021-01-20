@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.context;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.context.ContextPartitionVariableState;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.variable.VariableNotFoundException;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -21,6 +19,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import org.junit.Assert;
@@ -194,9 +193,9 @@ public class ContextVariables {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("P1", 100));    // update
-            EPAssertionUtil.assertProps(env.listener("upd").assertOneGetNewAndReset(), fields, new Object[]{100});
-            EPAssertionUtil.assertPropsPerRow(EPAssertionUtil.iteratorToArray(env.iterator("upd")), fields, new Object[][]{{100}});
-            EPAssertionUtil.assertProps(env.listener("var").assertPairGetIRAndReset(), fields, new Object[]{100}, new Object[]{5});
+            env.assertPropsNew("upd", fields, new Object[]{100});
+            env.assertPropsPerRowIterator("upd", fields, new Object[][]{{100}});
+            env.assertPropsIRPair("var", fields, new Object[]{100}, new Object[]{5});
 
             env.milestone(3);
 
@@ -205,12 +204,10 @@ public class ContextVariables {
             env.milestone(4);
 
             env.sendEventBean(new SupportBean("P2", 101));    // update
-            EPAssertionUtil.assertProps(env.listener("upd").assertOneGetNewAndReset(), fields, new Object[]{101});
-            EPAssertionUtil.assertPropsPerRow(EPAssertionUtil.iteratorToArray(env.iterator("upd")), fields, new Object[][]{{100}, {101}});
-
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("var"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(events, fields, new Object[][]{{100}, {101}});
-            EPAssertionUtil.assertProps(env.listener("var").assertPairGetIRAndReset(), fields, new Object[]{101}, new Object[]{5});
+            env.assertPropsNew("upd", fields, new Object[]{101});
+            env.assertPropsPerRowIterator("upd", fields, new Object[][]{{100}, {101}});
+            env.assertPropsPerRowIteratorAnyOrder("var", fields, new Object[][]{{100}, {101}});
+            env.assertPropsIRPair("var", fields, new Object[]{101}, new Object[]{5});
 
             env.undeployAll();
         }
@@ -255,6 +252,10 @@ public class ContextVariables {
             }
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

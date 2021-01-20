@@ -77,7 +77,6 @@ public class InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd implements 
         env.compileDeploy(eplMergeSelect, path);
         env.compileDeploy("@name('s0') select * from MyOutputStream", path).addListener("s0");
         SupportListener listener = env.listener("s0");
-
         WriteRunnable writeRunnable = new WriteRunnable(env);
         ReadRunnable readRunnable = new ReadRunnable(env, listener);
 

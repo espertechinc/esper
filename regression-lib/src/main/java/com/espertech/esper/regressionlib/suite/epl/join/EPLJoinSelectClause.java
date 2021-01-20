@@ -16,10 +16,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import java.util.Iterator;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class EPLJoinSelectClause implements RegressionExecution {
 
@@ -31,28 +28,32 @@ public class EPLJoinSelectClause implements RegressionExecution {
             " where s0.doubleBoxed = s1.doubleBoxed";
         env.compileDeployAddListenerMileZero(epl, "s0");
 
-        EventType result = env.statement("s0").getEventType();
-        assertEquals(Double.class, result.getPropertyType("s0.doubleBoxed"));
-        assertEquals(Double.class, result.getPropertyType("div"));
-        assertEquals(2, env.statement("s0").getEventType().getPropertyNames().length);
-
-        assertNull(env.listener("s0").getLastNewData());
+        env.assertStatement("s0", statement -> {
+            EventType result = statement.getEventType();
+            assertEquals(Double.class, result.getPropertyType("s0.doubleBoxed"));
+            assertEquals(Double.class, result.getPropertyType("div"));
+            assertEquals(2, statement.getEventType().getPropertyNames().length);
+        });
+        env.assertListenerNotInvoked("s0");
 
         sendEvent(env, "s0", 1, 4, 5);
 
         env.milestone(1);
 
         sendEvent(env, "s1", 1, 3, 2);
-        EventBean[] newEvents = env.listener("s0").getLastNewData();
-        assertEquals(1d, newEvents[0].get("s0.doubleBoxed"));
-        assertEquals(3d, newEvents[0].get("div"));
+        env.assertListener("s0", listener -> {
+            EventBean[] newEvents = listener.getLastNewData();
+            assertEquals(1d, newEvents[0].get("s0.doubleBoxed"));
+            assertEquals(3d, newEvents[0].get("div"));
+        });
 
         env.milestone(2);
 
-        Iterator<EventBean> iterator = env.statement("s0").iterator();
-        EventBean theEvent = iterator.next();
-        assertEquals(1d, theEvent.get("s0.doubleBoxed"));
-        assertEquals(3d, theEvent.get("div"));
+        env.assertIterator("s0", iterator -> {
+            EventBean theEvent = iterator.next();
+            assertEquals(1d, theEvent.get("s0.doubleBoxed"));
+            assertEquals(3d, theEvent.get("div"));
+        });
 
         env.undeployAll();
     }

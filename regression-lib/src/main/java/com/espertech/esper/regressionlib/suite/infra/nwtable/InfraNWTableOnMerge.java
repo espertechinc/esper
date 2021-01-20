@@ -17,12 +17,12 @@ import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_Container;
@@ -34,6 +34,7 @@ import org.apache.avro.generic.GenericData;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
 import static org.junit.Assert.*;
@@ -144,8 +145,7 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(soda, epl, path);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EventBean event = env.iterator("create").next();
-            EPAssertionUtil.assertProps(event, "cnt,thearray".split(","), new Object[] {cntExpected, thearrayExpected});
+            env.assertIterator("create", iterator -> EPAssertionUtil.assertProps(iterator.next(), "cnt,thearray".split(","), new Object[] {cntExpected, thearrayExpected}));
 
             env.undeployAll();
         }
@@ -252,7 +252,7 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(epl, path).addListener("merge");
 
             env.sendEventBean(OrderBeanFactory.makeEventOne());
-            EPAssertionUtil.assertPropsPerRow(env.listener("merge").getLastNewData(), fields, new Object[][]{{"10020", "Enders Game"},
+            env.assertPropsPerRowLastNew("merge", fields, new Object[][]{{"10020", "Enders Game"},
                 {"10021", "Foundation 1"}, {"10022", "Stranger in a Strange Land"}});
 
             env.undeployAll();
@@ -282,14 +282,14 @@ public class InfraNWTableOnMerge {
             env.compileDeploy("on SupportBean_Container[beans] merge MyInfra where theString=p0 " +
                 "when matched then update set p1 = intPrimitive", path);
 
-            env.compileExecuteFAF("insert into MyInfra select 'A' as p0, 1 as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyInfra select 'A' as p0, 1 as p1", path);
 
             SupportBean b1 = new SupportBean("A", 20);
             SupportBean b2 = new SupportBean("A", 30);
             SupportBean_Container container = new SupportBean_Container(Arrays.asList(b1, b2));
             env.sendEventBean(container);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"A", 30}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"A", 30}});
 
             env.undeployAll();
         }
@@ -327,16 +327,16 @@ public class InfraNWTableOnMerge {
                 "then update set p1 = intPrimitive";
             env.compileDeploy(stmtTextMerge, path).addListener("merge");
 
-            env.compileExecuteFAF("insert into MyInfra select 'A' as p0, 1 as p1", path);
+            env.compileExecuteFAFNoResult("insert into MyInfra select 'A' as p0, 1 as p1", path);
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"A", 1}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"A", 1}});
 
             env.sendEventBean(new SupportBean("A", 10));
 
             if (namedWindow) {
-                EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"A", 10}});
+                env.assertPropsPerRowIterator("create", fields, new Object[][]{{"A", 10}});
             } else {
-                assertFalse(env.iterator("create").hasNext());
+                env.assertIterator("create", iterator -> assertFalse(iterator.hasNext()));
             }
 
             env.undeployAll();
@@ -369,20 +369,20 @@ public class InfraNWTableOnMerge {
             // create merge
             String stmtTextMerge = "@name('merge') on SupportBean sb merge MyInfra insert select theString as p0, intPrimitive as p1";
             env.compileDeploy(stmtTextMerge, path).addListener("merge");
-            assertEquals(StatementType.ON_MERGE, env.statement("merge").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("merge", statement -> assertEquals(StatementType.ON_MERGE, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             env.milestone(0);
 
             // populate some data
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("merge").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsNew("merge",  fields, new Object[]{"E1", 1});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("merge").getLastNewData()[0], fields, new Object[]{"E2", 2});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowLastNew("merge", fields, new Object[][]{{"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             env.undeployAll();
         }
@@ -428,28 +428,26 @@ public class InfraNWTableOnMerge {
             // populate some data
             env.sendEventBean(new SupportBean("E1", 0));
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertProps(env.listener("merge").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E2", 2}});
+            env.assertPropsNew("merge",  fields, new Object[]{"E2", 2});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E2", 2}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 10));
-            EPAssertionUtil.assertProps(env.listener("merge").getLastNewData()[0], fields, new Object[]{"E2", 12});
-            EPAssertionUtil.assertProps(env.listener("merge").getLastOldData()[0], fields, new Object[]{"E2", 2});
-            env.listener("merge").reset();
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E2", 12}});
+            env.assertPropsIRPair("merge", fields, new Object[]{"E2", 12}, new Object[]{"E2", 2});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E2", 12}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", -1));
-            EPAssertionUtil.assertProps(env.listener("merge").assertOneGetOldAndReset(), fields, new Object[]{"E2", 12});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, null);
+            env.assertPropsOld("merge", fields, new Object[]{"E2", 12});
+            env.assertPropsPerRowIterator("create", fields, null);
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E3", 3));
             env.sendEventBean(new SupportBean("E3", 4));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E3", 7}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E3", 7}});
 
             env.undeployAll();
 
@@ -494,22 +492,26 @@ public class InfraNWTableOnMerge {
             }
 
             env.compileDeploy(soda, epl, path);
-            EventType windowType = env.statement("Window").getEventType();
-            EventType onType = env.statement("on").getEventType();
-            assertSame(windowType, onType);
+            env.assertThat(() -> {
+                EventType windowType = env.statement("Window").getEventType();
+                EventType onType = env.statement("on").getEventType();
+                assertSame(windowType, onType);
+            });
             env.addListener("on");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 1}});
-            EventBean onEvent = env.listener("on").assertOneGetNewAndReset();
-            assertEquals("E1", onEvent.get("p0"));
-            assertSame(onEvent.getEventType(), onType);
+            env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 1}});
+            env.assertThat(() -> {
+                EventBean onEvent = env.listener("on").assertOneGetNewAndReset();
+                assertEquals("E1", onEvent.get("p0"));
+                assertSame(onEvent.getEventType(), env.statement("on").getEventType());
+            });
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
-            assertEquals("E2", env.listener("on").assertOneGetNewAndReset().get("p0"));
+            env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertEqualsNew("on", "p0", "E2");
 
             env.undeployAll();
         }
@@ -533,6 +535,7 @@ public class InfraNWTableOnMerge {
 
         public void run(RegressionEnvironment env) {
             String[] fields = "theString,intPrimitive,intBoxed".split(",");
+            AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
             String createEPL = namedWindow ?
                 "@Name('Window') create window MyMergeInfra#unique(theString) as SupportBean" :
@@ -555,15 +558,15 @@ public class InfraNWTableOnMerge {
                 "insert select " + (namedWindow ? "*" : "theString, intPrimitive, intBoxed");
             env.compileDeploy(epl, path).addListener("Merge");
 
-            runAssertionFlow(env, namedWindow, fields);
+            runAssertionFlow(env, namedWindow, fields, milestone);
 
             env.undeployModuleContaining("Merge");
             env.sendEventBean(new SupportBean_A("A1"));
-            env.listener("Window").reset();
+            env.listenerReset("Window");
 
             env.eplToModelCompileDeploy(epl, path).addListener("Merge");
 
-            runAssertionFlow(env, namedWindow, fields);
+            runAssertionFlow(env, namedWindow, fields, milestone);
 
             // test stream wildcard
             env.sendEventBean(new SupportBean_A("A2"));
@@ -576,7 +579,7 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(epl, path).addListener("Merge");
 
             sendSupportBeanEvent(env, false, "E99", 2, 3); // insert via merge
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E99", 2, 3}});
+            env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E99", 2, 3}});
 
             // Test ambiguous columns.
             epl = "create schema TypeOne (id long, mylong long, mystring long);\n";
@@ -600,99 +603,82 @@ public class InfraNWTableOnMerge {
         }
     }
 
-    private static void runAssertionFlow(RegressionEnvironment env, boolean namedWindow, String[] fields) {
-        env.listener("Window").reset();
-        env.listener("Merge").reset();
+    private static void runAssertionFlow(RegressionEnvironment env, boolean namedWindow, String[] fields, AtomicInteger milestone) {
+        env.listenerReset("Window");
+        env.listenerReset("Merge");
 
         sendSupportBeanEvent(env, true, "E1", 10, 200); // insert via insert-into
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNewAndReset(), fields, new Object[]{"E1", 10, 200});
+            env.assertPropsNew("Window", fields, new Object[]{"E1", 10, 200});
         } else {
-            assertFalse(env.listener("Window").isInvoked());
+            env.assertListenerNotInvoked("Window");
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 10, 200}});
-        assertFalse(env.listener("Merge").isInvoked());
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 10, 200}});
+        env.assertListenerNotInvoked("Merge");
 
         sendSupportBeanEvent(env, false, "E1", 11, 201);    // update via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNew(), fields, new Object[]{"E1", 11, 401});
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOld(), fields, new Object[]{"E1", 10, 200});
-            env.listener("Window").reset();
+            env.assertPropsIRPair("Window", fields, new Object[]{"E1", 11, 401}, new Object[]{"E1", 10, 200});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNew(), fields, new Object[]{"E1", 11, 401});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOld(), fields, new Object[]{"E1", 10, 200});
-        env.listener("Merge").reset();
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}});
+        env.assertPropsIRPair("Merge", fields, new Object[]{"E1", 11, 401}, new Object[]{"E1", 10, 200});
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         sendSupportBeanEvent(env, false, "E2", 13, 300); // insert via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNewAndReset(), fields, new Object[]{"E2", 13, 300});
+            env.assertPropsNew("Window", fields, new Object[]{"E2", 13, 300});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E2", 13, 300}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"E2", 13, 300});
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E2", 13, 300}});
+        env.assertPropsNew("Merge", fields, new Object[]{"E2", 13, 300});
 
         sendSupportBeanEvent(env, false, "E2", 14, 301); // update via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNew(), fields, new Object[]{"E2", 14, 601});
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOld(), fields, new Object[]{"E2", 13, 300});
-            env.listener("Window").reset();
+            env.assertPropsIRPair("Window", fields, new Object[]{"E2", 14, 601}, new Object[]{"E2", 13, 300});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E2", 14, 601}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNew(), fields, new Object[]{"E2", 14, 601});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOld(), fields, new Object[]{"E2", 13, 300});
-        env.listener("Merge").reset();
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E2", 14, 601}});
+        env.assertPropsIRPair("Merge", fields, new Object[]{"E2", 14, 601}, new Object[]{"E2", 13, 300});
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         sendSupportBeanEvent(env, false, "E2", 15, 302); // update via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNew(), fields, new Object[]{"E2", 15, 903});
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOld(), fields, new Object[]{"E2", 14, 601});
-            env.listener("Window").reset();
+            env.assertPropsIRPair("Window", fields, new Object[]{"E2", 15, 903}, new Object[]{"E2", 14, 601});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNew(), fields, new Object[]{"E2", 15, 903});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOld(), fields, new Object[]{"E2", 14, 601});
-        env.listener("Merge").reset();
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}});
+        env.assertPropsIRPair("Merge", fields, new Object[]{"E2", 15, 903}, new Object[]{"E2", 14, 601});
 
         sendSupportBeanEvent(env, false, "E3", 40, 400); // insert via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNewAndReset(), fields, new Object[]{"E3", 40, 400});
+            env.assertPropsNew("Window", fields, new Object[]{"E3", 40, 400});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}, {"E3", 40, 400}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"E3", 40, 400});
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}, {"E3", 40, 400}});
+        env.assertPropsNew("Merge", fields, new Object[]{"E3", 40, 400});
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
 
         sendSupportBeanEvent(env, false, "E3", 0, 1000); // reset E3 via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetNew(), fields, new Object[]{"E3", 0, 0});
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOld(), fields, new Object[]{"E3", 40, 400});
-            env.listener("Window").reset();
+            env.assertPropsIRPair("Window", fields, new Object[]{"E3", 0, 0}, new Object[]{"E3", 40, 400});
         }
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}, {"E3", 0, 0}});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNew(), fields, new Object[]{"E3", 0, 0});
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOld(), fields, new Object[]{"E3", 40, 400});
-        env.listener("Merge").reset();
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E2", 15, 903}, {"E3", 0, 0}});
+        env.assertPropsIRPair("Merge", fields, new Object[]{"E3", 0, 0}, new Object[]{"E3", 40, 400});
 
         sendSupportBeanEvent(env, false, "E2", -1, 1000); // delete E2 via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOldAndReset(), fields, new Object[]{"E2", 15, 903});
+            env.assertPropsOld("Window", fields, new Object[]{"E2", 15, 903});
         }
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOldAndReset(), fields, new Object[]{"E2", 15, 903});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E1", 11, 401}, {"E3", 0, 0}});
+        env.assertPropsOld("Merge", fields, new Object[]{"E2", 15, 903});
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E1", 11, 401}, {"E3", 0, 0}});
 
-        env.milestone(3);
+        env.milestoneInc(milestone);
 
         sendSupportBeanEvent(env, false, "E1", -1, 1000); // delete E1 via merge
         if (namedWindow) {
-            EPAssertionUtil.assertProps(env.listener("Window").assertOneGetOldAndReset(), fields, new Object[]{"E1", 11, 401});
-            env.listener("Window").reset();
+            env.assertPropsOld("Window", fields, new Object[]{"E1", 11, 401});
         }
-        EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOldAndReset(), fields, new Object[]{"E1", 11, 401});
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Window"), fields, new Object[][]{{"E3", 0, 0}});
+        env.assertPropsOld("Merge", fields, new Object[]{"E1", 11, 401});
+        env.assertPropsPerRowIteratorAnyOrder("Window", fields, new Object[][]{{"E3", 0, 0}});
     }
 
     private static class InfraMultipleInsert implements RegressionExecution {
@@ -706,7 +692,7 @@ public class InfraNWTableOnMerge {
             EventRepresentationChoice rep = EventRepresentationChoice.getEngineDefault(env.getConfiguration());
             String[] fields = "col1,col2".split(",");
 
-            String epl = "create schema MyEvent as (in1 string, in2 int);\n" +
+            String epl = "@buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
                 "create schema MySchema as (col1 string, col2 int);\n";
             epl += namedWindow ?
                 "create window MyInfraMI#keepall as MySchema;\n" :
@@ -722,29 +708,29 @@ public class InfraNWTableOnMerge {
                 "insert select \"Z\" as col1, -1 as col2 " +
                 "when not matched and in1 like \"D%\" then " +
                 "insert select \"x\"||in1||\"x\" as col1, in2*-1 as col2;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("Merge");
+            env.compileDeploy(epl, new RegressionPath()).addListener("Merge");
 
             sendMyEvent(env, rep, "E1", 0);
-            assertFalse(env.listener("Merge").isInvoked());
+            env.assertListenerNotInvoked("Merge");
 
             env.milestone(0);
 
             sendMyEvent(env, rep, "A1", 1);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"A1", 1});
+            env.assertPropsNew("Merge", fields, new Object[]{"A1", 1});
 
             sendMyEvent(env, rep, "B1", 2);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"B1", 2});
+            env.assertPropsNew("Merge", fields, new Object[]{"B1", 2});
 
             sendMyEvent(env, rep, "C1", 3);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"Z", -1});
+            env.assertPropsNew("Merge", fields, new Object[]{"Z", -1});
 
             env.milestone(1);
 
             sendMyEvent(env, rep, "D1", 4);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"xD1x", -4});
+            env.assertPropsNew("Merge", fields, new Object[]{"xD1x", -4});
 
             sendMyEvent(env, rep, "B1", 2);
-            assertFalse(env.listener("Merge").isInvoked());
+            env.assertListenerNotInvoked("Merge");
 
             env.undeployAll();
         }
@@ -767,7 +753,7 @@ public class InfraNWTableOnMerge {
             String[] fields = "col1,col2".split(",");
             EventRepresentationChoice rep = EventRepresentationChoice.getEngineDefault(env.getConfiguration());
 
-            String epl = "create schema MyEvent as (in1 string, in2 int);\n" +
+            String epl = "@buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
                 "create schema MySchema as (col1 string, col2 int);\n";
             epl += namedWindow ?
                 "@name('create') create window MyInfraNWC#keepall as MySchema;\n" :
@@ -783,37 +769,37 @@ public class InfraNWTableOnMerge {
                 "update set col1='Z', col2=-1 " +
                 "when not matched then " +
                 "insert select \"x\" || me.in1 || \"x\" as col1, me.in2 * -1 as col2;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             sendMyEvent(env, rep, "E1", 2);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"xE1x", -2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"xE1x", -2}});
 
             sendMyEvent(env, rep, "A1", 3);   // matched : no where clause
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"xE1x", -2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"xE1x", -2}});
 
             env.sendEventBean(new SupportBean_A("Ax1"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, null);
 
             env.milestone(0);
 
             sendMyEvent(env, rep, "A1", 4);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A1", 4}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A1", 4}});
 
             sendMyEvent(env, rep, "B1", 5);   // matched : no where clause
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A1", 4}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A1", 4}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_A("Ax1"));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, null);
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, null);
 
             env.milestone(2);
 
             sendMyEvent(env, rep, "B1", 5);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"B1", 5}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"B1", 5}});
 
             sendMyEvent(env, rep, "C", 6);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"Z", -1}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"Z", -1}});
 
             env.undeployAll();
         }
@@ -920,8 +906,8 @@ public class InfraNWTableOnMerge {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String schema = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInnerSchema.class) + " create schema MyInnerSchema(in1 string, in2 int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventSchema.class) + " create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
-            env.compileDeployWBusPublicType(schema, path);
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventSchema.class) + " @buseventtype create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
+            env.compileDeploy(schema, path);
 
             String eplCreate = namedWindow ?
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInfraITV.class) + " create window MyInfraITV#keepall as (c1 string, c2 MyInnerSchema)" :
@@ -944,22 +930,22 @@ public class InfraNWTableOnMerge {
             String[] fields = "c1,c2.in1,c2.in2".split(",");
 
             sendMyInnerSchemaEvent(env, eventRepresentationEnum, "X1", "Y1", 10);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"B", "Y1", 10});
+            env.assertPropsNew("Merge", fields, new Object[]{"B", "Y1", 10});
 
             sendMyInnerSchemaEvent(env, eventRepresentationEnum, "B", "0", 0);    // delete
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetOldAndReset(), fields, new Object[]{"B", "Y1", 10});
+            env.assertPropsOld("Merge", fields, new Object[]{"B", "Y1", 10});
 
             env.milestone(0);
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("createvar"), "myvar", true);
             sendMyInnerSchemaEvent(env, eventRepresentationEnum, "X2", "Y2", 11);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"X2", "Y2", 11});
+            env.assertPropsNew("Merge", fields, new Object[]{"X2", "Y2", 11});
 
             env.milestone(1);
 
             env.runtime().getVariableService().setVariableValue(env.deploymentId("createvar"), "myvar", false);
             sendMyInnerSchemaEvent(env, eventRepresentationEnum, "X3", "Y3", 12);
-            EPAssertionUtil.assertProps(env.listener("Merge").assertOneGetNewAndReset(), fields, new Object[]{"A", null, null});
+            env.assertPropsNew("Merge", fields, new Object[]{"A", null, null});
 
             env.undeployModuleContaining("Merge");
             env.compileDeploy(epl, path);
@@ -996,6 +982,10 @@ public class InfraNWTableOnMerge {
                 ", eventRepresentationEnum=" + eventRepresentationEnum +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class InfraPatternMultimatch implements RegressionExecution {
@@ -1027,7 +1017,7 @@ public class InfraNWTableOnMerge {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("B1", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}});
 
             env.sendEventBean(new SupportBean("A3", 2));
 
@@ -1035,7 +1025,7 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(new SupportBean("A4", 2));
             env.sendEventBean(new SupportBean("B2", 2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}, {"A3", "B2"}, {"A4", "B2"}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}, {"A3", "B2"}, {"A4", "B2"}});
 
             env.undeployAll();
         }
@@ -1073,16 +1063,16 @@ public class InfraNWTableOnMerge {
             env.compileDeploy(epl).addListener("s1").addListener("s2").addListener("s3").addListener("s4");
 
             env.sendEventBean(new SupportBean_ST0("ID1", "K1", 1));
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "id,key0".split(","), new Object[]{"ID1", "K1"});
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), "id,key0".split(","), new Object[]{"ID1", "K1"});
-            EPAssertionUtil.assertProps(env.listener("s3").assertOneGetNewAndReset(), "id,key0".split(","), new Object[]{"ID1", "K1"});
-            assertFalse(env.listener("s4").isInvoked());
+            env.assertPropsNew("s1", "id,key0".split(","), new Object[]{"ID1", "K1"});
+            env.assertPropsNew("s2", "id,key0".split(","), new Object[]{"ID1", "K1"});
+            env.assertPropsNew("s3", "id,key0".split(","), new Object[]{"ID1", "K1"});
+            env.assertListenerNotInvoked("s4");
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_ST0("ID1", "K2", 2));
-            EPAssertionUtil.assertProps(env.listener("s4").assertOneGetNewAndReset(), "id,key0".split(","), new Object[]{"ID1", "K2"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), "v1,v2".split(","), new Object[][]{{"K1", 1}, {"K2", 2}});
+            env.assertPropsNew("s4", "id,key0".split(","), new Object[]{"ID1", "K2"});
+            env.assertPropsPerRowIterator("Create", "v1,v2".split(","), new Object[][]{{"K1", 1}, {"K2", 2}});
 
             env.undeployAll();
         }
@@ -1122,33 +1112,33 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean_ST0("ST0", "E1", 0));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("Create", fields, new Object[][]{{"E1", 1}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E2", -1));
             env.sendEventBean(new SupportBean_ST0("ST0", "E2", 0));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("Create", fields, new Object[][]{{"E1", 1}});
 
             env.sendEventBean(new SupportBean("E3", 3000));
             env.sendEventBean(new SupportBean_ST0("ST0", "E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertPropsPerRowIterator("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E4", 4));
             env.sendEventBean(new SupportBean_ST0("ST0", "E4", 3000));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}});
+            env.assertPropsPerRowIteratorAnyOrder("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}});
 
             env.sendEventBean(new SupportBean("E5", 1000));
             env.sendEventBean(new SupportBean_ST0("ST0", "E5", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}, {"E5", 999}});
+            env.assertPropsPerRowIteratorAnyOrder("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}, {"E5", 999}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E6", 2000));
             env.sendEventBean(new SupportBean_ST0("ST0", "E6", 0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("Create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}, {"E5", 999}, {"E6", 1999}});
+            env.assertPropsPerRowIteratorAnyOrder("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}, {"E4", 3000}, {"E5", 999}, {"E6", 1999}});
             env.undeployModuleContaining("merge");
 
             env.eplToModelCompileDeploy(epl, path);
@@ -1191,12 +1181,12 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(new SupportBean_S0(50));  // InfraTwo now has a row {W2, 1}
             env.sendEventBean(new SupportBean("W2", 1));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), "string,intPrimitive".split(","), new Object[][]{{"Y", 50}});
+            env.assertPropsPerRowIterator("Create", "string,intPrimitive".split(","), new Object[][]{{"Y", 50}});
 
             if (namedWindow) {
                 env.sendEventBean(new SupportBean_S0(51));  // InfraTwo now has a row {W2, 1}
                 env.sendEventBean(new SupportBean("W2", 2));
-                EPAssertionUtil.assertPropsPerRow(env.iterator("Create"), "string,intPrimitive".split(","), new Object[][]{{"Y", 51}});
+                env.assertPropsPerRowIterator("Create", "string,intPrimitive".split(","), new Object[][]{{"Y", 51}});
             }
 
             env.undeployAll();
@@ -1230,16 +1220,16 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(makeSupportBean("E1", 1, 2));
             env.sendEventBean(new SupportBean_S0(5, "E1"));
-            EPAssertionUtil.assertProps(env.listener("Merge").getAndResetLastNewData()[0], fields, new Object[]{5, 5, 1.0});
+            env.assertPropsPerRowLastNew("Merge", fields, new Object[][]{{5, 5, 1.0}});
 
             env.milestone(0);
 
             env.sendEventBean(makeSupportBean("E2", 10, 20));
             env.sendEventBean(new SupportBean_S0(6, "E2"));
-            EPAssertionUtil.assertProps(env.listener("Merge").getAndResetLastNewData()[0], fields, new Object[]{6, 6, 10.0});
+            env.assertPropsPerRowLastNew("Merge", fields, new Object[][]{{6, 6, 10.0}});
 
             env.sendEventBean(new SupportBean_S0(7, "E1"));
-            EPAssertionUtil.assertProps(env.listener("Merge").getAndResetLastNewData()[0], fields, new Object[]{7, 7, 5.0});
+            env.assertPropsPerRowLastNew("Merge", fields, new Object[][]{{7, 7, 5.0}});
 
             env.undeployAll();
         }
@@ -1261,7 +1251,7 @@ public class InfraNWTableOnMerge {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create schema MyEvent as (name string, value double);\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent as (name string, value double);\n" +
                 (namedWindow ?
                     eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create window MyInfraIOS#unique(name) as MyEvent;\n" :
                     "create table MyInfraIOS (name string primary key, value double primary key);\n"
@@ -1276,7 +1266,7 @@ public class InfraNWTableOnMerge {
                 "   when not matched then\n" +
                 "      insert into OtherStreamOne select eme.name as event_name, 0d as status;\n" +
                 "@name('s0') select * from OtherStreamOne;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             makeSendNameValueEvent(env, eventRepresentationEnum, "MyEvent", "name1", 10d);
             env.assertPropsNew("s0", "event_name,status".split(","), new Object[]{"name1", namedWindow ? 0d : 10d});
@@ -1309,12 +1299,12 @@ public class InfraNWTableOnMerge {
                 theEvent.put("value", value);
                 env.sendEventMap(theEvent, typeName);
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(typeName)));
+                GenericData.Record record = new GenericData.Record(env.runtimeAvroSchemaPreconfigured(typeName));
                 record.put("name", name);
                 record.put("value", value);
-                env.eventService().sendEventAvro(record, typeName);
+                env.sendEventAvro(record, typeName);
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.eventService().sendEventJson(new JsonObject().add("name", name).add("value", value).toString(), typeName);
+                env.sendEventJson(new JsonObject().add("name", name).add("value", value).toString(), typeName);
             } else {
                 fail();
             }
@@ -1329,8 +1319,9 @@ public class InfraNWTableOnMerge {
         }
 
         public void run(RegressionEnvironment env) {
-            runUpdateNestedEvent(env, namedWindow, "map");
-            runUpdateNestedEvent(env, namedWindow, "objectarray");
+            AtomicInteger milestone = new AtomicInteger();
+            runUpdateNestedEvent(env, namedWindow, "map", milestone);
+            runUpdateNestedEvent(env, namedWindow, "objectarray", milestone);
         }
 
         public String name() {
@@ -1340,18 +1331,18 @@ public class InfraNWTableOnMerge {
         }
     }
 
-    private static void runUpdateNestedEvent(RegressionEnvironment env, boolean namedWindow, String metaType) {
+    private static void runUpdateNestedEvent(RegressionEnvironment env, boolean namedWindow, String metaType, AtomicInteger milestone) {
         String eplTypes =
-            "create " + metaType + " schema Composite as (c0 int);\n" +
-                "create " + metaType + " schema AInfraType as (k string, cflat Composite, carr Composite[]);\n" +
+                "create " + metaType + " schema Composite as (c0 int);\n" +
+                "@buseventtype create " + metaType + " schema AInfraType as (k string, cflat Composite, carr Composite[]);\n" +
                 (namedWindow ?
                     "create window AInfra#lastevent as AInfraType;\n" :
                     "create table AInfra (k string, cflat Composite, carr Composite[]);\n") +
                 "insert into AInfra select theString as k, null as cflat, null as carr from SupportBean;\n" +
-                "create " + metaType + " schema MyEvent as (cf Composite, ca Composite[]);\n" +
+                "@buseventtype create " + metaType + " schema MyEvent as (cf Composite, ca Composite[]);\n" +
                 "on MyEvent e merge AInfra when matched then update set cflat = e.cf, carr = e.ca";
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(eplTypes, path);
+        env.compileDeploy(eplTypes, path);
 
         env.sendEventBean(new SupportBean("E1", 1));
 
@@ -1361,10 +1352,12 @@ public class InfraNWTableOnMerge {
             env.sendEventObjectArray(makeNestedOAEvent(), "MyEvent");
         }
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
-        EPFireAndForgetQueryResult result = env.compileExecuteFAF("select cflat.c0 as cf0, carr[0].c0 as ca0, carr[1].c0 as ca1 from AInfra", path);
-        EPAssertionUtil.assertProps(result.getArray()[0], "cf0,ca0,ca1".split(","), new Object[]{1, 1, 2});
+        env.assertThat(() -> {
+            EPFireAndForgetQueryResult result = env.compileExecuteFAF("select cflat.c0 as cf0, carr[0].c0 as ca0, carr[1].c0 as ca1 from AInfra", path);
+            EPAssertionUtil.assertProps(result.getArray()[0], "cf0,ca0,ca1".split(","), new Object[]{1, 1, 2});
+        });
 
         env.undeployAll();
     }
@@ -1402,7 +1395,7 @@ public class InfraNWTableOnMerge {
             theEvent.put("col2", inner);
             env.sendEventMap(theEvent, "MyEventSchema");
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            Schema schema = SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("MyEventSchema"));
+            Schema schema = env.runtimeAvroSchemaPreconfigured("MyEventSchema");
             Schema innerSchema = schema.getField("col2").schema();
             GenericData.Record innerRecord = new GenericData.Record(innerSchema);
             innerRecord.put("in1", col2in1);
@@ -1410,11 +1403,11 @@ public class InfraNWTableOnMerge {
             GenericData.Record record = new GenericData.Record(schema);
             record.put("col1", col1);
             record.put("col2", innerRecord);
-            env.eventService().sendEventAvro(record, "MyEventSchema");
+            env.sendEventAvro(record, "MyEventSchema");
         } else if (eventRepresentationEnum.isJsonEvent()) {
             JsonObject inner = new JsonObject().add("in1", col2in1).add("in2", col2in2);
             JsonObject outer = new JsonObject().add("col1", col1).add("col2", inner);
-            env.eventService().sendEventJson(outer.toString(), "MyEventSchema");
+            env.sendEventJson(outer.toString(), "MyEventSchema");
         } else {
             fail();
         }

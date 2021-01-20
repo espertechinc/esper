@@ -15,15 +15,13 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeployPreconditionException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,6 +53,10 @@ public class ClientDeployPreconditionDependency {
             String text = "dependency application-inlined class 'MyClass'";
             tryInvalidDeploy(env, path, "select MyClass.doIt() from SupportBean", text);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientVisibilityDeployDepEventTypePublic implements RegressionExecution {
@@ -70,6 +72,10 @@ public class ClientDeployPreconditionDependency {
             }
 
             tryInvalidDeploy(env, compiled, "pre-configured event type 'SomeEvent'");
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -88,6 +94,12 @@ public class ClientDeployPreconditionDependency {
 
             tryInvalidDeploy(env, compiled, "pre-configured variable 'mypublicvariable'");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
+
+
     }
 
     public static class ClientVisibilityDeployDepVariablePath implements RegressionExecution {
@@ -97,6 +109,10 @@ public class ClientDeployPreconditionDependency {
 
             String text = "dependency variable 'somevariable'";
             tryInvalidDeploy(env, path, "select somevariable from SupportBean", text);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -108,6 +124,10 @@ public class ClientDeployPreconditionDependency {
             String text = "dependency named window 'SimpleWindow'";
             tryInvalidDeploy(env, path, "select * from SimpleWindow", text);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientVisibilityDeployDepTable implements RegressionExecution {
@@ -117,6 +137,10 @@ public class ClientDeployPreconditionDependency {
 
             String text = "dependency table 'SimpleTable'";
             tryInvalidDeploy(env, path, "select * from SimpleTable", text);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -128,6 +152,10 @@ public class ClientDeployPreconditionDependency {
             String text = "dependency declared-expression 'someexpression'";
             tryInvalidDeploy(env, path, "select someexpression() from SupportBean", text);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientVisibilityDeployDepScript implements RegressionExecution {
@@ -138,6 +166,10 @@ public class ClientDeployPreconditionDependency {
             String text = "dependency script 'myscript'";
             tryInvalidDeploy(env, path, "select myscript('abc') from SupportBean", text);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientVisibilityDeployDepContext implements RegressionExecution {
@@ -147,6 +179,10 @@ public class ClientDeployPreconditionDependency {
 
             String text = "dependency context 'MyContext'";
             tryInvalidDeploy(env, path, "context MyContext select * from SupportBean", text);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -172,6 +208,10 @@ public class ClientDeployPreconditionDependency {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientVisibilityDeployDepEventTypePath implements RegressionExecution {
@@ -181,6 +221,10 @@ public class ClientDeployPreconditionDependency {
 
             String text = "dependency event type 'MySchema'";
             tryInvalidDeploy(env, path, "insert into MySchema select 'a' as col1 from SupportBean", text);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -197,6 +241,10 @@ public class ClientDeployPreconditionDependency {
             tryInvalidDeploy(env, insertDEF, "dependency named window 'MyWindow' module 'DEF'");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

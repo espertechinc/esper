@@ -114,12 +114,12 @@ public class SupportEvalBuilder {
         return excludeEPLAssertion;
     }
 
-    public void run(RegressionEnvironment environment) {
-        run(environment, false);
+    public SupportEvalBuilderResult run(RegressionEnvironment environment) {
+        return run(environment, false);
     }
 
-    public void run(RegressionEnvironment environment, boolean soda) {
-        SupportEvalRunner.run(environment, soda, this);
+    public SupportEvalBuilderResult run(RegressionEnvironment environment, boolean soda) {
+        return SupportEvalRunner.run(environment, soda, this);
     }
 
     public SupportEvalBuilder setExludeAssertionsExcept(int included) {

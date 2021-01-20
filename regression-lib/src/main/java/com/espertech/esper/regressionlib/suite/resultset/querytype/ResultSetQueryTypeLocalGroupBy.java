@@ -219,9 +219,11 @@ public class ResultSetQueryTypeLocalGroupBy {
             // prove there is one shared state factory
             String theEpl = PLAN_CALLBACK_HOOK + "@name('s0') select window(*, group_by:theString), last(*, group_by:theString) from SupportBean#length(2)";
             env.compile(theEpl);
-            Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
-            assertEquals(1, plan.getSecond().getAllLevelsForges().length);
-            assertEquals(1, plan.getSecond().getAllLevelsForges()[0].getAccessStateForges().length);
+            env.assertThat(() -> {
+                Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
+                assertEquals(1, plan.getSecond().getAllLevelsForges().length);
+                assertEquals(1, plan.getSecond().getAllLevelsForges()[0].getAccessStateForges().length);
+            });
         }
     }
 
@@ -231,28 +233,16 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             // full-aggregated and un-grouped (row for all)
             tryAssertionAggAndFullyAgg(env, "select sum(group_by:(),intPrimitive) as c0 from SupportBean",
-                new MyAssertion() {
-                    public void doAssert(SupportListener listener) {
-                        env.assertPropsNew("s0", colsC0, new Object[]{60});
-                    }
-                });
+                listener -> env.assertPropsNew("s0", colsC0, new Object[]{60}));
 
             // aggregated and un-grouped (row for event)
             tryAssertionAggAndFullyAgg(env, "select sum(group_by:theString, intPrimitive) as c0 from SupportBean#keepall",
-                new MyAssertion() {
-                    public void doAssert(SupportListener listener) {
-                        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), colsC0, new Object[][]{{10}, {50}, {50}});
-                    }
-                });
+                listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), colsC0, new Object[][]{{10}, {50}, {50}}));
 
             // fully aggregated and grouped (row for group)
             tryAssertionAggAndFullyAgg(env, "select sum(intPrimitive, group_by:()) as c0, sum(group_by:theString, intPrimitive) as c1, theString " +
                     "from SupportBean group by theString",
-                new MyAssertion() {
-                    public void doAssert(SupportListener listener) {
-                        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,c0,c1".split(","), new Object[][]{{"E1", 60, 10}, {"E2", 60, 50}});
-                    }
-                });
+                listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), "theString,c0,c1".split(","), new Object[][]{{"E1", 60, 10}, {"E2", 60, 50}}));
 
             // aggregated and grouped (row for event)
             tryAssertionAggAndFullyAgg(env, "select sum(longPrimitive, group_by:()) as c0," +
@@ -260,12 +250,8 @@ public class ResultSetQueryTypeLocalGroupBy {
                     " sum(longPrimitive, group_by:intPrimitive) as c2, " +
                     " theString " +
                     "from SupportBean#keepall group by theString",
-                new MyAssertion() {
-                    public void doAssert(SupportListener listener) {
-                        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(),
-                            "theString,c0,c1,c2".split(","), new Object[][]{{"E1", 600L, 100L, 100L}, {"E2", 600L, 500L, 200L}, {"E2", 600L, 500L, 300L}});
-                    }
-                });
+                listener -> EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(),
+                    "theString,c0,c1,c2".split(","), new Object[][]{{"E1", 600L, 100L, 100L}, {"E2", 600L, 500L, 200L}, {"E2", 600L, 500L, 300L}}));
         }
     }
 
@@ -345,7 +331,7 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.assertPropsNew("s0", cols, new Object[]{"E1", 50, 105L, 102 + 105L});
 
             env.sendEventBean(new SupportBean_S1(-1)); // delete all
-            env.listener("s0").reset();
+            env.listenerReset("s0");
 
             makeSendEvent(env, "E1", 60, 106);
             env.assertPropsNew("s0", cols, new Object[]{"E1", 60, 106L, 106L});
@@ -377,13 +363,13 @@ public class ResultSetQueryTypeLocalGroupBy {
             makeSendEvent(env, "E2", 10, 505);
             sendTime(env, 10000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"E1", 10, 504L, 504L, 706L, 1312L, 1514L}, {"E1", 20, 202L, 202L, 706L, 202L, 1514L}, {"E2", 10, 808L, 808L, 808L, 1312L, 1514L}});
 
             makeSendEvent(env, "E1", 10, 1);
             sendTime(env, 20000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"E1", 10, 505L, 505L, 707L, 1313L, 1515L}, {"E1", 20, 202L, 202L, 707L, 202L, 1515L}, {"E2", 10, 808L, 808L, 808L, 1313L, 1515L}});
 
             env.undeployAll();
@@ -415,15 +401,17 @@ public class ResultSetQueryTypeLocalGroupBy {
             sendTime(env, 10000);
 
             Object[] all = new Object[]{b1, b2, b3, b4, b5};
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fields,
-                new Object[]{"E1", 10, new Object[]{b1, b4}, new Object[]{b1, b4}, new Object[]{b1, b2, b4},
-                    new Object[]{b1, b3, b4, b5}, all});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[1], fields,
-                new Object[]{"E1", 20, new Object[]{b2}, new Object[]{b2}, new Object[]{b1, b2, b4},
-                    new Object[]{b2}, all});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[2], fields,
-                new Object[]{"E2", 10, new Object[]{b3, b5}, new Object[]{b3, b5}, new Object[]{b3, b5},
-                    new Object[]{b1, b3, b4, b5}, all});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields,
+                    new Object[]{"E1", 10, new Object[]{b1, b4}, new Object[]{b1, b4}, new Object[]{b1, b2, b4},
+                        new Object[]{b1, b3, b4, b5}, all});
+                EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields,
+                    new Object[]{"E1", 20, new Object[]{b2}, new Object[]{b2}, new Object[]{b1, b2, b4},
+                        new Object[]{b2}, all});
+                EPAssertionUtil.assertProps(listener.getLastNewData()[2], fields,
+                    new Object[]{"E2", 10, new Object[]{b3, b5}, new Object[]{b3, b5}, new Object[]{b3, b5},
+                        new Object[]{b1, b3, b4, b5}, all});
+            });
 
             env.undeployAll();
         }
@@ -451,13 +439,13 @@ public class ResultSetQueryTypeLocalGroupBy {
             makeSendEvent(env, "E2", 10, 505);
             sendTime(env, 10000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"E1", 10, 706L, 1312L, 1514L}, {"E1", 20, 706L, 202L, 1514L}, {"E2", 10, 808L, 1312L, 1514L}});
 
             makeSendEvent(env, "E1", 10, 1);
             sendTime(env, 20000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"E1", 10, 707L, 1313L, 1515L}, {"E1", 20, 707L, 202L, 1515L}, {"E2", 10, 808L, 1313L, 1515L}});
 
             env.undeployAll();
@@ -477,19 +465,19 @@ public class ResultSetQueryTypeLocalGroupBy {
             sendEventMany(env, "A", "B", "C", "B", "B", "C");
             sendTime(env, 10000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"A", 1 / 6d}, {"B", 3 / 6d}, {"C", 2 / 6d}});
 
             sendEventMany(env, "A", "B", "B", "B", "B", "A");
             sendTime(env, 20000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"A", 3 / 12d}, {"B", 7 / 12d}, {"C", 2 / 12d}});
 
             sendEventMany(env, "C", "A", "A", "A", "B", "A");
             sendTime(env, 30000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{
                 {"A", 6 / 12d}, {"B", 5 / 12d}, {"C", 1 / 12d}});
 
             env.undeployAll();
@@ -509,7 +497,7 @@ public class ResultSetQueryTypeLocalGroupBy {
         makeSendEvent(env, "E2", 30, 300);
         env.sendEventBean(new SupportBean_S1(0));
 
-        assertion.doAssert(env.listener("s0"));
+        env.assertListener("s0", assertion::doAssert);
 
         // try an empty batch
         env.sendEventBean(new SupportBean_S0(1));
@@ -580,22 +568,22 @@ public class ResultSetQueryTypeLocalGroupBy {
             env.compileDeploy(epl).addListener("s0");
 
             makeSendEvent(env, "E1", 10);
-            assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{10}, new Integer[]{10});
+            env.assertListener("s0", listener -> assertScalarColl(listener.getLastNewData()[0], new Integer[]{10}, new Integer[]{10}));
             env.assertPropsNew("s0", cols, new Object[]{1L, 1L, 1L, 1L, "10", "10", false, false,
                 null, null, null, null});
 
             makeSendEvent(env, "E2", 20);
-            assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{20}, new Integer[]{10, 20});
+            env.assertListener("s0", listener -> assertScalarColl(listener.getLastNewData()[0], new Integer[]{20}, new Integer[]{10, 20}));
             env.assertPropsNew("s0", cols, new Object[]{1L, 2L, 1L, 2L, "20", "10 20", false, false,
                 null, null, null, 10});
 
             makeSendEvent(env, "E1", -1);
-            assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{10, -1}, new Integer[]{10, 20, -1});
+            env.assertListener("s0", listener -> assertScalarColl(listener.getLastNewData()[0], new Integer[]{10, -1}, new Integer[]{10, 20, -1}));
             env.assertPropsNew("s0", cols, new Object[]{1L, 2L, 2L, 3L, "10 -1", "10 20 -1", false, false,
                 null, null, 10, 20});
 
             makeSendEvent(env, "E2", 30);
-            assertScalarColl(env.listener("s0").getLastNewData()[0], new Integer[]{20, 30}, new Integer[]{10, 20, -1, 30});
+            env.assertListener("s0", listener -> assertScalarColl(listener.getLastNewData()[0], new Integer[]{20, 30}, new Integer[]{10, 20, -1, 30}));
             env.assertPropsNew("s0", cols, new Object[]{2L, 3L, 2L, 4L, "20 30", "10 20 -1 30", false, false,
                 null, null, 20, -1});
 
@@ -698,9 +686,9 @@ public class ResultSetQueryTypeLocalGroupBy {
 
     public static class ResultSetLocalUngroupedSameKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create objectarray schema MyEventOne (d1 String, d2 String, val int);\n" +
+            String epl = "@buseventtype create objectarray schema MyEventOne (d1 String, d2 String, val int);\n" +
                 "@name('s0') select sum(val, group_by: d1) as c0, sum(val, group_by: d2) as c1 from MyEventOne";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             String[] cols = "c0,c1".split(",");
 
@@ -725,9 +713,9 @@ public class ResultSetQueryTypeLocalGroupBy {
 
     public static class ResultSetLocalGroupedSameKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create objectarray schema MyEventTwo (g1 String, d1 String, d2 String, val int);\n" +
+            String epl = "@buseventtype create objectarray schema MyEventTwo (g1 String, d1 String, d2 String, val int);\n" +
                 "@name('s0') select sum(val) as c0, sum(val, group_by: d1) as c1, sum(val, group_by: d2) as c2 from MyEventTwo group by g1";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             String[] cols = "c0,c1,c2".split(",");
 
@@ -832,13 +820,13 @@ public class ResultSetQueryTypeLocalGroupBy {
             makeSendEvent(env, "E2", 50);
 
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,c0,c1".split(","), new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,c0,c1".split(","), new Object[][]{
                 {"E1", 40, 150}, {"E2", 70, 150}, {"E3", 40, 150}});
 
             makeSendEvent(env, "E1", 60);
 
             env.sendEventBean(new SupportBean_S0(0));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,c0,c1".split(","), new Object[][]{
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,c0,c1".split(","), new Object[][]{
                 {"E1", 100, 210}, {"E2", 70, 210}, {"E3", 40, 210}});
 
             env.undeployAll();
@@ -855,13 +843,13 @@ public class ResultSetQueryTypeLocalGroupBy {
             makeSendEvent(env, "E1", 30);
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,c0".split(","),
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,c0".split(","),
                 new Object[][]{{"E1", 40}, {"E1", 40}, {"E2", 20}});
 
             makeSendEvent(env, "E1", 40);
 
             env.sendEventBean(new SupportBean_S0(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "theString,c0".split(","),
+            env.assertPropsPerRowLastNewAnyOrder("s0", "theString,c0".split(","),
                 new Object[][]{{"E1", 80}, {"E1", 80}, {"E1", 80}, {"E2", 20}});
 
             env.undeployAll();
@@ -1033,9 +1021,11 @@ public class ResultSetQueryTypeLocalGroupBy {
     private static void assertCountColsAndLevels(RegressionEnvironment env, String epl, int colCount, int lvlCount) {
         String theEpl = PLAN_CALLBACK_HOOK + epl;
         env.compile(theEpl);
-        Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
-        assertEquals(colCount, plan.getFirst().getNumColumns());
-        assertEquals(lvlCount, plan.getFirst().getLevels().length);
+        env.assertThat(() -> {
+            Pair<AggregationGroupByLocalGroupDesc, AggregationLocalGroupByPlanForge> plan = SupportAggLevelPlanHook.getAndReset();
+            assertEquals(colCount, plan.getFirst().getNumColumns());
+            assertEquals(lvlCount, plan.getFirst().getLevels().length);
+        });
     }
 
     private static void assertNoPlan(RegressionEnvironment env, String epl) {
@@ -1051,15 +1041,19 @@ public class ResultSetQueryTypeLocalGroupBy {
                 "count(group_by:theString, *) " +
                 "from SupportBean";
             env.compileDeploy(epl);
-            assertEquals("count(*,group_by:(theString,intPrimitive))", env.statement("s0").getEventType().getPropertyNames()[0]);
-            assertEquals("count(group_by:theString,*)", env.statement("s0").getEventType().getPropertyNames()[1]);
+
+            env.assertStatement("s0", statement -> {
+                assertEquals("count(*,group_by:(theString,intPrimitive))", statement.getEventType().getPropertyNames()[0]);
+                assertEquals("count(group_by:theString,*)", statement.getEventType().getPropertyNames()[1]);
+            });
+
             env.undeployAll();
         }
     }
 
     private static void assertScalarColl(EventBean eventBean, Integer[] expectedC6, Integer[] expectedC7) {
-        Collection c6 = (Collection) eventBean.get("c6");
-        Collection c7 = (Collection) eventBean.get("c7");
+        Collection<?> c6 = (Collection<?>) eventBean.get("c6");
+        Collection<?> c7 = (Collection<?>) eventBean.get("c7");
         EPAssertionUtil.assertEqualsExactOrder(expectedC6, c6.toArray());
         EPAssertionUtil.assertEqualsExactOrder(expectedC7, c7.toArray());
     }

@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,22 +56,31 @@ public class EventXMLNoSchemaEventTransposeDOM {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
         env.compileDeploy("@name('insert') insert into MyNestedStream select nested1 from " + eventTypeName, path);
-        SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1", String.class));
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
+        env.assertStatement("insert", statement -> {
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1", String.class));
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
         env.compileDeploy("@name('s0') select * from " + eventTypeName, path);
-        EPAssertionUtil.assertEqualsAnyOrder(new Object[0], env.statement("s0").getEventType().getPropertyDescriptors());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
+        env.assertStatement("s0", statement -> {
+            EPAssertionUtil.assertEqualsAnyOrder(new Object[0], statement.getEventType().getPropertyDescriptors());
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "test", eventTypeName);
-        EventBean stmtInsertWildcardBean = env.iterator("insert").next();
-        EventBean stmtSelectWildcardBean = env.iterator("s0").next();
-        assertNotNull(stmtInsertWildcardBean.get("nested1"));
-        SupportEventTypeAssertionUtil.assertConsistency(stmtSelectWildcardBean);
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("insert").next());
+        Document doc = SupportXML.makeDefaultEvent("test");
+        env.sendEventXMLDOM(doc, eventTypeName);
 
-        assertEquals(0, stmtSelectWildcardBean.getEventType().getPropertyNames().length);
+        env.assertIterator("insert", iterator -> {
+            EventBean stmtInsertWildcardBean = iterator.next();
+            assertNotNull(stmtInsertWildcardBean.get("nested1"));
+            SupportEventTypeAssertionUtil.assertConsistency(stmtInsertWildcardBean);
+        });
+        env.assertIterator("s0", iterator -> {
+            EventBean stmtSelectWildcardBean = iterator.next();
+            SupportEventTypeAssertionUtil.assertConsistency(stmtSelectWildcardBean);
+            assertEquals(0, stmtSelectWildcardBean.getEventType().getPropertyNames().length);
+        });
 
         env.undeployAll();
     }

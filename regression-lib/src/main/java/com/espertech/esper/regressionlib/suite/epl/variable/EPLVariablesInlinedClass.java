@@ -22,8 +22,6 @@ import com.espertech.esper.runtime.client.util.EPObjectType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertProps;
-
 public class EPLVariablesInlinedClass {
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
@@ -66,7 +64,7 @@ public class EPLVariablesInlinedClass {
 
         private void sendAssert(RegressionEnvironment env, String expected) {
             env.sendEventBean(new SupportBean());
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0".split(","), new Object[] {expected});
+            env.assertPropsNew("s0", "c0".split(","), new Object[] {expected});
         }
     }
 
@@ -108,7 +106,7 @@ public class EPLVariablesInlinedClass {
 
         private void sendAssert(RegressionEnvironment env, int expectedA, int expectedB) {
             env.sendEventBean(new SupportBean());
-            assertProps(env.listener("s0").assertOneGetNewAndReset(), "c0,c1".split(","), new Object[] {expectedA, expectedB});
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[] {expectedA, expectedB});
         }
     }
 }

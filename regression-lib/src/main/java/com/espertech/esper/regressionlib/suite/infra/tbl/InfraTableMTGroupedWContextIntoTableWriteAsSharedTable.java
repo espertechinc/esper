@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -98,7 +97,7 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements R
         Integer expected = numLoops * numThreads;
         for (int i = 0; i < numGroups; i++) {
             env.sendEventBean(new SupportBean_S0(0, "G" + i));
-            assertEquals(expected, listener.assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", expected);
         }
 
         env.undeployAll();

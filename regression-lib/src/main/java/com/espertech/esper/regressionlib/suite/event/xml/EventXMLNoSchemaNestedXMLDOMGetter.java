@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -53,19 +52,22 @@ public class EventXMLNoSchemaNestedXMLDOMGetter {
         env.compileDeploy(stmt, path).addListener("s0");
 
         sendXMLEvent(env, "<a><b><c></c></b></a>", eventTypeName);
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("", theEvent.get("type"));
-        assertEquals("", theEvent.get("element1"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("", theEvent.get("type"));
+            assertEquals("", theEvent.get("element1"));
+        });
 
         sendXMLEvent(env, "<a><b></b></a>", eventTypeName);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals(null, theEvent.get("type"));
-        assertEquals("", theEvent.get("element1"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals(null, theEvent.get("type"));
+            assertEquals("", theEvent.get("element1"));
+        });
 
         sendXMLEvent(env, "<a><b><c>text</c></b></a>", eventTypeName);
-        theEvent = env.listener("s0").assertOneGetNewAndReset();
-        assertEquals("text", theEvent.get("type"));
-        assertEquals("text", theEvent.get("element1"));
+        env.assertEventNew("s0", theEvent -> {
+            assertEquals("text", theEvent.get("type"));
+            assertEquals("text", theEvent.get("element1"));
+        });
 
         env.undeployAll();
     }

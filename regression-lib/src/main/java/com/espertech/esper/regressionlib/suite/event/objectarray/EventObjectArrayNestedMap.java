@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 public class EventObjectArrayNestedMap implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        assertEquals(Object[].class, env.runtime().getEventTypeService().getEventTypePreconfigured("MyMapNestedObjectArray").getUnderlyingType());
+        env.assertThat(() -> assertEquals(Object[].class, env.runtime().getEventTypeService().getEventTypePreconfigured("MyMapNestedObjectArray").getUnderlyingType()));
         env.compileDeploy("@name('s0') select lev0name.lev1name.sb.theString as val from MyMapNestedObjectArray").addListener("s0");
 
         Map<String, Object> lev2data = new HashMap<String, Object>();
@@ -33,14 +33,16 @@ public class EventObjectArrayNestedMap implements RegressionExecution {
         lev1data.put("lev1name", lev2data);
 
         env.sendEventObjectArray(new Object[]{lev1data}, "MyMapNestedObjectArray");
-        assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("val"));
+        env.assertEqualsNew("s0", "val", "E1");
 
-        try {
-            env.sendEventMap(new HashMap(), "MyMapNestedObjectArray");
-            fail();
-        } catch (EPException ex) {
-            assertEquals("Event type named 'MyMapNestedObjectArray' has not been defined or is not a Map-type event type, the name 'MyMapNestedObjectArray' refers to a Object[] event type", ex.getMessage());
-        }
+        env.assertThat(() -> {
+            try {
+                env.sendEventMap(new HashMap(), "MyMapNestedObjectArray");
+                fail();
+            } catch (EPException ex) {
+                assertEquals("Event type named 'MyMapNestedObjectArray' has not been defined or is not a Map-type event type, the name 'MyMapNestedObjectArray' refers to a Object[] event type", ex.getMessage());
+            }
+        });
 
         env.undeployAll();
     }

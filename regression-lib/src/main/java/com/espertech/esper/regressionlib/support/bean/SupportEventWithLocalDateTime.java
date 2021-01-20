@@ -13,7 +13,11 @@ package com.espertech.esper.regressionlib.support.bean;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportEventWithLocalDateTime implements Serializable {
+    private static final long serialVersionUID = -2560803595640492191L;
     private final LocalDateTime ldt;
 
     public SupportEventWithLocalDateTime(LocalDateTime ldt) {

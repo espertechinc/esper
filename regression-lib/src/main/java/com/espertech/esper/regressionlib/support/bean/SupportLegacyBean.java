@@ -16,7 +16,11 @@ import java.util.Map;
 /**
  * Legacy Java class for testing non-JavaBean style accessor methods.
  */
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportLegacyBean implements Serializable {
+    private static final long serialVersionUID = 8067332310662453015L;
     private String legacyBeanVal;
     private String[] stringArray;
     private Map<String, String> mapped;
@@ -72,6 +76,7 @@ public class SupportLegacyBean implements Serializable {
     }
 
     public static class LegacyNested implements Serializable {
+        private static final long serialVersionUID = -8256001879543359485L;
         public String fieldNestedValue;
 
         public LegacyNested(String nestedValue) {

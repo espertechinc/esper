@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
@@ -46,14 +45,13 @@ public class InfraNWTableCreate {
             epl += "on MyInputEvent merge MyInfra insert select " + SupportGenericColUtil.allNames() + ";\n";
 
             env.compileDeploy(epl);
-            assertPropertyEPTypes(env.statement("infra").getEventType());
+            env.assertStatement("infra", statement -> assertPropertyEPTypes(statement.getEventType()));
 
             env.sendEventMap(SupportGenericColUtil.getSampleEvent(), "MyInputEvent");
 
             env.milestone(0);
 
-            EventBean event = env.iterator("infra").next();
-            SupportGenericColUtil.compare(event);
+            env.assertIterator("infra", iterator -> SupportGenericColUtil.compare(env.iterator("infra").next()));
 
             env.undeployAll();
         }

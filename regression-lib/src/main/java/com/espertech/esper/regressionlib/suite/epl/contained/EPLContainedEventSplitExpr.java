@@ -10,14 +10,11 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.contained;
 
-import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.hook.expr.EPLMethodInvocationContext;
 import com.espertech.esper.common.client.hook.expr.EPLScriptContext;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.json.util.JsonEventObject;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroArrayEvent;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -65,8 +62,10 @@ public class EPLContainedEventSplitExpr {
 
             env.compileDeploy("@name('s0') select myGetScriptContext() as c0 from SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            EPLScriptContext context = (EPLScriptContext) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertNotNull(context.getEventBeanService());
+            env.assertListener("s0", listener -> {
+                EPLScriptContext context = (EPLScriptContext) listener.assertOneGetNewAndReset().get("c0");
+                assertNotNull(context.getEventBeanService());
+            });
 
             env.undeployAll();
         }
@@ -101,10 +100,8 @@ public class EPLContainedEventSplitExpr {
             String epl = "create schema BaseEvent();\n" +
                 "create schema AEvent(p0 string) inherits BaseEvent;\n" +
                 "create schema BEvent(p1 string) inherits BaseEvent;\n" +
-                "create schema SplitEvent(value string);\n";
-            EPCompiled compiled = env.compileWBusPublicType(epl);
-            env.deploy(compiled);
-            path.add(compiled);
+                "@buseventtype create schema SplitEvent(value string);\n";
+            env.compileDeploy(epl, path);
 
             tryAssertionSplitExprReturnsEventBean(env, path, "mySplitUDFReturnEventBeanArray");
             tryAssertionSplitExprReturnsEventBean(env, path, "mySplitScriptReturnEventBeanArray");
@@ -118,10 +115,12 @@ public class EPLContainedEventSplitExpr {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventMap(Collections.singletonMap("value", "AE1,BE2,AE3"), "SplitEvent");
-            EventBean[] events = env.listener("s0").getAndResetLastNewData();
-            assertSplitEx(events[0], "AEvent", "p0", "E1");
-            assertSplitEx(events[1], "BEvent", "p1", "E2");
-            assertSplitEx(events[2], "AEvent", "p0", "E3");
+            env.assertListener("s0", listener -> {
+                EventBean[] events = listener.getAndResetLastNewData();
+                assertSplitEx(events[0], "AEvent", "p0", "E1");
+                assertSplitEx(events[1], "BEvent", "p1", "E2");
+                assertSplitEx(events[2], "AEvent", "p0", "E3");
+            });
 
             env.undeployModuleContaining("s0");
         }
@@ -135,7 +134,12 @@ public class EPLContainedEventSplitExpr {
 
         public void run(RegressionEnvironment env) {
             for (EventRepresentationChoice rep : EventRepresentationChoice.values()) {
-                tryAssertionSingleRowSplitAndType(env, rep);
+                if (rep.isAvroEvent()) {
+                    // Avro serialization to string UTF8
+                    env.assertThat(() -> tryAssertionSingleRowSplitAndType(env, rep));
+                } else {
+                    tryAssertionSingleRowSplitAndType(env, rep);
+                }
             }
         }
     }
@@ -143,10 +147,10 @@ public class EPLContainedEventSplitExpr {
     private static void tryAssertionSingleRowSplitAndType(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         RegressionPath path = new RegressionPath();
-        String types = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonSentence.class) + " create schema MySentenceEvent(sentence String);\n" +
+        String types = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonSentence.class) + " @buseventtype create schema MySentenceEvent(sentence String);\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " create schema WordEvent(word String);\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonCharacter.class) + " create schema CharacterEvent(character String);\n";
-        env.compileDeployWBusPublicType(types, path);
+        env.compileDeploy(types, path);
 
         String stmtText;
         String[] fields = "word".split(",");
@@ -154,8 +158,10 @@ public class EPLContainedEventSplitExpr {
         // test single-row method
         stmtText = "@name('s0') select * from MySentenceEvent[splitSentence" + "_" + eventRepresentationEnum.name() + "(sentence)@type(WordEvent)]";
         env.compileDeploy(stmtText, path).addListener("s0");
-        assertEquals("WordEvent", env.statement("s0").getEventType().getName());
-        assertTrue(eventRepresentationEnum.matchesClass(env.statement("s0").getEventType().getUnderlyingType()));
+        env.assertStatement("s0", statement -> {
+            assertEquals("WordEvent", statement.getEventType().getName());
+            assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType()));
+        });
 
         sendMySentenceEvent(env, eventRepresentationEnum, "I am testing this code");
         env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"I"}, {"am"}, {"testing"}, {"this"}, {"code"}});
@@ -194,10 +200,10 @@ public class EPLContainedEventSplitExpr {
             }
 
             env.compileDeploy(stmtText, path).addListener("s0");
-            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+            env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
             env.sendEventMap(Collections.emptyMap(), "MySentenceEvent");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"wordOne"}, {"wordTwo"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"wordOne"}, {"wordTwo"}});
 
             env.undeployModuleContaining("s0");
         }
@@ -205,20 +211,20 @@ public class EPLContainedEventSplitExpr {
         // test multiple splitters
         stmtText = "@name('s0') select * from MySentenceEvent[splitSentence_" + eventRepresentationEnum.name() + "(sentence)@type(WordEvent)][splitWord_" + eventRepresentationEnum.name() + "(word)@type(CharacterEvent)]";
         env.compileDeploy(stmtText, path).addListener("s0");
-        assertEquals("CharacterEvent", env.statement("s0").getEventType().getName());
+        env.assertStatement("s0", statement -> assertEquals("CharacterEvent", statement.getEventType().getName()));
 
         sendMySentenceEvent(env, eventRepresentationEnum, "I am");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "character".split(","), new Object[][]{{"I"}, {"a"}, {"m"}});
+        env.assertPropsPerRowLastNewAnyOrder("s0", "character".split(","), new Object[][]{{"I"}, {"a"}, {"m"}});
 
         env.undeployModuleContaining("s0");
 
         // test wildcard parameter
         stmtText = "@name('s0') select * from MySentenceEvent[splitSentenceBean_" + eventRepresentationEnum.name() + "(*)@type(WordEvent)]";
         env.compileDeploy(stmtText, path).addListener("s0");
-        assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+        env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
         sendMySentenceEvent(env, eventRepresentationEnum, "another test sentence");
-        EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"another"}, {"test"}, {"sentence"}});
+        env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"another"}, {"test"}, {"sentence"}});
 
         env.undeployModuleContaining("s0");
 
@@ -226,7 +232,7 @@ public class EPLContainedEventSplitExpr {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             stmtText = eventRepresentationEnum.getAnnotationText() + " @name('s0') select * from SupportObjectArrayEvent[someObjectArray@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
-            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+            env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
             Object[][] rows = new Object[][]{{"this"}, {"is"}, {"collection"}};
             env.sendEventBean(new SupportObjectArrayEvent(rows));
@@ -235,7 +241,7 @@ public class EPLContainedEventSplitExpr {
         } else if (eventRepresentationEnum.isMapEvent()) {
             stmtText = eventRepresentationEnum.getAnnotationText() + " @name('s0') select * from SupportCollectionEvent[someCollection@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
-            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+            env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
             Collection<Map> coll = new ArrayList<>();
             coll.add(Collections.singletonMap("word", "this"));
@@ -243,17 +249,18 @@ public class EPLContainedEventSplitExpr {
             coll.add(Collections.singletonMap("word", "collection"));
 
             env.sendEventBean(new SupportCollectionEvent(coll));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
             env.undeployAll();
         } else if (eventRepresentationEnum.isAvroEvent()) {
             stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " select * from SupportAvroArrayEvent[someAvroArray@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
-            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+            env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
             GenericData.Record[] rows = new GenericData.Record[3];
             String[] words = "this,is,avro".split(",");
+            Schema schema = env.runtimeAvroSchemaByDeployment("s0", "WordEvent");
             for (int i = 0; i < words.length; i++) {
-                rows[i] = new GenericData.Record(((AvroEventType) env.statement("s0").getEventType()).getSchemaAvro());
+                rows[i] = new GenericData.Record(schema);
                 rows[i].put("word", words[i]);
             }
             env.sendEventBean(new SupportAvroArrayEvent(rows));
@@ -262,7 +269,7 @@ public class EPLContainedEventSplitExpr {
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             stmtText = "@name('s0') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " select * from SupportJsonArrayEvent[someJsonArray@type(WordEvent)]";
             env.compileDeploy(stmtText, path).addListener("s0");
-            assertEquals("WordEvent", env.statement("s0").getEventType().getName());
+            env.assertStatement("s0", statement -> assertEquals("WordEvent", statement.getEventType().getName()));
 
             String[] rows = new String[3];
             String[] words = "this,is,avro".split(",");

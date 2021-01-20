@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.internal.kernel.service.EPEventServiceSPI;
 import org.junit.Assert;
 
@@ -37,42 +38,52 @@ public class ClientRuntimeTimeControl {
             env.addListener("s0");
 
             env.advanceTimeSpan(3500);
-            Assert.assertEquals(2, env.listener("s0").getNewDataList().size());
-            Assert.assertEquals(1500L, env.listener("s0").getNewDataList().get(0)[0].get("ct"));
-            Assert.assertEquals(3000L, env.listener("s0").getNewDataList().get(1)[0].get("ct"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(2, listener.getNewDataList().size());
+                Assert.assertEquals(1500L, listener.getNewDataList().get(0)[0].get("ct"));
+                Assert.assertEquals(3000L, listener.getNewDataList().get(1)[0].get("ct"));
+                listener.reset();
+            });
 
             env.advanceTimeSpan(4500);
-            Assert.assertEquals(1, env.listener("s0").getNewDataList().size());
-            Assert.assertEquals(4500L, env.listener("s0").getNewDataList().get(0)[0].get("ct"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(1, listener.getNewDataList().size());
+                Assert.assertEquals(4500L, listener.getNewDataList().get(0)[0].get("ct"));
+                listener.reset();
+            });
 
             env.advanceTimeSpan(9000);
-            Assert.assertEquals(3, env.listener("s0").getNewDataList().size());
-            Assert.assertEquals(6000L, env.listener("s0").getNewDataList().get(0)[0].get("ct"));
-            Assert.assertEquals(7500L, env.listener("s0").getNewDataList().get(1)[0].get("ct"));
-            Assert.assertEquals(9000L, env.listener("s0").getNewDataList().get(2)[0].get("ct"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(3, listener.getNewDataList().size());
+                Assert.assertEquals(6000L, listener.getNewDataList().get(0)[0].get("ct"));
+                Assert.assertEquals(7500L, listener.getNewDataList().get(1)[0].get("ct"));
+                Assert.assertEquals(9000L, listener.getNewDataList().get(2)[0].get("ct"));
+                listener.reset();
+            });
 
             env.advanceTimeSpan(10499);
-            Assert.assertEquals(0, env.listener("s0").getNewDataList().size());
+            env.assertListener("s0", listener -> Assert.assertEquals(0, listener.getNewDataList().size()));
 
             env.advanceTimeSpan(10499);
-            Assert.assertEquals(0, env.listener("s0").getNewDataList().size());
+            env.assertListener("s0", listener -> Assert.assertEquals(0, listener.getNewDataList().size()));
 
             env.advanceTimeSpan(10500);
-            Assert.assertEquals(1, env.listener("s0").getNewDataList().size());
-            Assert.assertEquals(10500L, env.listener("s0").getNewDataList().get(0)[0].get("ct"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(1, listener.getNewDataList().size());
+                Assert.assertEquals(10500L, listener.getNewDataList().get(0)[0].get("ct"));
+                listener.reset();
+            });
 
             env.advanceTimeSpan(10500);
-            Assert.assertEquals(0, env.listener("s0").getNewDataList().size());
+            env.assertListener("s0", listener -> Assert.assertEquals(0, listener.getNewDataList().size()));
 
-            env.eventService().advanceTimeSpan(14000, 200);
-            Assert.assertEquals(14000, env.eventService().getCurrentTime());
-            Assert.assertEquals(2, env.listener("s0").getNewDataList().size());
-            Assert.assertEquals(12100L, env.listener("s0").getNewDataList().get(0)[0].get("ct"));
-            Assert.assertEquals(13700L, env.listener("s0").getNewDataList().get(1)[0].get("ct"));
+            env.advanceTimeSpan(14000, 200);
+            env.assertListener("s0", listener -> {
+                Assert.assertEquals(14000, env.eventService().getCurrentTime());
+                Assert.assertEquals(2, listener.getNewDataList().size());
+                Assert.assertEquals(12100L, listener.getNewDataList().get(0)[0].get("ct"));
+                Assert.assertEquals(13700L, listener.getNewDataList().get(1)[0].get("ct"));
+            });
 
             env.undeployAll();
         }
@@ -116,6 +127,10 @@ public class ClientRuntimeTimeControl {
             assertSchedules(runtimeSPI.getStatementNearestSchedules(), new Object[0][]);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
         }
     }
 

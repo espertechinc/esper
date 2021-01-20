@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.event.infra;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -85,16 +84,17 @@ public class EventInfraPropertyNestedNestedEscaped implements RegressionExecutio
     private void runAssertionGetter(RegressionEnvironment env, RegressionPath path, String eventTypeName, FunctionSendEvent sendEvent) {
         env.compileDeploy("@name('s0') select * from " + eventTypeName, path).addListener("s0");
         sendEvent.apply(eventTypeName, env, "v2", "v2dyn", "v3");
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
 
-        assertProperty(event, "v2", "lvl1.lvl2.`vlvl2`");
-        assertProperty(event, "v3", "lvl1.lvl2.lvl3.`vlvl3`");
-        assertProperty(event, "v3", "`lvl1`.`lvl2`.`lvl3`.`vlvl3`");
-        assertProperty(event, "v2dyn", "lvl1.lvl2.`vlvl2dyn`?");
+        env.assertEventNew("s0", event -> {
+            assertProperty(event, "v2", "lvl1.lvl2.`vlvl2`");
+            assertProperty(event, "v3", "lvl1.lvl2.lvl3.`vlvl3`");
+            assertProperty(event, "v3", "`lvl1`.`lvl2`.`lvl3`.`vlvl3`");
+            assertProperty(event, "v2dyn", "lvl1.lvl2.`vlvl2dyn`?");
 
-        String fragmentName = "lvl1.lvl2.`lvl3`";
-        assertPropertyFragment(event, fragmentName);
-        assertNotNull(event.getEventType().getFragmentType(fragmentName));
+            String fragmentName = "lvl1.lvl2.`lvl3`";
+            assertPropertyFragment(event, fragmentName);
+            assertNotNull(event.getEventType().getFragmentType(fragmentName));
+        });
 
         env.undeployModuleContaining("s0");
     }
@@ -214,8 +214,7 @@ public class EventInfraPropertyNestedNestedEscaped implements RegressionExecutio
     };
 
     private static final FunctionSendEvent FAVRO = (eventTypeName, env, vlvl2, vlvl2dyn, vlvl3) -> {
-        String deploymentIdTypes = env.deploymentId("types");
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventType(deploymentIdTypes, eventTypeName));
+        Schema schema = env.runtimeAvroSchemaByDeployment("types", eventTypeName);
         Schema lvl1Schema = schema.getField("lvl1").schema();
         Schema lvl2Schema = lvl1Schema.getField("lvl2").schema();
         Schema lvl3Schema = lvl2Schema.getField("lvl3").schema();

@@ -172,10 +172,12 @@ public class ClientExtendAggregationInlinedClass {
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 1));
 
-            String eplFAF = INLINEDCLASS_CONCAT +
-                "select concat(theString) as c0 from MyWindow";
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
-            assertEquals("E1,E2", result.getArray()[0].get("c0"));
+            env.assertThat(() -> {
+                String eplFAF = INLINEDCLASS_CONCAT +
+                    "select concat(theString) as c0 from MyWindow";
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
+                assertEquals("E1,E2", result.getArray()[0].get("c0"));
+            });
 
             env.undeployAll();
         }
@@ -244,6 +246,6 @@ public class ClientExtendAggregationInlinedClass {
 
     private static void sendAssertConcat(RegressionEnvironment env, String theString, String expected) {
         env.sendEventBean(new SupportBean(theString, 0));
-        assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 }

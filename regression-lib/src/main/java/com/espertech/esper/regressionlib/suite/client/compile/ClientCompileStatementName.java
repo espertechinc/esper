@@ -16,8 +16,10 @@ import com.espertech.esper.compiler.client.option.StatementNameContext;
 import com.espertech.esper.compiler.client.option.StatementNameOption;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,8 +47,12 @@ public class ClientCompileStatementName {
             assertEquals(0, ctx.getStatementNumber());
 
             env.deploy(compiled);
-            assertEquals("hello", env.statement("hello").getName());
+            env.assertStatement("hello", statement -> assertEquals("hello", statement.getName()));
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 

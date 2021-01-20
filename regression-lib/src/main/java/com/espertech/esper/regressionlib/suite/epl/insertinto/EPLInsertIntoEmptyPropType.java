@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanWithoutProps;
-import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,25 +51,27 @@ public class EPLInsertIntoEmptyPropType {
 
             env.sendEventBean(new SupportBean());
 
-            EventBean[] events = EPAssertionUtil.iteratorToArray(env.iterator("window"));
-            assertEquals(1, events.length);
-            assertEquals("EmptyPropWin", events[0].getEventType().getName());
+            env.assertIterator("window", iterator -> {
+                EventBean[] events = EPAssertionUtil.iteratorToArray(iterator);
+                assertEquals(1, events.length);
+                assertEquals("EmptyPropWin", events[0].getEventType().getName());
+            });
 
             // try fire-and-forget query
-            env.compileExecuteFAF("insert into EmptyPropWin select null", path);
-            assertEquals(2, EPAssertionUtil.iteratorToArray(env.iterator("window")).length);
-            env.compileExecuteFAF("delete from EmptyPropWin", path); // empty window
+            env.compileExecuteFAFNoResult("insert into EmptyPropWin select null", path);
+            env.assertIterator("window", iterator -> assertEquals(2, EPAssertionUtil.iteratorToArray(iterator).length));
+            env.compileExecuteFAFNoResult("delete from EmptyPropWin", path); // empty window
 
             // try on-merge
             env.compileDeploy("on SupportBean_S0 merge EmptyPropWin " +
                 "when not matched then insert select null", path);
             env.sendEventBean(new SupportBean_S0(0));
-            assertEquals(1, EPAssertionUtil.iteratorToArray(env.iterator("window")).length);
+            env.assertIterator("window", iterator -> assertEquals(1, EPAssertionUtil.iteratorToArray(iterator).length));
 
             // try on-insert
             env.compileDeploy("on SupportBean_S1 insert into EmptyPropWin select null", path);
             env.sendEventBean(new SupportBean_S1(0));
-            assertEquals(2, EPAssertionUtil.iteratorToArray(env.iterator("window")).length);
+            env.assertIterator("window", iterator -> assertEquals(2, EPAssertionUtil.iteratorToArray(iterator).length));
 
             env.undeployAll();
         }
@@ -92,7 +93,7 @@ public class EPLInsertIntoEmptyPropType {
         env.compileDeploy("@name('s0') select * from MyBeanWithoutProps", path).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        assertTrue(env.listener("s0").assertOneGetNewAndReset().getUnderlying() instanceof SupportBeanWithoutProps);
+        env.assertEventNew("s0", event -> assertTrue(event.getUnderlying() instanceof SupportBeanWithoutProps));
 
         env.undeployAll();
     }
@@ -104,10 +105,10 @@ public class EPLInsertIntoEmptyPropType {
         env.compileDeploy("@name('s0') select * from EmptyMapSchema", path).addListener("s0");
 
         env.sendEventBean(new SupportBean());
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        assertTrue(((Map) event.getUnderlying()).isEmpty());
-        assertEquals(0, event.getEventType().getPropertyDescriptors().length);
-
+        env.assertEventNew("s0", event -> {
+            assertTrue(((Map) event.getUnderlying()).isEmpty());
+            assertEquals(0, event.getEventType().getPropertyDescriptors().length);
+        });
         env.undeployAll();
     }
 
@@ -115,17 +116,16 @@ public class EPLInsertIntoEmptyPropType {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create objectarray schema EmptyOASchema()", path);
         env.compileDeploy("insert into EmptyOASchema select null from SupportBean", path);
-
-        SupportSubscriber supportSubscriber = new SupportSubscriber();
-        env.compileDeploy("@name('s0') select * from EmptyOASchema", path).addListener("s0");
-        env.statement("s0").setSubscriber(supportSubscriber);
+        env.compileDeploy("@name('s0') select * from EmptyOASchema", path).addListener("s0").setSubscriber("s0");
 
         env.sendEventBean(new SupportBean());
-        assertEquals(0, ((Object[]) env.listener("s0").assertOneGetNewAndReset().getUnderlying()).length);
+        env.assertEventNew("s0", event -> assertEquals(0, ((Object[]) event.getUnderlying()).length));
 
-        Object[] lastNewSubscriberData = supportSubscriber.getLastNewData();
-        assertEquals(1, lastNewSubscriberData.length);
-        assertEquals(0, ((Object[]) lastNewSubscriberData[0]).length);
+        env.assertSubscriber("s0", subscriber -> {
+            Object[] lastNewSubscriberData = subscriber.getLastNewData();
+            assertEquals(1, lastNewSubscriberData.length);
+            assertEquals(0, ((Object[]) lastNewSubscriberData[0]).length);
+        });
 
         env.undeployAll();
     }

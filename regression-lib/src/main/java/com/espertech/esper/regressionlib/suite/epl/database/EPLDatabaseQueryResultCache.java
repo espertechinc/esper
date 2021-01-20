@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,7 @@ public class EPLDatabaseQueryResultCache implements RegressionExecution {
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
     }
 
     public EPLDatabaseQueryResultCache(boolean lru, Integer lruSize, Double expiryMaxAgeSeconds, Double expiryPurgeIntervalSeconds, long assertMaximumTime, int numEvents, boolean useRandomKeyLookup) {
@@ -81,8 +79,7 @@ public class EPLDatabaseQueryResultCache implements RegressionExecution {
             env.sendEventBean(bean);
 
             if ((!useRandomLookupKey) || ((id >= 1) && (id <= 10))) {
-                EventBean received = env.listener("s0").assertOneGetNewAndReset();
-                Assert.assertEquals(id * 10, received.get("myint"));
+                env.assertEqualsNew("s0", "myint", id * 10);
             }
         }
 

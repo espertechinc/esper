@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.framework;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.module.Module;
@@ -20,7 +21,9 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.client.util.SafeIterator;
 import com.espertech.esper.common.client.util.StatementProperty;
+import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
@@ -29,8 +32,10 @@ import com.espertech.esper.compiler.client.EPCompiler;
 import com.espertech.esper.regressionlib.support.util.SupportAdminUtil;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 import com.espertech.esper.runtime.client.stage.EPStage;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
@@ -40,14 +45,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.getRequireStatement;
-import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.getRequireStatementListener;
+import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.*;
 import static org.junit.Assert.*;
 
 public abstract class RegressionEnvironmentBase implements RegressionEnvironment {
     protected Configuration configuration;
     protected EPRuntime runtime;
-    
+
     public abstract EPCompiler getCompiler();
 
     public Module parseModule(String moduleText) {
@@ -79,6 +83,14 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public EPFireAndForgetQueryResult compileExecuteFAF(String query, RegressionPath path) {
         EPCompiled compiled = compileFAF(query, path);
         return runtime().getFireAndForgetService().executeQuery(compiled);
+    }
+
+    public void compileExecuteFAFNoResult(String query, RegressionPath path) {
+        compileExecuteFAF(query, path);
+    }
+
+    public RegressionEnvironment addListener(String statementName) {
+        return null;
     }
 
     public EPFireAndForgetQueryResult compileExecuteFAF(EPStatementObjectModel model, RegressionPath path) {
@@ -164,10 +176,6 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return this;
     }
 
-    public RegressionEnvironment addListener(String statementName) {
-        return null;
-    }
-
     public RegressionEnvironment milestone(int num) {
         return null;
     }
@@ -193,6 +201,11 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return this;
     }
 
+    public RegressionEnvironment advanceTimeSpan(long msec, long resolution) {
+        runtime.getEventService().advanceTimeSpan(msec, resolution);
+        return this;
+    }
+
     public RegressionEnvironment advanceTime(long msec) {
         runtime.getEventService().advanceTime(msec);
         return this;
@@ -213,6 +226,10 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
     public SupportListener listener(String statementName) {
         return getRequireStatementListener(statementName, runtime);
+    }
+
+    public SupportSubscriber subscriber(String statementName) {
+        return getRequireStatementSubscriber(statementName, runtime);
     }
 
     public SupportListener listenerStage(String stageUri, String statementName) {
@@ -264,6 +281,11 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return compileDeployAddListenerMile(epl, statementName, 0);
     }
 
+    public RegressionEnvironment setSubscriber(String statementName) {
+        getRequireStatement(statementName, runtime).setSubscriber(new SupportSubscriber());
+        return this;
+    }
+
     public RegressionEnvironment compileDeploy(boolean soda, String epl, RegressionPath path) {
         if (!soda) {
             compileDeploy(epl, path);
@@ -289,17 +311,6 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
         deploy(compiled);
         return this;
-    }
-
-    public RegressionEnvironment compileDeployWBusPublicType(String epl, RegressionPath path) {
-        EPCompiled compiled = compileWBusPublicType(epl);
-        path.add(compiled);
-        deploy(compiled);
-        return this;
-    }
-
-    public RegressionEnvironment compileDeployWBusPublicType(String epl) {
-        return null;
     }
 
     public RegressionEnvironment compileDeploy(EPStatementObjectModel model) {
@@ -391,6 +402,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         try {
             Module module = new Module();
             module.getItems().add(new ModuleItem(model));
+            module.setModuleText(model.toEPL());
             return getCompiler().compile(module, args);
         } catch (Throwable t) {
             throw notExpected(t);
@@ -491,6 +503,10 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return getCompiler().compile(epl, args);
     }
 
+    public EPCompiled compileWRuntimePath(String epl) {
+        return compile(epl, new CompilerArguments(runtime().getRuntimePath()));
+    }
+
     public Module readModule(String filename) {
         try {
             return getCompiler().readModule(filename, this.getClass().getClassLoader());
@@ -541,6 +557,17 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         EPAssertionUtil.assertPropsPerRow(listener(statementName).getAndResetLastNewData(), fields, expecteds);
     }
 
+    public void assertPropsPerRowNewOnly(String statementName, String[] fields, Object[][] expecteds) {
+        SupportListener listener = listener(statementName);
+        EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields, expecteds);
+        assertNull(listener.getLastOldData());
+        listener.reset();
+    }
+
+    public void assertPropsPerRowLastNewAnyOrder(String statementName, String[] fields, Object[][] expecteds) {
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener(statementName).getAndResetLastNewData(), fields, expecteds);
+    }
+
     public void assertPropsPerRowLastOld(String statementName, String[] fields, Object[][] expecteds) {
         EPAssertionUtil.assertPropsPerRow(listener(statementName).getAndResetLastOldData(), fields, expecteds);
     }
@@ -559,6 +586,10 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
 
     public void assertListenerInvokedFlag(String statementName, boolean expected) {
         assertEquals(expected, listener(statementName).getIsInvokedAndReset());
+    }
+
+    public void assertListenerInvokedFlag(String statementName, boolean expected, String message) {
+        assertEquals(message, expected, listener(statementName).getIsInvokedAndReset());
     }
 
     public void listenerReset(String statementName) {
@@ -581,12 +612,12 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         listener.reset();
     }
 
-    public void assertPropsNV(String statementName, Object[][] nameAndValuePairsIStream, Object[][] nameAndValuePairsRStream) {
+    public void assertPropsNV(String statementName, Object[][] nameAndValuePairsNew, Object[][] nameAndValuePairsOld) {
         SupportListener listener = listener(statementName);
         assertEquals(1, listener.getNewDataList().size());
         assertEquals(1, listener.getOldDataList().size());
-        EPAssertionUtil.assertNameValuePairs(listener.getLastNewData(), nameAndValuePairsIStream);
-        EPAssertionUtil.assertNameValuePairs(listener.getLastOldData(), nameAndValuePairsRStream);
+        EPAssertionUtil.assertNameValuePairs(listener.getLastNewData(), nameAndValuePairsNew);
+        EPAssertionUtil.assertNameValuePairs(listener.getLastOldData(), nameAndValuePairsOld);
         listener.reset();
     }
 
@@ -594,7 +625,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertor.accept(statement(statementName));
     }
 
-    public void assertThis(Runnable runnable) {
+    public void assertThat(Runnable runnable) {
         runnable.run();
     }
 
@@ -606,8 +637,16 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertor.accept(listener(statementName));
     }
 
+    public void assertSubscriber(String statementName, Consumer<SupportSubscriber> assertor) {
+        assertor.accept(subscriber(statementName));
+    }
+
     public void assertIterator(String statementName, Consumer<Iterator<EventBean>> assertor) {
         assertor.accept(iterator(statementName));
+    }
+
+    public void assertSafeIterator(String statementName, Consumer<SafeIterator<EventBean>> assertor) {
+        assertor.accept(statement(statementName).safeIterator());
     }
 
     public void assertEventNew(String statementName, Consumer<EventBean> assertor) {
@@ -634,6 +673,10 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         assertEquals(expected, listener(statementName).assertOneGetNewAndReset().get(fieldName));
     }
 
+    public void assertEqualsOld(String statementName, String fieldName, Object expected) {
+        assertEquals(expected, listener(statementName).assertOneGetOldAndReset().get(fieldName));
+    }
+
     public void tryInvalidCompile(String epl, String message) {
         try {
             compileWCheckedEx(epl);
@@ -655,6 +698,19 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     public void runtimeSetVariable(String statementNameOfDeployment, String variableName, Object value) {
         String deploymentId = statementNameOfDeployment == null ? null : deploymentId(statementNameOfDeployment);
         runtime().getVariableService().setVariableValue(deploymentId, variableName, value);
+    }
+
+    public Schema runtimeAvroSchemaPreconfigured(String eventTypeName) {
+        return SupportAvroUtil.getAvroSchema(runtime.getEventTypeService().getEventTypePreconfigured(eventTypeName));
+    }
+
+    public Schema runtimeAvroSchemaByDeployment(String statementNameToFind, String eventTypeName) {
+        String deploymentId = deploymentId(statementNameToFind);
+        EventType eventType = runtime.getEventTypeService().getEventType(deploymentId, eventTypeName);
+        if (eventType == null) {
+            throw new IllegalArgumentException("Failed to find event type '" + eventTypeName + "' at deployment id '" + deploymentId + "'");
+        }
+        return SupportAvroUtil.getAvroSchema(eventType);
     }
 
     private EPDeployment tryDeploy(EPCompiled compiled) {

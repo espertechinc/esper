@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventSender;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -79,17 +78,16 @@ public class EventXMLSchemaEventObservationDOM {
         env.compileDeploy("@name('e3_1') select sensorId, Command, Tag[0].ID from TagListStream", path);
 
         Document doc = SupportXML.getDocument(OBSERVATION_XML);
-        EventSender sender = env.eventService().getEventSender(eventTypeName);
-        sender.sendEvent(doc);
+        env.sendEventXMLDOM(doc, eventTypeName);
 
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("s0").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e2_0").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e2_1").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e3_0").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e3_1").next());
+        env.assertIterator("s0", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e2_0", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e2_1", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e3_0", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e3_1", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
 
-        EPAssertionUtil.assertProps(env.iterator("e2_0").next(), "Observation.Command,Observation.Tag[0].ID".split(","), new Object[]{"READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
-        EPAssertionUtil.assertProps(env.iterator("e3_0").next(), "sensorId,Command,Tag[0].ID".split(","), new Object[]{"urn:epc:1:4.16.36", "READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"});
+        env.assertIterator("e2_0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "Observation.Command,Observation.Tag[0].ID".split(","), new Object[]{"READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"}));
+        env.assertIterator("e3_0", iterator -> EPAssertionUtil.assertProps(iterator.next(), "sensorId,Command,Tag[0].ID".split(","), new Object[]{"urn:epc:1:4.16.36", "READ_PALLET_TAGS_ONLY", "urn:epc:1:2.24.400"}));
 
         env.tryInvalidCompile(path, "select Observation.Tag.ID from " + eventTypeName,
             "Failed to validate select-clause expression 'Observation.Tag.ID': Failed to resolve property 'Observation.Tag.ID' to a stream or nested property in a stream");

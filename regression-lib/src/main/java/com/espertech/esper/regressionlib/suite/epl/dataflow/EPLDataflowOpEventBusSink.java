@@ -15,18 +15,19 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowEventCollector;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowEventCollectorContext;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphEventUtil;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportSourceOp;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.dataflow.MyObjectArrayGraphSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -72,6 +73,10 @@ public class EPLDataflowOpEventBusSink {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static void runAssertionAllTypes(RegressionEnvironment env, String typeName, Object[] events) {
@@ -108,16 +113,21 @@ public class EPLDataflowOpEventBusSink {
                 "EventBusSink(BeaconStream) {}", path);
 
             env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyDataFlowOne").start();
-            env.listener("s0").waitForInvocation(3000, 3);
-            EventBean[] events = env.listener("s0").getNewDataListFlattened();
-
-            for (int i = 0; i < 3; i++) {
-                assertEquals("abc", events[i].get("p0"));
-                long val = (Long) events[i].get("p1");
-                assertTrue(val > 0 && val < 10);
-            }
+            env.assertListener("s0", listener -> {
+                listener.waitForInvocation(3000, 3);
+                EventBean[] events = listener.getNewDataListFlattened();
+                for (int i = 0; i < 3; i++) {
+                    assertEquals("abc", events[i].get("p0"));
+                    long val = (Long) events[i].get("p1");
+                    assertTrue(val > 0 && val < 10);
+                }
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -125,9 +135,9 @@ public class EPLDataflowOpEventBusSink {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String schemaEPL =
-                "create objectarray schema MyEventOne(type string, p0 int, p1 string);\n" +
-                    "create objectarray schema MyEventTwo(type string, f0 string, f1 int);\n";
-            env.compileDeployWBusPublicType(schemaEPL, path);
+                    "@buseventtype create objectarray schema MyEventOne(type string, p0 int, p1 string);\n" +
+                    "@buseventtype create objectarray schema MyEventTwo(type string, f0 string, f1 int);\n";
+            env.compileDeploy(schemaEPL, path);
 
             env.compileDeploy("@name('s0') select * from MyEventOne", path).addListener("s0");
             env.compileDeploy("@name('s1') select * from MyEventTwo", path).addListener("s1");
@@ -148,12 +158,18 @@ public class EPLDataflowOpEventBusSink {
                 .operatorProvider(new DefaultSupportGraphOpProvider(source));
             env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "MyDataFlow", options).start();
 
-            env.listener("s0").waitForInvocation(3000, 1);
-            env.listener("s1").waitForInvocation(3000, 1);
-            env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{100, "abc"});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "f0,f1".split(","), new Object[]{"GE", -1});
+            env.assertThat(() -> {
+                env.listener("s0").waitForInvocation(3000, 1);
+                env.listener("s1").waitForInvocation(3000, 1);
+                env.assertPropsNew("s0", "p0,p1".split(","), new Object[]{100, "abc"});
+                env.assertPropsNew("s1", "f0,f1".split(","), new Object[]{"GE", -1});
+            });
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

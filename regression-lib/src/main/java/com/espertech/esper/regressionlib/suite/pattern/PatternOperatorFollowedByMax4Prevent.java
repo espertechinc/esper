@@ -17,10 +17,12 @@ import com.espertech.esper.common.client.hook.condition.ConditionPatternSubexpre
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
 import com.espertech.esper.runtime.client.EPStatement;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class PatternOperatorFollowedByMax4Prevent implements RegressionExecution {
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
+
     public void run(RegressionEnvironment env) {
         ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
         assertEquals(env.runtimeURI(), context.getRuntimeURI());

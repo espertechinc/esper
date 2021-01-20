@@ -15,8 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
-import com.espertech.esper.runtime.client.EPStatement;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
@@ -38,39 +36,48 @@ public class EPLOtherSelectJoin {
 
             sendEvent(env, holder.eventsA[0]);
             sendEvent(env, holder.eventsB[1]);
-            assertNull(holder.listener.getLastNewData());
+            env.assertListenerNotInvoked("s0");
 
             // Test join new B with id 0
             sendEvent(env, holder.eventsB[0]);
-            assertSame(holder.eventsA[0], holder.listener.getLastNewData()[0].get("streamA"));
-            assertSame(holder.eventsB[0], holder.listener.getLastNewData()[0].get("streamB"));
-            assertNull(holder.listener.getLastOldData());
-            holder.listener.reset();
+            env.assertListener("s0", listener -> {
+                assertSame(holder.eventsA[0], listener.getLastNewData()[0].get("streamA"));
+                assertSame(holder.eventsB[0], listener.getLastNewData()[0].get("streamB"));
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             // Test join new A with id 1
             sendEvent(env, holder.eventsA[1]);
-            assertSame(holder.eventsA[1], holder.listener.getLastNewData()[0].get("streamA"));
-            assertSame(holder.eventsB[1], holder.listener.getLastNewData()[0].get("streamB"));
-            assertNull(holder.listener.getLastOldData());
-            holder.listener.reset();
+            env.assertListener("s0", listener -> {
+                assertSame(holder.eventsA[1], listener.getLastNewData()[0].get("streamA"));
+                assertSame(holder.eventsB[1], listener.getLastNewData()[0].get("streamB"));
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendEvent(env, holder.eventsA[2]);
-            assertNull(holder.listener.getLastOldData());
+            env.assertListener("s0", listener -> assertNull(listener.getLastOldData()));
 
             // Test join old A id 0 leaves length window of 3 events
             sendEvent(env, holder.eventsA[3]);
-            assertSame(holder.eventsA[0], holder.listener.getLastOldData()[0].get("streamA"));
-            assertSame(holder.eventsB[0], holder.listener.getLastOldData()[0].get("streamB"));
-            assertNull(holder.listener.getLastNewData());
-            holder.listener.reset();
+            env.assertListener("s0", listener -> {
+                assertSame(holder.eventsA[0], listener.getLastOldData()[0].get("streamA"));
+                assertSame(holder.eventsB[0], listener.getLastOldData()[0].get("streamB"));
+                assertNull(listener.getLastNewData());
+                listener.reset();
+            });
 
             // Test join old B id 1 leaves window
             sendEvent(env, holder.eventsB[4]);
-            assertNull(holder.listener.getLastOldData());
+            env.assertListener("s0", listener -> assertNull(listener.getLastOldData()));
+
             sendEvent(env, holder.eventsB[5]);
-            assertSame(holder.eventsA[1], holder.listener.getLastOldData()[0].get("streamA"));
-            assertSame(holder.eventsB[1], holder.listener.getLastOldData()[0].get("streamB"));
-            assertNull(holder.listener.getLastNewData());
+            env.assertListener("s0", listener -> {
+                assertSame(holder.eventsA[1], listener.getLastOldData()[0].get("streamA"));
+                assertSame(holder.eventsB[1], listener.getLastOldData()[0].get("streamB"));
+                assertNull(listener.getLastNewData());
+            });
 
             env.undeployAll();
         }
@@ -83,34 +90,40 @@ public class EPLOtherSelectJoin {
             sendEvent(env, holder.eventsA[0]);
             sendEvent(env, holder.eventsA[1]);
             sendEvent(env, holder.eventsASetTwo[0]);
-            assertTrue(holder.listener.getLastOldData() == null && holder.listener.getLastNewData() == null);
+            env.assertListener("s0", listener -> assertTrue(listener.getLastOldData() == null && listener.getLastNewData() == null));
 
             sendEvent(env, holder.eventsB[0]); // Event B id 0 joins to A id 0 twice
-            EventBean[] data = holder.listener.getLastNewData();
-            assertTrue(holder.eventsASetTwo[0] == data[0].get("streamA") || holder.eventsASetTwo[0] == data[1].get("streamA"));    // Order arbitrary
-            assertSame(holder.eventsB[0], data[0].get("streamB"));
-            assertTrue(holder.eventsA[0] == data[0].get("streamA") || holder.eventsA[0] == data[1].get("streamA"));
-            assertSame(holder.eventsB[0], data[1].get("streamB"));
-            assertNull(holder.listener.getLastOldData());
-            holder.listener.reset();
+            env.assertListener("s0", listener -> {
+                EventBean[] data = listener.getLastNewData();
+                assertTrue(holder.eventsASetTwo[0] == data[0].get("streamA") || holder.eventsASetTwo[0] == data[1].get("streamA"));    // Order arbitrary
+                assertSame(holder.eventsB[0], data[0].get("streamB"));
+                assertTrue(holder.eventsA[0] == data[0].get("streamA") || holder.eventsA[0] == data[1].get("streamA"));
+                assertSame(holder.eventsB[0], data[1].get("streamB"));
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
 
             sendEvent(env, holder.eventsB[2]);
             sendEvent(env, holder.eventsBSetTwo[0]);  // Ignore events generated
-            holder.listener.reset();
+            env.listenerReset("s0");
 
             sendEvent(env, holder.eventsA[3]);  // Pushes A id 0 out of window, which joins to B id 0 twice
-            data = holder.listener.getLastOldData();
-            assertSame(holder.eventsA[0], holder.listener.getLastOldData()[0].get("streamA"));
-            assertTrue(holder.eventsB[0] == data[0].get("streamB") || holder.eventsB[0] == data[1].get("streamB"));    // B order arbitrary
-            assertSame(holder.eventsA[0], holder.listener.getLastOldData()[1].get("streamA"));
-            assertTrue(holder.eventsBSetTwo[0] == data[0].get("streamB") || holder.eventsBSetTwo[0] == data[1].get("streamB"));
-            assertNull(holder.listener.getLastNewData());
-            holder.listener.reset();
+            env.assertListener("s0", listener -> {
+                EventBean[] data = listener.getLastOldData();
+                assertSame(holder.eventsA[0], listener.getLastOldData()[0].get("streamA"));
+                assertTrue(holder.eventsB[0] == data[0].get("streamB") || holder.eventsB[0] == data[1].get("streamB"));    // B order arbitrary
+                assertSame(holder.eventsA[0], listener.getLastOldData()[1].get("streamA"));
+                assertTrue(holder.eventsBSetTwo[0] == data[0].get("streamB") || holder.eventsBSetTwo[0] == data[1].get("streamB"));
+                assertNull(listener.getLastNewData());
+                listener.reset();
+            });
 
             sendEvent(env, holder.eventsBSetTwo[2]);  // Pushes B id 0 out of window, which joins to A set two id 0
-            assertSame(holder.eventsASetTwo[0], holder.listener.getLastOldData()[0].get("streamA"));
-            assertSame(holder.eventsB[0], holder.listener.getLastOldData()[0].get("streamB"));
-            Assert.assertEquals(1, holder.listener.getLastOldData().length);
+            env.assertListener("s0", listener -> {
+                assertSame(holder.eventsASetTwo[0], listener.getLastOldData()[0].get("streamA"));
+                assertSame(holder.eventsB[0], listener.getLastOldData()[0].get("streamB"));
+                Assert.assertEquals(1, listener.getLastOldData().length);
+            });
 
             env.undeployAll();
         }
@@ -120,13 +133,13 @@ public class EPLOtherSelectJoin {
         SelectJoinHolder holder = new SelectJoinHolder();
 
         String epl = "@name('s0') select irstream * from SupportBean_A#length(3) as streamA, SupportBean_B#length(3) as streamB where streamA.id = streamB.id";
-        holder.stmt = env.compileDeploy(epl).statement("s0");
-        holder.listener = env.listenerNew();
-        holder.stmt.addListener(holder.listener);
+        env.compileDeploy(epl).addListener("s0");
 
-        Assert.assertEquals(SupportBean_A.class, holder.stmt.getEventType().getPropertyType("streamA"));
-        Assert.assertEquals(SupportBean_B.class, holder.stmt.getEventType().getPropertyType("streamB"));
-        Assert.assertEquals(2, holder.stmt.getEventType().getPropertyNames().length);
+        env.assertStatement("s0", statement -> {
+            Assert.assertEquals(SupportBean_A.class, statement.getEventType().getPropertyType("streamA"));
+            Assert.assertEquals(SupportBean_B.class, statement.getEventType().getPropertyType("streamB"));
+            Assert.assertEquals(2, statement.getEventType().getPropertyNames().length);
+        });
 
         holder.eventsA = new SupportBean_A[10];
         holder.eventsASetTwo = new SupportBean_A[10];
@@ -146,12 +159,9 @@ public class EPLOtherSelectJoin {
     }
 
     private static class SelectJoinHolder {
-        EPStatement stmt;
-        SupportListener listener;
         SupportBean_A[] eventsA;
         SupportBean_A[] eventsASetTwo;
         SupportBean_B[] eventsB;
         SupportBean_B[] eventsBSetTwo;
-
     }
 }

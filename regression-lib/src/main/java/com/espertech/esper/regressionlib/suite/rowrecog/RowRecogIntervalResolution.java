@@ -14,9 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class RowRecogIntervalResolution implements RegressionExecution {
 
     private final long flipTime;
@@ -39,13 +36,19 @@ public class RowRecogIntervalResolution implements RegressionExecution {
         env.sendEventBean(new SupportBean("E1", 1));
 
         env.advanceTime(flipTime - 1);
-        assertFalse(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerNotInvoked("s0");
 
         env.milestone(0);
 
         env.advanceTime(flipTime);
-        assertTrue(env.listener("s0").getIsInvokedAndReset());
+        env.assertListenerInvoked("s0");
 
         env.undeployAll();
+    }
+
+    public String name() {
+        return "RowRecogIntervalResolution{" +
+            "flipTime=" + flipTime +
+            '}';
     }
 }

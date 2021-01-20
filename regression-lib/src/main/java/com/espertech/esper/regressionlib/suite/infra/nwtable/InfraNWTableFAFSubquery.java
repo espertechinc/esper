@@ -19,11 +19,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
@@ -74,6 +76,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             tryInvalidFAFCompile(env, path, "select (select * from PartitionedWinS0) from WinSB",
                 "Failed to plan subquery number 1 querying PartitionedWinS0: Mismatch in context specification, the context for the named window 'PartitionedWinS0' is 'MyContext' and the query specifies no context");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraFAFSubquerySelectIndexPerfCorrelated implements RegressionExecution {
@@ -120,6 +126,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -171,6 +181,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubquerySelectWhere implements RegressionExecution {
@@ -198,6 +212,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubquerySelectGroupBy implements RegressionExecution {
@@ -221,6 +239,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubqueryContextSelect implements RegressionExecution {
@@ -242,6 +264,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "p00,theString", new Object[][]{{"a", "E1"}, {"b", "E1"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -267,6 +293,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "p00,p10", new Object[][]{{"a", "X"}, {"b", "Y"}, {"c", "Z"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -295,6 +325,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubqueryUpdateCorrelatedWhere implements RegressionExecution {
@@ -321,6 +355,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "id,p00", new Object[][]{{1, "a"}, {2, "x"}, {3, "c"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -349,6 +387,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "id,p00", new Object[][]{{1, "Y"}, {2, "X"}, {3, "Z"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -379,6 +421,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "id,theString", new Object[][]{{1, "Q"}, {2, "S"}, {3, "R"}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -412,6 +458,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubqueryUpdateUncorrelated implements RegressionExecution {
@@ -441,6 +491,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQuerySingle(env, path, query, 20);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -489,6 +543,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
                 "namedWindow=" + namedWindow +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class InfraFAFSubquerySimpleJoin implements RegressionExecution {
@@ -517,7 +575,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             assertQueryMultirowAnyOrder(env, path, query, "c0,p00,p10", new Object[][]{{"SB_0", "S0_0", "S1_0"}, {"SB_0", "S0_1", "S1_0"}});
 
             env.undeployAll();
+        }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 
@@ -564,6 +625,10 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
     }
 

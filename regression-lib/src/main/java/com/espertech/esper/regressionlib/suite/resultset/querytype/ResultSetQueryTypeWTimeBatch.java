@@ -50,21 +50,25 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 0L);
             sendTimer(env, 1000);
 
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], 45d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], 45d);
+            });
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], 20d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], 20d);
 
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(1, oldEvents.length);
-            assertEvent(oldEvents[0], 45d);
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(1, oldEvents.length);
+                assertEvent(oldEvents[0], 45d);
+            });
 
             env.undeployAll();
         }
@@ -85,21 +89,25 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 0L);
             sendTimer(env, 1000);
 
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], 45d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], 45d);
+            });
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], 20d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], 20d);
 
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(1, oldEvents.length);
-            assertEvent(oldEvents[0], 45d);
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(1, oldEvents.length);
+                assertEvent(oldEvents[0], 45d);
+            });
 
             env.undeployAll();
         }
@@ -117,25 +125,29 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 0L);
             sendTimer(env, 1000);
 
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(3, newEvents.length);
-            assertEvent(newEvents[0], "DELL", 45d);
-            assertEvent(newEvents[1], "IBM", 45d);
-            assertEvent(newEvents[2], "DELL", 45d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(3, newEvents.length);
+                assertEvent(newEvents[0], "DELL", 45d);
+                assertEvent(newEvents[1], "IBM", 45d);
+                assertEvent(newEvents[2], "DELL", 45d);
+            });
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], "IBM", 20d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], "IBM", 20d);
 
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(3, oldEvents.length);
-            assertEvent(oldEvents[0], "DELL", 20d);
-            assertEvent(oldEvents[1], "IBM", 20d);
-            assertEvent(oldEvents[2], "DELL", 20d);
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(3, oldEvents.length);
+                assertEvent(oldEvents[0], "DELL", 20d);
+                assertEvent(oldEvents[1], "IBM", 20d);
+                assertEvent(oldEvents[2], "DELL", 20d);
+            });
 
             env.undeployAll();
         }
@@ -156,25 +168,29 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 0L);
             sendTimer(env, 1000);
 
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(3, newEvents.length);
-            assertEvent(newEvents[0], "DELL", 45d);
-            assertEvent(newEvents[1], "IBM", 45d);
-            assertEvent(newEvents[2], "DELL", 45d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(3, newEvents.length);
+                assertEvent(newEvents[0], "DELL", 45d);
+                assertEvent(newEvents[1], "IBM", 45d);
+                assertEvent(newEvents[2], "DELL", 45d);
+            });
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], "IBM", 20d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], "IBM", 20d);
 
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(3, oldEvents.length);
-            assertEvent(oldEvents[0], "DELL", 20d);
-            assertEvent(oldEvents[1], "IBM", 20d);
-            assertEvent(oldEvents[2], "DELL", 20d);
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(3, oldEvents.length);
+                assertEvent(oldEvents[0], "DELL", 20d);
+                assertEvent(oldEvents[1], "IBM", 20d);
+                assertEvent(oldEvents[2], "DELL", 20d);
+            });
 
             env.undeployAll();
         }
@@ -192,24 +208,28 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 0L);
             sendTimer(env, 1000);
 
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(2, newEvents.length);
-            assertEvent(newEvents[0], "DELL", 30d);
-            assertEvent(newEvents[1], "IBM", 15d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(2, newEvents.length);
+                assertEvent(newEvents[0], "DELL", 30d);
+                assertEvent(newEvents[1], "IBM", 15d);
+            });
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(2, newEvents.length);
-            assertEvent(newEvents[0], "DELL", null);
-            assertEvent(newEvents[1], "IBM", 20d);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(2, newEvents.length);
+                assertEvent(newEvents[0], "DELL", null);
+                assertEvent(newEvents[1], "IBM", 20d);
 
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(2, oldEvents.length);
-            assertEvent(oldEvents[0], "DELL", 30d);
-            assertEvent(oldEvents[1], "IBM", 15d);
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(2, oldEvents.length);
+                assertEvent(oldEvents[0], "DELL", 30d);
+                assertEvent(oldEvents[1], "IBM", 15d);
+            });
 
             env.undeployAll();
         }
@@ -234,14 +254,16 @@ public class ResultSetQueryTypeWTimeBatch {
             sendTimer(env, 1000);
 
             String[] fields = "symbol,sumPrice".split(",");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"DELL", 30d}, {"IBM", 15d}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"DELL", 30d}, {"IBM", 15d}});
 
             // send second batch
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
 
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getLastNewData(), fields, new Object[][]{{"DELL", null}, {"IBM", 20d}});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastOldData(), fields, new Object[][]{{"DELL", 30d}, {"IBM", 15d}});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), fields, new Object[][]{{"DELL", null}, {"IBM", 20d}});
+                EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastOldData(), fields, new Object[][]{{"DELL", 30d}, {"IBM", 15d}});
+            });
 
             env.undeployAll();
         }
@@ -258,22 +280,28 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 250L);
 
             sendTimer(env, 1000);
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(3, newEvents.length);
-            assertEvent(newEvents[0], "DELL", 30d, 200L);
-            assertEvent(newEvents[1], "IBM", 15d, 500L);
-            assertEvent(newEvents[2], "DELL", 30d, 250L);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(3, newEvents.length);
+                assertEvent(newEvents[0], "DELL", 30d, 200L);
+                assertEvent(newEvents[1], "IBM", 15d, 500L);
+                assertEvent(newEvents[2], "DELL", 30d, 250L);
+            });
 
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], "IBM", 20d, 600L);
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(3, oldEvents.length);
-            assertEvent(oldEvents[0], "DELL", null, 200L);
-            assertEvent(oldEvents[1], "IBM", 20d, 500L);
-            assertEvent(oldEvents[2], "DELL", null, 250L);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], "IBM", 20d, 600L);
+
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(3, oldEvents.length);
+                assertEvent(oldEvents[0], "DELL", null, 200L);
+                assertEvent(oldEvents[1], "IBM", 20d, 500L);
+                assertEvent(oldEvents[2], "DELL", null, 250L);
+            });
+
 
             env.undeployAll();
         }
@@ -296,22 +324,27 @@ public class ResultSetQueryTypeWTimeBatch {
             sendMDEvent(env, "DELL", 20, 250L);
 
             sendTimer(env, 1000);
-            EventBean[] newEvents = env.listener("s0").getLastNewData();
-            assertEquals(3, newEvents.length);
-            assertEvent(newEvents[0], "DELL", 30d, 200L);
-            assertEvent(newEvents[1], "IBM", 15d, 500L);
-            assertEvent(newEvents[2], "DELL", 30d, 250L);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(3, newEvents.length);
+                assertEvent(newEvents[0], "DELL", 30d, 200L);
+                assertEvent(newEvents[1], "IBM", 15d, 500L);
+                assertEvent(newEvents[2], "DELL", 30d, 250L);
+            });
 
             sendMDEvent(env, "IBM", 20, 600L);
             sendTimer(env, 2000);
-            newEvents = env.listener("s0").getLastNewData();
-            assertEquals(1, newEvents.length);
-            assertEvent(newEvents[0], "IBM", 20d, 600L);
-            EventBean[] oldEvents = env.listener("s0").getLastOldData();
-            assertEquals(3, oldEvents.length);
-            assertEvent(oldEvents[0], "DELL", null, 200L);
-            assertEvent(oldEvents[1], "IBM", 20d, 500L);
-            assertEvent(oldEvents[2], "DELL", null, 250L);
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getLastNewData();
+                assertEquals(1, newEvents.length);
+                assertEvent(newEvents[0], "IBM", 20d, 600L);
+
+                EventBean[] oldEvents = listener.getLastOldData();
+                assertEquals(3, oldEvents.length);
+                assertEvent(oldEvents[0], "DELL", null, 200L);
+                assertEvent(oldEvents[1], "IBM", 20d, 500L);
+                assertEvent(oldEvents[2], "DELL", null, 250L);
+            });
 
             env.undeployAll();
         }

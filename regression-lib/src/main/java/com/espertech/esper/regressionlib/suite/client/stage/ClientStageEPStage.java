@@ -37,7 +37,7 @@ public class ClientStageEPStage {
         return execs;
     }
 
-    private static class ClientStageEPStageStageInvalid implements RegressionExecution {
+    private static class ClientStageEPStageStageInvalid implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             EPStage stageA = env.stageService().getStage("ST");
 
@@ -56,7 +56,7 @@ public class ClientStageEPStage {
         }
     }
 
-    private static class ClientStageEPStageDestroy implements RegressionExecution {
+    private static class ClientStageEPStageDestroy implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             EPStage stageA = env.stageService().getStage("ST");
             env.compileDeploy("@name('s0') select * from SupportBean");

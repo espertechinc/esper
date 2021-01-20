@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.*;
 
@@ -52,6 +53,10 @@ public class EPLDataflowCustomProperties {
             epl = "create dataflow MyGraph ABC { field: { a:1x b:2 }}";
             env.tryInvalidCompile(epl, "Incorrect syntax near 'x' at line 1 column 42 [");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW, RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLDataflowCatchAllProps implements RegressionExecution {
@@ -65,6 +70,10 @@ public class EPLDataflowCustomProperties {
 
             ExprNode node = instance.getAllProperties().get("myTestParameter");
             assertEquals("abc", node.getForge().getExprEvaluator().evaluate(null, true, null));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -83,6 +92,10 @@ public class EPLDataflowCustomProperties {
 
             MyOperatorThreeSettingsABC abc = (MyOperatorThreeSettingsABC) instance.getSettings();
             assertEquals("ValueOne", abc.parameterOne.getForge().getExprEvaluator().evaluate(null, true, null));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -149,6 +162,10 @@ public class EPLDataflowCustomProperties {
             assertEquals("x", instanceTwo.getTheInnerOp().fieldOne);
             assertEquals(2, instanceTwo.getTheInnerOp().fieldTwo);
             assertTrue(instanceTwo.getTheInnerOpInterface() instanceof MyOperatorTwoInterfaceImplTwo);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

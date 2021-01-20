@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.event.json;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyDescriptor;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportEnum;
 import com.espertech.esper.common.internal.support.SupportEventTypeAssertionEnum;
@@ -23,7 +22,10 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.support.SupportEnum.*;
@@ -54,7 +56,7 @@ public class EventJsonTypingCoreParse {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Map.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             sendAssertColumn(env, "{}", null);
             sendAssertColumn(env, "{\"c0\": {\"c1\" : 10}}", Collections.singletonMap("c1", 10));
@@ -67,11 +69,12 @@ public class EventJsonTypingCoreParse {
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertColumn(it.next(), null);
-            assertColumn(it.next(), Collections.singletonMap("c1", 10));
-            assertColumn(it.next(), Collections.singletonMap("c1", Collections.singletonMap("c2", 20)));
-            justAssert(it.next(), assertionOne);
+            env.assertIterator("s0", it -> {
+                assertColumn(it.next(), null);
+                assertColumn(it.next(), Collections.singletonMap("c1", 10));
+                assertColumn(it.next(), Collections.singletonMap("c1", Collections.singletonMap("c2", 20)));
+                justAssert(it.next(), assertionOne);
+            });
 
             env.undeployAll();
         }
@@ -83,7 +86,7 @@ public class EventJsonTypingCoreParse {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Object[].class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement ->  SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             sendAssertColumn(env, "{}", null);
             sendAssertColumn(env, "{\"c0\": []}", new Object[0]);
@@ -101,20 +104,21 @@ public class EventJsonTypingCoreParse {
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertColumn(it.next(), null);
-            assertColumn(it.next(), new Object[0]);
-            assertColumn(it.next(), new Object[]{1.0d});
-            assertColumn(it.next(), new Object[]{null});
-            assertColumn(it.next(), new Object[]{true});
-            assertColumn(it.next(), new Object[]{false});
-            assertColumn(it.next(), new Object[]{"abc"});
-            assertColumn(it.next(), new Object[][]{{"abc"}});
-            assertColumn(it.next(), new Object[]{new Object[0]});
-            assertColumn(it.next(), new Object[][]{{"abc", 2}});
-            assertColumn(it.next(), new Object[][][]{{{"abc"}, {5d}}});
-            assertColumn(it.next(), new Object[]{Collections.singletonMap("c1", 10)});
-            assertColumn(it.next(), new Object[]{CollectionUtil.buildMap("c1", 10, "c2", "abc")});
+            env.assertIterator("s0", it -> {
+                assertColumn(it.next(), null);
+                assertColumn(it.next(), new Object[0]);
+                assertColumn(it.next(), new Object[]{1.0d});
+                assertColumn(it.next(), new Object[]{null});
+                assertColumn(it.next(), new Object[]{true});
+                assertColumn(it.next(), new Object[]{false});
+                assertColumn(it.next(), new Object[]{"abc"});
+                assertColumn(it.next(), new Object[][]{{"abc"}});
+                assertColumn(it.next(), new Object[]{new Object[0]});
+                assertColumn(it.next(), new Object[][]{{"abc", 2}});
+                assertColumn(it.next(), new Object[][][]{{{"abc"}, {5d}}});
+                assertColumn(it.next(), new Object[]{Collections.singletonMap("c1", 10)});
+                assertColumn(it.next(), new Object[]{CollectionUtil.buildMap("c1", 10, "c2", "abc")});
+            });
 
             env.undeployAll();
         }
@@ -126,7 +130,7 @@ public class EventJsonTypingCoreParse {
                 "@name('s0') select * from JsonEvent#keepall;\n";
             env.compileDeploy(epl).addListener("s0");
             Object[][] namesAndTypes = new Object[][]{{"c0", Object.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement ->  SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             sendAssertColumn(env, "{}", null);
             sendAssertColumn(env, "{\"c0\": 1}", 1);
@@ -144,20 +148,21 @@ public class EventJsonTypingCoreParse {
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertColumn(it.next(), null);
-            assertColumn(it.next(), 1);
-            assertColumn(it.next(), 1.0d);
-            assertColumn(it.next(), null);
-            assertColumn(it.next(), true);
-            assertColumn(it.next(), false);
-            assertColumn(it.next(), "abc");
-            assertColumn(it.next(), new Object[]{"abc"});
-            assertColumn(it.next(), new Object[0]);
-            assertColumn(it.next(), new Object[]{"abc", 2});
-            assertColumn(it.next(), new Object[][]{{"abc"}, {5d}});
-            assertColumn(it.next(), Collections.singletonMap("c1", 10));
-            assertColumn(it.next(), CollectionUtil.buildMap("c1", 10, "c2", "abc"));
+            env.assertIterator("s0", it -> {
+                assertColumn(it.next(), null);
+                assertColumn(it.next(), 1);
+                assertColumn(it.next(), 1.0d);
+                assertColumn(it.next(), null);
+                assertColumn(it.next(), true);
+                assertColumn(it.next(), false);
+                assertColumn(it.next(), "abc");
+                assertColumn(it.next(), new Object[]{"abc"});
+                assertColumn(it.next(), new Object[0]);
+                assertColumn(it.next(), new Object[]{"abc", 2});
+                assertColumn(it.next(), new Object[][]{{"abc"}, {5d}});
+                assertColumn(it.next(), Collections.singletonMap("c1", 10));
+                assertColumn(it.next(), CollectionUtil.buildMap("c1", 10, "c2", "abc"));
+            });
 
             env.undeployAll();
         }
@@ -180,29 +185,30 @@ public class EventJsonTypingCoreParse {
                 {"c4", BigInteger[][].class},
                 {"c5", BigDecimal[][].class}
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String json = "{\"c0\": 123456789123456789123456789, \"c1\": 123456789123456789123456789.1," +
                 "\"c2\": [123456789123456789123456789], \"c3\": [123456789123456789123456789.1]," +
                 "\"c4\": [[123456789123456789123456789]], \"c5\": [[123456789123456789123456789.1]]" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFilled);
 
             json = "{}";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             json = "{\"c0\": null, \"c1\": null, \"c2\": null, \"c3\": null, \"c4\": null, \"c5\": null}";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
-            assertUnfilled(it.next());
-            assertUnfilled(it.next());
+            env.assertIterator("s0", it -> {
+                assertFilled(it.next());
+                assertUnfilled(it.next());
+                assertUnfilled(it.next());
+            });
 
             env.undeployAll();
         }
@@ -231,31 +237,32 @@ public class EventJsonTypingCoreParse {
                 {"c1", SupportEnum[].class},
                 {"c2", SupportEnum[][].class}
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String json = "{\"c0\": \"ENUM_VALUE_2\", \"c1\": [\"ENUM_VALUE_2\", \"ENUM_VALUE_1\"], \"c2\": [[\"ENUM_VALUE_2\"], [\"ENUM_VALUE_1\", \"ENUM_VALUE_3\"]]}";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFilled);
 
             json = "{}";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             json = "{\"c0\": null, \"c1\": null, \"c2\": null}";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             json = "{\"c1\": [], \"c2\": [[]]}";
             env.sendEventJson(json, "JsonEvent");
-            assertEmptyArray(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEmptyArray);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
-            assertUnfilled(it.next());
-            assertUnfilled(it.next());
-            assertEmptyArray(it.next());
+            env.assertIterator("s0", it -> {
+                assertFilled(it.next());
+                assertUnfilled(it.next());
+                assertUnfilled(it.next());
+                assertEmptyArray(it.next());
+            });
 
             env.undeployAll();
         }
@@ -315,7 +322,7 @@ public class EventJsonTypingCoreParse {
                 {"c15", Float[].class},
                 {"c16", float[].class},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String json = "{ \"c0\": [\"abc\", \"def\"],\n" +
                 "\"c1\": [\"xy\", \"z\"],\n" +
@@ -336,10 +343,10 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": [62, 63]" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFilled);
 
             env.sendEventJson("[]", "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             json = "{ \"c0\": [],\n" +
                 "\"c1\": [],\n" +
@@ -360,7 +367,7 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": []" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertEmptyArray(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEmptyArray);
 
             json = "{ \"c0\": null,\n" +
                 "\"c1\": null,\n" +
@@ -381,7 +388,7 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": null" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(event));
 
             json = "{ \"c0\": [null, \"def\", null],\n" +
                 "\"c1\": [\"xy\", null],\n" +
@@ -402,16 +409,17 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": [63]" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertPartialFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertPartialFilled(event));
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
-            assertUnfilled(it.next());
-            assertEmptyArray(it.next());
-            assertUnfilled(it.next());
-            assertPartialFilled(it.next());
+            env.assertIterator("s0", it -> {
+                assertFilled(it.next());
+                assertUnfilled(it.next());
+                assertEmptyArray(it.next());
+                assertUnfilled(it.next());
+                assertPartialFilled(it.next());
+            });
 
             env.undeployAll();
         }
@@ -486,8 +494,7 @@ public class EventJsonTypingCoreParse {
                 {"c15", Float[][].class},
                 {"c16", float[][].class},
             };
-            EventType eventType = env.statement("s0").getEventType();
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String json = "{ \"c0\": [[\"a\", \"b\"],[\"c\"]],\n" +
                 "\"c1\": [[\"xy\", \"z\"],[\"n\"]],\n" +
@@ -508,10 +515,10 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": [[62], [63]]" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertFilled(event));
 
             env.sendEventJson("[]", "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(event));
 
             json = "{ \"c0\": [],\n" +
                 "\"c1\": [],\n" +
@@ -532,7 +539,7 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": []" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertEmptyArray(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEmptyArray);
 
             json = "{ \"c0\": null,\n" +
                 "\"c1\": null,\n" +
@@ -553,7 +560,7 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": null" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", event -> assertUnfilled(event));
 
             json = "{ \"c0\": [[null, \"a\"]],\n" +
                 "\"c1\": [[null], [\"xy\"]],\n" +
@@ -574,16 +581,17 @@ public class EventJsonTypingCoreParse {
                 "\"c16\": [[63]]" +
                 "}\n";
             env.sendEventJson(json, "JsonEvent");
-            assertSomeFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertSomeFilled);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
-            assertUnfilled(it.next());
-            assertEmptyArray(it.next());
-            assertUnfilled(it.next());
-            assertSomeFilled(it.next());
+            env.assertIterator("s0", it -> {
+                assertFilled(it.next());
+                assertUnfilled(it.next());
+                assertEmptyArray(it.next());
+                assertUnfilled(it.next());
+                assertSomeFilled(it.next());
+            });
 
             env.undeployAll();
         }
@@ -648,7 +656,7 @@ public class EventJsonTypingCoreParse {
                 {"c11", Float.class},
                 {"c12", null},
             };
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement ->  SupportEventTypeAssertionUtil.assertEventTypeProperties(namesAndTypes, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             String json = "{\n" +
                 "  \"c0\": \"abc\",\n" +
@@ -666,10 +674,10 @@ public class EventJsonTypingCoreParse {
                 "  \"c12\": null\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertEventFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEventFilled);
 
             env.sendEventJson("{}", "JsonEvent");
-            assertEventNull(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEventNull);
 
             json = "{\n" +
                 "  \"c0\": null,\n" +
@@ -687,14 +695,15 @@ public class EventJsonTypingCoreParse {
                 "  \"c12\": null\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertEventNull(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertEventNull);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertEventFilled(it.next());
-            assertEventNull(it.next());
-            assertEventNull(it.next());
+            env.assertIterator("s0", it -> {
+                assertEventFilled(it.next());
+                assertEventNull(it.next());
+                assertEventNull(it.next());
+            });
 
             env.undeployAll();
         }
@@ -717,12 +726,11 @@ public class EventJsonTypingCoreParse {
 
             String json = "{ \"num1\": 42, \"num2\": 42.0, \"num3\": 4.2E+1}";
             env.sendEventJson(json, "JsonEvent");
-            assertFill(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFill);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFill(it.next());
+            env.assertIterator("s0", it -> assertFill(it.next()));
 
             env.undeployAll();
         }
@@ -745,7 +753,7 @@ public class EventJsonTypingCoreParse {
                 "  ]\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertFillOne(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFillOne);
 
             json = "{\n" +
                 "  \"a_array\": [\n" +
@@ -753,13 +761,14 @@ public class EventJsonTypingCoreParse {
                 "  ]\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertFillTwo(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFillTwo);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFillOne(it.next());
-            assertFillTwo(it.next());
+            env.assertIterator("s0", it -> {
+                assertFillOne(it.next());
+                assertFillTwo(it.next());
+            });
 
             env.undeployAll();
         }
@@ -803,12 +812,11 @@ public class EventJsonTypingCoreParse {
                 "  ]\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFilled);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
+            env.assertIterator("s0", it -> assertFilled(it.next()));
 
             env.undeployAll();
         }
@@ -834,9 +842,11 @@ public class EventJsonTypingCoreParse {
                 "a_object? as c8, exists(a_object?) as c9, " +
                 "a_array? as c10, exists(a_array?) as c11 " +
                 " from JsonEvent#keepall").addListener("s0");
-            for (EventPropertyDescriptor prop : env.statement("s0").getEventType().getPropertyDescriptors()) {
-                assertEquals("c1,c3,c5,c7,c9,c11".contains(prop.getPropertyName()) ? Boolean.class : Object.class, prop.getPropertyType());
-            }
+            env.assertStatement("s0", statement -> {
+                for (EventPropertyDescriptor prop : statement.getEventType().getPropertyDescriptors()) {
+                    assertEquals("c1,c3,c5,c7,c9,c11".contains(prop.getPropertyName()) ? Boolean.class : Object.class, prop.getPropertyType());
+                }
+            });
 
             String json = "{\n" +
                 "  \"a_string\": \"abc\",\n" +
@@ -852,20 +862,21 @@ public class EventJsonTypingCoreParse {
                 "  ]\n" +
                 "}";
             env.sendEventJson(json, "JsonEvent");
-            assertFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertFilled);
 
             env.sendEventJson("{}", "JsonEvent");
-            assertUnfilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertUnfilled);
 
             env.sendEventJson("{\"a_boolean\": false}", "JsonEvent");
-            assertSomeFilled(env.listener("s0").assertOneGetNewAndReset());
+            env.assertEventNew("s0", this::assertSomeFilled);
 
             env.milestone(0);
 
-            Iterator<EventBean> it = env.statement("s0").iterator();
-            assertFilled(it.next());
-            assertUnfilled(it.next());
-            assertSomeFilled(it.next());
+            env.assertIterator("s0", it -> {
+                assertFilled(it.next());
+                assertUnfilled(it.next());
+                assertSomeFilled(it.next());
+            });
 
             env.undeployAll();
         }
@@ -892,7 +903,7 @@ public class EventJsonTypingCoreParse {
 
     private static void sendAssertColumn(RegressionEnvironment env, String json, Object c0) {
         env.sendEventJson(json, "JsonEvent");
-        assertColumn(env.listener("s0").assertOneGetNewAndReset(), c0);
+        env.assertEventNew("s0", event -> assertColumn(event, c0));
     }
 
     private static void assertColumn(EventBean event, Object c0) {
@@ -901,8 +912,7 @@ public class EventJsonTypingCoreParse {
 
     private static void sendAssert(RegressionEnvironment env, String json, Consumer<Object> assertion) {
         env.sendEventJson(json, "JsonEvent");
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        justAssert(event, assertion);
+        env.assertEventNew("s0", event -> justAssert(event, assertion));
     }
 
     private static void justAssert(EventBean event, Consumer<Object> assertion) {

@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -38,7 +37,7 @@ public class EPLSubselectFilteredPerformance {
     private static class EPLSubselectPerformanceOneCriteria implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -54,7 +53,7 @@ public class EPLSubselectFilteredPerformance {
             for (int i = 0; i < 10000; i++) {
                 int index = 5000 + i % 1000;
                 env.sendEventBean(new SupportBean_S0(index, Integer.toString(index)));
-                Assert.assertEquals(Integer.toString(index), env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", Integer.toString(index));
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -67,7 +66,7 @@ public class EPLSubselectFilteredPerformance {
     private static class EPLSubselectPerformanceTwoCriteria implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -83,7 +82,7 @@ public class EPLSubselectFilteredPerformance {
             for (int i = 0; i < 10000; i++) {
                 int index = 5000 + i % 1000;
                 env.sendEventBean(new SupportBean_S0(index, Integer.toString(index)));
-                Assert.assertEquals(Integer.toString(index), env.listener("s0").assertOneGetNewAndReset().get("value"));
+                env.assertEqualsNew("s0", "value", Integer.toString(index));
             }
             long endTime = System.currentTimeMillis();
             long delta = endTime - startTime;
@@ -96,7 +95,7 @@ public class EPLSubselectFilteredPerformance {
     private static class EPLSubselectPerformanceJoin3CriteriaSceneOne implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -109,7 +108,7 @@ public class EPLSubselectFilteredPerformance {
     private static class EPLSubselectPerformanceJoin3CriteriaSceneTwo implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -132,7 +131,7 @@ public class EPLSubselectFilteredPerformance {
             env.sendEventBean(new SupportBean_S1(index, Integer.toString(index)));
             env.sendEventBean(new SupportBean_S2(index, Integer.toString(index + 1)));
             env.sendEventBean(new SupportBean_S3(index, Integer.toString(index + 2)));
-            Assert.assertEquals(Integer.toString(index), env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", Integer.toString(index));
         }
         long endTime = System.currentTimeMillis();
         long delta = endTime - startTime;

@@ -372,8 +372,10 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         if (!allMatches) {
             env.assertPropsNew("s0", fields, new Object[]{"A1", "B1", null, null});
         } else {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
-                new Object[][]{{"A1", "B1", null, null}, {"A1", null, null, null}});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields,
+                    new Object[][]{{"A1", "B1", null, null}, {"A1", null, null, null}});
+            });
         }
 
         env.milestoneInc(milestone);
@@ -391,8 +393,10 @@ public class RowRecogIntervalOrTerminated implements RegressionExecution {
         if (!allMatches) {
             env.assertPropsNew("s0", fields, new Object[]{"A2", "B2", null, null});
         } else {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields,
-                new Object[][]{{"A2", "B2", null, null}, {"A2", null, null, null}});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields,
+                    new Object[][]{{"A2", "B2", null, null}, {"A2", null, null, null}});
+            });
         }
 
         // destroy

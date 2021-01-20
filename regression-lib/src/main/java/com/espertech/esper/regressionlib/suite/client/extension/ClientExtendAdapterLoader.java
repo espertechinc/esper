@@ -12,8 +12,11 @@ package com.espertech.esper.regressionlib.suite.client.extension;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.util.SupportPluginLoader;
 import org.junit.Assert;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -46,6 +49,10 @@ public class ClientExtendAdapterLoader implements RegressionExecution {
         Assert.assertEquals("val", SupportPluginLoader.getDestroys().get(1).get("name"));
 
         SupportPluginLoader.reset();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
     }
 
     private Object getFromEnv(RegressionEnvironment env, String name) {

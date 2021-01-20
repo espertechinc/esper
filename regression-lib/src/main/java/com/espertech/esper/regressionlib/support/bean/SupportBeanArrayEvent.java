@@ -14,7 +14,11 @@ import com.espertech.esper.common.internal.support.SupportBean;
 
 import java.io.Serializable;
 
+/**
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+ */
 public class SupportBeanArrayEvent implements Serializable {
+    private static final long serialVersionUID = 8213478568384652480L;
     private final SupportBean[] array;
 
     public SupportBeanArrayEvent(SupportBean[] array) {

@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.regressionlib.support.bean;
 
-public class SupportBeanDynRoot implements SupportMarkerInterface {
+import java.io.Serializable;
+
+public class SupportBeanDynRoot implements SupportMarkerInterface, Serializable {
+    private static final long serialVersionUID = 6510012311845616744L;
     private Object item;
 
     public SupportBeanDynRoot(Object inner) {

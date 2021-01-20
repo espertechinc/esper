@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
@@ -53,6 +54,10 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         runAssertionLookupSPI(env);
     }
 
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
+
     private void runAssertionLateConsume(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy("create window MyVDW.test:vdwwithparam() as SupportBean", path);
@@ -64,7 +69,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         // test aggregated consumer - wherein the virtual data window does not return an iterator that prefills the aggregation state
         String[] fields = "val0".split(",");
         env.compileDeploy("@Name('s0') select sum(intPrimitive) as val0 from MyVDW", path).addListener("s0");
-        EPAssertionUtil.assertProps(env.statement("s0").iterator().next(), fields, new Object[]{100});
+        env.assertIterator("s0", iterator -> EPAssertionUtil.assertProps(iterator.next(), fields, new Object[]{100}));
 
         env.sendEventBean(new SupportBean("E1", 10));
         env.assertPropsNew("s0", fields, new Object[]{110});
@@ -119,7 +124,6 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
     private void runAssertionInsertConsume(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        String[] fields;
         env.compileDeploy("create window MyVDW.test:vdw() as SupportBean", path);
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("S1", 100);
@@ -127,23 +131,26 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.compileDeploy("insert into MyVDW select * from SupportBean", path);
 
         // test straight consume
-        fields = "theString,intPrimitive".split(",");
         env.compileDeploy("@name('s0') select irstream * from MyVDW", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 200));
-        assertNull(env.listener("s0").getLastOldData());
-        EPAssertionUtil.assertProps(env.listener("s0").getAndResetLastNewData()[0], fields, new Object[]{"E1", 200});
+        env.assertListener("s0", listener -> {
+            assertNull(listener.getLastOldData());
+            String[] fieldsOne = "theString,intPrimitive".split(",");
+            EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], fieldsOne, new Object[]{"E1", 200});
+        });
+
         env.undeployModuleContaining("s0");
 
         // test aggregated consumer - wherein the virtual data window does not return an iterator that prefills the aggregation state
-        fields = "val0".split(",");
+        String[] fieldsTwo = "val0".split(",");
         env.compileDeploy("@name('s0') select sum(intPrimitive) as val0 from MyVDW", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 100));
-        env.assertPropsNew("s0", fields, new Object[]{200});
+        env.assertPropsNew("s0", fieldsTwo, new Object[]{200});
 
         env.sendEventBean(new SupportBean("E1", 50));
-        env.assertPropsNew("s0", fields, new Object[]{250});
+        env.assertPropsNew("s0", fieldsTwo, new Object[]{250});
 
         env.undeployAll();
     }
@@ -169,19 +176,25 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
 
         // try yes-matched case
         env.sendEventBean(new SupportBean("key1", 2));
-        EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fieldsMerge, new Object[]{"key1", "key2"});
-        EPAssertionUtil.assertProps(env.listener("s0").getAndResetLastNewData()[0], fieldsMerge, new Object[]{"key1", "xxx"});
+        env.assertListener("s0", listener -> {
+            EPAssertionUtil.assertProps(listener.getLastOldData()[0], fieldsMerge, new Object[]{"key1", "key2"});
+            EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], fieldsMerge, new Object[]{"key1", "xxx"});
+        });
         EPAssertionUtil.assertProps(window.getLastUpdateOld()[0], fieldsMerge, new Object[]{"key1", "key2"});
         EPAssertionUtil.assertProps(window.getLastUpdateNew()[0], fieldsMerge, new Object[]{"key1", "xxx"});
         EPAssertionUtil.assertProps(env.listener("consume").assertOneGetNewAndReset(), fieldsMerge, new Object[]{"key1", "xxx"});
 
         // try not-matched case
         env.sendEventBean(new SupportBean("key2", 3));
-        assertNull(env.listener("s0").getLastOldData());
-        EPAssertionUtil.assertProps(env.listener("s0").getAndResetLastNewData()[0], fieldsMerge, new Object[]{"key2", "abc"});
-        EPAssertionUtil.assertProps(env.listener("consume").assertOneGetNewAndReset(), fieldsMerge, new Object[]{"key2", "abc"});
-        assertNull(window.getLastUpdateOld());
-        EPAssertionUtil.assertProps(window.getLastUpdateNew()[0], fieldsMerge, new Object[]{"key2", "abc"});
+        env.assertListener("s0", listener -> {
+            assertNull(listener.getLastOldData());
+            EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], fieldsMerge, new Object[]{"key2", "abc"});
+        });
+        env.assertPropsNew("consume", fieldsMerge, new Object[]{"key2", "abc"});
+        env.assertThat(() -> {
+            assertNull(window.getLastUpdateOld());
+            EPAssertionUtil.assertProps(window.getLastUpdateNew()[0], fieldsMerge, new Object[]{"key2", "abc"});
+        });
 
         env.undeployAll();
     }
@@ -195,13 +208,13 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.compileDeploy("insert into MyVDW select * from SupportBean", path);
 
         // cannot iterate named window
-        assertFalse(env.iterator("window").hasNext());
+        env.assertIterator("window", iterator -> assertFalse(iterator.hasNext()));
 
         // test data window aggregation (rows not included in aggregation)
         env.compileDeploy("@name('s0') select window(theString) as val0 from MyVDW", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 100));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "E1"}, (String[]) env.listener("s0").assertOneGetNewAndReset().get("val0"));
+        env.assertListener("s0", listener -> EPAssertionUtil.assertEqualsExactOrder(new Object[]{"S1", "E1"}, (String[]) listener.assertOneGetNewAndReset().get("val0")));
 
         env.undeployAll();
     }
@@ -313,7 +326,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         thewindow.setData(Collections.singleton(row1));
 
         env.sendEventBean(new SupportBean("E1", 1));
-        Assert.assertEquals(1L, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", 1L);
 
         Set rows = new HashSet();
         rows.add(row1);
@@ -321,7 +334,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         thewindow.setData(rows);
 
         env.sendEventBean(new SupportBean("E2", 2));
-        Assert.assertEquals(2L, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", 2L);
 
         env.undeployAll();
     }
@@ -366,7 +379,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.compileDeploy("@Hint('disable_window_subquery_indexshare') @name('s1') " + eplSubquerySameCtx, path);
 
         env.sendEventBean(new SupportBean_S0(0, "E1"));
-        Assert.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", 1);
         env.undeployModuleContaining("s0");
 
         // subquery - no context

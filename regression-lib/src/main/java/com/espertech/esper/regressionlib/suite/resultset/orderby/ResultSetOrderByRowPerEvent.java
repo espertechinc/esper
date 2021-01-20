@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.orderby;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
@@ -98,7 +97,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 6);
 
             String[] fields = "mySymbol,mySum".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 15.0}, {"CAT", 21.0}, {"CMU", 8.0}, {"CMU", 10.0}, {"IBM", 3.0}, {"IBM", 7.0}});
 
             env.undeployAll();
@@ -138,7 +137,7 @@ public class ResultSetOrderByRowPerEvent {
             env.sendEventBean(new SupportBeanString("DOG"));
 
             String[] fields = "symbol".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT"}, {"CAT"}, {"CMU"}, {"IBM"}, {"IBM"}, {"KGB"}});
 
             env.undeployAll();
@@ -164,7 +163,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 5);
 
             String[] fields = "symbol".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT"}, {"CAT"}, {"CMU"}, {"IBM"}, {"IBM"}, {"KGB"}});
 
             env.undeployAll();
@@ -190,7 +189,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 6);
 
             String[] fields = "symbol,sum(price)".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 15.0}, {"CAT", 21.0}, {"CMU", 8.0}, {"CMU", 10.0}, {"IBM", 3.0}, {"IBM", 7.0}});
 
             env.undeployAll();
@@ -219,7 +218,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 6);
 
             String[] fields = "symbol,max(sum(price))".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 15.0}, {"CAT", 21.0}, {"CMU", 8.0}, {"CMU", 10.0}, {"IBM", 3.0}, {"IBM", 7.0}});
 
             env.undeployAll();
@@ -246,7 +245,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 6);
 
             String[] fields = "symbol,sum(price)".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 15.0}, {"CAT", 21.0}, {"CMU", 8.0}, {"CMU", 10.0}, {"IBM", 3.0}, {"IBM", 7.0}});
 
             env.undeployAll();
@@ -272,7 +271,7 @@ public class ResultSetOrderByRowPerEvent {
             sendEvent(env, "CAT", 6);
 
             String[] fields = "symbol,sum(price)".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 15.0}, {"CAT", 21.0}, {"CMU", 8.0}, {"CMU", 10.0}, {"IBM", 3.0}, {"IBM", 7.0}});
 
             env.undeployAll();
@@ -304,7 +303,7 @@ public class ResultSetOrderByRowPerEvent {
             env.sendEventBean(new SupportBeanString("CMU"));
 
             String[] fields = "symbol,sum(price)".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 11.0}, {"CAT", 11.0}, {"CMU", 21.0}, {"CMU", 21.0}, {"IBM", 18.0}, {"IBM", 18.0}});
 
             env.undeployAll();
@@ -339,7 +338,7 @@ public class ResultSetOrderByRowPerEvent {
             env.sendEventBean(new SupportBeanString("CMU"));
 
             String[] fields = "symbol,max(sum(price))".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 11.0}, {"CAT", 11.0}, {"CMU", 21.0}, {"CMU", 21.0}, {"IBM", 18.0}, {"IBM", 18.0}});
 
             env.undeployAll();
@@ -374,7 +373,7 @@ public class ResultSetOrderByRowPerEvent {
             env.sendEventBean(new SupportBeanString("CMU"));
 
             String[] fields = "symbol,sum(price)".split(",");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{
+            env.assertPropsPerRowNewOnly("s0", fields, new Object[][]{
                 {"CAT", 11.0}, {"CAT", 11.0}, {"CMU", 21.0}, {"CMU", 21.0}, {"IBM", 18.0}, {"IBM", 18.0}});
 
             env.undeployAll();

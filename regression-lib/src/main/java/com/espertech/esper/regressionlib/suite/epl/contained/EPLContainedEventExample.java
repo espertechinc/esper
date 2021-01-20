@@ -18,6 +18,7 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportResponseEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportResponseSubEvent;
@@ -25,12 +26,7 @@ import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertFalse;
+import java.util.*;
 
 public class EPLContainedEventExample {
 
@@ -110,11 +106,14 @@ public class EPLContainedEventExample {
             sendForeignSymbols(env, "ABC=500,DEF=300,JKL=400");
             sendLocalSymbols(env, "123=600,456=100,789=200");
 
-            EventBean[] results = env.listener("out").getAndResetLastNewData();
-            EPAssertionUtil.assertPropsPerRow(results, "foreignSymbol,localSymbol,value".split(","),
+            env.assertPropsPerRowLastNew("out", "foreignSymbol,localSymbol,value".split(","),
                 new Object[][]{{"ABC", "123", 600d}, {"DEF", "456", 300d}, {"GHI", "789", 200d}, {"JKL", "666", 400d}});
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
         }
 
         private void sendForeignSymbols(RegressionEnvironment env, String symbolCsv) {
@@ -196,18 +195,18 @@ public class EPLContainedEventExample {
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
 
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "orderId,items.item[0].itemId".split(","), new Object[]{"PO200901", "100001"});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s2").getLastNewData(), "bookId".split(","), new Object[][]{{"B001"}, {"B002"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s3").getLastNewData(), "bookId".split(","), new Object[][]{{"B001"}, {"B002"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s4").getLastNewData(), "count(*)".split(","), new Object[][]{{2L}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s5").getLastNewData(), "reviewId".split(","), new Object[][]{{"1"}});
-            assertFalse(env.listener("s6").isInvoked());
-            EPAssertionUtil.assertPropsPerRow(env.listener("s7").getLastNewData(), "orderId,bookId,reviewId".split(","), new Object[][]{{"PO200901", "B001", "1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s8").getLastNewData(), "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s9").getLastNewData(), "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s10").getLastNewData(), "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s11").getLastNewData(), "mediaOrder.orderId,book.bookId,review.reviewId".split(","), new Object[][]{{"PO200901", "B001", "1"}});
-            EPAssertionUtil.assertPropsPerRow(env.listener("s12").getLastNewData(), "reviewId".split(","), new Object[][]{{"1"}});
+            env.assertPropsNew("s1", "orderId,items.item[0].itemId".split(","), new Object[]{"PO200901", "100001"});
+            env.assertPropsPerRowNewOnly("s2", "bookId".split(","), new Object[][]{{"B001"}, {"B002"}});
+            env.assertPropsPerRowNewOnly("s3", "bookId".split(","), new Object[][]{{"B001"}, {"B002"}});
+            env.assertPropsPerRowNewOnly("s4", "count(*)".split(","), new Object[][]{{2L}});
+            env.assertPropsPerRowNewOnly("s5", "reviewId".split(","), new Object[][]{{"1"}});
+            env.assertListenerNotInvoked("s6");
+            env.assertPropsPerRowNewOnly("s7", "orderId,bookId,reviewId".split(","), new Object[][]{{"PO200901", "B001", "1"}});
+            env.assertPropsPerRowNewOnly("s8", "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
+            env.assertPropsPerRowNewOnly("s9", "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
+            env.assertPropsPerRowNewOnly("s10", "reviewId,bookId".split(","), new Object[][]{{"1", "B001"}});
+            env.assertPropsPerRowNewOnly("s11", "mediaOrder.orderId,book.bookId,review.reviewId".split(","), new Object[][]{{"PO200901", "B001", "1"}});
+            env.assertPropsPerRowNewOnly("s12", "reviewId".split(","), new Object[][]{{"1"}});
 
             env.undeployAll();
         }
@@ -226,28 +225,30 @@ public class EPLContainedEventExample {
             String stmtText = "@name('s0') select book.bookId,item.itemId from MediaOrder[books.book] as book, MediaOrder[items.item] as item where productId = bookId order by bookId, item.itemId asc";
             env.compileDeploy(stmtText).addListener("s0");
 
-            String[] fields = "book.bookId,item.itemId".split(",");
+            final String[] fieldsItems = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            printRows(env, env.listener("s0").getLastNewData());
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}});
+            env.assertListener("s0", listener -> {
+                printRows(env, listener.getLastNewData());
+                EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fieldsItems, new Object[][]{{"B001", "100001"}});
+            });
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}});
+            env.assertPropsPerRowLastNew("s0", fieldsItems, new Object[][]{{"B001", "100001"}});
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}});
+            env.assertPropsPerRowLastNew("s0", fieldsItems, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}});
 
             // count
             env.undeployAll();
-            fields = "count(*)".split(",");
+            String[] fieldsCount = "count(*)".split(",");
             stmtText = "@name('s0') select count(*) from MediaOrder[books.book] as book, MediaOrder[items.item] as item where productId = bookId order by bookId asc";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{3L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{3L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{4L}});
 
             // unidirectional count
             env.undeployAll();
@@ -255,10 +256,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{3L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{3L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{1L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{1L}});
 
             env.undeployAll();
         }
@@ -277,25 +278,27 @@ public class EPLContainedEventExample {
             String stmtText = "@name('s0') select book.bookId,item.itemId from MediaOrder[books.book] as book left outer join MediaOrder[items.item] as item on productId = bookId order by bookId, item.itemId asc";
             env.compileDeploy(stmtText).addListener("s0");
 
-            String[] fields = "book.bookId,item.itemId".split(",");
+            final String[] fieldsItems = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
+            env.assertPropsPerRowLastNew("s0", fieldsItems, new Object[][]{{"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            printRows(env, env.listener("s0").getLastNewData());
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            env.assertListener("s0", listener -> {
+                printRows(env, listener.getLastNewData());
+                EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fieldsItems, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            });
 
             // count
             env.undeployAll();
-            fields = "count(*)".split(",");
+            String[] fieldsCount = "count(*)".split(",");
             stmtText = "@name('s0') select count(*) from MediaOrder[books.book] as book left outer join MediaOrder[items.item] as item on productId = bookId";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{6L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{6L}});
 
             // unidirectional count
             env.undeployAll();
@@ -303,10 +306,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{2L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{2L}});
 
             env.undeployAll();
         }
@@ -325,25 +328,27 @@ public class EPLContainedEventExample {
             String stmtText = "@name('s0') select orderId, book.bookId,item.itemId from MediaOrder[books.book] as book full outer join MediaOrder[select orderId, * from items.item] as item on productId = bookId order by bookId, item.itemId asc";
             env.compileDeploy(stmtText).addListener("s0");
 
-            String[] fields = "book.bookId,item.itemId".split(",");
+            String[] fieldsItems = "book.bookId,item.itemId".split(",");
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{null, "200003"}, {"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
+            env.assertPropsPerRowLastNew("s0", fieldsItems, new Object[][]{{null, "200003"}, {"B005", "200002"}, {"B005", "200004"}, {"B006", "200001"}, {"B008", null}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            printRows(env, env.listener("s0").getLastNewData());
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            env.assertListener("s0", listener -> {
+                printRows(env, listener.getLastNewData());
+                EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fieldsItems, new Object[][]{{"B001", "100001"}, {"B002", null}});
+            });
 
             // count
             env.undeployAll();
-            fields = "count(*)".split(",");
+            String[] fieldsCount = "count(*)".split(",");
             stmtText = "@name('s0') select count(*) from MediaOrder[books.book] as book full outer join MediaOrder[items.item] as item on productId = bookId";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{5L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{5L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{7L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{7L}});
 
             // unidirectional count
             env.undeployAll();
@@ -351,10 +356,10 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtText).addListener("s0");
 
             env.sendEventXMLDOM(eventDocTwo, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{4L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{4L}});
 
             env.sendEventXMLDOM(eventDocOne, "MediaOrder");
-            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{2L}});
+            env.assertPropsPerRowLastNew("s0", fieldsCount, new Object[][]{{2L}});
 
             env.undeployAll();
         }

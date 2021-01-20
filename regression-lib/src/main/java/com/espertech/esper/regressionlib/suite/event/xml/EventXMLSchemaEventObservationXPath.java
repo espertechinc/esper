@@ -70,17 +70,19 @@ public class EventXMLSchemaEventObservationXPath {
 
         env.milestone(0);
 
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("s0").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e0").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e1").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e2").next());
-        SupportEventTypeAssertionUtil.assertConsistency(env.iterator("e3").next());
+        env.assertIterator("s0", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e0", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e1", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e2", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
+        env.assertIterator("e3", iterator -> SupportEventTypeAssertionUtil.assertConsistency(iterator.next()));
 
-        Object resultArray = env.iterator("s0").next().get("idarray");
-        EPAssertionUtil.assertEqualsExactOrder((Object[]) resultArray, new String[]{"urn:epc:1:2.24.400", "urn:epc:1:2.24.401"});
-        EPAssertionUtil.assertProps(env.iterator("s0").next(), "countTags,countTagsInt".split(","), new Object[]{2d, 2});
-        assertEquals("urn:epc:1:2.24.400", env.iterator("e1").next().get("ID"));
-        assertEquals("urn:epc:1:2.24.401", env.iterator("e3").next().get("mytags[1].ID"));
+        env.assertIterator("s0", iterator -> {
+            Object resultArray = iterator.next().get("idarray");
+            EPAssertionUtil.assertEqualsExactOrder((Object[]) resultArray, new String[]{"urn:epc:1:2.24.400", "urn:epc:1:2.24.401"});
+            EPAssertionUtil.assertProps(env.iterator("s0").next(), "countTags,countTagsInt".split(","), new Object[]{2d, 2});
+            assertEquals("urn:epc:1:2.24.400", env.iterator("e1").next().get("ID"));
+            assertEquals("urn:epc:1:2.24.401", env.iterator("e3").next().get("mytags[1].ID"));
+        });
 
         env.undeployAll();
     }

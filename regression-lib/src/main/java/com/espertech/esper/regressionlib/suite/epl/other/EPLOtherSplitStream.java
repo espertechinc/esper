@@ -23,7 +23,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bookexample.OrderBeanFactory;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
@@ -78,10 +77,10 @@ public class EPLOtherSplitStream {
 
         private void assertSplitResult(RegressionEnvironment env, Integer expected) {
             env.sendEventBean(new SupportBean("X", 0));
-            assertEquals(0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 0);
 
             env.sendEventBean(new SupportBean("Y", 1));
-            assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", expected);
         }
     }
 
@@ -123,26 +122,24 @@ public class EPLOtherSplitStream {
             String stmtOrigText = "@name('insert') on SupportBean insert into AStream select *";
             env.compileDeploy(stmtOrigText, path).addListener("insert");
 
-            SupportListener[] listeners = getListeners(env);
-            env.compileDeploy("@name('s0') select * from AStream", path).addListener("s0", listeners[0]);
+            env.compileDeploy("@name('s0') select * from AStream", path).addListener("s0");
 
             sendSupportBean(env, "E1", 1);
-            assertReceivedSingle(listeners, 0, "E1");
-            assertFalse(env.listener("insert").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E1");
+            env.assertListenerNotInvoked("insert");
 
             // test select
             stmtOrigText = "@name('s1') on SupportBean insert into BStreamABC select 3*intPrimitive as value";
             env.compileDeploy(stmtOrigText, path);
 
-            env.compileDeploy("@name('s2') select value from BStreamABC", path);
-            env.addListener("s2", listeners[1]);
+            env.compileDeploy("@name('s2') select value from BStreamABC", path).addListener("s2");
 
             sendSupportBean(env, "E1", 6);
-            assertEquals(18, listeners[1].assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s2", "value", 18);
 
             // assert type is original type
-            assertEquals(SupportBean.class, env.statement("insert").getEventType().getUnderlyingType());
-            assertFalse(env.iterator("insert").hasNext());
+            env.assertStatement("insert", statement -> assertEquals(SupportBean.class, statement.getEventType().getUnderlyingType()));
+            env.assertIterator("insert", iterator -> assertFalse(iterator.hasNext()));
 
             env.undeployAll();
         }
@@ -196,17 +193,17 @@ public class EPLOtherSplitStream {
 
             sendSupportBean(env, "E1", 1);
             env.assertListenerNotInvoked("s0");
-            assertNull(env.listener("s1").assertOneGetNewAndReset().get("string"));
+            env.assertEqualsNew("s1", "string", null);
 
             env.sendEventBean(new SupportBean_S0(10, "x", "y"));
 
             sendSupportBean(env, "E2", 10);
-            assertEquals("x", env.listener("s0").assertOneGetNewAndReset().get("string"));
-            assertFalse(env.listener("s1").getAndClearIsInvoked());
+            env.assertEqualsNew("s0", "string", "x");
+            env.assertListenerNotInvoked("s1");
 
             sendSupportBean(env, "E3", 9);
             env.assertListenerNotInvoked("s0");
-            assertEquals("y", env.listener("s1").assertOneGetNewAndReset().get("string"));
+            env.assertEqualsNew("s1", "string", "y");
 
             env.undeployAll();
         }
@@ -221,28 +218,33 @@ public class EPLOtherSplitStream {
                 "output all";
             env.compileDeploy(stmtOrigText, path).addListener("split");
 
-            SupportListener[] listeners = getListeners(env);
-            env.compileDeploy("@name('s0') select * from AStream2S", path).addListener("s0", listeners[0]);
-            env.compileDeploy("@name('s1') select * from BStream2S", path).addListener("s1", listeners[1]);
+            env.compileDeploy("@name('s0') select * from AStream2S", path).addListener("s0");
+            env.compileDeploy("@name('s1') select * from BStream2S", path).addListener("s1");
 
-            assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
-            assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+            env.assertThat(() -> {
+                assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
+                assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+            });
 
             sendSupportBean(env, "E1", 1);
-            assertReceivedEach(listeners, new String[]{"E1", "E1"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E1");
+            env.assertEqualsNew("s1", "theString", "E1");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E2", 2);
-            assertReceivedEach(listeners, new String[]{null, "E2"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertEqualsNew("s1", "theString", "E2");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E3", 1);
-            assertReceivedEach(listeners, new String[]{"E3", "E3"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E3");
+            env.assertEqualsNew("s1", "theString", "E3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E4", -999);
-            assertReceivedEach(listeners, new String[]{null, null});
-            assertEquals("E4", env.listener("split").assertOneGetNewAndReset().get("theString"));
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s1");
+            env.assertEqualsNew("split", "theString", "E4");
 
             env.undeployAll();
         }
@@ -258,26 +260,33 @@ public class EPLOtherSplitStream {
                 "output all";
             env.compileDeploy(stmtOrigText, path).addListener("split");
 
-            SupportListener[] listeners = getListeners(env);
-            env.compileDeploy("@name('s0') select * from AStream2S", path).addListener("s0", listeners[0]);
-            env.compileDeploy("@name('s1') select * from BStream2S", path).addListener("s1", listeners[1]);
-            env.compileDeploy("@name('s2') select * from CStream2S", path).addListener("s2", listeners[2]);
+            env.compileDeploy("@name('s0') select * from AStream2S", path).addListener("s0");
+            env.compileDeploy("@name('s1') select * from BStream2S", path).addListener("s1");
+            env.compileDeploy("@name('s2') select * from CStream2S", path).addListener("s2");
 
             sendSupportBean(env, "E1", 2);
-            assertReceivedEach(listeners, new String[]{"E1_1", "E1_2", "E1_3"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E1_1");
+            env.assertEqualsNew("s1", "theString", "E1_2");
+            env.assertEqualsNew("s2", "theString", "E1_3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E2", 1);
-            assertReceivedEach(listeners, new String[]{"E2_1", null, "E2_3"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E2_1");
+            env.assertListenerNotInvoked("s1");
+            env.assertEqualsNew("s2", "theString", "E2_3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E3", 3);
-            assertReceivedEach(listeners, new String[]{null, "E3_2", "E3_3"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertEqualsNew("s1", "theString", "E3_2");
+            env.assertEqualsNew("s2", "theString", "E3_3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E4", -999);
-            assertReceivedEach(listeners, new String[]{null, null, "E4_3"});
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s1");
+            env.assertEqualsNew("s2", "theString", "E4_3");
+            env.assertListenerNotInvoked("split");
 
             env.undeployAll();
         }
@@ -292,29 +301,38 @@ public class EPLOtherSplitStream {
                 "insert into CStream34 select theString||'_3' as theString";
             env.compileDeploy(stmtOrigText, path).addListener("split");
 
-            SupportListener[] listeners = getListeners(env);
-            env.compileDeploy("@name('s0') select * from AStream34", path).addListener("s0", listeners[0]);
-            env.compileDeploy("@name('s1') select * from BStream34", path).addListener("s1", listeners[1]);
-            env.compileDeploy("@name('s2') select * from CStream34", path).addListener("s2", listeners[2]);
+            env.compileDeploy("@name('s0') select * from AStream34", path).addListener("s0");
+            env.compileDeploy("@name('s1') select * from BStream34", path).addListener("s1");
+            env.compileDeploy("@name('s2') select * from CStream34", path).addListener("s2");
 
-            assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
-            assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+            env.assertThat(() -> {
+                assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
+                assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+            });
 
             sendSupportBean(env, "E1", 1);
-            assertReceivedSingle(listeners, 0, "E1_1");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E1_1");
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E2", 2);
-            assertReceivedSingle(listeners, 1, "E2_2");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertEqualsNew("s1", "theString", "E2_2");
+            env.assertListenerNotInvoked("s2");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E3", 1);
-            assertReceivedSingle(listeners, 0, "E3_1");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E3_1");
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E4", -999);
-            assertReceivedSingle(listeners, 2, "E4_3");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s1");
+            env.assertEqualsNew("s2", "theString", "E4_3");
+            env.assertListenerNotInvoked("split");
 
             env.undeployAll();
         }
@@ -331,55 +349,40 @@ public class EPLOtherSplitStream {
                 "insert into DStream34 select theString||'_4' as theString";
             env.compileDeploy(stmtOrigText, path).addListener("split");
 
-            SupportListener[] listeners = getListeners(env);
-            env.compileDeploy("@name('s0') select * from AStream34", path).addListener("s0", listeners[0]);
-            env.compileDeploy("@name('s1') select * from BStream34", path).addListener("s1", listeners[1]);
-            env.compileDeploy("@name('s2') select * from CStream34", path).addListener("s2", listeners[2]);
-            env.compileDeploy("@name('s3') select * from DStream34", path).addListener("s3", listeners[3]);
+            env.compileDeploy("@name('s0') select * from AStream34", path).addListener("s0");
+            env.compileDeploy("@name('s1') select * from BStream34", path).addListener("s1");
+            env.compileDeploy("@name('s2') select * from CStream34", path).addListener("s2");
+            env.compileDeploy("@name('s3') select * from DStream34", path).addListener("s3");
 
             sendSupportBean(env, "E5", -999);
-            assertReceivedSingle(listeners, 2, "E5_3");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s1");
+            env.assertEqualsNew("s2", "theString", "E5_3");
+            env.assertListenerNotInvoked("s3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E6", 9999);
-            assertReceivedSingle(listeners, 3, "E6_4");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
+            env.assertEqualsNew("s3", "theString", "E6_4");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E7", 20);
-            assertReceivedSingle(listeners, 1, "E7_2");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertListenerNotInvoked("s0");
+            env.assertEqualsNew("s1", "theString", "E7_2");
+            env.assertListenerNotInvoked("s2");
+            env.assertListenerNotInvoked("s3");
+            env.assertListenerNotInvoked("split");
 
             sendSupportBean(env, "E8", 10);
-            assertReceivedSingle(listeners, 0, "E8_1");
-            assertFalse(env.listener("split").isInvoked());
+            env.assertEqualsNew("s0", "theString", "E8_1");
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
+            env.assertListenerNotInvoked("s3");
+            env.assertListenerNotInvoked("split");
 
             env.undeployAll();
-        }
-    }
-
-    private static void assertReceivedEach(SupportListener[] listeners, String[] stringValue) {
-        for (int i = 0; i < stringValue.length; i++) {
-            if (stringValue[i] != null) {
-                assertEquals(stringValue[i], listeners[i].assertOneGetNewAndReset().get("theString"));
-            } else {
-                assertFalse(listeners[i].isInvoked());
-            }
-        }
-    }
-
-    private static void assertReceivedSingle(SupportListener[] listeners, int index, String stringValue) {
-        for (int i = 0; i < listeners.length; i++) {
-            if (i == index) {
-                continue;
-            }
-            assertFalse(listeners[i].isInvoked());
-        }
-        assertEquals(stringValue, listeners[index].assertOneGetNewAndReset().get("theString"));
-    }
-
-    private static void assertReceivedNone(SupportListener[] listeners) {
-        for (int i = 0; i < listeners.length; i++) {
-            assertFalse(listeners[i].isInvoked());
         }
     }
 
@@ -391,35 +394,37 @@ public class EPLOtherSplitStream {
     }
 
     private static void tryAssertion(RegressionEnvironment env, RegressionPath path) {
-        SupportListener[] listeners = getListeners(env);
-        env.compileDeploy("@name('s0') select * from AStream2SP", path).addListener("s0", listeners[0]);
-        env.compileDeploy("@name('s1') select * from BStream2SP", path).addListener("s1", listeners[1]);
+        env.compileDeploy("@name('s0') select * from AStream2SP", path).addListener("s0");
+        env.compileDeploy("@name('s1') select * from BStream2SP", path).addListener("s1");
 
-        assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
-        assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+        env.assertThat(() -> {
+            assertNotSame(env.statement("s0").getEventType(), env.statement("s1").getEventType());
+            assertSame(env.statement("s0").getEventType().getUnderlyingType(), env.statement("s1").getEventType().getUnderlyingType());
+        });
 
         sendSupportBean(env, "E1", 1);
-        assertReceivedSingle(listeners, 0, "E1");
-        env.assertListenerNotInvoked("s0");
+        env.assertEqualsNew("s0", "theString", "E1");
+        env.assertListenerNotInvoked("s1");
 
         sendSupportBean(env, "E2", 2);
-        assertReceivedSingle(listeners, 1, "E2");
         env.assertListenerNotInvoked("s0");
+        env.assertEqualsNew("s1", "theString", "E2");
 
         sendSupportBean(env, "E3", 1);
-        assertReceivedSingle(listeners, 0, "E3");
-        env.assertListenerNotInvoked("s0");
+        env.assertEqualsNew("s0", "theString", "E3");
+        env.assertListenerNotInvoked("s1");
 
         sendSupportBean(env, "E4", -999);
-        assertReceivedNone(listeners);
-        assertEquals("E4", env.listener("split").assertOneGetNewAndReset().get("theString"));
+        env.assertListenerNotInvoked("s0");
+        env.assertListenerNotInvoked("s1");
+        env.assertEqualsNew("split", "theString", "E4");
 
         env.undeployAll();
     }
 
     private static void tryAssertionSplitPremptiveNamedWindow(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTrigger.class) + " create schema TypeTrigger(trigger int)", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTrigger.class) + " @buseventtype create schema TypeTrigger(trigger int)", path);
 
         env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create schema TypeTwo(col2 int)", path);
         env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create window WinTwo#keepall as TypeTwo", path);
@@ -449,7 +454,7 @@ public class EPLOtherSplitStream {
             fail();
         }
 
-        assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("col2"));
+        env.assertEqualsNew("s0", "col2", 2);
 
         env.undeployAll();
     }
@@ -473,18 +478,17 @@ public class EPLOtherSplitStream {
             "output all";
         env.compileDeploy(soda, epl, path);
 
-        SupportListener[] listeners = getListeners(env);
-        env.compileDeploy("@name('s0') select * from StartEvent", path).addListener("s0", listeners[0]);
-        env.compileDeploy("@name('s1') select * from ThenEvent", path).addListener("s1", listeners[1]);
-        env.compileDeploy("@name('s2') select * from MoreEvent", path).addListener("s2", listeners[2]);
+        env.compileDeploy("@name('s0') select * from StartEvent", path).addListener("s0");
+        env.compileDeploy("@name('s1') select * from ThenEvent", path).addListener("s1");
+        env.compileDeploy("@name('s2') select * from MoreEvent", path).addListener("s2");
 
         env.sendEventBean(OrderBeanFactory.makeEventOne());
         String[] fieldsOrderId = "oi".split(",");
         String[] fieldsItems = "oi,itemId".split(",");
-        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{"PO200901"});
+        env.assertPropsNew("s0", fieldsOrderId, new Object[]{"PO200901"});
         Object[][] expected = new Object[][]{{"PO200901", "A001"}, {"PO200901", "A002"}, {"PO200901", "A003"}};
-        EPAssertionUtil.assertPropsPerRow(listeners[1].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
-        EPAssertionUtil.assertPropsPerRow(listeners[2].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
+        env.assertListener("s1", listener -> EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened().getFirst(), fieldsItems, expected));
+        env.assertListener("s2", listener -> EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened().getFirst(), fieldsItems, expected));
 
         env.undeployAll();
     }
@@ -497,24 +501,25 @@ public class EPLOtherSplitStream {
             "insert into EndEvent select orderdetail.orderId as orderId " +
             "output all";
         env.compileDeploy(soda, epl, path);
-        assertEquals(StatementType.ON_SPLITSTREAM, env.statement("split").getProperty(StatementProperty.STATEMENTTYPE));
+        env.assertStatement("split", statement -> assertEquals(StatementType.ON_SPLITSTREAM, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
-        SupportListener[] listeners = getListeners(env);
-        env.compileDeploy("@name('s0') select * from BeginEvent", path).addListener("s0", listeners[0]);
-        env.compileDeploy("@name('s1') select * from OrderItem", path).addListener("s1", listeners[1]);
-        env.compileDeploy("@name('s2') select * from EndEvent", path).addListener("s2", listeners[2]);
+        env.compileDeploy("@name('s0') select * from BeginEvent", path).addListener("s0");
+        env.compileDeploy("@name('s1') select * from OrderItem", path).addListener("s1");
+        env.compileDeploy("@name('s2') select * from EndEvent", path).addListener("s2");
 
-        EventType orderItemType = env.runtime().getEventTypeService().getEventType(env.deploymentId("split"), "OrderItem");
-        assertEquals("[amount, itemId, price, productId, orderId]", Arrays.toString(orderItemType.getPropertyNames()));
+        env.assertThat(() -> {
+            EventType orderItemType = env.runtime().getEventTypeService().getEventType(env.deploymentId("split"), "OrderItem");
+            assertEquals("[amount, itemId, price, productId, orderId]", Arrays.toString(orderItemType.getPropertyNames()));
+        });
 
         env.sendEventBean(OrderBeanFactory.makeEventOne());
-        assertFromClauseWContained(listeners, "PO200901", new Object[][]{{"PO200901", "A001"}, {"PO200901", "A002"}, {"PO200901", "A003"}});
+        assertFromClauseWContained(env, "PO200901", new Object[][]{{"PO200901", "A001"}, {"PO200901", "A002"}, {"PO200901", "A003"}});
 
         env.sendEventBean(OrderBeanFactory.makeEventTwo());
-        assertFromClauseWContained(listeners, "PO200902", new Object[][]{{"PO200902", "B001"}});
+        assertFromClauseWContained(env, "PO200902", new Object[][]{{"PO200902", "B001"}});
 
         env.sendEventBean(OrderBeanFactory.makeEventFour());
-        assertFromClauseWContained(listeners, "PO200904", new Object[0][]);
+        assertFromClauseWContained(env, "PO200904", new Object[0][]);
 
         env.undeployAll();
     }
@@ -534,32 +539,30 @@ public class EPLOtherSplitStream {
             "insert into StreamThree select * from [select oe, * from orderdetail.items] where productId in (\"10020\",\"10025\",\"10022\")";
         env.compileDeploy(soda, epl, path);
 
-        SupportListener[] listeners = getListeners(env);
         String[] listenerEPL = new String[]{"select * from StreamOne", "select * from StreamTwo", "select * from StreamThree"};
         for (int i = 0; i < listenerEPL.length; i++) {
-            env.compileDeploy("@name('s" + i + "')" + listenerEPL[i], path).addListener("s" + i, listeners[i]);
-            listeners[i].reset();
+            env.compileDeploy("@name('s" + i + "')" + listenerEPL[i], path).addListener("s" + i);
         }
 
         env.sendEventBean(OrderBeanFactory.makeEventOne());
-        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{"PO200901"});
-        assertFalse(listeners[1].isInvoked());
-        assertFalse(listeners[2].isInvoked());
+        env.assertPropsNew("s0", fieldsOrderId, new Object[]{"PO200901"});
+        env.assertListenerNotInvoked("s1");
+        env.assertListenerNotInvoked("s2");
 
         env.sendEventBean(OrderBeanFactory.makeEventTwo());
-        assertFalse(listeners[0].isInvoked());
-        EPAssertionUtil.assertProps(listeners[1].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{"PO200902"});
-        assertFalse(listeners[2].isInvoked());
+        env.assertListenerNotInvoked("s0");
+        env.assertPropsNew("s1", fieldsOrderId, new Object[]{"PO200902"});
+        env.assertListenerNotInvoked("s2");
 
         env.sendEventBean(OrderBeanFactory.makeEventThree());
-        assertFalse(listeners[0].isInvoked());
-        assertFalse(listeners[1].isInvoked());
-        EPAssertionUtil.assertProps(listeners[2].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{"PO200903"});
+        env.assertListenerNotInvoked("s0");
+        env.assertListenerNotInvoked("s1");
+        env.assertPropsNew("s2", fieldsOrderId, new Object[]{"PO200903"});
 
         env.sendEventBean(OrderBeanFactory.makeEventFour());
-        assertFalse(listeners[0].isInvoked());
-        assertFalse(listeners[1].isInvoked());
-        assertFalse(listeners[2].isInvoked());
+        env.assertListenerNotInvoked("s0");
+        env.assertListenerNotInvoked("s1");
+        env.assertListenerNotInvoked("s2");
 
         env.undeployAll();
     }
@@ -567,7 +570,7 @@ public class EPLOtherSplitStream {
     private static void tryAssertionFromClauseDocSample(RegressionEnvironment env) {
         String epl =
             "create schema MyOrderItem(itemId string);\n" +
-                "create schema MyOrderEvent(orderId string, items MyOrderItem[]);\n" +
+                "@buseventtype create schema MyOrderEvent(orderId string, items MyOrderItem[]);\n" +
                 "on MyOrderEvent\n" +
                 "  insert into MyOrderBeginEvent select orderId\n" +
                 "  insert into MyOrderItemEvent select * from [select orderId, * from items]\n" +
@@ -577,39 +580,33 @@ public class EPLOtherSplitStream {
                 "  initiated by MyOrderBeginEvent as obe\n" +
                 "  terminated by MyOrderEndEvent(orderId = obe.orderId);\n" +
                 "@Name('count') context MyOrderContext select count(*) as orderItemCount from MyOrderItemEvent output when terminated;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("count");
+        env.compileDeploy(epl, new RegressionPath()).addListener("count");
 
         Map<String, Object> event = new HashMap<>();
         event.put("orderId", "1010");
         event.put("items", new Map[]{Collections.singletonMap("itemId", "A0001")});
         env.sendEventMap(event, "MyOrderEvent");
 
-        assertEquals(1L, env.listener("count").assertOneGetNewAndReset().get("orderItemCount"));
+        env.assertEqualsNew("count", "orderItemCount", 1L);
 
         env.undeployAll();
     }
 
-    private static void assertFromClauseWContained(SupportListener[] listeners, String orderId, Object[][] expected) {
+    private static void assertFromClauseWContained(RegressionEnvironment env, String orderId, Object[][] expected) {
         String[] fieldsOrderId = "orderId".split(",");
         String[] fieldsItems = "orderId,itemId".split(",");
-        EPAssertionUtil.assertProps(listeners[0].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{orderId});
-        EPAssertionUtil.assertPropsPerRow(listeners[1].getAndResetDataListsFlattened().getFirst(), fieldsItems, expected);
-        EPAssertionUtil.assertProps(listeners[2].assertOneGetNewAndReset(), fieldsOrderId, new Object[]{orderId});
-    }
-
-    private static SupportListener[] getListeners(RegressionEnvironment env) {
-        SupportListener[] listeners = new SupportListener[10];
-        for (int i = 0; i < listeners.length; i++) {
-            listeners[i] = env.listenerNew();
-        }
-        return listeners;
+        env.assertListener("s0", listener -> EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOrderId, new Object[]{orderId}));
+        env.assertListener("s1", listener -> EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened().getFirst(), fieldsItems, expected));
+        env.assertListener("s2", listener -> EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fieldsOrderId, new Object[]{orderId}));
     }
 
     public static class MyLocalJsonProvidedTrigger implements Serializable {
+        private static final long serialVersionUID = -7842295459760043998L;
         public int trigger;
     }
 
     public static class MyLocalJsonProvidedTypeTwo implements Serializable {
+        private static final long serialVersionUID = 8245078724083821798L;
         public int col2;
     }
 }

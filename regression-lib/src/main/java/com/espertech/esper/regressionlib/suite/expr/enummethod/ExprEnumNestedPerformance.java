@@ -51,8 +51,10 @@ public class ExprEnumNestedPerformance implements RegressionExecution {
         long delta = System.currentTimeMillis() - start;
         assertTrue("delta=" + delta, delta < 100);
 
-        Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) env.listener("s0").assertOneGetNewAndReset().get("val");
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{minEvent}, result.toArray());
+        env.assertEventNew("s0", event -> {
+            Collection<SupportBean_ST0> result = (Collection<SupportBean_ST0>) event.get("val");
+            EPAssertionUtil.assertEqualsExactOrder(new Object[]{minEvent}, result.toArray());
+        });
 
         env.undeployAll();
     }

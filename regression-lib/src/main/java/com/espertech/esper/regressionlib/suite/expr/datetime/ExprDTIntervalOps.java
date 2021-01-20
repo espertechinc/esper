@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -242,15 +241,15 @@ public class ExprDTIntervalOps {
                 " from SupportTimeStartEndA#lastevent as a, " +
                 "      SupportTimeStartEndB#lastevent as b";
             env.compileDeploy(epl).addListener("s0");
-            SupportEventPropUtil.assertTypesAllSame(env.statement("s0").getEventType(), fields, EPTypePremade.BOOLEANBOXED.getEPType());
+            env.assertStmtTypesAllSame("s0",  fields, EPTypePremade.BOOLEANBOXED.getEPType());
 
             env.sendEventBean(SupportTimeStartEndB.make("B1", "2002-05-30T09:00:00.000", 0));
 
             env.sendEventBean(SupportTimeStartEndA.make("A1", "2002-05-30T08:59:59.000", 0));
-            EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fields, true);
+            assertPropsAllValuesSame(env, fields, true);
 
             env.sendEventBean(SupportTimeStartEndA.make("A2", "2002-05-30T08:59:59.950", 0));
-            EPAssertionUtil.assertPropsAllValuesSame(env.listener("s0").assertOneGetNewAndReset(), fields, true);
+            assertPropsAllValuesSame(env, fields, true);
 
             env.undeployAll();
         }
@@ -1111,8 +1110,8 @@ public class ExprDTIntervalOps {
     }
 
     private static void setVStartEndVariables(RegressionEnvironment env, long vstart, long vend) {
-        env.runtime().getVariableService().setVariableValue(null, "V_START", vstart);
-        env.runtime().getVariableService().setVariableValue(null, "V_END", vend);
+        env.runtimeSetVariable(null, "V_START", vstart);
+        env.runtimeSetVariable(null, "V_END", vend);
     }
 
     private static void assertExpression(RegressionEnvironment env, String seedTime, long seedDuration, String whereClause, Object[][] timestampsAndResult, Validator validator) {
@@ -1145,13 +1144,15 @@ public class ExprDTIntervalOps {
 
             env.sendEventObjectArray(new Object[]{fieldType.makeStart(testtime), fieldType.makeEnd(testtime, testduration)}, "A_" + fieldType.name());
 
-            if (!env.listener("s0").isInvoked() && expected) {
-                fail("Expected but not received for " + message);
-            }
-            if (env.listener("s0").isInvoked() && !expected) {
-                fail("Not expected but received for " + message);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                if (!listener.isInvoked() && expected) {
+                    fail("Expected but not received for " + message);
+                }
+                if (listener.isInvoked() && !expected) {
+                    fail("Not expected but received for " + message);
+                }
+                listener.reset();
+            });
         }
 
         env.undeployAll();
@@ -1185,13 +1186,15 @@ public class ExprDTIntervalOps {
 
             env.sendEventBean(SupportTimeStartEndA.make("A", testtime, testduration));
 
-            if (!env.listener("s0").isInvoked() && expected) {
-                fail("Expected but not received for " + message);
-            }
-            if (env.listener("s0").isInvoked() && !expected) {
-                fail("Not expected but received for " + message);
-            }
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                if (!listener.isInvoked() && expected) {
+                    fail("Expected but not received for " + message);
+                }
+                if (listener.isInvoked() && !expected) {
+                    fail("Not expected but received for " + message);
+                }
+                listener.reset();
+            });
         }
 
         env.undeployAll();
@@ -1605,5 +1608,9 @@ public class ExprDTIntervalOps {
                 return (delta <= threshold) && (leftEnd > rightEnd);
             }
         }
+    }
+
+    private static void assertPropsAllValuesSame(RegressionEnvironment env, String[] fields, boolean expected) {
+        env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsAllValuesSame(event, fields, expected));
     }
 }

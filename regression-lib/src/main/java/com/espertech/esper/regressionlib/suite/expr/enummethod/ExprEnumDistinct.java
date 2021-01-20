@@ -54,9 +54,10 @@ public class ExprEnumDistinct {
             coll.add(new int[]{2});
             SupportEventWithManyArray event = new SupportEventWithManyArray().withIntArrayCollection(coll);
             env.sendEventBean(event);
-            EventBean received = env.listener("s0").assertOneGetNewAndReset();
-            assertField(received, "c0");
-            assertField(received, "c1");
+            env.assertEventNew("s0", received -> {
+                assertField(received, "c0");
+                assertField(received, "c1");
+            });
 
             env.undeployAll();
         }
@@ -78,8 +79,10 @@ public class ExprEnumDistinct {
             sendManyArray(env, "E4", new int[]{2});
 
             env.sendEventBean(new SupportBean("SB1", 0));
-            Collection<SupportEventWithManyArray> collection = (Collection<SupportEventWithManyArray>) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals(2, collection.size());
+            env.assertEventNew("s0", event -> {
+                Collection<SupportEventWithManyArray> collection = (Collection<SupportEventWithManyArray>) event.get("c0");
+                assertEquals(2, collection.size());
+            });
 
             env.undeployAll();
         }

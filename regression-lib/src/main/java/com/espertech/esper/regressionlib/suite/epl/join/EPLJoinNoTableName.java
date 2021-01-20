@@ -39,7 +39,7 @@ public class EPLJoinNoTableName implements RegressionExecution {
 
         sendEvent(env, setOne[0]);
         sendEvent(env, setTwo[0]);
-        assertNotNull(env.listener("s0").getLastNewData());
+        env.assertListener("s0", listener -> assertNotNull(listener.getLastNewData()));
 
         env.undeployAll();
     }

@@ -49,11 +49,13 @@ public class ClientInstrumentMetricsReportingNW implements RegressionExecution {
 
         env.sendEventBean(new SupportBean("E1", 1));
         env.advanceTime(1000);
-        EventBean[] received = ArrayHandlingUtil.reorder("statementName", env.listener("X").getNewDataListFlattened());
-        for (EventBean theEvent : received) {
-            System.out.println(theEvent.get("statementName") + " = " + theEvent.get("numInput"));
-        }
-        EPAssertionUtil.assertPropsPerRow(received, fields, new Object[][]{{"A", 2L}, {"B1", 1L}, {"B2", 1L}, {"C", 2L}, {"D", 2L}, {"M", 1L}, {"W", 1L}});
+        env.assertListener("X", listener -> {
+            EventBean[] received = ArrayHandlingUtil.reorder("statementName", listener.getNewDataListFlattened());
+            for (EventBean theEvent : received) {
+                System.out.println(theEvent.get("statementName") + " = " + theEvent.get("numInput"));
+            }
+            EPAssertionUtil.assertPropsPerRow(received, fields, new Object[][]{{"A", 2L}, {"B1", 1L}, {"B2", 1L}, {"C", 2L}, {"D", 2L}, {"M", 1L}, {"W", 1L}});
+        });
 
         /* Comment-in for printout.
         for (int i = 0; i < received.length; i++) {

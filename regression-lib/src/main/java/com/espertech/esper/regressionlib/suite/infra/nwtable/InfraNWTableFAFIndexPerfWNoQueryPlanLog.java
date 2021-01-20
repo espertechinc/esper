@@ -49,7 +49,7 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     private static class InfraFAFKeyBTreePerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         private final boolean namedWindow;
@@ -109,7 +109,7 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     private static class InfraFAFKeyAndRangePerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         private final boolean namedWindow;
@@ -170,7 +170,7 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     private static class InfraFAFRangePerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         private final boolean namedWindow;
@@ -230,7 +230,7 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
     private static class InfraFAFKeyPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         private final boolean namedWindow;
@@ -311,6 +311,10 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
 
     private static class InfraFAFInKeywordSingleIndex implements RegressionExecution {
         private final boolean namedWindow;
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.STATICHOOK);
+        }
 
         public InfraFAFInKeywordSingleIndex(boolean namedWindow) {
             this.namedWindow = namedWindow;

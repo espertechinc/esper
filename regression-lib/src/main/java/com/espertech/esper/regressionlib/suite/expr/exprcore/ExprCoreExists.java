@@ -80,33 +80,30 @@ public class ExprCoreExists {
                 " from SupportMarkerInterface";
             env.compileDeploy(epl).addListener("s0");
 
-            for (int i = 0; i < 11; i++) {
-                assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t" + i));
-            }
+            env.assertStatement("s0", statement -> {
+                for (int i = 0; i < 11; i++) {
+                    assertEquals(Boolean.class, statement.getEventType().getPropertyType("t" + i));
+                }
+            });
 
             // cannot exists if the inner is null
             env.sendEventBean(new SupportBeanDynRoot(null));
-            EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{false, false, false, false, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, false, false, false, false, false, false, false, false, false}));
 
             // try nested, indexed and mapped
             env.sendEventBean(new SupportBeanDynRoot(SupportBeanComplexProps.makeDefaultBean()));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{false, false, false, true, true, true, true, true, true, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, false, true, true, true, true, true, true, false, false}));
 
             // try nested, indexed and mapped
             env.sendEventBean(new SupportBeanDynRoot(SupportBeanComplexProps.makeDefaultBean()));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{false, false, false, true, true, true, true, true, true, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, false, true, true, true, true, true, true, false, false}));
 
             // try a boxed that returns null but does exists
             env.sendEventBean(new SupportBeanDynRoot(new SupportBeanDynRoot(new SupportBean())));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{false, false, true, false, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{false, false, true, false, false, false, false, false, false, false, false}));
 
             env.sendEventBean(new SupportBeanDynRoot(new SupportBean_A("10")));
-            theEvent = env.listener("s0").assertOneGetNewAndReset();
-            assertResults(theEvent, new boolean[]{true, true, false, false, false, false, false, false, false, false, false});
+            env.assertEventNew("s0", event -> assertResults(event, new boolean[]{true, true, false, false, false, false, false, false, false, false, false}));
 
             env.undeployAll();
         }
@@ -143,16 +140,16 @@ public class ExprCoreExists {
     }
 
     private static void assertStringAndNull(RegressionEnvironment env) {
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("t0"));
+        env.assertStatement("s0", statement -> assertEquals(Boolean.class, statement.getEventType().getPropertyType("t0")));
 
         env.sendEventBean(new SupportBeanDynRoot(new SupportBean()));
-        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        env.assertEqualsNew("s0", "t0", true);
 
         env.sendEventBean(new SupportBeanDynRoot(null));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        env.assertEqualsNew("s0", "t0", false);
 
         env.sendEventBean(new SupportBeanDynRoot("abc"));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("t0"));
+        env.assertEqualsNew("s0", "t0", false);
     }
 
     private static void assertResults(EventBean theEvent, boolean[] result) {

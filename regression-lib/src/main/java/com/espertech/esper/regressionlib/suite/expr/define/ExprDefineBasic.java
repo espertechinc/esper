@@ -19,7 +19,10 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
-import com.espertech.esper.common.internal.support.*;
+import com.espertech.esper.common.internal.support.EventRepresentationChoice;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -72,9 +75,9 @@ public class ExprDefineBasic {
     private static class ExprDefineExpressionSimpleSameStmt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') expression returnsOne {1} select returnsOne as c0 from SupportBean").addListener("s0");
-            assertEquals(StatementType.SELECT, env.statement("s0").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("s0", statement -> assertEquals(StatementType.SELECT, statement.getProperty(StatementProperty.STATEMENTTYPE)));
             env.sendEventBean(new SupportBean());
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 1);
             env.undeployAll();
         }
     }
@@ -84,7 +87,7 @@ public class ExprDefineBasic {
             env.compileDeploy("create expression returnsOne {1};\n" +
                 "@name('s0') select returnsOne as c0 from SupportBean;\n").addListener("s0");
             env.sendEventBean(new SupportBean());
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 1);
             env.undeployAll();
         }
     }
@@ -95,7 +98,7 @@ public class ExprDefineBasic {
             env.compileDeploy("create expression returnsOne {1}", path);
             env.compileDeploy("@name('s0') select returnsOne as c0 from SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", 1);
             env.undeployAll();
         }
     }
@@ -170,16 +173,18 @@ public class ExprDefineBasic {
             env.compileDeploy(epl, path).addListener("s0");
 
             env.sendEventBean(new SupportBean("A", 1));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("val"));
+            env.assertEqualsNew("s0", "val", true);
 
             env.undeployAll();
         }
     }
 
     private static class ExprDefineCaseNewMultiReturnNoElse implements RegressionExecution {
+        private final static String[] FIELDS_INNER = "col1,col2".split(",");
+        private final static String[] FIELDS_CONSUME = "c1,c2".split(",");
+
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String[] fieldsInner = "col1,col2".split(",");
             String epl = "@name('s0') expression gettotal {" +
                 " x => case " +
                 "  when theString = 'A' then new { col1 = 'X', col2 = 10 } " +
@@ -189,24 +194,25 @@ public class ExprDefineBasic {
                 "insert into OtherStream select gettotal(sb) as val0 from SupportBean sb";
             env.compileDeploy(epl, path).addListener("s0");
 
-            assertEquals(Map.class, env.statement("s0").getEventType().getPropertyType("val0"));
+            env.assertStatement("s0", statement -> assertEquals(Map.class, statement.getEventType().getPropertyType("val0")));
 
             env.compileDeploy("@name('s1') select val0.col1 as c1, val0.col2 as c2 from OtherStream", path).addListener("s1");
-            String[] fieldsConsume = "c1,c2".split(",");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertPropsMap((Map) env.listener("s0").assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[]{null, null});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsConsume, new Object[]{null, null});
+            assertEvents(env, new Object[]{null, null});
 
             env.sendEventBean(new SupportBean("A", 2));
-            EPAssertionUtil.assertPropsMap((Map) env.listener("s0").assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[]{"X", 10});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsConsume, new Object[]{"X", 10});
+            assertEvents(env, new Object[]{"X", 10});
 
             env.sendEventBean(new SupportBean("B", 3));
-            EPAssertionUtil.assertPropsMap((Map) env.listener("s0").assertOneGetNewAndReset().get("val0"), fieldsInner, new Object[]{"Y", 20});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsConsume, new Object[]{"Y", 20});
+            assertEvents(env, new Object[]{"Y", 20});
 
             env.undeployAll();
+        }
+
+        private void assertEvents(RegressionEnvironment env, Object[] expected) {
+            env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsMap((Map) event.get("val0"), FIELDS_INNER, expected));
+            env.assertPropsNew("s1", FIELDS_CONSUME, expected);
         }
     }
 
@@ -222,8 +228,10 @@ public class ExprDefineBasic {
         private void tryAssertionAnnotation(RegressionEnvironment env, String epl) {
             env.compileDeploy(epl).addListener("s0");
 
-            assertEquals(INTEGERBOXED.getEPType(), env.statement("s0").getEventType().getPropertyEPType("scalar()"));
-            assertEquals("s0", env.statement("s0").getName());
+            env.assertStatement("s0", statement -> {
+                assertEquals(INTEGERBOXED.getEPType(), statement.getEventType().getPropertyEPType("scalar()"));
+                assertEquals("s0", statement.getName());
+            });
 
             env.sendEventBean(new SupportBean_ST0("E1", 1));
             env.assertPropsNew("s0", "scalar()".split(","), new Object[]{1});
@@ -299,7 +307,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{STRING.getEPType()});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 20));
@@ -336,7 +344,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val1", "val2"};
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean_ST0("ST0", 0));
             env.sendEventBean(new SupportBean_ST1("ST1", 0));
@@ -370,7 +378,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val0", "val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.assertPropsNew("s0", fields, new Object[]{"E0", null});
@@ -406,7 +414,7 @@ public class ExprDefineBasic {
             String[] fields = new String[]{"val0", "val1"};
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{STRING.getEPType(), STRING.getEPType()});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.assertPropsNew("s0", fields, new Object[]{"E0", null});
@@ -445,25 +453,31 @@ public class ExprDefineBasic {
             env.compileDeploy(epl, path).addListener("s0");
 
             EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, new EPTypeClassParameterized(Map.class, new EPTypeClass[] {STRING.getEPType(), OBJECT.getEPType()}));
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fieldsSelected, new EPTypeClass[]{inner, inner});
+            env.assertStmtTypes("s0", fieldsSelected, new EPTypeClass[]{inner, inner});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.sendEventBean(new SupportBean_ST0("ID0", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldsInside, null);
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c1")), fieldsInside, null);
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c0")), fieldsInside, null);
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c1")), fieldsInside, null);
+                listener.reset();
+            });
 
             env.sendEventBean(new SupportBean("E1", 11));
             env.sendEventBean(new SupportBean_ST0("ID1", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldsInside, new Object[][]{{"E1"}});
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c1")), fieldsInside, new Object[][]{{"E1"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c0")), fieldsInside, new Object[][]{{"E1"}});
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c1")), fieldsInside, new Object[][]{{"E1"}});
+                listener.reset();
+            });
 
             env.sendEventBean(new SupportBean("E2", 500));
             env.sendEventBean(new SupportBean_ST0("ID2", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldsInside, new Object[][]{{"E1"}, {"E2"}});
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c1")), fieldsInside, new Object[][]{{"E1"}});
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c0")), fieldsInside, new Object[][]{{"E1"}, {"E2"}});
+                EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) listener.assertOneGetNew().get("c1")), fieldsInside, new Object[][]{{"E1"}});
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -519,29 +533,29 @@ public class ExprDefineBasic {
             env.compileDeploy(epl, path).addListener("s0");
 
             EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, new EPTypeClassParameterized(Map.class, new EPTypeClass[] {STRING.getEPType(), OBJECT.getEPType()}));
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fieldSelected, new EPTypeClass[]{inner});
+            env.assertStmtTypes("s0", fieldSelected, new EPTypeClass[]{inner});
 
             env.sendEventBean(new SupportBean("E0", 0));
             env.sendEventBean(new SupportBean_ST0("ID0", "x", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldInside, null);
-            env.listener("s0").reset();
+            assertC0(env, fieldInside, null);
 
             env.sendEventBean(new SupportBean("E1", 11));
             env.sendEventBean(new SupportBean_ST0("ID1", "x", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldInside, null);
-            env.listener("s0").reset();
+            assertC0(env, fieldInside, null);
 
             env.sendEventBean(new SupportBean("E2", 12));
             env.sendEventBean(new SupportBean_ST0("ID2", "E2", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldInside, new Object[][]{{"E2"}});
-            env.listener("s0").reset();
+            assertC0(env, fieldInside, new Object[][]{{"E2"}});
 
             env.sendEventBean(new SupportBean("E3", 13));
             env.sendEventBean(new SupportBean_ST0("E3", "E3", 0));
-            EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) env.listener("s0").assertOneGetNew().get("c0")), fieldInside, new Object[][]{{"E3"}});
-            env.listener("s0").reset();
+            assertC0(env, fieldInside, new Object[][]{{"E3"}});
 
             env.undeployAll();
+        }
+
+        private void assertC0(RegressionEnvironment env, String[] fieldInside, Object[][] expecteds) {
+            env.assertEventNew("s0", event -> EPAssertionUtil.assertPropsPerRow(toArrayMap((Collection) event.get("c0")), fieldInside, expecteds));
         }
     }
 
@@ -562,7 +576,7 @@ public class ExprDefineBasic {
 
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), DOUBLEBOXED.getEPType(), LONGBOXED.getEPType()});
 
             env.sendEventBean(getSupportBean(5, 6));
             env.assertPropsNew("s0", fields, new Object[]{5, 6, 5 / 6d, 1L});
@@ -669,11 +683,13 @@ public class ExprDefineBasic {
         private void tryAssertionScalarReturn(RegressionEnvironment env, String epl) {
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
+            env.assertStmtTypes("s0", "val1".split(","), new EPTypeClass[]{EPTypeClassParameterized.from(Collection.class, String.class)});
 
             env.sendEventBean(SupportCollection.makeString("E1,E2,E3,E4"));
-            LambdaAssertionUtil.assertValuesArrayScalar(env.listener("s0"), "val1", "E3", "E4");
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                LambdaAssertionUtil.assertValuesArrayScalar(env, "val1", "E3", "E4");
+                listener.reset();
+            });
 
             env.undeployAll();
         }
@@ -720,17 +736,23 @@ public class ExprDefineBasic {
         }
 
         private void tryAssertionTwoParameterArithmetic(RegressionEnvironment env, String[] fields) {
-            String[] props = env.statement("s0").getEventType().getPropertyNames();
-            EPAssertionUtil.assertEqualsAnyOrder(props, fields);
-            EventType eventType = env.statement("s0").getEventType();
-            for (int i = 0; i < fields.length; i++) {
-                assertEquals(INTEGERBOXED.getEPType(), eventType.getPropertyEPType(fields[i]));
-            }
-            EventPropertyGetter getter = env.statement("s0").getEventType().getGetter(fields[3]);
+            env.assertStatement("s0", statement -> {
+                String[] props = statement.getEventType().getPropertyNames();
+                EPAssertionUtil.assertEqualsAnyOrder(props, fields);
+                EventType eventType = statement.getEventType();
+                for (int i = 0; i < fields.length; i++) {
+                    assertEquals(INTEGERBOXED.getEPType(), eventType.getPropertyEPType(fields[i]));
+                }
+            });
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertProps(env.listener("s0").assertOneGetNew(), fields, new Object[]{10, 11, 22, 111});
-            assertEquals(111, getter.get(env.listener("s0").assertOneGetNewAndReset()));
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{10, 11, 22, 111});
+            });
+            env.assertThat(() -> {
+                EventPropertyGetter getter = env.statement("s0").getEventType().getGetter(fields[3]);
+                assertEquals(111, getter.get(env.listener("s0").assertOneGetNewAndReset()));
+            });
         }
     }
 
@@ -761,14 +783,16 @@ public class ExprDefineBasic {
             env.compileDeploy(epl).addListener("s0");
 
             EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, SupportBean_ST0.class);
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1,val2".split(","), new EPTypeClass[]{inner, inner});
+            env.assertStmtTypes("s0", "val1,val2".split(","), new EPTypeClass[]{inner, inner});
 
             SupportBean_ST0_Container theEvent = SupportBean_ST0_Container.make3Value("E1,K1,1", "E2,K2,2", "E20,K20,20");
             env.sendEventBean(theEvent);
-            Object[] resultVal1 = ((Collection) env.listener("s0").getLastNewData()[0].get("val1")).toArray();
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{theEvent.getContained().get(0), theEvent.getContained().get(1)}, resultVal1);
-            Object[] resultVal2 = ((Collection) env.listener("s0").getLastNewData()[0].get("val2")).toArray();
-            EPAssertionUtil.assertEqualsExactOrder(new Object[]{theEvent.getContained().get(1)}, resultVal2);
+            env.assertListener("s0", listener -> {
+                Object[] resultVal1 = ((Collection) listener.getLastNewData()[0].get("val1")).toArray();
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{theEvent.getContained().get(0), theEvent.getContained().get(1)}, resultVal1);
+                Object[] resultVal2 = ((Collection) listener.getLastNewData()[0].get("val2")).toArray();
+                EPAssertionUtil.assertEqualsExactOrder(new Object[]{theEvent.getContained().get(1)}, resultVal2);
+            });
 
             env.undeployAll();
         }
@@ -795,7 +819,7 @@ public class ExprDefineBasic {
             String[] fields = "val1,val2".split(",");
             env.compileDeploy(epl).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", fields, new Object[]{1, 5});
@@ -825,12 +849,12 @@ public class ExprDefineBasic {
             String[] fields = "val1,val2,val3".split(",");
             env.compileDeploy(epl, path).addListener("s0");
 
-            SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType(), INTEGERBOXED.getEPType()});
 
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", fields, new Object[]{2, 20, 40});
 
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myvar", 3);
+            env.runtimeSetVariable("var", "myvar", 3);
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", fields, new Object[]{3, 30, 90});
 
@@ -907,16 +931,20 @@ public class ExprDefineBasic {
 
         env.compileDeploy(epl).addListener("s0");
         EPTypeClass inner = EPTypeClassParameterized.from(Collection.class, SupportBean.class);
-        SupportEventPropUtil.assertTypes(env.statement("s0").getEventType(), "val1".split(","), new EPTypeClass[]{inner, inner});
+        env.assertStmtTypes("s0", "val1".split(","), new EPTypeClass[]{inner, inner});
 
         env.sendEventBean(new SupportBean("E1", 2));
-        SupportBean[] outArray = toArray((Collection) env.listener("s0").assertOneGetNewAndReset().get("val1"));
-        assertEquals(0, outArray.length);
+        env.assertListener("s0", listener -> {
+            SupportBean[] outArray = toArray((Collection) listener.assertOneGetNewAndReset().get("val1"));
+            assertEquals(0, outArray.length);
+        });
 
         env.sendEventBean(new SupportBean("E2", 3));
-        outArray = toArray((Collection) env.listener("s0").assertOneGetNewAndReset().get("val1"));
-        assertEquals(1, outArray.length);
-        assertEquals("E2", outArray[0].getTheString());
+        env.assertListener("s0", listener -> {
+            SupportBean[] outArray = toArray((Collection) listener.assertOneGetNewAndReset().get("val1"));
+            assertEquals(1, outArray.length);
+            assertEquals("E2", outArray[0].getTheString());
+        });
 
         env.undeployAll();
     }

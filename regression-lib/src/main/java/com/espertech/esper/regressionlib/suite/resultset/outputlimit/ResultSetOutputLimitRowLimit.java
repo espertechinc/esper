@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -24,8 +23,6 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-
 
 public class ResultSetOutputLimitRowLimit {
 
@@ -230,7 +227,7 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, "E4", 30);
 
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4", 65}, {"E3", 35}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4", 65}, {"E3", 35}});
 
             env.undeployAll();
         }
@@ -252,7 +249,7 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, "E1", 30);
 
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E1", 40}, {"E3", 20}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E1", 40}, {"E3", 20}});
 
             env.undeployAll();
         }
@@ -274,7 +271,7 @@ public class ResultSetOutputLimitRowLimit {
             sendEvent(env, "E1", 30);
 
             sendTimer(env, 11000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E3", 20}, {"E2", 5}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E3", 20}, {"E2", 5}});
 
             env.undeployAll();
         }
@@ -400,8 +397,7 @@ public class ResultSetOutputLimitRowLimit {
         env.assertPropsPerRowIterator("s0", fields, new Object[][]{{"E4"}});
 
         sendEvent(env, "E6", 6);
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"E4"}});
-        EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastOldData(), fields, new Object[][]{{"E1"}});
+        env.assertPropsPerRowIRPair("s0", fields, new Object[][]{{"E4"}}, new Object[][]{{"E1"}});
         env.assertPropsPerRowIterator("s0", fields, null);
     }
 

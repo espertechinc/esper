@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.util.FileUtil;
 import com.espertech.esper.compiler.client.util.EPCompiledIOUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPDeployDeploymentVersionException;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeploymentRolloutCompiled;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
@@ -78,6 +80,10 @@ public class ClientDeployVersion {
             } catch (EPException ex) {
                 assertMessage(ex, "Major or minor version of compiler and runtime mismatch; The runtime version is 8.7.0 and the compiler version of the compiled unit is 8.0.0");
             }
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 }

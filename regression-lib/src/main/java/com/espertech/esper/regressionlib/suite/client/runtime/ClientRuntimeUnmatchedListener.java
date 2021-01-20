@@ -15,10 +15,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.UnmatchedListener;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -75,6 +77,10 @@ public class ClientRuntimeUnmatchedListener {
             assertEquals(1, listener.getReceived().size());
             assertSame(theEvent, listener.getReceived().get(0).getUnderlying());
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientRuntimeUnmatchedCreateStatement implements RegressionExecution {
@@ -91,6 +97,10 @@ public class ClientRuntimeUnmatchedListener {
             assertEquals(0, listener.getReceived().size());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -120,6 +130,10 @@ public class ClientRuntimeUnmatchedListener {
             assertEquals(1, listener.getReceived().size());
             Assert.assertEquals("E3", listener.getReceived().get(0).get("theString"));
             listener.reset();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 

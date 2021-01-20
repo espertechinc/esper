@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.objectarray;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.internal.support.SupportEventPropDesc;
@@ -40,21 +39,22 @@ public class EventObjectArrayCore {
     private static class EventObjectArrayNestedEventBeanArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schemas = "create objectarray schema NBAL_1(val string);\n" +
-                "create objectarray schema NBAL_2 (lvl1s NBAL_1[]);\n";
-            env.compileDeployWBusPublicType(schemas, path);
-
+            String schemas = "@buseventtype create objectarray schema NBAL_1(val string);\n" +
+                "@buseventtype create objectarray schema NBAL_2 (lvl1s NBAL_1[]);\n";
+            env.compileDeploy(schemas, path);
             env.compileDeploy("@name('s0') select * from NBAL_1", path).addListener("s0");
 
-            env.sendEventObjectArray(new Object[]{"somevalue"}, "NBAL_1");
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
+            Object[] oa = new Object[]{"somevalue"};
+            env.sendEventObjectArray(oa, "NBAL_1");
+            env.assertEventNew("s0", event -> {
+            });
             env.undeployModuleContaining("s0");
 
             // add containing-type
             env.compileDeploy("@name('s0') select lvl1s[0] as c0 from NBAL_2", path).addListener("s0");
 
-            env.sendEventObjectArray(new Object[]{new Object[]{event.getUnderlying()}}, "NBAL_2");
-            assertEquals("somevalue", ((Object[]) env.listener("s0").assertOneGetNewAndReset().get("c0"))[0]);
+            env.sendEventObjectArray(new Object[]{new Object[]{oa}}, "NBAL_2");
+            env.assertEventNew("s0", event -> assertEquals("somevalue", ((Object[]) event.get("c0"))[0]));
 
             env.undeployAll();
         }
@@ -62,14 +62,16 @@ public class EventObjectArrayCore {
 
     private static class EventObjectArrayMetadata implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("MyObjectArrayEvent");
-            assertEquals(EventTypeApplicationType.OBJECTARR, type.getMetadata().getApplicationType());
-            assertEquals("MyObjectArrayEvent", type.getMetadata().getName());
+            env.assertThat(() -> {
+                EventType type = env.runtime().getEventTypeService().getEventTypePreconfigured("MyObjectArrayEvent");
+                assertEquals(EventTypeApplicationType.OBJECTARR, type.getMetadata().getApplicationType());
+                assertEquals("MyObjectArrayEvent", type.getMetadata().getName());
 
-            SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
-                new SupportEventPropDesc("myInt", Integer.class),
-                new SupportEventPropDesc("myString", String.class),
-                new SupportEventPropDesc("beanA", SupportBeanComplexProps.class).fragment());
+                SupportEventPropUtil.assertPropsEquals(type.getPropertyDescriptors(),
+                    new SupportEventPropDesc("myInt", Integer.class),
+                    new SupportEventPropDesc("myString", String.class),
+                    new SupportEventPropDesc("beanA", SupportBeanComplexProps.class).fragment());
+            });
         }
     }
 
@@ -83,9 +85,11 @@ public class EventObjectArrayCore {
             env.compileDeploy(statementText).addListener("s0");
 
             env.sendEventObjectArray(new Object[]{3, "some string", SupportBeanComplexProps.makeDefaultBean()}, "MyObjectArrayEvent");
-            assertEquals("nestedValue", env.listener("s0").getLastNewData()[0].get("nested"));
-            assertEquals(2, env.listener("s0").getLastNewData()[0].get("indexed"));
-            assertEquals("nestedNestedValue", env.listener("s0").getLastNewData()[0].get("nestednested"));
+            env.assertEventNew("s0", event -> {
+                assertEquals("nestedValue", event.get("nested"));
+                assertEquals(2, event.get("indexed"));
+                assertEquals("nestedNestedValue", event.get("nestednested"));
+            });
 
             env.undeployAll();
         }
@@ -98,13 +102,17 @@ public class EventObjectArrayCore {
 
             // send Map<String, Object> event
             env.sendEventObjectArray(new Object[]{3, "some string", SupportBeanComplexProps.makeDefaultBean()}, "MyObjectArrayEvent");
-            assertEquals(5, env.listener("s0").getLastNewData()[0].get("intVal"));
-            assertEquals("xsome stringx", env.listener("s0").getLastNewData()[0].get("stringVal"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(5, event.get("intVal"));
+                assertEquals("xsome stringx", event.get("stringVal"));
+            });
 
             // send Map base event
             env.sendEventObjectArray(new Object[]{4, "string2", null}, "MyObjectArrayEvent");
-            assertEquals(6, env.listener("s0").getLastNewData()[0].get("intVal"));
-            assertEquals("xstring2x", env.listener("s0").getLastNewData()[0].get("stringVal"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(6, event.get("intVal"));
+                assertEquals("xstring2x", event.get("stringVal"));
+            });
 
             env.undeployAll();
         }

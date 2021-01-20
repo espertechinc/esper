@@ -29,17 +29,19 @@ public class EPLVariablesTimer implements RegressionExecution {
             fail(e.getMessage());
         }
 
-        EventBean[] received = env.listener("s0").getNewDataListFlattened();
-        assertTrue("received : " + received.length, received.length >= 5);
+        env.assertListener("s0", listener -> {
+            EventBean[] received = listener.getNewDataListFlattened();
+            assertTrue("received : " + received.length, received.length >= 5);
 
-        for (int i = 0; i < received.length; i++) {
-            long var1 = (Long) received[i].get("var1");
-            long var2 = (Long) received[i].get("var2");
-            long var3 = (Long) received[i].get("var3");
-            assertTrue(var1 >= startTime);
-            assertEquals(var1, var2 - 1);
-            assertEquals(var3, var2 + var1);
-        }
+            for (int i = 0; i < received.length; i++) {
+                long var1 = (Long) received[i].get("var1");
+                long var2 = (Long) received[i].get("var2");
+                long var3 = (Long) received[i].get("var3");
+                assertTrue(var1 >= startTime);
+                assertEquals(var1, var2 - 1);
+                assertEquals(var3, var2 + var1);
+            }
+        });
 
         env.undeployAll();
     }

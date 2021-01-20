@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.map;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 
@@ -32,8 +30,7 @@ public class EventMapNestedEscapeDot implements RegressionExecution {
         env.sendEventMap(data, "DotMap");
 
         String[] fields = "a.b,a.b.c,nes.,nes.nes2.x.y".split(",");
-        EventBean received = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(received, fields, new Object[]{10, 20, 30, 40});
+        env.assertPropsNew("s0", fields, new Object[]{10, 20, 30, 40});
 
         env.undeployAll();
     }

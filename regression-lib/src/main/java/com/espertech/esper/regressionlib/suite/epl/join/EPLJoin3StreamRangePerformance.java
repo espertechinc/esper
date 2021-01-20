@@ -113,7 +113,7 @@ public class EPLJoin3StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 1000; i++) {
                 env.sendEventBean(new SupportBeanRange("R", "R", 100, 101));
-                assertEquals(4, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(4, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long endTime = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class EPLJoin3StreamRangePerformance {
             long startTime = System.currentTimeMillis();
             for (int i = 0; i < 500; i++) {
                 env.sendEventBean(new SupportBean_ST0("ST0", "G", -1));
-                assertEquals(5, env.listener("s0").getAndResetLastNewData().length);
+                env.assertListener("s0", listener -> assertEquals(5, listener.getAndResetLastNewData().length));
             }
             log.info("Done Querying");
             long delta = System.currentTimeMillis() - startTime;
@@ -180,7 +180,7 @@ public class EPLJoin3StreamRangePerformance {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             env.sendEventBean(new SupportBeanRange("R", "G", 100, 101));
-            assertEquals(4, env.listener("s0").getAndResetLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(4, listener.getAndResetLastNewData().length));
         }
         log.info("Done Querying");
         long endTime = System.currentTimeMillis();

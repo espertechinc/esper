@@ -149,21 +149,21 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S1(5));
             env.sendEventBean(new SupportBean_S0(4));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S0(5));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             env.undeployAll();
         }
@@ -176,18 +176,18 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S1(6));
             env.sendEventBean(new SupportBean_S0(4));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             env.undeployAll();
         }
@@ -202,13 +202,13 @@ public class EPLSubselectIn {
             SupportBeanArrayCollMap arrayBean = new SupportBeanArrayCollMap(s1);
             env.sendEventBean(s1);
             env.sendEventBean(arrayBean);
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             SupportBean_S2 s2 = new SupportBean_S2(100);
             arrayBean.setAnyObject(s2);
             env.sendEventBean(s2);
             env.sendEventBean(arrayBean);
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.undeployAll();
         }
@@ -231,7 +231,7 @@ public class EPLSubselectIn {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean_S0(4, "A"));
-            assertEquals(4, env.listener("s0").assertOneGetNewAndReset().get("id"));
+            env.assertEqualsNew("s0", "id", 4);
 
             env.sendEventBean(new SupportBean_S1(-2, null));
             env.sendEventBean(new SupportBean_S0(5, null));
@@ -265,12 +265,12 @@ public class EPLSubselectIn {
             sendBean(env, "A", null, null);
             env.assertListenerNotInvoked("s0");
             sendBean(env, "A", null, 99L);
-            assertEquals(99L, env.listener("s0").assertOneGetNewAndReset().get("longBoxed"));
+            env.assertEqualsNew("s0", "longBoxed", 99L);
 
             sendBean(env, "B", 98, null);
 
             sendBean(env, "A", null, 98L);
-            assertEquals(98L, env.listener("s0").assertOneGetNewAndReset().get("longBoxed"));
+            env.assertEqualsNew("s0", "longBoxed", 98L);
 
             env.undeployAll();
         }
@@ -290,7 +290,7 @@ public class EPLSubselectIn {
             env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("intBoxed"));
+            env.assertEqualsNew("s0", "intBoxed", 1);
 
             sendBean(env, "B", null, null);
 
@@ -298,7 +298,7 @@ public class EPLSubselectIn {
             env.assertListenerNotInvoked("s0");
 
             sendBean(env, "A", 1, 1L);
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("intBoxed"));
+            env.assertEqualsNew("s0", "intBoxed", 1);
 
             env.undeployAll();
         }
@@ -318,7 +318,7 @@ public class EPLSubselectIn {
             for (int i = 0; i < 5; i++) {
                 int index = i + 4;
                 env.sendEventBean(new SupportBean_S1(index, "x", "p00_" + index));
-                assertEquals("v" + index, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                env.assertEqualsNew("s0", "c0", "v" + index);
             }
 
             env.undeployAll();
@@ -339,7 +339,7 @@ public class EPLSubselectIn {
             for (int i = 0; i < 5; i++) {
                 int index = i + 4;
                 env.sendEventBean(new SupportBean_S1(index, "x", "p00_" + index));
-                assertEquals("v" + index, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+                env.assertEqualsNew("s0", "c0", "v" + index);
             }
 
             env.undeployAll();
@@ -381,21 +381,21 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             env.sendEventBean(new SupportBean_S1(-1));
             env.sendEventBean(new SupportBean_S0(2));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             env.sendEventBean(new SupportBean_S0(-1));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.sendEventBean(new SupportBean_S1(5));
             env.sendEventBean(new SupportBean_S0(4));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", true);
 
             env.sendEventBean(new SupportBean_S0(5));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", false);
 
             env.undeployAll();
         }
@@ -410,10 +410,10 @@ public class EPLSubselectIn {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             sendBean(env, "A", 0, 0L);
-            assertEquals(0L, env.listener("s0").assertOneGetNewAndReset().get("longBoxed"));
+            env.assertEqualsNew("s0", "longBoxed", 0L);
 
             sendBean(env, "A", null, null);
-            assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("longBoxed"));
+            env.assertEqualsNew("s0", "longBoxed", null);
 
             sendBean(env, "B", null, null);
 
@@ -443,21 +443,21 @@ public class EPLSubselectIn {
 
     private static void runTestInSelect(RegressionEnvironment env) {
         env.sendEventBean(new SupportBean_S0(2));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", false);
 
         env.sendEventBean(new SupportBean_S1(-1));
         env.sendEventBean(new SupportBean_S0(2));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", false);
 
         env.sendEventBean(new SupportBean_S0(-1));
-        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", true);
 
         env.sendEventBean(new SupportBean_S1(5));
         env.sendEventBean(new SupportBean_S0(4));
-        assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", false);
 
         env.sendEventBean(new SupportBean_S0(5));
-        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", true);
     }
 
     private static class EPLSubselectInvalid implements RegressionExecution {

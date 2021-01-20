@@ -355,25 +355,31 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
             Map<String, Object> p4 = makeSendPerson(env, "And", "P4");
             assertReceived(env, CollectionUtil.buildMap("Andreas", singletonList(p1), "Andras", Arrays.asList(p2, p3), "And", singletonList(p4)));
 
-            String eplFAF = "select nameTrie as c0 from TableWithTrie";
-            EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
-            SupportTrie trie = (SupportTrie) result.getArray()[0].get("c0");
-            assertEquals(3, trie.prefixMap("And").size());
+            env.assertThat(() -> {
+                String eplFAF = "select nameTrie as c0 from TableWithTrie";
+                EPFireAndForgetQueryResult result = env.compileExecuteFAF(eplFAF, path);
+                SupportTrie trie = (SupportTrie) result.getArray()[0].get("c0");
+                assertEquals(3, trie.prefixMap("And").size());
+            });
 
-            trie = (SupportTrie) env.iterator("table").next().get("nameTrie");
-            assertEquals(3, trie.prefixMap("And").size());
+            env.assertIterator("table", iterator -> {
+                SupportTrie trie = (SupportTrie) env.iterator("table").next().get("nameTrie");
+                assertEquals(3, trie.prefixMap("And").size());
+            });
 
             env.undeployAll();
         }
 
         private void assertReceived(RegressionEnvironment env, Map<String, Object> expected) {
-            Map<String, List<Map<String, Object>>> received = (Map<String, List<Map<String, Object>>>) env.listener("s0").assertOneGetNewAndReset().get("c0");
-            assertEquals(expected.size(), received.size());
-            for (Map.Entry<String, Object> expectedEntry : expected.entrySet()) {
-                List<Map<String, Object>> eventsExpected = (List<Map<String, Object>>) expectedEntry.getValue();
-                List<Map<String, Object>> eventsReceived = received.get(expectedEntry.getKey());
-                EPAssertionUtil.assertEqualsAllowArray("failed to compare", eventsExpected.toArray(new Map[0]), eventsReceived.toArray(new Map[0]));
-            }
+            env.assertEventNew("s0", event -> {
+                Map<String, List<Map<String, Object>>> received = (Map<String, List<Map<String, Object>>>) event.get("c0");
+                assertEquals(expected.size(), received.size());
+                for (Map.Entry<String, Object> expectedEntry : expected.entrySet()) {
+                    List<Map<String, Object>> eventsExpected = (List<Map<String, Object>>) expectedEntry.getValue();
+                    List<Map<String, Object>> eventsReceived = received.get(expectedEntry.getKey());
+                    EPAssertionUtil.assertEqualsAllowArray("failed to compare", eventsExpected.toArray(new Map[0]), eventsReceived.toArray(new Map[0]));
+                }
+            });
         }
     }
 
@@ -396,8 +402,10 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
             makeSendPerson(env, "Andras", "P3");
             makeSendPerson(env, "And", "P4");
 
-            SupportTrie<String, List<Object>> trie = (SupportTrie<String, List<Object>>) env.iterator("table").next().get("nameTrie");
-            assertEquals(3, trie.prefixMap("And").size());
+            env.assertIterator("table", iterator -> {
+                SupportTrie<String, List<Object>> trie = (SupportTrie<String, List<Object>>) iterator.next().get("nameTrie");
+                assertEquals(3, trie.prefixMap("And").size());
+            });
 
             // assert dependencies
             SupportDeploymentDependencies.assertSingle(env, "table", "clazz", EPObjectType.CLASSPROVIDED, "TrieAggForge");

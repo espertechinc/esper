@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.expr.exprcore;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -71,30 +70,33 @@ public class ExprCoreNewInstance {
                 "from SupportBean";
             env.compileDeploy(soda, epl).addListener("s0");
 
-            EventType out = env.statement("s0").getEventType();
-            assertEquals(char[][].class, out.getPropertyType("c0"));
-            assertEquals(double[][].class, out.getPropertyType("c1"));
-            assertEquals(int[][].class, out.getPropertyType("c2"));
-            assertEquals(float[][].class, out.getPropertyType("c3"));
-            assertEquals(long[][].class, out.getPropertyType("c4"));
-            assertEquals(String[][].class, out.getPropertyType("c5"));
-            assertEquals(String[][].class, out.getPropertyType("c6"));
-            assertEquals(String[][].class, out.getPropertyType("c7"));
-            assertEquals(Integer[][].class, out.getPropertyType("c8"));
-            assertEquals(Calendar[][].class, out.getPropertyType("c9"));
-            assertEquals(Object[][].class, out.getPropertyType("c10"));
-            assertEquals(Object[][].class, out.getPropertyType("c11"));
-            assertEquals(Object[][].class, out.getPropertyType("c12"));
+            env.assertStatement("s0", statement -> {
+                EventType out = statement.getEventType();
+                assertEquals(char[][].class, out.getPropertyType("c0"));
+                assertEquals(double[][].class, out.getPropertyType("c1"));
+                assertEquals(int[][].class, out.getPropertyType("c2"));
+                assertEquals(float[][].class, out.getPropertyType("c3"));
+                assertEquals(long[][].class, out.getPropertyType("c4"));
+                assertEquals(String[][].class, out.getPropertyType("c5"));
+                assertEquals(String[][].class, out.getPropertyType("c6"));
+                assertEquals(String[][].class, out.getPropertyType("c7"));
+                assertEquals(Integer[][].class, out.getPropertyType("c8"));
+                assertEquals(Calendar[][].class, out.getPropertyType("c9"));
+                assertEquals(Object[][].class, out.getPropertyType("c10"));
+                assertEquals(Object[][].class, out.getPropertyType("c11"));
+                assertEquals(Object[][].class, out.getPropertyType("c12"));
+            });
 
             env.sendEventBean(new SupportBean("E1", 2));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertProps(event, "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(","),
-                new Object[]{new char[][]{}, new double[][]{{1}}, new int[][]{{1}, {2, 10}},
-                    new float[][]{{}, {1}, {2.0f}}, new long[][]{{1L, Long.MAX_VALUE, -1L}}, new String[][]{},
-                    new String[][]{{}, {}, {"x"}, {}}, new String[][]{{"x", "y"}, {"z"}}, new Integer[][]{{2, 2 + 1}, {2 + 2, 2 + 3}},
-                    new java.util.Calendar[][]{}, new Object[][]{{}}, new Object[][]{{1}},
-                    new Object[][]{{"x"}, {1}, {10L}}
-                });
+            env.assertEventNew("s0", event -> {
+                assertProps(event, "c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12".split(","),
+                    new Object[]{new char[][]{}, new double[][]{{1}}, new int[][]{{1}, {2, 10}},
+                        new float[][]{{}, {1}, {2.0f}}, new long[][]{{1L, Long.MAX_VALUE, -1L}}, new String[][]{},
+                        new String[][]{{}, {}, {"x"}, {}}, new String[][]{{"x", "y"}, {"z"}}, new Integer[][]{{2, 2 + 1}, {2 + 2, 2 + 3}},
+                        new java.util.Calendar[][]{}, new Object[][]{{}}, new Object[][]{{1}},
+                        new Object[][]{{"x"}, {1}, {10L}}
+                    });
+            });
 
             env.undeployAll();
         }
@@ -365,14 +367,15 @@ public class ExprCoreNewInstance {
                 "from SupportBean";
             env.compileDeploy(soda, epl).addListener("s0");
             Object[][] expectedAggType = new Object[][]{{"c0", SupportBean.class}, {"new SupportBean(\"B\",intPrimitive+10)", SupportBean.class}};
-            SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+            env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertSupportBean(event.get("c0"), new Object[]{"A", 10});
-            assertSupportBean(((Map) event.getUnderlying()).get("new SupportBean(\"B\",intPrimitive+10)"), new Object[]{"B", 20});
-            assertSupportBean(event.get("c2"), new Object[]{null, 0});
-            assertEquals("ABC", event.get("c3"));
+            env.assertEventNew("s0", event -> {
+                assertSupportBean(event.get("c0"), new Object[]{"A", 10});
+                assertSupportBean(((Map) event.getUnderlying()).get("new SupportBean(\"B\",intPrimitive+10)"), new Object[]{"B", 20});
+                assertSupportBean(event.get("c2"), new Object[]{null, 0});
+                assertEquals("ABC", event.get("c3"));
+            });
 
             env.undeployAll();
         }

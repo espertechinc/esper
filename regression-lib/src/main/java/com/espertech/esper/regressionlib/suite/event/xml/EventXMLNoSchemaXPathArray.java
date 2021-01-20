@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.xml;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -66,8 +64,7 @@ public class EventXMLNoSchemaXPathArray {
 
         sendXMLEvent(env, xml, eventTypeName);
 
-        EventBean theEvent = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(theEvent, "A".split(","), new Object[]{new Object[]{"987654321", "9876543210"}});
+        env.assertPropsNew("s0", "A".split(","), new Object[]{new Object[]{"987654321", "9876543210"}});
 
         env.undeployAll();
     }

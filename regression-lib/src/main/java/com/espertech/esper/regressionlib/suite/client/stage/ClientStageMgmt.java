@@ -30,7 +30,7 @@ public class ClientStageMgmt {
         return execs;
     }
 
-    private static class ClientStageMgmtInvalidStageDestroyWhileNotEmpty implements RegressionExecution {
+    private static class ClientStageMgmtInvalidStageDestroyWhileNotEmpty implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') select * from SupportBean");
             String deploymentId = env.deploymentId("s0");

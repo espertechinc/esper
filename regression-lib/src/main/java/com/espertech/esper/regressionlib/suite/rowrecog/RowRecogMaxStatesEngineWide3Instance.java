@@ -12,17 +12,17 @@ package com.espertech.esper.regressionlib.suite.rowrecog;
 
 import com.espertech.esper.common.client.hook.condition.ConditionHandlerContext;
 import com.espertech.esper.common.client.hook.condition.ConditionMatchRecognizeStatesMax;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
-import com.espertech.esper.runtime.client.EPStatement;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +31,10 @@ import static org.junit.Assert.*;
 
 public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution {
     private SupportConditionHandlerFactory.SupportConditionHandler handler;
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
 
     public void run(RegressionEnvironment env) {
         handler = SupportConditionHandlerFactory.getLastHandler();
@@ -72,11 +76,11 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("B", 1, 13)); // would be: A(10):P2->P3, A(12):P1->P2, B(11):P2->P3, B(13):P1->P2
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 2, "S2", 1));
+        assertContextEnginePool(env, "S2", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 2, "S2", 1));
 
         // terminate B
         env.sendEventBean(makeBean("B", 2, 11)); // we have no more B-state
-        EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{11L});
+        env.assertPropsNew("S2", fields, new Object[]{11L});
 
         // should not overflow
         env.sendEventBean(makeBean("B", 1, 15));
@@ -84,11 +88,11 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("B", 1, 16));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 2, "S2", 1));
+        assertContextEnginePool(env, "S2", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 2, "S2", 1));
 
         // terminate A
         env.sendEventBean(makeBean("A", 2, 10)); // we have no more A-state
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{10L});
+        env.assertPropsNew("S1", fields, new Object[]{10L});
 
         // should not overflow
         env.sendEventBean(makeBean("B", 1, 17));
@@ -98,15 +102,15 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("A", 1, 20));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 1, "S2", 2));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 1, "S2", 2));
 
         // terminate B
         env.sendEventBean(makeBean("B", 2, 17));
-        EPAssertionUtil.assertProps(env.listener("S2").assertOneGetNewAndReset(), fields, new Object[]{17L});
+        env.assertPropsNew("S2", fields, new Object[]{17L});
 
         // terminate A
         env.sendEventBean(makeBean("A", 2, 19));
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{19L});
+        env.assertPropsNew("S1", fields, new Object[]{19L});
 
         env.undeployAll();
     }
@@ -137,7 +141,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
         assertTrue(handler.getContexts().isEmpty());
 
         env.sendEventBean(new SupportBean("D", 1));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         // terminate a context partition
         env.sendEventBean(new SupportBean_S1(0, "D"));
@@ -146,10 +150,10 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
         assertTrue(handler.getContexts().isEmpty());
 
         env.sendEventBean(new SupportBean("E", 1));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         env.sendEventBean(new SupportBean("A", 2));
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"A"});
+        env.assertPropsNew("S1", fields, new Object[]{"A"});
 
         env.undeployAll();
     }
@@ -184,7 +188,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("D", 0, 4));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         // delete A (in-sequence remove)
         env.sendEventBean(new SupportBean_S0(1, "A"));
@@ -193,7 +197,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // test matching
         env.sendEventBean(makeBean("B", 1, 6)); // now 2 states: C, D
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{2L, 6L});
+        env.assertPropsNew("S1", fields, new Object[]{2L, 6L});
 
         // no overflows
         env.sendEventBean(makeBean("E", 0, 7));
@@ -201,7 +205,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("F", 0, 9));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         // no match expected
         env.sendEventBean(makeBean("F", 1, 10));
@@ -252,7 +256,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("E", 0, 7));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         // assert nothing matches for overflowed and deleted
         env.sendEventBean(makeBean("E", 1, 8));
@@ -265,7 +269,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
         // assert match found for B
         env.sendEventBean(makeBean("B", 1, 12));
         env.sendEventBean(makeBean("B", 2, 13));
-        EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{3L, 12L, 13L});
+        env.assertPropsNew("S1", fields, new Object[]{3L, 12L, 13L});
 
         // no overflow
         env.sendEventBean(makeBean("F", 0, 14));
@@ -274,24 +278,26 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
 
         // overflow
         env.sendEventBean(makeBean("H", 0, 16));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
+        assertContextEnginePool(env, "S1", handler.getAndResetContexts(), 3, getExpectedCountMap(env, "S1", 3));
 
         env.undeployAll();
     }
 
-    protected static void assertContextEnginePool(RegressionEnvironment env, EPStatement stmt, List<ConditionHandlerContext> contexts, int max, Map<DeploymentIdNamePair, Long> counts) {
-        assertEquals(1, contexts.size());
-        ConditionHandlerContext context = contexts.get(0);
-        assertEquals(env.runtimeURI(), context.getRuntimeURI());
-        assertEquals(stmt.getDeploymentId(), context.getDeploymentId());
-        assertEquals(stmt.getName(), context.getStatementName());
-        ConditionMatchRecognizeStatesMax condition = (ConditionMatchRecognizeStatesMax) context.getCondition();
-        assertEquals(max, condition.getMax());
-        assertEquals(counts.size(), condition.getCounts().size());
-        for (Map.Entry<DeploymentIdNamePair, Long> expected : counts.entrySet()) {
-            assertEquals("failed for key " + expected.getKey(), expected.getValue(), condition.getCounts().get(expected.getKey()));
-        }
-        contexts.clear();
+    protected static void assertContextEnginePool(RegressionEnvironment env, String statement, List<ConditionHandlerContext> contexts, int max, Map<DeploymentIdNamePair, Long> counts) {
+        env.assertStatement(statement, stmt -> {
+            assertEquals(1, contexts.size());
+            ConditionHandlerContext context = contexts.get(0);
+            assertEquals(env.runtimeURI(), context.getRuntimeURI());
+            assertEquals(stmt.getDeploymentId(), context.getDeploymentId());
+            assertEquals(stmt.getName(), context.getStatementName());
+            ConditionMatchRecognizeStatesMax condition = (ConditionMatchRecognizeStatesMax) context.getCondition();
+            assertEquals(max, condition.getMax());
+            assertEquals(counts.size(), condition.getCounts().size());
+            for (Map.Entry<DeploymentIdNamePair, Long> expected : counts.entrySet()) {
+                assertEquals("failed for key " + expected.getKey(), expected.getValue(), condition.getCounts().get(expected.getKey()));
+            }
+            contexts.clear();
+        });
     }
 
     protected static Map<DeploymentIdNamePair, Long> getExpectedCountMap(RegressionEnvironment env, String stmtOne, long countOne, String stmtTwo, long countTwo) {

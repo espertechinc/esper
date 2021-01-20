@@ -13,6 +13,9 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
+
+import java.util.EnumSet;
 
 public class ClientRuntimeThreadedConfigInboundFastShutdown implements RegressionExecutionWithConfigure {
     public void configure(Configuration configuration) {
@@ -30,6 +33,10 @@ public class ClientRuntimeThreadedConfigInboundFastShutdown implements Regressio
             env.sendEventBean(new MyEvent());
         }
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     public static void sleepaLittle(long time) {

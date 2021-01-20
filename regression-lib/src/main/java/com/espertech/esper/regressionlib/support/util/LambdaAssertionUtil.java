@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.regressionlib.support.util;
 
+import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalAssertionBuilder;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.io.StringWriter;
@@ -23,8 +24,19 @@ import java.util.Collection;
 
 public class LambdaAssertionUtil {
 
-    public static void assertValuesArrayScalar(SupportListener listener, String field, Object... expected) {
-        Object result = listener.assertOneGetNew().get(field);
+    public static void assertValuesArrayScalar(RegressionEnvironment env, String field, Object... expected) {
+        env.assertListener("s0", listener -> {
+            Object result = listener.assertOneGetNew().get(field);
+            assertValuesArrayScalar(result, expected);
+        });
+    }
+
+    public static void assertValuesArrayScalarWReset(RegressionEnvironment env, String field, Object... expected) {
+        env.assertEventNew("s0", event -> assertValuesArrayScalar(event.get(field), expected));
+    }
+
+    public static void assertValuesArrayScalar(EventBean event, String field, Object... expected) {
+        Object result = event.get(field);
         assertValuesArrayScalar(result, expected);
     }
 
@@ -37,8 +49,18 @@ public class LambdaAssertionUtil {
         EPAssertionUtil.assertEqualsExactOrder(expected, arr);
     }
 
-    public static void assertST0Id(SupportListener listener, String property, String expectedList) {
-        assertST0Id(listener.assertOneGetNew().get(property), expectedList);
+    public static void assertST0IdWReset(RegressionEnvironment env, String property, String expectedList) {
+        env.assertEventNew("s0", event -> assertST0Id(event, property, expectedList));
+    }
+
+    public static void assertST0Id(RegressionEnvironment env, String property, String expectedList) {
+        env.assertListener("s0", listener -> {
+            assertST0Id(listener.assertOneGetNew(), property, expectedList);
+        });
+    }
+
+    private static void assertST0Id(EventBean eventBean, String property, String expectedList) {
+        assertST0Id(eventBean.get(property), expectedList);
     }
 
     public static void assertST0Id(Object value, String expectedList) {

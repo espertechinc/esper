@@ -21,11 +21,13 @@ import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedFlags;
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
 import com.espertech.esper.regressionlib.support.multistmtassert.SendAssertPair;
+import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.espertech.esper.regressionlib.framework.RegressionFlag.ENUMHASHCODEPROCESSDEPENDENT;
 import static org.junit.Assert.*;
 
 public class ExprFilterExpressions {
@@ -141,13 +143,13 @@ public class ExprFilterExpressions {
             MultiStmtAssertUtil.runSendAssertPairs(env, epl, new SendAssertPair[]{
                 new SendAssertPair(
                     () -> sendBeanIntDouble(env, 5, 5d),
-                    (eventIndex, statementName, failMessage) -> assertTrue(env.listener(statementName).getAndClearIsInvoked())),
+                    (eventIndex, statementName, failMessage) -> env.assertListenerInvoked(statementName)),
                 new SendAssertPair(
                     () -> sendBeanIntDouble(env, 5, 4d),
-                    (eventIndex, statementName, failMessage) -> assertFalse(env.listener(statementName).getAndClearIsInvoked())),
+                    (eventIndex, statementName, failMessage) -> env.assertListenerNotInvoked(statementName)),
                 new SendAssertPair(
                     () -> sendBeanIntDouble(env, 5, 4.001d),
-                    (eventIndex, statementName, failMessage) -> assertTrue(env.listener(statementName).getAndClearIsInvoked()))
+                    (eventIndex, statementName, failMessage) -> env.assertListenerInvoked(statementName))
 
             }, milestone);
         }
@@ -167,9 +169,9 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMile(text, "s1", 1);
 
             sendBeanIntDoubleString(env, 25, 50d, "s");
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
+            env.assertListenerInvoked("s1");
             sendBeanIntDoubleString(env, 25, 50d, "x");
-            assertFalse(env.listener("s1").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("s1");
 
             env.undeployAll();
 
@@ -368,8 +370,8 @@ public class ExprFilterExpressions {
             // test SODA
             epl = "@name('s0') select intBoxed is null, intBoxed is not null, intBoxed=1, intBoxed!=1 from SupportBean";
             env.eplToModelCompileDeploy(epl);
-            EPAssertionUtil.assertEqualsExactOrder(new String[]{"intBoxed is null", "intBoxed is not null",
-                "intBoxed=1", "intBoxed!=1"}, env.statement("s0").getEventType().getPropertyNames());
+            env.assertStatement("s0", statement ->  EPAssertionUtil.assertEqualsExactOrder(new String[]{"intBoxed is null", "intBoxed is not null",
+                "intBoxed=1", "intBoxed!=1"}, statement.getEventType().getPropertyNames()));
             env.undeployAll();
         }
     }
@@ -403,14 +405,14 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportTradeEvent(1, "100", 1001));
-            Assert.assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("event1.id"));
+            env.assertEqualsNew("s0", "event1.id", 1);
 
             String eplTwo = "@name('s1') select * from pattern [every event1=SupportTradeEvent(userId in ('100','101'))]";
-            env.compileDeployAddListenerMileZero(eplTwo, "s1");
+            env.compileDeployAddListenerMile(eplTwo, "s1", 1);
 
             env.sendEventBean(new SupportTradeEvent(2, "100", 1001));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("event1.id"));
-            Assert.assertEquals(2, env.listener("s1").assertOneGetNewAndReset().get("event1.id"));
+            env.assertEqualsNew("s0", "event1.id", 2);
+            env.assertEqualsNew("s1", "event1.id", 2);
 
             env.undeployAll();
         }
@@ -428,11 +430,10 @@ public class ExprFilterExpressions {
                 data -> sendSupportBean(env, new SupportBean("", (Integer) data)),
                 (eventIndex, eventData, assertionDesc, statementName, failMessage) -> {
                     if (eventData.equals(1) || eventData.equals(2)) {
-                        assertFalse(failMessage, env.listener(statementName).isInvoked());
+                        env.assertListenerNotInvoked(statementName);
                     } else {
-                        assertTrue(failMessage, env.listener(statementName).isInvoked());
+                        env.assertListenerInvoked(statementName);
                     }
-                    env.listener(statementName).reset();
                 }, milestone);
         }
     }
@@ -451,8 +452,8 @@ public class ExprFilterExpressions {
             bean.setLongBoxed(1L);
             env.sendEventBean(bean);
 
-            env.listener("s0").assertOneGetNewAndReset();
-            env.listener("s1").assertOneGetNewAndReset();
+            env.assertListener("s0", SupportListener::assertOneGetNewAndReset);
+            env.assertListener("s1", SupportListener::assertOneGetNewAndReset);
 
             env.undeployAll();
         }
@@ -469,7 +470,7 @@ public class ExprFilterExpressions {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             env.sendEventBean(new SupportRuntimeExBean());
-            assertFalse("Subscriber should not have received result(s)", env.listener("s0").isInvoked());
+            env.assertListener("s0", listener -> assertFalse("Subscriber should not have received result(s)", listener.isInvoked()));
 
             env.undeployAll();
 
@@ -508,7 +509,7 @@ public class ExprFilterExpressions {
             env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportTradeEvent(2, "1234", 1001));
-            Assert.assertEquals(2, env.listener("s0").assertOneGetNewAndReset().get("event1.id"));
+            env.assertEqualsNew("s0", "event1.id", 2);
 
             env.undeployAll();
         }
@@ -546,12 +547,16 @@ public class ExprFilterExpressions {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(ENUMHASHCODEPROCESSDEPENDENT);
+        }
     }
 
     private static class ExprFilterEnumSyntaxTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select * from pattern [SupportBeanWithEnum(supportEnum=" + SupportEnum.class.getName() + ".ENUM_VALUE_2)]";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            String epl = "@name('s0') select * from pattern[SupportBeanWithEnum(supportEnum=" + SupportEnum.class.getName() + ".ENUM_VALUE_2)]";
+            env.compileDeployAddListenerMile(epl, "s0", 0);
 
             SupportBeanWithEnum theEvent = new SupportBeanWithEnum("e1", SupportEnum.ENUM_VALUE_2);
             env.sendEventBean(theEvent);
@@ -576,6 +581,10 @@ public class ExprFilterExpressions {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(ENUMHASHCODEPROCESSDEPENDENT);
         }
     }
 
@@ -946,7 +955,7 @@ public class ExprFilterExpressions {
             env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEvent(env, "b");
-            assertSame(theEvent, env.listener("s0").getAndResetLastNewData()[0].getUnderlying());
+            env.assertListener("s0", listener -> assertSame(theEvent, listener.getAndResetLastNewData()[0].getUnderlying()));
 
             sendEvent(env, "a");
             env.assertListenerNotInvoked("s0");
@@ -974,7 +983,7 @@ public class ExprFilterExpressions {
             env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEvent(env, "x", 0);
-            assertSame(theEvent, env.listener("s0").getAndResetLastNewData()[0].getUnderlying());
+            env.assertListener("s0", listener -> assertSame(theEvent, listener.getAndResetLastNewData()[0].getUnderlying()));
 
             sendEvent(env, null, 0);
             env.assertListenerNotInvoked("s0");
@@ -1045,7 +1054,7 @@ public class ExprFilterExpressions {
             env.compileDeploy("@name('s0') " + epl).addListener("s0");
             for (int i = 0; i < 3; i++) {
                 env.sendEventBean(new SupportInstanceMethodBean(i));
-                assertEquals(expected[i], env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvokedFlag("s0", expected[i]);
             }
             env.undeployAll();
         }
@@ -1127,7 +1136,8 @@ public class ExprFilterExpressions {
 
     private static void assertListeners(RegressionEnvironment env, String[] statementNames, boolean[] invoked) {
         for (int i = 0; i < invoked.length; i++) {
-            Assert.assertEquals("Failed for statement " + i + " name " + statementNames[i], invoked[i], env.listener(statementNames[i]).getAndClearIsInvoked());
+            final int index = i;
+            env.assertListener(statementNames[i], listener -> assertEquals("Failed for statement " + index + " name " + statementNames[index], invoked[index], listener.getAndClearIsInvoked()));
         }
     }
 
@@ -1159,7 +1169,8 @@ public class ExprFilterExpressions {
             sendBeanIntDouble(env, intBoxedA[i], doubleBoxedA[i]);
             sendBeanIntDouble(env, intBoxedB[i], doubleBoxedB[i]);
             sendBeanIntDouble(env, intBoxedC[i], doubleBoxedC[i]);
-            Assert.assertEquals("failed at index " + i, expected[i], env.listener("s0").getAndClearIsInvoked());
+            int index = i;
+            env.assertListener("s0", listener -> assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
 
             env.undeployAll();
         }
@@ -1179,7 +1190,8 @@ public class ExprFilterExpressions {
         assertEquals(expected.length, doubleBoxed.length);
         for (int i = 0; i < intBoxed.length; i++) {
             sendBeanIntIntDouble(env, intPrimitive[i], intBoxed[i], doubleBoxed[i]);
-            Assert.assertEquals("failed at index " + i, expected[i], env.listener("s0").getAndClearIsInvoked());
+            int index = i;
+            env.assertListener("s0", listener -> Assert.assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
             if (i == 1) {
                 env.milestone(milestone.incrementAndGet());
             }
@@ -1208,7 +1220,8 @@ public class ExprFilterExpressions {
             env.milestoneInc(milestone);
 
             sendBeanIntDouble(env, intBoxedB[i], doubleBoxedB[i]);
-            Assert.assertEquals("failed at index " + i, expected[i], env.listener("s0").getAndClearIsInvoked());
+            int index = i;
+            env.assertListener("s0", listener -> Assert.assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
             env.undeployAll();
         }
     }

@@ -23,7 +23,6 @@ import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -33,7 +32,6 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.*;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -119,7 +117,7 @@ public class EPLInsertInto {
         if (assertion == null) {
             fail("No assertion provided for type " + rep);
         }
-        assertion.accept(env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+        env.assertEventNew("s0", event -> assertion.accept(event.getUnderlying()));
 
         env.undeployAll();
     }
@@ -159,7 +157,7 @@ public class EPLInsertInto {
                 "select intPrimitive-intBoxed as deltaTag, intPrimitive*intBoxed as productTag " +
                 "from SupportBean#length(100)";
             assertEquals(epl, model.toEPL());
-            assertEquals(epl, env.statement("fl").getProperty(StatementProperty.EPL));
+            env.assertStatement("fl", statement -> assertEquals(epl, statement.getProperty(StatementProperty.EPL)));
 
             env.undeployAll();
         }
@@ -176,7 +174,7 @@ public class EPLInsertInto {
             assertEquals(epl, model.toEPL());
 
             tryAssertsVariant(env, null, model, "Event_1_EPL");
-            assertEquals(epl, env.statement("fl").getProperty(StatementProperty.EPL));
+            env.assertStatement("fl", statement -> assertEquals(epl, statement.getProperty(StatementProperty.EPL)));
             env.undeployAll();
         }
     }
@@ -211,11 +209,13 @@ public class EPLInsertInto {
             // test insert wildcard to wildcard
             String stmtSelectText = "@name('i0') insert into ABCStream select * from SupportBean";
             env.compileDeploy(stmtSelectText).addListener("i0");
-            assertTrue(env.statement("i0").getEventType() instanceof BeanEventType);
+            env.assertStatement("i0", statement -> assertTrue(statement.getEventType() instanceof BeanEventType));
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertEquals("E1", env.listener("i0").assertOneGetNew().get("theString"));
-            assertTrue(env.listener("i0").assertOneGetNew().getUnderlying() instanceof SupportBean);
+            env.assertListener("i0", listener -> {
+                assertEquals("E1", listener.assertOneGetNew().get("theString"));
+                assertTrue(listener.assertOneGetNew().getUnderlying() instanceof SupportBean);
+            });
 
             env.undeployAll();
         }
@@ -273,19 +273,23 @@ public class EPLInsertInto {
             env.compileDeploy(otherText, path).addListener("stmt2");
 
             SupportBean theEvent = sendEvent(env, 10, 11);
-            assertTrue(env.listener("stmt1").getAndClearIsInvoked());
-            assertEquals(1, env.listener("stmt1").getLastNewData().length);
-            assertEquals(10, env.listener("stmt1").getLastNewData()[0].get("intPrimitive"));
-            assertEquals(11, env.listener("stmt1").getLastNewData()[0].get("intBoxed"));
-            assertEquals(20, env.listener("stmt1").getLastNewData()[0].getEventType().getPropertyNames().length);
-            assertSame(theEvent, env.listener("stmt1").getLastNewData()[0].getUnderlying());
+            env.assertListener("stmt1", listener -> {
+                assertTrue(listener.getAndClearIsInvoked());
+                assertEquals(1, listener.getLastNewData().length);
+                assertEquals(10, listener.getLastNewData()[0].get("intPrimitive"));
+                assertEquals(11, listener.getLastNewData()[0].get("intBoxed"));
+                assertEquals(20, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
+                assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());
+            });
 
-            assertTrue(env.listener("stmt2").getAndClearIsInvoked());
-            assertEquals(1, env.listener("stmt2").getLastNewData().length);
-            assertEquals(10, env.listener("stmt2").getLastNewData()[0].get("intPrimitive"));
-            assertEquals(11, env.listener("stmt2").getLastNewData()[0].get("intBoxed"));
-            assertEquals(20, env.listener("stmt2").getLastNewData()[0].getEventType().getPropertyNames().length);
-            assertSame(theEvent, env.listener("stmt2").getLastNewData()[0].getUnderlying());
+            env.assertListener("stmt2", listener -> {
+                assertTrue(listener.getAndClearIsInvoked());
+                assertEquals(1, listener.getLastNewData().length);
+                assertEquals(10, listener.getLastNewData()[0].get("intPrimitive"));
+                assertEquals(11, listener.getLastNewData()[0].get("intBoxed"));
+                assertEquals(20, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
+                assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());
+            });
 
             env.undeployAll();
         }
@@ -302,12 +306,14 @@ public class EPLInsertInto {
             tryAssertsVariant(env, stmtText, null, "Event_1_2J");
 
             // assert type metadata
-            EventType type = env.statement("fl").getEventType();
-            assertEquals(NameAccessModifier.PUBLIC, type.getMetadata().getAccessModifier());
-            assertEquals(EventTypeTypeClass.STREAM, type.getMetadata().getTypeClass());
-            assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
-            assertEquals("Event_1_2J", type.getMetadata().getName());
-            assertEquals(EventTypeBusModifier.NONBUS, type.getMetadata().getBusModifier());
+            env.assertStatement("fl", statement -> {
+                EventType type = statement.getEventType();
+                assertEquals(NameAccessModifier.PUBLIC, type.getMetadata().getAccessModifier());
+                assertEquals(EventTypeTypeClass.STREAM, type.getMetadata().getTypeClass());
+                assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
+                assertEquals("Event_1_2J", type.getMetadata().getName());
+                assertEquals(EventTypeBusModifier.NONBUS, type.getMetadata().getBusModifier());
+            });
 
             env.undeployAll();
         }
@@ -341,46 +347,52 @@ public class EPLInsertInto {
 
         // send events
         sendEvent(env, 20, 10);
-        assertReceivedFeed(env.listener("fl"), 10, 200);
-        assertReceivedMinMax(env.listener("rld"), env.listener("rlp"), 10, 10, 200, 200);
+        assertReceivedFeed(env, 10, 200);
+        assertReceivedMinMax(env, 10, 10, 200, 200);
 
         sendEvent(env, 50, 25);
-        assertReceivedFeed(env.listener("fl"), 25, 25 * 50);
-        assertReceivedMinMax(env.listener("rld"), env.listener("rlp"), 10, 25, 200, 1250);
+        assertReceivedFeed(env, 25, 25 * 50);
+        assertReceivedMinMax(env, 10, 25, 200, 1250);
 
         sendEvent(env, 5, 2);
-        assertReceivedFeed(env.listener("fl"), 3, 2 * 5);
-        assertReceivedMinMax(env.listener("rld"), env.listener("rlp"), 3, 25, 10, 1250);
+        assertReceivedFeed(env, 3, 2 * 5);
+        assertReceivedMinMax(env, 3, 25, 10, 1250);
 
         env.advanceTime(10 * 1000); // Set the time to 10 seconds
 
         sendEvent(env, 13, 1);
-        assertReceivedFeed(env.listener("fl"), 12, 13);
-        assertReceivedMinMax(env.listener("rld"), env.listener("rlp"), 3, 25, 10, 1250);
+        assertReceivedFeed(env, 12, 13);
+        assertReceivedMinMax(env, 3, 25, 10, 1250);
 
         env.advanceTime(61 * 1000); // Set the time to 61 seconds
-        assertReceivedMinMax(env.listener("rld"), env.listener("rlp"), 12, 12, 13, 13);
+        assertReceivedMinMax(env, 12, 12, 13, 13);
     }
 
-    private static void assertReceivedMinMax(SupportListener resultListenerDelta, SupportListener resultListenerProduct, int minDelta, int maxDelta, int minProduct, int maxProduct) {
-        assertEquals(1, resultListenerDelta.getNewDataList().size());
-        assertEquals(1, resultListenerDelta.getLastNewData().length);
-        assertEquals(1, resultListenerProduct.getNewDataList().size());
-        assertEquals(1, resultListenerProduct.getLastNewData().length);
-        assertEquals(minDelta, resultListenerDelta.getLastNewData()[0].get("minD"));
-        assertEquals(maxDelta, resultListenerDelta.getLastNewData()[0].get("maxD"));
-        assertEquals(minProduct, resultListenerProduct.getLastNewData()[0].get("minP"));
-        assertEquals(maxProduct, resultListenerProduct.getLastNewData()[0].get("maxP"));
-        resultListenerDelta.reset();
-        resultListenerProduct.reset();
+    private static void assertReceivedMinMax(RegressionEnvironment env, int minDelta, int maxDelta, int minProduct, int maxProduct) {
+        env.assertListener("rld", listener -> {
+            assertEquals(1, listener.getNewDataList().size());
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(minDelta, listener.getLastNewData()[0].get("minD"));
+            assertEquals(maxDelta, listener.getLastNewData()[0].get("maxD"));
+            listener.reset();
+        });
+        env.assertListener("rlp", listener -> {
+            assertEquals(1, listener.getNewDataList().size());
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(minProduct, listener.getLastNewData()[0].get("minP"));
+            assertEquals(maxProduct, listener.getLastNewData()[0].get("maxP"));
+            listener.reset();
+        });
     }
 
-    private static void assertReceivedFeed(SupportListener feedListener, int delta, int product) {
-        assertEquals(1, feedListener.getNewDataList().size());
-        assertEquals(1, feedListener.getLastNewData().length);
-        assertEquals(delta, feedListener.getLastNewData()[0].get("delta"));
-        assertEquals(product, feedListener.getLastNewData()[0].get("product"));
-        feedListener.reset();
+    private static void assertReceivedFeed(RegressionEnvironment env, int delta, int product) {
+        env.assertListener("fl", listener -> {
+            assertEquals(1, listener.getNewDataList().size());
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(delta, listener.getLastNewData()[0].get("delta"));
+            assertEquals(product, listener.getLastNewData()[0].get("product"));
+            listener.reset();
+        });
     }
 
     private static SupportBean sendEvent(RegressionEnvironment env, int intPrimitive, int intBoxed) {
@@ -413,13 +425,17 @@ public class EPLInsertInto {
 
             SupportBean e1 = new SupportBean("E1", 1);
             env.sendEventBean(e1);
-            SupportObjectArrayOneDim resultOne = (SupportObjectArrayOneDim) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            EPAssertionUtil.assertEqualsExactOrder(resultOne.getArr(), new Object[]{e1});
+            env.assertEventNew("s0", event -> {
+                SupportObjectArrayOneDim resultOne = (SupportObjectArrayOneDim) event.getUnderlying();
+                EPAssertionUtil.assertEqualsExactOrder(resultOne.getArr(), new Object[]{e1});
+            });
 
             SupportBean e2 = new SupportBean("E2", 2);
             env.sendEventBean(e2);
-            SupportObjectArrayOneDim resultTwo = (SupportObjectArrayOneDim) env.listener("s0").assertOneGetNewAndReset().getUnderlying();
-            EPAssertionUtil.assertEqualsExactOrder(resultTwo.getArr(), new Object[]{e1, e2});
+            env.assertEventNew("s0", event -> {
+                SupportObjectArrayOneDim resultTwo = (SupportObjectArrayOneDim) event.getUnderlying();
+                EPAssertionUtil.assertEqualsExactOrder(resultTwo.getArr(), new Object[]{e1, e2});
+            });
 
             env.undeployAll();
         }
@@ -434,9 +450,11 @@ public class EPLInsertInto {
 
             SupportBean bean = new SupportBean("E1", 1);
             env.sendEventBean(bean);
-            EventBean[] events = (EventBean[]) env.listener("s0").assertOneGetNewAndReset().get("sbarr");
-            assertEquals(1, events.length);
-            assertSame(bean, events[0].getUnderlying());
+            env.assertEventNew("s0", event -> {
+                EventBean[] events = (EventBean[]) event.get("sbarr");
+                assertEquals(1, events.length);
+                assertSame(bean, events[0].getUnderlying());
+            });
 
             env.undeployAll();
         }
@@ -449,12 +467,14 @@ public class EPLInsertInto {
                 tryAssertionWildcardRecast(env, true, null, false, rep);
             }
 
-            try {
-                tryAssertionWildcardRecast(env, true, null, true, null);
-                fail();
-            } catch (RuntimeException ex) {
-                SupportMessageAssertUtil.assertMessage(ex.getCause().getMessage(), "Expression-returned event type 'SourceSchema' with underlying type '" + EPLInsertInto.MyP0P1EventSource.class.getName() + "' cannot be converted to target event type 'TargetSchema' with underlying type ");
-            }
+            env.assertThat(() -> {
+                try {
+                    tryAssertionWildcardRecast(env, true, null, true, null);
+                    fail();
+                } catch (RuntimeException ex) {
+                    SupportMessageAssertUtil.assertMessage(ex.getCause().getMessage(), "Expression-returned event type 'SourceSchema' with underlying type '" + EPLInsertInto.MyP0P1EventSource.class.getName() + "' cannot be converted to target event type 'TargetSchema' with underlying type ");
+                }
+            });
 
             // OA
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.OBJECTARRAY, false, EventRepresentationChoice.OBJECTARRAY);
@@ -471,11 +491,13 @@ public class EPLInsertInto {
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.MAP, true, null);
 
             // Avro
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.OBJECTARRAY);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.JSON);
-            tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, true, null);
+            env.assertThat(() -> {
+                tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.OBJECTARRAY);
+                tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.MAP);
+                tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.AVRO);
+                tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, false, EventRepresentationChoice.JSON);
+                tryAssertionWildcardRecast(env, false, EventRepresentationChoice.AVRO, true, null);
+            });
 
             // Json
             tryAssertionWildcardRecast(env, false, EventRepresentationChoice.JSON, false, EventRepresentationChoice.OBJECTARRAY);
@@ -553,24 +575,28 @@ public class EPLInsertInto {
             env.assertListenerNotInvoked("s0");
             env.advanceTime(60 * 1000);
 
-            assertTrue(env.listener("s0").isInvoked());
-            assertEquals(3, env.listener("s0").getNewDataList().size());
-            assertEquals("CSC", env.listener("s0").getNewDataList().get(0)[0].get("mySymbol"));
-            assertEquals(10.0, env.listener("s0").getNewDataList().get(0)[0].get("pricesum"));
-            assertEquals("GE", env.listener("s0").getNewDataList().get(1)[0].get("mySymbol"));
-            assertEquals(30.0, env.listener("s0").getNewDataList().get(1)[0].get("pricesum"));
-            assertEquals("IBM", env.listener("s0").getNewDataList().get(2)[0].get("mySymbol"));
-            assertEquals(80.0, env.listener("s0").getNewDataList().get(2)[0].get("pricesum"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                assertTrue(listener.isInvoked());
+                assertEquals(3, listener.getNewDataList().size());
+                assertEquals("CSC", listener.getNewDataList().get(0)[0].get("mySymbol"));
+                assertEquals(10.0, listener.getNewDataList().get(0)[0].get("pricesum"));
+                assertEquals("GE", listener.getNewDataList().get(1)[0].get("mySymbol"));
+                assertEquals(30.0, listener.getNewDataList().get(1)[0].get("pricesum"));
+                assertEquals("IBM", listener.getNewDataList().get(2)[0].get("mySymbol"));
+                assertEquals(80.0, listener.getNewDataList().get(2)[0].get("pricesum"));
+                listener.reset();
+            });
 
             env.advanceTime(65 * 1000);
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(70 * 1000);
-            assertEquals("ABC", env.listener("s0").getNewDataList().get(0)[0].get("mySymbol"));
-            assertEquals(91.0, env.listener("s0").getNewDataList().get(0)[0].get("pricesum"));
-            assertEquals("DEF", env.listener("s0").getNewDataList().get(1)[0].get("mySymbol"));
-            assertEquals(191.0, env.listener("s0").getNewDataList().get(1)[0].get("pricesum"));
+            env.assertListener("s0", listener -> {
+                assertEquals("ABC", listener.getNewDataList().get(0)[0].get("mySymbol"));
+                assertEquals(91.0, listener.getNewDataList().get(0)[0].get("pricesum"));
+                assertEquals("DEF", listener.getNewDataList().get(1)[0].get("mySymbol"));
+                assertEquals(191.0, listener.getNewDataList().get(1)[0].get("pricesum"));
+            });
 
             env.undeployAll();
         }
@@ -601,14 +627,14 @@ public class EPLInsertInto {
             env.addListener("i0").addListener("i1").addListener("i2");
 
             sendSimpleEvent(env, "one", 1);
-            assertSimple(env.listener("i0"), "one", 1, null, 0);
-            assertSimple(env.listener("i1"), "one", 1, "oneone", 2);
-            assertSimple(env.listener("i2"), "one", 1, "oneone", 2);
+            assertSimple(env, "i0", "one", 1, null, 0);
+            assertSimple(env, "i1", "one", 1, "oneone", 2);
+            assertSimple(env, "i2", "one", 1, "oneone", 2);
 
             sendSimpleEvent(env, "two", 2);
-            assertSimple(env.listener("i0"), "two", 2, null, 0);
-            assertSimple(env.listener("i1"), "two", 2, "twotwo", 4);
-            assertSimple(env.listener("i2"), "two", 2, "twotwo", 4);
+            assertSimple(env, "i0", "two", 2, null, 0);
+            assertSimple(env, "i1", "two", 2, "twotwo", 4);
+            assertSimple(env, "i2", "two", 2, "twotwo", 4);
         }
     }
 
@@ -621,8 +647,10 @@ public class EPLInsertInto {
             String stmtTwoText = "@name('i1') insert into streamA1 select * from pattern [every SupportBean]";
             env.compileDeploy(stmtTwoText, path).addListener("i1");
 
-            EventType eventType = env.statement("i0").getEventType();
-            assertEquals(Map.class, eventType.getUnderlyingType());
+            env.assertStatement("i0", statement -> {
+                EventType eventType = statement.getEventType();
+                assertEquals(Map.class, eventType.getUnderlyingType());
+            });
 
             env.undeployAll();
         }
@@ -652,25 +680,24 @@ public class EPLInsertInto {
             // try the alert case with 1 event for the mac in question
             env.advanceTime(0);
             env.sendEventBean(new SupportRFIDEvent("LR1", "1", "10"));
-            assertFalse(env.listener("s3").isInvoked());
+            env.assertListenerNotInvoked("s3");
             env.advanceTime(1000);
 
-            EventBean theEvent = env.listener("s3").assertOneGetNewAndReset();
-            assertEquals("LR1", theEvent.get("locationReportId"));
-
-            env.listener("s1").reset();
-            env.listener("s2").reset();
+            env.assertEqualsNew("s3", "locationReportId", "LR1");
+            env.listenerReset("s1");
+            env.listenerReset("s2");
 
             // try the alert case with 2 events for zone 10 within 1 second for the mac in question
             env.sendEventBean(new SupportRFIDEvent("LR2", "2", "10"));
-            assertFalse(env.listener("s3").isInvoked());
+            env.assertListenerNotInvoked("s3");
+
             env.advanceTime(1500);
             env.sendEventBean(new SupportRFIDEvent("LR3", "2", "10"));
-            assertFalse(env.listener("s3").isInvoked());
+            env.assertListenerNotInvoked("s3");
+
             env.advanceTime(2000);
 
-            theEvent = env.listener("s3").assertOneGetNewAndReset();
-            assertEquals("LR2", theEvent.get("locationReportId"));
+            env.assertEqualsNew("s3", "locationReportId", "LR2");
 
             env.undeployAll();
         }
@@ -681,14 +708,14 @@ public class EPLInsertInto {
             RegressionPath path = new RegressionPath();
             String stmtOneTxt = "@name('s1') insert into InZoneTwo select null as dummy from SupportBean";
             env.compileDeploy(stmtOneTxt, path);
-            assertNullTypeForDummyField(env.statement("s1").getEventType());
+            env.assertStatement("s1", statement -> assertNullTypeForDummyField(statement.getEventType()));
 
             String stmtTwoTxt = "@name('s2') select dummy from InZoneTwo";
             env.compileDeploy(stmtTwoTxt, path).addListener("s2");
-            assertNullTypeForDummyField(env.statement("s2").getEventType());
+            env.assertStatement("s2", statement -> assertNullTypeForDummyField(statement.getEventType()));
 
             env.sendEventBean(new SupportBean());
-            assertNull(env.listener("s2").assertOneGetNewAndReset().get("dummy"));
+            env.assertEqualsNew("s2", "dummy", null);
 
             env.undeployAll();
         }
@@ -733,15 +760,17 @@ public class EPLInsertInto {
         }
     }
 
-    private static void assertSimple(SupportListener listener, String myString, int myInt, String additionalString, int additionalInt) {
-        assertTrue(listener.getAndClearIsInvoked());
-        EventBean eventBean = listener.getLastNewData()[0];
-        assertEquals(myString, eventBean.get("myString"));
-        assertEquals(myInt, eventBean.get("myInt"));
-        if (additionalString != null) {
-            assertEquals(additionalString, eventBean.get("concat"));
-            assertEquals(additionalInt, eventBean.get("summed"));
-        }
+    private static void assertSimple(RegressionEnvironment env, String stmtName, String myString, int myInt, String additionalString, int additionalInt) {
+        env.assertListener(stmtName, listener -> {
+            assertTrue(listener.getAndClearIsInvoked());
+            EventBean eventBean = listener.getLastNewData()[0];
+            assertEquals(myString, eventBean.get("myString"));
+            assertEquals(myInt, eventBean.get("myInt"));
+            if (additionalString != null) {
+                assertEquals(additionalString, eventBean.get("concat"));
+                assertEquals(additionalInt, eventBean.get("summed"));
+            }
+        });
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, double price) {
@@ -753,49 +782,51 @@ public class EPLInsertInto {
         env.sendEventBean(new SupportBeanSimple(theString, val));
     }
 
-    private static void assertJoinWildcard(EventRepresentationChoice rep, SupportListener listener, Object eventS0, Object eventS1) {
-        assertTrue(listener.getAndClearIsInvoked());
-        assertEquals(1, listener.getLastNewData().length);
-        assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
-        assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s0"));
-        assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s1"));
-        if (rep != null && (rep.isJsonEvent() || rep.isJsonProvidedClassEvent())) {
-            assertEquals(eventS0, listener.getLastNewData()[0].get("s0").toString());
-            assertEquals(eventS1, listener.getLastNewData()[0].get("s1").toString());
-        } else {
-            assertSame(eventS0, listener.getLastNewData()[0].get("s0"));
-            assertSame(eventS1, listener.getLastNewData()[0].get("s1"));
-        }
-        assertTrue(rep == null || rep.matchesClass(listener.getLastNewData()[0].getUnderlying().getClass()));
+    private static void assertJoinWildcard(RegressionEnvironment env, String statementName, EventRepresentationChoice rep, Object eventS0, Object eventS1) {
+        env.assertListener(statementName, listener -> {
+            assertTrue(listener.getAndClearIsInvoked());
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(2, listener.getLastNewData()[0].getEventType().getPropertyNames().length);
+            assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s0"));
+            assertTrue(listener.getLastNewData()[0].getEventType().isProperty("s1"));
+            if (rep != null && (rep.isJsonEvent() || rep.isJsonProvidedClassEvent())) {
+                assertEquals(eventS0, listener.getLastNewData()[0].get("s0").toString());
+                assertEquals(eventS1, listener.getLastNewData()[0].get("s1").toString());
+            } else {
+                assertSame(eventS0, listener.getLastNewData()[0].get("s0"));
+                assertSame(eventS1, listener.getLastNewData()[0].get("s1"));
+            }
+            assertTrue(rep == null || rep.matchesClass(listener.getLastNewData()[0].getUnderlying().getClass()));
+        });
     }
 
     private static void tryAssertionJoinWildcard(RegressionEnvironment env, boolean bean, EventRepresentationChoice rep) {
         String schema;
         if (bean) {
-            schema = "@name('schema1') create schema S0 as " + SupportBean.class.getName() + ";\n" +
-                "@name('schema2') create schema S1 as " + SupportBean_A.class.getName() + ";\n";
+            schema = "@name('schema1') @buseventtype create schema S0 as " + SupportBean.class.getName() + ";\n" +
+                "@name('schema2') @buseventtype create schema S1 as " + SupportBean_A.class.getName() + ";\n";
         } else if (rep.isMapEvent()) {
-            schema = "@name('schema1') create map schema S0 as (theString string);\n" +
-                "@name('schema2') create map schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype create map schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype create map schema S1 as (id string);\n";
         } else if (rep.isObjectArrayEvent()) {
-            schema = "@name('schema1') create objectarray schema S0 as (theString string);\n" +
-                "@name('schema2') create objectarray schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype create objectarray schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype create objectarray schema S1 as (id string);\n";
         } else if (rep.isAvroEvent()) {
-            schema = "@name('schema1') create avro schema S0 as (theString string);\n" +
-                "@name('schema2') create avro schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype create avro schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype create avro schema S1 as (id string);\n";
         } else if (rep.isJsonEvent()) {
-            schema = "@name('schema1') create json schema S0 as (theString string);\n" +
-                "@name('schema2') create json schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype create json schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype create json schema S1 as (id string);\n";
         } else if (rep.isJsonProvidedClassEvent()) {
-            schema = "@name('schema1') @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0 as ();\n" +
-                "@name('schema2') @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1 as ();\n";
+            schema = "@name('schema1') @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0 as ();\n" +
+                "@name('schema2') @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1 as ();\n";
         } else {
             schema = null;
             fail();
         }
 
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(schema, path);
+        env.compileDeploy(schema, path);
 
         String textOne = "@name('s1') " + (bean ? "" : rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedJoin.class)) + "insert into event2 select * " +
             "from S0#length(100) as s0, S1#length(5) as s1 " +
@@ -817,7 +848,8 @@ public class EPLInsertInto {
             eventS1 = new Object[]{"myId"};
             env.sendEventObjectArray((Object[]) eventS1, "S1");
         } else if (rep.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(env.deploymentId("schema1"), "S1")));
+            Schema schemaAvro = env.runtimeAvroSchemaByDeployment("schema1", "S1");
+            GenericData.Record theEvent = new GenericData.Record(schemaAvro);
             theEvent.put("id", "myId");
             eventS1 = theEvent;
             env.sendEventAvro(theEvent, "S1");
@@ -841,7 +873,8 @@ public class EPLInsertInto {
             eventS0 = new Object[]{"myId"};
             env.sendEventObjectArray((Object[]) eventS0, "S0");
         } else if (rep.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventType(env.deploymentId("schema1"), "S0")));
+            Schema schemaAvro = env.runtimeAvroSchemaByDeployment("schema1", "S0");
+            GenericData.Record theEvent = new GenericData.Record(schemaAvro);
             theEvent.put("theString", "myId");
             eventS0 = theEvent;
             env.sendEventAvro(theEvent, "S0");
@@ -854,8 +887,8 @@ public class EPLInsertInto {
             throw new IllegalArgumentException();
         }
 
-        assertJoinWildcard(rep, env.listener("s1"), eventS0, eventS1);
-        assertJoinWildcard(rep, env.listener("s2"), eventS0, eventS1);
+        assertJoinWildcard(env, "s1", rep, eventS0, eventS1);
+        assertJoinWildcard(env, "s2", rep, eventS0, eventS1);
 
         env.undeployAll();
     }
@@ -875,12 +908,12 @@ public class EPLInsertInto {
         // declare source type
         String schemaEPL;
         if (sourceBean) {
-            schemaEPL = "create schema SourceSchema as " + MyP0P1EventSource.class.getName();
+            schemaEPL = "@buseventtype create schema SourceSchema as " + MyP0P1EventSource.class.getName();
         } else {
-            schemaEPL = sourceType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSourceSchema.class) + "create schema SourceSchema as (p0 string, p1 int)";
+            schemaEPL = sourceType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSourceSchema.class) + "@buseventtype create schema SourceSchema as (p0 string, p1 int)";
         }
         RegressionPath path = new RegressionPath();
-        env.compileDeployWBusPublicType(schemaEPL, path);
+        env.compileDeploy(schemaEPL, path);
 
         // declare target type
         if (targetBean) {
@@ -905,7 +938,7 @@ public class EPLInsertInto {
         } else if (sourceType.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{"a", 10}, "SourceSchema");
         } else if (sourceType.isAvroEvent()) {
-            Schema schema = record("schema").fields().requiredString("p0").requiredString("p1").requiredString("c0").endRecord();
+            Schema schema = record("schema").fields().requiredString("p0").requiredInt("p1").optionalString("c0").endRecord();
             GenericData.Record record = new GenericData.Record(schema);
             record.put("p0", "a");
             record.put("p1", 10);
@@ -917,8 +950,7 @@ public class EPLInsertInto {
         }
 
         // assert
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, "p0,p1,c0".split(","), new Object[]{"a", 10, null});
+        env.assertEventNew("s0", event -> EPAssertionUtil.assertProps(event, "p0,p1,c0".split(","), new Object[]{"a", 10, null}));
 
         env.undeployAll();
     }
@@ -927,7 +959,11 @@ public class EPLInsertInto {
         return new SupportMarketDataBean(symbol, 0, 0L, null);
     }
 
-    public static class MyP0P1EventSource {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyP0P1EventSource implements Serializable {
+        private static final long serialVersionUID = 1312655941867865316L;
         private final String p0;
         private final int p1;
 
@@ -945,7 +981,11 @@ public class EPLInsertInto {
         }
     }
 
-    public static class MyP0P1EventTarget {
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class MyP0P1EventTarget implements Serializable {
+        private static final long serialVersionUID = 6493236300529060319L;
         private String p0;
         private int p1;
         private Object c0;
@@ -984,12 +1024,20 @@ public class EPLInsertInto {
         }
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = 8476510089254496176L;
         public String theString;
         public Integer intPrimitive;
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyLocalJsonProvidedS0 implements Serializable {
+        private static final long serialVersionUID = -1029029982135418942L;
         public String theString;
 
         public String toString() {
@@ -997,7 +1045,11 @@ public class EPLInsertInto {
         }
     }
 
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
     public static class MyLocalJsonProvidedS1 implements Serializable {
+        private static final long serialVersionUID = -1403873326379557908L;
         public String id;
 
         public String toString() {
@@ -1006,20 +1058,24 @@ public class EPLInsertInto {
     }
 
     public static class MyLocalJsonProvidedJoin implements Serializable {
+        private static final long serialVersionUID = -5452770440299300732L;
         public MyLocalJsonProvidedS0 s0;
         public MyLocalJsonProvidedS1 s1;
     }
 
     public static class MyLocalJsonProvidedSourceSchema implements Serializable {
+        private static final long serialVersionUID = -7342903914434088805L;
         public String p0;
         public int p1;
     }
 
     public static class MyLocalJsonProvidedTargetContainedSchema implements Serializable {
+        private static final long serialVersionUID = -1369792710182100703L;
         public int c0;
     }
 
     public static class MyLocalJsonProvidedTargetSchema implements Serializable {
+        private static final long serialVersionUID = 6224013232801311642L;
         public String p0;
         public int p1;
         public MyLocalJsonProvidedTargetContainedSchema c0;

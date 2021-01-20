@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertFalse;
 
@@ -59,17 +60,17 @@ public class InfraNWTableStartStop {
             // send 1 event
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsNew("create", fields, new Object[]{"E1", 1});
+                env.assertPropsNew("select", fields, new Object[]{"E1", 1});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             // stop inserter
             env.undeployModuleContaining("insert");
 
             sendSupportBean(env, "E2", 2);
-            assertFalse(env.listener("create").isInvoked());
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("create");
+            env.assertListenerNotInvoked("select");
 
             // start inserter
             env.compileDeploy(stmtTextInsertOne, path);
@@ -77,18 +78,18 @@ public class InfraNWTableStartStop {
             // consumer receives the next event
             sendSupportBean(env, "E3", 3);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
-                EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("select"), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+                env.assertPropsNew("create", fields, new Object[]{"E3", 3});
+                env.assertPropsNew("select", fields, new Object[]{"E3", 3});
+                env.assertPropsPerRowIterator("select", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
             // destroy inserter
             env.undeployModuleContaining("insert");
 
             sendSupportBean(env, "E4", 4);
-            assertFalse(env.listener("create").isInvoked());
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("create");
+            env.assertListenerNotInvoked("select");
 
             env.undeployAll();
         }
@@ -127,40 +128,40 @@ public class InfraNWTableStartStop {
             // send 1 event
             sendSupportBean(env, "E1", 1);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-                EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+                env.assertPropsNew("create", fields, new Object[]{"E1", 1});
+                env.assertPropsNew("select", fields, new Object[]{"E1", 1});
             }
-            EPAssertionUtil.assertPropsPerRow(env.iterator("create"), fields, new Object[][]{{"E1", 1}});
+            env.assertPropsPerRowIterator("create", fields, new Object[][]{{"E1", 1}});
 
             // stop consumer
             SupportListener selectListenerTemp = env.listener("select");
             env.undeployModuleContaining("select");
             sendSupportBean(env, "E2", 2);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+                env.assertPropsNew("create", fields, new Object[]{"E2", 2});
             }
             assertFalse(selectListenerTemp.isInvoked());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             // start consumer: the consumer has the last event even though he missed it
             env.compileDeploy(stmtTextSelect, path).addListener("select");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("select"), fields, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("select", fields, new Object[][]{{"E1", 1}, {"E2", 2}});
 
             // consumer receives the next event
             sendSupportBean(env, "E3", 3);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
-                EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
-                EPAssertionUtil.assertPropsPerRow(env.iterator("select"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+                env.assertPropsNew("create", fields, new Object[]{"E3", 3});
+                env.assertPropsNew("select", fields, new Object[]{"E3", 3});
+                env.assertPropsPerRowIterator("select", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
             }
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             // destroy consumer
             selectListenerTemp = env.listener("select");
             env.undeployModuleContaining("select");
             sendSupportBean(env, "E4", 4);
             if (namedWindow) {
-                EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E4", 4});
+                env.assertPropsNew("create", fields, new Object[]{"E4", 4});
             }
             assertFalse(selectListenerTemp.isInvoked());
 
@@ -171,6 +172,10 @@ public class InfraNWTableStartStop {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
         }
     }
 

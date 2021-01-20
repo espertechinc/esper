@@ -29,12 +29,10 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraph
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.dataflow.MyLineFeedSource;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static junit.framework.TestCase.assertNotNull;
@@ -58,6 +56,10 @@ public class EPLDataflowAPIOpLifecycle {
             assertEquals("MySchema", MyCaptureOutputPortOpForge.getPort().getOptionalDeclaredType().getEventType().getName());
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 
@@ -121,6 +123,10 @@ public class EPLDataflowAPIOpLifecycle {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowFlowGraphOperator implements RegressionExecution {
@@ -150,6 +156,10 @@ public class EPLDataflowAPIOpLifecycle {
             assertTrue(events.get(3) instanceof DataFlowOpCloseContext); // called close (GraphSource only)
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.resultset.outputlimit;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.DateTime;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -30,6 +29,7 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.*;
@@ -87,7 +87,7 @@ public class ResultSetOutputLimitSimple {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec)";
-            tryAssertion12(env, stmtText, "none");
+            tryAssertion12(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -96,7 +96,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol";
-            tryAssertion12(env, stmtText, "none");
+            tryAssertion12(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -105,7 +105,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 " having price > 10";
-            tryAssertion34(env, stmtText, "none");
+            tryAssertion34(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -115,7 +115,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 " having price > 10";
-            tryAssertion34(env, stmtText, "none");
+            tryAssertion34(env, stmtText, "none", new AtomicInteger());
         }
     }
 
@@ -124,7 +124,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "output every 1 seconds";
-            tryAssertion56(env, stmtText, "default");
+            tryAssertion56(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -134,7 +134,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "output every 1 seconds";
-            tryAssertion56(env, stmtText, "default");
+            tryAssertion56(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -144,7 +144,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec) \n" +
                 "having price > 10" +
                 "output every 1 seconds";
-            tryAssertion78(env, stmtText, "default");
+            tryAssertion78(env, stmtText, "default", new AtomicInteger());
         }
     }
 
@@ -155,72 +155,76 @@ public class ResultSetOutputLimitSimple {
                 "SupportBean#keepall where theString=symbol " +
                 "having price > 10" +
                 "output every 1 seconds";
-            tryAssertion78(env, stmtText, "default");
+            tryAssertion78(env, stmtText, "default", new AtomicInteger());
         }
     }
 
     private static class ResultSet9AllNoHavingNoJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion9AllNoHavingNoJoin(env, outputLimitOpt);
+                runAssertion9AllNoHavingNoJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion9AllNoHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion9AllNoHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, price " +
             "from SupportMarketDataBean#time(5.5 sec) " +
             "output all every 1 seconds";
-        tryAssertion56(env, stmtText, "all");
+        tryAssertion56(env, stmtText, "all", milestone);
     }
 
     private static class ResultSet10AllNoHavingJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion10AllNoHavingJoin(env, outputLimitOpt);
+                runAssertion10AllNoHavingJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion10AllNoHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion10AllNoHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, price " +
             "from SupportMarketDataBean#time(5.5 sec), " +
             "SupportBean#keepall where theString=symbol " +
             "output all every 1 seconds";
-        tryAssertion56(env, stmtText, "all");
+        tryAssertion56(env, stmtText, "all", milestone);
     }
 
     private static class ResultSet11AllHavingNoJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion11AllHavingNoJoin(env, outputLimitOpt);
+                runAssertion11AllHavingNoJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion11AllHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion11AllHavingNoJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, price " +
             "from SupportMarketDataBean#time(5.5 sec) " +
             "having price > 10" +
             "output all every 1 seconds";
-        tryAssertion78(env, stmtText, "all");
+        tryAssertion78(env, stmtText, "all", milestone);
     }
 
     private static class ResultSet12AllHavingJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             for (SupportOutputLimitOpt outputLimitOpt : SupportOutputLimitOpt.values()) {
-                runAssertion12AllHavingJoin(env, outputLimitOpt);
+                runAssertion12AllHavingJoin(env, outputLimitOpt, milestone);
             }
         }
     }
 
-    private static void runAssertion12AllHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt) {
+    private static void runAssertion12AllHavingJoin(RegressionEnvironment env, SupportOutputLimitOpt opt, AtomicInteger milestone) {
         String stmtText = opt.getHint() + "@name('s0') select symbol, volume, price " +
             "from SupportMarketDataBean#time(5.5 sec), " +
             "SupportBean#keepall where theString=symbol " +
             "having price > 10" +
             "output all every 1 seconds";
-        tryAssertion78(env, stmtText, "all");
+        tryAssertion78(env, stmtText, "all", milestone);
     }
 
     private static class ResultSet13LastNoHavingNoJoin implements RegressionExecution {
@@ -228,7 +232,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec)" +
                 "output last every 1 seconds";
-            tryAssertion13_14(env, stmtText, "last");
+            tryAssertion13_14(env, stmtText, "last", new AtomicInteger());
         }
     }
 
@@ -238,7 +242,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "output last every 1 seconds";
-            tryAssertion13_14(env, stmtText, "last");
+            tryAssertion13_14(env, stmtText, "last", new AtomicInteger());
         }
     }
 
@@ -248,7 +252,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec)" +
                 "having price > 10 " +
                 "output last every 1 seconds";
-            tryAssertion15_16(env, stmtText, "last");
+            tryAssertion15_16(env, stmtText, "last", new AtomicInteger());
         }
     }
 
@@ -259,7 +263,7 @@ public class ResultSetOutputLimitSimple {
                 "SupportBean#keepall where theString=symbol " +
                 "having price > 10 " +
                 "output last every 1 seconds";
-            tryAssertion15_16(env, stmtText, "last");
+            tryAssertion15_16(env, stmtText, "last", new AtomicInteger());
         }
     }
 
@@ -268,7 +272,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "output first every 1 seconds";
-            tryAssertion17IStream(env, stmtText, "first");
+            tryAssertion17IStream(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -278,7 +282,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec)," +
                 "SupportBean#keepall where theString=symbol " +
                 "output first every 1 seconds";
-            tryAssertion17IStream(env, stmtText, "first");
+            tryAssertion17IStream(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -287,7 +291,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select irstream symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "output first every 1 seconds";
-            tryAssertion17IRStream(env, stmtText, "first");
+            tryAssertion17IRStream(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -297,7 +301,7 @@ public class ResultSetOutputLimitSimple {
                 "from SupportMarketDataBean#time(5.5 sec), " +
                 "SupportBean#keepall where theString=symbol " +
                 "output first every 1 seconds";
-            tryAssertion17IRStream(env, stmtText, "first");
+            tryAssertion17IRStream(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -306,7 +310,7 @@ public class ResultSetOutputLimitSimple {
             String stmtText = "@name('s0') select symbol, volume, price " +
                 "from SupportMarketDataBean#time(5.5 sec) " +
                 "output snapshot every 1 seconds";
-            tryAssertion18(env, stmtText, "first");
+            tryAssertion18(env, stmtText, "first", new AtomicInteger());
         }
     }
 
@@ -363,7 +367,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(deltaMSec);
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E1");
 
             env.undeployAll();
         }
@@ -384,7 +388,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             env.advanceTime(deltaMSec);
-            Assert.assertEquals("E1", env.listener("s0").assertOneGetNewAndReset().get("symbol"));
+            env.assertEqualsNew("s0", "symbol", "E1");
 
             // test statement model
             EPStatementObjectModel model = env.eplToModel(stmtText);
@@ -411,7 +415,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             sendMDEvent(env, "IBM", 0);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"S0", 20L}, {"YAH", 10L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"S0", 20L}, {"YAH", 10L}});
 
             env.undeployAll();
         }
@@ -440,7 +444,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             sendMDEvent(env, "IBM", 0);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), fields, new Object[][]{{"S0", 20L}, {"YAH", 10L}});
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"S0", 20L}, {"YAH", 10L}});
 
             env.undeployAll();
         }
@@ -491,35 +495,31 @@ public class ResultSetOutputLimitSimple {
             // send event 1
             sendJoinEvents(env, "IBM");
 
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s1").getLastNewData().length);
-            assertNull(env.listener("s1").getLastOldData());
-
-            assertFalse(env.listener("s3").getAndClearIsInvoked());
-            assertNull(env.listener("s3").getLastNewData());
-            assertNull(env.listener("s3").getLastOldData());
+            env.assertListener("s1", listener -> {
+                Assert.assertEquals(1, listener.getLastNewData().length);
+                assertNull(listener.getLastOldData());
+            });
+            env.assertListenerNotInvoked("s3");
 
             // send event 2
             sendJoinEvents(env, "MSFT");
 
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s1").getLastNewData().length);
-            assertNull(env.listener("s1").getLastOldData());
-
-            assertFalse(env.listener("s3").getAndClearIsInvoked());
-            assertNull(env.listener("s3").getLastNewData());
-            assertNull(env.listener("s3").getLastOldData());
+            env.assertListenerInvoked("s1");
+            env.assertListenerNotInvoked("s3");
 
             // send event 3
             sendJoinEvents(env, "YAH");
 
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
-            Assert.assertEquals(1, env.listener("s1").getLastNewData().length);
-            assertNull(env.listener("s1").getLastOldData());
-
-            assertTrue(env.listener("s3").getAndClearIsInvoked());
-            Assert.assertEquals(3, env.listener("s3").getLastNewData().length);
-            assertNull(env.listener("s3").getLastOldData());
+            env.assertListener("s1", listener -> {
+                assertTrue(listener.isInvoked());
+                assertEquals(1, listener.getLastNewData().length);
+                assertNull(listener.getLastOldData());
+            });
+            env.assertListener("s3", listener -> {
+                assertTrue(listener.getAndClearIsInvoked());
+                assertEquals(3, listener.getLastNewData().length);
+                assertNull(listener.getLastOldData());
+            });
 
             env.undeployAll();
         }
@@ -566,10 +566,12 @@ public class ResultSetOutputLimitSimple {
             sendTimer(env, 30000);
             env.assertListenerNotInvoked("s0");
             sendTimer(env, 40000);
-            EventBean[] newEvents = env.listener("s0").getAndResetLastNewData();
-            assertEquals(1, newEvents.length);
-            Assert.assertEquals("e1", newEvents[0].get("theString"));
-            env.listener("s0").reset();
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getAndResetLastNewData();
+                assertEquals(1, newEvents.length);
+                Assert.assertEquals("e1", newEvents[0].get("theString"));
+                listener.reset();
+            });
 
             sendTimer(env, 50000);
             env.assertListenerInvoked("s0");
@@ -583,10 +585,12 @@ public class ResultSetOutputLimitSimple {
             sendEvent(env, "e2");
             sendEvent(env, "e3");
             sendTimer(env, 80000);
-            newEvents = env.listener("s0").getAndResetLastNewData();
-            assertEquals(2, newEvents.length);
-            Assert.assertEquals("e2", newEvents[0].get("theString"));
-            Assert.assertEquals("e3", newEvents[1].get("theString"));
+            env.assertListener("s0", listener -> {
+                EventBean[] newEvents = listener.getAndResetLastNewData();
+                assertEquals(2, newEvents.length);
+                Assert.assertEquals("e2", newEvents[0].get("theString"));
+                Assert.assertEquals("e3", newEvents[1].get("theString"));
+            });
 
             sendTimer(env, 90000);
             env.assertListenerInvoked("s0");
@@ -685,42 +689,29 @@ public class ResultSetOutputLimitSimple {
             sendEvent(env, "IBM");
 
             env.assertListenerInvoked("s0");
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertNull(env.listener("s0").getLastOldData());
-
-            assertFalse(env.listener("s1").getAndClearIsInvoked());
-            assertNull(env.listener("s1").getLastNewData());
-            assertNull(env.listener("s1").getLastOldData());
-
-            assertFalse(env.listener("s2").getAndClearIsInvoked());
-            assertNull(env.listener("s2").getLastNewData());
-            assertNull(env.listener("s2").getLastOldData());
+            env.assertListenerNotInvoked("s1");
+            env.assertListenerNotInvoked("s2");
 
             // send event 2
             sendEvent(env, "MSFT");
 
             env.assertListenerInvoked("s0");
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertNull(env.listener("s0").getLastOldData());
-
-            assertTrue(env.listener("s1").getAndClearIsInvoked());
-            Assert.assertEquals(2, env.listener("s1").getLastNewData().length);
-            assertNull(env.listener("s1").getLastOldData());
-
-            assertFalse(env.listener("s2").getAndClearIsInvoked());
+            env.assertListener("s1", listener -> {
+                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertNull(listener.getLastOldData());
+                listener.reset();
+            });
+            env.assertListenerNotInvoked("s2");
 
             // send event 3
             sendEvent(env, "YAH");
 
             env.assertListenerInvoked("s0");
-            Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-            assertNull(env.listener("s0").getLastOldData());
-
-            assertFalse(env.listener("s1").getAndClearIsInvoked());
-
-            assertTrue(env.listener("s2").getAndClearIsInvoked());
-            Assert.assertEquals(3, env.listener("s2").getLastNewData().length);
-            assertNull(env.listener("s2").getLastOldData());
+            env.assertListenerNotInvoked("s1");
+            env.assertListener("s2", listener -> {
+                Assert.assertEquals(3, listener.getLastNewData().length);
+                assertNull(listener.getLastOldData());
+            });
 
             env.undeployAll();
         }
@@ -728,6 +719,7 @@ public class ResultSetOutputLimitSimple {
 
     private static class ResultSetLimitSnapshot implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            String[] fields = new String[]{"theString"};
             sendTimer(env, 0);
             String selectStmt = "@name('s0') select * from SupportBean#time(10) output snapshot every 3 events";
             env.compileDeploy(selectStmt).addListener("s0");
@@ -739,9 +731,7 @@ public class ResultSetOutputLimitSimple {
 
             sendTimer(env, 2000);
             sendEvent(env, "YAH");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"IBM"}, {"MSFT"}, {"YAH"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"IBM"}, {"MSFT"}, {"YAH"}});
 
             sendTimer(env, 3000);
             sendEvent(env, "s4");
@@ -750,9 +740,7 @@ public class ResultSetOutputLimitSimple {
 
             sendTimer(env, 10000);
             sendEvent(env, "s6");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"IBM"}, {"MSFT"}, {"YAH"}, {"s4"}, {"s5"}, {"s6"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"IBM"}, {"MSFT"}, {"YAH"}, {"s4"}, {"s5"}, {"s6"}});
 
             sendTimer(env, 11000);
             sendEvent(env, "s7");
@@ -762,23 +750,17 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "s9");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"YAH"}, {"s4"}, {"s5"}, {"s6"}, {"s7"}, {"s8"}, {"s9"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"YAH"}, {"s4"}, {"s5"}, {"s6"}, {"s7"}, {"s8"}, {"s9"}});
 
             sendTimer(env, 14000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s6"}, {"s7"}, {"s8"}, {"s9"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s6"}, {"s7"}, {"s8"}, {"s9"}});
 
             sendEvent(env, "s10");
             sendEvent(env, "s11");
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 23000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s10"}, {"s11"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s10"}, {"s11"}});
 
             sendEvent(env, "s12");
             env.assertListenerNotInvoked("s0");
@@ -817,7 +799,7 @@ public class ResultSetOutputLimitSimple {
 
     private static class ResultSetLimitSnapshotJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-
+            String[] fields = new String[]{"theString"};
             sendTimer(env, 0);
             String selectStmt = "@name('s0') select theString from SupportBean#time(10) as s," +
                 "SupportMarketDataBean#keepall as m where s.theString = m.symbol output snapshot every 3 events order by symbol asc";
@@ -834,9 +816,7 @@ public class ResultSetOutputLimitSimple {
 
             sendTimer(env, 2000);
             sendEvent(env, "s2");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s0"}, {"s1"}, {"s2"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s0"}, {"s1"}, {"s2"}});
 
             sendTimer(env, 3000);
             sendEvent(env, "s4");
@@ -845,9 +825,7 @@ public class ResultSetOutputLimitSimple {
 
             sendTimer(env, 10000);
             sendEvent(env, "s6");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s0"}, {"s1"}, {"s2"}, {"s4"}, {"s5"}, {"s6"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s0"}, {"s1"}, {"s2"}, {"s4"}, {"s5"}, {"s6"}});
 
             sendTimer(env, 11000);
             sendEvent(env, "s7");
@@ -857,23 +835,17 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerNotInvoked("s0");
 
             sendEvent(env, "s9");
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s2"}, {"s4"}, {"s5"}, {"s6"}, {"s7"}, {"s8"}, {"s9"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s2"}, {"s4"}, {"s5"}, {"s6"}, {"s7"}, {"s8"}, {"s9"}});
 
             sendTimer(env, 14000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s6"}, {"s7"}, {"s8"}, {"s9"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s6"}, {"s7"}, {"s8"}, {"s9"}});
 
             sendEvent(env, "s10");
             sendEvent(env, "s11");
             env.assertListenerNotInvoked("s0");
 
             sendTimer(env, 23000);
-            EPAssertionUtil.assertPropsPerRow(env.listener("s0").getLastNewData(), new String[]{"theString"}, new Object[][]{{"s10"}, {"s11"}});
-            assertNull(env.listener("s0").getLastOldData());
-            env.listener("s0").reset();
+            env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"s10"}, {"s11"}});
 
             sendEvent(env, "s12");
             env.assertListenerNotInvoked("s0");
@@ -939,11 +911,11 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, 2);
 
         // check update, only the last event present
-        env.assertListenerInvoked("s0");
-        Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-        Assert.assertEquals(2L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
-        assertNull(env.listener("s0").getLastOldData());
-
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(1, listener.getLastNewData().length);
+            Assert.assertEquals(2L, listener.getLastNewData()[0].get("longBoxed"));
+            assertNull(listener.getLastOldData());
+        });
         env.undeployAll();
     }
 
@@ -992,9 +964,12 @@ public class ResultSetOutputLimitSimple {
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        env.assertListenerInvoked("s0");
-        Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertEquals(1, listener.getLastNewData().length);
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         // send another event
         sendEvent(env, "MSFT");
@@ -1006,9 +981,12 @@ public class ResultSetOutputLimitSimple {
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        env.assertListenerInvoked("s0");
-        Assert.assertEquals(1, env.listener("s0").getLastNewData().length);
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            Assert.assertEquals(1, listener.getLastNewData().length);
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         // don't send an event
         // check that the listener hasn't been updated
@@ -1018,9 +996,12 @@ public class ResultSetOutputLimitSimple {
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        env.assertListenerInvoked("s0");
-        assertNull(env.listener("s0").getLastNewData());
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertNull(listener.getLastNewData());
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         // don't send an event
         // check that the listener hasn't been updated
@@ -1030,9 +1011,12 @@ public class ResultSetOutputLimitSimple {
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        env.assertListenerInvoked("s0");
-        assertNull(env.listener("s0").getLastNewData());
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertNull(listener.getLastNewData());
+            assertNull(listener.getLastOldData());
+            listener.reset();
+        });
 
         // send several events
         sendEvent(env, "YAH");
@@ -1046,9 +1030,11 @@ public class ResultSetOutputLimitSimple {
         sendTimeEvent(env, timeToCallback, currentTime);
 
         // check that the listener has been updated
-        env.assertListenerInvoked("s0");
-        Assert.assertEquals(3, env.listener("s0").getLastNewData().length);
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            assertEquals(3, listener.getLastNewData().length);
+            assertNull(listener.getLastOldData());
+        });
 
         env.undeployAll();
     }
@@ -1076,16 +1062,17 @@ public class ResultSetOutputLimitSimple {
         sendEvent(env, 2);
 
         // check update, all events present
-        env.assertListenerInvoked("s0");
-        Assert.assertEquals(2, env.listener("s0").getLastNewData().length);
-        Assert.assertEquals(1L, env.listener("s0").getLastNewData()[0].get("longBoxed"));
-        Assert.assertEquals(2L, env.listener("s0").getLastNewData()[1].get("longBoxed"));
-        assertNull(env.listener("s0").getLastOldData());
+        env.assertListener("s0", listener -> {
+            Assert.assertEquals(2, listener.getLastNewData().length);
+            Assert.assertEquals(1L, listener.getLastNewData()[0].get("longBoxed"));
+            Assert.assertEquals(2L, listener.getLastNewData()[1].get("longBoxed"));
+            assertNull(listener.getLastOldData());
+        });
 
         env.undeployAll();
     }
 
-    private static void tryAssertion34(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion34(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1100,10 +1087,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7000, 0, new Object[][]{{"IBM", 150L, 24d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion15_16(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion15_16(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1119,10 +1106,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7200, 0, new Object[][]{{"IBM", 150L, 24d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion12(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion12(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1142,10 +1129,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7000, 0, new Object[][]{{"IBM", 150L, 24d}, {"YAH", 10000L, 1d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion13_14(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1160,10 +1147,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7200, 0, new Object[][]{{"YAH", 10000L, 1d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion78(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion78(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1178,10 +1165,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7200, 0, new Object[][]{{"IBM", 150L, 24d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion56(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion56(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1196,10 +1183,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(7200, 0, new Object[][]{{"MSFT", 5000L, 9d}, {"IBM", 150L, 24d}, {"YAH", 10000L, 1d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion17IStream(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion17IStream(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1212,10 +1199,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultInsert(5900, 1, new Object[][]{{"YAH", 10500L, 1.0d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion17IRStream(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion17IRStream(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1229,10 +1216,10 @@ public class ResultSetOutputLimitSimple {
         expected.addResultRemove(6300, 0, new Object[][]{{"MSFT", 5000L, 9d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected, ResultAssertExecutionTestSelector.TEST_ONLY_AS_PROVIDED);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
-    private static void tryAssertion18(RegressionEnvironment env, String stmtText, String outputLimit) {
+    private static void tryAssertion18(RegressionEnvironment env, String stmtText, String outputLimit, AtomicInteger milestone) {
         sendTimer(env, 0);
         env.compileDeploy(stmtText).addListener("s0");
 
@@ -1247,7 +1234,7 @@ public class ResultSetOutputLimitSimple {
         expected.addResultInsert(7200, 0, new Object[][]{{"IBM", 155L, 26d}, {"YAH", 11000L, 2d}, {"IBM", 150L, 22d}, {"YAH", 11500L, 3d}, {"YAH", 10500L, 1d}});
 
         ResultAssertExecution execution = new ResultAssertExecution(stmtText, env, expected);
-        execution.execute(false);
+        execution.execute(false, milestone);
     }
 
     private static void sendTimeEvent(RegressionEnvironment env, int timeIncrement, AtomicLong currentTime) {

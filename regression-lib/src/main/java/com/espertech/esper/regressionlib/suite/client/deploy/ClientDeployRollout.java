@@ -13,17 +13,11 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil;
+import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -75,9 +69,13 @@ public class ClientDeployRollout {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
+
         private void sendAssert(RegressionEnvironment env, String stmtNameCsv) {
             env.sendEventBean(new SupportBean());
-            assertEquals(1, env.listener("s0").assertOneGetNewAndReset().get("basevar"));
+            env.assertEqualsNew("s0", "basevar", 1);
             for (String stmtName : stmtNameCsv.split(",")) {
                 EPAssertionUtil.assertProps(env.listener(stmtName).assertOneGetNewAndReset(), "basevar,child1var".split(","), new Object[]{1, 2});
             }
@@ -118,6 +116,10 @@ public class ClientDeployRollout {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class ClientDeployRolloutTwoInterdepModules implements RegressionExecution {
@@ -152,6 +154,10 @@ public class ClientDeployRollout {
             env.undeployAll();
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
+
         private void assertDeployment(RegressionEnvironment env, EPDeployment deployment, String statementName) {
             assertEquals(1, deployment.getStatements().length);
             assertEquals(statementName, deployment.getStatements()[0].getName());
@@ -160,7 +166,7 @@ public class ClientDeployRollout {
 
         private void assertSendAndReceive(RegressionEnvironment env, String value) {
             env.sendEventMap(Collections.singletonMap("p", value), "MyEvent");
-            assertEquals(value, env.listener("s0").assertOneGetNewAndReset().get("p"));
+            env.assertEqualsNew("s0", "p", value);
         }
     }
 
@@ -198,8 +204,11 @@ public class ClientDeployRollout {
     private static void assertStatementIds(RegressionEnvironment env, String nameCSV, int... statementIds) {
         String[] names = nameCSV.split(",");
         for (int i = 0; i < names.length; i++) {
-            EPStatementSPI spi = (EPStatementSPI) env.statement(names[i]);
-            assertEquals(statementIds[i], spi.getStatementId());
+            final int index = i;
+            env.assertStatement(names[i], statement -> {
+                EPStatementSPI spi = (EPStatementSPI) statement;
+                assertEquals(statementIds[index], spi.getStatementId());
+            });
         }
     }
 }

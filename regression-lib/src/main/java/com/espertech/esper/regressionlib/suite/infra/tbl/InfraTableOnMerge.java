@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.infra.tbl;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 
@@ -51,7 +51,7 @@ public class InfraTableOnMerge {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEventNew("s0", event -> assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) event.get("c0")));
 
             env.undeployAll();
         }
@@ -158,8 +158,8 @@ public class InfraTableOnMerge {
         }
 
         private void assertTables(RegressionEnvironment env, Object[][] expected) {
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("T0"), "k0,v0".split(","), expected);
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("T1"), "k1,v1".split(","), expected);
+            env.assertPropsPerRowIteratorAnyOrder("T0", "k0,v0".split(","), expected);
+            env.assertPropsPerRowIteratorAnyOrder("T1", "k1,v1".split(","), expected);
         }
     }
 
@@ -174,22 +174,22 @@ public class InfraTableOnMerge {
                 "when matched then update set v1 = intPrimitive", path);
 
             env.sendEventBean(new SupportBean("E1", 10));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("tbl"), fields, new Object[][]{{"E1", 10}});
+            env.assertPropsPerRowIterator("tbl", fields, new Object[][]{{"E1", 10}});
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 11));
-            EPAssertionUtil.assertPropsPerRow(env.iterator("tbl"), fields, new Object[][]{{"E1", 11}});
+            env.assertPropsPerRowIterator("tbl", fields, new Object[][]{{"E1", 11}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 100));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), fields, new Object[][]{{"E1", 11}, {"E2", 100}});
+            env.assertPropsPerRowIteratorAnyOrder("tbl", fields, new Object[][]{{"E1", 11}, {"E2", 100}});
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 101));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("tbl"), fields, new Object[][]{{"E1", 11}, {"E2", 101}});
+            env.assertPropsPerRowIteratorAnyOrder("tbl", fields, new Object[][]{{"E1", 11}, {"E2", 101}});
 
             env.undeployAll();
         }
@@ -259,18 +259,19 @@ public class InfraTableOnMerge {
 
     private static class InfraOnMergePlainPropsAnyKeyed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            runOnMergeInsertUpdDeleteSingleKey(env, false);
-            runOnMergeInsertUpdDeleteSingleKey(env, true);
+            AtomicInteger milestone = new AtomicInteger();
+            runOnMergeInsertUpdDeleteSingleKey(env, false, milestone);
+            runOnMergeInsertUpdDeleteSingleKey(env, true, milestone);
 
-            runOnMergeInsertUpdDeleteTwoKey(env, false);
-            runOnMergeInsertUpdDeleteTwoKey(env, true);
+            runOnMergeInsertUpdDeleteTwoKey(env, false, milestone);
+            runOnMergeInsertUpdDeleteTwoKey(env, true, milestone);
 
-            runOnMergeInsertUpdDeleteUngrouped(env, false);
-            runOnMergeInsertUpdDeleteUngrouped(env, true);
+            runOnMergeInsertUpdDeleteUngrouped(env, false, milestone);
+            runOnMergeInsertUpdDeleteUngrouped(env, true, milestone);
         }
     }
 
-    private static void runOnMergeInsertUpdDeleteUngrouped(RegressionEnvironment env, boolean soda) {
+    private static void runOnMergeInsertUpdDeleteUngrouped(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         RegressionPath path = new RegressionPath();
         String eplDeclare = "create table varaggIUD (p0 string, sumint sum(int))";
         env.compileDeploy(soda, eplDeclare, path);
@@ -281,7 +282,7 @@ public class InfraTableOnMerge {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", String.class}, {"c1", Integer.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(0));
@@ -308,7 +309,7 @@ public class InfraTableOnMerge {
         env.compileDeploy(soda, "into table varaggIUD select sum(50) as sumint from SupportBean_S1", path);
         env.sendEventBean(new SupportBean_S1(0));
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0));
         env.assertPropsNew("s0", fields, new Object[]{"E1", 50});
@@ -316,17 +317,18 @@ public class InfraTableOnMerge {
         // update for varagg
         env.sendEventBean(new SupportBean("U2", 10));
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0));
-        EventBean received = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(received, fields, new Object[]{"updated", 50});
-        EPAssertionUtil.assertPropsMap((Map) received.get("c2"), "p0,sumint".split(","), new Object[]{"updated", 50});
+        env.assertEventNew("s0", received -> {
+            EPAssertionUtil.assertProps(received, fields, new Object[]{"updated", 50});
+            EPAssertionUtil.assertPropsMap((Map) received.get("c2"), "p0,sumint".split(","), new Object[]{"updated", 50});
+        });
 
         // delete for varagg
         env.sendEventBean(new SupportBean("D3", 0));
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(0));
         env.assertPropsNew("s0", fields, new Object[]{null, null});
@@ -334,7 +336,7 @@ public class InfraTableOnMerge {
         env.undeployAll();
     }
 
-    private static void runOnMergeInsertUpdDeleteSingleKey(RegressionEnvironment env, boolean soda) {
+    private static void runOnMergeInsertUpdDeleteSingleKey(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         String[] fieldsTable = "key,p0,p1,p2,sumint".split(",");
         RegressionPath path = new RegressionPath();
         String eplDeclare = "create table varaggMIU (key int primary key, p0 string, p1 int, p2 int[], sumint sum(int))";
@@ -346,7 +348,7 @@ public class InfraTableOnMerge {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", String.class}, {"c1", Integer.class}, {"c2", Integer[].class}, {"c3", Integer.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(10));
@@ -365,7 +367,7 @@ public class InfraTableOnMerge {
 
         // merge for varagg[10]
         env.sendEventBean(new SupportBean("E1", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetNewAndReset(), fieldsTable, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, null});
+        env.assertPropsNew("merge", fieldsTable, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, null});
 
         // assert key "10"
         env.sendEventBean(new SupportBean_S0(10));
@@ -375,26 +377,25 @@ public class InfraTableOnMerge {
         env.compileDeploy(soda, "into table varaggMIU select sum(50) as sumint from SupportBean_S1 group by id", path);
         env.sendEventBean(new SupportBean_S1(10));
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10));
         env.assertPropsNew("s0", fields, new Object[]{"v1", 1000, new Integer[]{1, 2}, 50});
 
         // update for varagg[10]
         env.sendEventBean(new SupportBean("U2", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").getLastNewData()[0], fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50});
-        EPAssertionUtil.assertProps(env.listener("merge").getAndResetLastOldData()[0], fieldsTable, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, 50});
+        env.assertPropsIRPair("merge", fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50}, new Object[]{10, "v1", 1000, new Integer[]{1, 2}, 50});
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10));
         env.assertPropsNew("s0", fields, new Object[]{"v2", 2000, new Integer[]{3, 4}, 50});
 
         // delete for varagg[10]
         env.sendEventBean(new SupportBean("D3", 10));
-        EPAssertionUtil.assertProps(env.listener("merge").assertOneGetOldAndReset(), fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50});
+        env.assertPropsOld("merge", fieldsTable, new Object[]{10, "v2", 2000, new Integer[]{3, 4}, 50});
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10));
         env.assertPropsNew("s0", fields, new Object[]{null, null, null, null});
@@ -402,7 +403,7 @@ public class InfraTableOnMerge {
         env.undeployAll();
     }
 
-    private static void runOnMergeInsertUpdDeleteTwoKey(RegressionEnvironment env, boolean soda) {
+    private static void runOnMergeInsertUpdDeleteTwoKey(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         RegressionPath path = new RegressionPath();
         String eplDeclare = "create table varaggMIUD (keyOne int primary key, keyTwo string primary key, prop string)";
         env.compileDeploy(soda, eplDeclare, path);
@@ -413,7 +414,7 @@ public class InfraTableOnMerge {
 
         // assert selected column types
         Object[][] expectedAggType = new Object[][]{{"c0", Integer.class}, {"c1", String.class}, {"c2", String.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, env.statement("s0").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedAggType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         // assert no row
         env.sendEventBean(new SupportBean_S0(10, "A"));
@@ -430,12 +431,12 @@ public class InfraTableOnMerge {
             " delete";
         env.compileDeploy(soda, eplMerge, path);
         Object[][] expectedType = new Object[][]{{"keyOne", Integer.class}, {"keyTwo", String.class}, {"prop", String.class}};
-        SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, env.statement("merge").getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
+        env.assertStatement("merge", statement -> SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE));
 
         // merge for varagg[10, "A"]
         env.sendEventBean(new SupportBean("A", 10));
 
-        env.milestone(0);
+        env.milestoneInc(milestone);
 
         // assert key {"10", "A"}
         env.sendEventBean(new SupportBean_S0(10, "A"));
@@ -444,7 +445,7 @@ public class InfraTableOnMerge {
         // update for varagg[10, "A"]
         env.sendEventBean(makeSupportBean("A", 10, 1));
 
-        env.milestone(1);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10, "A"));
         env.assertPropsNew("s0", fields, new Object[]{10, "A", "updated"});
@@ -452,12 +453,12 @@ public class InfraTableOnMerge {
         // test typable output
         env.compileDeploy("@name('convert') insert into LocalBean select varaggMIUD[10, 'A'] as val0 from SupportBean_S1", path).addListener("convert");
         env.sendEventBean(new SupportBean_S1(2));
-        EPAssertionUtil.assertProps(env.listener("convert").assertOneGetNewAndReset(), "val0.keyOne".split(","), new Object[]{10});
+        env.assertPropsNew("convert", "val0.keyOne".split(","), new Object[]{10});
 
         // delete for varagg[10, "A"]
         env.sendEventBean(makeSupportBean("A", 10, -1));
 
-        env.milestone(2);
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_S0(10, "A"));
         env.assertPropsNew("s0", fields, new Object[]{null, null, null});
@@ -470,12 +471,14 @@ public class InfraTableOnMerge {
         event.put("id", id);
         event.put("x", x);
         env.sendEventMap(event, "MyEvent");
-        Double burn = (Double) env.listener("output").assertOneGetNewAndReset().get("burn");
-        if (expected == null) {
-            assertNull(burn);
-        } else {
-            assertEquals(expected, burn, 1e-10);
-        }
+        env.assertEventNew("output", output -> {
+            Double burn = (Double) output.get("burn");
+            if (expected == null) {
+                assertNull(burn);
+            } else {
+                assertEquals(expected, burn, 1e-10);
+            }
+        });
     }
 
     private static SupportBean makeSupportBean(String theString, int intPrimitive, long longPrimitive) {
@@ -487,9 +490,10 @@ public class InfraTableOnMerge {
     private static void assertResultAggRead(RegressionEnvironment env, Object[] objects, int total) {
         String[] fields = "eventset,total".split(",");
         env.sendEventBean(new SupportBean_S0(0));
-        EventBean event = env.listener("s0").assertOneGetNewAndReset();
-        EPAssertionUtil.assertProps(event, fields, new Object[]{objects, total});
-        EPAssertionUtil.assertEqualsExactOrder(new Object[]{objects[objects.length - 1]}, ((Collection) event.get("c0")).toArray());
+        env.assertEventNew("s0", event -> {
+            EPAssertionUtil.assertProps(event, fields, new Object[]{objects, total});
+            EPAssertionUtil.assertEqualsExactOrder(new Object[]{objects[objects.length - 1]}, ((Collection) event.get("c0")).toArray());
+        });
     }
 
     private static void assertKeyFound(RegressionEnvironment env, String keyCsv, boolean[] expected) {
@@ -498,7 +502,7 @@ public class InfraTableOnMerge {
             String key = split[i];
             env.sendEventBean(new SupportBean_S0(0, key));
             String expectedString = expected[i] ? key : null;
-            assertEquals("failed for key '" + key + "'", expectedString, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEventNew("s0", event -> assertEquals("failed for key '" + key + "'", expectedString, event.get("c0")));
         }
     }
 

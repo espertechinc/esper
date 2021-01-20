@@ -20,11 +20,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertPropsPerRow;
@@ -62,28 +63,28 @@ public class EPLOtherFromClauseOptional {
 
             SupportBean_S0 s0A = new SupportBean_S0(10, "A");
             env.sendEventBean(s0A);
-            assertEquals(s0A, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
-            assertEquals(s0A, env.iterator("s0").next().get("ctxs0"));
+            env.assertEqualsNew("s0", "ctxs0", s0A);
+            env.assertIterator("s0", iterator -> assertEquals(s0A, iterator.next().get("ctxs0")));
 
             env.milestone(0);
 
             SupportBean_S0 s0B = new SupportBean_S0(20, "B");
             env.sendEventBean(s0B);
-            assertEquals(s0B, env.listener("s0").assertOneGetNewAndReset().get("ctxs0"));
+            env.assertEqualsNew("s0", "ctxs0", s0B);
             assertIterator(env, "s0", s0A, s0B);
             assertIterator(env, "s1", s0A, s0B);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S1(10, "A"));
-            assertEquals(s0A, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
+            env.assertEqualsNew("s1", "ctxs0", s0A);
             assertIterator(env, "s0", s0B);
             assertIterator(env, "s1", s0B);
 
             env.milestone(2);
 
             env.sendEventBean(new SupportBean_S1(20, "A"));
-            assertEquals(s0B, env.listener("s1").assertOneGetNewAndReset().get("ctxs0"));
+            env.assertEqualsNew("s1", "ctxs0", s0B);
             assertIterator(env, "s0");
             assertIterator(env, "s1");
 
@@ -134,12 +135,16 @@ public class EPLOtherFromClauseOptional {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static class EPLOtherFromOptionalNoContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             env.compileDeploy("@name('s0') select 1 as value");
-            assertEquals(1, env.iterator("s0").next().get("value"));
+            env.assertIterator("s0", iterator -> assertEquals(1, iterator.next().get("value")));
 
             env.undeployAll();
         }
@@ -172,6 +177,10 @@ public class EPLOtherFromClauseOptional {
                     "Fire-and-forget queries without a from-clause and with context do not allow order-by");
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 
@@ -210,6 +219,10 @@ public class EPLOtherFromClauseOptional {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.FIREANDFORGET);
+        }
     }
 
     private static void runSelectFAFSimpleCol(RegressionEnvironment env, RegressionPath path, Object expected, String col) {
@@ -226,11 +239,12 @@ public class EPLOtherFromClauseOptional {
     }
 
     private static void assertIterator(RegressionEnvironment env, String name, SupportBean_S0... s0) {
-        Iterator<EventBean> it = env.iterator(name);
-        for (int i = 0; i < s0.length; i++) {
-            assertTrue(it.hasNext());
-            assertEquals(s0[i], it.next().get("ctxs0"));
-        }
-        assertFalse(it.hasNext());
+        env.assertIterator(name, it -> {
+            for (int i = 0; i < s0.length; i++) {
+                assertTrue(it.hasNext());
+                assertEquals(s0[i], it.next().get("ctxs0"));
+            }
+            assertFalse(it.hasNext());
+        });
     }
 }

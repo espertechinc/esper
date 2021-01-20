@@ -15,10 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * indexed[0].mapped('0ma').value = 0ma0
+ * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
  */
 public class SupportBeanCombinedProps implements Serializable {
     public final static String[] PROPERTIES = {"indexed", "array"};
+    private static final long serialVersionUID = 7473517296950625683L;
 
     public static SupportBeanCombinedProps makeDefaultBean() {
         NestedLevOne[] nested = new NestedLevOne[4];        // [3] left empty on purpose
@@ -44,6 +45,7 @@ public class SupportBeanCombinedProps implements Serializable {
     }
 
     public static class NestedLevOne implements Serializable {
+        private static final long serialVersionUID = 9141707141123732633L;
         private Map<String, NestedLevTwo> map = new HashMap<String, NestedLevTwo>();
 
         public NestedLevOne(String[][] keysAndValues) {
@@ -66,6 +68,7 @@ public class SupportBeanCombinedProps implements Serializable {
     }
 
     public static class NestedLevTwo implements Serializable {
+        private static final long serialVersionUID = 3711809428165212227L;
         private String value;
 
         public NestedLevTwo(String value) {

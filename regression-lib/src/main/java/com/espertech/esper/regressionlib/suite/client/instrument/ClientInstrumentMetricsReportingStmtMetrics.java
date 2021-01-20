@@ -16,8 +16,11 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.*;
 
@@ -71,6 +74,10 @@ public class ClientInstrumentMetricsReportingStmtMetrics implements RegressionEx
         assertFalse(env.listener("stmt_metrics").isInvoked());
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 
     private void tryAssertion(RegressionEnvironment env, long timestamp) {

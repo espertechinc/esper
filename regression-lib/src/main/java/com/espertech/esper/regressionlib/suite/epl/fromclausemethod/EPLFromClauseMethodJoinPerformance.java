@@ -36,7 +36,7 @@ public class EPLFromClauseMethodJoinPerformance {
     private static class EPLFromClauseMethod1Stream2HistInnerJoinPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -68,7 +68,7 @@ public class EPLFromClauseMethodJoinPerformance {
     private static class EPLFromClauseMethod1Stream2HistOuterJoinPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -103,7 +103,7 @@ public class EPLFromClauseMethodJoinPerformance {
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryIdenticalIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -129,7 +129,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 // send reset events to avoid duplicate matches
                 sendBeanInt(env, "E1", 0);
                 sendBeanInt(env, "F1", 0);
-                env.listener("s0").reset();
+                env.listenerReset("s0");
             }
             long end = System.currentTimeMillis();
             long delta = end - start;
@@ -141,7 +141,7 @@ public class EPLFromClauseMethodJoinPerformance {
     private static class EPLFromClauseMethod2Stream1HistTwoSidedEntryMixedIndex implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -167,7 +167,7 @@ public class EPLFromClauseMethodJoinPerformance {
                 // send reset events to avoid duplicate matches
                 sendBeanInt(env, "E1", 0);
                 sendBeanInt(env, "F1", 0);
-                env.listener("s0").reset();
+                env.listenerReset("s0");
             }
             long end = System.currentTimeMillis();
             long delta = end - start;

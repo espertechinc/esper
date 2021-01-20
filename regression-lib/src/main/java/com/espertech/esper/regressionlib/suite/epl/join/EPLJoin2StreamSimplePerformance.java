@@ -38,7 +38,7 @@ public class EPLJoin2StreamSimplePerformance {
     private static class EPLJoinPerformanceJoinNoResults implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -66,7 +66,7 @@ public class EPLJoin2StreamSimplePerformance {
     private static class EPLJoinJoinPerformanceStreamA implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -85,7 +85,7 @@ public class EPLJoin2StreamSimplePerformance {
             long endTime = System.currentTimeMillis();
             log.info(methodName + " delta=" + (endTime - startTime));
 
-            assertEquals(1, env.listener("s0").getLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(1, listener.getLastNewData().length));
             // Stay below 50 ms
             assertTrue((endTime - startTime) < 50);
             env.undeployAll();
@@ -95,7 +95,7 @@ public class EPLJoin2StreamSimplePerformance {
     private static class EPLJoinJoinPerformanceStreamB implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -111,13 +111,13 @@ public class EPLJoin2StreamSimplePerformance {
 
             long startTime = System.currentTimeMillis();
 
-            env.listener("s0").reset();
+            env.listenerReset("s0");
             sendEvent(env, makeMarketEvent("IBM_" + 10));
 
             long endTime = System.currentTimeMillis();
             log.info(methodName + " delta=" + (endTime - startTime));
 
-            assertEquals(1, env.listener("s0").getLastNewData().length);
+            env.assertListener("s0", listener -> assertEquals(1, listener.getLastNewData().length));
             // Stay below 50 ms
             assertTrue((endTime - startTime) < 25);
             env.undeployAll();

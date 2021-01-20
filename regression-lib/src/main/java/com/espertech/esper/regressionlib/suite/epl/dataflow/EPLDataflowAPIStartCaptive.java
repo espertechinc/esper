@@ -17,6 +17,9 @@ import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportCaptu
 import com.espertech.esper.common.internal.epl.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
+
+import java.util.EnumSet;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -73,5 +76,9 @@ public class EPLDataflowAPIStartCaptive implements RegressionExecution {
         env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "HelloWorldDataFlow");
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.DATAFLOW);
     }
 }

@@ -20,15 +20,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST1;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST2;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import junit.framework.TestCase;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 public class EPLSubselectAggregatedSingleValue {
     public static List<RegressionExecution> executions() {
@@ -344,7 +341,7 @@ public class EPLSubselectAggregatedSingleValue {
             epl = "@name('s0') select p00, " +
                 "(select sum(intPrimitive) from SupportBean#keepall where theString = s0.p00) as sump00 " +
                 "from SupportBean_S0 as s0";
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", milestone.getAndIncrement());
 
             String[] fields = "p00,sump00".split(",");
 
@@ -418,7 +415,7 @@ public class EPLSubselectAggregatedSingleValue {
             env.sendEventBean(new SupportBean_ST2("ST2", "G", 0));
             env.sendEventBean(new SupportBean_ST0("ST0", -1L));
             env.sendEventBean(new SupportBean_ST1("ST1", 20L));
-            TestCase.assertEquals(13, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", 13);
 
             env.undeployAll();
             epl = "@name('s0') select (" +
@@ -431,7 +428,7 @@ public class EPLSubselectAggregatedSingleValue {
             env.sendEventBean(new SupportBean_ST2("ST2", "G", 0));
             env.sendEventBean(new SupportBean_ST0("ST0", -1L));
             env.sendEventBean(new SupportBean_ST1("ST1", 20L));
-            TestCase.assertEquals(21, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", 21);
 
             env.undeployAll();
         }
@@ -491,7 +488,7 @@ public class EPLSubselectAggregatedSingleValue {
             env.assertListenerNotInvoked("s0");
 
             Object theEvent = sendEventMD(env, "IBM", 3);
-            Assert.assertEquals(theEvent, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+            env.assertEventNew("s0", event -> assertEquals(theEvent, event.getUnderlying()));
 
             env.undeployAll();
         }
@@ -503,15 +500,15 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventS0(env, 1);
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             sendEventS1(env, 100);
             sendEventS0(env, 2);
-            Assert.assertEquals(102, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 102);
 
             sendEventS1(env, 30);
             sendEventS0(env, 3);
-            Assert.assertEquals(103, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 103);
 
             env.undeployAll();
         }
@@ -523,27 +520,27 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventS0(env, 1);
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             sendEventS1(env, 100);
             sendEventS0(env, 2);
-            Assert.assertEquals(100, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 100);
 
             sendEventS1(env, 200);
             sendEventS0(env, 3);
-            Assert.assertEquals(200, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 200);
 
             sendEventS1(env, 190);
             sendEventS0(env, 4);
-            Assert.assertEquals(200, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 200);
 
             sendEventS1(env, 180);
             sendEventS0(env, 5);
-            Assert.assertEquals(200, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 200);
 
             sendEventS1(env, 170);   // note event leaving window
             sendEventS0(env, 6);
-            Assert.assertEquals(190, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 190);
 
             env.undeployAll();
         }
@@ -555,26 +552,24 @@ public class EPLSubselectAggregatedSingleValue {
             env.compileDeployAddListenerMileZero(epl, "s0");
 
             sendEventS0(env, 1);
-            Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", null);
 
             sendEventS1(env, 100);
             sendEventS0(env, 2);
-            Assert.assertEquals(200.0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 200.0);
 
             sendEventS1(env, 200);
             sendEventS0(env, 3);
-            Assert.assertEquals(350.0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 350.0);
 
-            SupportListener listener = env.listener("s0");
             env.undeployAll();
             sendEventS1(env, 10000);
             sendEventS0(env, 4);
-            assertFalse(listener.isInvoked());
-            env.compileDeployAddListenerMileZero(epl, "s0");
+            env.compileDeployAddListenerMile(epl, "s0", 1);
 
             sendEventS1(env, 10);
             sendEventS0(env, 5);
-            Assert.assertEquals(20.0, env.listener("s0").assertOneGetNewAndReset().get("value"));
+            env.assertEqualsNew("s0", "value", 20.0);
 
             env.undeployAll();
         }
@@ -582,31 +577,31 @@ public class EPLSubselectAggregatedSingleValue {
 
     private static void runAssertionSumFilter(RegressionEnvironment env) {
         sendEventS0(env, 1);
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", null);
 
         sendEventS1(env, 1);
         sendEventS0(env, 2);
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", null);
 
         sendEventS1(env, 0);
         sendEventS0(env, 3);
-        Assert.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", null);
 
         sendEventS1(env, -1);
         sendEventS0(env, 4);
-        Assert.assertEquals(-1, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", -1);
 
         sendEventS1(env, -3);
         sendEventS0(env, 5);
-        Assert.assertEquals(-4, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", -4);
 
         sendEventS1(env, -5);
         sendEventS0(env, 6);
-        Assert.assertEquals(-9, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", -9);
 
         sendEventS1(env, -2);   // note event leaving window
         sendEventS0(env, 6);
-        Assert.assertEquals(-10, env.listener("s0").assertOneGetNewAndReset().get("value"));
+        env.assertEqualsNew("s0", "value", -10);
     }
 
     private static void tryAssertion2StreamRangeCoercion(RegressionEnvironment env, AtomicInteger milestone, String epl, boolean isHasRangeReversal) {
@@ -616,52 +611,52 @@ public class EPLSubselectAggregatedSingleValue {
         env.sendEventBean(new SupportBean_ST1("ST11", 20L));
         env.sendEventBean(new SupportBean("E1", 9));
         env.sendEventBean(new SupportBean("E1", 21));
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi")); // range 10 to 20
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean("E1", 13));
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_ST0("ST0_1", 10L));  // range 10 to 20
-        TestCase.assertEquals(13, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 13);
 
         env.sendEventBean(new SupportBean_ST1("ST1_1", 13L));  // range 10 to 13
-        TestCase.assertEquals(13, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 13);
 
         env.sendEventBean(new SupportBean_ST0("ST0_2", 13L));  // range 13 to 13
-        TestCase.assertEquals(13, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 13);
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("E2", 14));
         env.sendEventBean(new SupportBean("E3", 12));
         env.sendEventBean(new SupportBean_ST1("ST1_3", 13L));  // range 13 to 13
-        TestCase.assertEquals(13, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 13);
 
         env.sendEventBean(new SupportBean_ST1("ST1_4", 20L));  // range 13 to 20
-        TestCase.assertEquals(27, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 27);
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_ST0("ST0_3", 11L));  // range 11 to 20
-        TestCase.assertEquals(39, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 39);
 
         env.sendEventBean(new SupportBean_ST0("ST0_4", null));  // range null to 16
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_ST1("ST1_5", null));  // range null to null
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST0("ST0_5", 20L));  // range 20 to null
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST1("ST1_6", 13L));  // range 20 to 13
         if (isHasRangeReversal) {
-            TestCase.assertEquals(27, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", 27);
         } else {
-            TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", null);
         }
 
         env.undeployAll();
@@ -678,37 +673,37 @@ public class EPLSubselectAggregatedSingleValue {
         env.sendEventBean(new SupportBean_ST2("ST21", "X", 0));
         env.sendEventBean(new SupportBean_ST0("ST01", 10L));
         env.sendEventBean(new SupportBean_ST1("ST11", 20L));
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi")); // range 10 to 20
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST2("ST22", "G", 0));
-        TestCase.assertEquals(30, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 30);
 
         env.sendEventBean(new SupportBean_ST0("ST01", 0L));    // range 0 to 20
-        TestCase.assertEquals(39, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 39);
 
         env.sendEventBean(new SupportBean_ST2("ST21", null, 0));
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST2("ST21", "G", 0));
-        TestCase.assertEquals(39, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 39);
 
         env.sendEventBean(new SupportBean_ST1("ST11", 100L));   // range 0 to 100
-        TestCase.assertEquals(60, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", 60);
 
         env.sendEventBean(new SupportBean_ST1("ST11", null));   // range 0 to null
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST0("ST01", null));    // range null to null
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST1("ST11", -1L));   // range null to -1
-        TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+        env.assertEqualsNew("s0", "sumi", null);
 
         env.sendEventBean(new SupportBean_ST0("ST01", 10L));    // range 10 to -1
         if (isHasRangeReversal) {
-            TestCase.assertEquals(8, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", 8);
         } else {
-            TestCase.assertEquals(null, env.listener("s0").assertOneGetNewAndReset().get("sumi"));
+            env.assertEqualsNew("s0", "sumi", null);
         }
 
         env.undeployAll();
@@ -768,12 +763,12 @@ public class EPLSubselectAggregatedSingleValue {
 
     private static void sendEventS0Assert(RegressionEnvironment env, int id, Object expected) {
         sendEventS0(env, id, null);
-        Assert.assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static void sendEventS0Assert(RegressionEnvironment env, String p00, Object expected) {
         sendEventS0(env, 0, p00);
-        Assert.assertEquals(expected, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+        env.assertEqualsNew("s0", "c0", expected);
     }
 
     private static void sendEventS0Assert(RegressionEnvironment env, String[] fields, Object[] expected) {

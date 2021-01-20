@@ -41,14 +41,16 @@ public class ClientBasicLengthWindow implements RegressionExecution {
 
     private void sendAssertIR(RegressionEnvironment env, String theString, SupportBean rstream) {
         SupportBean sb = sendBean(env, theString);
-        UniformPair<EventBean> pair = env.listener("s0").assertPairGetIRAndReset();
-        assertEquals(rstream, pair.getSecond().getUnderlying());
-        assertSame(sb, pair.getFirst().getUnderlying());
+        env.assertListener("s0", listener -> {
+            UniformPair<EventBean> pair = listener.assertPairGetIRAndReset();
+            assertEquals(rstream, pair.getSecond().getUnderlying());
+            assertSame(sb, pair.getFirst().getUnderlying());
+        });
     }
 
     private SupportBean sendAssertNoRStream(RegressionEnvironment env, String theString) {
         SupportBean sb = sendBean(env, theString);
-        assertSame(sb, env.listener("s0").assertOneGetNewAndReset().getUnderlying());
+        env.assertEventNew("s0", event -> assertEquals(sb, event.getUnderlying()));
         return sb;
     }
 

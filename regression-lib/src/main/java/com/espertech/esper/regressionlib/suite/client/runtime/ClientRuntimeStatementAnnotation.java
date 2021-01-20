@@ -21,15 +21,13 @@ import com.espertech.esper.compiler.client.EPCompileExceptionItem;
 import com.espertech.esper.compiler.client.EPCompileExceptionSyntaxItem;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.client.*;
 import com.espertech.esper.runtime.client.EPStatement;
 import junit.framework.TestCase;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.toObjectArray;
 import static com.espertech.esper.common.client.scopetest.ScopeTestHelper.assertTrue;
@@ -54,11 +52,12 @@ public class ClientRuntimeStatementAnnotation {
     public static class ClientRuntimeStatementAnnotationRecursive implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@MyAnnotationAPIEventType create schema ABC();\n" +
-                        "@name('s0') select * from ABC;\n";
+                "@name('s0') select * from ABC;\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventMap(Collections.emptyMap(), "ABC");
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", event -> {
+            });
 
             env.undeployAll();
         }
@@ -90,34 +89,36 @@ public class ClientRuntimeStatementAnnotation {
                 "from SupportBean";
             env.compileDeploy(stmtText);
 
-            Annotation[] annotations = env.statement("STMTONE").getAnnotations();
-            annotations = sortAlpha(annotations);
-            assertEquals(6, annotations.length);
+            env.assertStatement("STMTONE", statement -> {
+                Annotation[] annotations = statement.getAnnotations();
+                annotations = sortAlpha(annotations);
+                assertEquals(6, annotations.length);
 
-            assertEquals(MyAnnotationSimple.class, annotations[0].annotationType());
-            assertEquals("abc", ((MyAnnotationValue) annotations[1]).value());
-            assertEquals("XYZ", ((MyAnnotationValueDefaulted) annotations[2]).value());
-            assertEquals("STMTONE", ((Name) annotations[5]).value());
+                assertEquals(MyAnnotationSimple.class, annotations[0].annotationType());
+                assertEquals("abc", ((MyAnnotationValue) annotations[1]).value());
+                assertEquals("XYZ", ((MyAnnotationValueDefaulted) annotations[2]).value());
+                assertEquals("STMTONE", ((Name) annotations[5]).value());
 
-            MyAnnotationValueEnum enumval = (MyAnnotationValueEnum) annotations[3];
-            assertEquals(SupportEnum.ENUM_VALUE_2, enumval.supportEnumDef());
-            assertEquals(SupportEnum.ENUM_VALUE_3, enumval.supportEnum());
+                MyAnnotationValueEnum enumval = (MyAnnotationValueEnum) annotations[3];
+                assertEquals(SupportEnum.ENUM_VALUE_2, enumval.supportEnumDef());
+                assertEquals(SupportEnum.ENUM_VALUE_3, enumval.supportEnum());
 
-            MyAnnotationValuePair pair = (MyAnnotationValuePair) annotations[4];
-            assertEquals("a", pair.stringVal());
-            assertEquals(-1, pair.intVal());
-            assertEquals(2L, pair.longVal());
-            assertEquals(true, pair.booleanVal());
-            assertEquals('x', pair.charVal());
-            assertEquals(10, pair.byteVal());
-            assertEquals(20, pair.shortVal());
-            assertEquals(2.5, pair.doubleVal());
-            assertEquals("def", pair.stringValDef());
-            assertEquals(100, pair.intValDef());
-            assertEquals(200L, pair.longValDef());
-            assertEquals(true, pair.booleanValDef());
-            assertEquals('D', pair.charValDef());
-            assertEquals(1.1, pair.doubleValDef());
+                MyAnnotationValuePair pair = (MyAnnotationValuePair) annotations[4];
+                assertEquals("a", pair.stringVal());
+                assertEquals(-1, pair.intVal());
+                assertEquals(2L, pair.longVal());
+                assertEquals(true, pair.booleanVal());
+                assertEquals('x', pair.charVal());
+                assertEquals(10, pair.byteVal());
+                assertEquals(20, pair.shortVal());
+                assertEquals(2.5, pair.doubleVal());
+                assertEquals("def", pair.stringValDef());
+                assertEquals(100, pair.intValDef());
+                assertEquals(200L, pair.longValDef());
+                assertEquals(true, pair.booleanValDef());
+                assertEquals('D', pair.charValDef());
+                assertEquals(1.1, pair.doubleValDef());
+            });
 
             env.undeployAll();
 
@@ -127,14 +128,13 @@ public class ClientRuntimeStatementAnnotation {
             String textFormatted = model.toEPL(new EPStatementFormatter(true));
             assertEquals(stmtTextFormatted, textFormatted);
             env.compileDeploy(model).addListener("STMTONE");
-            assertEquals(6, env.statement("STMTONE").getAnnotations().length);
+            env.assertStatement("STMTONE", statement -> assertEquals(6, statement.getAnnotations().length));
             env.undeployAll();
 
             // test array
             stmtText = "@MyAnnotationValueArray(value={1,2,3},intArray={4,5},doubleArray={},stringArray={'X'}) @name('s0') select * from SupportBean";
             env.compileDeploy(stmtText);
 
-            env.statement("s0").getAnnotations();
             assertStatement(env);
             env.undeployAll();
 
@@ -205,6 +205,10 @@ public class ClientRuntimeStatementAnnotation {
             tryInvalidAnnotation(env, "@Hint('index') select * from Bean", false,
                 "Failed to process statement annotations: Hint 'INDEX' requires additional parameters in parentheses [@Hint('index') select * from Bean]");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     public static class ClientRuntimeStatementAnnotationAppNested implements RegressionExecution {
@@ -227,15 +231,17 @@ public class ClientRuntimeStatementAnnotation {
                     "@name('s0') select * from SupportBean";
             env.compileDeploy(stmtText);
 
-            Annotation[] annotations = env.statement("s0").getAnnotations();
-            annotations = sortAlpha(annotations);
-            assertEquals(2, annotations.length);
+            env.assertStatement("s0", statement -> {
+                Annotation[] annotations = statement.getAnnotations();
+                annotations = sortAlpha(annotations);
+                assertEquals(2, annotations.length);
 
-            MyAnnotationNested nested = (MyAnnotationNested) annotations[0];
-            assertNotNull(nested.nestableSimple());
-            TestCase.assertTrue(Arrays.deepEquals(toObjectArray(nested.nestableValues().arr()), new Object[]{2, 1}));
-            assertEquals(999, nested.nestableValues().val());
-            assertEquals("CDF", nested.nestableNestable().value());
+                MyAnnotationNested nested = (MyAnnotationNested) annotations[0];
+                assertNotNull(nested.nestableSimple());
+                TestCase.assertTrue(Arrays.deepEquals(toObjectArray(nested.nestableValues().arr()), new Object[]{2, 1}));
+                assertEquals(999, nested.nestableValues().val());
+                assertEquals("CDF", nested.nestableNestable().value());
+            });
 
             env.undeployAll();
         }
@@ -245,15 +251,17 @@ public class ClientRuntimeStatementAnnotation {
             String stmtText = "@MyAnnotationWArrayAndClass(priorities = {@Priority(1), @Priority(3)}, classOne = java.lang.String.class, classTwo = Integer.class) @name('s0') select * from SupportBean";
             env.compileDeploy(stmtText);
 
-            Annotation[] annotations = env.statement("s0").getAnnotations();
-            annotations = sortAlpha(annotations);
-            assertEquals(2, annotations.length);
+            env.assertStatement("s0", statement -> {
+                Annotation[] annotations = statement.getAnnotations();
+                annotations = sortAlpha(annotations);
+                assertEquals(2, annotations.length);
 
-            MyAnnotationWArrayAndClass nested = (MyAnnotationWArrayAndClass) annotations[0];
-            assertEquals(1, nested.priorities()[0].value());
-            assertEquals(3, nested.priorities()[1].value());
-            assertEquals(String.class, nested.classOne());
-            assertEquals(Integer.class, nested.classTwo());
+                MyAnnotationWArrayAndClass nested = (MyAnnotationWArrayAndClass) annotations[0];
+                assertEquals(1, nested.priorities()[0].value());
+                assertEquals(3, nested.priorities()[1].value());
+                assertEquals(String.class, nested.classOne());
+                assertEquals(Integer.class, nested.classTwo());
+            });
 
             env.undeployAll();
         }
@@ -265,21 +273,23 @@ public class ClientRuntimeStatementAnnotation {
 
             epl = "@Name('MyTestStmt') @Description('MyTestStmt description') @Tag(name=\"UserId\", value=\"value\") select * from SupportBean";
             env.compileDeploy(epl).addListener("MyTestStmt");
-            tryAssertion(env.statement("MyTestStmt"));
-            Name name = (Name) AnnotationUtil.findAnnotation(env.statement("MyTestStmt").getAnnotations(), Name.class);
-            assertEquals("MyTestStmt", name.value());
+            env.assertStatement("MyTestStmt", statement -> {
+                tryAssertion(statement);
+                Name name = (Name) AnnotationUtil.findAnnotation(statement.getAnnotations(), Name.class);
+                assertEquals("MyTestStmt", name.value());
+            });
             env.undeployAll();
 
             // try lowercase
             epl = "@name('MyTestStmt') @description('MyTestStmt description') @tag(name=\"UserId\", value=\"value\") select * from SupportBean";
             env.compileDeploy(epl).addListener("MyTestStmt");
-            tryAssertion(env.statement("MyTestStmt"));
+            env.assertStatement("MyTestStmt", ClientRuntimeStatementAnnotation::tryAssertion);
             env.undeployAll();
 
             // try fully-qualified
             epl = "@" + Name.class.getName() + "('MyTestStmt') @Description('MyTestStmt description') @Tag(name=\"UserId\", value=\"value\") select * from SupportBean";
             env.compileDeploy(epl).addListener("MyTestStmt");
-            tryAssertion(env.statement("MyTestStmt"));
+            env.assertStatement("MyTestStmt", ClientRuntimeStatementAnnotation::tryAssertion);
             env.undeployAll();
 
             // hint tests
@@ -290,28 +300,32 @@ public class ClientRuntimeStatementAnnotation {
             env.compileDeploy("@Hint('ITERATE_ONLY,DISABLE_RECLAIM_GROUP,ITERATE_ONLY') select * from SupportBean");
             env.compileDeploy("@Hint('  iterate_only ') select * from SupportBean");
 
-            Annotation[] annos = env.compileDeploy("@Hint('DISABLE_RECLAIM_GROUP') @name('s0') select * from SupportBean").statement("s0").getAnnotations();
-            assertEquals("DISABLE_RECLAIM_GROUP", HintEnum.DISABLE_RECLAIM_GROUP.getHint(annos).value());
+            env.compileDeploy("@Hint('DISABLE_RECLAIM_GROUP') @name('s0') select * from SupportBean");
+            env.assertStatement("s0", statement -> assertEquals("DISABLE_RECLAIM_GROUP", HintEnum.DISABLE_RECLAIM_GROUP.getHint(statement.getAnnotations()).value()));
 
-            annos = env.compileDeploy("@Hint('ITERATE_ONLY,ITERATE_ONLY,DISABLE_RECLAIM_GROUP,ITERATE_ONLY') @name('s1') select * from SupportBean").statement("s1").getAnnotations();
-            assertEquals("ITERATE_ONLY,ITERATE_ONLY,DISABLE_RECLAIM_GROUP,ITERATE_ONLY", HintEnum.DISABLE_RECLAIM_GROUP.getHint(annos).value());
+            env.compileDeploy("@Hint('ITERATE_ONLY,ITERATE_ONLY,DISABLE_RECLAIM_GROUP,ITERATE_ONLY') @name('s1') select * from SupportBean");
+            env.assertStatement("s1", statement -> assertEquals("ITERATE_ONLY,ITERATE_ONLY,DISABLE_RECLAIM_GROUP,ITERATE_ONLY", HintEnum.DISABLE_RECLAIM_GROUP.getHint(statement.getAnnotations()).value()));
 
-            annos = env.compileDeploy("@Hint('ITERATE_ONLY,reclaim_group_aged=10') @name('s2') select * from SupportBean").statement("s2").getAnnotations();
-            Hint hint = HintEnum.RECLAIM_GROUP_AGED.getHint(annos);
-            assertEquals("10", HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(hint));
+            env.compileDeploy("@Hint('ITERATE_ONLY,reclaim_group_aged=10') @name('s2') select * from SupportBean");
+            env.assertStatement("s2", statement -> {
+                Hint hint = HintEnum.RECLAIM_GROUP_AGED.getHint(statement.getAnnotations());
+                assertEquals("10", HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(hint));
+            });
 
-            annos = env.compileDeploy("@Hint('reclaim_group_aged=11') @name('s3') select * from SupportBean").statement("s3").getAnnotations();
-            hint = HintEnum.RECLAIM_GROUP_AGED.getHint(annos);
-            assertEquals("11", HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(hint));
+            env.compileDeploy("@Hint('reclaim_group_aged=11') @name('s3') select * from SupportBean");
+            env.assertStatement("s3", statement -> {
+                Hint hint = HintEnum.RECLAIM_GROUP_AGED.getHint(statement.getAnnotations());
+                assertEquals("11", HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(hint));
+            });
 
-            annos = env.compileDeploy("@Hint('index(one, two)') @name('s4') select * from SupportBean").statement("s4").getAnnotations();
-            assertEquals("one, two", HintEnum.INDEX.getHintAssignedValues(annos).get(0));
+            env.compileDeploy("@Hint('index(one, two)') @name('s4') select * from SupportBean");
+            env.assertStatement("s4", statement -> assertEquals("one, two", HintEnum.INDEX.getHintAssignedValues(statement.getAnnotations()).get(0)));
 
             env.undeployAll();
 
             // NoLock
             env.compileDeploy("@name('s0') @NoLock select * from SupportBean");
-            assertEquals(1, AnnotationUtil.findAnnotations(env.statement("s0").getAnnotations(), NoLock.class).size());
+            env.assertStatement("s0", statement -> assertEquals(1, AnnotationUtil.findAnnotations(statement.getAnnotations(), NoLock.class).size()));
 
             env.undeployAll();
         }
@@ -327,8 +341,10 @@ public class ClientRuntimeStatementAnnotation {
 
         private void tryAssertionNoClassNameRequired(RegressionEnvironment env, SupportEnum expected, String text) {
             env.compileDeploy("@MyAnnotationValueEnum(supportEnum = " + text + ") @name('s0') select * from SupportBean");
-            MyAnnotationValueEnum anno = (MyAnnotationValueEnum) env.statement("s0").getAnnotations()[0];
-            assertEquals(expected, anno.supportEnum());
+            env.assertStatement("s0", statement -> {
+                MyAnnotationValueEnum anno = (MyAnnotationValueEnum) statement.getAnnotations()[0];
+                assertEquals(expected, anno.supportEnum());
+            });
             env.undeployAll();
         }
     }
@@ -365,14 +381,16 @@ public class ClientRuntimeStatementAnnotation {
     }
 
     private static void assertStatement(RegressionEnvironment env) {
-        assertEquals(2, env.statement("s0").getAnnotations().length);
+        env.assertStatement("s0", statement -> {
+            assertEquals(2, statement.getAnnotations().length);
 
-        MyAnnotationValueArray array = (MyAnnotationValueArray) env.statement("s0").getAnnotations()[0];
-        assertTrue(Arrays.deepEquals(toObjectArray(array.value()), new Object[]{1L, 2L, 3L}));
-        assertTrue(Arrays.deepEquals(toObjectArray(array.intArray()), new Object[]{4, 5}));
-        assertTrue(Arrays.deepEquals(toObjectArray(array.doubleArray()), new Object[]{}));
-        assertTrue(Arrays.deepEquals(toObjectArray(array.stringArray()), new Object[]{"X"}));
-        assertTrue(Arrays.deepEquals(toObjectArray(array.stringArrayDef()), new Object[]{"XYZ"}));
+            MyAnnotationValueArray array = (MyAnnotationValueArray) statement.getAnnotations()[0];
+            assertTrue(Arrays.deepEquals(toObjectArray(array.value()), new Object[]{1L, 2L, 3L}));
+            assertTrue(Arrays.deepEquals(toObjectArray(array.intArray()), new Object[]{4, 5}));
+            assertTrue(Arrays.deepEquals(toObjectArray(array.doubleArray()), new Object[]{}));
+            assertTrue(Arrays.deepEquals(toObjectArray(array.stringArray()), new Object[]{"X"}));
+            assertTrue(Arrays.deepEquals(toObjectArray(array.stringArrayDef()), new Object[]{"XYZ"}));
+        });
     }
 
     private static void tryAssertion(EPStatement stmt) {

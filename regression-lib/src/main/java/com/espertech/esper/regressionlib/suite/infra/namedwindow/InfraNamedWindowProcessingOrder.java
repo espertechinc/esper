@@ -26,7 +26,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 
 import static org.apache.avro.SchemaBuilder.record;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"
@@ -55,15 +55,15 @@ public class InfraNamedWindowProcessingOrder {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStartValueEvent.class) + " create schema StartValueEvent as (dummy string);\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestForwardEvent.class) + " create schema TestForwardEvent as (prop1 string);\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestInputEvent.class) + " create schema TestInputEvent as (dummy string);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStartValueEvent.class) + " @buseventtype create schema StartValueEvent as (dummy string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestForwardEvent.class) + " @buseventtype create schema TestForwardEvent as (prop1 string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestInputEvent.class) + " @buseventtype create schema TestInputEvent as (dummy string);\n";
             epl += "insert into TestForwardEvent select'V1' as prop1 from TestInputEvent;\n";
             epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNamedWin.class) + " create window NamedWin#unique(prop1) (prop1 string, prop2 string);\n";
             epl += "insert into NamedWin select 'V1' as prop1, 'O1' as prop2 from StartValueEvent;\n";
             epl += "on TestForwardEvent update NamedWin as work set prop2 = 'U1' where work.prop1 = 'V1';\n";
             epl += "@name('select') select irstream prop1, prop2 from NamedWin;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("select");
+            env.compileDeploy(epl, new RegressionPath()).addListener("select");
 
             String[] fields = "prop1,prop2".split(",");
             if (eventRepresentationEnum.isObjectArrayEvent()) {
@@ -71,29 +71,32 @@ public class InfraNamedWindowProcessingOrder {
             } else if (eventRepresentationEnum.isMapEvent()) {
                 env.sendEventMap(new HashMap<String, Object>(), "StartValueEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "StartValueEvent");
+                env.sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "StartValueEvent");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.eventService().sendEventJson("{}", "StartValueEvent");
+                env.sendEventJson("{}", "StartValueEvent");
             } else {
                 fail();
             }
 
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"V1", "O1"});
+            env.assertPropsNew("select", fields, new Object[]{"V1", "O1"});
 
             if (eventRepresentationEnum.isObjectArrayEvent()) {
                 env.sendEventObjectArray(new Object[]{"dummyValue"}, "TestInputEvent");
             } else if (eventRepresentationEnum.isMapEvent()) {
                 env.sendEventMap(new HashMap<String, Object>(), "TestInputEvent");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                env.eventService().sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "TestInputEvent");
+                env.sendEventAvro(new GenericData.Record(record("soemthing").fields().endRecord()), "TestInputEvent");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.eventService().sendEventJson("{}", "TestInputEvent");
+                env.sendEventJson("{}", "TestInputEvent");
             } else {
                 fail();
             }
 
-            EPAssertionUtil.assertProps(env.listener("select").getLastOldData()[0], fields, new Object[]{"V1", "O1"});
-            EPAssertionUtil.assertProps(env.listener("select").getAndResetLastNewData()[0], fields, new Object[]{"V1", "U1"});
+            env.assertListener("select", listener -> {
+                EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"V1", "O1"});
+                EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[0], fields, new Object[]{"V1", "U1"});
+            });
+
             env.undeployAll();
         }
 
@@ -115,16 +118,16 @@ public class InfraNamedWindowProcessingOrder {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 7));
-            assertFalse("E1", env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E2", 8));
-            assertEquals("E2", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E2");
 
             env.sendEventBean(new SupportBean("E3", 5));
-            assertFalse("E3", env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             env.sendEventBean(new SupportBean("E4", 6));
-            assertEquals("E4", env.listener("s0").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("s0", "theString", "E4");
 
             env.undeployAll();
         }

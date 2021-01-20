@@ -12,6 +12,8 @@ package com.espertech.esper.regressionlib.support.bean;
 
 public class SupportTimeStartEndB extends SupportTimeStartBase {
 
+    private static final long serialVersionUID = 7297617834104360431L;
+
     public SupportTimeStartEndB(String key, String datestr, long duration) {
         super(key, datestr, duration);
     }

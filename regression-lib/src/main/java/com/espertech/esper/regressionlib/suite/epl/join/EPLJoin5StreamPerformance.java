@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 public class EPLJoin5StreamPerformance implements RegressionExecution {
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
     }
 
     public void run(RegressionEnvironment env) {
@@ -57,11 +57,13 @@ public class EPLJoin5StreamPerformance implements RegressionExecution {
         assertTrue((endTime - startTime) < 1500);
 
         // test if join returns data
-        assertNull(env.listener("s0").getLastNewData());
-        String[] propertyValues = new String[]{"x", "x", "x", "x", "x"};
-        int[] ids = new int[]{1, 2, 3, 4, 5};
-        sendEvents(env, ids, propertyValues);
-        assertEventsReceived(env.listener("s0"), ids);
+        env.assertListener("s0", listener -> {
+            assertNull(listener.getLastNewData());
+            String[] propertyValues = new String[]{"x", "x", "x", "x", "x"};
+            int[] ids = new int[]{1, 2, 3, 4, 5};
+            sendEvents(env, ids, propertyValues);
+            assertEventsReceived(listener, ids);
+        });
 
         env.undeployAll();
     }

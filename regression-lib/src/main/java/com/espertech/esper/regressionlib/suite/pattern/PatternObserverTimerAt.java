@@ -18,14 +18,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import org.junit.Assert;
 
 import java.util.*;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class PatternObserverTimerAt {
 
@@ -325,10 +323,7 @@ public class PatternObserverTimerAt {
             sendTimer(cal.getTimeInMillis(), env);
 
             EPCompiled compiled = env.compile(expression);
-            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(prepared -> {
-                prepared.setObject(1, 0);
-                prepared.setObject(2, 8);
-            }));
+            env.deploy(compiled, new DeploymentOptions().setStatementSubstitutionParameter(new SupportPortableDeploySubstitutionParams(1, 0, 2, 8)));
             env.addListener("s0");
 
             tryAssertion(env);
@@ -647,11 +642,11 @@ public class PatternObserverTimerAt {
             // send right-before time
             long nextLong = DateTime.parseDefaultMSec(next);
             env.advanceTime(nextLong - 1001);
-            assertFalse("unexpected callback at " + next, env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // send right-after time
             env.advanceTime(nextLong + 1000);
-            assertTrue("missing callback at " + next, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
         }
     }
 
@@ -670,12 +665,12 @@ public class PatternObserverTimerAt {
             long nextLong = DateTime.parseDefaultMSec(next);
             env.advanceTime(nextLong - 1);
             // Comment-me-in: System.out.println("Advance to " + DateTime.print(nextLong - 1));
-            assertFalse("unexpected callback at " + next, env.listener("s0").isInvoked());
+            env.assertListenerNotInvoked("s0");
 
             // send right-after time
             env.advanceTime(nextLong);
             // Comment-me-in: System.out.println("Advance to " + DateTime.print(nextLong));
-            assertTrue("missing callback at " + next, env.listener("s0").getAndClearIsInvoked());
+            env.assertListenerInvoked("s0");
         }
     }
 
@@ -693,23 +688,28 @@ public class PatternObserverTimerAt {
             cal.add(Calendar.MINUTE, 1);
             sendTimer(cal.getTimeInMillis(), env);
 
-            if (env.listener("s0").getAndClearIsInvoked()) {
-                // System.out.println("invoked at calendar " + cal.getTime().toString());
-                invocations.add(cal.getTime().toString());
-            }
+            env.assertListener("s0", listener -> {
+                if (listener.getAndClearIsInvoked()) {
+                    // System.out.println("invoked at calendar " + cal.getTime().toString());
+                    invocations.add(cal.getTime().toString());
+                }
+            });
         }
-        String[] expectedResult = new String[5];
-        cal.set(2008, 7, 4, 8, 0, 0); //"Mon Aug 04 08:00:00 EDT 2008"
-        expectedResult[0] = cal.getTime().toString();
-        cal.set(2008, 7, 5, 8, 0, 0); //"Tue Aug 05 08:00:00 EDT 2008"
-        expectedResult[1] = cal.getTime().toString();
-        cal.set(2008, 7, 6, 8, 0, 0); //"Wed Aug 06 08:00:00 EDT 2008"
-        expectedResult[2] = cal.getTime().toString();
-        cal.set(2008, 7, 7, 8, 0, 0); //"Thu Aug 07 08:00:00 EDT 2008"
-        expectedResult[3] = cal.getTime().toString();
-        cal.set(2008, 7, 8, 8, 0, 0); //"Fri Aug 08 08:00:00 EDT 2008"
-        expectedResult[4] = cal.getTime().toString();
-        EPAssertionUtil.assertEqualsExactOrder(expectedResult, invocations.toArray());
+
+        env.assertThat(() -> {
+            String[] expectedResult = new String[5];
+            cal.set(2008, 7, 4, 8, 0, 0); //"Mon Aug 04 08:00:00 EDT 2008"
+            expectedResult[0] = cal.getTime().toString();
+            cal.set(2008, 7, 5, 8, 0, 0); //"Tue Aug 05 08:00:00 EDT 2008"
+            expectedResult[1] = cal.getTime().toString();
+            cal.set(2008, 7, 6, 8, 0, 0); //"Wed Aug 06 08:00:00 EDT 2008"
+            expectedResult[2] = cal.getTime().toString();
+            cal.set(2008, 7, 7, 8, 0, 0); //"Thu Aug 07 08:00:00 EDT 2008"
+            expectedResult[3] = cal.getTime().toString();
+            cal.set(2008, 7, 8, 8, 0, 0); //"Fri Aug 08 08:00:00 EDT 2008"
+            expectedResult[4] = cal.getTime().toString();
+            EPAssertionUtil.assertEqualsExactOrder(expectedResult, invocations.toArray());
+        });
     }
 
     private static void sendTimeEvent(String time, RegressionEnvironment env) {

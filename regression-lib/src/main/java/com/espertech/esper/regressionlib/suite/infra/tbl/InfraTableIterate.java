@@ -60,8 +60,10 @@ public class InfraTableIterate implements RegressionExecution {
         String epl = "@name('s0') select count(*) as thecnt from " + (useTable ? "MyTable" : METHOD_NAME);
         env.compileDeploy(epl, path);
         for (int i = 0; i < 2; i++) {
-            EventBean event = env.iterator("s0").next();
-            assertEquals(2L, event.get("thecnt"));
+            env.assertIterator("s0", iterator -> {
+                EventBean event = iterator.next();
+                assertEquals(2L, event.get("thecnt"));
+            });
         }
         env.undeployModuleContaining("s0");
     }

@@ -208,10 +208,10 @@ public class EPLOtherPatternQueries {
 
             SupportMarketDataBean eventTwo = makeMarketDataEvent("S1");
             env.sendEventBean(eventTwo);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(eventOne.getSymbol(), event.get("s0.symbol"));
-            assertEquals(eventTwo.getSymbol(), event.get("s1.symbol"));
-            env.listener("s0").reset();
+            env.assertEventNew("s0", event -> {
+                assertEquals(eventOne.getSymbol(), event.get("s0.symbol"));
+                assertEquals(eventTwo.getSymbol(), event.get("s1.symbol"));
+            });
 
             env.milestone(2);
 
@@ -222,12 +222,14 @@ public class EPLOtherPatternQueries {
             SupportMarketDataBean eventFour = makeMarketDataEvent("S0");
             env.sendEventBean(eventFour);
 
-            event = env.listener("s0").getLastOldData()[0];
-            assertEquals(eventOne.getSymbol(), event.get("s0.symbol"));
-            assertEquals(eventTwo.getSymbol(), event.get("s1.symbol"));
-            event = env.listener("s0").getLastNewData()[0];
-            assertEquals(eventFour.getSymbol(), event.get("s0.symbol"));
-            assertEquals(eventThree.getSymbol(), event.get("s1.symbol"));
+            env.assertListener("s0", listener -> {
+                EventBean event = listener.getLastOldData()[0];
+                assertEquals(eventOne.getSymbol(), event.get("s0.symbol"));
+                assertEquals(eventTwo.getSymbol(), event.get("s1.symbol"));
+                event = listener.getLastNewData()[0];
+                assertEquals(eventFour.getSymbol(), event.get("s0.symbol"));
+                assertEquals(eventThree.getSymbol(), event.get("s1.symbol"));
+            });
 
             env.undeployAll();
         }
@@ -240,13 +242,11 @@ public class EPLOtherPatternQueries {
     }
 
     private static void assertNewEvent(RegressionEnvironment env, int idA, int idB, String p00) {
-        EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
-        compareEvent(eventBean, idA, idB, p00);
+        env.assertEventNew("s0", eventBean -> compareEvent(eventBean, idA, idB, p00));
     }
 
     private static void assertOldEvent(RegressionEnvironment env, int idA, int idB, String p00) {
-        EventBean eventBean = env.listener("s0").assertOneGetOldAndReset();
-        compareEvent(eventBean, idA, idB, p00);
+        env.assertEventOld("s0", eventBean -> compareEvent(eventBean, idA, idB, p00));
     }
 
     private static void compareEvent(EventBean eventBean, int idA, int idB, String p00) {
@@ -272,17 +272,21 @@ public class EPLOtherPatternQueries {
     }
 
     private static void assertEventIds(RegressionEnvironment env, Integer idS0, Integer idS1) {
-        EventBean eventBean = env.listener("s0").getAndResetLastNewData()[0];
-        Assert.assertEquals(idS0, eventBean.get("idS0"));
-        Assert.assertEquals(idS1, eventBean.get("idS1"));
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean eventBean = listener.getAndResetLastNewData()[0];
+            Assert.assertEquals(idS0, eventBean.get("idS0"));
+            Assert.assertEquals(idS1, eventBean.get("idS1"));
+            listener.reset();
+        });
     }
 
     private static void assertEventSums(RegressionEnvironment env, Integer sumS0, Integer sumS1, Integer sumS0S1) {
-        EventBean eventBean = env.listener("s0").getAndResetLastNewData()[0];
-        Assert.assertEquals(sumS0, eventBean.get("sumS0"));
-        Assert.assertEquals(sumS1, eventBean.get("sumS1"));
-        Assert.assertEquals(sumS0S1, eventBean.get("sumS0S1"));
-        env.listener("s0").reset();
+        env.assertListener("s0", listener -> {
+            EventBean eventBean = listener.getAndResetLastNewData()[0];
+            Assert.assertEquals(sumS0, eventBean.get("sumS0"));
+            Assert.assertEquals(sumS1, eventBean.get("sumS1"));
+            Assert.assertEquals(sumS0S1, eventBean.get("sumS0S1"));
+            listener.reset();
+        });
     }
 }

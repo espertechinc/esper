@@ -13,9 +13,11 @@ package com.espertech.esper.regressionlib.suite.client.deploy;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -61,6 +63,10 @@ public class ClientDeployRedefinition {
             String moduleTableTwo = "create table MyTable(c0 string, c1 string, c2 string)";
             env.compileDeploy(moduleTableTwo).undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ClientDeployRedefinitionNamedWindow implements RegressionExecution {
@@ -68,6 +74,10 @@ public class ClientDeployRedefinition {
             env.compileDeploy("create window MyWindow#time(30) as (col1 int, col2 string)");
             env.compileDeploy("create window MyWindow#time(30) as (col1 short, col2 long)");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -78,6 +88,10 @@ public class ClientDeployRedefinition {
             env.compileDeploy("create schema MySchema (col1 short, col2 long);"
                 + "insert into MyStream select * from MySchema;");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -90,6 +104,10 @@ public class ClientDeployRedefinition {
                 + "create schema MySchema (col1 short, col2 long);"
                 + "select MyVar from MySchema;");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 }

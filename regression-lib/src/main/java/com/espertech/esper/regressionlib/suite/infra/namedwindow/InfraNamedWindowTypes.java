@@ -16,7 +16,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.event.core.MappedEventBean;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
@@ -67,13 +66,14 @@ public class InfraNamedWindowTypes {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaOne.class) + " @name('schema') create schema SchemaOne(col1 int, col2 int);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaOne.class) + " @name('schema') @buseventtype create schema SchemaOne(col1 int, col2 int);\n";
             epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaWindow.class) + " @name('create') create window SchemaWindow#lastevent as (s1 SchemaOne);\n";
             epl += "insert into SchemaWindow (s1) select sone from SchemaOne as sone;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("create");
+            env.compileDeploy(epl, new RegressionPath()).addListener("create");
 
-            assertTrue(eventRepresentationEnum.matchesClass(env.statement("schema").getEventType().getUnderlyingType()));
-            assertTrue(eventRepresentationEnum.matchesClass(env.statement("create").getEventType().getUnderlyingType()));
+            for (String name : new String[] {"schema", "create"}) {
+                env.assertStatement(name, statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
+            }
 
             if (eventRepresentationEnum.isObjectArrayEvent()) {
                 env.sendEventObjectArray(new Object[]{10, 11}, "SchemaOne");
@@ -83,16 +83,16 @@ public class InfraNamedWindowTypes {
                 theEvent.put("col2", 11);
                 env.sendEventMap(theEvent, "SchemaOne");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("SchemaOne")));
+                GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("SchemaOne"));
                 theEvent.put("col1", 10);
                 theEvent.put("col2", 11);
-                env.eventService().sendEventAvro(theEvent, "SchemaOne");
+                env.sendEventAvro(theEvent, "SchemaOne");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.eventService().sendEventJson("{\"col1\": 10, \"col2\": 11}", "SchemaOne");
+                env.sendEventJson("{\"col1\": 10, \"col2\": 11}", "SchemaOne");
             } else {
                 fail();
             }
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), "s1.col1,s1.col2".split(","), new Object[]{10, 11});
+            env.assertPropsNew("create", "s1.col1,s1.col2".split(","), new Object[]{10, 11});
 
             env.undeployAll();
         }
@@ -118,11 +118,13 @@ public class InfraNamedWindowTypes {
                 "insert into MyWindowMT select one, two from OuterType;\n";
             env.compileDeploy(epl).addListener("create");
 
-            EventType eventType = env.statement("create").getEventType();
-            assertTrue(eventRepresentationEnum.matchesClass(eventType.getUnderlyingType()));
-            EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"one", "two"});
-            assertEquals("T1", eventType.getFragmentType("one").getFragmentType().getName());
-            assertEquals("T2", eventType.getFragmentType("two").getFragmentType().getName());
+            env.assertStatement("create", statement -> {
+                EventType eventType = statement.getEventType();
+                assertTrue(eventRepresentationEnum.matchesClass(eventType.getUnderlyingType()));
+                EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"one", "two"});
+                assertEquals("T1", eventType.getFragmentType("one").getFragmentType().getName());
+                assertEquals("T2", eventType.getFragmentType("two").getFragmentType().getName());
+            });
 
             Map<String, Object> innerDataOne = new HashMap<>();
             innerDataOne.put("i1", 1);
@@ -133,7 +135,7 @@ public class InfraNamedWindowTypes {
             outerData.put("two", innerDataTwo);
 
             env.sendEventMap(outerData, "OuterType");
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), "one.i1,two.i2".split(","), new Object[]{1, 2});
+            env.assertPropsNew("create", "one.i1,two.i2".split(","), new Object[]{1, 2});
 
             env.undeployAll();
         }
@@ -149,36 +151,37 @@ public class InfraNamedWindowTypes {
                 "@name('delete') on SupportMarketDataBean as s0 delete from MyWindowNW as s1 where s0.symbol = s1.a;\n";
             env.compileDeploy(epl).addListener("create").addListener("s1").addListener("delete");
 
-            EventType eventType = env.statement("create").getEventType();
-            EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"a", "b", "c"});
-            assertEquals(String.class, eventType.getPropertyType("a"));
-            assertEquals(Long.class, eventType.getPropertyType("b"));
-            assertEquals(Long.class, eventType.getPropertyType("c"));
+            env.assertStatement("create", statement -> {
+                EventType eventType = statement.getEventType();
+                EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"a", "b", "c"});
+                assertEquals(String.class, eventType.getPropertyType("a"));
+                assertEquals(Long.class, eventType.getPropertyType("b"));
+                assertEquals(Long.class, eventType.getPropertyType("c"));
+                assertEquals(EventTypeTypeClass.NAMED_WINDOW, eventType.getMetadata().getTypeClass());
+                assertEquals("MyWindowNW", eventType.getMetadata().getName());
+                assertEquals(EventTypeApplicationType.MAP, eventType.getMetadata().getApplicationType());
+            });
 
-            // assert type metadata
-            EventType type = env.deployment().getStatement(env.deploymentId("create"), "create").getEventType();
-            assertEquals(EventTypeTypeClass.NAMED_WINDOW, type.getMetadata().getTypeClass());
-            assertEquals("MyWindowNW", type.getMetadata().getName());
-            assertEquals(EventTypeApplicationType.MAP, type.getMetadata().getApplicationType());
-
-            eventType = env.statement("s1").getEventType();
-            EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"a", "b", "c"});
-            assertEquals(String.class, eventType.getPropertyType("a"));
-            assertEquals(Long.class, eventType.getPropertyType("b"));
-            assertEquals(Long.class, eventType.getPropertyType("c"));
+            env.assertStatement("s1", statement -> {
+                EventType eventType = statement.getEventType();
+                EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), new String[]{"a", "b", "c"});
+                assertEquals(String.class, eventType.getPropertyType("a"));
+                assertEquals(Long.class, eventType.getPropertyType("b"));
+                assertEquals(Long.class, eventType.getPropertyType("c"));
+            });
 
             sendSupportBean(env, "E1", 1L, 10L);
             String[] fields = new String[]{"a", "b", "c"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("s1", fields, new Object[]{"E1", 1L, 10L});
 
             sendMarketBean(env, "S1", 99L);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("create", fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("s1", fields, new Object[]{"S1", 99L, 99L});
 
             sendMap(env, "M1", 100L, 101L);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"M1", 101L, 100L});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fields, new Object[]{"M1", 101L, 100L});
+            env.assertPropsNew("create", fields, new Object[]{"M1", 101L, 100L});
+            env.assertPropsNew("s1", fields, new Object[]{"M1", 101L, 100L});
 
             env.undeployAll();
         }
@@ -195,16 +198,16 @@ public class InfraNamedWindowTypes {
 
             sendSupportBean(env, "E1", 1L, 10L);
             String[] fields = new String[]{"theString", "longPrimitive", "longBoxed"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 1L, 10L});
 
             sendMarketBean(env, "S1", 99L);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("create", fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("select", fields, new Object[]{"S1", 99L, 99L});
 
             sendMap(env, "M1", 100L, 101L);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"M1", 101L, 100L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"M1", 101L, 100L});
+            env.assertPropsNew("create", fields, new Object[]{"M1", 101L, 100L});
+            env.assertPropsNew("select", fields, new Object[]{"M1", 101L, 100L});
 
             env.undeployAll();
         }
@@ -220,12 +223,12 @@ public class InfraNamedWindowTypes {
 
             sendSupportBean(env, "E1", 1L, 10L);
             String[] fields = new String[]{"theString", "longPrimitive", "longBoxed"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", 1L, 10L});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 1L, 10L});
 
             sendMarketBean(env, "S1", 99L);
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("create", fields, new Object[]{"S1", 99L, 99L});
+            env.assertPropsNew("select", fields, new Object[]{"S1", 99L, 99L});
 
             env.undeployAll();
         }
@@ -248,34 +251,36 @@ public class InfraNamedWindowTypes {
             env.compileDeploy(parentQuery, path).addListener("s0");
 
             env.sendEventBean(new SupportBean_A("E1"));
-            assertEquals(1, env.listener("s0").getNewDataListFlattened().length);
+            env.assertListener("s0", listener -> assertEquals(1, listener.getNewDataListFlattened().length));
 
             env.undeployAll();
         }
 
         private void tryAssertionCreateSchemaModelAfter(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeOne.class) + " create schema EventTypeOne (hsi int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeTwo.class) + " create schema EventTypeTwo (event EventTypeOne);\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeOne.class) + " @buseventtype create schema EventTypeOne (hsi int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeTwo.class) + " @buseventtype create schema EventTypeTwo (event EventTypeOne);\n" +
                 "@name('create') create window NamedWindow#unique(event.hsi) as EventTypeTwo;\n" +
                 "on EventTypeOne as ev insert into NamedWindow select ev as event;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
 
             if (eventRepresentationEnum.isObjectArrayEvent()) {
                 env.sendEventObjectArray(new Object[]{10}, "EventTypeOne");
             } else if (eventRepresentationEnum.isMapEvent()) {
                 env.sendEventMap(Collections.singletonMap("hsi", 10), "EventTypeOne");
             } else if (eventRepresentationEnum.isAvroEvent()) {
-                GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured("EventTypeOne")));
+                GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured("EventTypeOne"));
                 theEvent.put("hsi", 10);
-                env.eventService().sendEventAvro(theEvent, "EventTypeOne");
+                env.sendEventAvro(theEvent, "EventTypeOne");
             } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.eventService().sendEventJson("{\"hsi\": 10}", "EventTypeOne");
+                env.sendEventJson("{\"hsi\": 10}", "EventTypeOne");
             } else {
                 fail();
             }
-            EventBean result = env.statement("create").iterator().next();
-            EventPropertyGetter getter = result.getEventType().getGetter("event.hsi");
-            assertEquals(10, getter.get(result));
+            env.assertIterator("create", iterator -> {
+                EventBean result = iterator.next();
+                EventPropertyGetter getter = result.getEventType().getGetter("event.hsi");
+                assertEquals(10, getter.get(result));
+            });
 
             env.undeployAll();
         }
@@ -290,8 +295,10 @@ public class InfraNamedWindowTypes {
             env.compileDeploy(epl).addListener("create");
 
             sendSupportBean(env, "E1", 1L, 10L);
-            String[] values = (String[]) env.listener("create").assertOneGetNewAndReset().get("myvalue");
-            EPAssertionUtil.assertEqualsExactOrder(values, new String[]{"a", "b"});
+            env.assertListener("create", listener -> {
+                String[] values = (String[]) listener.assertOneGetNewAndReset().get("myvalue");
+                EPAssertionUtil.assertEqualsExactOrder(values, new String[]{"a", "b"});
+            });
 
             env.undeployAll();
         }
@@ -306,8 +313,8 @@ public class InfraNamedWindowTypes {
 
             sendSupportBean(env, "E1", 1L, 10L);
             String[] fields = "stringValOne,stringValTwo,intVal,longVal".split(",");
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 1, 10L});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1", 1, 10L});
+            env.assertPropsNew("create", fields, new Object[]{"E1", "E1", 1, 10L});
+            env.assertPropsNew("select", fields, new Object[]{"E1", "E1", 1, 10L});
 
             env.undeployAll();
 
@@ -318,9 +325,11 @@ public class InfraNamedWindowTypes {
             //create window with statement object model
             String text = "@name('create') create window MyWindowCTSThree#keepall as (a string, b integer, c integer)";
             env.eplToModelCompileDeploy(text);
-            assertEquals(String.class, env.statement("create").getEventType().getPropertyType("a"));
-            assertEquals(Integer.class, env.statement("create").getEventType().getPropertyType("b"));
-            assertEquals(Integer.class, env.statement("create").getEventType().getPropertyType("c"));
+            env.assertStatement("create", statement -> {
+                assertEquals(String.class, statement.getEventType().getPropertyType("a"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("b"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("c"));
+            });
             env.undeployAll();
 
             text = "create window MyWindowCTSFour#unique(a)#unique(b) retain-union as (a string, b integer, c integer)";
@@ -339,8 +348,8 @@ public class InfraNamedWindowTypes {
 
             env.sendEventBean(new SupportBean_A("E1"));
             String[] fields = new String[]{"id"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("create", fields, new Object[]{"E1"});
+            env.assertPropsNew("select", fields, new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -351,12 +360,14 @@ public class InfraNamedWindowTypes {
             String epl = "@name('create') create window MyWindowMAM#keepall select * from MyMapWithKeyPrimitiveBoxed;\n" +
                 "@name('insert') insert into MyWindowMAM select * from MyMapWithKeyPrimitiveBoxed;\n";
             env.compileDeploy(epl).addListener("create");
-            assertTrue(env.statement("create").getEventType() instanceof MapEventType);
+            env.assertStatement("create", statement -> assertTrue(statement.getEventType() instanceof MapEventType));
 
             sendMap(env, "k1", 100L, 200L);
-            EventBean theEvent = env.listener("create").assertOneGetNewAndReset();
-            assertTrue(theEvent instanceof MappedEventBean);
-            EPAssertionUtil.assertProps(theEvent, "key,primitive".split(","), new Object[]{"k1", 100L});
+            env.assertListener("create", listener -> {
+                EventBean theEvent = listener.assertOneGetNewAndReset();
+                assertTrue(theEvent instanceof MappedEventBean);
+                EPAssertionUtil.assertProps(theEvent, "key,primitive".split(","), new Object[]{"k1", 100L});
+            });
 
             env.undeployAll();
         }
@@ -372,12 +383,12 @@ public class InfraNamedWindowTypes {
 
             env.sendEventBean(new SupportBean_A("E1"));
             String[] fields = new String[]{"id"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("create", fields, new Object[]{"E1"});
+            env.assertPropsNew("select", fields, new Object[]{"E1"});
 
             env.sendEventBean(new SupportBean_B("E2"));
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2"});
+            env.assertPropsNew("create", fields, new Object[]{"E2"});
+            env.assertPropsNew("select", fields, new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -392,8 +403,8 @@ public class InfraNamedWindowTypes {
 
             env.sendEventBean(new SupportBean_A("E1"));
             String[] fields = new String[]{"id"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1"});
+            env.assertPropsNew("create", fields, new Object[]{"E1"});
+            env.assertPropsNew("select", fields, new Object[]{"E1"});
 
             env.undeployAll();
         }
@@ -408,8 +419,8 @@ public class InfraNamedWindowTypes {
 
             env.sendEventBean(new SupportBean_A("E1"));
             String[] fields = new String[]{"id", "myid"};
-            EPAssertionUtil.assertProps(env.listener("create").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1A"});
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", "E1A"});
+            env.assertPropsNew("create", fields, new Object[]{"E1", "E1A"});
+            env.assertPropsNew("select", fields, new Object[]{"E1", "E1A"});
 
             env.undeployAll();
         }

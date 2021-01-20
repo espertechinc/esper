@@ -14,8 +14,10 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPCompiledManifest;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILER_VERSION;
@@ -36,6 +38,10 @@ public class ClientCompileOutput {
             EPCompiledManifest manifest = compiled.getManifest();
             assertEquals(COMPILER_VERSION, manifest.getCompilerVersion());
             assertNotNull(manifest.getModuleProviderClassName());
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
         }
     }
 }

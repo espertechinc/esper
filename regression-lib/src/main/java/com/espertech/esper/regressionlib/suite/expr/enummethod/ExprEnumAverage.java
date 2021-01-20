@@ -79,7 +79,7 @@ public class ExprEnumAverage {
             builder.expression(fields[0], "intvals.average()");
             builder.expression(fields[1], "bdvals.average()");
 
-            builder.statementConsumer(stmt -> assertTypes(env.statement("s0").getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), BIGDECIMAL.getEPType()}));
+            builder.statementConsumer(stmt -> assertTypes(stmt.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), BIGDECIMAL.getEPType()}));
 
             builder.assertion(SupportCollection.makeNumeric("1,2,3")).expect(fields, 2d, new BigDecimal(2d));
 

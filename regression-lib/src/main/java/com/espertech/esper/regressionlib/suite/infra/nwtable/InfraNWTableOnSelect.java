@@ -107,21 +107,21 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             String stmtTextSelect = "@name('s0') on SupportBean select array, sum(value) as thesum from MyInfraPC group by array";
             env.compileDeploy(stmtTextSelect, path).addListener("s0");
 
-            env.compileExecuteFAF("insert into MyInfraPC values('E1', {1, 2}, 10)", path);
-            env.compileExecuteFAF("insert into MyInfraPC values('E2', {1, 2}, 11)", path);
+            env.compileExecuteFAFNoResult("insert into MyInfraPC values('E1', {1, 2}, 10)", path);
+            env.compileExecuteFAFNoResult("insert into MyInfraPC values('E2', {1, 2}, 11)", path);
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean());
             env.assertPropsNew("s0", "thesum".split(","), new Object[] {21});
 
-            env.compileExecuteFAF("insert into MyInfraPC values('E3', {1, 2}, 21)", path);
-            env.compileExecuteFAF("insert into MyInfraPC values('E4', {1}, 22)", path);
+            env.compileExecuteFAFNoResult("insert into MyInfraPC values('E3', {1, 2}, 21)", path);
+            env.compileExecuteFAFNoResult("insert into MyInfraPC values('E4', {1}, 22)", path);
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), "thesum".split(","), new Object[][] {{42}, {22}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", "thesum".split(","), new Object[][] {{42}, {22}});
 
             env.undeployAll();
         }
@@ -156,13 +156,13 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             sendSupportBean(env, "E1", 1);
             sendSupportBean_S0(env, 1, "E1");
-            EPAssertionUtil.assertProps(env.listener("out").assertOneGetNewAndReset(), "value".split(","), new Object[]{"E1"});
+            env.assertPropsNew("out", "value".split(","), new Object[]{"E1"});
 
             env.milestone(0);
 
             sendSupportBean(env, "E2", 2);
             sendSupportBean_S0(env, 2, "E2");
-            EPAssertionUtil.assertProps(env.listener("out").assertOneGetNewAndReset(), "value".split(","), new Object[]{"E2"});
+            env.assertPropsNew("out", "value".split(","), new Object[]{"E2"});
 
             env.undeployAll();
         }
@@ -206,29 +206,29 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             sendSupportBean(env, "E2", 2);
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             // fire trigger
             sendSupportBean_A(env, "X1");
-            assertFalse(env.listener("select").isInvoked());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertListenerNotInvoked("select");
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
             if (namedWindow) {
-                EPAssertionUtil.assertPropsPerRow(env.iterator("select"), fields, null);
+                env.assertPropsPerRowIterator("select", fields, null);
             }
 
             env.milestone(1);
 
             sendSupportBean_B(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+            env.assertPropsNew("select", fields, new Object[]{"E2", 2});
 
             sendSupportBean_A(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 1});
 
             env.milestone(2);
 
             sendSupportBean_B(env, "E3");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E3", 3});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsNew("select", fields, new Object[]{"E3", 3});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             env.undeployAll();
         }
@@ -262,37 +262,37 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             sendSupportBean(env, "E1", 1);
             sendSupportBean(env, "E2", 2);
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.milestone(0);
 
             // fire trigger
             sendSupportBean_A(env, "X1");
-            assertFalse(env.listener("select").isInvoked());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertListenerNotInvoked("select");
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             sendSupportBean_A(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsNew("select", fields, new Object[]{"E2", 2});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             env.milestone(1);
 
             sendSupportBean_A(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsNew("select", fields, new Object[]{"E1", 1});
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             // delete event
             sendSupportBean_B(env, "E1");
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             sendSupportBean_A(env, "E1");
-            assertFalse(env.listener("select").isInvoked());
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fields, new Object[][]{{"E2", 2}, {"E3", 3}});
+            env.assertListenerNotInvoked("select");
+            env.assertPropsPerRowIteratorAnyOrder("create", fields, new Object[][]{{"E2", 2}, {"E3", 3}});
 
             env.milestone(2);
 
             sendSupportBean_A(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{"E2", 2});
+            env.assertPropsNew("select", fields, new Object[]{"E2", 2});
 
             env.undeployModuleContaining("select");
         }
@@ -325,8 +325,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("selectTwo").isInvoked());
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("selectTwo");
 
             // send 3 events
             sendSupportBean(env, "E1", 1);
@@ -335,17 +335,13 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.milestone(0);
 
             sendSupportBean(env, "E1", 5);
-            assertFalse(env.listener("select").isInvoked());
-            assertFalse(env.listener("selectTwo").isInvoked());
+            env.assertListenerNotInvoked("select");
+            env.assertListenerNotInvoked("selectTwo");
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            EPAssertionUtil.assertPropsPerRow(env.listener("select").getLastNewData(), fields, new Object[][]{{"E2", 2}, {"E1", 6}});
-            assertNull(env.listener("select").getLastOldData());
-            env.listener("select").reset();
-            EPAssertionUtil.assertPropsPerRow(env.listener("selectTwo").getLastNewData(), fields, new Object[][]{{"E1", 6}});
-            assertNull(env.listener("select").getLastOldData());
-            env.listener("select").reset();
+            env.assertPropsPerRowNewOnly("select", fields, new Object[][]{{"E2", 2}, {"E1", 6}});
+            env.assertPropsPerRowNewOnly("selectTwo", fields, new Object[][]{{"E1", 6}});
 
             env.milestone(1);
 
@@ -353,12 +349,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             sendSupportBean(env, "E4", -1);
             sendSupportBean(env, "E2", 10);
             sendSupportBean(env, "E1", 100);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.milestone(2);
 
             sendSupportBean_A(env, "A2");
-            EPAssertionUtil.assertPropsPerRow(env.listener("select").getLastNewData(), fields, new Object[][]{{"E4", -1}, {"E2", 12}, {"E1", 106}});
+            env.assertPropsPerRowNewOnly("select", fields, new Object[][]{{"E4", -1}, {"E2", 12}, {"E1", 106}});
 
             // create delete stmt, delete E2
             String stmtTextDelete = "on SupportBean_B delete from MyInfraSAG where id = a";
@@ -366,17 +362,15 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             sendSupportBean_B(env, "E2");
 
             sendSupportBean_A(env, "A3");
-            EPAssertionUtil.assertPropsPerRow(env.listener("select").getLastNewData(), fields, new Object[][]{{"E4", -1}, {"E1", 106}});
-            assertNull(env.listener("select").getLastOldData());
-            env.listener("select").reset();
-            EPAssertionUtil.assertPropsPerRow(env.listener("selectTwo").getLastNewData(), fields, new Object[][]{{"E1", 106}});
-            assertNull(env.listener("selectTwo").getLastOldData());
-            env.listener("selectTwo").reset();
+            env.assertPropsPerRowNewOnly("select", fields, new Object[][]{{"E4", -1}, {"E1", 106}});
+            env.assertPropsPerRowNewOnly("selectTwo", fields, new Object[][]{{"E1", 106}});
 
-            EventType resultType = env.statement("select").getEventType();
-            assertEquals(2, resultType.getPropertyNames().length);
-            assertEquals(String.class, resultType.getPropertyType("a"));
-            assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            env.assertStatement("select", statement -> {
+                EventType resultType = statement.getEventType();
+                assertEquals(2, resultType.getPropertyNames().length);
+                assertEquals(String.class, resultType.getPropertyType("a"));
+                assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            });
 
             env.undeployAll();
         }
@@ -412,28 +406,30 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.milestone(0);
 
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{null});
+            env.assertPropsNew("select", fields, new Object[]{null});
 
             env.milestone(1);
 
             // fire trigger
             sendSupportBean_A(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{2});
+            env.assertPropsNew("select", fields, new Object[]{2});
 
             sendSupportBean(env, "E2", 10);
 
             env.milestone(2);
 
             sendSupportBean_A(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{12});
+            env.assertPropsNew("select", fields, new Object[]{12});
 
-            EventType resultType = env.statement("select").getEventType();
-            assertEquals(1, resultType.getPropertyNames().length);
-            assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            env.assertStatement("select", statement -> {
+                EventType resultType = statement.getEventType();
+                assertEquals(1, resultType.getPropertyNames().length);
+                assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            });
 
             env.undeployModuleContaining("create");
         }
@@ -474,13 +470,13 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             sendSupportBean(env, "E1", 1);
             sendSupportBean(env, "E2", 2);
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.milestone(0);
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{6});
+            env.assertPropsNew("select", fields, new Object[]{6});
 
             // create delete stmt
             String stmtTextDelete = "on SupportBean_B delete from MyInfraSA where id = a";
@@ -493,15 +489,17 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // fire trigger
             sendSupportBean_A(env, "A2");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{4});
+            env.assertPropsNew("select", fields, new Object[]{4});
 
             sendSupportBean(env, "E4", 10);
             sendSupportBean_A(env, "A3");
-            EPAssertionUtil.assertProps(env.listener("select").assertOneGetNewAndReset(), fields, new Object[]{14});
+            env.assertPropsNew("select", fields, new Object[]{14});
 
-            EventType resultType = env.statement("select").getEventType();
-            assertEquals(1, resultType.getPropertyNames().length);
-            assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            env.assertStatement("select", statement -> {
+                EventType resultType = statement.getEventType();
+                assertEquals(1, resultType.getPropertyNames().length);
+                assertEquals(Integer.class, resultType.getPropertyType("sumb"));
+            });
 
             env.undeployAll();
         }
@@ -541,15 +539,17 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             // send 3 event
             sendSupportBean(env, "E1", 1);
             sendSupportBean(env, "E2", 2);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.milestone(0);
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            assertEquals(2, env.listener("select").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[0], fields, new Object[]{"A1", "E1", 1});
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[1], fields, new Object[]{"A1", "E2", 2});
+            env.assertListener("select", listener -> {
+                assertEquals(2, listener.getLastNewData().length);
+                EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"A1", "E1", 1});
+                EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"A1", "E2", 2});
+            });
 
             // try limit clause
             env.undeployModuleContaining("select");
@@ -559,8 +559,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.milestone(1);
 
             sendSupportBean_A(env, "A1");
-            assertEquals(1, env.listener("select").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[0], fields, new Object[]{"A1", "E1", 1});
+            env.assertPropsPerRowNewOnly("select", fields, new Object[][]{{"A1", "E1", 1}});
 
             env.undeployAll();
         }
@@ -594,7 +593,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             // create select stmt
             String stmtTextSelect = "@name('select') on SupportBean_A select mywin.*, id from " + infraName + " as mywin where " + infraName + ".b < 3 order by a asc";
             env.compileDeploy(stmtTextSelect, path).addListener("select");
-            assertEquals(StatementType.ON_SELECT, env.statement("select").getProperty(StatementProperty.STATEMENTTYPE));
+            env.assertStatement("select", statement -> assertEquals(StatementType.ON_SELECT, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             // create insert into
             String stmtTextInsertOne = "@name('insert') insert into " + infraName + " select theString as a, intPrimitive as b from SupportBean";
@@ -607,27 +606,27 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             sendSupportBean(env, "E2", 2);
             sendSupportBean(env, "E3", 3);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             // fire trigger
             sendSupportBean_A(env, "A1");
-            assertEquals(2, env.listener("select").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[0], fieldsCreate, new Object[]{"E1", 1});
-            EPAssertionUtil.assertProps(env.listener("select").getAndResetLastNewData()[1], fieldsCreate, new Object[]{"E2", 2});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
-            assertFalse(env.iterator("select").hasNext());
+            env.assertPropsPerRowNewOnly("select", fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}});
+            env.assertPropsPerRowIteratorAnyOrder("create", fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertIterator("select", iterator -> assertFalse(iterator.hasNext()));
 
             sendSupportBean(env, "E4", 0);
 
             env.milestone(1);
 
             sendSupportBean_A(env, "A2");
-            assertEquals(3, env.listener("select").getLastNewData().length);
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[0], fieldsOnSelect, new Object[]{"E1", 1, "A2"});
-            EPAssertionUtil.assertProps(env.listener("select").getLastNewData()[1], fieldsOnSelect, new Object[]{"E2", 2, "A2"});
-            EPAssertionUtil.assertProps(env.listener("select").getAndResetLastNewData()[2], fieldsOnSelect, new Object[]{"E4", 0, "A2"});
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.iterator("create"), fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}, {"E4", 0}});
-            assertFalse(env.iterator("select").hasNext());
+            env.assertListener("select", listener -> {
+                assertEquals(3, listener.getLastNewData().length);
+                EPAssertionUtil.assertProps(listener.getLastNewData()[0], fieldsOnSelect, new Object[]{"E1", 1, "A2"});
+                EPAssertionUtil.assertProps(listener.getLastNewData()[1], fieldsOnSelect, new Object[]{"E2", 2, "A2"});
+                EPAssertionUtil.assertProps(listener.getAndResetLastNewData()[2], fieldsOnSelect, new Object[]{"E4", 0, "A2"});
+            });
+            env.assertPropsPerRowIteratorAnyOrder("create", fieldsCreate, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}, {"E4", 0}});
+            env.assertIterator("select", iterator -> assertFalse(iterator.hasNext()));
 
             env.undeployModuleContaining("select");
             env.undeployModuleContaining("insert");
@@ -703,16 +702,16 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             env.compileDeploy(stmtTextInsertOne, path);
 
             sendTimer(11000, env);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             env.milestone(0);
 
             sendTimer(21000, env);
-            assertFalse(env.listener("select").isInvoked());
+            env.assertListenerNotInvoked("select");
 
             sendSupportBean(env, "E1", 1);
             sendTimer(31000, env);
-            assertEquals("E1", env.listener("select").assertOneGetNewAndReset().get("theString"));
+            env.assertEqualsNew("select", "theString", "E1");
 
             env.undeployAll();
         }
@@ -744,7 +743,7 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             String stmtTextSelect = "@name('select') on SupportBean_A select mwc.* as mwcwin from MyInfraSHS mwc where id = a group by a having sum(b) = 20";
             env.compileDeploy(stmtTextSelect, path).addListener("select");
-            assertFalse(((EPStatementSPI) env.statement("select")).getStatementContext().isStatelessSelect());
+            env.assertStatement("select", statement -> assertFalse(((EPStatementSPI) statement).getStatementContext().isStatelessSelect()));
 
             // send 3 event
             sendSupportBean(env, "E1", 16);
@@ -756,10 +755,12 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // fire trigger
             sendSupportBean_A(env, "E1");
-            EventBean[] events = env.listener("select").getLastNewData();
-            assertEquals(2, events.length);
-            assertEquals("E1", events[0].get("mwcwin.a"));
-            assertEquals("E1", events[1].get("mwcwin.a"));
+            env.assertListener("select", listener -> {
+                EventBean[] events = listener.getLastNewData();
+                assertEquals(2, events.length);
+                assertEquals("E1", events[0].get("mwcwin.a"));
+                assertEquals("E1", events[1].get("mwcwin.a"));
+            });
 
             env.undeployAll();
         }
@@ -999,15 +1000,17 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             String epl = "@name('s0') " + consumeEpl;
             if (assertion.getEventSendAssertion() == null) {
-                try {
-                    env.compileWCheckedEx(epl, path);
-                    fail();
-                } catch (EPCompileException ex) {
-                    assertTrue(ex.getMessage().contains("index hint busted"));
-                }
+                env.assertThat(() -> {
+                    try {
+                        env.compileWCheckedEx(epl, path);
+                        fail();
+                    } catch (EPCompileException ex) {
+                        assertTrue(ex.getMessage().contains("index hint busted"));
+                    }
+                });
             } else {
                 env.compileDeploy(epl, path).addListener("s0");
-                SupportQueryPlanIndexHook.assertOnExprTableAndReset(assertion.getExpectedIndexName(), assertion.getIndexBackingClass());
+                env.assertThat(() -> SupportQueryPlanIndexHook.assertOnExprTableAndReset(assertion.getExpectedIndexName(), assertion.getIndexBackingClass()));
                 assertion.getEventSendAssertion().run();
                 env.undeployModuleContaining("s0");
             }
@@ -1017,22 +1020,24 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
     }
 
     private static void assertReceived(RegressionEnvironment env, boolean namedWindow, SupportBean[] beans, int[] indexesAll, int[] indexesWhere, String[] mapKeys, Object[] mapValues) {
-        EventBean received = env.listener("select").assertOneGetNewAndReset();
-        Object[] expectedAll;
-        Object[] expectedWhere;
-        if (!namedWindow) {
-            expectedAll = SupportBean.getOAStringAndIntPerIndex(beans, indexesAll);
-            expectedWhere = SupportBean.getOAStringAndIntPerIndex(beans, indexesWhere);
-            EPAssertionUtil.assertEqualsAnyOrder(expectedAll, (Object[]) received.get("c0"));
-            Collection receivedColl = (Collection) received.get("c1");
-            EPAssertionUtil.assertEqualsAnyOrder(expectedWhere, receivedColl == null ? null : receivedColl.toArray());
-        } else {
-            expectedAll = SupportBean.getBeansPerIndex(beans, indexesAll);
-            expectedWhere = SupportBean.getBeansPerIndex(beans, indexesWhere);
-            EPAssertionUtil.assertEqualsExactOrder(expectedAll, (Object[]) received.get("c0"));
-            EPAssertionUtil.assertEqualsExactOrder(expectedWhere, (Collection) received.get("c1"));
-        }
-        EPAssertionUtil.assertPropsMap((Map) received.get("c2"), mapKeys, mapValues);
+        env.assertListener("select", listener -> {
+            EventBean received = listener.assertOneGetNewAndReset();
+            Object[] expectedAll;
+            Object[] expectedWhere;
+            if (!namedWindow) {
+                expectedAll = SupportBean.getOAStringAndIntPerIndex(beans, indexesAll);
+                expectedWhere = SupportBean.getOAStringAndIntPerIndex(beans, indexesWhere);
+                EPAssertionUtil.assertEqualsAnyOrder(expectedAll, (Object[]) received.get("c0"));
+                Collection receivedColl = (Collection) received.get("c1");
+                EPAssertionUtil.assertEqualsAnyOrder(expectedWhere, receivedColl == null ? null : receivedColl.toArray());
+            } else {
+                expectedAll = SupportBean.getBeansPerIndex(beans, indexesAll);
+                expectedWhere = SupportBean.getBeansPerIndex(beans, indexesWhere);
+                EPAssertionUtil.assertEqualsExactOrder(expectedAll, (Object[]) received.get("c0"));
+                EPAssertionUtil.assertEqualsExactOrder(expectedWhere, (Collection) received.get("c1"));
+            }
+            EPAssertionUtil.assertPropsMap((Map) received.get("c2"), mapKeys, mapValues);
+        });
     }
 
     private static void sendSupportBean_A(RegressionEnvironment env, String id) {

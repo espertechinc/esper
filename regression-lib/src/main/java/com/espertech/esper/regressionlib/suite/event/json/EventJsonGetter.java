@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.json;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -39,12 +38,13 @@ public class EventJsonGetter {
                 "@name('s0') select * from JsonEvent").addListener("s0");
 
             env.sendEventJson(new JsonObject().add("prop", new JsonObject().add("x", "y")).toString(), "JsonEvent");
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
 
-            EventPropertyGetter getterMapped = event.getEventType().getGetter("prop('x')");
-            assertEquals("y", getterMapped.get(event));
+            env.assertEventNew("s0", event -> {
+                EventPropertyGetter getterMapped = event.getEventType().getGetter("prop('x')");
+                assertEquals("y", getterMapped.get(event));
 
-            assertNull(event.getEventType().getGetter("prop.somefield?"));
+                assertNull(event.getEventType().getGetter("prop.somefield?"));
+            });
 
             env.undeployAll();
         }

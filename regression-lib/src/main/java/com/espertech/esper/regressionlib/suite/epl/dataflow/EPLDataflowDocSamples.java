@@ -16,9 +16,11 @@ import com.espertech.esper.common.client.soda.EPStatementFormatter;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static junit.framework.TestCase.fail;
 
@@ -94,6 +96,10 @@ public class EPLDataflowDocSamples {
                 "  }\n" +
                 "}");
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
     }
 
     private static class EPLDataflowSODA implements RegressionExecution {
@@ -116,6 +122,10 @@ public class EPLDataflowDocSamples {
                 "}\n";
             EPStatementObjectModel model = env.eplToModel(soda);
             EPAssertionUtil.assertEqualsIgnoreNewline(soda, model.toEPL(new EPStatementFormatter(true)));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
         }
     }
 

@@ -13,9 +13,12 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.suite.pattern.PatternOperatorFollowedByMax4Prevent.assertContextEnginePool;
 import static com.espertech.esper.regressionlib.suite.pattern.PatternOperatorFollowedByMax4Prevent.getExpectedCountMap;
@@ -44,5 +47,9 @@ public class PatternOperatorFollowedByMax2Noprevent implements RegressionExecuti
         EPAssertionUtil.assertPropsPerRow(env.listener("A").getAndResetLastNewData(), fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}, {"A3", "B1"}, {"A4", "B1"}});
 
         env.undeployAll();
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
     }
 }

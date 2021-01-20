@@ -28,7 +28,7 @@ public class ClientStageEPStageService {
         return execs;
     }
 
-    private static class ClientStageEPStageServiceGetStage implements RegressionExecution {
+    private static class ClientStageEPStageServiceGetStage implements ClientStageRegressionExecution {
         public void run(RegressionEnvironment env) {
             EPStage stageAOne = env.stageService().getStage("A");
             EPStage stageBTwo = env.stageService().getStage("A");

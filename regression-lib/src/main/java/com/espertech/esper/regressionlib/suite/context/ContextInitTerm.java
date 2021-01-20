@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.context.AgentInstanceAssertionUtil;
@@ -90,10 +91,10 @@ public class ContextInitTerm {
 
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create schema UserEvent(userId string, alert string);\n" +
-                    "create context UserSessionContext " + (overlapping ? "initiated" : "start") + " UserEvent(alert = 'A')\n" +
-                    "  " + (overlapping ? "terminated" : "end") + " UserEvent(alert = 'B') as termEvent;\n" +
-                    "@name('s0') context UserSessionContext select *, context.termEvent as term from UserEvent#firstevent\n" +
-                    "  output snapshot when terminated;";
+                "create context UserSessionContext " + (overlapping ? "initiated" : "start") + " UserEvent(alert = 'A')\n" +
+                "  " + (overlapping ? "terminated" : "end") + " UserEvent(alert = 'B') as termEvent;\n" +
+                "@name('s0') context UserSessionContext select *, context.termEvent as term from UserEvent#firstevent\n" +
+                "  output snapshot when terminated;";
             env.compileDeploy(epl).addListener("s0");
 
             sendUser(env, "U1", "A");
@@ -103,7 +104,7 @@ public class ContextInitTerm {
             env.milestone(0);
 
             Map<String, Object> term = sendUser(env, "U1", "B");
-            assertSame(term, env.listener("s0").assertOneGetNewAndReset().get("term"));
+            env.assertEventNew("s0", event -> assertEquals(term, event.get("term")));
 
             env.undeployAll();
         }
@@ -119,6 +120,10 @@ public class ContextInitTerm {
                 "overlapping=" + overlapping +
                 '}';
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
+        }
     }
 
     private static class ContextStartEndPatternWithFilterCorrelatedWithAsName implements RegressionExecution {
@@ -131,11 +136,12 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean_S0(10));
 
             env.sendEventBean(new SupportBean("E1", 0));
-            env.listener("s0").assertOneGetNewAndReset();
+            env.assertEventNew("s0", event -> {
+            });
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -154,16 +160,17 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            Map<String, Object> starterMap = (Map<String, Object>) event.get("starter");
-            assertEquals(starter, ((EventBean) starterMap.get("s0")).getUnderlying());
-            assertEquals(1, starterMap.size());
-            assertEquals(starter, event.get("starterS0"));
-            assertEquals(10, event.get("starterS0id"));
+            env.assertEventNew("s0", event -> {
+                Map<String, Object> starterMap = (Map<String, Object>) event.get("starter");
+                assertEquals(starter, ((EventBean) starterMap.get("s0")).getUnderlying());
+                assertEquals(1, starterMap.size());
+                assertEquals(starter, event.get("starterS0"));
+                assertEquals(10, event.get("starterS0id"));
+            });
 
             env.sendEventBean(new SupportBean_S1(10));
             env.sendEventBean(new SupportBean("E2", 0));
-            assertFalse(env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
         }
@@ -194,13 +201,14 @@ public class ContextInitTerm {
 
             SupportBean_S1 enderOne = new SupportBean_S1(10);
             env.sendEventBean(enderOne);
-            EventBean eventOne = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(starterOne, eventOne.get("starter"));
-            Map<String, Object> enderMapOne = (Map<String, Object>) eventOne.get("ender");
-            assertEquals(enderOne, ((EventBean) enderMapOne.get("s1")).getUnderlying());
-            assertNull(enderMapOne.get("starter"));
-            assertEquals(enderOne, eventOne.get("enderS1"));
-            assertEquals(10, eventOne.get("enderS1id"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(starterOne, event.get("starter"));
+                Map<String, Object> enderMapOne = (Map<String, Object>) event.get("ender");
+                assertEquals(enderOne, ((EventBean) enderMapOne.get("s1")).getUnderlying());
+                assertNull(enderMapOne.get("starter"));
+                assertEquals(enderOne, event.get("enderS1"));
+                assertEquals(10, event.get("enderS1id"));
+            });
 
             env.advanceTime(10000);
             SupportBean_S0 starterTwo = new SupportBean_S0(20);
@@ -210,13 +218,14 @@ public class ContextInitTerm {
 
             env.advanceTime(40000);
 
-            EventBean eventTwo = env.listener("s0").assertOneGetNewAndReset();
-            assertEquals(starterTwo, eventTwo.get("starter"));
-            Map<String, Object> enderMapTwo = (Map<String, Object>) eventTwo.get("ender");
-            assertNull(enderMapTwo.get("s1"));
-            assertNull(enderMapTwo.get("starter"));
-            assertNull(eventTwo.get("enderS1"));
-            assertNull(eventTwo.get("enderS1id"));
+            env.assertEventNew("s0", event -> {
+                assertEquals(starterTwo, event.get("starter"));
+                Map<String, Object> enderMapTwo = (Map<String, Object>) event.get("ender");
+                assertNull(enderMapTwo.get("s1"));
+                assertNull(enderMapTwo.get("starter"));
+                assertNull(event.get("enderS1"));
+                assertNull(event.get("enderS1id"));
+            });
 
             env.undeployAll();
 
@@ -240,6 +249,10 @@ public class ContextInitTerm {
             return this.getClass().getSimpleName() + "{" +
                 "soda=" + soda +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 
@@ -273,7 +286,7 @@ public class ContextInitTerm {
 
         private void sendAssertSB(RegressionEnvironment env, boolean received) {
             env.sendEventBean(new SupportBean());
-            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvokedFlag("s0", received);
         }
     }
 
@@ -310,7 +323,7 @@ public class ContextInitTerm {
             sendAssertS0(env, "G1", false);
             sendAssertS0(env, "G2", true);
 
-            env.milestone(0);
+            env.milestone(2);
 
             sendAssertS0(env, "G2", true);
             sendAssertS0(env, "X", false);
@@ -323,7 +336,7 @@ public class ContextInitTerm {
 
         private void sendAssertS0(RegressionEnvironment env, String p00, boolean received) {
             env.sendEventBean(new SupportBean_S0(1, p00));
-            assertEquals(received, env.listener("s0").getIsInvokedAndReset());
+            env.assertListenerInvokedFlag("s0", received);
         }
     }
 
@@ -402,8 +415,10 @@ public class ContextInitTerm {
             env.assertListenerNotInvoked("s0");
 
             env.undeployAll();
-            assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
         }
     }
 
@@ -603,30 +618,32 @@ public class ContextInitTerm {
 
             env.milestoneInc(milestone);
 
-            // test iterator targeted by context partition id
-            SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(selectorById), env.statement("s0").safeIterator(selectorById), fields, new Object[][]{{1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
+            env.assertStatement("s0", statement -> {
+                // test iterator targeted by context partition id
+                SupportSelectorById selectorById = new SupportSelectorById(Collections.singleton(1));
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(selectorById), statement.safeIterator(selectorById), fields, new Object[][]{{1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
 
-            // test iterator targeted by property on triggering event
-            SupportSelectorFilteredInitTerm filtered = new SupportSelectorFilteredInitTerm("S0_2");
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.statement("s0").iterator(filtered), env.statement("s0").safeIterator(filtered), fields, new Object[][]{{1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
+                // test iterator targeted by property on triggering event
+                SupportSelectorFilteredInitTerm filtered = new SupportSelectorFilteredInitTerm("S0_2");
+                EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(filtered), statement.safeIterator(filtered), fields, new Object[][]{{1, "S0_2", "E1", 3}, {1, "S0_2", "E3", 201}});
 
-            // test always-false filter - compare context partition info
-            filtered = new SupportSelectorFilteredInitTerm(null);
-            assertFalse(env.statement("s0").iterator(filtered).hasNext());
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{1000L, 2000L}, filtered.getContextsStartTimes());
-            EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"S0_1", "S0_2"}, filtered.getP00PropertyValues());
+                // test always-false filter - compare context partition info
+                filtered = new SupportSelectorFilteredInitTerm(null);
+                assertFalse(statement.iterator(filtered).hasNext());
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{1000L, 2000L}, filtered.getContextsStartTimes());
+                EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"S0_1", "S0_2"}, filtered.getP00PropertyValues());
 
-            try {
-                env.statement("s0").iterator(new ContextPartitionSelectorSegmented() {
-                    public List<Object[]> getPartitionKeys() {
-                        return null;
-                    }
-                });
-                fail();
-            } catch (InvalidContextPartitionSelector ex) {
-                assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById] interfaces but received com."));
-            }
+                try {
+                    statement.iterator(new ContextPartitionSelectorSegmented() {
+                        public List<Object[]> getPartitionKeys() {
+                            return null;
+                        }
+                    });
+                    fail();
+                } catch (InvalidContextPartitionSelector ex) {
+                    assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById] interfaces but received com."));
+                }
+            });
 
             env.undeployAll();
         }
@@ -750,32 +767,32 @@ public class ContextInitTerm {
             String[] fields = "c1,c2,c3".split(",");
 
             env.sendEventBean(new SupportBean("G1", 1));
-            assertFalse(env.listener("S1").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("S1");
 
             env.sendEventBean(new SupportBean_S0(1, "SB01"));
 
             env.sendEventBean(new SupportBean("G2", 2));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G2", 2, "SB01"});
+            env.assertPropsNew("S1", fields, new Object[]{"G2", 2, "SB01"});
 
             env.sendEventBean(new SupportBean("G3", 3));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"G3", 5, "SB01"});
+            env.assertPropsNew("S1", fields, new Object[]{"G3", 5, "SB01"});
 
             env.sendEventBean(new SupportBean_S0(2, "SB02"));
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("G4", 4));
-            EPAssertionUtil.assertPropsPerRow(env.listener("S1").getAndResetLastNewData(), fields, new Object[][]{{"G4", 9, "SB01"}, {"G4", 4, "SB02"}});
+            env.assertPropsPerRowLastNew("S1", fields, new Object[][]{{"G4", 9, "SB01"}, {"G4", 4, "SB02"}});
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("G5", 5));
-            EPAssertionUtil.assertPropsPerRow(env.listener("S1").getAndResetLastNewData(), fields, new Object[][]{{"G5", 14, "SB01"}, {"G5", 9, "SB02"}});
+            env.assertPropsPerRowLastNew("S1", fields, new Object[][]{{"G5", 14, "SB01"}, {"G5", 9, "SB02"}});
 
             sendTimeEvent(env, "2002-05-1T8:01:00.000");
 
             env.sendEventBean(new SupportBean("G6", 6));
-            assertFalse(env.listener("S1").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("S1");
 
             // clean up
             env.undeployAll();
@@ -802,16 +819,16 @@ public class ContextInitTerm {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean_S2(100, "G1"));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{100});
+            env.assertPropsNew("S1", fields, new Object[]{100});
 
             // start context for G2
             env.sendEventBean(new SupportBean("G2", 0));
 
             env.sendEventBean(new SupportBean_S2(101, "G1"));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{101});
+            env.assertPropsNew("S1", fields, new Object[]{101});
             env.sendEventBean(new SupportBean_S2(102, "G2"));
             env.sendEventBean(new SupportBean_S2(103, "G3"));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{102});
+            env.assertPropsNew("S1", fields, new Object[]{102});
 
             env.milestone(1);
 
@@ -827,7 +844,7 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean_S2(201, "G1"));
             env.sendEventBean(new SupportBean_S2(202, "G2"));
             env.sendEventBean(new SupportBean_S2(203, "G3"));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{202});
+            env.assertPropsNew("S1", fields, new Object[]{202});
 
             // end context for G2
             env.sendEventBean(new SupportBean_S0(2, "G2"));
@@ -839,7 +856,7 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean_S2(301, "G1"));
             env.sendEventBean(new SupportBean_S2(302, "G2"));
             env.sendEventBean(new SupportBean_S2(303, "G3"));
-            assertFalse(env.listener("S1").isInvoked());
+            env.assertListenerNotInvoked("S1");
 
             env.undeployAll();
         }
@@ -863,7 +880,7 @@ public class ContextInitTerm {
 
             env.sendEventBean(new SupportBean_S0(10, "S0_1"));
             env.sendEventBean(new SupportBean_S1(20, "S1_1"));
-            assertFalse(env.listener("S1").getAndClearIsInvoked());
+            env.assertListenerNotInvoked("S1");
 
             env.milestone(0);
 
@@ -872,7 +889,7 @@ public class ContextInitTerm {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E1", 1));
-            EPAssertionUtil.assertProps(env.listener("S1").assertOneGetNewAndReset(), fields, new Object[]{"E1", 1, "S0_1", "S1_2"});
+            env.assertPropsNew("S1", fields, new Object[]{"E1", 1, "S0_1", "S1_2"});
 
             env.sendEventBean(new SupportBean_S0(11, "S0_2"));
             env.sendEventBean(new SupportBean_S1(11, "S1_2"));
@@ -880,12 +897,12 @@ public class ContextInitTerm {
             env.milestone(2);
 
             env.sendEventBean(new SupportBean("E2", 2));
-            EPAssertionUtil.assertPropsPerRow(env.listener("S1").getAndResetLastNewData(), fields, new Object[][]{{"E2", 3, "S0_1", "S1_2"}, {"E2", 2, "S0_2", "S1_2"}});
+            env.assertPropsPerRowLastNew("S1", fields, new Object[][]{{"E2", 3, "S0_1", "S1_2"}, {"E2", 2, "S0_2", "S1_2"}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("E3", 3));
-            EPAssertionUtil.assertPropsPerRow(env.listener("S1").getAndResetLastNewData(), fields, new Object[][]{{"E3", 6, "S0_1", "S1_2"}, {"E3", 5, "S0_2", "S1_2"}});
+            env.assertPropsPerRowLastNew("S1", fields, new Object[][]{{"E3", 6, "S0_1", "S1_2"}, {"E3", 5, "S0_2", "S1_2"}});
 
             env.undeployModuleContaining("S1");
             env.undeployModuleContaining("CTX");
@@ -898,10 +915,10 @@ public class ContextInitTerm {
             env.compileDeploy("@name('s0') select * from SupportBean#time(30)");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+            env.assertThat(() -> Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
 
             env.undeployModuleContaining("s0");
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+            env.assertThat(() -> Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
 
             // test initiated
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
@@ -912,30 +929,40 @@ public class ContextInitTerm {
             env.compileDeploy(eplCtx, path);
 
             env.compileDeploy("context EverySupportBean select * from SupportBean_S0#time(2 min) sb0", path);
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
-            Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(0, "S0_1"));
-            Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
 
             env.milestone(2);
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
 
             env.undeployAll();
-            Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-            Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            env.assertThat(() -> {
+                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+            });
         }
     }
 
@@ -1101,7 +1128,7 @@ public class ContextInitTerm {
                 boolean expected = (Boolean) testdata[i][1];
 
                 env.sendEventBean(bean);
-                Assert.assertEquals("Failed at " + i, expected, env.listener("s0").getAndClearIsInvoked());
+                env.assertListenerInvokedFlag("s0", expected, "Failed at " + i);
             }
             env.undeployModuleContaining("s0");
         }
@@ -1137,17 +1164,17 @@ public class ContextInitTerm {
             env.sendEventBean(new SupportBean_S0(3, "S02"));
 
             env.sendEventBean(new SupportBean("E3", 2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E3", 2, "S01"}, {"E3", 2, "S02"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"E3", 2, "S01"}, {"E3", 2, "S02"}});
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean_S0(4, "S03"));
 
             env.sendEventBean(new SupportBean("E4", 2));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E4", 2, "S01"}, {"E4", 2, "S02"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"E4", 2, "S01"}, {"E4", 2, "S02"}});
 
             env.sendEventBean(new SupportBean("E5", 1));
-            EPAssertionUtil.assertPropsPerRowAnyOrder(env.listener("s0").getAndResetLastNewData(), fields, new Object[][]{{"E5", 1, "S03"}});
+            env.assertPropsPerRowLastNewAnyOrder("s0", fields, new Object[][]{{"E5", 1, "S03"}});
 
             env.undeployAll();
         }
@@ -1487,6 +1514,10 @@ public class ContextInitTerm {
             env.compileDeploy(eplVariable, path);
             assertSODA(env, path, eplOne);
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
     }
 
     private static class ContextInitTermOutputOnlyWhenTerminatedThenSet implements RegressionExecution {
@@ -1502,7 +1533,7 @@ public class ContextInitTerm {
                 "terminated after 1 min", path);
 
             // include only-terminated output with set
-            env.runtime().getVariableService().setVariableValue(env.deploymentId("var"), "myvar", 0);
+            env.runtimeSetVariable("var", "myvar", 0);
             String eplTwo = "@name('s0') context EverySupportBeanS0 select theString as c0 from SupportBean " +
                 "output when terminated " +
                 "then set myvar=10";
@@ -1516,7 +1547,7 @@ public class ContextInitTerm {
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4"}});
-            Assert.assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar"));
+            env.assertThat(() -> Assert.assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar")));
 
             assertSODA(env, path, eplTwo);
         }
@@ -1537,18 +1568,22 @@ public class ContextInitTerm {
 
             env.sendEventBean(new SupportBean("E1", 10));
             env.assertListenerNotInvoked("s0");
-            assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0);
+            env.assertThat(() -> {
+                assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 0);
+            });
             env.assertPropsPerRowIterator("s0", fields, null);
 
             env.milestone(0);
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
 
+            env.assertThat(() -> {
+                assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
+            });
             env.milestone(1);
 
-            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E2", 5));
             Object[][] expected = new Object[][]{{"E2", 5}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
@@ -1556,10 +1591,12 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:01:59.999");
 
+            env.assertThat(() -> {
+                assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
+            });
             env.milestone(2);
 
-            assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 1);
             env.sendEventBean(new SupportBean("E3", 6));
             expected = new Object[][]{{"E3", 11}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
@@ -1570,43 +1607,48 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:02:00.000");
 
+            env.assertThat(() -> {
+                assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
+            });
             env.milestone(4);
 
-            assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E4", 7));
             expected = new Object[][]{{"E4", 18}, {"E4", 7}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
             env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:02:59.999");
-
+            env.assertThat(() -> {
+                assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
+            });
             env.milestone(5);
 
-            assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 2);
             env.sendEventBean(new SupportBean("E5", 8));
             expected = new Object[][]{{"E5", 26}, {"E5", 15}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
             env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:03:00.000");
-
+            env.assertThat(() -> {
+                assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
+            });
             env.milestone(6);
 
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E6", 9));
             expected = new Object[][]{{"E6", 35}, {"E6", 24}, {"E6", 9}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
             env.assertPropsPerRowIterator("s0", fields, expected);
 
             sendTimeEvent(env, "2002-05-1T08:04:00.000");
-
+            env.assertThat(() -> {
+                assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
+            });
             env.milestone(7);
 
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E7", 10));
             expected = new Object[][]{{"E7", 34}, {"E7", 19}, {"E7", 10}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
@@ -1614,10 +1656,12 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:05:00.000");
 
+            env.assertThat(() -> {
+                assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
+            });
             env.milestone(8);
 
-            assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
-            AgentInstanceAssertionUtil.assertInstanceCounts(env, "s0", 3);
             env.sendEventBean(new SupportBean("E8", 11));
             expected = new Object[][]{{"E8", 30}, {"E8", 21}, {"E8", 11}};
             env.assertPropsPerRowLastNew("s0", fields, expected);
@@ -1676,9 +1720,9 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
 
             String[] fields = "c0,c1".split(",");
-            String epl = "create schema SummedEvent(grp string, key string, value int);\n" +
-                "create schema InitEvent(grp string);\n" +
-                "create schema TermEvent(grp string);\n";
+            String epl = "@buseventtype create schema SummedEvent(grp string, key string, value int);\n" +
+                "@buseventtype create schema InitEvent(grp string);\n" +
+                "@buseventtype create schema TermEvent(grp string);\n";
 
             epl += "@Name('Ctx1') create context MyContext " +
                 "initiated by InitEvent as i " +
@@ -1687,7 +1731,7 @@ public class ContextInitTerm {
             epl += "@Name('s0') context MyContext " +
                 "select key as c0, sum(value) as c1 " +
                 "from SummedEvent(grp = context.i.grp) group by key;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath());
+            env.compileDeploy(epl, new RegressionPath());
             env.addListener("s0");
 
             env.milestone(0);
@@ -1749,12 +1793,14 @@ public class ContextInitTerm {
         }
 
         private void assertPartitionInfo(RegressionEnvironment env) {
-            EPContextPartitionService partitionAdmin = env.runtime().getContextPartitionService();
-            ContextPartitionCollection partitions = partitionAdmin.getContextPartitions(env.deploymentId("Ctx1"), "MyContext", ContextPartitionSelectorAll.INSTANCE);
-            assertEquals(1, partitions.getIdentifiers().size());
-            ContextPartitionIdentifierInitiatedTerminated ident = (ContextPartitionIdentifierInitiatedTerminated) partitions.getIdentifiers().values().iterator().next();
-            assertEquals(null, ident.getEndTime());
-            assertNotNull(ident.getProperties().get("i"));
+            env.assertThat(() -> {
+                EPContextPartitionService partitionAdmin = env.runtime().getContextPartitionService();
+                ContextPartitionCollection partitions = partitionAdmin.getContextPartitions(env.deploymentId("Ctx1"), "MyContext", ContextPartitionSelectorAll.INSTANCE);
+                assertEquals(1, partitions.getIdentifiers().size());
+                ContextPartitionIdentifierInitiatedTerminated ident = (ContextPartitionIdentifierInitiatedTerminated) partitions.getIdentifiers().values().iterator().next();
+                assertEquals(null, ident.getEndTime());
+                assertNotNull(ident.getProperties().get("i"));
+            });
         }
 
         private void sendInitEvent(RegressionEnvironment env, String grp) {
@@ -1837,8 +1883,10 @@ public class ContextInitTerm {
             "select id, context.sb.intPrimitive as sbint, context.startTime as starttime, context.endTime as endtime from SupportBean_S0(p00=context.sb.theString)", path);
         env.addListener("s0");
         String[] fields = "id,sbint,starttime,endtime".split(",");
-        assertEquals(StatementType.CREATE_CONTEXT, env.statement("ctx").getProperty(StatementProperty.STATEMENTTYPE));
-        assertEquals("SupportBeanInstanceCtx", env.statement("ctx").getProperty(StatementProperty.CREATEOBJECTNAME));
+        env.assertStatement("ctx", statement -> {
+            assertEquals(StatementType.CREATE_CONTEXT, statement.getProperty(StatementProperty.STATEMENTTYPE));
+            assertEquals("SupportBeanInstanceCtx", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
+        });
 
         env.milestoneInc(milestone);
 

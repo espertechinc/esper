@@ -26,15 +26,19 @@ public class EventBeanExplicitOnly implements RegressionExecution {
             " from MyLegacyEvent#length(5)";
         env.compileDeploy(statementText).addListener("s0");
 
-        EventType eventType = env.statement("s0").getEventType();
-        assertEquals(String.class, eventType.getPropertyType("fnested"));
-        assertEquals(String.class, eventType.getPropertyType("mnested"));
+        env.assertStatement("s0", statement -> {
+            EventType eventType = statement.getEventType();
+            assertEquals(String.class, eventType.getPropertyType("fnested"));
+            assertEquals(String.class, eventType.getPropertyType("mnested"));
+        });
 
         SupportLegacyBean legacyBean = EventBeanPublicAccessors.makeSampleEvent();
         env.sendEventBean(legacyBean, "MyLegacyEvent");
 
-        assertEquals(legacyBean.fieldNested.readNestedValue(), env.listener("s0").getLastNewData()[0].get("fnested"));
-        assertEquals(legacyBean.fieldNested.readNestedValue(), env.listener("s0").getLastNewData()[0].get("mnested"));
+        env.assertEventNew("s0", event -> {
+            assertEquals(legacyBean.fieldNested.readNestedValue(), event.get("fnested"));
+            assertEquals(legacyBean.fieldNested.readNestedValue(), event.get("mnested"));
+        });
 
         env.tryInvalidCompile("select intPrimitive from MySupportBean#length(5)", "skip");
 

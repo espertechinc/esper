@@ -20,6 +20,8 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
 
     private static final List<QueryPlanIndexDescSubquery> SUBQUERIES = new ArrayList<QueryPlanIndexDescSubquery>();
@@ -75,34 +77,34 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
 
     public static void assertSubquery(QueryPlanIndexDescSubquery subquery, int subqueryNum, String tableName, String indexBackingClass) {
         if (indexBackingClass == null) {
-            Assert.assertEquals(0, subquery.getTables().length);
+            assertEquals(0, subquery.getTables().length);
             return;
         }
-        Assert.assertEquals(tableName, subquery.getTables()[0].getIndexName());
-        Assert.assertEquals(subqueryNum, subquery.getSubqueryNum());
-        Assert.assertEquals(indexBackingClass, subquery.getTables()[0].getIndexDesc());
+        assertEquals(tableName, subquery.getTables()[0].getIndexName());
+        assertEquals(subqueryNum, subquery.getSubqueryNum());
+        assertEquals(indexBackingClass, subquery.getTables()[0].getIndexDesc());
     }
 
     public static void assertSubqueryBackingAndReset(int subqueryNum, String tableName, String indexBackingClass) {
-        Assert.assertTrue(SUBQUERIES.size() == 1);
+        assertEquals(1, SUBQUERIES.size());
         QueryPlanIndexDescSubquery subquery = SUBQUERIES.get(0);
         assertSubquery(subquery, subqueryNum, tableName, indexBackingClass);
         reset();
     }
 
     public static QueryPlanIndexDescSubquery assertSubqueryAndReset() {
-        Assert.assertTrue(SUBQUERIES.size() == 1);
+        assertEquals(1, SUBQUERIES.size());
         QueryPlanIndexDescSubquery subquery = SUBQUERIES.get(0);
         reset();
         return subquery;
     }
 
     public static void assertOnExprTableAndReset(String indexName, String indexDescription) {
-        Assert.assertTrue(ONEXPRS.size() == 1);
+        assertEquals(1, ONEXPRS.size());
         QueryPlanIndexDescOnExpr onexp = ONEXPRS.get(0);
         if (indexDescription != null) {
-            Assert.assertEquals(indexDescription, onexp.getTables()[0].getIndexDesc());
-            Assert.assertEquals(indexName, onexp.getTables()[0].getIndexName()); // can be null
+            assertEquals(indexDescription, onexp.getTables()[0].getIndexDesc());
+            assertEquals(indexName, onexp.getTables()[0].getIndexName()); // can be null
         } else {
             Assert.assertNull(onexp.getTables());
             Assert.assertNull(onexp.getTableLookupStrategy());
@@ -120,7 +122,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     public static void assertFAFAndReset(String tableName, String indexBackingClassStartsWith) {
         Assert.assertTrue(FAFSNAPSHOTS.size() == 1);
         QueryPlanIndexDescFAF fafdesc = FAFSNAPSHOTS.get(0);
-        Assert.assertEquals(tableName, fafdesc.getTables()[0].getIndexName());
+        assertEquals(tableName, fafdesc.getTables()[0].getIndexName());
         String name = fafdesc.getTables()[0].getIndexDesc();
         if (indexBackingClassStartsWith != null) {
             Assert.assertTrue(name.startsWith(indexBackingClassStartsWith));
@@ -134,7 +136,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
         QueryPlanIndexForge first = join.getIndexSpecs()[1];
         TableLookupIndexReqKey firstName = first.getItems().keySet().iterator().next();
         QueryPlanIndexItemForge index = first.getItems().get(firstName);
-        Assert.assertEquals(unique, index.isUnique());
+        assertEquals(unique, index.isUnique());
         reset();
     }
 
@@ -151,7 +153,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
         for (QueryPlanIndexForge index : join.getIndexSpecs()) {
             TableLookupIndexReqKey firstName = index.getItems().keySet().iterator().next();
             QueryPlanIndexItemForge indexDesc = index.getItems().get(firstName);
-            Assert.assertEquals(unique, indexDesc.isUnique());
+            assertEquals(unique, indexDesc.isUnique());
         }
         reset();
     }

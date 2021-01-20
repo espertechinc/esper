@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
@@ -56,7 +57,7 @@ public class EPLVariablesOnSet {
     private static class EPLVariableOnSetExpression implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                    "import " + MyLocalVariable.class.getName() + ";\n" +
+                "import " + MyLocalVariable.class.getName() + ";\n" +
                     "@name('var') create variable MyLocalVariable VAR = new MyLocalVariable(1, 10);\n" +
                     "" +
                     "inlined_class \"\"\"\n" +
@@ -102,6 +103,10 @@ public class EPLVariablesOnSet {
             env.tryInvalidCompile(eplConstant, "Failed to validate assignment expression 'VAR.reset()': Variable by name 'VAR' is declared constant and may not be set");
         }
 
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
+        }
+
         private void assertVariable(RegressionEnvironment env, int aExpected, int bExpected) {
             MyLocalVariable value = (MyLocalVariable) env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "VAR");
             assertEquals(aExpected, value.a);
@@ -112,13 +117,13 @@ public class EPLVariablesOnSet {
     private static class EPLVariableOnSetArrayBoxed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                    "create variable java.lang.Double[] dbls = new java.lang.Double[3];\n" +
+                "create variable java.lang.Double[] dbls = new java.lang.Double[3];\n" +
                     "@priority(1) on SupportBean set dbls[intPrimitive] = 1;\n" +
                     "@name('s0') select dbls as c0 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEventNew("s0", event -> assertArrayEquals(new Double[]{null, 1d, null}, (Double[]) event.get("c0")));
 
             env.undeployAll();
         }
@@ -200,9 +205,13 @@ public class EPLVariablesOnSet {
 
             env.sendEventBean(new SupportBean("E1", 1));
 
-            assertVariables(env, new double[] {0, 1, 0}, "a,x,c".split(","));
+            assertVariables(env, new double[]{0, 1, 0}, "a,x,c".split(","));
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
 
         private void assertVariables(RegressionEnvironment env, double[] doubleExpected, String[] stringExpected) {
@@ -227,8 +236,8 @@ public class EPLVariablesOnSet {
                 "on SupportBean set total_sum = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array)";
             env.compileDeploy(epl);
 
-            env.sendEventBean(new SupportEventWithIntArray("E1", new int[] {1, 2}, 10));
-            env.sendEventBean(new SupportEventWithIntArray("E2", new int[] {1, 2}, 11));
+            env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
+            env.sendEventBean(new SupportEventWithIntArray("E2", new int[]{1, 2}, 11));
 
             env.milestone(0);
             assertVariable(env, -1);
@@ -236,13 +245,13 @@ public class EPLVariablesOnSet {
             env.sendEventBean(new SupportBean());
             assertVariable(env, 21);
 
-            env.sendEventBean(new SupportEventWithIntArray("E3", new int[] {1, 2}, 12));
+            env.sendEventBean(new SupportEventWithIntArray("E3", new int[]{1, 2}, 12));
             env.sendEventBean(new SupportBean());
             assertVariable(env, 33);
 
             env.milestone(1);
 
-            env.sendEventBean(new SupportEventWithIntArray("E4", new int[] {1}, 13));
+            env.sendEventBean(new SupportEventWithIntArray("E4", new int[]{1}, 13));
             env.sendEventBean(new SupportBean());
             assertVariable(env, null);
 
@@ -251,6 +260,10 @@ public class EPLVariablesOnSet {
 
         private void assertVariable(RegressionEnvironment env, Integer expected) {
             assertEquals(expected, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "total_sum"));
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
 
@@ -262,7 +275,7 @@ public class EPLVariablesOnSet {
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));
-            assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", true);
 
             env.milestone(0);
 
@@ -271,7 +284,7 @@ public class EPLVariablesOnSet {
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E2", 0));
-            assertEquals(false, env.listener("s0").assertOneGetNewAndReset().get("c0"));
+            env.assertEqualsNew("s0", "c0", false);
 
             env.undeployAll();
         }
@@ -303,21 +316,21 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean set var1OND = intPrimitive, var2OND = var1OND + 1, var3OND = var1OND + var2OND";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1OND", "var2OND", "var3OND"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{12, 2, null}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{12, 2, null}});
 
             sendSupportBean(env, "S1", 3);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{3, 4, 7});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3, 4, 7}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{3, 4, 7});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{3, 4, 7}});
 
             env.milestone(0);
 
             sendSupportBean(env, "S1", -1);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{-1, 0, -1});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1, 0, -1}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{-1, 0, -1});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{-1, 0, -1}});
 
             sendSupportBean(env, "S1", 90);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{90, 91, 181});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{90, 91, 181}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{90, 91, 181});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{90, 91, 181}});
 
             env.undeployAll();
         }
@@ -329,25 +342,25 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean set var1OD = intPrimitive, var2OD = var2OD, var1OD = intBoxed, var3OD = var3OD + 1";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1OD", "var2OD", "var3OD"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{0, 1, 2}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{0, 1, 2}});
 
             sendSupportBean(env, "S1", -1, 10);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{10, 1, 3});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{10, 1, 3}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{10, 1, 3});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{10, 1, 3}});
 
             sendSupportBean(env, "S2", -2, 20);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{20, 1, 4});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{20, 1, 4}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{20, 1, 4});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{20, 1, 4}});
 
             env.milestone(0);
 
             sendSupportBeanNewThread(env, "S3", -3, 30);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{30, 1, 5});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{30, 1, 5}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{30, 1, 5});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{30, 1, 5}});
 
             sendSupportBeanNewThread(env, "S4", -4, 40);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{40, 1, 6});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{40, 1, 6}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{40, 1, 6});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{40, 1, 6}});
 
             env.undeployAll();
         }
@@ -378,17 +391,19 @@ public class EPLVariablesOnSet {
             env.compileDeploy(model, path).addListener("set");
             assertEquals(stmtTextSet, model.toEPL());
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(Double.class, typeSet.getPropertyType("var1OM"));
-            assertEquals(Long.class, typeSet.getPropertyType("var2OM"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
             String[] fieldsVar = new String[]{"var1OM", "var2OM"};
-            EPAssertionUtil.assertEqualsAnyOrder(fieldsVar, typeSet.getPropertyNames());
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(Double.class, typeSet.getPropertyType("var1OM"));
+                assertEquals(Long.class, typeSet.getPropertyType("var2OM"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                EPAssertionUtil.assertEqualsAnyOrder(fieldsVar, typeSet.getPropertyNames());
+            });
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{10d, 11L}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{10d, 11L}});
             sendSupportBean(env, "S1", 3, 4);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{3d, 4L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3d, 4L}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{3d, 4L});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{3d, 4L}});
 
             sendSupportBean_A(env, "E2");
             env.assertPropsNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
@@ -422,22 +437,21 @@ public class EPLVariablesOnSet {
 
             // read values
             sendMarketDataEvent(env, "E1");
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fieldsSelect, new Object[]{1, 10, "E1"});
+            env.assertPropsNew("s2", fieldsSelect, new Object[]{1, 10, "E1"});
 
             env.milestone(1);
 
             // set new value
             sendSupportBean(env, 20);
-            EPAssertionUtil.assertProps(env.listener("s0_0").getLastNewData()[0], fieldsVarOne, new Object[]{20});
-            EPAssertionUtil.assertProps(env.listener("s0_1").getLastNewData()[0], fieldsVarTwo, new Object[]{20});
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), fieldsVarSet, new Object[]{20, 20});
-            env.listener("s0_0").reset();
+            env.assertListener("s0_0", listener -> EPAssertionUtil.assertProps(listener.getLastNewData()[0], fieldsVarOne, new Object[]{20}));
+            env.assertListener("s0_1", listener -> EPAssertionUtil.assertProps(listener.getLastNewData()[0], fieldsVarTwo, new Object[]{20}));
+            env.assertPropsNew("s1", fieldsVarSet, new Object[]{20, 20});
 
             env.milestone(2);
 
             // read values
             sendMarketDataEvent(env, "E2");
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fieldsSelect, new Object[]{20, 20, "E2"});
+            env.assertPropsNew("s2", fieldsSelect, new Object[]{20, 20, "E2"});
 
             env.milestone(3);
 
@@ -448,7 +462,7 @@ public class EPLVariablesOnSet {
 
             // read values
             sendMarketDataEvent(env, "E3");
-            EPAssertionUtil.assertProps(env.listener("s2").assertOneGetNewAndReset(), fieldsSelect, new Object[]{1000, 1000, "E3"});
+            env.assertPropsNew("s2", fieldsSelect, new Object[]{1000, 1000, "E3"});
 
             env.milestone(5);
 
@@ -482,17 +496,19 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean set var1C=intPrimitive, var2C=intBoxed";
             env.eplToModelCompileDeploy(stmtTextSet).addListener("set");
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(Double.class, typeSet.getPropertyType("var1C"));
-            assertEquals(Long.class, typeSet.getPropertyType("var2C"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
             String[] fieldsVar = new String[]{"var1C", "var2C"};
-            EPAssertionUtil.assertEqualsAnyOrder(fieldsVar, typeSet.getPropertyNames());
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(Double.class, typeSet.getPropertyType("var1C"));
+                assertEquals(Long.class, typeSet.getPropertyType("var2C"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                EPAssertionUtil.assertEqualsAnyOrder(fieldsVar, typeSet.getPropertyNames());
+            });
 
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{10d, 11L}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{10d, 11L}});
             sendSupportBean(env, "S1", 3, 4);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{3d, 4L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3d, 4L}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{3d, 4L});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{3d, 4L}});
 
             sendSupportBean_A(env, "E2");
             env.assertPropsNew("s0", fieldsSelect, new Object[]{3d, 4L, "E2"});
@@ -520,26 +536,28 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean(theString like 'S%') set var1RTC = intPrimitive";
             env.compileDeploy(stmtTextSet).addListener("set");
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(Integer.class, typeSet.getPropertyType("var1RTC"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
-            assertTrue(Arrays.equals(typeSet.getPropertyNames(), new String[]{"var1RTC"}));
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(Integer.class, typeSet.getPropertyType("var1RTC"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                assertTrue(Arrays.equals(typeSet.getPropertyNames(), new String[]{"var1RTC"}));
+            });
 
             String[] fieldsVar = new String[]{"var1RTC"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{10}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{10}});
 
             sendSupportBean(env, "S1", 3);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{3});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{3});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{3}});
 
-            env.milestone(0);
+            env.milestone(1);
 
             sendSupportBean(env, "E3", 4);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{3, "E3"});
 
             sendSupportBean(env, "S2", -1);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{-1});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{-1});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{-1}});
 
             sendSupportBean(env, "E4", 5);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{-1, "E4"});
@@ -554,23 +572,25 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean(theString like 'S%' or theString like 'B%') set var1ROM = intPrimitive, var2ROM = intBoxed";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1ROM", "var2ROM"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{null, 1}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{null, 1}});
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(Integer.class, typeSet.getPropertyType("var1ROM"));
-            assertEquals(Integer.class, typeSet.getPropertyType("var2ROM"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
-            EPAssertionUtil.assertEqualsAnyOrder(new String[]{"var1ROM", "var2ROM"}, typeSet.getPropertyNames());
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(Integer.class, typeSet.getPropertyType("var1ROM"));
+                assertEquals(Integer.class, typeSet.getPropertyType("var2ROM"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                EPAssertionUtil.assertEqualsAnyOrder(new String[]{"var1ROM", "var2ROM"}, typeSet.getPropertyNames());
+            });
 
             sendSupportBean(env, "S1", 3, null);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{3, null});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{3, null}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{3, null});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{3, null}});
 
             env.milestone(0);
 
             sendSupportBean(env, "S1", -1, -2);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{-1, -2});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1, -2}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{-1, -2});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{-1, -2}});
 
             String stmtText = "@name('s0') select var1ROM, var2ROM, theString from SupportBean(theString like 'E%' or theString like 'B%')";
             env.compileDeploy(stmtText).addListener("s0");
@@ -581,12 +601,12 @@ public class EPLVariablesOnSet {
 
             sendSupportBean(env, "E1", 1);
             env.assertPropsNew("s0", fieldsSelect, new Object[]{-1, -2, "E1"});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{-1, -2}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{-1, -2}});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{-1, -2, "E1"}});
 
             sendSupportBean(env, "S1", 11, 12);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{11, 12});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{11, 12}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{11, 12});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{11, 12}});
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{11, 12, "E1"}});
 
             sendSupportBean(env, "E2", 2);
@@ -602,25 +622,27 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean(theString like 'S%') set papi_1 = 'end', papi_2 = false, papi_3 = null";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"papi_1", "papi_2", "papi_3"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{"begin", true, "value"}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{"begin", true, "value"}});
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(String.class, typeSet.getPropertyType("papi_1"));
-            assertEquals(Boolean.class, typeSet.getPropertyType("papi_2"));
-            assertEquals(String.class, typeSet.getPropertyType("papi_3"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
-            Arrays.sort(typeSet.getPropertyNames());
-            assertTrue(Arrays.equals(typeSet.getPropertyNames(), fieldsVar));
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(String.class, typeSet.getPropertyType("papi_1"));
+                assertEquals(Boolean.class, typeSet.getPropertyType("papi_2"));
+                assertEquals(String.class, typeSet.getPropertyType("papi_3"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                Arrays.sort(typeSet.getPropertyNames());
+                assertArrayEquals(typeSet.getPropertyNames(), fieldsVar);
+            });
 
             sendSupportBean(env, "S1", 3);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"end", false, null});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{"end", false, null}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"end", false, null});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{"end", false, null}});
 
             env.milestone(0);
 
             sendSupportBean(env, "S2", 4);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{"end", false, null});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{"end", false, null}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{"end", false, null});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{"end", false, null}});
 
             env.undeployAll();
         }
@@ -632,14 +654,16 @@ public class EPLVariablesOnSet {
             String stmtTextSet = "@name('set') on SupportBean set var1COE = intPrimitive, var2COE = intPrimitive, var3COE=intBoxed";
             env.compileDeploy(stmtTextSet).addListener("set");
             String[] fieldsVar = new String[]{"var1COE", "var2COE", "var3COE"};
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{null, null, null}});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{null, null, null}});
 
-            EventType typeSet = env.statement("set").getEventType();
-            assertEquals(Float.class, typeSet.getPropertyType("var1COE"));
-            assertEquals(Double.class, typeSet.getPropertyType("var2COE"));
-            assertEquals(Long.class, typeSet.getPropertyType("var3COE"));
-            assertEquals(Map.class, typeSet.getUnderlyingType());
-            EPAssertionUtil.assertEqualsAnyOrder(typeSet.getPropertyNames(), fieldsVar);
+            env.assertStatement("set", statement -> {
+                EventType typeSet = statement.getEventType();
+                assertEquals(Float.class, typeSet.getPropertyType("var1COE"));
+                assertEquals(Double.class, typeSet.getPropertyType("var2COE"));
+                assertEquals(Long.class, typeSet.getPropertyType("var3COE"));
+                assertEquals(Map.class, typeSet.getUnderlyingType());
+                EPAssertionUtil.assertEqualsAnyOrder(typeSet.getPropertyNames(), fieldsVar);
+            });
 
             String stmtText = "@name('s0') select irstream var1COE, var2COE, var3COE, id from SupportBean_A#length(2)";
             env.compileDeploy(stmtText).addListener("s0");
@@ -651,8 +675,8 @@ public class EPLVariablesOnSet {
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{null, null, null, "A1"}});
 
             sendSupportBean(env, "S1", 1, 2);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{1f, 1d, 2L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{1f, 1d, 2L}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{1f, 1d, 2L});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{1f, 1d, 2L}});
 
             env.milestone(0);
 
@@ -661,12 +685,14 @@ public class EPLVariablesOnSet {
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{1f, 1d, 2L, "A1"}, {1f, 1d, 2L, "A2"}});
 
             sendSupportBean(env, "S1", 10, 20);
-            EPAssertionUtil.assertProps(env.listener("set").assertOneGetNewAndReset(), fieldsVar, new Object[]{10f, 10d, 20L});
-            EPAssertionUtil.assertPropsPerRow(env.iterator("set"), fieldsVar, new Object[][]{{10f, 10d, 20L}});
+            env.assertPropsNew("set", fieldsVar, new Object[]{10f, 10d, 20L});
+            env.assertPropsPerRowIterator("set", fieldsVar, new Object[][]{{10f, 10d, 20L}});
 
             sendSupportBean_A(env, "A3");
-            EPAssertionUtil.assertProps(env.listener("s0").getLastNewData()[0], fieldsSelect, new Object[]{10f, 10d, 20L, "A3"});
-            EPAssertionUtil.assertProps(env.listener("s0").getLastOldData()[0], fieldsSelect, new Object[]{10f, 10d, 20L, "A1"});
+            env.assertListener("s0", listener -> {
+                EPAssertionUtil.assertProps(listener.getLastNewData()[0], fieldsSelect, new Object[]{10f, 10d, 20L, "A3"});
+                EPAssertionUtil.assertProps(listener.getLastOldData()[0], fieldsSelect, new Object[]{10f, 10d, 20L, "A1"});
+            });
             env.assertPropsPerRowIterator("s0", fieldsSelect, new Object[][]{{10f, 10d, 20L, "A2"}, {10f, 10d, 20L, "A3"}});
 
             env.undeployAll();

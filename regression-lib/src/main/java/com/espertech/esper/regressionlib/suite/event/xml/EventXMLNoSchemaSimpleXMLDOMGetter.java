@@ -67,21 +67,23 @@ public class EventXMLNoSchemaSimpleXMLDOMGetter {
     }
 
     protected static void assertDataGetter(RegressionEnvironment env, String element1, boolean isInvalidReturnsEmptyString) {
-        assertNotNull(env.listener("s0").getLastNewData());
-        EventBean theEvent = env.listener("s0").getLastNewData()[0];
+        env.assertListener("s0", listener -> {
+            assertNotNull(listener.getLastNewData());
+            EventBean theEvent = listener.getLastNewData()[0];
 
-        assertEquals(element1, theEvent.get("element1"));
-        assertEquals("VAL4-1", theEvent.get("nestedElement"));
-        assertEquals("VAL21-2", theEvent.get("mappedElement"));
-        assertEquals("VAL21-2", theEvent.get("indexedElement"));
+            assertEquals(element1, theEvent.get("element1"));
+            assertEquals("VAL4-1", theEvent.get("nestedElement"));
+            assertEquals("VAL21-2", theEvent.get("mappedElement"));
+            assertEquals("VAL21-2", theEvent.get("indexedElement"));
 
-        if (isInvalidReturnsEmptyString) {
-            assertEquals("", theEvent.get("invalidelement"));
-            assertEquals("", theEvent.get("invalidattribute"));
-        } else {
-            assertEquals(null, theEvent.get("invalidelement"));
-            assertEquals(null, theEvent.get("invalidattribute"));
-        }
+            if (isInvalidReturnsEmptyString) {
+                assertEquals("", theEvent.get("invalidelement"));
+                assertEquals("", theEvent.get("invalidattribute"));
+            } else {
+                assertEquals(null, theEvent.get("invalidelement"));
+                assertEquals(null, theEvent.get("invalidattribute"));
+            }
+        });
     }
 }
 

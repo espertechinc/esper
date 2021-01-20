@@ -32,15 +32,15 @@ public class ResultSetQueryTypeRowPerGroupReclaimMicrosecondResolution implement
         env.compileDeploy(epl).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 0));
-        assertCount(env.statement("s0"), 1);
+        env.assertStatement("s0", statement -> assertCount(statement, 1));
 
         env.advanceTime(flipTime - 1);
         env.sendEventBean(new SupportBean("E2", 0));
-        assertCount(env.statement("s0"), 2);
+        env.assertStatement("s0", statement -> assertCount(statement, 2));
 
         env.advanceTime(flipTime);
         env.sendEventBean(new SupportBean("E3", 0));
-        assertCount(env.statement("s0"), 2);
+        env.assertStatement("s0", statement -> assertCount(statement, 2));
 
         env.undeployAll();
     }

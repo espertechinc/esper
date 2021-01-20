@@ -11,7 +11,6 @@
 package com.espertech.esper.regressionlib.suite.expr.datetime;
 
 import com.espertech.esper.common.client.util.DateTime;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -27,8 +26,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -38,14 +35,14 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
 
         // test Bean-type Date-type timestamps
         String startA = "2002-05-30T09:00:00.000";
-        String epl = " create schema SupportBeanXXX as " + SupportBean.class.getName() + " starttimestamp longPrimitive endtimestamp longBoxed;\n";
+        String epl = "@buseventtype create schema SupportBeanXXX as " + SupportBean.class.getName() + " starttimestamp longPrimitive endtimestamp longBoxed;\n";
         epl += "@name('s0') select a.get('month') as val0 from SupportBeanXXX a;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+        env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
         SupportBean theEvent = new SupportBean();
         theEvent.setLongPrimitive(DateTime.parseDefaultMSec(startA));
-        env.eventService().sendEventBean(theEvent, "SupportBeanXXX");
-        assertEquals(4, env.listener("s0").assertOneGetNewAndReset().get("val0"));
+        env.sendEventBean(theEvent, "SupportBeanXXX");
+        env.assertEqualsNew("s0", "val0", 4);
 
         env.undeployAll();
     }
@@ -97,14 +94,14 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
     }
 
     private void runAssertionCreateSchemaWTypes(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB, Class jsonClass) {
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
-        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
         epl += "@name('s0') select a.includes(b) as val0 from TypeA#lastevent as a, TypeB#lastevent as b;\n";
-        env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+        env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
         makeSendEvent(env, "TypeA", eventRepresentationEnum, startA, endA);
         makeSendEvent(env, "TypeB", eventRepresentationEnum, startB, endB);
-        assertEquals(true, env.listener("s0").assertOneGetNewAndReset().get("val0"));
+        env.assertEqualsNew("s0", "val0", true);
 
         env.undeployAll();
     }
@@ -118,13 +115,13 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
             theEvent.put("endts", endTs);
             env.sendEventMap(theEvent, typeName);
         } else if (eventRepresentationEnum.isAvroEvent()) {
-            GenericData.Record record = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(typeName)));
+            GenericData.Record record = new GenericData.Record(env.runtimeAvroSchemaPreconfigured(typeName));
             record.put("startts", startTs);
             record.put("endts", endTs);
-            env.eventService().sendEventAvro(record, typeName);
+            env.sendEventAvro(record, typeName);
         } else if (eventRepresentationEnum.isJsonEvent() || eventRepresentationEnum.isJsonProvidedClassEvent()) {
             String json = "{\"startts\": \"" + startTs + "\", \"endts\": \"" + endTs + "\"}";
-            env.eventService().sendEventJson(json, typeName);
+            env.sendEventJson(json, typeName);
         } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }

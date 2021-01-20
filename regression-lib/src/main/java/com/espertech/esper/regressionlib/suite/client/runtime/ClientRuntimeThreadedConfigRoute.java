@@ -12,9 +12,10 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
+import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.runtime.client.DeploymentOptions;
@@ -22,10 +23,16 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
+
 import static org.junit.Assert.assertTrue;
 
 public class ClientRuntimeThreadedConfigRoute implements RegressionExecutionWithConfigure {
     private static final Logger log = LoggerFactory.getLogger(ClientRuntimeThreadedConfigRoute.class);
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
+    }
 
     public void configure(Configuration configuration) {
         configuration.getRuntime().getThreading().setInternalTimerEnabled(true);

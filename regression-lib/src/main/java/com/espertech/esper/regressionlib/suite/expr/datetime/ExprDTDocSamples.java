@@ -17,8 +17,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportTimeStartEndB;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExprDTDocSamples implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
@@ -53,7 +51,7 @@ public class ExprDTDocSamples implements RegressionExecution {
 
         env.sendEventBean(SupportTimeStartEndA.make("E1", tsa, 0), "A");
         env.sendEventBean(SupportTimeStartEndB.make("E2", tsb, 0), "B");
-        assertEquals(isInvoked, env.listener("s0").getAndClearIsInvoked());
+        env.assertListenerInvokedFlag("s0", isInvoked);
 
         env.undeployAll();
     }

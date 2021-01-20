@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.render.JSONEventRenderer;
 import com.espertech.esper.common.client.render.XMLEventRenderer;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -61,7 +59,7 @@ public class EventInfraEventRenderer implements RegressionExecution {
         runAssertion(env, XML_TYPENAME, FXML, xml, path);
 
         // Avro
-        Schema schema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         Schema innerSchema = schema.getField("nested").schema();
         GenericData.Record avroInner = new GenericData.Record(innerSchema);
         avroInner.put("myInsideInt", 10);
@@ -96,20 +94,21 @@ public class EventInfraEventRenderer implements RegressionExecution {
         env.compileDeploy(epl, path).addListener("s0");
         send.apply(env, event, typename);
 
-        EventBean eventBean = env.listener("s0").assertOneGetNewAndReset();
+        env.assertEventNew("s0", eventBean -> {
+            JSONEventRenderer jsonEventRenderer = env.runtime().getRenderEventService().getJSONRenderer(eventBean.getEventType());
+            String json = jsonEventRenderer.render(eventBean).replaceAll("(\\s|\\n|\\t)", "");
+            assertEquals("{\"myInt\":1,\"myString\":\"abc\",\"nested\":{\"myInsideInt\":10}}", json);
 
-        JSONEventRenderer jsonEventRenderer = env.runtime().getRenderEventService().getJSONRenderer(env.statement("s0").getEventType());
-        String json = jsonEventRenderer.render(eventBean).replaceAll("(\\s|\\n|\\t)", "");
-        assertEquals("{\"myInt\":1,\"myString\":\"abc\",\"nested\":{\"myInsideInt\":10}}", json);
-
-        XMLEventRenderer xmlEventRenderer = env.runtime().getRenderEventService().getXMLRenderer(env.statement("s0").getEventType());
-        String xml = xmlEventRenderer.render("root", eventBean).replaceAll("(\\s|\\n|\\t)", "");
-        assertEquals("<?xmlversion=\"1.0\"encoding=\"UTF-8\"?><root><myInt>1</myInt><myString>abc</myString><nested><myInsideInt>10</myInsideInt></nested></root>", xml);
+            XMLEventRenderer xmlEventRenderer = env.runtime().getRenderEventService().getXMLRenderer(eventBean.getEventType());
+            String xml = xmlEventRenderer.render("root", eventBean).replaceAll("(\\s|\\n|\\t)", "");
+            assertEquals("<?xmlversion=\"1.0\"encoding=\"UTF-8\"?><root><myInt>1</myInt><myString>abc</myString><nested><myInsideInt>10</myInsideInt></nested></root>", xml);
+        });
 
         env.undeployAll();
     }
 
-    public final static class MyEvent {
+    public final static class MyEvent implements Serializable {
+        private static final long serialVersionUID = 8220467649272112465L;
         private int myInt;
         private String myString;
         private MyInsideEvent nested;
@@ -133,7 +132,8 @@ public class EventInfraEventRenderer implements RegressionExecution {
         }
     }
 
-    public final static class MyInsideEvent {
+    public final static class MyInsideEvent implements Serializable {
+        private static final long serialVersionUID = -2252431072289046866L;
         private int myInsideInt;
 
         public MyInsideEvent(int myInsideInt) {
@@ -146,12 +146,14 @@ public class EventInfraEventRenderer implements RegressionExecution {
     }
 
     public static class MyLocalJsonProvided implements Serializable {
+        private static final long serialVersionUID = 2265529545715355163L;
         public int myInt;
         public String myString;
         public MyLocalJsonProvidedNested nested;
     }
 
     public static class MyLocalJsonProvidedNested implements Serializable {
+        private static final long serialVersionUID = -3046705472550310884L;
         public int myInsideInt;
     }
 }

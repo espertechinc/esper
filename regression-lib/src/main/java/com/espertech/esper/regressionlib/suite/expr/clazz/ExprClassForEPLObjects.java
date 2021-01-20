@@ -12,7 +12,6 @@ package com.espertech.esper.regressionlib.suite.expr.clazz;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
-import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -50,16 +49,17 @@ public class ExprClassForEPLObjects {
                     "\"\"\" \n" +
                     "@name('s0') select MyBean.getBean(intPrimitive) as c0 from SupportBean";
             env.compileDeploy(epl).addListener("s0");
-            EventType eventType = env.statement("s0").getEventType();
-            assertEquals("MyBean", eventType.getPropertyType("c0").getSimpleName());
+            env.assertStatement("s0", statement -> assertEquals("MyBean", statement.getEventType().getPropertyType("c0").getSimpleName()));
 
             env.sendEventBean(new SupportBean("E1", 10));
-            Object result = env.listener("s0").assertOneGetNewAndReset().get("c0");
-            try {
-                assertEquals(10, result.getClass().getMethod("getId").invoke(result));
-            } catch (Throwable t) {
-                fail(t.getMessage());
-            }
+            env.assertEventNew("s0", event -> {
+                Object result = event.get("c0");
+                try {
+                    assertEquals(10, result.getClass().getMethod("getId").invoke(result));
+                } catch (Throwable t) {
+                    fail(t.getMessage());
+                }
+            });
 
             env.undeployAll();
         }
@@ -105,12 +105,14 @@ public class ExprClassForEPLObjects {
                 "@name('s0') select myItemProducerScript() from SupportBean";
             env.compileDeploy(eplScript).addListener("s0");
 
-            try {
-                env.sendEventBean(new SupportBean("E1", 1));
-                fail();
-            } catch (EPException ex) {
-                assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 's0'");
-            }
+            env.assertThat(() -> {
+                try {
+                    env.sendEventBean(new SupportBean("E1", 1));
+                    fail();
+                } catch (EPException ex) {
+                    assertMessage(ex, "java.lang.RuntimeException: Unexpected exception in statement 's0'");
+                }
+            });
 
             env.undeployAll();
         }

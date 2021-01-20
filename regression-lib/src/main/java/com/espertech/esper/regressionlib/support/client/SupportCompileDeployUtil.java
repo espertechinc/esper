@@ -13,7 +13,10 @@ package com.espertech.esper.regressionlib.support.client;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.util.NameAccessModifier;
-import com.espertech.esper.compiler.client.*;
+import com.espertech.esper.compiler.client.CompilerArguments;
+import com.espertech.esper.compiler.client.CompilerOptions;
+import com.espertech.esper.compiler.client.CompilerPath;
+import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.*;
 

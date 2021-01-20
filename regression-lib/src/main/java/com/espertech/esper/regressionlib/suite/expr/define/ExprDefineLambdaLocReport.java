@@ -47,17 +47,19 @@ public class ExprDefineLambdaLocReport implements RegressionExecution {
         LocationReport bean = LocationReportFactory.makeLarge();
         env.sendEventBean(bean);
 
-        Item[] val1 = itemArray((Collection<Item>) env.listener("s0").assertOneGetNew().get("val1"));
-        assertEquals(3, val1.length);
-        assertEquals("L00000", val1[0].getAssetId());
-        assertEquals("L00007", val1[1].getAssetId());
-        assertEquals("L00008", val1[2].getAssetId());
+        env.assertListener("s0", listener -> {
+            Item[] val1 = itemArray((Collection<Item>) listener.assertOneGetNew().get("val1"));
+            assertEquals(3, val1.length);
+            assertEquals("L00000", val1[0].getAssetId());
+            assertEquals("L00007", val1[1].getAssetId());
+            assertEquals("L00008", val1[2].getAssetId());
 
-        Map val2 = (Map) env.listener("s0").assertOneGetNewAndReset().get("val2");
-        assertEquals(3, val2.size());
-        assertEquals("P00008", ((Item) val2.get("L00000")).getAssetId());
-        assertEquals("P00001", ((Item) val2.get("L00007")).getAssetId());
-        assertEquals("P00001", ((Item) val2.get("L00008")).getAssetId());
+            Map val2 = (Map) listener.assertOneGetNewAndReset().get("val2");
+            assertEquals(3, val2.size());
+            assertEquals("P00008", ((Item) val2.get("L00000")).getAssetId());
+            assertEquals("P00001", ((Item) val2.get("L00007")).getAssetId());
+            assertEquals("P00001", ((Item) val2.get("L00008")).getAssetId());
+        });
 
         env.undeployAll();
     }

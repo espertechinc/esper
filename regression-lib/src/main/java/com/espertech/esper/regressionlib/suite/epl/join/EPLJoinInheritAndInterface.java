@@ -29,10 +29,12 @@ public class EPLJoinInheritAndInterface implements RegressionExecution {
         env.assertListenerNotInvoked("s0");
 
         env.sendEventBean(new ISupportBImpl("1", "ab3"));
-        assertTrue(env.listener("s0").isInvoked());
-        EventBean theEvent = env.listener("s0").getAndResetLastNewData()[0];
-        assertEquals("1", theEvent.get("a"));
-        assertEquals("1", theEvent.get("b"));
+        env.assertListener("s0", listener -> {
+            assertTrue(listener.isInvoked());
+            EventBean theEvent = listener.getAndResetLastNewData()[0];
+            assertEquals("1", theEvent.get("a"));
+            assertEquals("1", theEvent.get("b"));
+        });
 
         env.undeployAll();
     }

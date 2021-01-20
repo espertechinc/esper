@@ -33,13 +33,13 @@ public class InfraTableDocSamples {
     private static class InfraIncreasingUseCase implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                "create schema ValueEvent(value long);\n" +
-                    "create schema ResetEvent(startThreshold long);\n" +
+                    "@buseventtype create schema ValueEvent(value long);\n" +
+                    "@buseventtype create schema ResetEvent(startThreshold long);\n" +
                     "create table CurrentMaxTable(currentThreshold long);\n" +
                     "@name('s0') insert into ThresholdTriggered select * from ValueEvent(value >= CurrentMaxTable.currentThreshold);\n" +
                     "on ResetEvent merge CurrentMaxTable when matched then update set currentThreshold = startThreshold when not matched then insert select startThreshold as currentThreshold;\n" +
                     "on ThresholdTriggered update CurrentMaxTable set currentThreshold = value + 100;\n";
-            env.compileDeployWBusPublicType(epl, new RegressionPath()).addListener("s0");
+            env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
             env.sendEventMap(Collections.singletonMap("startThreshold", 100L), "ResetEvent");
             env.sendEventMap(Collections.singletonMap("value", 30L), "ValueEvent");

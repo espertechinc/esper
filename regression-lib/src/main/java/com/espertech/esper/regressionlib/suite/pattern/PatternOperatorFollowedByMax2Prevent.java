@@ -13,9 +13,12 @@ package com.espertech.esper.regressionlib.suite.pattern;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
+
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.suite.pattern.PatternOperatorFollowedByMax4Prevent.assertContextEnginePool;
 import static com.espertech.esper.regressionlib.suite.pattern.PatternOperatorFollowedByMax4Prevent.getExpectedCountMap;
@@ -23,6 +26,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PatternOperatorFollowedByMax2Prevent implements RegressionExecution {
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.STATICHOOK);
+    }
 
     public void run(RegressionEnvironment env) {
         SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();

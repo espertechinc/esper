@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.regressionlib.suite.event.infra;
 
-import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.avro.core.AvroSchemaUtil;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -85,7 +83,7 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
         runAssertion(env, XML_TYPENAME, FXML, xmlToValue, xmlTests, Node.class, path);
 
         // Avro
-        Schema avroSchema = AvroSchemaUtil.resolveAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(AVRO_TYPENAME));
+        Schema avroSchema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
         GenericData.Record datumEmpty = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
         GenericData.Record datumOne = new GenericData.Record(avroSchema);
         datumOne.put("id", 101);
@@ -119,14 +117,15 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
         String stmtText = "@name('s0') select id? as myid, exists(id?) as exists_myid from " + typename;
         env.compileDeploy(stmtText, path).addListener("s0");
 
-        assertEquals(expectedPropertyType, env.statement("s0").getEventType().getPropertyType("myid"));
-        assertEquals(Boolean.class, env.statement("s0").getEventType().getPropertyType("exists_myid"));
+        env.assertStatement("s0", statement -> {
+            assertEquals(expectedPropertyType, statement.getEventType().getPropertyType("myid"));
+            assertEquals(Boolean.class, statement.getEventType().getPropertyType("exists_myid"));
 
-        for (Pair pair : tests) {
-            send.apply(env, pair.getFirst(), typename);
-            EventBean event = env.listener("s0").assertOneGetNewAndReset();
-            SupportEventInfra.assertValueMayConvert(event, "myid", (ValueWithExistsFlag) pair.getSecond(), optionalValueConversion);
-        }
+            for (Pair pair : tests) {
+                send.apply(env, pair.getFirst(), typename);
+                env.assertEventNew("s0", event -> SupportEventInfra.assertValueMayConvert(event, "myid", (ValueWithExistsFlag) pair.getSecond(), optionalValueConversion));
+            }
+        });
 
         env.undeployAll();
     }

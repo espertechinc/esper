@@ -11,18 +11,17 @@
 package com.espertech.esper.regressionlib.suite.client.multitenancy;
 
 import com.espertech.esper.common.client.EPCompiled;
-import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class ClientMultitenancyInsertInto {
 
@@ -56,9 +55,9 @@ public class ClientMultitenancyInsertInto {
         private void sendAssert(RegressionEnvironment env, String theString, int intPrimitive, boolean received) {
             env.sendEventBean(new SupportBean(theString, intPrimitive));
             if (received) {
-                EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "theString,intPrimitive".split(","), new Object[]{theString, intPrimitive});
+                env.assertPropsNew("s1", "theString,intPrimitive".split(","), new Object[]{theString, intPrimitive});
             } else {
-                assertFalse(env.listener("s1").isInvoked());
+                env.assertListenerNotInvoked("s1");
             }
         }
     }
@@ -88,8 +87,11 @@ public class ClientMultitenancyInsertInto {
 
         private void sendAssert(RegressionEnvironment env, String theString, int intPrimitive) {
             env.sendEventBean(new SupportBean(theString, intPrimitive));
-            EPAssertionUtil.assertProps(env.listener("s1").assertOneGetNewAndReset(), "a,b".split(","), new Object[]{theString, intPrimitive});
+            env.assertPropsNew("s1", "a,b".split(","), new Object[]{theString, intPrimitive});
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.RUNTIMEOPS);
         }
     }
-
 }

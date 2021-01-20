@@ -20,6 +20,7 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -63,49 +64,58 @@ public class EventXMLNoSchemaEventTransposeXPathConfigured {
 
         env.compileDeploy("@name('insert') insert into Nested3Stream select nested1simple, nested4array from " + eventTypeName, path);
         env.compileDeploy("@name('s0') select * from " + eventTypeName, path);
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("insert").getEventType());
-        SupportEventTypeAssertionUtil.assertConsistency(env.statement("s0").getEventType());
-        SupportEventPropUtil.assertPropsEquals(env.statement("insert").getEventType().getPropertyDescriptors(),
-            new SupportEventPropDesc("nested1simple", Node.class).fragment(),
-            new SupportEventPropDesc("nested4array", Node[].class).indexed().fragment());
+        env.assertStatement("insert", statement -> {
+            SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType());
+            SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
+                new SupportEventPropDesc("nested1simple", Node.class).fragment(),
+                new SupportEventPropDesc("nested4array", Node[].class).indexed().fragment());
+        });
+        env.assertStatement("s0", statement -> SupportEventTypeAssertionUtil.assertConsistency(statement.getEventType()));
 
-        FragmentEventType fragmentTypeNested1 = env.statement("insert").getEventType().getFragmentType("nested1simple");
-        assertFalse(fragmentTypeNested1.isIndexed());
-        assertEquals(0, fragmentTypeNested1.getFragmentType().getPropertyDescriptors().length);
-        SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested1.getFragmentType());
+        env.assertStatement("insert", statement -> {
+            FragmentEventType fragmentTypeNested1 = statement.getEventType().getFragmentType("nested1simple");
+            assertFalse(fragmentTypeNested1.isIndexed());
+            assertEquals(0, fragmentTypeNested1.getFragmentType().getPropertyDescriptors().length);
+            SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested1.getFragmentType());
 
-        FragmentEventType fragmentTypeNested4 = env.statement("insert").getEventType().getFragmentType("nested4array");
-        assertTrue(fragmentTypeNested4.isIndexed());
-        assertEquals(0, fragmentTypeNested4.getFragmentType().getPropertyDescriptors().length);
-        SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
+            FragmentEventType fragmentTypeNested4 = statement.getEventType().getFragmentType("nested4array");
+            assertTrue(fragmentTypeNested4.isIndexed());
+            assertEquals(0, fragmentTypeNested4.getFragmentType().getPropertyDescriptors().length);
+            SupportEventTypeAssertionUtil.assertConsistency(fragmentTypeNested4.getFragmentType());
+        });
 
-        SupportXML.sendDefaultEvent(env.eventService(), "ABC", eventTypeName);
+        Document doc = SupportXML.makeDefaultEvent("ABC");
+        env.sendEventXMLDOM(doc, eventTypeName);
 
-        EventBean received = env.iterator("insert").next();
-        EPAssertionUtil.assertProps(received, "nested1simple.prop1,nested1simple.prop2,nested1simple.attr1,nested1simple.nested2.prop3[1]".split(","), new Object[]{"SAMPLE_V1", "true", "SAMPLE_ATTR1", "4"});
-        EPAssertionUtil.assertProps(received, "nested4array[0].id,nested4array[0].prop5[1],nested4array[1].id".split(","), new Object[]{"a", "SAMPLE_V8", "b"});
+        env.assertIterator("insert", iterator -> {
+            EventBean received = iterator.next();
+            EPAssertionUtil.assertProps(received, "nested1simple.prop1,nested1simple.prop2,nested1simple.attr1,nested1simple.nested2.prop3[1]".split(","), new Object[]{"SAMPLE_V1", "true", "SAMPLE_ATTR1", "4"});
+            EPAssertionUtil.assertProps(received, "nested4array[0].id,nested4array[0].prop5[1],nested4array[1].id".split(","), new Object[]{"a", "SAMPLE_V8", "b"});
+        });
 
         // assert event and fragments alone
-        EventBean wildcardStmtEvent = env.iterator("s0").next();
-        SupportEventTypeAssertionUtil.assertConsistency(wildcardStmtEvent);
+        env.assertIterator("s0", iterator -> {
+            EventBean wildcardStmtEvent = iterator.next();
+            SupportEventTypeAssertionUtil.assertConsistency(wildcardStmtEvent);
 
-        FragmentEventType eventType = wildcardStmtEvent.getEventType().getFragmentType("nested1simple");
-        assertFalse(eventType.isIndexed());
-        assertFalse(eventType.isNative());
-        assertEquals("MyNestedEvent", eventType.getFragmentType().getName());
-        assertTrue(wildcardStmtEvent.get("nested1simple") instanceof Node);
-        assertEquals("SAMPLE_V1", ((EventBean) wildcardStmtEvent.getFragment("nested1simple")).get("prop1"));
+            FragmentEventType eventType = wildcardStmtEvent.getEventType().getFragmentType("nested1simple");
+            assertFalse(eventType.isIndexed());
+            assertFalse(eventType.isNative());
+            assertEquals("MyNestedEvent", eventType.getFragmentType().getName());
+            assertTrue(wildcardStmtEvent.get("nested1simple") instanceof Node);
+            assertEquals("SAMPLE_V1", ((EventBean) wildcardStmtEvent.getFragment("nested1simple")).get("prop1"));
 
-        eventType = wildcardStmtEvent.getEventType().getFragmentType("nested4array");
-        assertTrue(eventType.isIndexed());
-        assertFalse(eventType.isNative());
-        assertEquals("MyNestedArrayEvent", eventType.getFragmentType().getName());
-        EventBean[] eventsArray = (EventBean[]) wildcardStmtEvent.getFragment("nested4array");
-        assertEquals(3, eventsArray.length);
-        assertEquals("SAMPLE_V8", eventsArray[0].get("prop5[1]"));
-        assertEquals("SAMPLE_V9", eventsArray[1].get("prop5[0]"));
-        assertEquals(NodeList.class, wildcardStmtEvent.getEventType().getPropertyType("nested4array"));
-        assertTrue(wildcardStmtEvent.get("nested4array") instanceof NodeList);
+            eventType = wildcardStmtEvent.getEventType().getFragmentType("nested4array");
+            assertTrue(eventType.isIndexed());
+            assertFalse(eventType.isNative());
+            assertEquals("MyNestedArrayEvent", eventType.getFragmentType().getName());
+            EventBean[] eventsArray = (EventBean[]) wildcardStmtEvent.getFragment("nested4array");
+            assertEquals(3, eventsArray.length);
+            assertEquals("SAMPLE_V8", eventsArray[0].get("prop5[1]"));
+            assertEquals("SAMPLE_V9", eventsArray[1].get("prop5[0]"));
+            assertEquals(NodeList.class, wildcardStmtEvent.getEventType().getPropertyType("nested4array"));
+            assertTrue(wildcardStmtEvent.get("nested4array") instanceof NodeList);
+        });
 
         env.undeployAll();
     }

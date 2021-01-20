@@ -10,9 +10,7 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.join;
 
-import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
@@ -78,9 +76,10 @@ public class EPLJoinEventRepresentation {
             env.assertListenerNotInvoked("s0");
 
             sendRepEvent(env, rep, s1Name, "a", 2);
-            EventBean output = env.listener("s0").assertOneGetNewAndReset();
-            EPAssertionUtil.assertProps(output, columnNames.split(","), new Object[]{"a", "a", 1, 2});
-            assertTrue(rep.matchesClass(output.getUnderlying().getClass()));
+            env.assertEventNew("s0", output -> {
+                EPAssertionUtil.assertProps(output, columnNames.split(","), new Object[]{"a", "a", 1, 2});
+                assertTrue(rep.matchesClass(output.getUnderlying().getClass()));
+            });
 
             sendRepEvent(env, rep, s1Name, "b", 3);
             sendRepEvent(env, rep, s0Name, "c", 4);
@@ -141,13 +140,13 @@ public class EPLJoinEventRepresentation {
         } else if (rep.isObjectArrayEvent()) {
             env.sendEventObjectArray(new Object[]{id, p00}, name);
         } else if (rep.isAvroEvent()) {
-            GenericData.Record theEvent = new GenericData.Record(SupportAvroUtil.getAvroSchema(env.runtime().getEventTypeService().getEventTypePreconfigured(name)));
+            GenericData.Record theEvent = new GenericData.Record(env.runtimeAvroSchemaPreconfigured(name));
             theEvent.put("id", id);
             theEvent.put("p00", p00);
             env.sendEventAvro(theEvent, name);
         } else if (rep.isJsonEvent() || rep.isJsonProvidedClassEvent()) {
             String json = "{\"id\": \"" + id + "\", \"p00\": " + p00 + "}";
-            env.eventService().sendEventJson(json, name);
+            env.sendEventJson(json, name);
         } else {
             fail();
         }

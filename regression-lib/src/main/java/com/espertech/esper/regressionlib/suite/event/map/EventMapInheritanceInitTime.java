@@ -15,12 +15,19 @@ import com.espertech.esper.common.internal.support.SupportEventPropDesc;
 import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
+
+import java.util.EnumSet;
 
 import static org.junit.Assert.assertFalse;
 
 public class EventMapInheritanceInitTime implements RegressionExecution {
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
+    }
 
     public void run(RegressionEnvironment env) {
         SupportEventPropUtil.assertPropsEquals(env.runtime().getEventTypeService().getEventTypePreconfigured("SubAEvent").getPropertyDescriptors(),
