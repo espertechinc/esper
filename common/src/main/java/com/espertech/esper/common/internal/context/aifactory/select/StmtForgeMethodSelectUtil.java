@@ -135,6 +135,7 @@ public class StmtForgeMethodSelectUtil {
                 viewableActivatorForges[stream] = dfResult.getViewableActivatorForge();
                 viewForges[stream] = dfResult.getViewForges();
                 additionalForgeables.addAll(dfResult.additionalForgeables);
+                scheduleHandleCallbackProviders.addAll(dfResult.getSchedules());
             } else if (streamSpec instanceof FilterStreamSpecCompiled) {
                 FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[stream];
                 FilterSpecCompiled filterSpecCompiled = filterStreamSpec.getFilterSpecCompiled();
@@ -398,7 +399,7 @@ public class StmtForgeMethodSelectUtil {
         ViewFactoryForgeDesc viewForgeDesc = ViewFactoryForgeUtil.createForges(streamSpec.getViewSpecs(), args, eventType);
         List<ViewFactoryForge> views = viewForgeDesc.getForges();
         ViewableActivatorDataFlowForge viewableActivator = new ViewableActivatorDataFlowForge(eventType);
-        return new DataFlowActivationResult(eventType, typeName, viewableActivator, views, viewForgeDesc.getMultikeyForges());
+        return new DataFlowActivationResult(eventType, typeName, viewableActivator, views, viewForgeDesc.getMultikeyForges(), viewForgeDesc.getSchedules());
     }
 
     private static void validateNoViews(StreamSpecCompiled streamSpec, String conceptName)
@@ -447,13 +448,15 @@ public class StmtForgeMethodSelectUtil {
         private final ViewableActivatorForge viewableActivatorForge;
         private final List<ViewFactoryForge> viewForges;
         private final List<StmtClassForgeableFactory> additionalForgeables;
+        private final List<ScheduleHandleTracked> schedules;
 
-        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges, List<StmtClassForgeableFactory> additionalForgeables) {
+        public DataFlowActivationResult(EventType streamEventType, String eventTypeName, ViewableActivatorForge viewableActivatorForge, List<ViewFactoryForge> viewForges, List<StmtClassForgeableFactory> additionalForgeables, List<ScheduleHandleTracked> schedules) {
             this.streamEventType = streamEventType;
             this.eventTypeName = eventTypeName;
             this.viewableActivatorForge = viewableActivatorForge;
             this.viewForges = viewForges;
             this.additionalForgeables = additionalForgeables;
+            this.schedules = schedules;
         }
 
         public EventType getStreamEventType() {
@@ -474,6 +477,10 @@ public class StmtForgeMethodSelectUtil {
 
         public List<StmtClassForgeableFactory> getAdditionalForgeables() {
             return additionalForgeables;
+        }
+
+        public List<ScheduleHandleTracked> getSchedules() {
+            return schedules;
         }
     }
 }
