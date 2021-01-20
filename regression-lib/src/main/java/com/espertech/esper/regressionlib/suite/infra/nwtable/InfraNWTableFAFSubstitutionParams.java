@@ -72,7 +72,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static class InfraParameterizedQueryInvalidUse implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
 
             // invalid mix or named and unnamed
             tryInvalidCompileFAF(env, path, "select ? as c0,?:a as c1 from MyWindow",
@@ -97,7 +97,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static class InfraParameterizedQueryInvalidInsufficientValues implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
 
             // invalid execute without prepare-params
             EPCompiled compiled = env.compileFAF("select * from MyWindow where theString=?::string", path);
@@ -145,7 +145,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static class InfraParameterizedQueryInvalidParametersUntyped implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
 
             EPCompiled compiled = env.compileFAF("select * from MyWindow where theString='ABC'", path);
             tryInvalidSetObject(env, compiled, query -> query.setObject("x", 10), "The query has no substitution parameters");
@@ -173,7 +173,7 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static class InfraParameterizedQueryInvalidParametersTyped implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
             EPCompiled compiled;
 
             // numbered, typed
@@ -259,8 +259,8 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static RegressionPath setupInfra(RegressionEnvironment env, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
         String eplCreate = namedWindow ?
-            "@Name('TheInfra') create window MyInfra#keepall as select * from SupportBean" :
-            "@Name('TheInfra') create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
+            "@Name('TheInfra') @public create window MyInfra#keepall as select * from SupportBean" :
+            "@Name('TheInfra') @public create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
         env.compileDeploy(eplCreate, path);
         String eplInsert = namedWindow ?
             "@Name('Insert') insert into MyInfra select * from SupportBean" :

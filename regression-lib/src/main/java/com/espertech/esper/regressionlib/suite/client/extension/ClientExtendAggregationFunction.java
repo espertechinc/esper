@@ -54,7 +54,7 @@ public class ClientExtendAggregationFunction {
     private static class ClientExtendAggregationTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(col1 concatstring(string));\n" +
+            String epl = "@public create table MyTable(col1 concatstring(string));\n" +
                 "into table MyTable select concatstring(theString) as col1 from SupportBean;\n";
             env.compileDeploy(epl, path);
 

@@ -338,7 +338,7 @@ public class ClientExtendAggregationMultiFunctionInlinedClass {
             RegressionPath path = new RegressionPath();
             String epl = "@public @buseventtype create schema PersonEvent(name string, id string);" +
                 "create " + INLINEDCLASS_PREFIXMAP + ";\n" +
-                "@name('table') create table TableWithTrie(nameTrie trieState(string));\n" +
+                "@name('table') @public create table TableWithTrie(nameTrie trieState(string));\n" +
                 "@Priority(1) into table TableWithTrie select trieEnter(name) as nameTrie from PersonEvent;\n" +
                 "@Priority(0) @name('s0') select TableWithTrie.nameTrie.triePrefixMap(name) as c0 from PersonEvent;\n";
             env.compileDeploy(epl, path).addListener("s0");

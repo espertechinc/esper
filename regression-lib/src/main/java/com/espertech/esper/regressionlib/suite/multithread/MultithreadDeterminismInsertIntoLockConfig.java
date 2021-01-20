@@ -63,7 +63,7 @@ public class MultithreadDeterminismInsertIntoLockConfig implements RegressionExe
 
         // setup statements
         RegressionPath path = new RegressionPath();
-        String eplInsert = "insert into MyStream select count(*) as cnt from SupportBean";
+        String eplInsert = "@public insert into MyStream select count(*) as cnt from SupportBean";
         EPCompiled compiledInsert = compile(eplInsert, configuration, path);
         path.add(compiledInsert);
         EPDeployment deployedInsert = deploy(compiledInsert, runtime);

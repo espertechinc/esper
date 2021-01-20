@@ -179,7 +179,7 @@ public class LRMovingSimMain implements Runnable {
 
         String epl =
             "// Each asset group initialized from an AssetGroupingEvent\n" +
-                "create context AssetGroupContext initiated by AssetGroupingEvent as grp;\n" +
+                "@public create context AssetGroupContext initiated by AssetGroupingEvent as grp;\n" +
                 "\n" +
                 "// Count assets per zone as assets are entering or leaving zones\n" +
                 "context AssetGroupContext insert into AssetCounts select context.grp.groupId as groupId, zone, count(*) as cnt \n" +

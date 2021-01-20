@@ -43,8 +43,8 @@ public class InfraNWTableSubqueryAtEventBean {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfra#keepall as (c0 string, c1 int)" :
-                "create table MyInfra(c0 string primary key, c1 int)";
+                "@public create window MyInfra#keepall as (c0 string, c1 int)" :
+                "@public create table MyInfra(c0 string primary key, c1 int)";
             env.compileDeploy(eplCreate, path);
 
             // create insert into

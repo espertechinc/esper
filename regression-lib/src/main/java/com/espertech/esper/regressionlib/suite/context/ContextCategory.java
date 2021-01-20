@@ -161,7 +161,7 @@ public class ContextCategory {
     private static class ContextCategoryBooleanExprFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplCtx = "@name('ctx') create context Ctx600a group by theString like 'A%' as agroup, group by theString like 'B%' as bgroup, group by theString like 'C%' as cgroup from SupportBean";
+            String eplCtx = "@name('ctx') @public create context Ctx600a group by theString like 'A%' as agroup, group by theString like 'B%' as bgroup, group by theString like 'C%' as cgroup from SupportBean";
             env.compileDeploy(eplCtx, path);
             String eplSum = "@name('s0') context Ctx600a select context.label as c0, count(*) as c1 from SupportBean";
             env.compileDeploy(eplSum, path).addListener("s0");
@@ -195,7 +195,7 @@ public class ContextCategory {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("@name('ctx') create context MyCtx as group by intPrimitive < -5 as grp1, group by intPrimitive between -5 and +5 as grp2, group by intPrimitive > 5 as grp3 from SupportBean", path);
+            env.compileDeploy("@name('ctx') @public create context MyCtx as group by intPrimitive < -5 as grp1, group by intPrimitive between -5 and +5 as grp2, group by intPrimitive > 5 as grp3 from SupportBean", path);
             env.compileDeploy("@name('s0') context MyCtx select context.id as c0, context.label as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString", path);
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -266,7 +266,7 @@ public class ContextCategory {
 
             // validate statement not applicable filters
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context ACtx group intPrimitive < 10 as cat1 from SupportBean", path);
+            env.compileDeploy("@public create context ACtx group intPrimitive < 10 as cat1 from SupportBean", path);
             epl = "context ACtx select * from SupportBean_S0";
             env.tryInvalidCompile(path, epl, "Category context 'ACtx' requires that any of the events types that are listed in the category context also appear in any of the filter expressions of the statement [");
 
@@ -342,7 +342,7 @@ public class ContextCategory {
             RegressionPath path = new RegressionPath();
             AtomicInteger milestone = new AtomicInteger();
             String ctx = "CategorizedContext";
-            String eplCtx = "@Name('context') create context " + ctx + " as " +
+            String eplCtx = "@Name('context') @public create context " + ctx + " as " +
                 "group intPrimitive<10 as cat1 " +
                 "from SupportBean";
             env.compileDeploy(eplCtx, path);
@@ -393,12 +393,12 @@ public class ContextCategory {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyCtx as " +
+            env.compileDeploy("@name('ctx') @public create context MyCtx as " +
                 "group by intPrimitive < 0 as n, " +
                 "group by intPrimitive > 0 as p " +
                 "from SupportBean", path);
-            env.compileDeploy("@name('expr-1') create expression getLabelOne { context.label }", path);
-            env.compileDeploy("@name('expr-2') create expression getLabelTwo { 'x'||context.label||'x' }", path);
+            env.compileDeploy("@name('expr-1') @public create expression getLabelOne { context.label }", path);
+            env.compileDeploy("@name('expr-2') @public create expression getLabelTwo { 'x'||context.label||'x' }", path);
 
             env.milestone(0);
 

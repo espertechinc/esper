@@ -144,7 +144,7 @@ public class InfraTableOnUpdate {
             String[] fields = "keyOne,keyTwo,p0".split(",");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create table varagg as (" +
+            env.compileDeploy("@public create table varagg as (" +
                 "keyOne string primary key, keyTwo int primary key, p0 long)", path);
             env.compileDeploy("on SupportBean merge varagg where theString = keyOne and " +
                 "intPrimitive = keyTwo when not matched then insert select theString as keyOne, intPrimitive as keyTwo, 1 as p0", path);
@@ -168,7 +168,7 @@ public class InfraTableOnUpdate {
             env.assertPropsIRPair("update", fields, new Object[]{"G1", 10, 2L}, new Object[]{"G1", 10, 1L});
 
             // try property method invocation
-            env.compileDeploy("create table MyTableSuppBean as (sb SupportBean)", path);
+            env.compileDeploy("@public create table MyTableSuppBean as (sb SupportBean)", path);
             env.compileDeploy("on SupportBean_S0 update MyTableSuppBean sb set sb.setLongPrimitive(10)", path);
             env.undeployAll();
         }

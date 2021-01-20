@@ -53,7 +53,7 @@ public class EPLContainedEventSplitExpr {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String script = "@name('mystmt') create expression Object js:myGetScriptContext() [\n" +
+            String script = "@name('mystmt') @public create expression Object js:myGetScriptContext() [\n" +
                 "myGetScriptContext();" +
                 "function myGetScriptContext() {" +
                 "  return epl;\n" +
@@ -75,7 +75,7 @@ public class EPLContainedEventSplitExpr {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String script = "create expression EventBean[] js:mySplitScriptReturnEventBeanArray(value) [\n" +
+            String script = "@public create expression EventBean[] js:mySplitScriptReturnEventBeanArray(value) [\n" +
                 "mySplitScriptReturnEventBeanArray(value);" +
                 "function mySplitScriptReturnEventBeanArray(value) {" +
                 "  var split = value.split(',');\n" +
@@ -97,10 +97,10 @@ public class EPLContainedEventSplitExpr {
                 "}]";
             env.compileDeploy(script, path);
 
-            String epl = "create schema BaseEvent();\n" +
-                "create schema AEvent(p0 string) inherits BaseEvent;\n" +
-                "create schema BEvent(p1 string) inherits BaseEvent;\n" +
-                "@buseventtype create schema SplitEvent(value string);\n";
+            String epl = "@public create schema BaseEvent();\n" +
+                "@public create schema AEvent(p0 string) inherits BaseEvent;\n" +
+                "@public create schema BEvent(p1 string) inherits BaseEvent;\n" +
+                "@public @buseventtype create schema SplitEvent(value string);\n";
             env.compileDeploy(epl, path);
 
             tryAssertionSplitExprReturnsEventBean(env, path, "mySplitUDFReturnEventBeanArray");
@@ -147,9 +147,9 @@ public class EPLContainedEventSplitExpr {
     private static void tryAssertionSingleRowSplitAndType(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         RegressionPath path = new RegressionPath();
-        String types = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonSentence.class) + " @buseventtype create schema MySentenceEvent(sentence String);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " create schema WordEvent(word String);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonCharacter.class) + " create schema CharacterEvent(character String);\n";
+        String types = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonSentence.class) + " @buseventtype @public create schema MySentenceEvent(sentence String);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonWord.class) + " @public create schema WordEvent(word String);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonCharacter.class) + " @public create schema CharacterEvent(character String);\n";
         env.compileDeploy(types, path);
 
         String stmtText;

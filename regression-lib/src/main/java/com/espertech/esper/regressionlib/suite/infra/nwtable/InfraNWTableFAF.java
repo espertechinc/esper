@@ -269,23 +269,23 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
         }
 
         public void run(RegressionEnvironment env) {
-            String eplEvents = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + " @buseventtype create schema Product (productId string, categoryId string);" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCategory.class) + " @buseventtype create schema Category (categoryId string, owner string);" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductOwnerDetails.class) + " @buseventtype create schema ProductOwnerDetails (productId string, owner string);";
+            String eplEvents = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + " @public @buseventtype create schema Product (productId string, categoryId string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCategory.class) + " @public @buseventtype create schema Category (categoryId string, owner string);" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductOwnerDetails.class) + " @public @buseventtype create schema ProductOwnerDetails (productId string, owner string);";
             String epl;
             if (namedWindow) {
                 epl = eplEvents +
-                    "create window WinProduct#keepall as select * from Product;" +
-                    "create window WinCategory#keepall as select * from Category;" +
-                    "create window WinProductOwnerDetails#keepall as select * from ProductOwnerDetails;" +
+                    "@public create window WinProduct#keepall as select * from Product;" +
+                    "@public create window WinCategory#keepall as select * from Category;" +
+                    "@public create window WinProductOwnerDetails#keepall as select * from ProductOwnerDetails;" +
                     "insert into WinProduct select * from Product;" +
                     "insert into WinCategory select * from Category;" +
                     "insert into WinProductOwnerDetails select * from ProductOwnerDetails;";
             } else {
                 epl = eplEvents +
-                    "create table WinProduct (productId string primary key, categoryId string primary key);" +
-                    "create table WinCategory (categoryId string primary key, owner string primary key);" +
-                    "create table WinProductOwnerDetails (productId string primary key, owner string);" +
+                    "@public create table WinProduct (productId string primary key, categoryId string primary key);" +
+                    "@public create table WinCategory (categoryId string primary key, owner string primary key);" +
+                    "@public create table WinProductOwnerDetails (productId string primary key, owner string);" +
                     "on Product t1 merge WinProduct t2 where t1.productId = t2.productId and t1.categoryId = t2.categoryId when not matched then insert select productId, categoryId;" +
                     "on Category t1 merge WinCategory t2 where t1.categoryId = t2.categoryId when not matched then insert select categoryId, owner;" +
                     "on ProductOwnerDetails t1 merge WinProductOwnerDetails t2 where t1.productId = t2.productId when not matched then insert select productId, owner;";
@@ -476,8 +476,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             RegressionPath path = setupInfra(env, isFirstNW);
 
             String eplSecondCreate = isSecondNW ?
-                "create window MySecondInfra#keepall as select * from SupportBean_A" :
-                "create table MySecondInfra as (id string primary key)";
+                "@public create window MySecondInfra#keepall as select * from SupportBean_A" :
+                "@public create table MySecondInfra as (id string primary key)";
             env.compileDeploy(eplSecondCreate, path);
             String eplSecondFill = isSecondNW ?
                 "insert into MySecondInfra select * from SupportBean_A " :
@@ -773,8 +773,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra.win:keepall() as select theString as key, intBoxed as value from SupportBean" :
-                "@name('create') create table MyInfra (key string primary key, value int)";
+                "@name('create') @public create window MyInfra.win:keepall() as select theString as key, intBoxed as value from SupportBean" :
+                "@name('create') @public create table MyInfra (key string primary key, value int)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             String stmtTextInsert = "insert into MyInfra(key, value) select irstream theString, intBoxed from SupportBean";
@@ -840,12 +840,12 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
 
             // test hash-segmented context
-            String eplCtx = "create context MyCtx coalesce consistent_hash_crc32(theString) from SupportBean granularity 4 preallocate";
+            String eplCtx = "@public create context MyCtx coalesce consistent_hash_crc32(theString) from SupportBean granularity 4 preallocate";
             env.compileDeploy(eplCtx, path);
 
             String eplCreate = namedWindow ?
-                "context MyCtx create window CtxInfra#keepall as SupportBean" :
-                "context MyCtx create table CtxInfra (theString string primary key, intPrimitive int primary key)";
+                "@public context MyCtx create window CtxInfra#keepall as SupportBean" :
+                "@public context MyCtx create table CtxInfra (theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreate, path);
             String eplPopulate = namedWindow ?
                 "context MyCtx insert into CtxInfra select * from SupportBean" :
@@ -882,9 +882,9 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             env.undeployAll();
 
             // test category-segmented context
-            String eplCtxCategory = "create context MyCtxCat group by intPrimitive < 0 as negative, group by intPrimitive > 0 as positive from SupportBean";
+            String eplCtxCategory = "@public create context MyCtxCat group by intPrimitive < 0 as negative, group by intPrimitive > 0 as positive from SupportBean";
             env.compileDeploy(eplCtxCategory, path);
-            env.compileDeploy("context MyCtxCat create window CtxInfraCat#keepall as SupportBean", path);
+            env.compileDeploy("@public context MyCtxCat create window CtxInfraCat#keepall as SupportBean", path);
             env.compileDeploy("context MyCtxCat insert into CtxInfraCat select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean("E1", -2));
@@ -1094,8 +1094,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             // test update using array-assignment; this is mostly tested via on-merge otherwise
             String eplInfra = namedWindow ?
-                "@Name('TheInfra') create window MyInfra#keepall as (mydoubles double[primitive]);\n" :
-                "@Name('TheInfra') create table MyInfra as (mydoubles double[primitive])";
+                "@Name('TheInfra') @public create window MyInfra#keepall as (mydoubles double[primitive]);\n" :
+                "@Name('TheInfra') @public create table MyInfra as (mydoubles double[primitive])";
             env.compileDeploy(eplInfra, path);
             env.compileExecuteFAF("insert into MyInfra select new double[] {1, 2, 3} as mydoubles", path);
             env.compileExecuteFAF("update MyInfra set mydoubles[3-2] = 4", path);
@@ -1157,8 +1157,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
 
             // try second no-column-provided version
             String eplMyInfraThree = namedWindow ?
-                "@name('InfraThree') create window MyInfraThree#keepall as (p0 string, p1 int)" :
-                "@name('InfraThree') create table MyInfraThree as (p0 string, p1 int)";
+                "@name('InfraThree') @public create window MyInfraThree#keepall as (p0 string, p1 int)" :
+                "@name('InfraThree') @public create table MyInfraThree as (p0 string, p1 int)";
             env.compileDeploy(eplMyInfraThree, path);
             env.compileExecuteFAF("insert into MyInfraThree select 'a' as p0, 1 as p1", path);
             env.assertPropsPerRowIteratorAnyOrder("InfraThree", "p0,p1".split(","), new Object[][]{{"a", 1}});
@@ -1166,8 +1166,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
             // try enum-value insert
             String epl = "create schema MyMode (mode " + SupportEnum.class.getName() + ");\n" +
                 (namedWindow ?
-                    "@name('enumwin') create window MyInfraTwo#unique(mode) as MyMode" :
-                    "@name('enumwin') create table MyInfraTwo as (mode " + SupportEnum.class.getName() + ");\n");
+                    "@name('enumwin') @public create window MyInfraTwo#unique(mode) as MyMode" :
+                    "@name('enumwin') @public create table MyInfraTwo as (mode " + SupportEnum.class.getName() + ");\n");
             env.compileDeploy(epl, path);
             env.compileExecuteFAF("insert into MyInfraTwo select " + SupportEnum.class.getName() + "." + SupportEnum.ENUM_VALUE_2.name() + " as mode", path);
             env.assertIterator("enumwin", iterator -> EPAssertionUtil.assertProps(iterator.next(), "mode".split(","), new Object[]{SupportEnum.ENUM_VALUE_2}));
@@ -1221,8 +1221,8 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
     private static RegressionPath setupInfra(RegressionEnvironment env, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
         String eplCreate = namedWindow ?
-            "@Name('TheInfra') create window MyInfra#keepall as select * from SupportBean" :
-            "@Name('TheInfra') create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
+            "@Name('TheInfra') @public create window MyInfra#keepall as select * from SupportBean" :
+            "@Name('TheInfra') @public create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
         env.compileDeploy(eplCreate, path);
         String eplInsert = namedWindow ?
             "@Name('Insert') insert into MyInfra select * from SupportBean" :
@@ -1289,11 +1289,11 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
     private static RegressionPath setupInfraJoin(RegressionEnvironment env, boolean namedWindow) {
 
         String eplCreateOne = namedWindow ?
-            (EventRepresentationChoice.MAP.getAnnotationText() + " create window Infra1#keepall (key String, keyJoin String)") :
-            "create table Infra1 (key String primary key, keyJoin String)";
+            (EventRepresentationChoice.MAP.getAnnotationText() + " @public create window Infra1#keepall (key String, keyJoin String)") :
+            "@public create table Infra1 (key String primary key, keyJoin String)";
         String eplCreateTwo = namedWindow ?
-            (EventRepresentationChoice.MAP.getAnnotationText() + " create window Infra2#keepall (keyJoin String, value double)") :
-            "create table Infra2 (keyJoin String primary key, value double primary key)";
+            (EventRepresentationChoice.MAP.getAnnotationText() + " @public create window Infra2#keepall (keyJoin String, value double)") :
+            "@public create table Infra2 (keyJoin String primary key, value double primary key)";
         RegressionPath path = new RegressionPath();
         env.compileDeploy(eplCreateOne, path);
         env.compileDeploy(eplCreateTwo, path);

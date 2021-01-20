@@ -21,7 +21,7 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 public class InfraNamedWindowOutputrate implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindowOne#keepall as (theString string, intv int)", path);
+        env.compileDeploy("@public create window MyWindowOne#keepall as (theString string, intv int)", path);
         env.compileDeploy("insert into MyWindowOne select theString, intPrimitive as intv from SupportBean", path);
 
         env.advanceTime(0);

@@ -21,11 +21,11 @@ public class EventMapInheritanceRuntime implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         String epl =
-                "@buseventtype create schema RootEvent(base string);\n" +
-                "@buseventtype create schema Sub1Event(sub1 string) inherits RootEvent;\n" +
-                "@buseventtype create schema Sub2Event(sub2 string) inherits RootEvent;\n" +
-                "@buseventtype create schema SubAEvent(suba string) inherits Sub1Event;\n" +
-                "@buseventtype create schema SubBEvent(subb string) inherits Sub1Event, Sub2Event;\n";
+                "@buseventtype @public create schema RootEvent(base string);\n" +
+                "@buseventtype @public create schema Sub1Event(sub1 string) inherits RootEvent;\n" +
+                "@buseventtype @public create schema Sub2Event(sub2 string) inherits RootEvent;\n" +
+                "@buseventtype @public create schema SubAEvent(suba string) inherits Sub1Event;\n" +
+                "@buseventtype @public create schema SubBEvent(subb string) inherits Sub1Event, Sub2Event;\n";
         env.compileDeploy(epl, path);
 
         EventMapInheritanceInitTime.runAssertionMapInheritance(env, path);

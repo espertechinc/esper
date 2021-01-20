@@ -157,7 +157,7 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionIntegerIndexedPropertyLookAlike(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "@name('infra') create table varaggIIP (key int primary key, myevents window(*) @type('SupportBean'))";
+            String eplDeclare = "@name('infra') @public create table varaggIIP (key int primary key, myevents window(*) @type('SupportBean'))";
             env.compileDeploy(soda, eplDeclare, path);
             env.assertStatement("infra", statement -> {
                 assertEquals(StatementType.CREATE_TABLE, statement.getProperty(StatementProperty.STATEMENTTYPE));
@@ -185,7 +185,7 @@ public class InfraTableAccessCore {
     private static class InfraFilterBehavior implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggFB (total count(*))", path);
+            env.compileDeploy("@public create table varaggFB (total count(*))", path);
             env.compileDeploy("into table varaggFB select count(*) as total from SupportBean_S0", path);
             env.compileDeploy("@name('s0') select * from SupportBean(varaggFB.total = intPrimitive)", path).addListener("s0");
 
@@ -212,7 +212,7 @@ public class InfraTableAccessCore {
     private static class InfraExprSelectClauseRenderingUnnamedCol implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggESC (" +
+            env.compileDeploy("@public create table varaggESC (" +
                 "key string primary key, theEvents window(*) @type(SupportBean))", path);
 
             env.compileDeploy("@name('s0') select " +
@@ -250,7 +250,7 @@ public class InfraTableAccessCore {
             env.deploy(typeCompiled);
             path.add(typeCompiled);
 
-            env.compileDeploy(soda, "create table windowAndTotalTLP2K (" +
+            env.compileDeploy(soda, "@public create table windowAndTotalTLP2K (" +
                 "keyi int primary key, keys string primary key, thewindow window(*) @type('MyEventOA'), thetotal sum(int))", path);
             env.compileDeploy(soda, "into table windowAndTotalTLP2K " +
                 "select window(*) as thewindow, sum(c2) as thetotal from MyEventOA#length(2) group by c0, c1", path);
@@ -304,7 +304,7 @@ public class InfraTableAccessCore {
             env.deploy(typeCompiled);
             path.add(typeCompiled);
 
-            env.compileDeploy("create table windowAndTotalTLRUG (" +
+            env.compileDeploy("@public create table windowAndTotalTLRUG (" +
                 "thewindow window(*) @type(MyEventOATLRU), thetotal sum(int))", path);
             env.compileDeploy("into table windowAndTotalTLRUG " +
                 "select window(*) as thewindow, sum(c0) as thetotal from MyEventOATLRU#length(2)", path);
@@ -355,8 +355,8 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionSubqueryWithExpressionHasTableAccess(RegressionEnvironment env, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTableTwo(theString string primary key, intPrimitive int)", path);
-            env.compileDeploy("create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1#lastevent)}", path);
+            env.compileDeploy("@public create table MyTableTwo(theString string primary key, intPrimitive int)", path);
+            env.compileDeploy("@public create expression getMyValue{o => (select MyTableTwo[o.p00].intPrimitive from SupportBean_S1#lastevent)}", path);
             env.compileDeploy("insert into MyTableTwo select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0", path).addListener("s0");
 
@@ -374,8 +374,8 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionExpressionHasTableAccess(RegressionEnvironment env, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTableOne(theString string primary key, intPrimitive int)", path);
-            env.compileDeploy("create expression getMyValue{o => MyTableOne[o.p00].intPrimitive}", path);
+            env.compileDeploy("@public create table MyTableOne(theString string primary key, intPrimitive int)", path);
+            env.compileDeploy("@public create expression getMyValue{o => MyTableOne[o.p00].intPrimitive}", path);
             env.compileDeploy("insert into MyTableOne select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('s0') select getMyValue(s0) as c0 from SupportBean_S0 as s0", path).addListener("s0");
 
@@ -392,9 +392,9 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionIntoTableFromExpression(RegressionEnvironment env, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression sumi {a -> sum(intPrimitive)}", path);
-            env.compileDeploy("create expression sumd alias for {sum(doublePrimitive)}", path);
-            env.compileDeploy("create table varaggITFE (" +
+            env.compileDeploy("@public create expression sumi {a -> sum(intPrimitive)}", path);
+            env.compileDeploy("@public create expression sumd alias for {sum(doublePrimitive)}", path);
+            env.compileDeploy("@public create table varaggITFE (" +
                 "sumi sum(int), sumd sum(double), sumf sum(float), suml sum(long))", path);
             env.compileDeploy("expression suml alias for {sum(longPrimitive)} " +
                 "into table varaggITFE " +
@@ -423,7 +423,7 @@ public class InfraTableAccessCore {
     private static class InfraGroupedTwoKeyNoContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varTotalG2K (key0 string primary key, key1 int primary key, total sum(long), cnt count(*))";
+            String eplDeclare = "@public create table varTotalG2K (key0 string primary key, key1 int primary key, total sum(long), cnt count(*))";
             env.compileDeploy(eplDeclare, path);
 
             String eplBind = "into table varTotalG2K " +
@@ -454,7 +454,7 @@ public class InfraTableAccessCore {
     private static class InfraGroupedThreeKeyNoContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varTotalG3K (key0 string primary key, key1 int primary key," +
+            String eplDeclare = "@public create table varTotalG3K (key0 string primary key, key1 int primary key," +
                 "key2 long primary key, total sum(double), cnt count(*))";
             env.compileDeploy(eplDeclare, path);
 
@@ -494,7 +494,7 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionGroupedSingleKeyNoContext(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varTotalG1K (key string primary key, total sum(int))";
+            String eplDeclare = "@public create table varTotalG1K (key string primary key, total sum(int))";
             env.compileDeploy(soda, eplDeclare, path);
 
             String eplBind = "into table varTotalG1K " +
@@ -542,7 +542,7 @@ public class InfraTableAccessCore {
 
             // contribute to the same aggregation
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table sharedagg (total sum(int))", path);
+            env.compileDeploy("@public create table sharedagg (total sum(int))", path);
             env.compileDeploy("@name('i1') into table sharedagg " +
                 "select p00 as c0, sum(id) as total from SupportBean_S0", path).addListener("i1");
             env.compileDeploy("@name('i2') into table sharedagg " +
@@ -573,7 +573,7 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionMultiStmtContributingDifferentAggs(RegressionEnvironment env, boolean grouped, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varaggMSC (" +
+            String eplDeclare = "@public create table varaggMSC (" +
                 (grouped ? "key string primary key," : "") +
                 "s0sum sum(int), s0cnt count(*), s0win window(*) @type(SupportBean_S0)," +
                 "s1sum sum(int), s1cnt count(*), s1win window(*) @type(SupportBean_S1)" +
@@ -653,9 +653,9 @@ public class InfraTableAccessCore {
     private static class InfraNamedWindowAndFireAndForget implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#length(2) as SupportBean;\n" +
+            String epl = "@public create window MyWindow#length(2) as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean;\n" +
-                "create table varaggNWFAF (total sum(int));\n" +
+                "@public create table varaggNWFAF (total sum(int));\n" +
                 "into table varaggNWFAF select sum(intPrimitive) as total from MyWindow;\n";
             env.compileDeploy(epl, path);
 
@@ -686,7 +686,7 @@ public class InfraTableAccessCore {
     private static class InfraSubquery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table subquery_var_agg (key string primary key, total count(*))", path);
+            env.compileDeploy("@public create table subquery_var_agg (key string primary key, total count(*))", path);
             env.compileDeploy("@name('s0') select (select subquery_var_agg[p00].total from SupportBean_S0#lastevent) as c0 " +
                 "from SupportBean_S1", path).addListener("s0");
             env.compileDeploy("into table subquery_var_agg select count(*) as total from SupportBean group by theString", path);
@@ -713,7 +713,7 @@ public class InfraTableAccessCore {
     private static class InfraOnMergeExpressions implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table the_table (key string primary key, total count(*), value int)", path);
+            env.compileDeploy("@public create table the_table (key string primary key, total count(*), value int)", path);
             env.compileDeploy("into table the_table select count(*) as total from SupportBean group by theString", path);
             env.compileDeploy("on SupportBean_S0 as s0 " +
                 "merge the_table as tt " +
@@ -737,11 +737,11 @@ public class InfraTableAccessCore {
     private static class InfraTableAccessCoreSplitStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(k1 string primary key, c1 int);\n" +
+            String epl = "@public create table MyTable(k1 string primary key, c1 int);\n" +
                 "insert into MyTable select theString as k1, intPrimitive as c1 from SupportBean;\n";
             env.compileDeploy(epl, path);
 
-            epl = "on SupportBean_S0 " +
+            epl = "@public on SupportBean_S0 " +
                 "  insert into AStream select MyTable['A'].c1 as c0 where id=1" +
                 "  insert into AStream select MyTable['B'].c1 as c0 where id=2;\n";
             env.compileDeploy(epl, path);
@@ -764,9 +764,9 @@ public class InfraTableAccessCore {
     public static class InfraTableAccessCoreUnGroupedWindowAndSum implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create objectarray schema MyEvent(c0 int)", path);
+            env.compileDeploy("@public @buseventtype create objectarray schema MyEvent(c0 int)", path);
 
-            env.compileDeploy("create table windowAndTotal (" +
+            env.compileDeploy("@public create table windowAndTotal (" +
                 "thewindow window(*) @type(MyEvent), thetotal sum(int))", path);
             env.compileDeploy("into table windowAndTotal " +
                 "select window(*) as thewindow, sum(c0) as thetotal from MyEvent#length(2)", path);
@@ -808,7 +808,7 @@ public class InfraTableAccessCore {
 
     private static void tryAssertionGroupedMixedMethodAndAccess(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varMyAgg (" +
+        String eplDeclare = "@public create table varMyAgg (" +
             "key string primary key, " +
             "c0 count(*), " +
             "c1 count(distinct int), " +
@@ -946,7 +946,7 @@ public class InfraTableAccessCore {
     private static void tryAssertionOrderOfAggs(RegressionEnvironment env, boolean ungrouped, AtomicInteger milestone) {
 
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggOOA (" + (ungrouped ? "" : "key string primary key, ") +
+        String eplDeclare = "@public create table varaggOOA (" + (ungrouped ? "" : "key string primary key, ") +
             "sumint sum(int), " +
             "sumlong sum(long), " +
             "mysort sorted(intPrimitive) @type(SupportBean)," +

@@ -52,7 +52,7 @@ public class InfraTableMTUngroupedAccessReadIntoTableWriteFilterUse implements R
 
     private static void tryMT(RegressionEnvironment env, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (total sum(int))";
+        String eplCreateVariable = "@public create table vartotal (total sum(int))";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplInto = "into table vartotal select sum(intPrimitive) as total from SupportBean";

@@ -26,7 +26,7 @@ public class InfraTableOnSelect implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create table varagg as (" +
+        env.compileDeploy("@public create table varagg as (" +
             "key string primary key, total sum(int))", path);
         env.compileDeploy("into table varagg " +
             "select sum(intPrimitive) as total from SupportBean group by theString", path);

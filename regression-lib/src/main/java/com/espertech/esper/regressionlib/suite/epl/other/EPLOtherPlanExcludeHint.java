@@ -52,8 +52,8 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
     private static class EPLOtherDocSample implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String schema =
-                "create schema AEvent as " + AEvent.class.getName() + ";\n" +
-                    "create schema BEvent as " + BEvent.class.getName() + ";\n";
+                "@public create schema AEvent as " + AEvent.class.getName() + ";\n" +
+                    "@public create schema BEvent as " + BEvent.class.getName() + ";\n";
             RegressionPath path = new RegressionPath();
             env.compileDeploy(schema, path);
 
@@ -75,7 +75,7 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
             Assert.assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subq.getTableLookupStrategy());
 
             // test named window
-            env.compileDeploy("create window S0Window#keepall as SupportBean_S0", path);
+            env.compileDeploy("@public create window S0Window#keepall as SupportBean_S0", path);
             env.compileDeploy(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') on SupportBean_S1 as s1 select * from S0Window as s0 where s1.p10 = s0.p00", path);
             QueryPlanIndexDescOnExpr onExpr = SupportQueryPlanIndexHook.getAndResetOnExpr();
             Assert.assertEquals(SubordWMatchExprLookupStrategyAllFilteredForge.class.getSimpleName(), onExpr.getStrategyName());

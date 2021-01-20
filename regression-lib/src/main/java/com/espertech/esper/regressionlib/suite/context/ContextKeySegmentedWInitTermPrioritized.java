@@ -75,7 +75,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@Name('ctx') create context CtxPartitionWCorrTerm as " +
+            String epl = "@Name('ctx') @public create context CtxPartitionWCorrTerm as " +
                 "partition by theString from SupportBean as sb " +
                 "terminated by SupportBean(intPrimitive=sb.intPrimitive)";
             env.compileDeploy(soda, epl, path);
@@ -132,7 +132,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedInitWCorrelatedTermFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('ctx') create context CtxPartitionInitWCorrTerm " +
+            String epl = "@name('ctx') @public create context CtxPartitionInitWCorrTerm " +
                 "partition by theString from SupportBean " +
                 "initiated by SupportBean(boolPrimitive=true) as sb " +
                 "terminated by SupportBean(boolPrimitive=false, intPrimitive=sb.intPrimitive)";
@@ -184,7 +184,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedInitWCorrelatedTermPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('ctx') create context CtxPartitionInitWCorrTerm " +
+            String epl = "@name('ctx') @public create context CtxPartitionInitWCorrTerm " +
                 "partition by p20 from SupportBean_S2, p10 from SupportBean_S1, p00 from SupportBean_S0 " +
                 "initiated by SupportBean_S0 as s0, SupportBean_S1 as s1 " +
                 "terminated by pattern[SupportBean_S0(id=s0.id) or SupportBean_S1(id=s1.id)]";
@@ -229,7 +229,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create context CtxInitS0PositiveId as " +
+            String epl = "@public create context CtxInitS0PositiveId as " +
                 "partition by p00 and p01 from SupportBean_S0 " +
                 "initiated by SupportBean_S0(id>0) as s0";
             env.compileDeploy(soda, epl, path);
@@ -278,7 +278,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('ctx') create context CtxTwoInitTerm as " +
+            String epl = "@name('ctx') @public create context CtxTwoInitTerm as " +
                 "partition by p01 from SupportBean_S0, p11 from SupportBean_S1, p21 from SupportBean_S2 " +
                 "initiated by SupportBean_S0(p00=\"a\"), SupportBean_S1(p10=\"b\") " +
                 "terminated by SupportBean_S2(p20=\"z\")";
@@ -394,7 +394,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedInitTermNoPartitionFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context CtxStringZeroTo1k as " +
+            env.compileDeploy("@name('ctx') @public create context CtxStringZeroTo1k as " +
                 "partition by theString from SupportBean " +
                 "initiated by SupportBean(intPrimitive=0)" +
                 "terminated by SupportBean(intPrimitive=1000)", path);
@@ -458,7 +458,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedTermByPattern3Partition implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context Ctx3Typed as " +
+            env.compileDeploy("@name('ctx') @public create context Ctx3Typed as " +
                 "partition by p00 from SupportBean_S0, p10 from SupportBean_S1, p20 from SupportBean_S2 " +
                 "terminated by pattern[SupportBean_S1 -> SupportBean_S2]", path);
             env.compileDeploy("@name('s0') context Ctx3Typed select p00, count(*) as cnt from SupportBean_S0 output last when terminated", path);
@@ -502,7 +502,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedTermByFilter2Keys implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context TwoKeyPartition " +
+            env.compileDeploy("@name('ctx') @public create context TwoKeyPartition " +
                 "partition by theString, intPrimitive from SupportBean terminated by SupportBean(boolPrimitive = false)", path);
             env.compileDeploy("@name('s0') context TwoKeyPartition select theString, intPrimitive, sum(longPrimitive) as thesum from SupportBean output last when terminated", path);
 
@@ -545,7 +545,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedFilterExprTermByFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@audit @name('ctx') create context MyTermByUnrelated partition by theString from SupportBean(intPrimitive=0) terminated by SupportBean", path);
+            env.compileDeploy("@audit @name('ctx') @public create context MyTermByUnrelated partition by theString from SupportBean(intPrimitive=0) terminated by SupportBean", path);
             env.compileDeploy("@name('s0') context MyTermByUnrelated select theString, count(*) as cnt from SupportBean output last when terminated", path);
             env.addListener("s0");
             String[] fields = "theString,cnt".split(",");
@@ -583,7 +583,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedFilterExprTermByFilterWExpr implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@audit @name('ctx') create context MyTermByUnrelated partition by theString from SupportBean(intPrimitive=0) terminated by SupportBean(intPrimitive=1)", path);
+            env.compileDeploy("@audit @name('ctx') @public create context MyTermByUnrelated partition by theString from SupportBean(intPrimitive=0) terminated by SupportBean(intPrimitive=1)", path);
             env.compileDeploy("@name('s0') context MyTermByUnrelated select theString, count(*) as cnt from SupportBean output last when terminated", path);
             env.addListener("s0");
             String[] fields = "theString,cnt".split(",");
@@ -616,7 +616,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedTermByUnrelated implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyTermByUnrelated partition by theString from SupportBean terminated by SupportBean_S0", path);
+            env.compileDeploy("@public create context MyTermByUnrelated partition by theString from SupportBean terminated by SupportBean_S0", path);
             env.compileDeploy("@name('s0') context MyTermByUnrelated select theString, count(*) as cnt from SupportBean output last when terminated", path);
 
             env.addListener("s0");
@@ -651,7 +651,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedTermByPatternTwoFilters implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyTermByTimeout partition by p00 from SupportBean_S0, p10 from SupportBean_S1 terminated by pattern [SupportBean_S0(id<0) or SupportBean_S1(id<0)]", path);
+            env.compileDeploy("@public create context MyTermByTimeout partition by p00 from SupportBean_S0, p10 from SupportBean_S1 terminated by pattern [SupportBean_S0(id<0) or SupportBean_S1(id<0)]", path);
             env.compileDeploy("@name('s0') context MyTermByTimeout select coalesce(s0.p00, s1.p10) as key, count(*) as cnt from pattern [every (s0=SupportBean_S0 or s1=SupportBean_S1)] output last when terminated", path);
 
             env.addListener("s0");
@@ -701,7 +701,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             RegressionPath path = new RegressionPath();
             sendCurrentTime(env, "2002-02-01T09:00:00.000");
 
-            env.compileDeploy("create context MyTermByTimeout partition by theString from SupportBean terminated (*, *, *, *, *)", path);
+            env.compileDeploy("@public create context MyTermByTimeout partition by theString from SupportBean terminated (*, *, *, *, *)", path);
             env.compileDeploy("@name('s0') context MyTermByTimeout select theString, count(*) as cnt from SupportBean output last when terminated", path);
             env.addListener("s0");
 
@@ -753,7 +753,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyTermByTimeout partition by theString from SupportBean terminated after 10 seconds", path);
+            env.compileDeploy("@public create context MyTermByTimeout partition by theString from SupportBean terminated after 10 seconds", path);
             env.compileDeploy("@name('s0') context MyTermByTimeout select theString, count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 
@@ -809,8 +809,8 @@ public class ContextKeySegmentedWInitTermPrioritized {
 
     private static class ContextKeySegmentedTermByFilterWSecondType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create objectarray schema TypeOne(poa string);\n" +
-                "@buseventtype create map schema TypeTwo(pmap string);\n" +
+            String epl = "@buseventtype @public create objectarray schema TypeOne(poa string);\n" +
+                "@buseventtype @public create map schema TypeTwo(pmap string);\n" +
                 "create context MyContextOAMap partition by poa from TypeOne, pmap from TypeTwo terminated by TypeTwo;\n" +
                 "@name('s0') context MyContextOAMap select poa, count(*) as cnt from TypeOne;\n";
             env.compileDeploy(epl, new RegressionPath());
@@ -854,7 +854,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
     private static class ContextKeySegmentedTermByFilterWSubtype implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context ByP0 partition by a from ISupportA, b from ISupportB terminated by ISupportA(a='x')", path);
+            env.compileDeploy("@name('ctx') @public create context ByP0 partition by a from ISupportA, b from ISupportB terminated by ISupportA(a='x')", path);
             env.compileDeploy("@name('s0') context ByP0 select coalesce(a.a, b.b) as p0, count(*) as cnt from pattern[every (a=ISupportA or b=ISupportB)]", path);
 
             env.addListener("s0");
@@ -892,7 +892,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(soda, "create context ByP0 as partition by theString from SupportBean terminated by SupportBean(intPrimitive<0)", path);
+            env.compileDeploy(soda, "@public create context ByP0 as partition by theString from SupportBean terminated by SupportBean(intPrimitive<0)", path);
             env.compileDeploy(soda, "@name('s0') context ByP0 select theString, count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 

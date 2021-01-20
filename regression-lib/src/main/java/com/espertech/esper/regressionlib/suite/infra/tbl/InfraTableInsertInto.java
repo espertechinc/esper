@@ -55,7 +55,7 @@ public class InfraTableInsertInto {
             String[] fields = "pkey0,pkey1,c0".split(",");
             RegressionPath path = new RegressionPath();
 
-            String eplCreateTable = "@Name('table') create table MyTable(c0 long, pkey1 int primary key, pkey0 string primary key)";
+            String eplCreateTable = "@Name('table') @public create table MyTable(c0 long, pkey1 int primary key, pkey0 string primary key)";
             env.compileDeploy(eplCreateTable, path);
 
             String eplIntoTable = "@Name('Insert-Into-Table') insert into MyTable select intPrimitive as pkey1, longPrimitive as c0, theString as pkey0 from SupportBean";
@@ -109,7 +109,7 @@ public class InfraTableInsertInto {
     private static class InfraInsertIntoSameModuleUnkeyed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
-            String epl = "@name('create') create table MyTableSM(theString string);\n" +
+            String epl = "@name('create') @public create table MyTableSM(theString string);\n" +
                 "@name('tbl-insert') insert into MyTableSM select theString from SupportBean;\n";
             env.compileDeploy(epl);
 
@@ -129,7 +129,7 @@ public class InfraTableInsertInto {
     private static class InfraInsertIntoSelfAccess implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableIISA(pkey string primary key)", path);
+            env.compileDeploy("@name('create') @public create table MyTableIISA(pkey string primary key)", path);
             env.compileDeploy("insert into MyTableIISA select theString as pkey from SupportBean where MyTableIISA[theString] is null", path);
 
             env.sendEventBean(new SupportBean("E1", 0));
@@ -157,8 +157,8 @@ public class InfraTableInsertInto {
     private static class InfraNamedWindowMergeInsertIntoTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableNWM(pkey string)", path);
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('create') @public create table MyTableNWM(pkey string)", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("on SupportBean as sb merge MyWindow when not matched " +
                 "then insert into MyTableNWM select sb.theString as pkey", path);
 
@@ -172,10 +172,10 @@ public class InfraTableInsertInto {
     private static class InfraSplitStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('createOne') create table MyTableOne(pkey string primary key, col int)", path);
-            env.compileDeploy("@name('createTwo') create table MyTableTwo(pkey string primary key, col int)", path);
+            env.compileDeploy("@name('createOne') @public create table MyTableOne(pkey string primary key, col int)", path);
+            env.compileDeploy("@name('createTwo') @public create table MyTableTwo(pkey string primary key, col int)", path);
 
-            String eplSplit = "@name('split') on SupportBean \n" +
+            String eplSplit = "@name('split') @public on SupportBean \n" +
                 "  insert into MyTableOne select theString as pkey, intPrimitive as col where intPrimitive > 0\n" +
                 "  insert into MyTableTwo select theString as pkey, intPrimitive as col where intPrimitive < 0\n" +
                 "  insert into OtherStream select theString as pkey, intPrimitive as col where intPrimitive = 0\n";
@@ -212,9 +212,9 @@ public class InfraTableInsertInto {
     private static class InfraInsertIntoFromNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#unique(theString) as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#unique(theString) as SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
-            env.compileDeploy("@name('create') create table MyTableIIF(pkey0 string primary key, pkey1 int primary key)", path);
+            env.compileDeploy("@name('create') @public create table MyTableIIF(pkey0 string primary key, pkey1 int primary key)", path);
             env.compileDeploy("on SupportBean_S1 insert into MyTableIIF select theString as pkey0, intPrimitive as pkey1 from MyWindow", path);
             String[] fields = "pkey0,pkey1".split(",");
 
@@ -243,7 +243,7 @@ public class InfraTableInsertInto {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableIIU(theString string)", path);
+            env.compileDeploy("@name('create') @public create table MyTableIIU(theString string)", path);
             env.compileDeploy("@name('tbl-insert') insert into MyTableIIU select theString from SupportBean", path);
 
             env.assertPropsPerRowIterator("create", fields, new Object[0][]);
@@ -332,7 +332,7 @@ public class InfraTableInsertInto {
         path.add(schemaCompiled);
         env.deploy(schemaCompiled);
 
-        env.compileDeploy("@name('create') create table TheTable (p0 string, p1 string)", path);
+        env.compileDeploy("@name('create') @public create table TheTable (p0 string, p1 string)", path);
         env.compileDeploy("insert into TheTable select * from MySchema", path);
 
         if (bean) {

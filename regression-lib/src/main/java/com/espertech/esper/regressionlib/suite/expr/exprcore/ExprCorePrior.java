@@ -222,7 +222,7 @@ public class ExprCorePrior {
             tryAssertionPriorStreamAndVariable(env, path, "NUM_PRIOR", milestone);
 
             // must be a constant-value expression
-            env.compileDeploy("create variable int NUM_PRIOR_NONCONST = 1", path);
+            env.compileDeploy("@public create variable int NUM_PRIOR_NONCONST = 1", path);
             env.tryInvalidCompile(path, "@name('s0') select prior(NUM_PRIOR_NONCONST, s0) as result from SupportBean_S0#length(2) as s0",
                 "Failed to validate select-clause expression 'prior(NUM_PRIOR_NONCONST,s0)': Prior function requires a constant-value integer-typed index expression as the first parameter");
 

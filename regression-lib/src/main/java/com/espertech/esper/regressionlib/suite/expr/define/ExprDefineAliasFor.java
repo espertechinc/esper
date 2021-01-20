@@ -53,11 +53,11 @@ public class ExprDefineAliasFor {
     private static class ExprDefineDocSamples implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SampleEvent()", path);
+            env.compileDeploy("@public create schema SampleEvent()", path);
             env.compileDeploy("expression twoPI alias for {Math.PI * 2}\n" +
                 "select twoPI from SampleEvent", path);
 
-            env.compileDeploy("create schema EnterRoomEvent()", path);
+            env.compileDeploy("@public create schema EnterRoomEvent()", path);
             env.compileDeploy("expression countPeople alias for {count(*)} \n" +
                 "select countPeople from EnterRoomEvent#time(10 seconds) having countPeople > 10", path);
 
@@ -70,9 +70,9 @@ public class ExprDefineAliasFor {
             String[] fields = "c0".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression F1 alias for {10}", path);
-            env.compileDeploy("create expression F2 alias for {20}", path);
-            env.compileDeploy("create expression F3 alias for {F1+F2}", path);
+            env.compileDeploy("@public create expression F1 alias for {10}", path);
+            env.compileDeploy("@public create expression F2 alias for {20}", path);
+            env.compileDeploy("@public create expression F3 alias for {F1+F2}", path);
             env.compileDeploy("@name('s0') select F3 as c0 from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
@@ -105,10 +105,10 @@ public class ExprDefineAliasFor {
     private static class ExprDefineGlobalAliasAndSODA implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create expression myaliastwo alias for {2}";
+            String eplDeclare = "@public create expression myaliastwo alias for {2}";
             env.compileDeploy(eplDeclare, path);
 
-            env.compileDeploy("create expression myalias alias for {1}", path);
+            env.compileDeploy("@public create expression myalias alias for {1}", path);
             env.compileDeploy("@name('s0') select myaliastwo from SupportBean(intPrimitive = myalias)", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 0));

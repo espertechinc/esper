@@ -46,10 +46,10 @@ public class ClientDeployUndeploy {
     private static class ClientUndeployDependencyChain implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int A = 10", path);
-            env.compileDeploy("create variable int B = A", path);
-            env.compileDeploy("create variable int C = B", path);
-            env.compileDeploy("@name('s0') create variable int D = C", path);
+            env.compileDeploy("@public create variable int A = 10", path);
+            env.compileDeploy("@public create variable int B = A", path);
+            env.compileDeploy("@public create variable int C = B", path);
+            env.compileDeploy("@name('s0') @public create variable int D = C", path);
 
             assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("s0"), "D"));
 
@@ -81,7 +81,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('infra') create window SimpleWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('infra') @public create window SimpleWindow#keepall as SupportBean", path);
 
             String text = "Named window 'SimpleWindow'";
             tryDeployInvalidUndeploy(env, path, "infra", "@name('A') select * from SimpleWindow", "A", text);
@@ -98,7 +98,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('infra') create table SimpleTable(col1 string primary key, col2 string)", path);
+            env.compileDeploy("@name('infra') @public create table SimpleTable(col1 string primary key, col2 string)", path);
 
             String text = "Table 'SimpleTable'";
             tryDeployInvalidUndeploy(env, path, "infra", "@name('A') select SimpleTable['a'] from SupportBean", "A", text);
@@ -116,7 +116,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('variable') create variable string varstring", path);
+            env.compileDeploy("@name('variable') @public create variable string varstring", path);
 
             String text = "Variable 'varstring'";
             tryDeployInvalidUndeploy(env, path, "variable", "@name('A') select varstring from SupportBean", "A", text);
@@ -133,7 +133,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyContext partition by theString from SupportBean", path);
+            env.compileDeploy("@name('ctx') @public create context MyContext partition by theString from SupportBean", path);
 
             String text = "Context 'MyContext'";
             tryDeployInvalidUndeploy(env, path, "ctx", "@name('A') context MyContext select count(*) from SupportBean", "A", text);
@@ -149,7 +149,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepEventType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('schema') create schema MySchema(col string)", path);
+            env.compileDeploy("@name('schema') @public create schema MySchema(col string)", path);
 
             String text = "Event type 'MySchema'";
             tryDeployInvalidUndeploy(env, path, "schema", "@name('A') insert into MySchema select 'a' as col from SupportBean", "A", text);
@@ -166,7 +166,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepExprDecl implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('expr') create expression myexpression { 0 }", path);
+            env.compileDeploy("@name('expr') @public create expression myexpression { 0 }", path);
 
             String text = "Declared-expression 'myexpression'";
             tryDeployInvalidUndeploy(env, path, "expr", "@name('A') select myexpression() as col from SupportBean", "A", text);
@@ -183,7 +183,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepClass implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('clazz') create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"", path);
+            env.compileDeploy("@name('clazz') @public create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"", path);
 
             String text = "Application-inlined class 'MyClass'";
             tryDeployInvalidUndeploy(env, path, "clazz", "@name('A') select MyClass.doIt() as col from SupportBean", "A", text);
@@ -199,7 +199,7 @@ public class ClientDeployUndeploy {
     public static class ClientUndeployPrecondDepScript implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('script') create expression double myscript(stringvalue) [0]", path);
+            env.compileDeploy("@name('script') @public create expression double myscript(stringvalue) [0]", path);
 
             String text = "Script 'myscript (1 parameters)'";
             tryDeployInvalidUndeploy(env, path, "script", "@name('A') select myscript('a') as col from SupportBean", "A", text);
@@ -218,8 +218,8 @@ public class ClientDeployUndeploy {
             String text;
 
             // Table
-            env.compileDeploy("@name('infra') create table MyTable(k1 string primary key, i1 int)", path);
-            env.compileDeploy("@name('index') create index MyIndexOnTable on MyTable(i1)", path);
+            env.compileDeploy("@name('infra') @public create table MyTable(k1 string primary key, i1 int)", path);
+            env.compileDeploy("@name('index') @public create index MyIndexOnTable on MyTable(i1)", path);
 
             text = "Index 'MyIndexOnTable'";
             tryDeployInvalidUndeploy(env, path, "index", "@name('A') select * from SupportBean as sb, MyTable as mt where sb.intPrimitive = mt.i1", "A", text);
@@ -229,8 +229,8 @@ public class ClientDeployUndeploy {
             env.undeployModuleContaining("infra");
 
             // Named window
-            env.compileDeploy("@name('infra') create window MyWindow#keepall as SupportBean", path);
-            env.compileDeploy("@name('index') create index MyIndexOnNW on MyWindow(intPrimitive)", path);
+            env.compileDeploy("@name('infra') @public create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('index') @public create index MyIndexOnNW on MyWindow(intPrimitive)", path);
 
             text = "Index 'MyIndexOnNW'";
             tryDeployInvalidUndeploy(env, path, "index", "@name('A') on SupportBean_S0 as s0 delete from MyWindow as mw where mw.intPrimitive = s0.id", "A", text);

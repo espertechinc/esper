@@ -39,8 +39,8 @@ public class EventObjectArrayCore {
     private static class EventObjectArrayNestedEventBeanArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schemas = "@buseventtype create objectarray schema NBAL_1(val string);\n" +
-                "@buseventtype create objectarray schema NBAL_2 (lvl1s NBAL_1[]);\n";
+            String schemas = "@buseventtype @public create objectarray schema NBAL_1(val string);\n" +
+                "@buseventtype @public create objectarray schema NBAL_2 (lvl1s NBAL_1[]);\n";
             env.compileDeploy(schemas, path);
             env.compileDeploy("@name('s0') select * from NBAL_1", path).addListener("s0");
 

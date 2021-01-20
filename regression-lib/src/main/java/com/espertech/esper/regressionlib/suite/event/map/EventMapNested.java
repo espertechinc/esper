@@ -44,7 +44,7 @@ public class EventMapNested {
     private static class EventMapNestedInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String statementText = "insert into MyStream select map.mapOne as val1 from NestedMap#length(5)";
+            String statementText = "@public insert into MyStream select map.mapOne as val1 from NestedMap#length(5)";
             env.compileDeploy(statementText, path);
 
             statementText = "@name('s0') select val1 as a from MyStream";

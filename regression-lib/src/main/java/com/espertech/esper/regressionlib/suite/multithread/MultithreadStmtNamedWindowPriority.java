@@ -48,7 +48,7 @@ public class MultithreadStmtNamedWindowPriority implements RegressionExecutionWi
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('window') create window MyWindow#keepall as (c0 string, c1 string)", path);
+        env.compileDeploy("@name('window') @public create window MyWindow#keepall as (c0 string, c1 string)", path);
         env.compileDeploy("insert into MyWindow select p00 as c0, p01 as c1 from SupportBean_S0", path);
         env.compileDeploy("@Priority(1) on SupportBean_S1 s1 merge MyWindow s0 where s1.p10 = c0 " +
             "when matched then update set c1 = s1.p11", path);

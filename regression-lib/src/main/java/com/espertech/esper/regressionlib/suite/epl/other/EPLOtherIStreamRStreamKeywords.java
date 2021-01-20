@@ -125,7 +125,7 @@ public class EPLOtherIStreamRStreamKeywords {
     private static class EPLOtherRStreamInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s0') insert into NextStream " +
+            env.compileDeploy("@name('s0') @public insert into NextStream " +
                 "select rstream s0.theString as theString from SupportBean#length(3) as s0", path);
             env.addListener("s0");
             env.compileDeploy("@name('ii') select * from NextStream", path).addListener("ii");
@@ -158,7 +158,7 @@ public class EPLOtherIStreamRStreamKeywords {
     private static class EPLOtherRStreamInsertIntoRStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s0') insert rstream into NextStream " +
+            env.compileDeploy("@name('s0') @public insert rstream into NextStream " +
                 "select rstream s0.theString as theString from SupportBean#length(3) as s0", path);
             env.addListener("s0");
 
@@ -231,7 +231,7 @@ public class EPLOtherIStreamRStreamKeywords {
     private static class EPLOtherIStreamInsertIntoRStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s0') insert rstream into NextStream " +
+            env.compileDeploy("@name('s0') @public insert rstream into NextStream " +
                 "select istream a.theString as theString from SupportBean#length(1) as a", path);
             env.addListener("s0");
 

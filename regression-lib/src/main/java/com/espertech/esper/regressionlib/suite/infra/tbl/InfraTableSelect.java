@@ -47,7 +47,7 @@ public class InfraTableSelect {
     private static class InfraTableSelectMultikeyWArrayComposite implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(k0 string primary key, k1 string primary key, k2 string primary key, v string);\n" +
+            String epl = "@public create table MyTable(k0 string primary key, k1 string primary key, k2 string primary key, v string);\n" +
                 "create index MyIndex on MyTable(k0, k1, v btree);\n" +
                 "insert into MyTable select p00 as k0, p01 as k1, p02 as k2, p03 as v from SupportBean_S0;\n" +
                 "@name('s0') select t.v as v from SupportBean_S1, MyTable as t where k0 = p10 and k1 = p11 and v > p12;\n";
@@ -85,7 +85,7 @@ public class InfraTableSelect {
     private static class InfraTableSelectMultikeyWArrayTwoArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(k1 int[primitive] primary key, k2 int[primitive] primary key, value int);\n" +
+            String epl = "@public create table MyTable(k1 int[primitive] primary key, k2 int[primitive] primary key, value int);\n" +
                 "insert into MyTable select intOne as k1, intTwo as k2, value from SupportEventWithManyArray(id = 'I');\n" +
                 "@name('s0') select t.value as c0 from SupportEventWithManyArray(id='Q'), MyTable as t where k1 = intOne and k2 = intTwo;\n";
             env.compileDeploy(epl, path).addListener("s0");
@@ -116,7 +116,7 @@ public class InfraTableSelect {
     private static class InfraTableSelectMultikeyWArraySingleArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(k int[primitive] primary key, value int);\n" +
+            String epl = "@public create table MyTable(k int[primitive] primary key, value int);\n" +
                 "insert into MyTable select array as k, value from SupportEventWithIntArray;\n" +
                 "@name('s0') select t.value as c0 from SupportEventWithManyArray, MyTable as t where k = intOne;\n";
             env.compileDeploy(epl, path).addListener("s0");
@@ -147,7 +147,7 @@ public class InfraTableSelect {
     private static class InfraTableSelectEnum implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(p string);\n" +
+            String epl = "@public create table MyTable(p string);\n" +
                 "@name('s0') select t.firstOf() as c0 from MyTable as t;\n";
             env.compileDeploy(epl, path);
             env.compileExecuteFAFNoResult("insert into MyTable select 'a' as p", path);
@@ -169,7 +169,7 @@ public class InfraTableSelect {
             env.advanceTime(currentTime.get());
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("@name('create') create table MyTable as (\n" +
+            env.compileDeploy("@name('create') @public create table MyTable as (\n" +
                 "key string primary key,\n" +
                 "totalInt sum(int),\n" +
                 "p0 string,\n" +

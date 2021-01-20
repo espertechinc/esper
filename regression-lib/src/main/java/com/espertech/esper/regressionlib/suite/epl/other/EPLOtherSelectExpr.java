@@ -67,7 +67,7 @@ public class EPLOtherSelectExpr {
     private static class EPLOtherGraphSelect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into MyStream select nested from SupportBeanComplexProps", path);
+            env.compileDeploy("@public insert into MyStream select nested from SupportBeanComplexProps", path);
             String epl = "@name('s0') select nested.nestedValue, nested.nestedNested.nestedNestedValue from MyStream";
             env.compileDeploy(epl, path).addListener("s0");
 

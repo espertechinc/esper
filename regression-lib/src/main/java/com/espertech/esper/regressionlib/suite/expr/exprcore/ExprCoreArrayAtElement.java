@@ -152,9 +152,9 @@ public class ExprCoreArrayAtElement {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplVariableIntArray = "create variable int[primitive] var_intarr = new int[] {1,2,3}";
+            String eplVariableIntArray = "@public create variable int[primitive] var_intarr = new int[] {1,2,3}";
             env.compileDeploy(soda, eplVariableIntArray, path);
-            String eplVariableSBArray = "create variable " + MyHolder.class.getName() + " var_ = null";
+            String eplVariableSBArray = "@public create variable " + MyHolder.class.getName() + " var_ = null";
             env.compileDeploy(soda, eplVariableSBArray, path);
 
             String epl = "@name('s0') select var_intarr[intPrimitive] as c0 from SupportBean";
@@ -178,8 +178,8 @@ public class ExprCoreArrayAtElement {
     private static class ExprCoreAAEPropRootedNestedNestedArrayProp implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplSchema = "create schema Lvl2(id string);\n" +
-                "create schema Lvl1(lvl2 Lvl2[]);\n" +
+            String eplSchema = "@public create schema Lvl2(id string);\n" +
+                "@public create schema Lvl1(lvl2 Lvl2[]);\n" +
                 "@public @buseventtype create schema Lvl0(lvl1 Lvl1, indexNumber int, lvl0id string);\n";
             env.compileDeploy(eplSchema, path);
 
@@ -233,8 +233,8 @@ public class ExprCoreArrayAtElement {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplSchema = "create schema Lvl2(intarr int[]);\n" +
-                "create schema Lvl1(lvl2 Lvl2);\n" +
+            String eplSchema = "@public create schema Lvl2(intarr int[]);\n" +
+                "@public create schema Lvl1(lvl2 Lvl2);\n" +
                 "@public @buseventtype create schema Lvl0(lvl1 Lvl1, indexNumber int, id string);\n";
             env.compileDeploy(eplSchema, path);
 
@@ -351,7 +351,7 @@ public class ExprCoreArrayAtElement {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplSchema =
-                "create schema Lvl1(intarr int[]);\n" +
+                "@public create schema Lvl1(intarr int[]);\n" +
                     "@public @buseventtype create schema Lvl0(lvl1 Lvl1, indexNumber int, id string);\n";
             env.compileDeploy(eplSchema, path);
 

@@ -57,8 +57,8 @@ public class ContextHashSegmented {
         private static void tryAssertionScoringUseCase(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, AtomicInteger milestone) {
             String[] fields = "userId,keyword,sumScore".split(",");
             String epl =
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedScoreCycle.class) + "@buseventtype create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedUserKeywordTotalStream.class) + "@buseventtype create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedScoreCycle.class) + "@buseventtype @public create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedUserKeywordTotalStream.class) + "@buseventtype @public create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
                     "\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvided.class) + " create context HashByUserCtx as " +
                     "coalesce by consistent_hash_crc32(userId) from ScoreCycle, " +
@@ -99,7 +99,7 @@ public class ContextHashSegmented {
         public void run(RegressionEnvironment env) {
             String[] fields = "c0,c1,c2".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyCtx as coalesce consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate", path);
+            env.compileDeploy("@name('ctx') @public create context MyCtx as coalesce consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate", path);
             env.compileDeploy("@name('s0') context MyCtx select context.id as c0, theString as c1, sum(intPrimitive) as c2 from SupportBean#keepall group by theString", path);
             env.milestone(0);
 
@@ -179,14 +179,14 @@ public class ContextHashSegmented {
 
             // validate statement not applicable filters
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context ACtx coalesce hash_code(intPrimitive) from SupportBean granularity 10", path);
+            env.compileDeploy("@public create context ACtx coalesce hash_code(intPrimitive) from SupportBean granularity 10", path);
             epl = "context ACtx select * from SupportBean_S0";
             env.tryInvalidCompile(path, epl, "Segmented context 'ACtx' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
 
             // invalid attempt to partition a named window's streams
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
-            epl = "create context SegmentedByWhat partition by theString from MyWindow";
-            env.tryInvalidCompile(path, epl, "Partition criteria may not include named windows [create context SegmentedByWhat partition by theString from MyWindow]");
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
+            epl = "@public create context SegmentedByWhat partition by theString from MyWindow";
+            env.tryInvalidCompile(path, epl, "Partition criteria may not include named windows [@public create context SegmentedByWhat partition by theString from MyWindow]");
 
             env.undeployAll();
         }
@@ -199,7 +199,7 @@ public class ContextHashSegmented {
             String ctx = "HashSegmentedContext";
             String[] fields = "c0,c1".split(",");
 
-            String eplCtx = "@Name('context') create context " + ctx + " as " +
+            String eplCtx = "@Name('context') @public create context " + ctx + " as " +
                 "coalesce " +
                 " consistent_hash_crc32(theString) from SupportBean(intPrimitive > 10) " +
                 "granularity 4 " +
@@ -243,7 +243,7 @@ public class ContextHashSegmented {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "@Name('CTX') create context CtxHash " +
+            String eplContext = "@Name('CTX') @public create context CtxHash " +
                 "coalesce by consistent_hash_crc32(theString) from SupportBean granularity 16";
             env.compileDeploy(eplContext, path);
 
@@ -285,7 +285,7 @@ public class ContextHashSegmented {
 
         private static void tryHash(RegressionEnvironment env, AtomicInteger milestone, String hashFunc) {
             RegressionPath path = new RegressionPath();
-            String eplCtxCRC32 = "@Name('context') create context Ctx1 as coalesce " +
+            String eplCtxCRC32 = "@Name('context') @public create context Ctx1 as coalesce " +
                 hashFunc + " from SupportBean " +
                 "granularity 1000000";
             env.compileDeploy(eplCtxCRC32, path);
@@ -320,7 +320,7 @@ public class ContextHashSegmented {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String ctx = "HashSegmentedContext";
-            String eplCtx = "@Name('context') create context " + ctx + " as " +
+            String eplCtx = "@Name('context') @public create context " + ctx + " as " +
                 "coalesce " +
                 " consistent_hash_crc32(theString) from SupportBean, " +
                 " consistent_hash_crc32(p00) from SupportBean_S0 " +
@@ -383,7 +383,7 @@ public class ContextHashSegmented {
             AtomicInteger milestone = new AtomicInteger();
 
             // test CRC32 Hash
-            String eplCtx = "@Name('context') create context " + ctx + " as " +
+            String eplCtx = "@Name('context') @public create context " + ctx + " as " +
                 "coalesce consistent_hash_crc32(theString) from SupportBean " +
                 "granularity 4 " +
                 "preallocate";
@@ -409,7 +409,7 @@ public class ContextHashSegmented {
             path.clear();
 
             // test with Java-hashCode String hash
-            env.compileDeploy("@Name('context') create context " + ctx + " " +
+            env.compileDeploy("@Name('context') @public create context " + ctx + " " +
                 "coalesce hash_code(theString) from SupportBean " +
                 "granularity 6 " +
                 "preallocate", path);
@@ -427,7 +427,7 @@ public class ContextHashSegmented {
             path.clear();
 
             // test no pre-allocate
-            env.compileDeploy("@Name('context') create context " + ctx + " " +
+            env.compileDeploy("@Name('context') @public create context " + ctx + " " +
                 "coalesce hash_code(theString) from SupportBean " +
                 "granularity 16", path);
 
@@ -496,7 +496,7 @@ public class ContextHashSegmented {
     private static class ContextHashSegmentedBySingleRowFunc implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplCtx = "@Name('context') create context HashSegmentedContext as " +
+            String eplCtx = "@Name('context') @public create context HashSegmentedContext as " +
                 "coalesce myHash(*) from SupportBean " +
                 "granularity 4 " +
                 "preallocate";

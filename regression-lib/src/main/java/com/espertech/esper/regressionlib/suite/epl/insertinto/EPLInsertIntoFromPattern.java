@@ -36,7 +36,7 @@ public class EPLInsertIntoFromPattern {
     private static class EPLInsertIntoPropsWildcard implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtText = "insert into MyThirdStream(es0id, es1id) " +
+            String stmtText = "@public insert into MyThirdStream(es0id, es1id) " +
                 "select es0.id, es1.id " +
                 "from " +
                 "pattern [every (es0=SupportBean_S0" +
@@ -55,7 +55,7 @@ public class EPLInsertIntoFromPattern {
     private static class EPLInsertIntoProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtText = "insert into MySecondStream(s0, s1) " +
+            String stmtText = "@public insert into MySecondStream(s0, s1) " +
                 "select es0, es1 " +
                 "from " +
                 "pattern [every (es0=SupportBean_S0" +
@@ -74,7 +74,7 @@ public class EPLInsertIntoFromPattern {
     private static class EPLInsertIntoNoProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtText = "insert into MyStream " +
+            String stmtText = "@public insert into MyStream " +
                 "select es0, es1 " +
                 "from " +
                 "pattern [every (es0=SupportBean_S0" +
@@ -93,7 +93,7 @@ public class EPLInsertIntoFromPattern {
     public static class EPLInsertIntoFromPatternNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window PositionW.win:time(1 hour).std:unique(intPrimitive) as select * from SupportBean", path);
+            env.compileDeploy("@public create window PositionW.win:time(1 hour).std:unique(intPrimitive) as select * from SupportBean", path);
             env.compileDeploy("insert into PositionW select * from SupportBean", path);
             env.compileDeploy("@name('s1') insert into Foo select * from pattern[every a = PositionW -> every b = PositionW]", path);
             env.addListener("s1").milestone(0);

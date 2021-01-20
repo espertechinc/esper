@@ -136,8 +136,8 @@ public class EPLOtherCreateSchema {
         public void run(RegressionEnvironment env) {
             try {
                 env.compileDeploy(
-                    "@buseventtype create schema b5a7b602ab754d7ab30fb42c4fb28d82();\n" +
-                    "@buseventtype create schema d19f2e9e82d14b96be4fa12b8a27ee9f();", new RegressionPath());
+                    "@public @buseventtype create schema b5a7b602ab754d7ab30fb42c4fb28d82();\n" +
+                    "@public @buseventtype create schema d19f2e9e82d14b96be4fa12b8a27ee9f();", new RegressionPath());
             } catch (Throwable t) {
                 assertEquals("Test failed due to exception: Event type by name 'd19f2e9e82d14b96be4fa12b8a27ee9f' has a public crc32 id overlap with event type by name 'b5a7b602ab754d7ab30fb42c4fb28d82', please consider renaming either of these types", t.getMessage());
             }
@@ -170,7 +170,7 @@ public class EPLOtherCreateSchema {
 
     private static class EPLOtherCreateSchemaPublicSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create schema MySchema as (p0 string, p1 int);\n" +
+            String epl = "@buseventtype @public create schema MySchema as (p0 string, p1 int);\n" +
                 "@name('s0') select p0, p1 from MySchema;\n";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -189,8 +189,8 @@ public class EPLOtherCreateSchema {
     private static class EPLOtherCreateSchemaCopyFromOrderObjectArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('s1') @buseventtype create objectarray schema MyEventOne(p0 string, p1 double);\n " +
-                "create objectarray schema MyEventTwo(p2 string) copyfrom MyEventOne;\n";
+            String epl = "@name('s1') @public @buseventtype create objectarray schema MyEventOne(p0 string, p1 double);\n " +
+                "@public create objectarray schema MyEventTwo(p2 string) copyfrom MyEventOne;\n";
             env.compileDeploy(epl, path);
 
             env.assertThat(() -> {
@@ -253,7 +253,7 @@ public class EPLOtherCreateSchema {
 
             // test named window
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('window') create window MyWindow#keepall as (bean SupportBean, beanarray SupportBean_S0[])", path).addListener("window");
+            env.compileDeploy("@name('window') @public create window MyWindow#keepall as (bean SupportBean, beanarray SupportBean_S0[])", path).addListener("window");
             env.assertStatement("window", statement -> {
                 EventType stmtWindowType = statement.getEventType();
                 assertPropEquals(new SupportEventPropDesc("bean", SupportBean.class).fragment(), stmtWindowType.getPropertyDescriptor("bean"));
@@ -297,9 +297,9 @@ public class EPLOtherCreateSchema {
         private static void tryAssertionSchemaCopyProperties(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
             RegressionPath path = new RegressionPath();
             String epl =
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedBaseOne.class) + " @buseventtype create schema BaseOne (prop1 String, prop2 int);\n" +
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedBaseTwo.class) + " @buseventtype create schema BaseTwo (prop3 long);\n" +
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE1.class) + " @buseventtype create schema E1 () copyfrom BaseOne;\n";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedBaseOne.class) + " @public @buseventtype create schema BaseOne (prop1 String, prop2 int);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedBaseTwo.class) + " @public @buseventtype create schema BaseTwo (prop3 long);\n" +
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE1.class) + " @public @buseventtype create schema E1 () copyfrom BaseOne;\n";
             env.compileDeploy(epl, path);
 
             env.compileDeploy("@name('s0') select * from E1", path).addListener("s0");
@@ -333,7 +333,7 @@ public class EPLOtherCreateSchema {
             env.undeployModuleContaining("s0");
 
             // test two copy-from types
-            env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE2.class) + " create schema E2 () copyfrom BaseOne, BaseTwo", path);
+            env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE2.class) + " @public create schema E2 () copyfrom BaseOne, BaseTwo", path);
             env.compileDeploy("@name('s0') select * from E2", path);
             env.assertStatement("s0", statement -> {
                 EventType stmtEventType = statement.getEventType();
@@ -345,14 +345,14 @@ public class EPLOtherCreateSchema {
 
             // test API-defined type
             if (!eventRepresentationEnum.isAvroEvent() || eventRepresentationEnum.isObjectArrayEvent() || eventRepresentationEnum.isJsonEvent()) {
-                env.compileDeploy("create schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
+                env.compileDeploy("@public create schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
             } else if (eventRepresentationEnum.isJsonProvidedClassEvent()) {
-                env.compileDeploy("@JsonSchema(className='" + MyLocalJsonProvidedMyType.class.getName() + "') create json schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
+                env.compileDeploy("@JsonSchema(className='" + MyLocalJsonProvidedMyType.class.getName() + "') @public create json schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
             } else {
-                env.compileDeploy("create avro schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
+                env.compileDeploy("@public create avro schema MyType(a string, b string, c BaseOne, d BaseTwo[])", path);
             }
 
-            env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE3.class) + " create schema E3(e long, f BaseOne) copyfrom MyType", path);
+            env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE3.class) + " @public create schema E3(e long, f BaseOne) copyfrom MyType", path);
             env.compileDeploy("@name('s0') select * from E3", path);
             env.assertStatement("s0", statement -> {
                 Assert.assertEquals(String.class, statement.getEventType().getPropertyType("a"));
@@ -407,7 +407,7 @@ public class EPLOtherCreateSchema {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s1') create schema ABCType(col1 int, col2 int)", path);
+            env.compileDeploy("@name('s1') @public create schema ABCType(col1 int, col2 int)", path);
             String deploymentIdS1 = env.deploymentId("s1");
             assertNotNull(env.runtime().getEventTypeService().getEventType(deploymentIdS1, "ABCType"));
             env.undeployAll();
@@ -447,7 +447,7 @@ public class EPLOtherCreateSchema {
                 "Duplicate column name 'col1' [");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(prefix + " create schema MyEventType as (col1 string)", path);
+            env.compileDeploy(prefix + " @public create schema MyEventType as (col1 string)", path);
             String expectedTwo = "Event type named 'MyEventType' has already been declared";
             env.tryInvalidCompile(path, "create schema MyEventType as (col1 string, col2 string)", expectedTwo);
 
@@ -498,8 +498,8 @@ public class EPLOtherCreateSchema {
     private static class EPLOtherCreateSchemaModelPOJO implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schema = "@name('c1') @buseventtype create schema SupportBeanOne as " + SupportBean_ST0.class.getName() + ";\n" +
-                "@name('c2') @buseventtype create schema SupportBeanTwo as " + SupportBean_ST0.class.getName() + ";\n";
+            String schema = "@name('c1') @public @buseventtype create schema SupportBeanOne as " + SupportBean_ST0.class.getName() + ";\n" +
+                "@name('c2') @public @buseventtype create schema SupportBeanTwo as " + SupportBean_ST0.class.getName() + ";\n";
             env.compileDeploy(schema, path);
 
             env.assertStatement("c1", statement -> assertEquals(SupportBean_ST0.class, statement.getEventType().getUnderlyingType()));
@@ -543,8 +543,8 @@ public class EPLOtherCreateSchema {
     private static class EPLOtherCreateSchemaInherit implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema MyParentType as (col1 int, col2 string)", path);
-            env.compileDeploy("@name('child') create schema MyChildTypeOne (col3 int) inherits MyParentType", path);
+            env.compileDeploy("@public create schema MyParentType as (col1 int, col2 string)", path);
+            env.compileDeploy("@name('child') @public create schema MyChildTypeOne (col3 int) inherits MyParentType", path);
 
             env.assertStatement("child", statement -> {
                 EventType childType = statement.getEventType();
@@ -553,8 +553,8 @@ public class EPLOtherCreateSchema {
                 Assert.assertEquals(Integer.class, childType.getPropertyType("col3"));
             });
 
-            env.compileDeploy("create schema MyChildTypeTwo as (col4 boolean)", path);
-            String createText = "@name('childchild') create schema MyChildChildType as (col5 short, col6 long) inherits MyChildTypeOne, MyChildTypeTwo";
+            env.compileDeploy("@public create schema MyChildTypeTwo as (col4 boolean)", path);
+            String createText = "@name('childchild') @public create schema MyChildChildType as (col5 short, col6 long) inherits MyChildTypeOne, MyChildTypeTwo";
             EPStatementObjectModel model = env.eplToModel(createText);
             Assert.assertEquals(createText, model.toEPL());
             env.compileDeploy(model, path);
@@ -579,26 +579,26 @@ public class EPLOtherCreateSchema {
     private static class EPLOtherCreateSchemaVariantType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create schema MyTypeZero as (col1 int, col2 string);\n" +
-                "create schema MyTypeOne as (col1 int, col3 string, col4 int);\n" +
-                "create schema MyTypeTwo as (col1 int, col4 boolean, col5 short)";
+            String epl = "@public create schema MyTypeZero as (col1 int, col2 string);\n" +
+                "@public create schema MyTypeOne as (col1 int, col3 string, col4 int);\n" +
+                "@public create schema MyTypeTwo as (col1 int, col4 boolean, col5 short)";
             env.compileDeploy(epl, path);
 
             // try predefined
-            env.compileDeploy("@name('predef') create variant schema MyVariantPredef as MyTypeZero, MyTypeOne", path);
+            env.compileDeploy("@name('predef') @public create variant schema MyVariantPredef as MyTypeZero, MyTypeOne", path);
             env.assertStatement("predef", statement -> {
                 EventType variantTypePredef = statement.getEventType();
                 Assert.assertEquals(Integer.class, variantTypePredef.getPropertyType("col1"));
                 Assert.assertEquals(1, variantTypePredef.getPropertyDescriptors().length);
             });
 
-            env.compileDeploy("insert into MyVariantPredef select * from MyTypeZero", path);
-            env.compileDeploy("insert into MyVariantPredef select * from MyTypeOne", path);
+            env.compileDeploy("@public insert into MyVariantPredef select * from MyTypeZero", path);
+            env.compileDeploy("@public insert into MyVariantPredef select * from MyTypeOne", path);
             env.tryInvalidCompile(path, "insert into MyVariantPredef select * from MyTypeTwo",
                 "Selected event type is not a valid event type of the variant stream 'MyVariantPredef' [insert into MyVariantPredef select * from MyTypeTwo]");
 
             // try predefined with any
-            String createText = "@name('predef_any') create variant schema MyVariantAnyModel as MyTypeZero, MyTypeOne, *";
+            String createText = "@name('predef_any') @public create variant schema MyVariantAnyModel as MyTypeZero, MyTypeOne, *";
             EPStatementObjectModel model = env.eplToModel(createText);
             Assert.assertEquals(createText, model.toEPL());
             env.compileDeploy(model, path);
@@ -612,7 +612,7 @@ public class EPLOtherCreateSchema {
             });
 
             // try "any"
-            env.compileDeploy("@name('any') create variant schema MyVariantAny as *", path);
+            env.compileDeploy("@name('any') @public create variant schema MyVariantAny as *", path);
             env.assertStatement("any", statement -> {
                 EventType variantTypeAny = statement.getEventType();
                 Assert.assertEquals(0, variantTypeAny.getPropertyDescriptors().length);
@@ -628,14 +628,14 @@ public class EPLOtherCreateSchema {
 
     private static void tryAssertionColDefPlain(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypeCol1To4.class) + " create schema MyEventType as (col1 string, col2 int, col3col4 int)", path);
+        env.compileDeploy("@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypeCol1To4.class) + " @public create schema MyEventType as (col1 string, col2 int, col3col4 int)", path);
         env.assertStatement("create", statement -> assertTypeColDef(statement.getEventType()));
         env.compileDeploy("@name('select') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypeCol1To4.class) + " select * from MyEventType", path);
         env.assertStatement("select", statement -> assertTypeColDef(statement.getEventType()));
         env.undeployAll();
 
         // destroy and create differently
-        env.compileDeploy("@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypCol34.class) + " create schema MyEventType as (col3 string, col4 int)");
+        env.compileDeploy("@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypCol34.class) + " @public create schema MyEventType as (col3 string, col4 int)");
         env.assertStatement("create", statement -> {
             Assert.assertEquals(Integer.class, JavaClassHelper.getBoxedType(statement.getEventType().getPropertyType("col4")));
             Assert.assertEquals(2, statement.getEventType().getPropertyDescriptors().length);
@@ -644,7 +644,7 @@ public class EPLOtherCreateSchema {
 
         // destroy and create differently
         path.clear();
-        String schemaEPL = "@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypCol56.class) + " @buseventtype create schema MyEventType as (col5 string, col6 int)";
+        String schemaEPL = "@name('create') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventTypCol56.class) + " @public @buseventtype create schema MyEventType as (col5 string, col6 int)";
         env.compileDeploy(schemaEPL, path);
 
         env.assertStatement("create", statement -> {
@@ -708,8 +708,8 @@ public class EPLOtherCreateSchema {
     private static void tryAssertionNestableMapArray(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
         String schema =
-            "@name('innerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableArray.class) + " create schema MyInnerType as (inn1 string[], inn2 int[]);\n" +
-                "@name('outerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableOuter.class) + " @buseventtype create schema MyOuterType as (col1 MyInnerType, col2 MyInnerType[]);\n";
+            "@name('innerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableArray.class) + " @public create schema MyInnerType as (inn1 string[], inn2 int[]);\n" +
+                "@name('outerType') " + eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNestableOuter.class) + " @public @buseventtype create schema MyOuterType as (col1 MyInnerType, col2 MyInnerType[]);\n";
         env.compileDeploy(schema, path);
 
         env.assertStatement("innerType", statement -> {

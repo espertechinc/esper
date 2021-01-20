@@ -32,10 +32,10 @@ public class EPLDatabaseNoJoinIterate {
     private static class EPLDatabaseExpressionPoll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable boolean queryvar_bool", path);
-            env.compileDeploy("create variable int queryvar_int", path);
-            env.compileDeploy("create variable int lower", path);
-            env.compileDeploy("create variable int upper", path);
+            env.compileDeploy("@public create variable boolean queryvar_bool", path);
+            env.compileDeploy("@public create variable int queryvar_int", path);
+            env.compileDeploy("@public create variable int lower", path);
+            env.compileDeploy("@public create variable int upper", path);
             env.compileDeploy("on SupportBean set queryvar_int=intPrimitive, queryvar_bool=boolPrimitive, lower=intPrimitive,upper=intBoxed", path);
 
             // Test int and singlerow
@@ -66,10 +66,10 @@ public class EPLDatabaseNoJoinIterate {
     private static class EPLDatabaseVariablesPoll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable boolean queryvar_bool", path);
-            env.compileDeploy("create variable int queryvar_int", path);
-            env.compileDeploy("create variable int lower", path);
-            env.compileDeploy("create variable int upper", path);
+            env.compileDeploy("@public create variable boolean queryvar_bool", path);
+            env.compileDeploy("@public create variable int queryvar_int", path);
+            env.compileDeploy("@public create variable int lower", path);
+            env.compileDeploy("@public create variable int upper", path);
             env.compileDeploy("on SupportBean set queryvar_int=intPrimitive, queryvar_bool=boolPrimitive, lower=intPrimitive,upper=intBoxed", path);
 
             // Test int and singlerow

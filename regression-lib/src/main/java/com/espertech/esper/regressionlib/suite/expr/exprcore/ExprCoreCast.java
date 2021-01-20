@@ -103,12 +103,12 @@ public class ExprCoreCast {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                    "@buseventtype create schema MyEvent(arr_string java.lang.Object, arr_primitive java.lang.Object, " +
+                    "@public @buseventtype create schema MyEvent(arr_string java.lang.Object, arr_primitive java.lang.Object, " +
                     "arr_boxed_one java.lang.Object, arr_boxed_two java.lang.Object, arr_object java.lang.Object," +
                     "arr_2dim_primitive java.lang.Object, arr_2dim_object java.lang.Object," +
                     "arr_3dim_primitive java.lang.Object, arr_3dim_object java.lang.Object" +
                     ");\n" +
-                    "create schema MyArrayEvent as " + MyArrayEvent.class.getName() + ";\n";
+                    "@public create schema MyArrayEvent as " + MyArrayEvent.class.getName() + ";\n";
             env.compileDeploy(epl, path);
 
             String insert = "@name('s0') insert into MyArrayEvent select " +
@@ -589,7 +589,7 @@ public class ExprCoreCast {
     }
 
     private static void runAssertionDynamicDateFormatJava8(RegressionEnvironment env) {
-        String epl = "@buseventtype create schema ValuesAndFormats(" +
+        String epl = "@buseventtype @public create schema ValuesAndFormats(" +
             "ldt string, ldtf string," +
             "ld string, ldf string," +
             "lt string, ltf string," +

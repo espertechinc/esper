@@ -44,7 +44,7 @@ public class EPLDataflowAPIInstantiationOptions {
     private static class EPLDataflowParameterInjectionCallback implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne MyOp -> outstream<SomeType> {propOne:'abc', propThree:'xyz'}", path);
 
             EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
@@ -83,7 +83,7 @@ public class EPLDataflowAPIInstantiationOptions {
     private static class EPLDataflowOperatorInjectionCallback implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne MyOp -> outstream<SomeType> {propOne:'abc', propThree:'xyz'}", path);
 
             MyOperatorProvider myOperatorProvider = new MyOperatorProvider();

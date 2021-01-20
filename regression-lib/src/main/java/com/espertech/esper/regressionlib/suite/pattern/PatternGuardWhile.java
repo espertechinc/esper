@@ -108,7 +108,7 @@ public class PatternGuardWhile {
     private static class PatternVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('var') create variable boolean myVariable = true", path);
+            env.compileDeploy("@name('var') @public create variable boolean myVariable = true", path);
 
             String expression = "@name('s0') select * from pattern [every a=SupportBean(theString like 'A%') -> (every b=SupportBean(theString like 'B%')) while (myVariable)]";
             env.compileDeploy(expression, path);

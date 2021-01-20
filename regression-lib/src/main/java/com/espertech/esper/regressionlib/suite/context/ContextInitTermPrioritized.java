@@ -35,8 +35,8 @@ public class ContextInitTermPrioritized {
 
             RegressionPath path = new RegressionPath();
             String epl =
-                "\n @Name('ctx') create context RuleActivityTime as start (0, 9, *, *, *) end (0, 17, *, *, *);" +
-                    "\n @Name('window') context RuleActivityTime create window EventsWindow#firstunique(productID) as SupportProductIdEvent;" +
+                "\n @Name('ctx') @public create context RuleActivityTime as start (0, 9, *, *, *) end (0, 17, *, *, *);" +
+                    "\n @Name('window') @public context RuleActivityTime create window EventsWindow#firstunique(productID) as SupportProductIdEvent;" +
                     "\n @Name('variable') create variable boolean IsOutputTriggered_2 = false;" +
                     "\n @Name('A') context RuleActivityTime insert into EventsWindow select * from SupportProductIdEvent(not exists (select * from EventsWindow));" +
                     "\n @Name('B') context RuleActivityTime insert into EventsWindow select * from SupportProductIdEvent(not exists (select * from EventsWindow));" +

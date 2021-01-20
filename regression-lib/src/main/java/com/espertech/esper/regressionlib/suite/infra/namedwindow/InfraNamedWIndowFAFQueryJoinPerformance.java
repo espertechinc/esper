@@ -37,10 +37,10 @@ public class InfraNamedWIndowFAFQueryJoinPerformance implements RegressionExecut
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window W1#unique(s1) as SupportSimpleBeanOne", path);
+        env.compileDeploy("@public create window W1#unique(s1) as SupportSimpleBeanOne", path);
         env.compileDeploy("insert into W1 select * from SupportSimpleBeanOne", path);
 
-        env.compileDeploy("create window W2#unique(s2) as SupportSimpleBeanTwo", path);
+        env.compileDeploy("@public create window W2#unique(s2) as SupportSimpleBeanTwo", path);
         env.compileDeploy("insert into W2 select * from SupportSimpleBeanTwo", path);
 
         for (int i = 0; i < 1000; i++) {

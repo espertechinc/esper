@@ -24,14 +24,14 @@ public class ClientInstrumentMetricsReportingNW implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.advanceTime(0);
-        env.compileDeploy("@Name('0') create schema StatementMetric as " + StatementMetric.class.getName());
-        env.compileDeploy("@Name('A') create window MyWindow#lastevent as select * from SupportBean", path);
+        env.compileDeploy("@Name('0') @public create schema StatementMetric as " + StatementMetric.class.getName());
+        env.compileDeploy("@Name('A') @public create window MyWindow#lastevent as select * from SupportBean", path);
         env.compileDeploy("@Name('B1') insert into MyWindow select * from SupportBean", path);
         env.compileDeploy("@Name('B2') insert into MyWindow select * from SupportBean", path);
         env.compileDeploy("@Name('C') select sum(intPrimitive) from MyWindow", path);
         env.compileDeploy("@Name('D') select sum(w1.intPrimitive) from MyWindow w1, MyWindow w2", path);
 
-        String appModuleTwo = "@Name('W') create window SupportBeanWindow#keepall as SupportBean;" +
+        String appModuleTwo = "@Name('W') @public create window SupportBeanWindow#keepall as SupportBean;" +
             "" +
             "@Name('M') on SupportBean oe\n" +
             "  merge SupportBeanWindow pw\n" +

@@ -77,10 +77,10 @@ public class EPLInsertIntoWrapper {
     public static class EPLInsertIntoWrapperBean implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('i1') insert into WrappedBean select *, intPrimitive as p0 from SupportBean", path);
+            env.compileDeploy("@name('i1') @public insert into WrappedBean select *, intPrimitive as p0 from SupportBean", path);
             env.addListener("i1");
 
-            env.compileDeploy("@name('i2') insert into WrappedBean select sb from SupportEventContainsSupportBean sb", path);
+            env.compileDeploy("@name('i2') @public insert into WrappedBean select sb from SupportEventContainsSupportBean sb", path);
             env.addListener("i2");
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -95,9 +95,9 @@ public class EPLInsertIntoWrapper {
 
     public static class EPLInsertInto3StreamWrapper implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String statementOne = "@name('s0') insert into StreamA select irstream * from SupportBeanSimple#length(2)";
-            String statementTwo = "@name('s1') insert into StreamB select irstream *, myString||'A' as propA from StreamA#length(2)";
-            String statementThree = "@name('s2') insert into StreamC select irstream *, propA||'B' as propB from StreamB#length(2)";
+            String statementOne = "@name('s0') @public insert into StreamA select irstream * from SupportBeanSimple#length(2)";
+            String statementTwo = "@name('s1') @public insert into StreamB select irstream *, myString||'A' as propA from StreamA#length(2)";
+            String statementThree = "@name('s2') @public insert into StreamC select irstream *, propA||'B' as propB from StreamB#length(2)";
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy(statementOne, path);

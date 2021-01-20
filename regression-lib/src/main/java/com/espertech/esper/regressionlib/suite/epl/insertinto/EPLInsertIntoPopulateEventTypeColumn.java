@@ -90,8 +90,8 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNested.class) + "create schema Nested(p0 string, p1 int)", path);
-            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOuterType.class) + "create schema OuterType(n0 Nested)", path);
+            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNested.class) + "@public create schema Nested(p0 string, p1 int)", path);
+            env.compileDeploy(representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOuterType.class) + "@public create schema OuterType(n0 Nested)", path);
 
             String[] fields = "n0.p0,n0.p1".split(",");
             env.compileDeploy("@Name('out') " +
@@ -123,15 +123,15 @@ public class EPLInsertIntoPopulateEventTypeColumn {
     private static class EPLInsertIntoInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema N1_1(p0 int)", path);
-            env.compileDeploy("create schema N1_2(p1 N1_1)", path);
+            env.compileDeploy("@public create schema N1_1(p0 int)", path);
+            env.compileDeploy("@public create schema N1_2(p1 N1_1)", path);
 
             // enumeration type is incompatible
-            env.compileDeploy("create schema TypeOne(sbs SupportBean[])", path);
+            env.compileDeploy("@public create schema TypeOne(sbs SupportBean[])", path);
             env.tryInvalidCompile(path, "insert into TypeOne select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
                 "Incompatible type detected attempting to insert into column 'sbs' type '" + SupportBean.class.getName() + "' compared to selected type 'SupportBean_S0'");
 
-            env.compileDeploy("create schema TypeTwo(sbs SupportBean)", path);
+            env.compileDeploy("@public create schema TypeTwo(sbs SupportBean)", path);
             env.tryInvalidCompile(path, "insert into TypeTwo select (select * from SupportBean_S0#keepall) as sbs from SupportBean_S1",
                 "Incompatible type detected attempting to insert into column 'sbs' type '" + SupportBean.class.getName() + "' compared to selected type 'SupportBean_S0'");
 
@@ -149,11 +149,11 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionFragmentSingeColNamedWindow(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@buseventtype create schema AEvent (symbol string)", path);
+        env.compileDeploy("@public @buseventtype create schema AEvent (symbol string)", path);
 
-        env.compileDeploy("create window MyEventWindow#lastevent (e AEvent)", path);
+        env.compileDeploy("@public create window MyEventWindow#lastevent (e AEvent)", path);
         env.compileDeploy("insert into MyEventWindow select (select * from AEvent#lastevent) as e from SupportBean(theString = 'A')", path);
-        env.compileDeploy("create schema BEvent (e AEvent)", path);
+        env.compileDeploy("@public create schema BEvent (e AEvent)", path);
         env.compileDeploy("@name('s0') insert into BEvent select (select e from MyEventWindow) as e from SupportBean(theString = 'B')", path).addListener("s0");
 
         env.sendEventMap(Collections.singletonMap("symbol", "GE"), "AEvent");
@@ -170,8 +170,8 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionTypableSubquerySingleMayFilter(RegressionEnvironment env, String typeType, boolean filter) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
-        env.compileDeploy("create " + typeType + " schema EventOne(ez EventZero)", path);
+        env.compileDeploy("@public create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
+        env.compileDeploy("@public create " + typeType + " schema EventOne(ez EventZero)", path);
 
         String[] fields = "ez.e0_0,ez.e0_1".split(",");
         env.compileDeploy("@name('s0') insert into EventOne select " +
@@ -198,8 +198,8 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionTypableSubqueryMulti(RegressionEnvironment env, String typeType) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
-        env.compileDeploy("create " + typeType + " schema EventOne(e1_0 string, ez EventZero[])", path);
+        env.compileDeploy("@public create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
+        env.compileDeploy("@public create " + typeType + " schema EventOne(e1_0 string, ez EventZero[])", path);
 
         String[] fields = "e1_0,ez[0].e0_0,ez[0].e0_1,ez[1].e0_0,ez[1].e0_1".split(",");
         env.compileDeploy("@name('s0')" +
@@ -227,8 +227,8 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionTypableSubqueryMultiFilter(RegressionEnvironment env, String typeType) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
-        env.compileDeploy("create " + typeType + " schema EventOne(ez EventZero[])", path);
+        env.compileDeploy("@public create " + typeType + " schema EventZero(e0_0 string, e0_1 string)", path);
+        env.compileDeploy("@public create " + typeType + " schema EventOne(ez EventZero[])", path);
 
         String[] fields = "e0_0".split(",");
         env.compileDeploy("@name('s0') insert into EventOne select " +
@@ -249,7 +249,7 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionEnumerationSubqueryMultiMayFilter(RegressionEnvironment env, String typeType, boolean filter) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + typeType + " schema EventOne(sbarr SupportBean_S0[])", path);
+        env.compileDeploy("@public create " + typeType + " schema EventOne(sbarr SupportBean_S0[])", path);
 
         String[] fields = "p00".split(",");
         env.compileDeploy("@name('s0') insert into EventOne select " +
@@ -298,9 +298,9 @@ public class EPLInsertIntoPopulateEventTypeColumn {
 
     private static void tryAssertionTypableNewOperatorDocSample(RegressionEnvironment env, String typeType) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create " + typeType + " schema Item(name string, price double)", path);
-        env.compileDeploy("create " + typeType + " schema PurchaseOrder(orderId string, items Item[])", path);
-        env.compileDeploy("@buseventtype create schema TriggerEvent()", path);
+        env.compileDeploy("@public create " + typeType + " schema Item(name string, price double)", path);
+        env.compileDeploy("@public create " + typeType + " schema PurchaseOrder(orderId string, items Item[])", path);
+        env.compileDeploy("@public @buseventtype create schema TriggerEvent()", path);
         env.compileDeploy("@name('s0') insert into PurchaseOrder select '001' as orderId, new {name= 'i1', price=10} as items from TriggerEvent", path).addListener("s0");
 
         env.sendEventMap(Collections.emptyMap(), "TriggerEvent");

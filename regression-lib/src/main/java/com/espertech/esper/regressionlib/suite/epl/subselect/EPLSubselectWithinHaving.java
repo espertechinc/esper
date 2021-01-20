@@ -37,8 +37,8 @@ public class EPLSubselectWithinHaving {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfra#unique(key) as SupportMaxAmountEvent" :
-                "create table MyInfra(key string primary key, maxAmount double)";
+                "@public create window MyInfra#unique(key) as SupportMaxAmountEvent" :
+                "@public create table MyInfra(key string primary key, maxAmount double)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfra select * from SupportMaxAmountEvent", path);
 

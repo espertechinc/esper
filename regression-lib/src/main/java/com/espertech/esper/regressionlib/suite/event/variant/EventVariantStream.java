@@ -51,7 +51,7 @@ public class EventVariantStream {
     private static class EventVariantWithLateCreateSchema implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variant schema MyVariants as *", path);
+            env.compileDeploy("@public create variant schema MyVariants as *", path);
             env.compileDeploy("@name('out') select * from MyVariants#length(10)", path);
             env.compileDeploy("@public @buseventtype create map schema SomeEventOne as (id string)", path);
             env.compileDeploy("@public @buseventtype create objectarray schema SomeEventTwo as (id string)", path);
@@ -169,7 +169,7 @@ public class EventVariantStream {
 
             RegressionPath path = new RegressionPath();
             env.compileDeploy("insert into MyVariantTwoTypedSBVariant select * from SupportBean");
-            env.compileDeploy("create window MainEventWindow#length(10000) as MyVariantTwoTypedSBVariant", path);
+            env.compileDeploy("@public create window MainEventWindow#length(10000) as MyVariantTwoTypedSBVariant", path);
             env.compileDeploy("insert into MainEventWindow select " + EventVariantStream.class.getSimpleName() + ".preProcessEvent(event) from MyVariantTwoTypedSBVariant as event", path);
             env.compileDeploy("@name('s0') select * from MainEventWindow where theString = 'E'", path);
             env.assertThat(() -> env.statement("s0").addListenerWithReplay(env.listenerNew()));
@@ -298,7 +298,7 @@ public class EventVariantStream {
 
             // test named window
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('window') create window MyVariantWindow#unique(theString) as select * from MyVariantTwoTypedSB", path);
+            env.compileDeploy("@name('window') @public create window MyVariantWindow#unique(theString) as select * from MyVariantTwoTypedSB", path);
             env.addListener("window");
             env.compileDeploy("insert into MyVariantWindow select * from MyVariantTwoTypedSB", path);
             env.compileDeploy("insert into MyVariantTwoTypedSB select * from SupportBeanVariantStream", path);
@@ -384,8 +384,8 @@ public class EventVariantStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into MyStream select theString, intPrimitive from SupportBean", path);
-            env.compileDeploy("insert into VarStreamAny select theString as abc from MyStream", path);
+            env.compileDeploy("@public insert into MyStream select theString, intPrimitive from SupportBean", path);
+            env.compileDeploy("@public insert into VarStreamAny select theString as abc from MyStream", path);
             env.compileDeploy("@Name('Target') select * from VarStreamAny#keepall()", path);
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -463,7 +463,7 @@ public class EventVariantStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into MyStream select theString, intPrimitive from SupportBean", path);
+            env.compileDeploy("@public insert into MyStream select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("insert into VarStreamMD select theString as abc from MyStream", path);
             env.compileDeploy("@Name('Target') select * from VarStreamMD#keepall", path);
 
@@ -471,7 +471,7 @@ public class EventVariantStream {
 
             env.assertPropsPerRowIterator("Target", new String[]{"abc"}, new Object[][]{{"E1"}});
 
-            env.compileDeploy("insert into MyStream2 select feed from SupportMarketDataBean", path);
+            env.compileDeploy("@public insert into MyStream2 select feed from SupportMarketDataBean", path);
             env.compileDeploy("insert into VarStreamMD select feed as abc from MyStream2", path);
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 1, 1L, "E2"));

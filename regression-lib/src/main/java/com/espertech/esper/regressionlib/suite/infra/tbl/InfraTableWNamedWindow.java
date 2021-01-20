@@ -24,8 +24,8 @@ public class InfraTableWNamedWindow implements RegressionExecution {
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@Name('var') create table varagg (key string primary key, total sum(int))", path);
-        env.compileDeploy("@Name('win') create window MyWindow#keepall as SupportBean", path);
+        env.compileDeploy("@Name('var') @public create table varagg (key string primary key, total sum(int))", path);
+        env.compileDeploy("@Name('win') @public create window MyWindow#keepall as SupportBean", path);
         env.compileDeploy("@Name('insert') insert into MyWindow select * from SupportBean", path);
         env.compileDeploy("@Name('populate') into table varagg select sum(intPrimitive) as total from MyWindow group by theString", path);
         env.compileDeploy("@Name('s0') on SupportBean_S0 select theString, varagg[p00].total as c0 from MyWindow where theString = p00", path).addListener("s0");

@@ -49,8 +49,8 @@ public class EPLFromClauseMethodVariable {
 
             // variable with context and metadata is instance method
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context BetweenStartAndEnd start SupportBean end SupportBean", path);
-            env.compileDeploy("context BetweenStartAndEnd create variable " + MyMethodHandlerMap.class.getName() + " themap", path);
+            env.compileDeploy("@public create context BetweenStartAndEnd start SupportBean end SupportBean", path);
+            env.compileDeploy("@public context BetweenStartAndEnd create variable " + MyMethodHandlerMap.class.getName() + " themap", path);
             env.tryInvalidCompile(path, "context BetweenStartAndEnd select field1, field2 from method:themap.getMapData()",
                 "Failed to access variable method invocation metadata: The variable value is null and the metadata method is an instance method");
 
@@ -75,10 +75,10 @@ public class EPLFromClauseMethodVariable {
     private static class EPLFromClauseMethodContextVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext " +
+            env.compileDeploy("@public create context MyContext " +
                 "initiated by SupportBean_S0 as c_s0 " +
                 "terminated by SupportBean_S1(id=c_s0.id)", path);
-            env.compileDeploy("context MyContext " +
+            env.compileDeploy("@public context MyContext " +
                 "create variable MyNonConstantServiceVariable var = MyNonConstantServiceVariableFactory.make()", path);
             env.compileDeploy("@name('s0') context MyContext " +
                 "select id as c0 from SupportBean(intPrimitive=context.c_s0.id) as sb, " +
@@ -105,7 +105,7 @@ public class EPLFromClauseMethodVariable {
             // invalid context
             env.tryInvalidCompile(path, "select * from method:var.fetchABean(intPrimitive) as h0",
                 "Variable by name 'var' has been declared for context 'MyContext' and can only be used within the same context");
-            env.compileDeploy("create context ABC start @now end after 1 minute", path);
+            env.compileDeploy("@public create context ABC start @now end after 1 minute", path);
             env.tryInvalidCompile(path, "context ABC select * from method:var.fetchABean(intPrimitive) as h0",
                 "Variable by name 'var' has been declared for context 'MyContext' and can only be used within the same context");
 

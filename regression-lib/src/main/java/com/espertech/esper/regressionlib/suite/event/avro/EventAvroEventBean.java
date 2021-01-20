@@ -53,7 +53,7 @@ public class EventAvroEventBean implements RegressionExecution {
 
     private void runAssertionDynamicProp(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('schema') @buseventtype create avro schema MyEvent()", path);
+        env.compileDeploy("@name('schema') @buseventtype @public create avro schema MyEvent()", path);
 
         env.compileDeploy("@name('s0') select * from MyEvent", path).addListener("s0");
 

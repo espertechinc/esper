@@ -28,7 +28,7 @@ public class InfraTableIterate implements RegressionExecution {
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create table MyTable(pkey0 string primary key, pkey1 int primary key, c0 long)", path);
+        env.compileDeploy("@public create table MyTable(pkey0 string primary key, pkey1 int primary key, c0 long)", path);
         env.compileDeploy("insert into MyTable select theString as pkey0, intPrimitive as pkey1, longPrimitive as c0 from SupportBean", path);
 
         sendSupportBean(env, "E1", 10, 100);

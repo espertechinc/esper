@@ -49,9 +49,9 @@ public class EPLJoin3StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window ST0#keepall as SupportBean_ST0;\n" +
-                "@Name('I1') insert into ST0 select * from SupportBean_ST0;\n" +
-                "create window ST1#keepall as SupportBean_ST1;\n" +
+            String epl = "@public create window ST0#keepall as SupportBean_ST0;\n" +
+                "@Name('I1') @public insert into ST0 select * from SupportBean_ST0;\n" +
+                "@public create window ST1#keepall as SupportBean_ST1;\n" +
                 "@Name('I2') insert into ST1 select * from SupportBean_ST1;\n";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -90,9 +90,9 @@ public class EPLJoin3StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window ST0#keepall as SupportBean_ST0;\n" +
+            String epl = "@public create window ST0#keepall as SupportBean_ST0;\n" +
                 "@Name('I1') insert into ST0 select * from SupportBean_ST0;\n" +
-                "create window ST1#keepall as SupportBean_ST1;\n" +
+                "@public create window ST1#keepall as SupportBean_ST1;\n" +
                 "@Name('I2') insert into ST1 select * from SupportBean_ST1;\n";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -135,9 +135,9 @@ public class EPLJoin3StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window SBR#keepall as SupportBeanRange;\n" +
+            String epl = "@public create window SBR#keepall as SupportBeanRange;\n" +
                 "@Name('I1') insert into SBR select * from SupportBeanRange;\n" +
-                "create window ST1#keepall as SupportBean_ST1;\n" +
+                "@public create window ST1#keepall as SupportBean_ST1;\n" +
                 "@Name('I2') insert into ST1 select * from SupportBean_ST1;\n";
             env.compileDeploy(epl, path).milestone(0);
 

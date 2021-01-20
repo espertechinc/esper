@@ -44,7 +44,7 @@ public class EPLFromClauseMethodNStream {
     private static class EPLFromClauseMethod3Stream1HistStreamNWTwice implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window AllTrades#keepall as SupportTradeEventWithSide", path);
+            env.compileDeploy("@public create window AllTrades#keepall as SupportTradeEventWithSide", path);
             env.compileDeploy("insert into AllTrades select * from SupportTradeEventWithSide", path);
 
             String epl = "@name('s0') select us, them, corr.correlation as crl " +

@@ -42,7 +42,7 @@ public class MultithreadContextCountSimple implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('ctx') create context HashByUserCtx as coalesce by consistent_hash_crc32(p00) from SupportBean_S0 granularity 10000000", path);
+        env.compileDeploy("@name('ctx') @public create context HashByUserCtx as coalesce by consistent_hash_crc32(p00) from SupportBean_S0 granularity 10000000", path);
         env.compileDeploy("@name('select') context HashByUserCtx select p01 from SupportBean_S0", path);
 
         trySendContextCountSimple(env, 4, 5);

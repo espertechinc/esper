@@ -87,9 +87,9 @@ public class EventBeanPropertyResolutionWDefaults {
 
             // test resolution as nested property
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema MyEvent as (customer string, `from` string)", path);
-            env.compileDeploy("insert into DerivedStream select customer,`from` from MyEvent", path);
-            env.compileDeploy("create window TheWindow#firstunique(customer,`from`) as DerivedStream", path);
+            env.compileDeploy("@public create schema MyEvent as (customer string, `from` string)", path);
+            env.compileDeploy("@public insert into DerivedStream select customer,`from` from MyEvent", path);
+            env.compileDeploy("@public create window TheWindow#firstunique(customer,`from`) as DerivedStream", path);
             env.compileDeploy("on pattern [a=TheWindow -> timer:interval(12 hours)] as s0 delete from TheWindow as s1 where s0.a.`from`=s1.`from`", path);
 
             // test escape in column name

@@ -571,8 +571,8 @@ public class EPLJoinUnidirectionalStream {
     }
 
     private static void tryAssertion2StreamInnerWGroupBy(RegressionEnvironment env) {
-        String epl = "@buseventtype create objectarray schema E1 (id string, grp string, value int);\n" +
-            "@buseventtype create objectarray schema E2 (id string, value2 int);\n" +
+        String epl = "@buseventtype @public create objectarray schema E1 (id string, grp string, value int);\n" +
+            "@buseventtype @public create objectarray schema E2 (id string, value2 int);\n" +
             "@name('s0') select count(*) as c0, sum(E1.value) as c1, E1.id as c2 " +
             "from E1 unidirectional inner join E2#keepall on E1.id = E2.id group by E1.grp";
         env.compileDeploy(epl, new RegressionPath());

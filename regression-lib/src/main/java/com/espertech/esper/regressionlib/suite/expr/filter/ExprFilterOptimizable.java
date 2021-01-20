@@ -122,7 +122,7 @@ public class ExprFilterOptimizable {
             epl = "select * from SupportBean(typeof(e) = 'SupportBean') as e";
             assertFilterDeploySingle(env, path, epl, "typeof(e)", FilterOperator.EQUAL, milestone);
 
-            env.compileDeploy("@name('create-expr') create expression thesplit {theString => funcOne(theString)}", path).addListener("create-expr");
+            env.compileDeploy("@name('create-expr') @public create expression thesplit {theString => funcOne(theString)}", path).addListener("create-expr");
             epl = "select * from SupportBean(thesplit(*) = 0)";
             assertFilterDeploySingle(env, path, epl, "thesplit(*)", FilterOperator.EQUAL, milestone);
 

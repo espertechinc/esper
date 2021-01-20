@@ -122,7 +122,7 @@ public class EventAvroHook {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('NamedWindow') create window MyWindow#keepall as MyEventWSchema", path);
+            env.compileDeploy("@Name('NamedWindow') @public create window MyWindow#keepall as MyEventWSchema", path);
             env.compileDeploy("insert into MyWindow select * from MyEventWSchema", path);
             env.compileDeploy("on SupportBean thebean update MyWindow set sb = thebean", path);
 

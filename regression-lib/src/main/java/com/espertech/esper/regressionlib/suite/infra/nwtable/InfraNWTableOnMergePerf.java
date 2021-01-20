@@ -53,8 +53,8 @@ public class InfraNWTableOnMergePerf {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                outputType.getAnnotationText() + "@name('create') create window MyWindow#keepall as (c1 string, c2 int)" :
-                "@name('create') create table MyWindow(c1 string primary key, c2 int)";
+                outputType.getAnnotationText() + "@name('create') @public create window MyWindow#keepall as (c1 string, c2 int)" :
+                "@name('create') @public create table MyWindow(c1 string primary key, c2 int)";
             env.compileDeploy(eplCreate, path);
             env.assertStatement("create", statement -> assertTrue(outputType.matchesClass(statement.getEventType().getUnderlyingType())));
 

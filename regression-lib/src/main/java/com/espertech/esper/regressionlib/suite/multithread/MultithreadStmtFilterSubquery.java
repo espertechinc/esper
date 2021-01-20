@@ -42,7 +42,7 @@ public class MultithreadStmtFilterSubquery implements RegressionExecution {
 
     private static void tryNamedWindowFilterSubquery(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#keepall as SupportBean_S0", path);
+        env.compileDeploy("@public create window MyWindow#keepall as SupportBean_S0", path);
         env.compileDeploy("insert into MyWindow select * from SupportBean_S0", path);
 
         String epl = "select * from pattern[SupportBean_S0 -> SupportBean(not exists (select * from MyWindow mw where mw.p00 = 'E'))]";

@@ -41,8 +41,8 @@ public class ContextLifecycle {
     private static class ContextLifecycleSplitStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplOne = "create context CtxSegmentedByTarget partition by theString from SupportBean;" +
-                "@Name('out') context CtxSegmentedByTarget on SupportBean insert into NewSupportBean select * where intPrimitive = 100;";
+            String eplOne = "@public create context CtxSegmentedByTarget partition by theString from SupportBean;" +
+                "@Name('out') @public context CtxSegmentedByTarget on SupportBean insert into NewSupportBean select * where intPrimitive = 100;";
             env.compileDeploy(eplOne, path);
             env.compileDeploy("@name('s0') select * from NewSupportBean", path).addListener("s0");
 
@@ -56,9 +56,9 @@ public class ContextLifecycle {
 
             // test with subquery
             String[] fields = "mymax".split(",");
-            String eplTwo = "create context CtxSegmentedByTarget partition by theString from SupportBean;" +
-                "context CtxSegmentedByTarget create window NewEvent#unique(theString) as SupportBean;" +
-                "@Name('out') context CtxSegmentedByTarget on SupportBean " +
+            String eplTwo = "@public create context CtxSegmentedByTarget partition by theString from SupportBean;" +
+                "@public context CtxSegmentedByTarget create window NewEvent#unique(theString) as SupportBean;" +
+                "@Name('out') @public context CtxSegmentedByTarget on SupportBean " +
                 "insert into NewEvent select * where intPrimitive = 100 " +
                 "insert into NewEventTwo select (select max(intPrimitive) from NewEvent) as mymax  " +
                 "output all;";
@@ -83,8 +83,8 @@ public class ContextLifecycle {
             SupportVirtualDWFactory.setDestroyed(false);
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context CtxSegmented as partition by theString from SupportBean", path);
-            env.compileDeploy("context CtxSegmented create window TestVDWWindow.test:vdw() as SupportBean", path);
+            env.compileDeploy("@public create context CtxSegmented as partition by theString from SupportBean", path);
+            env.compileDeploy("@public context CtxSegmented create window TestVDWWindow.test:vdw() as SupportBean", path);
             env.compileDeploy("select * from TestVDWWindow", path);
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -104,11 +104,11 @@ public class ContextLifecycle {
     private static class ContextLifecycleNWOtherContextOnExpr implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
-            env.compileDeploy("create context TenToFive as start (0, 10, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context TenToFive as start (0, 10, *, *, *) end (0, 17, *, *, *)", path);
 
             // Trigger not in context
-            env.compileDeploy("@name('createwindow') context NineToFive create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('createwindow') @public context NineToFive create window MyWindow#keepall as SupportBean", path);
             env.tryInvalidCompile(path, "on SupportBean_S0 s0 merge MyWindow mw when matched then update set intPrimitive = 1",
                 "Cannot create on-trigger expression: Named window 'MyWindow' was declared with context 'NineToFive', please declare the same context name");
 
@@ -118,7 +118,7 @@ public class ContextLifecycle {
 
             // Named window not in context, trigger in different context
             env.undeployModuleContaining("createwindow");
-            env.compileDeploy("create window MyWindowTwo#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindowTwo#keepall as SupportBean", path);
             env.tryInvalidCompile(path, "context TenToFive on SupportBean_S0 s0 merge MyWindowTwo mw when matched then update set intPrimitive = 1",
                 "Cannot create on-trigger expression: Named window 'MyWindowTwo' was declared without a context");
 
@@ -129,7 +129,7 @@ public class ContextLifecycle {
     private static class ContextLifecycleSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
+            String epl = "@Name('context') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             assertEquals(0, SupportContextMgmtHelper.getContextCount(env));
             assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
 
@@ -180,7 +180,7 @@ public class ContextLifecycle {
             RegressionPath path = new RegressionPath();
 
             // same context twice
-            String eplCreateCtx = "@name('ctx') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
+            String eplCreateCtx = "@name('ctx') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             env.compileDeploy(eplCreateCtx, path);
             env.tryInvalidCompile(path, eplCreateCtx, "Context by name 'NineToFive' already exists");
 
@@ -197,13 +197,13 @@ public class ContextLifecycle {
             env.tryInvalidCompile(path, "context EightToSix select * from SupportBean", "Context by name 'EightToSix' could not be found");
 
             // test update: update is not allowed as it is processed out-of-context by eventService
-            env.compileDeploy("insert into ABCStream select * from SupportBean", path);
-            env.compileDeploy("@Name('context') create context SegmentedByAString partition by theString from ABCStream", path);
+            env.compileDeploy("@public insert into ABCStream select * from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByAString partition by theString from ABCStream", path);
             env.tryInvalidCompile(path, "context SegmentedByAString update istream ABCStream set intPrimitive = (select id from SupportBean_S0#lastevent) where intPrimitive < 0",
                 "Update IStream is not supported in conjunction with a context");
 
             // context declaration for create-context
-            env.compileDeploy("create context ABC start @now end after 5 seconds", path);
+            env.compileDeploy("@public create context ABC start @now end after 5 seconds", path);
             env.tryInvalidCompile(path, "context ABC create context DEF start @now end after 5 seconds",
                 "A create-context statement cannot itself be associated to a context, please declare a nested context instead [context ABC create context DEF start @now end after 5 seconds]");
 

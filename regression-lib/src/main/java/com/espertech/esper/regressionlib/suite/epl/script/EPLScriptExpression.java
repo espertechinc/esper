@@ -72,7 +72,7 @@ public class EPLScriptExpression {
 
     private static class EPLScriptReturnNullWhenNumeric implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create schema Event(host string); " +
+            String epl = "@public @buseventtype create schema Event(host string); " +
                 "create window DnsTrafficProfile#time(5 minutes) (host string); " +
                 "expression double js:doSomething(p) [ " +
                 "doSomething(p); " +
@@ -549,9 +549,9 @@ public class EPLScriptExpression {
 
     private static void runAssertionScriptReturningEvents(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('type') create schema ItemEvent(id string)", path);
+        env.compileDeploy("@name('type') @public create schema ItemEvent(id string)", path);
 
-        String script = "@name('script') create expression EventBean[] @type(ItemEvent) js:myScriptReturnsEvents() [\n" +
+        String script = "@name('script') @public create expression EventBean[] @type(ItemEvent) js:myScriptReturnsEvents() [\n" +
             "myScriptReturnsEvents();" +
             "function myScriptReturnsEvents() {" +
             "  var EventBeanArray = Java.type(\"com.espertech.esper.common.client.EventBean[]\");\n" +
@@ -619,7 +619,7 @@ public class EPLScriptExpression {
         String expression;
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('var') create variable long THRESHOLD = 100", path);
+        env.compileDeploy("@name('var') @public create variable long THRESHOLD = 100", path);
 
         expression = "expression long " + dialect + ":thresholdAdder(numToAdd, th) [ th + numToAdd; ]";
         testData = new Object[][]{
@@ -805,7 +805,7 @@ public class EPLScriptExpression {
 
     private static void tryAggregation(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create expression change(open, close) [ (open - close) / close ]", path);
+        env.compileDeploy("@public create expression change(open, close) [ (open - close) / close ]", path);
         env.compileDeploy("@name('s0') select change(first(intPrimitive), last(intPrimitive)) as ch from SupportBean#time(1 day)", path).addListener("s0");
 
         env.sendEventBean(new SupportBean("E1", 1));
@@ -847,7 +847,7 @@ public class EPLScriptExpression {
 
     private static void tryCreateExpressionWArrayAllocate(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        String epl = "@name('first') create expression double js:test(bar) [\n" +
+        String epl = "@name('first') @public create expression double js:test(bar) [\n" +
             "test(bar);\n" +
             "function test(bar) {\n" +
             "  var test=[];\n" +

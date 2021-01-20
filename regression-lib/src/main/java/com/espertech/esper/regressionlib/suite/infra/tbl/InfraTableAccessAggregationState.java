@@ -54,7 +54,7 @@ public class InfraTableAccessAggregationState {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varagg (" +
+            String eplDeclare = "@public create table varagg (" +
                 (grouped ? "key string primary key, " : "") + "windowSupportBean window(*) @type('SupportBean'))";
             env.compileDeploy(soda, eplDeclare, path);
 
@@ -111,7 +111,7 @@ public class InfraTableAccessAggregationState {
     private static class InfraAccessAggShare implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varagg (mywin window(*) @type(SupportBean))", path);
+            env.compileDeploy("@public create table varagg (mywin window(*) @type(SupportBean))", path);
 
             env.compileDeploy("@name('into') into table varagg " +
                 "select window(sb.*) as mywin from SupportBean#time(10 sec) as sb", path).addListener("into");
@@ -143,7 +143,7 @@ public class InfraTableAccessAggregationState {
     public static class InfraTableAccessGroupedThreeKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varTotal (key0 string primary key, key1 int primary key," +
+            String eplDeclare = "@public create table varTotal (key0 string primary key, key1 int primary key," +
                 "key2 long primary key, total sum(double), cnt count(*))";
             env.compileDeploy(eplDeclare, path);
 
@@ -182,7 +182,7 @@ public class InfraTableAccessAggregationState {
         public void run(RegressionEnvironment env) {
             // create table
             RegressionPath path = new RegressionPath();
-            String eplDeclare = "create table varMyAgg (" +
+            String eplDeclare = "@public create table varMyAgg (" +
                 "key string primary key, " +
                 "c0 count(*), " +
                 "c1 count(distinct int), " +

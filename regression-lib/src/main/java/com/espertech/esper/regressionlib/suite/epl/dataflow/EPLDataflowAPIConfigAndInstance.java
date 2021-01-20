@@ -44,7 +44,7 @@ public class EPLDataflowAPIConfigAndInstance implements RegressionExecution {
 
         // finally create one
         RegressionPath path = new RegressionPath();
-        String epl = "create objectarray schema MyEvent ();\n" +
+        String epl = "@public create objectarray schema MyEvent ();\n" +
             "@name('df') create dataflow MyDataflow " +
             "BeaconSource -> outdata<MyEvent> {" +
             "  iterations:1" +

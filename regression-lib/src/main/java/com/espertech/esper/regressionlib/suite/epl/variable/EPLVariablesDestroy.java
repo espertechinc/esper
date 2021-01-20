@@ -66,7 +66,7 @@ public class EPLVariablesDestroy {
             RegressionPath path = new RegressionPath();
 
             // single variable
-            env.compileDeploy("@Name('S0') create variable boolean var2vmd = true", path);
+            env.compileDeploy("@Name('S0') @public create variable boolean var2vmd = true", path);
             env.compileDeploy("@Name('S1') select * from SupportBean(var2vmd)", path);
             assertEquals(true, env.runtime().getVariableService().getVariableValue(env.deploymentId("S0"), "var2vmd"));
 
@@ -86,9 +86,9 @@ public class EPLVariablesDestroy {
 
             // multiple variable
             path.clear();
-            env.compileDeploy("@Name('T0') create variable boolean v1 = true", path);
-            env.compileDeploy("@Name('T1') create variable long v2 = 1", path);
-            env.compileDeploy("@Name('T2') create variable string v3 = 'a'", path);
+            env.compileDeploy("@Name('T0') @public create variable boolean v1 = true", path);
+            env.compileDeploy("@Name('T1') @public create variable long v2 = 1", path);
+            env.compileDeploy("@Name('T2') @public create variable string v3 = 'a'", path);
             env.compileDeploy("@Name('TX') select * from SupportBean(v1, v2=1, v3='a')", path);
             env.compileDeploy("@Name('TY') select * from SupportBean(v2=2)", path);
             env.compileDeploy("@Name('TZ') select * from SupportBean(v3='A', v1)", path);

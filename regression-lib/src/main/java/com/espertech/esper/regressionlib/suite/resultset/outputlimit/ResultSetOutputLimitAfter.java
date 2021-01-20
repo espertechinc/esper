@@ -179,7 +179,7 @@ public class ResultSetOutputLimitAfter {
     private static class ResultSetSnapshotVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int myvar_local = 1", path);
+            env.compileDeploy("@public create variable int myvar_local = 1", path);
 
             sendTimer(env, 0);
             String stmtText = "@name('s0') select theString from SupportBean#keepall output after 20 seconds snapshot when myvar_local=1";

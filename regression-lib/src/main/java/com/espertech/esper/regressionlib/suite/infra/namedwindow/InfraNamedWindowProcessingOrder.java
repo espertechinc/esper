@@ -55,11 +55,11 @@ public class InfraNamedWindowProcessingOrder {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStartValueEvent.class) + " @buseventtype create schema StartValueEvent as (dummy string);\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestForwardEvent.class) + " @buseventtype create schema TestForwardEvent as (prop1 string);\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestInputEvent.class) + " @buseventtype create schema TestInputEvent as (dummy string);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedStartValueEvent.class) + " @buseventtype @public create schema StartValueEvent as (dummy string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestForwardEvent.class) + " @buseventtype @public create schema TestForwardEvent as (prop1 string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTestInputEvent.class) + " @buseventtype @public create schema TestInputEvent as (dummy string);\n";
             epl += "insert into TestForwardEvent select'V1' as prop1 from TestInputEvent;\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNamedWin.class) + " create window NamedWin#unique(prop1) (prop1 string, prop2 string);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNamedWin.class) + " @public create window NamedWin#unique(prop1) (prop1 string, prop2 string);\n";
             epl += "insert into NamedWin select 'V1' as prop1, 'O1' as prop2 from StartValueEvent;\n";
             epl += "on TestForwardEvent update NamedWin as work set prop2 = 'U1' where work.prop1 = 'V1';\n";
             epl += "@name('select') select irstream prop1, prop2 from NamedWin;\n";

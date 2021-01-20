@@ -32,9 +32,9 @@ public class ClientDeployPreconditionDependency {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new ClientVisibilityDeployDepClass());
         execs.add(new ClientVisibilityDeployDepScript());
-        execs.add(new ClientVisibilityDeployDepVariablePublic());
+        execs.add(new ClientVisibilityDeployDepVariablePreconfig());
         execs.add(new ClientVisibilityDeployDepVariablePath());
-        execs.add(new ClientVisibilityDeployDepEventTypePublic());
+        execs.add(new ClientVisibilityDeployDepEventTypePreconfig());
         execs.add(new ClientVisibilityDeployDepEventTypePath());
         execs.add(new ClientVisibilityDeployDepNamedWindow());
         execs.add(new ClientVisibilityDeployDepTable());
@@ -48,7 +48,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepClass implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n", path); // Note: not deploying, just adding to path
 
             String text = "dependency application-inlined class 'MyClass'";
             tryInvalidDeploy(env, path, "select MyClass.doIt() from SupportBean", text);
@@ -59,7 +59,7 @@ public class ClientDeployPreconditionDependency {
         }
     }
 
-    public static class ClientVisibilityDeployDepEventTypePublic implements RegressionExecution {
+    public static class ClientVisibilityDeployDepEventTypePreconfig implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             Configuration configuration = env.runtime().getConfigurationDeepCopy();
             configuration.getCommon().addEventType(SomeEvent.class);
@@ -79,7 +79,7 @@ public class ClientDeployPreconditionDependency {
         }
     }
 
-    public static class ClientVisibilityDeployDepVariablePublic implements RegressionExecution {
+    public static class ClientVisibilityDeployDepVariablePreconfig implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             Configuration configuration = env.runtime().getConfigurationDeepCopy();
             configuration.getCommon().addVariable("mypublicvariable", String.class, null, true);
@@ -105,7 +105,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepVariablePath implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create variable string somevariable = 'a'", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create variable string somevariable = 'a'", path); // Note: not deploying, just adding to path
 
             String text = "dependency variable 'somevariable'";
             tryInvalidDeploy(env, path, "select somevariable from SupportBean", text);
@@ -119,7 +119,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create window SimpleWindow#keepall as SupportBean", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create window SimpleWindow#keepall as SupportBean", path); // Note: not deploying, just adding to path
 
             String text = "dependency named window 'SimpleWindow'";
             tryInvalidDeploy(env, path, "select * from SimpleWindow", text);
@@ -133,7 +133,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepTable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create table SimpleTable(col1 string)", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create table SimpleTable(col1 string)", path); // Note: not deploying, just adding to path
 
             String text = "dependency table 'SimpleTable'";
             tryInvalidDeploy(env, path, "select * from SimpleTable", text);
@@ -147,7 +147,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepExprDecl implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create expression someexpression { 0 }", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create expression someexpression { 0 }", path); // Note: not deploying, just adding to path
 
             String text = "dependency declared-expression 'someexpression'";
             tryInvalidDeploy(env, path, "select someexpression() from SupportBean", text);
@@ -161,7 +161,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepScript implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create expression double myscript(stringvalue) [0]", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create expression double myscript(stringvalue) [0]", path); // Note: not deploying, just adding to path
 
             String text = "dependency script 'myscript'";
             tryInvalidDeploy(env, path, "select myscript('abc') from SupportBean", text);
@@ -175,7 +175,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create context MyContext partition by theString from SupportBean", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create context MyContext partition by theString from SupportBean", path); // Note: not deploying, just adding to path
 
             String text = "dependency context 'MyContext'";
             tryInvalidDeploy(env, path, "context MyContext select * from SupportBean", text);
@@ -192,7 +192,7 @@ public class ClientDeployPreconditionDependency {
             String text;
 
             // Table
-            env.compileDeploy("@name('infra') create table MyTable(col1 string primary key, col2 string)", path);
+            env.compileDeploy("@name('infra') @public create table MyTable(col1 string primary key, col2 string)", path);
             env.compile("@name('infra') create index MyIndexForTable on MyTable(col2)", path); // Note: not deploying, just adding to path
 
             text = "dependency index 'MyIndexForTable'";
@@ -200,7 +200,7 @@ public class ClientDeployPreconditionDependency {
             tryInvalidDeploy(env, path, "select * from SupportBean as sb where exists (select * from MyTable as mt where mt.col2 = sb.theString)", text);
 
             // Named Window
-            env.compileDeploy("@name('infra') create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('infra') @public create window MyWindow#keepall as SupportBean", path);
             env.compile("@name('infra') create index MyIndexForNW on MyWindow(intPrimitive)", path); // Note: not deploying, just adding to path
 
             text = "dependency index 'MyIndexForNW'";
@@ -217,7 +217,7 @@ public class ClientDeployPreconditionDependency {
     public static class ClientVisibilityDeployDepEventTypePath implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compile("@name('infra') create schema MySchema(col1 string)", path); // Note: not deploying, just adding to path
+            env.compile("@name('infra') @public create schema MySchema(col1 string)", path); // Note: not deploying, just adding to path
 
             String text = "dependency event type 'MySchema'";
             tryInvalidDeploy(env, path, "insert into MySchema select 'a' as col1 from SupportBean", text);
@@ -234,7 +234,7 @@ public class ClientDeployPreconditionDependency {
             EPCompiled windowABC = env.compile("module ABC; create window MyWindow#keepall as SupportBean", path);
             path.clear();
 
-            env.compile("module DEF; create window MyWindow#keepall as SupportBean", path);
+            env.compile("module DEF; @public create window MyWindow#keepall as SupportBean", path);
             EPCompiled insertDEF = env.compile("select * from MyWindow", path);
             env.deploy(windowABC);
 

@@ -148,8 +148,8 @@ public class ExprDTBetween {
             env.advanceTime(DateTime.parseDefaultMSec(startTime));
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable boolean VAR_TRUE = true", path);
-            env.compileDeploy("create variable boolean VAR_FALSE = false", path);
+            env.compileDeploy("@public create variable boolean VAR_TRUE = true", path);
+            env.compileDeploy("@public create variable boolean VAR_FALSE = false", path);
 
             tryAssertionExcludeEndpoints(env, path, "longdateStart, longdateEnd", milestone);
             tryAssertionExcludeEndpoints(env, path, "utildateStart, utildateEnd", milestone);

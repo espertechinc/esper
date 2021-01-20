@@ -41,7 +41,7 @@ public class InfraTableRollup {
             String[] fieldsOut = "theString,total".split(",");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create table MyTableR1D(pk string primary key, total sum(int))", path);
+            env.compileDeploy("@public create table MyTableR1D(pk string primary key, total sum(int))", path);
             env.compileDeploy("@name('into') into table MyTableR1D insert into MyStreamOne select theString, sum(intPrimitive) as total from SupportBean#length(4) group by rollup(theString)", path).addListener("into");
             env.compileDeploy("@name('s0') select MyTableR1D[p00].total as c0 from SupportBean_S0", path).addListener("s0");
 
@@ -82,8 +82,8 @@ public class InfraTableRollup {
             String[] fields = "k0,k1,total".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create objectarray schema MyEventTwo(k0 int, k1 int, col int)", path);
-            env.compileDeploy("create table MyTableR2D(k0 int primary key, k1 int primary key, total sum(int))", path);
+            env.compileDeploy("@public @buseventtype create objectarray schema MyEventTwo(k0 int, k1 int, col int)", path);
+            env.compileDeploy("@public create table MyTableR2D(k0 int primary key, k1 int primary key, total sum(int))", path);
             env.compileDeploy("into table MyTableR2D insert into MyStreamTwo select sum(col) as total from MyEventTwo#length(3) group by rollup(k0,k1)", path);
 
             env.sendEventObjectArray(new Object[]{1, 10, 100}, "MyEventTwo");
@@ -107,9 +107,9 @@ public class InfraTableRollup {
     private static class InfraGroupingSetThreeDim implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create objectarray schema MyEventThree(k0 int, k1 int, k2 int, col int)", path);
+            env.compileDeploy("@public @buseventtype create objectarray schema MyEventThree(k0 int, k1 int, k2 int, col int)", path);
 
-            env.compileDeploy("create table MyTableGS3D(k0 int primary key, k1 int primary key, k2 int primary key, total sum(int))", path);
+            env.compileDeploy("@public create table MyTableGS3D(k0 int primary key, k1 int primary key, k2 int primary key, total sum(int))", path);
             env.compileDeploy("into table MyTableGS3D insert into MyStreamThree select sum(col) as total from MyEventThree#length(3) group by grouping sets(k0,k1,k2)", path);
 
             String[] fields = "k0,k1,k2,total".split(",");

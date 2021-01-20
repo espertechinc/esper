@@ -34,12 +34,12 @@ public class InfraNamedWindowOnUpdateWMultiDispatch implements RegressionExecuti
     public void run(RegressionEnvironment env) {
         String[] fields = "company,value,total".split(",");
 
-        String eplSchema = "@buseventtype create schema S2 ( company string, value double, total double)";
+        String eplSchema = "@public @buseventtype create schema S2 ( company string, value double, total double)";
         RegressionPath path = new RegressionPath();
         env.compileDeploy(eplSchema, path);
 
         // ESPER-568
-        env.compileDeploy("@name('create') create window S2Win#time(25 hour)#firstunique(company) as S2", path);
+        env.compileDeploy("@name('create') @public create window S2Win#time(25 hour)#firstunique(company) as S2", path);
         env.compileDeploy("insert into S2Win select * from S2#firstunique(company)", path);
         env.compileDeploy("on S2 as a update S2Win as b set total = b.value + a.value", path);
         env.compileDeploy("@name('s0') select count(*) as cnt from S2Win", path).addListener("s0");

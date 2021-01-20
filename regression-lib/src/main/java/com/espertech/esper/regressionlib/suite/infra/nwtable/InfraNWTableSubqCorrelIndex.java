@@ -83,10 +83,10 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             String infra;
             RegressionPath path = new RegressionPath();
             if (namedWindow) {
-                infra = "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall as (k string[], v int);\n" +
+                infra = "@Hint('enable_window_subquery_indexshare') @public create window MyInfra#keepall as (k string[], v int);\n" +
                     "create index MyInfraIndex on MyInfra(k);\n";
             } else {
-                infra = "create table MyInfra(k string[] primary key, v int);\n";
+                infra = "@public create table MyInfra(k string[] primary key, v int);\n";
             }
             env.compileDeploy(infra, path);
 
@@ -133,10 +133,10 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
             String infra;
             RegressionPath path = new RegressionPath();
             if (namedWindow) {
-                infra = "@Hint('enable_window_subquery_indexshare') create window MyInfra#keepall as (k1 string[], k2 string[], v int);\n" +
+                infra = "@Hint('enable_window_subquery_indexshare') @public create window MyInfra#keepall as (k1 string[], k2 string[], v int);\n" +
                     "create index MyInfraIndex on MyInfra(k1, k2);\n";
             } else {
-                infra = "create table MyInfra(k1 string[] primary key, k2 string[] primary key, v int);\n";
+                infra = "@public create table MyInfra(k1 string[] primary key, k2 string[] primary key, v int);\n";
             }
             env.compileDeploy(infra, path);
 
@@ -355,8 +355,8 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "@Hint('enable_window_subquery_indexshare') create window MyInfraMIH#keepall as select * from SupportSimpleBeanOne" :
-                "create table MyInfraMIH(s1 String primary key, i1 int  primary key, d1 double primary key, l1 long primary key)";
+                "@Hint('enable_window_subquery_indexshare') @public create window MyInfraMIH#keepall as select * from SupportSimpleBeanOne" :
+                "@public create table MyInfraMIH(s1 String primary key, i1 int  primary key, d1 double primary key, l1 long primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("create unique index I1 on MyInfraMIH (s1)", path);
             env.compileDeploy("create unique index I2 on MyInfraMIH (i1)", path);
@@ -393,8 +393,8 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
                                           IndexAssertion[] assertions) {
         RegressionPath path = new RegressionPath();
         String epl = namedWindow ?
-            "create window MyInfra." + datawindow + " as select * from SupportSimpleBeanOne" :
-            "create table MyInfra(s1 string primary key, i1 int, d1 double, l1 long)";
+            "@public create window MyInfra." + datawindow + " as select * from SupportSimpleBeanOne" :
+            "@public create table MyInfra(s1 string primary key, i1 int, d1 double, l1 long)";
         if (indexShare) {
             epl = "@Hint('enable_window_subquery_indexshare') " + epl;
         }
@@ -457,8 +457,8 @@ public class InfraNWTableSubqCorrelIndex implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String createEpl = namedWindow ?
-                "create window MyInfraNWT#unique(theString) as (theString string, intPrimitive int)" :
-                "create table MyInfraNWT(theString string primary key, intPrimitive int)";
+                "@public create window MyInfraNWT#unique(theString) as (theString string, intPrimitive int)" :
+                "@public create table MyInfraNWT(theString string primary key, intPrimitive int)";
             if (enableIndexShareCreate) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }

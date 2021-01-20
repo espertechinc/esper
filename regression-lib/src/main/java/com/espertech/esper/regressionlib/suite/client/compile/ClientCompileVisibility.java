@@ -250,14 +250,14 @@ public class ClientCompileVisibility {
 
     private static class ClientVisibilityAmbiguousTwoPath implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String commonEPL = "create variable int abc;\n" +
-                "create schema MySchema();" +
-                "create context MyContext partition by theString from SupportBean;\n" +
-                "create window MyWindow#keepall as SupportBean;\n" +
-                "create table MyTable as (c count(*));\n" +
-                "create expression MyExpr { 1 };\n" +
-                "create expression double myscript(stringvalue) [0];\n" +
-                "create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n";
+            String commonEPL = "@public create variable int abc;\n" +
+                "@public create schema MySchema();" +
+                "@public create context MyContext partition by theString from SupportBean;\n" +
+                "@public create window MyWindow#keepall as SupportBean;\n" +
+                "@public create table MyTable as (c count(*));\n" +
+                "@public create expression MyExpr { 1 };\n" +
+                "@public create expression double myscript(stringvalue) [0];\n" +
+                "@public create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\";\n";
 
             EPCompiled modOne = env.compile("module one;\n " + commonEPL, new RegressionPath());
             EPCompiled modTwo = env.compile("module two;\n " + commonEPL, new RegressionPath());

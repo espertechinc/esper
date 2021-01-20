@@ -54,7 +54,7 @@ public class EPLDataflowOpEventBusSink {
                 "Failed to obtain operator 'EventBusSink': EventBusSink operator does not provide an output stream");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SampleSchema(tagId string, locX double, locY double)", path);
+            env.compileDeploy("@public create schema SampleSchema(tagId string, locX double, locY double)", path);
             String docSmple = "@name('s0') create dataflow MyDataFlow\n" +
                 "BeaconSource -> instream<SampleSchema> {} // produces sample stream to\n" +
                 "//demonstrate below\n" +
@@ -101,7 +101,7 @@ public class EPLDataflowOpEventBusSink {
     private static class EPLDataflowBeacon implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create objectarray schema MyEventBeacon(p0 string, p1 long)", path);
+            env.compileDeploy("@public create objectarray schema MyEventBeacon(p0 string, p1 long)", path);
             env.compileDeploy("@name('s0') select * from MyEventBeacon", path).addListener("s0");
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "" +
@@ -135,8 +135,8 @@ public class EPLDataflowOpEventBusSink {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String schemaEPL =
-                    "@buseventtype create objectarray schema MyEventOne(type string, p0 int, p1 string);\n" +
-                    "@buseventtype create objectarray schema MyEventTwo(type string, f0 string, f1 int);\n";
+                    "@buseventtype @public create objectarray schema MyEventOne(type string, p0 int, p1 string);\n" +
+                    "@buseventtype @public create objectarray schema MyEventTwo(type string, f0 string, f1 int);\n";
             env.compileDeploy(schemaEPL, path);
 
             env.compileDeploy("@name('s0') select * from MyEventOne", path).addListener("s0");

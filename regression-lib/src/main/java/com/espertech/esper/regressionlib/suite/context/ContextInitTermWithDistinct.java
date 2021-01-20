@@ -39,7 +39,7 @@ public class ContextInitTermWithDistinct {
     private static class ContextInitTermWithDistinctMultikeyWArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext initiated by distinct(array) SupportEventWithIntArray as se", path);
+            env.compileDeploy("@public create context MyContext initiated by distinct(array) SupportEventWithIntArray as se", path);
             env.compileDeploy("@name('s0') context MyContext select context.se.id as id, sum(intPrimitive) as thesum from SupportBean", path);
             env.addListener("s0");
             String[] fields = "id,thesum".split(",");
@@ -96,7 +96,7 @@ public class ContextInitTermWithDistinct {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy(
-                "create context MyContext " +
+                "@public create context MyContext " +
                     "  initiated by distinct(s0.theString) SupportBean(intPrimitive = 0) s0" +
                     "  terminated by SupportBean(theString = s0.theString and intPrimitive = 1)", path);
 
@@ -177,7 +177,7 @@ public class ContextInitTermWithDistinct {
     private static class ContextInitTermWithDistinctOverlappingMultiKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create context MyContext as " +
+            String epl = "@public create context MyContext as " +
                 "initiated by distinct(theString, intPrimitive) SupportBean as sb " +
                 "terminated SupportBean_S1";         // any S1 ends the contexts
             env.eplToModelCompileDeploy(epl, path);
@@ -255,7 +255,7 @@ public class ContextInitTermWithDistinct {
     private static class ContextInitTermWithDistinctNullSingleKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext initiated by distinct(theString) SupportBean as sb terminated after 24 hours", path);
+            env.compileDeploy("@public create context MyContext initiated by distinct(theString) SupportBean as sb terminated after 24 hours", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 
@@ -279,7 +279,7 @@ public class ContextInitTermWithDistinct {
     private static class ContextInitTermWithDistinctNullKeyMultiKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext initiated by distinct(theString, intBoxed, intPrimitive) SupportBean as sb terminated after 100 hours", path);
+            env.compileDeploy("@public create context MyContext initiated by distinct(theString, intBoxed, intPrimitive) SupportBean as sb terminated after 100 hours", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 

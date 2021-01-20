@@ -50,7 +50,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
     private static class EPLDataflowNonBlockingJoinCancel implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -94,7 +94,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
     private static class EPLDataflowNonBlockingJoinException implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -137,7 +137,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
     private static class EPLDataflowNonBlockingException implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -162,7 +162,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
     private static class EPLDataflowBlockingException implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -194,7 +194,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
         public void run(RegressionEnvironment env) {
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -241,7 +241,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
         public void run(RegressionEnvironment env) {
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -326,7 +326,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> { name: 'SourceOne' }" +
                 "DefaultSupportSourceOp -> outstream<SomeType> { name: 'SourceTwo' }" +
@@ -373,7 +373,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {name: 'SourceOne'}" +
                 "DefaultSupportSourceOp -> outstream<SomeType> {name: 'SourceTwo'}" +
@@ -422,7 +422,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<SomeType> {}" +
                 "DefaultSupportCaptureOp(outstream) {}", path);
@@ -465,7 +465,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> s<SomeType> {}" +
                 "DefaultSupportCaptureOp(s) {}", path);
@@ -564,7 +564,7 @@ public class EPLDataflowAPIRunStartCancelJoin {
 
             // declare
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SomeType ()", path);
+            env.compileDeploy("@public create schema SomeType ()", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> s<SomeType> {}" +
                 "DefaultSupportCaptureOp(s) {}", path);

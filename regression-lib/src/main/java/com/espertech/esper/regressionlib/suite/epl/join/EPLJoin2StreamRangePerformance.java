@@ -47,9 +47,9 @@ public class EPLJoin2StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window SBR#keepall as SupportBeanRange;\n" +
-                "@Name('I1') insert into SBR select * from SupportBeanRange;\n" +
-                "create window SB#keepall as SupportBean;\n" +
+            String epl = "@public create window SBR#keepall as SupportBeanRange;\n" +
+                "@Name('I1') @public insert into SBR select * from SupportBeanRange;\n" +
+                "@public create window SB#keepall as SupportBean;\n" +
                 "@Name('I2') insert into SB select * from SupportBean;\n";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -97,9 +97,9 @@ public class EPLJoin2StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window SBR#keepall as SupportBeanRange;\n" +
+            String epl = "@public create window SBR#keepall as SupportBeanRange;\n" +
                 "@Name('I1') insert into SBR select * from SupportBeanRange;\n" +
-                "create window SB#keepall as SupportBean;\n" +
+                "@public create window SB#keepall as SupportBean;\n" +
                 "@Name('I2') insert into SB select * from SupportBean";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -142,9 +142,9 @@ public class EPLJoin2StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window SBR#keepall as SupportBeanRange;\n" +
+            String epl = "@public create window SBR#keepall as SupportBeanRange;\n" +
                 "@Name('I1') insert into SBR select * from SupportBeanRange;\n" +
-                "create window SB#keepall as SupportBean;\n" +
+                "@public create window SB#keepall as SupportBean;\n" +
                 "@Name('I2') insert into SB select * from SupportBean;\n";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -200,7 +200,7 @@ public class EPLJoin2StreamRangePerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window SB#keepall as SupportBean;\n" +
+            String epl = "@public create window SB#keepall as SupportBean;\n" +
                 "@Name('I2') insert into SB select * from SupportBean";
             env.compileDeploy(epl, path).milestone(0);
 
@@ -241,7 +241,7 @@ public class EPLJoin2StreamRangePerformance {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
 
-            String epl = "create window SB#keepall as SupportBean;\n" +
+            String epl = "@public create window SB#keepall as SupportBean;\n" +
                 "@Name('I') insert into SB select * from SupportBean;\n";
             env.compileDeploy(epl, path).milestone(0);
 

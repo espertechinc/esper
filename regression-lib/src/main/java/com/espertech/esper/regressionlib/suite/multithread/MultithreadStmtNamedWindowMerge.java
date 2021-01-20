@@ -46,7 +46,7 @@ public class MultithreadStmtNamedWindowMerge implements RegressionExecution {
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread) {
         // setup statements
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#keepall as select * from SupportBean", path);
+        env.compileDeploy("@public create window MyWindow#keepall as select * from SupportBean", path);
         env.compileDeploy("on SupportBean sb " +
             "merge MyWindow nw where nw.theString = sb.theString " +
             " when not matched then insert select * " +

@@ -90,7 +90,7 @@ public class ClientRuntimeItself {
     private static class ClientRuntimeWrongCompileMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window SomeWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window SomeWindow#keepall as SupportBean", path);
 
             EPCompiled compiledFAF = env.compileFAF("select * from SomeWindow", path);
             EPCompiled compiledModule = env.compile("select * from SomeWindow", path);

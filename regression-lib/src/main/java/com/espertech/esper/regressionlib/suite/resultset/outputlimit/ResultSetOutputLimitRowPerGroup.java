@@ -300,7 +300,7 @@ public class ResultSetOutputLimitRowPerGroup {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString,value".split(",");
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#keepall as SupportBean;\n" +
+            String epl = "@public create window MyWindow#keepall as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean;\n" +
                 "on SupportMarketDataBean md delete from MyWindow mw where mw.intPrimitive = md.price;\n";
             env.compileDeploy(epl, path);
@@ -334,7 +334,7 @@ public class ResultSetOutputLimitRowPerGroup {
             env.undeployModuleContaining("s0");
 
             // test variable
-            env.compileDeploy("@name('var') create variable int myvar_local = 1", path);
+            env.compileDeploy("@name('var') @public create variable int myvar_local = 1", path);
             env.compileDeploy("@name('s0') select theString, sum(intPrimitive) as value from MyWindow group by theString output first every myvar_local events", path);
             env.addListener("s0");
 

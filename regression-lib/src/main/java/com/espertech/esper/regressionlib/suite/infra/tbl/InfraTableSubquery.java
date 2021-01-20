@@ -75,7 +75,7 @@ public class InfraTableSubquery {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create table varagg as (" +
+            env.compileDeploy("@public create table varagg as (" +
                 "key string primary key, total sum(int))", path);
             env.compileDeploy("into table varagg " +
                 "select sum(intPrimitive) as total from SupportBean group by theString", path);
@@ -99,7 +99,7 @@ public class InfraTableSubquery {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create table InfraOne (string string, intPrimitive int)", path);
+            env.compileDeploy("@public create table InfraOne (string string, intPrimitive int)", path);
             env.compileDeploy("@name('s0') select (select intPrimitive from InfraOne where string = s0.p00) as c0 from SupportBean_S0 as s0", path).addListener("s0");
             env.compileDeploy("insert into InfraOne select theString as string, intPrimitive from SupportBean", path);
 
@@ -118,7 +118,7 @@ public class InfraTableSubquery {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String eplTable = "create table MyTable(k0 string primary key, k1 string primary key, p2 string, value int)";
+            String eplTable = "@public create table MyTable(k0 string primary key, k1 string primary key, p2 string, value int)";
             env.compileDeploy(eplTable, path);
 
             String eplIndex = "create index MyIndex on MyTable(p2)";

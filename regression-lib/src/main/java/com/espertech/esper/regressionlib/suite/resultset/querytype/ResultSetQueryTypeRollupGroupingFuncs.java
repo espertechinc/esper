@@ -44,7 +44,7 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
     private static class ResultSetQueryTypeFAFCarEventAndGroupingFunc implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window CarWindow#keepall as SupportCarEvent;\n" +
+            String epl = "@public create window CarWindow#keepall as SupportCarEvent;\n" +
                 "insert into CarWindow select * from SupportCarEvent;\n";
             env.compileDeploy(epl, path);
 

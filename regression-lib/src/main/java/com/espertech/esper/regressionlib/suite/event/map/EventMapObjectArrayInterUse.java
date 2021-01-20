@@ -55,8 +55,8 @@ public class EventMapObjectArrayInterUse implements RegressionExecution {
     private void runAssertionMapWithObjectArray(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        String schema = "@buseventtype create objectarray schema OATypeInMap(p0 string, p1 int);\n" +
-            "@buseventtype create map schema MapTypeWOA(oa1 OATypeInMap, oa2 OATypeInMap[]);\n";
+        String schema = "@buseventtype @public create objectarray schema OATypeInMap(p0 string, p1 int);\n" +
+            "@buseventtype @public create map schema MapTypeWOA(oa1 OATypeInMap, oa2 OATypeInMap[]);\n";
         env.compileDeploy(schema, path);
 
         env.compileDeploy("@name('s0') select oa1.p0 as c0, oa1.p1 as c1, oa2[0].p0 as c2, oa2[1].p1 as c3 from MapTypeWOA", path);

@@ -31,7 +31,7 @@ public class StockTickerEPLUtil {
     public static EPCompiled compileEPL(Configuration configuration) {
         // Allocate a new partition for each new PriceLimit event.
         // Terminate any old partition for PriceLimit events with the same symbol and user id.
-        String eplContextPerLimit = "create context PriceLimitContext " +
+        String eplContextPerLimit = "@public create context PriceLimitContext " +
             "initiated by PriceLimit as pl " +
             "terminated by PriceLimit(userId=pl.userId and symbol=pl.symbol);\n";
 

@@ -56,7 +56,7 @@ public class EventXMLSchemaEventTransposeDOMGetter {
 
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
-        env.compileDeploy("@name('s0') insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
+        env.compileDeploy("@name('s0') @public insert into MyNestedStream select nested1 from " + eventTypeName + "#lastevent", path);
         env.assertStatement("s0", statement -> {
             SupportEventPropUtil.assertPropsEquals(statement.getEventType().getPropertyDescriptors(),
                 new SupportEventPropDesc("nested1", Node.class).fragment());

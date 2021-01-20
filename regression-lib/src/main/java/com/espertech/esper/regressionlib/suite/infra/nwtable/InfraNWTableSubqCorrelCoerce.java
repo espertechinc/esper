@@ -62,8 +62,8 @@ public class InfraNWTableSubqCorrelCoerce {
             env.deploy(c2);
 
             String createEpl = namedWindow ?
-                "create window MyInfra#keepall as WindowSchema" :
-                "create table MyInfra (col0 string primary key, col1 long, col2 string)";
+                "@public create window MyInfra#keepall as WindowSchema" :
+                "@public create table MyInfra (col0 string primary key, col1 long, col2 string)";
             if (enableIndexShareCreate) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }

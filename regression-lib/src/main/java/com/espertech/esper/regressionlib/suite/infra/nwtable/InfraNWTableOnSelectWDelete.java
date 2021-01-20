@@ -41,8 +41,8 @@ public class InfraNWTableOnSelectWDelete implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
 
             String eplCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall as SupportBean" :
-                "@name('create') create table MyInfra (theString string primary key, intPrimitive int primary key)";
+                "@name('create') @public create window MyInfra#keepall as SupportBean" :
+                "@name('create') @public create table MyInfra (theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreate, path);
 
             env.compileDeploy("insert into MyInfra select theString, intPrimitive from SupportBean", path);

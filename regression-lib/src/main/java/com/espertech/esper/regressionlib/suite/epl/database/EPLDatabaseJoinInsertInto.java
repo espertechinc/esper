@@ -25,7 +25,7 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
         RegressionPath path = new RegressionPath();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("insert into ReservationEvents(type, cid, elapsed, series) ");
+        sb.append("@public insert into ReservationEvents(type, cid, elapsed, series) ");
         sb.append("select istream 'type_1' as type, C.myvarchar as cid, C.myint as elapsed, C.mychar as series ");
         sb.append("from pattern [every timer:interval(20 sec)], ");
         sb.append("sql:MyDBWithTxnIso1WithReadOnly [' select myvarchar, myint, mychar from mytesttable '] as C ");
@@ -33,7 +33,7 @@ public class EPLDatabaseJoinInsertInto implements RegressionExecution {
 
         // Reservation Events status change, aggregation, sla definition and DB cache update
         sb = new StringBuilder();
-        sb.append("@name('s0') insert into SumOfReservations(cid, type, series, total, insla, bordersla, outsla) ");
+        sb.append("@name('s0') @public insert into SumOfReservations(cid, type, series, total, insla, bordersla, outsla) ");
         sb.append("select istream cid, type, series, ");
         sb.append("count(*) as total, ");
         sb.append("sum(case when elapsed < 600000 then 1 else 0 end) as insla, ");

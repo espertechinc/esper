@@ -61,7 +61,7 @@ public class ContextInitTermWithNow {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
-            String contextExpr = "create context MyContext " +
+            String contextExpr = "@public create context MyContext " +
                 "as start @now end after 10 seconds";
             env.compileDeploy(contextExpr, path);
 
@@ -109,7 +109,7 @@ public class ContextInitTermWithNow {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
-            String contextExpr = "create context MyContext " +
+            String contextExpr = "@public create context MyContext " +
                 "initiated by @Now and pattern [every timer:interval(10)] terminated after 10 sec";
             env.compileDeploy(contextExpr, path);
 

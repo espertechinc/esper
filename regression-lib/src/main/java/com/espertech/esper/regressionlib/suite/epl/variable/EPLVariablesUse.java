@@ -107,7 +107,7 @@ public class EPLVariablesUse {
     private static class EPLVariableUseSimpleTwoModules implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable boolean var_simple_twomodule_const = true", path);
+            env.compileDeploy("@public create variable boolean var_simple_twomodule_const = true", path);
             env.compileDeploy("@name('s0') select var_simple_twomodule_const as c0 from SupportBean", path);
             env.addListener("s0");
             env.milestone(0);
@@ -162,7 +162,7 @@ public class EPLVariablesUse {
         public void run(RegressionEnvironment env) {
             // declared via EPL
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create constant variable MySimpleVariableService myService = MySimpleVariableServiceFactory.makeService()", path);
+            env.compileDeploy("@public create constant variable MySimpleVariableService myService = MySimpleVariableServiceFactory.makeService()", path);
 
             // exercise
             String epl = "@name('s0') select " +
@@ -182,7 +182,7 @@ public class EPLVariablesUse {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create const variable int MYCONST = 10", path);
+            env.compileDeploy("@public create const variable int MYCONST = 10", path);
             tryOperator(env, path, "MYCONST = intBoxed", new Object[][]{{10, true}, {9, false}, {null, false}});
 
             tryOperator(env, path, "MYCONST > intBoxed", new Object[][]{{11, false}, {10, false}, {9, true}, {8, true}});
@@ -239,13 +239,13 @@ public class EPLVariablesUse {
             tryInvalidSetAPI(env, null, "MYCONST_THREE", false);
 
             // try ESPER-653
-            env.compileDeploy("@name('s0') create constant variable java.util.Date START_TIME = java.util.Calendar.getInstance().getTime()");
+            env.compileDeploy("@name('s0') @public create constant variable java.util.Date START_TIME = java.util.Calendar.getInstance().getTime()");
             env.assertIterator("s0", iterator -> assertNotNull(iterator.next().get("START_TIME")));
             env.undeployModuleContaining("s0");
 
             // test array constant
             env.undeployAll();
-            env.compileDeploy("create constant variable string[] var_strings = {'E1', 'E2'}", path);
+            env.compileDeploy("@public create constant variable string[] var_strings = {'E1', 'E2'}", path);
             env.compileDeploy("@name('s0') select var_strings from SupportBean", path);
             env.assertStatement("s0", statement -> assertEquals(String[].class, statement.getEventType().getPropertyType("var_strings")));
             env.undeployModuleContaining("s0");
@@ -254,24 +254,24 @@ public class EPLVariablesUse {
 
             tryOperator(env, path, "intBoxed in (10, 8)", new Object[][]{{11, false}, {10, true}, {9, false}, {8, true}});
 
-            env.compileDeploy("create constant variable int [ ] var_ints = {8, 10}", path);
+            env.compileDeploy("@public create constant variable int [ ] var_ints = {8, 10}", path);
             tryOperator(env, path, "intBoxed in (var_ints)", new Object[][]{{11, false}, {10, true}, {9, false}, {8, true}});
 
-            env.compileDeploy("create constant variable int[]  var_intstwo = {9}", path);
+            env.compileDeploy("@public create constant variable int[]  var_intstwo = {9}", path);
             tryOperator(env, path, "intBoxed in (var_ints, var_intstwo)", new Object[][]{{11, false}, {10, true}, {9, true}, {8, true}});
 
             env.tryInvalidCompile("create constant variable SupportBean[] var_beans",
                 "Cannot create variable 'var_beans', type 'SupportBean' cannot be declared as an array type and cannot receive type parameters as it is an event type");
 
             // test array of primitives
-            env.compileDeploy("@name('s0') create variable byte[] myBytesBoxed");
+            env.compileDeploy("@name('s0') @public create variable byte[] myBytesBoxed");
             env.assertStatement("s0", statement -> {
                 Object[][] expectedType = new Object[][]{{"myBytesBoxed", Byte[].class}};
                 SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
             });
             env.undeployModuleContaining("s0");
 
-            env.compileDeploy("@name('s0') create variable byte[primitive] myBytesPrimitive");
+            env.compileDeploy("@name('s0') @public create variable byte[primitive] myBytesPrimitive");
             env.assertStatement("s0", statement -> {
                 Object[][] expectedType = new Object[][]{{"myBytesPrimitive", byte[].class}};
                 SupportEventTypeAssertionUtil.assertEventTypeProperties(expectedType, statement.getEventType(), SupportEventTypeAssertionEnum.NAME, SupportEventTypeAssertionEnum.TYPE);
@@ -279,13 +279,13 @@ public class EPLVariablesUse {
             env.undeployAll();
 
             // test enum constant
-            env.compileDeploy("create constant variable SupportEnum var_enumone = SupportEnum.ENUM_VALUE_2", path);
+            env.compileDeploy("@public create constant variable SupportEnum var_enumone = SupportEnum.ENUM_VALUE_2", path);
             tryOperator(env, path, "var_enumone = enumValue", new Object[][]{{SupportEnum.ENUM_VALUE_3, false}, {SupportEnum.ENUM_VALUE_2, true}, {SupportEnum.ENUM_VALUE_1, false}});
 
-            env.compileDeploy("create constant variable SupportEnum[] var_enumarr = {SupportEnum.ENUM_VALUE_2, SupportEnum.ENUM_VALUE_1}", path);
+            env.compileDeploy("@public create constant variable SupportEnum[] var_enumarr = {SupportEnum.ENUM_VALUE_2, SupportEnum.ENUM_VALUE_1}", path);
             tryOperator(env, path, "enumValue in (var_enumarr, var_enumone)", new Object[][]{{SupportEnum.ENUM_VALUE_3, false}, {SupportEnum.ENUM_VALUE_2, true}, {SupportEnum.ENUM_VALUE_1, true}});
 
-            env.compileDeploy("create variable SupportEnum var_enumtwo = SupportEnum.ENUM_VALUE_2", path);
+            env.compileDeploy("@public create variable SupportEnum var_enumtwo = SupportEnum.ENUM_VALUE_2", path);
             env.compileDeploy("on SupportBean set var_enumtwo = enumValue", path);
 
             env.undeployAll();

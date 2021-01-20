@@ -60,8 +60,8 @@ public class InfraNWTableSubquery {
 
             // create infra
             String stmtTextCreate = namedWindow ?
-                "@Name('Create') create window MyInfra.win:keepall() as SupportBean" :
-                "@Name('Create') create table MyInfra(theString string primary key, intPrimitive int)";
+                "@Name('Create') @public create window MyInfra.win:keepall() as SupportBean" :
+                "@Name('Create') @public create table MyInfra(theString string primary key, intPrimitive int)";
             env.compileDeploy(stmtTextCreate, path).addListener("Create");
 
             // create insert into
@@ -111,8 +111,8 @@ public class InfraNWTableSubquery {
             RegressionPath path = new RegressionPath();
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraUCS#keepall as select theString as a, longPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfraUCS(a string primary key, b long)";
+                "@name('create') @public create window MyInfraUCS#keepall as select theString as a, longPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfraUCS(a string primary key, b long)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -167,8 +167,8 @@ public class InfraNWTableSubquery {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfraIS#keepall as SupportBean" :
-                "create table MyInfraIS(theString string)";
+                "@public create window MyInfraIS#keepall as SupportBean" :
+                "@public create table MyInfraIS(theString string)";
             env.compileDeploy(eplCreate, path);
 
             try {
@@ -209,8 +209,8 @@ public class InfraNWTableSubquery {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall as select theString as key, intBoxed as value from SupportBean" :
-                "@name('create') create table MyInfra(key string primary key, value int primary key)";
+                "@name('create') @public create window MyInfra#keepall as select theString as key, intBoxed as value from SupportBean" :
+                "@name('create') @public create table MyInfra(key string primary key, value int primary key)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // delete
@@ -270,8 +270,8 @@ public class InfraNWTableSubquery {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraSSS#keepall as select theString as key, intBoxed as value from SupportBean" :
-                "@name('create') create table MyInfraSSS (key string primary key, value int)";
+                "@name('create') @public create window MyInfraSSS#keepall as select theString as key, intBoxed as value from SupportBean" :
+                "@name('create') @public create table MyInfraSSS (key string primary key, value int)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into (not does insert if key already exists)

@@ -118,7 +118,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
     private void runAssertionContextPartitionAndOverflow(RegressionEnvironment env) {
         String[] fields = "c0".split(",");
         RegressionPath path = new RegressionPath();
-        String eplCtx = "create context MyCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(p10 = s0.p00)";
+        String eplCtx = "@public create context MyCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(p10 = s0.p00)";
         env.compileDeploy(eplCtx, path);
 
         String epl = "@name('S1') context MyCtx select * from SupportBean(theString = context.s0.p00) " +
@@ -162,7 +162,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
         String[] fields = "c0,c1".split(",");
         RegressionPath path = new RegressionPath();
 
-        String namedWindow = "create window MyWindow#keepall as SupportBean";
+        String namedWindow = "@public create window MyWindow#keepall as SupportBean";
         env.compileDeploy(namedWindow, path);
         String insert = "insert into MyWindow select * from SupportBean";
         env.compileDeploy(insert, path);
@@ -218,7 +218,7 @@ public class RowRecogMaxStatesEngineWide3Instance implements RegressionExecution
         String[] fields = "c0,c1,c2".split(",");
         RegressionPath path = new RegressionPath();
 
-        String namedWindow = "create window MyWindow#keepall as SupportBean";
+        String namedWindow = "@public create window MyWindow#keepall as SupportBean";
         env.compileDeploy(namedWindow, path);
         String insert = "insert into MyWindow select * from SupportBean";
         env.compileDeploy(insert, path);

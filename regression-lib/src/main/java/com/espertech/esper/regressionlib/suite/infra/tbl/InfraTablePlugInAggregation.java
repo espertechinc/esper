@@ -41,7 +41,7 @@ public class InfraTablePlugInAggregation {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggPIN (csv csvWords(string))", path);
+            env.compileDeploy("@public create table varaggPIN (csv csvWords(string))", path);
             env.compileDeploy("@name('s0') select varaggPIN.csv as c0 from SupportBean_S0", path).addListener("s0");
             env.compileDeploy("into table varaggPIN select csvWords(theString) as csv from SupportBean#length(3)", path);
 
@@ -58,7 +58,7 @@ public class InfraTablePlugInAggregation {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggRCM (wordCount referenceCountedMap(string))", path);
+            env.compileDeploy("@public create table varaggRCM (wordCount referenceCountedMap(string))", path);
             env.compileDeploy("into table varaggRCM select referenceCountedMap(theString) as wordCount from SupportBean#length(3)", path);
             env.compileDeploy("@name('s0') select varaggRCM.wordCount.referenceCountLookup(p00) as c0 from SupportBean_S0", path).addListener("s0");
 

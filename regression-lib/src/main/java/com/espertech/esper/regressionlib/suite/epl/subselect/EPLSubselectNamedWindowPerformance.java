@@ -63,7 +63,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String createEpl = "create window MyWindow#keepall as select * from SupportBean";
+            String createEpl = "@public create window MyWindow#keepall as select * from SupportBean";
             if (indexShare) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }
@@ -165,7 +165,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String createEpl = "create window MyWindow#keepall as select * from SupportBean";
+            String createEpl = "@public create window MyWindow#keepall as select * from SupportBean";
             if (indexShare) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }
@@ -222,7 +222,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String createEpl = "create window MyWindow#keepall as select * from SupportBean";
+            String createEpl = "@public create window MyWindow#keepall as select * from SupportBean";
             if (indexShare) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }
@@ -269,7 +269,7 @@ public class EPLSubselectNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String createEpl = "create window MyWindow#keepall as select * from SupportBean";
+            String createEpl = "@public create window MyWindow#keepall as select * from SupportBean";
             env.compileDeploy(createEpl, path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
 
@@ -345,9 +345,9 @@ public class EPLSubselectNamedWindowPerformance {
 
     private static void tryAssertion(RegressionEnvironment env, boolean enableIndexShareCreate, boolean disableIndexShareConsumer, boolean createExplicitIndex) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@buseventtype create schema EventSchema(e0 string, e1 int, e2 string)", path);
+        env.compileDeploy("@public @buseventtype create schema EventSchema(e0 string, e1 int, e2 string)", path);
 
-        String createEpl = "create window MyWindow#keepall as select * from SupportBean";
+        String createEpl = "@public create window MyWindow#keepall as select * from SupportBean";
         if (enableIndexShareCreate) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

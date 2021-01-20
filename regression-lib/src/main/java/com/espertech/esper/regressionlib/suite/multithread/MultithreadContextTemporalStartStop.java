@@ -36,7 +36,7 @@ public class MultithreadContextTemporalStartStop implements RegressionExecution 
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)", path);
+        env.compileDeploy("@public create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)", path);
         env.compileDeploy("context EverySecond select * from SupportBean", path);
 
         TimerRunnable timerRunnable = new TimerRunnable(env, 0, 24 * 60 * 60 * 1000, 1000);

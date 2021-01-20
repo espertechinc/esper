@@ -79,9 +79,9 @@ public class ContextKeySegmentedInfra {
     private static class ContextKeySegmentedInfraNWConsumeAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
-            env.compileDeploy("@Name('named window') context SegmentedByString create window MyWindow#lastevent as SupportBean", path);
+            env.compileDeploy("@Name('named window') @public context SegmentedByString create window MyWindow#lastevent as SupportBean", path);
             env.addListener("named window");
             env.compileDeploy("@Name('insert') insert into MyWindow select * from SupportBean", path);
 
@@ -113,9 +113,9 @@ public class ContextKeySegmentedInfra {
     private static class ContextKeySegmentedInfraNWConsumeSameContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
-            env.compileDeploy("@Name('named window') context SegmentedByString create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@Name('named window') @public context SegmentedByString create window MyWindow#keepall as SupportBean", path);
             env.addListener("named window");
             env.compileDeploy("@Name('insert') insert into MyWindow select * from SupportBean", path);
 
@@ -164,9 +164,9 @@ public class ContextKeySegmentedInfra {
 
     private static class ContextKeySegmentedInfraOnMergeUpdateSubq implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@Name('context') create context SegmentedByString " +
+            String epl = "@Name('context') @public create context SegmentedByString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0, p10 from SupportBean_S1;\n";
-            epl += "@Name('named window') context SegmentedByString create window MyWindow#keepall as SupportBean;\n";
+            epl += "@Name('named window') @public context SegmentedByString create window MyWindow#keepall as SupportBean;\n";
             epl += "@Name('insert') insert into MyWindow select * from SupportBean;\n";
             epl += "@Name('on-merge') context SegmentedByString " +
                 "on SupportBean_S0 " +
@@ -209,8 +209,8 @@ public class ContextKeySegmentedInfra {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
-            env.compileDeploy("@Name('table') context SegmentedByString " +
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('table') @public context SegmentedByString " +
                 "create table MyTable(theString string, intPrimitive int primary key)", path);
             env.compileDeploy("@Name('insert') context SegmentedByString insert into MyTable select theString, intPrimitive from SupportBean", path);
 
@@ -256,12 +256,12 @@ public class ContextKeySegmentedInfra {
 
     private static void tryAssertionSegmentedOnSelect(RegressionEnvironment env, AtomicInteger milestone, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@Name('context') create context SegmentedByString " +
+        env.compileDeploy("@Name('context') @public create context SegmentedByString " +
             "partition by theString from SupportBean, p00 from SupportBean_S0", path);
 
         String eplCreate = namedWindow ?
-            "@Name('named window') context SegmentedByString create window MyInfra#keepall as SupportBean" :
-            "@Name('table') context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
+            "@Name('named window') @public context SegmentedByString create window MyInfra#keepall as SupportBean" :
+            "@Name('table') @public context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
         env.compileDeploy(eplCreate, path);
         env.compileDeploy("@Name('insert') context SegmentedByString insert into MyInfra select theString, intPrimitive from SupportBean", path);
 
@@ -292,11 +292,11 @@ public class ContextKeySegmentedInfra {
 
     private static void tryAssertionCreateIndex(RegressionEnvironment env, AtomicInteger milestone, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
-        String epl = "@name('create-ctx') create context SegmentedByCustomer " +
+        String epl = "@name('create-ctx') @public create context SegmentedByCustomer " +
             "  initiated by SupportBean_S0 s0 " +
             "  terminated by SupportBean_S1(p00 = p10);" +
             "" +
-            "@name('create-infra') context SegmentedByCustomer\n" +
+            "@name('create-infra') @public context SegmentedByCustomer\n" +
             (namedWindow ?
                 "create window MyInfra#keepall as SupportBean;" :
                 "create table MyInfra(theString string primary key, intPrimitive int);") +
@@ -328,13 +328,13 @@ public class ContextKeySegmentedInfra {
 
     private static void tryAssertionOnDeleteAndUpdate(RegressionEnvironment env, AtomicInteger milestone, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@Name('context') create context SegmentedByString " +
+        env.compileDeploy("@Name('context') @public create context SegmentedByString " +
             "partition by theString from SupportBean, p00 from SupportBean_S0, p10 from SupportBean_S1", path);
 
         String[] fieldsNW = new String[]{"theString", "intPrimitive"};
         String eplCreate = namedWindow ?
-            "@Name('named window') context SegmentedByString create window MyInfra#keepall as SupportBean" :
-            "@Name('named window') context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
+            "@Name('named window') @public context SegmentedByString create window MyInfra#keepall as SupportBean" :
+            "@Name('named window') @public context SegmentedByString create table MyInfra(theString string primary key, intPrimitive int primary key)";
         env.compileDeploy(eplCreate, path);
         String eplInsert = namedWindow ?
             "@Name('insert') insert into MyInfra select theString, intPrimitive from SupportBean" :
@@ -434,8 +434,8 @@ public class ContextKeySegmentedInfra {
         String epl = "";
         epl += "create context SegmentedByString partition by theString from SupportBean, p00 from SupportBean_S0;\n";
         epl += namedWindow ?
-            "context SegmentedByString create window MyInfra#keepall as SupportBean;\n" :
-            "context SegmentedByString create table MyInfra (theString string primary key, intPrimitive int);\n";
+            "@public context SegmentedByString create window MyInfra#keepall as SupportBean;\n" :
+            "@public context SegmentedByString create table MyInfra (theString string primary key, intPrimitive int);\n";
         epl += "@Name('insert') context SegmentedByString insert into MyInfra select theString, intPrimitive from SupportBean;\n";
         epl += "@Audit @name('s0') context SegmentedByString " +
             "select *, (select max(intPrimitive) from MyInfra) as mymax from SupportBean_S0;\n";

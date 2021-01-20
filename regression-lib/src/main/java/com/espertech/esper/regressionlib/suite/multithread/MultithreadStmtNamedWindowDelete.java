@@ -40,7 +40,7 @@ public class MultithreadStmtNamedWindowDelete implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('window') create window MyWindow#keepall as select theString, longPrimitive from SupportBean", path);
+        env.compileDeploy("@name('window') @public create window MyWindow#keepall as select theString, longPrimitive from SupportBean", path);
         SupportMTUpdateListener listenerWindow = new SupportMTUpdateListener();
         env.statement("window").addListener(listenerWindow);
 

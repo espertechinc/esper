@@ -26,6 +26,7 @@ import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -68,7 +69,7 @@ public class InfraNamedWindowInsertFrom {
             String[] fields = new String[]{"theString"};
             RegressionPath path = new RegressionPath();
 
-            String epl = "@name('window') create window MyWindowIWT#keepall as SupportBean;\n" +
+            String epl = "@name('window') @public create window MyWindowIWT#keepall as SupportBean;\n" +
                 "insert into MyWindowIWT select * from SupportBean(intPrimitive > 0);\n";
             env.compileDeploy(epl, path).addListener("window");
 
@@ -91,7 +92,7 @@ public class InfraNamedWindowInsertFrom {
             env.milestone(2);
 
             // create window with keep-all
-            String stmtTextCreateTwo = "@name('windowTwo') create window MyWindowTwo#keepall as MyWindowIWT insert";
+            String stmtTextCreateTwo = "@name('windowTwo') @public create window MyWindowTwo#keepall as MyWindowIWT insert";
             env.compileDeploy(stmtTextCreateTwo, path).addListener("windowTwo");
             env.assertIterator("windowTwo", iterator -> EPAssertionUtil.assertPropsPerRow(iterator, fields, new Object[][]{{"A1"}, {"B2"}, {"C3"}, {"A4"}, {"C5"}}));
             env.assertListenerNotInvoked("windowTwo");
@@ -102,7 +103,7 @@ public class InfraNamedWindowInsertFrom {
             });
 
             // create window with keep-all and filter
-            String stmtTextCreateThree = "@name('windowThree') create window MyWindowThree#keepall as MyWindowIWT insert where theString like 'A%'";
+            String stmtTextCreateThree = "@name('windowThree') @public create window MyWindowThree#keepall as MyWindowIWT insert where theString like 'A%'";
             env.compileDeploy(stmtTextCreateThree, path).addListener("windowThree");
             env.assertPropsPerRowIterator("windowThree", fields, new Object[][]{{"A1"}, {"A4"}});
             env.assertListenerNotInvoked("windowThree");
@@ -112,7 +113,7 @@ public class InfraNamedWindowInsertFrom {
             env.assertRuntime(runtime -> assertEquals(2, getCount(env, path, "windowThree", "MyWindowThree")));
 
             // create window with last-per-id
-            String stmtTextCreateFour = "@name('windowFour') create window MyWindowFour#unique(intPrimitive) as MyWindowIWT insert";
+            String stmtTextCreateFour = "@name('windowFour') @public create window MyWindowFour#unique(intPrimitive) as MyWindowIWT insert";
             env.compileDeploy(stmtTextCreateFour, path).addListener("windowFour");
             env.assertPropsPerRowIterator("windowFour", fields, new Object[][]{{"C3"}, {"C5"}});
             env.assertListenerNotInvoked("windowFour");
@@ -197,12 +198,12 @@ public class InfraNamedWindowInsertFrom {
         private void tryAssertionInsertWhereOMStaggered(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
             RegressionPath path = new RegressionPath();
-            String stmtTextCreateOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOM.class) + " @name('window') create window MyWindowIWOM#keepall as select a, b from MyMapAB";
+            String stmtTextCreateOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyWindowIWOM.class) + " @name('window') @public create window MyWindowIWOM#keepall as select a, b from MyMapAB";
             env.compileDeploy(stmtTextCreateOne, path).addListener("window");
             env.assertStatement("window", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
             // create insert into
-            String stmtTextInsertOne = "insert into MyWindowIWOM select a, b from MyMapAB";
+            String stmtTextInsertOne = "@public insert into MyWindowIWOM select a, b from MyMapAB";
             env.compileDeploy(stmtTextInsertOne, path);
 
             // populate some data
@@ -212,16 +213,18 @@ public class InfraNamedWindowInsertFrom {
 
             // create window with keep-all using OM
             EPStatementObjectModel model = new EPStatementObjectModel();
+            model.setAnnotations(new ArrayList<>(2));
             eventRepresentationEnum.addAnnotationForNonMap(model);
+            model.getAnnotations().add(new AnnotationPart("public"));
             Expression where = Expressions.eq("b", 10);
             model.setCreateWindow(CreateWindowClause.create("MyWindowIWOMTwo", View.create("keepall")).insert(true).insertWhereClause(where).setAsEventTypeName("MyWindowIWOM"));
             model.setSelectClause(SelectClause.createWildcard());
-            String text = eventRepresentationEnum.getAnnotationTextForNonMap() + " create window MyWindowIWOMTwo#keepall as select * from MyWindowIWOM insert where b=10";
+            String text = eventRepresentationEnum.getAnnotationTextForNonMap() + " @public create window MyWindowIWOMTwo#keepall as select * from MyWindowIWOM insert where b=10";
             assertEquals(text.trim(), model.toEPL());
 
             EPStatementObjectModel modelTwo = env.eplToModel(text);
             assertEquals(text.trim(), modelTwo.toEPL());
-            modelTwo.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("windowTwo")));
+            modelTwo.setAnnotations(Arrays.asList(AnnotationPart.nameAnnotation("windowTwo"), new AnnotationPart("public")));
             env.compileDeploy(modelTwo, path).addListener("windowTwo");
             env.assertPropsPerRowIterator("windowTwo", "a,b".split(","), new Object[][]{{"E2", 10}, {"E3", 10}});
 
@@ -236,8 +239,8 @@ public class InfraNamedWindowInsertFrom {
     private static class InfraVariantStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowVS#keepall as select * from VarStream", path);
-            env.compileDeploy("@name('window') create window MyWindowVSTwo#keepall as MyWindowVS", path);
+            env.compileDeploy("@public create window MyWindowVS#keepall as select * from VarStream", path);
+            env.compileDeploy("@name('window') @public create window MyWindowVSTwo#keepall as MyWindowVS", path);
 
             env.compileDeploy("insert into VarStream select * from SupportBean_A", path);
             env.compileDeploy("insert into VarStream select * from SupportBean_B", path);
@@ -257,7 +260,7 @@ public class InfraNamedWindowInsertFrom {
     private static class InfraInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextCreateOne = "create window MyWindowINV#keepall as SupportBean";
+            String stmtTextCreateOne = "@public create window MyWindowINV#keepall as SupportBean";
             env.compileDeploy(stmtTextCreateOne, path);
 
             env.tryInvalidCompile("create window testWindow3#keepall as SupportBean insert",

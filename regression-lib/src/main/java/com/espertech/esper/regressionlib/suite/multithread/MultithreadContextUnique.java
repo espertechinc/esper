@@ -40,9 +40,9 @@ public class MultithreadContextUnique implements RegressionExecution {
     }
 
     public void run(RegressionEnvironment env) {
-        String epl = "@buseventtype create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
+        String epl = "@public @buseventtype create schema ScoreCycle (userId string, keyword string, productId string, score long);\n" +
             "\n" +
-            "@buseventtype create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
+            "@public @buseventtype create schema UserKeywordTotalStream (userId string, keyword string, sumScore long);\n" +
             "\n" +
             "create context HashByUserCtx as\n" +
             "coalesce by consistent_hash_crc32(userId) from ScoreCycle,\n" +

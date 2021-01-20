@@ -66,7 +66,7 @@ public class EPLContainedEventExample {
                     "@public @buseventtype create schema ForeignSymbols(companies Symbol[]);\n" +
                     "@public @buseventtype create schema LocalSymbols(companies Symbol[]);\n" +
                     "\n" +
-                    "create table Mapping(foreignSymbol string primary key, localSymbol string primary key);\n" +
+                    "@public create table Mapping(foreignSymbol string primary key, localSymbol string primary key);\n" +
                     "create index MappingIndexForeignSymbol on Mapping(foreignSymbol);\n" +
                     "create index MappingIndexLocalSymbol on Mapping(localSymbol);\n" +
                     "\n" +
@@ -184,7 +184,7 @@ public class EPLContainedEventExample {
             env.compileDeploy(stmtTextTen).addListener("s10");
 
             RegressionPath path = new RegressionPath();
-            String stmtTextElevenZero = "@name('s11_0') insert into ReviewStream select * from MediaOrder[books.book as book]\n" +
+            String stmtTextElevenZero = "@name('s11_0') @public insert into ReviewStream select * from MediaOrder[books.book as book]\n" +
                 "    [select mediaOrder.* as mediaOrder, book.* as book, review.* as review from review as review] as mediaOrder";
             env.compileDeploy(stmtTextElevenZero, path);
             String stmtTextElevenOne = "@name('s11') select mediaOrder.orderId, book.bookId, review.reviewId from ReviewStream";

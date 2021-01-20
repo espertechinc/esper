@@ -45,7 +45,7 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String[] propertyNames = "p0,p1".split(",");
-            env.compileDeploy("@name('create') create table MyTableINS as (p0 string, p1 int)", path);
+            env.compileDeploy("@name('create') @public create table MyTableINS as (p0 string, p1 int)", path);
 
             String eplInsertInto = "insert into MyTableINS (p0, p1) select 'a', 1";
             EPFireAndForgetQueryResult resultOne = env.compileExecuteFAF(eplInsertInto, path);
@@ -63,7 +63,7 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
     private static class InfraFAFDelete implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableDEL as (p0 string primary key, thesum sum(int))", path);
+            env.compileDeploy("@name('create') @public create table MyTableDEL as (p0 string primary key, thesum sum(int))", path);
             env.compileDeploy("into table MyTableDEL select theString, sum(intPrimitive) as thesum from SupportBean group by theString", path);
             for (int i = 0; i < 10; i++) {
                 env.sendEventBean(new SupportBean("G" + i, i));
@@ -84,7 +84,7 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String[] fields = "p0,p1".split(",");
-            env.compileDeploy("@Name('TheTable') create table MyTableUPD as (p0 string primary key, p1 string, thesum sum(int))", path);
+            env.compileDeploy("@Name('TheTable') @public create table MyTableUPD as (p0 string primary key, p1 string, thesum sum(int))", path);
             env.compileDeploy("into table MyTableUPD select theString, sum(intPrimitive) as thesum from SupportBean group by theString", path);
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));
@@ -102,7 +102,7 @@ public class InfraTableFAFExecuteQuery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String[] fields = "p0".split(",");
-            env.compileDeploy("@Name('TheTable') create table MyTableSEL as (p0 string primary key, thesum sum(int))", path);
+            env.compileDeploy("@Name('TheTable') @public create table MyTableSEL as (p0 string primary key, thesum sum(int))", path);
             env.compileDeploy("into table MyTableSEL select theString, sum(intPrimitive) as thesum from SupportBean group by theString", path);
             env.sendEventBean(new SupportBean("E1", 1));
             env.sendEventBean(new SupportBean("E2", 2));

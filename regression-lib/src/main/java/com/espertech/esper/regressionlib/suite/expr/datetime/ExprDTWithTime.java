@@ -31,10 +31,10 @@ public class ExprDTWithTime implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        String epl = "@name('variables') create variable int varhour;\n" +
-            "create variable int varmin;\n" +
-            "create variable int varsec;\n" +
-            "create variable int varmsec;\n";
+        String epl = "@name('variables') @public create variable int varhour;\n" +
+            "@public create variable int varmin;\n" +
+            "@public create variable int varsec;\n" +
+            "@public create variable int varmsec;\n";
         env.compileDeploy(epl, path);
 
         String startTime = "2002-05-30T09:00:00.000";

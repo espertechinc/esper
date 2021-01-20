@@ -52,7 +52,7 @@ public class PatternConsumingPattern {
             env.tryInvalidCompile(path, "select * from pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA]#keepall, A#keepall",
                 expected + "[select * from pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [SupportIdEventA]#keepall, A#keepall]");
 
-            env.compileDeploy("create window AWindow#keepall as SupportIdEventA", path);
+            env.compileDeploy("@public create window AWindow#keepall as SupportIdEventA", path);
             env.tryInvalidCompile(path, "on pattern " + TargetEnum.DISCARD_AND_SUPPRESS.getText() + "[SupportIdEventA] select * from AWindow",
                 expected + "[on pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [SupportIdEventA] select * from AWindow]");
 

@@ -54,7 +54,7 @@ public class InfraTableMTGroupedSubqueryReadMergeWriteSecondaryIndexUpd implemen
 
     private static void tryMT(RegressionEnvironment env, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (topgroup int primary key, subgroup int primary key)";
+        String eplCreateVariable = "@public create table vartotal (topgroup int primary key, subgroup int primary key)";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplCreateIndex = "create index myindex on vartotal (topgroup)";

@@ -116,9 +116,9 @@ public class EPLFromClauseMethod {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create schema ItemEvent(id string)", path);
+            env.compileDeploy("@buseventtype @public create schema ItemEvent(id string)", path);
 
-            String script = "@name('script') create expression EventBean[] @type(ItemEvent) js:myItemProducerScript() [\n" +
+            String script = "@name('script') @public create expression EventBean[] @type(ItemEvent) js:myItemProducerScript() [\n" +
                 "myItemProducerScript();" +
                 "function myItemProducerScript() {" +
                 "  var EventBeanArray = Java.type(\"com.espertech.esper.common.client.EventBean[]\");\n" +
@@ -139,7 +139,7 @@ public class EPLFromClauseMethod {
     private static class EPLFromClauseMethodEventBeanArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create schema MyItemEvent(p0 string)", path);
+            env.compileDeploy("@buseventtype @public create schema MyItemEvent(p0 string)", path);
 
             tryAssertionEventBeanArray(env, path, "eventBeanArrayForString", false);
             tryAssertionEventBeanArray(env, path, "eventBeanArrayForString", true);
@@ -291,8 +291,8 @@ public class EPLFromClauseMethod {
     private static class EPLFromClauseMethod2JoinHistoricalOnlyDependent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int lower", path);
-            env.compileDeploy("create variable int upper", path);
+            env.compileDeploy("@public create variable int lower", path);
+            env.compileDeploy("@public create variable int upper", path);
             env.compileDeploy("on SupportBean set lower=intPrimitive,upper=intBoxed", path);
 
             String className = SupportStaticMethodLib.class.getName();
@@ -319,8 +319,8 @@ public class EPLFromClauseMethod {
     private static class EPLFromClauseMethod2JoinHistoricalOnlyIndependent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int lower", path);
-            env.compileDeploy("create variable int upper", path);
+            env.compileDeploy("@public create variable int lower", path);
+            env.compileDeploy("@public create variable int upper", path);
             env.compileDeploy("on SupportBean set lower=intPrimitive,upper=intBoxed", path);
 
             String className = SupportStaticMethodLib.class.getName();
@@ -343,8 +343,8 @@ public class EPLFromClauseMethod {
     private static class EPLFromClauseMethodNoJoinIterateVariables implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int lower", path);
-            env.compileDeploy("create variable int upper", path);
+            env.compileDeploy("@public create variable int lower", path);
+            env.compileDeploy("@public create variable int upper", path);
             env.compileDeploy("on SupportBean set lower=intPrimitive,upper=intBoxed", path);
 
             // Test int and singlerow

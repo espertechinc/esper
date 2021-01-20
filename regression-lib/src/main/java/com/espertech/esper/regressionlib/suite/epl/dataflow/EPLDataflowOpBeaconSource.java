@@ -61,8 +61,8 @@ public class EPLDataflowOpBeaconSource {
     private static class EPLDataflowBeaconVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create Schema SomeEvent()", path);
-            env.compileDeploy("create variable int var_iterations=3", path);
+            env.compileDeploy("@public create Schema SomeEvent()", path);
+            env.compileDeploy("@public create variable int var_iterations=3", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "BeaconSource -> BeaconStream<SomeEvent> {" +
                 "  iterations : var_iterations" +
@@ -156,7 +156,7 @@ public class EPLDataflowOpBeaconSource {
         EPDataFlowInstantiationOptions options;
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(representationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "create schema MyEvent(p0 string, p1 long, p2 double)", path);
+        env.compileDeploy(representationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@public create schema MyEvent(p0 string, p1 long, p2 double)", path);
         env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
             "" +
             "BeaconSource -> BeaconStream<" + (eventbean ? "EventBean<MyEvent>" : "MyEvent") + "> {" +
@@ -299,7 +299,7 @@ public class EPLDataflowOpBeaconSource {
 
             // test Beacon with define typed
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create objectarray schema MyTestOAType(p1 string)", path);
+            env.compileDeploy("@public create objectarray schema MyTestOAType(p1 string)", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowFive " +
                 "BeaconSource -> BeaconStream<MyTestOAType> {" +
                 "  interval: 0.5," +

@@ -76,7 +76,7 @@ public class EPLInsertIntoTransposeStream {
         private static void runTransposeMapAndObjectArray(RegressionEnvironment env, EventRepresentationChoice representation) {
             String[] fields = "p0,p1".split(",");
             RegressionPath path = new RegressionPath();
-            String schema = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "@buseventtype create schema MySchema(p0 string, p1 int)";
+            String schema = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "@public @buseventtype @public create schema MySchema(p0 string, p1 int)";
             env.compileDeploy(schema, path);
 
             String generateFunction;
@@ -115,7 +115,7 @@ public class EPLInsertIntoTransposeStream {
     private static class EPLInsertIntoTransposeFunctionToStreamWithProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStream select 1 as dummy, transpose(custom('O' || theString, 10)) from SupportBean(theString like 'I%')";
+            String stmtTextOne = "@public insert into MyStream select 1 as dummy, transpose(custom('O' || theString, 10)) from SupportBean(theString like 'I%')";
             env.compileDeploy(stmtTextOne, path);
 
             String stmtTextTwo = "@name('s0') select * from MyStream";
@@ -138,7 +138,7 @@ public class EPLInsertIntoTransposeStream {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextOne = "insert into OtherStream select transpose(custom('O' || theString, 10)) from SupportBean(theString like 'I%')";
-            env.compileDeploy("@name('first') " + stmtTextOne, path).addListener("first");
+            env.compileDeploy("@name('first') @public " + stmtTextOne, path).addListener("first");
 
             String stmtTextTwo = "@name('s0') select * from OtherStream(theString like 'O%')";
             env.compileDeploy(stmtTextTwo, path).addListener("s0");
@@ -212,7 +212,7 @@ public class EPLInsertIntoTransposeStream {
             // invalid wrong-type target
             try {
                 RegressionPath path = new RegressionPath();
-                env.compileDeploy("create map schema SomeOtherStream()", path);
+                env.compileDeploy("@public create map schema SomeOtherStream()", path);
                 env.compileWCheckedEx("insert into SomeOtherStream select transpose(customOne('O', 10)) from SupportBean", path);
                 fail();
             } catch (EPCompileException ex) {
@@ -244,7 +244,7 @@ public class EPLInsertIntoTransposeStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStreamTE select a, b from AEventTE#keepall as a, BEventTE#keepall as b";
+            String stmtTextOne = "@public insert into MyStreamTE select a, b from AEventTE#keepall as a, BEventTE#keepall as b";
             env.compileDeploy(stmtTextOne, path);
 
             String stmtTextTwo = "@name('s0') select a.id, b.id from MyStreamTE";
@@ -264,7 +264,7 @@ public class EPLInsertIntoTransposeStream {
     private static class EPLInsertIntoTransposeEventJoinPOJO implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStream2Bean select a.* as a, b.* as b from SupportBean_A#keepall as a, SupportBean_B#keepall as b";
+            String stmtTextOne = "@public insert into MyStream2Bean select a.* as a, b.* as b from SupportBean_A#keepall as a, SupportBean_B#keepall as b";
             env.compileDeploy(stmtTextOne, path);
 
             String stmtTextTwo = "@name('s0') select a.id, b.id from MyStream2Bean";
@@ -281,7 +281,7 @@ public class EPLInsertIntoTransposeStream {
     private static class EPLInsertIntoTransposePOJOPropertyStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStreamComplex select nested as inneritem from SupportBeanComplexProps";
+            String stmtTextOne = "@public insert into MyStreamComplex select nested as inneritem from SupportBeanComplexProps";
             env.compileDeploy(stmtTextOne, path);
 
             String stmtTextTwo = "@name('s0') select inneritem.nestedValue as result from MyStreamComplex";
@@ -297,7 +297,7 @@ public class EPLInsertIntoTransposeStream {
     private static class EPLInsertIntoInvalidTranspose implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStreamComplexMap select nested as inneritem from ComplexMap";
+            String stmtTextOne = "@public insert into MyStreamComplexMap select nested as inneritem from ComplexMap";
             env.compileDeploy(stmtTextOne, path);
 
             env.tryInvalidCompile(path, "select inneritem.nestedValue as result from MyStreamComplexMap",

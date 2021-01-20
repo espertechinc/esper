@@ -63,7 +63,7 @@ public class EPLOtherSelectExprStreamSelector {
     private static class EPLOtherInsertTransposeNestedProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOneText = "@name('l1') insert into StreamA select nested.* from SupportBeanComplexProps as s0";
+            String stmtOneText = "@name('l1') @public insert into StreamA select nested.* from SupportBeanComplexProps as s0";
             env.compileDeploy(stmtOneText, path).addListener("l1");
             env.assertStatement("l1", statement -> assertEquals(SupportBeanComplexProps.SupportBeanSpecialGetterNested.class, statement.getEventType().getUnderlyingType()));
 

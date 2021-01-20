@@ -46,11 +46,11 @@ public class MultithreadStmtNamedWindowSubqueryAgg implements RegressionExecutio
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread, boolean indexShare) {
         // setup statements
         RegressionPath path = new RegressionPath();
-        String schemas = "@buseventtype create schema UpdateEvent as (uekey string, ueint int);\n" +
-            "@buseventtype create schema WindowSchema as (wskey string, wsint int);\n";
+        String schemas = "@public @buseventtype create schema UpdateEvent as (uekey string, ueint int);\n" +
+            "@public @buseventtype create schema WindowSchema as (wskey string, wsint int);\n";
         env.compileDeploy(schemas, path);
 
-        String createEpl = "@name('namedWindow') create window MyWindow#keepall as WindowSchema";
+        String createEpl = "@name('namedWindow') @public create window MyWindow#keepall as WindowSchema";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

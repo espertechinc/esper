@@ -20,7 +20,7 @@ public class RowRecogVariantStream implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create variant schema MyVariantType as SupportBean_S0, SupportBean_S1", path);
+        env.compileDeploy("@public create variant schema MyVariantType as SupportBean_S0, SupportBean_S1", path);
 
         String[] fields = "a,b".split(",");
         String text = "@name('s0') select * from MyVariantType#keepall " +

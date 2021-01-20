@@ -71,7 +71,7 @@ public class ContextInitTermTemporalFixed {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context MyCtx as start SupportBean_S0 s0 end SupportBean_S1(id=s0.id)", path);
+            env.compileDeploy("@public @public create context MyCtx as start SupportBean_S0 s0 end SupportBean_S1(id=s0.id)", path);
             env.compileDeploy("@name('s0') context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString", path);
 
             env.advanceTime(1000);
@@ -127,7 +127,7 @@ public class ContextInitTermTemporalFixed {
     private static class ContextStartEndFilterStartedFilterEndedCorrelatedOutputSnapshot implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EveryNowAndThen as " +
+            env.compileDeploy("@public create context EveryNowAndThen as " +
                 "start SupportBean_S0 as s0 " +
                 "end SupportBean_S1(p10 = s0.p00) as s1", path);
 
@@ -175,7 +175,7 @@ public class ContextInitTermTemporalFixed {
     private static class ContextStartEndFilterStartedPatternEndedCorrelated implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EveryNowAndThen as " +
+            env.compileDeploy("@public create context EveryNowAndThen as " +
                 "start SupportBean_S0 as s0 " +
                 "end pattern [SupportBean_S1(p10 = s0.p00)]", path);
 
@@ -243,7 +243,7 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context EveryNowAndThen as start after 5 sec end after 10 sec", path);
+            env.compileDeploy("@public create context EveryNowAndThen as start after 5 sec end after 10 sec", path);
 
             String[] fields = "c1,c2,c3".split(",");
             String[] fieldsShort = "c3".split(",");
@@ -296,9 +296,9 @@ public class ContextInitTermTemporalFixed {
 
             // try variable
             path.clear();
-            env.compileDeploy("create variable int var_start = 10", path);
-            env.compileDeploy("create variable int var_end = 20", path);
-            env.compileDeploy("create context FrequentlyContext as start after var_start sec end after var_end sec", path);
+            env.compileDeploy("@public create variable int var_start = 10", path);
+            env.compileDeploy("@public create variable int var_end = 20", path);
+            env.compileDeploy("@public create context FrequentlyContext as start after var_start sec end after var_end sec", path);
 
             env.undeployAll();
         }
@@ -307,7 +307,7 @@ public class ContextInitTermTemporalFixed {
     private static class ContextStartEndFilterStartedFilterEndedOutputSnapshot implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EveryNowAndThen as start SupportBean_S0 as s0 end SupportBean_S1 as s1", path);
+            env.compileDeploy("@public create context EveryNowAndThen as start SupportBean_S0 as s0 end SupportBean_S1 as s1", path);
 
             String[] fields = "c1,c2".split(",");
             env.compileDeploy("@name('s0') context EveryNowAndThen select context.s0.p00 as c1, sum(intPrimitive) as c2 " +
@@ -359,7 +359,7 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context EveryNowAndThen as " +
+            env.compileDeploy("@public create context EveryNowAndThen as " +
                 "start pattern [s0=SupportBean_S0 -> timer:interval(1 sec)] " +
                 "end pattern [s1=SupportBean_S1 -> timer:interval(1 sec)]", path);
 
@@ -432,7 +432,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)", path);
+            env.compileDeploy("@public create context EverySecond as start (*, *, *, *, *, *) end (*, *, *, *, *, *)", path);
             env.compileDeploy("@name('s0') context EverySecond select * from SupportBean", path);
             env.addListener("s0");
 
@@ -485,7 +485,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "s1.mychar".split(",");
             String stmtText = "@name('s0') context NineToFive select * from SupportBean_S0 as s0, sql:MyDB ['select * from mytesttable where ${id} = mytesttable.mybigint'] as s1";
@@ -520,7 +520,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "col1,col2,col3,col4,col5".split(",");
             env.compileDeploy("@name('s0') context NineToFive " +
@@ -577,7 +577,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "col1,col2,col3,col4".split(",");
             env.compileDeploy("@name('s0') context NineToFive " +
@@ -637,7 +637,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             env.compileDeploy("@name('s0') context NineToFive select * from pattern[every timer:interval(10 sec)]", path);
             env.addListener("s0");
@@ -680,7 +680,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "theString,col".split(",");
 
@@ -753,7 +753,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T8:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@name('ctx') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "theString,col".split(",");
             env.compileDeploy("@name('s0') context NineToFive select theString, " +
@@ -826,11 +826,11 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             // no started yet
             String[] fields = "theString,intPrimitive".split(",");
-            env.compileDeploy("@name('s0') context NineToFive create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@name('s0') @public context NineToFive create window MyWindow#keepall as SupportBean", path);
             env.addListener("s0");
 
             env.compileDeploy("context NineToFive insert into MyWindow select * from SupportBean", path);
@@ -888,10 +888,10 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             // no started yet
-            env.compileDeploy("context NineToFive create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public context NineToFive create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("context NineToFive insert into MyWindow select * from SupportBean", path);
 
             tryNWQuery(env, path, 0);
@@ -948,7 +948,7 @@ public class ContextInitTermTemporalFixed {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            String contextEPL = "@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
+            String contextEPL = "@Name('context') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             env.compileDeploy(contextEPL, path);
             env.assertStatement("context", statement -> assertContextEventType(statement.getEventType()));
             env.addListener("context");
@@ -1022,7 +1022,7 @@ public class ContextInitTermTemporalFixed {
             RegressionPath path = new RegressionPath();
 
             sendTimeEvent(env, "2002-05-1T09:15:00.000");
-            env.compileDeploy("@Name('context') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@Name('context') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
             env.assertThat(() -> Assert.assertEquals(1, SupportContextMgmtHelper.getContextCount(env)));
 
             env.milestone(0);
@@ -1073,7 +1073,7 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T8:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplContext = "@Name('CTX') create context CtxNineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
+            String eplContext = "@Name('CTX') @public create context CtxNineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)";
             env.compileDeploy(eplContext, path);
 
             String[] fields = "c1,c2".split(",");
@@ -1117,7 +1117,7 @@ public class ContextInitTermTemporalFixed {
             sendTimeEvent(env, "2002-05-1T7:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplTwo = "create context NestedContext as start (0, 8, *, *, *) end (0, 9, *, *, *)";
+            String eplTwo = "@public create context NestedContext as start (0, 8, *, *, *) end (0, 9, *, *, *)";
             env.compileDeploy(eplTwo, path);
 
             env.milestone(0);

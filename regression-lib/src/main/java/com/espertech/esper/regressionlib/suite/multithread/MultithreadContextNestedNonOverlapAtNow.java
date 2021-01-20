@@ -39,7 +39,7 @@ public class MultithreadContextNestedNonOverlapAtNow implements RegressionExecut
         threadSleep(100); // allow time for start up
 
         RegressionPath path = new RegressionPath();
-        String eplContext = "create context theContext " +
+        String eplContext = "@public create context theContext " +
             "context perPartition partition by partitionKey from TestEvent," +
             "context per10Seconds start @now end after 100 milliseconds";
         EPCompiled compiledContext = compile(eplContext, configuration, path);

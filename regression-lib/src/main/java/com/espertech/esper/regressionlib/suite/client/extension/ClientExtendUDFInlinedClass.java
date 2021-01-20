@@ -151,7 +151,7 @@ public class ClientExtendUDFInlinedClass {
     private static class ClientExtendUDFInlinedFAF implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplWindow = "create window MyWindow#keepall as (theString string);\n" +
+            String eplWindow = "@public create window MyWindow#keepall as (theString string);\n" +
                 "on SupportBean merge MyWindow insert select theString;\n";
             env.compileDeploy(eplWindow, path);
 

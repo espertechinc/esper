@@ -79,14 +79,14 @@ public class EPLSpatialMXCIFQuadTreeInvalid {
         public void run(RegressionEnvironment env) {
             // most are covered by point-region test already
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportSpatialEventRectangle", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportSpatialEventRectangle", path);
 
             // invalid number of columns
             env.tryInvalidCompile(path, "create index MyIndex on MyWindow(x mxcifquadtree(0, 0, 100, 100))",
                 "Index of type 'mxcifquadtree' requires 4 expressions as index columns but received 1");
 
             // same index twice, by-columns
-            env.compileDeploy("create window SomeWindow#keepall as SupportSpatialEventRectangle", path);
+            env.compileDeploy("@public create window SomeWindow#keepall as SupportSpatialEventRectangle", path);
             env.compileDeploy("create index SomeWindowIdx1 on SomeWindow((x, y, width, height) mxcifquadtree(0, 0, 1, 1))", path);
             env.tryInvalidCompile(path, "create index SomeWindowIdx2 on SomeWindow((x, y, width, height) mxcifquadtree(0, 0, 1, 1))",
                 "An index for the same columns already exists");

@@ -44,8 +44,8 @@ public class InfraNWTableStartStop {
             // create window
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfra(a string primary key, b int primary key)";
+                "@name('create') @public create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfra(a string primary key, b int primary key)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -112,8 +112,8 @@ public class InfraNWTableStartStop {
             RegressionPath path = new RegressionPath();
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfra(a string primary key, b int primary key)";
+                "@name('create') @public create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfra(a string primary key, b int primary key)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into

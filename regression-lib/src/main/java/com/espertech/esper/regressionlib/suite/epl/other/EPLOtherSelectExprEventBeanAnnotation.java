@@ -55,9 +55,9 @@ public class EPLOtherSelectExprEventBeanAnnotation {
         public void run(RegressionEnvironment env) {
             // test non-named-window
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create objectarray schema MyEvent(col1 string, col2 string)", path);
+            env.compileDeploy("@public @buseventtype create objectarray schema MyEvent(col1 string, col2 string)", path);
 
-            String eplInsert = "@name('insert') insert into DStream select " +
+            String eplInsert = "@name('insert') @public insert into DStream select " +
                 "(select * from MyEvent#keepall) @eventbean as c0 " +
                 "from SupportBean";
             env.compileDeploy(eplInsert, path);
@@ -91,9 +91,9 @@ public class EPLOtherSelectExprEventBeanAnnotation {
 
     private static void runAssertionEventBeanAnnotation(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@name('schema') @buseventtype create schema MyEvent(col1 string)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + "@name('schema') @buseventtype @public create schema MyEvent(col1 string)", path);
 
-        String eplInsert = "@name('insert') insert into DStream select " +
+        String eplInsert = "@name('insert') @public insert into DStream select " +
             "last(*) @eventbean as c0, " +
             "window(*) @eventbean as c1, " +
             "prevwindow(s0) @eventbean as c2 " +

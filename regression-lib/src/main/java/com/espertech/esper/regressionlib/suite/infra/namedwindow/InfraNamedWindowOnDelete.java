@@ -165,7 +165,7 @@ public class InfraNamedWindowOnDelete {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             // create window
-            String stmtTextCreate = "@name('createOne') create window MyWindowCK#keepall as select " +
+            String stmtTextCreate = "@name('createOne') @public create window MyWindowCK#keepall as select " +
                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("createOne");
 
@@ -285,7 +285,7 @@ public class InfraNamedWindowOnDelete {
 
             // test single-two-field index reuse
             path = new RegressionPath();
-            env.compileDeploy("@name('createTwo') create window WinOne#keepall as SupportBean", path);
+            env.compileDeploy("@name('createTwo') @public create window WinOne#keepall as SupportBean", path);
             env.compileDeploy("on SupportBean_ST0 select * from WinOne where theString = key0", path);
             assertEquals(1, getIndexCount(env, "createTwo", "WinOne"));
 
@@ -300,7 +300,7 @@ public class InfraNamedWindowOnDelete {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String stmtTextCreate = "@name('createOne') create window MyWindowCR#keepall as select " +
+            String stmtTextCreate = "@name('createOne') @public create window MyWindowCR#keepall as select " +
                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("createOne");
 
@@ -383,7 +383,7 @@ public class InfraNamedWindowOnDelete {
     private static class InfraCoercionKeyAndRangeMultiPropIndexes implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextCreate = "@name('createOne') create window MyWindowCKR#keepall as select " +
+            String stmtTextCreate = "@name('createOne') @public create window MyWindowCKR#keepall as select " +
                 "theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("createOne");
 
@@ -472,13 +472,13 @@ public class InfraNamedWindowOnDelete {
         RegressionPath path = new RegressionPath();
 
         // create window one
-        String stmtTextCreateOne = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAG.class) + "@name('createOne') create window MyWindowSTAG#keepall as select theString as a1, intPrimitive as b1 from SupportBean";
+        String stmtTextCreateOne = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAG.class) + "@name('createOne') @public create window MyWindowSTAG#keepall as select theString as a1, intPrimitive as b1 from SupportBean";
         env.compileDeploy(stmtTextCreateOne, path).addListener("createOne");
         assertEquals(0, getCount(env, "createOne", "MyWindowSTAG"));
         env.assertStatement("createOne", statement -> assertTrue(outputType.matchesClass(statement.getEventType().getUnderlyingType())));
 
         // create window two
-        String stmtTextCreateTwo = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAGTwo.class) + " @name('createTwo') create window MyWindowSTAGTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean";
+        String stmtTextCreateTwo = outputType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSTAGTwo.class) + " @name('createTwo') @public create window MyWindowSTAGTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean";
         env.compileDeploy(stmtTextCreateTwo, path).addListener("createTwo");
         assertEquals(0, getCount(env, "createTwo", "MyWindowSTAGTwo"));
         env.assertStatement("createTwo", statement -> assertTrue(outputType.matchesClass(statement.getEventType().getUnderlyingType())));

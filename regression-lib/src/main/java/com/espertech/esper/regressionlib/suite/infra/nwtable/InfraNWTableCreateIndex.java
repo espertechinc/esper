@@ -76,16 +76,16 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfraOne#keepall as (f1 string, f2 int)" :
-                "create table MyInfraOne as (f1 string primary key, f2 int primary key)";
+                "@public create window MyInfraOne#keepall as (f1 string, f2 int)" :
+                "@public create table MyInfraOne as (f1 string primary key, f2 int primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("create index MyInfraIndex on MyInfraOne(f1)", path);
 
-            env.compileDeploy("create context ContextOne initiated by SupportBean terminated after 5 sec", path);
-            env.compileDeploy("create context ContextTwo initiated by SupportBean terminated after 5 sec", path);
+            env.compileDeploy("@public create context ContextOne initiated by SupportBean terminated after 5 sec", path);
+            env.compileDeploy("@public create context ContextTwo initiated by SupportBean terminated after 5 sec", path);
             String eplCreateWContext = namedWindow ?
-                "context ContextOne create window MyInfraCtx#keepall as (f1 string, f2 int)" :
-                "context ContextOne create table MyInfraCtx as (f1 string primary key, f2 int primary key)";
+                "@public context ContextOne create window MyInfraCtx#keepall as (f1 string, f2 int)" :
+                "@public context ContextOne create table MyInfraCtx as (f1 string primary key, f2 int primary key)";
             env.compileDeploy(eplCreateWContext, path);
 
             // invalid context
@@ -122,8 +122,8 @@ public class InfraNWTableCreateIndex {
 
             // invalid insert-into unique index
             String eplCreateTwo = namedWindow ?
-                "@Name('create') create window MyInfraTwo#keepall as SupportBean" :
-                "@Name('create') create table MyInfraTwo(theString string primary key, intPrimitive int primary key)";
+                "@Name('create') @public create window MyInfraTwo#keepall as SupportBean" :
+                "@Name('create') @public create table MyInfraTwo(theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreateTwo, path);
             env.compileDeploy("@Name('insert') insert into MyInfraTwo select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("create unique index I1 on MyInfraTwo(theString)", path);
@@ -141,7 +141,7 @@ public class InfraNWTableCreateIndex {
             });
 
             if (!namedWindow) {
-                env.compileDeploy("create table MyTable (p0 string, sumint sum(int))", path);
+                env.compileDeploy("@public create table MyTable (p0 string, sumint sum(int))", path);
                 env.tryInvalidCompile(path, "create index MyIndex on MyTable(p0)",
                     "Tables without primary key column(s) do not allow creating an index [");
             }
@@ -166,8 +166,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfraONR#keepall as (f1 string, f2 int)" :
-                "@name('create') create table MyInfraONR as (f1 string primary key, f2 int primary key)";
+                "@name('create') @public create window MyInfraONR#keepall as (f1 string, f2 int)" :
+                "@name('create') @public create table MyInfraONR as (f1 string primary key, f2 int primary key)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("insert into MyInfraONR(f1, f2) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('indexOne') create index MyInfraONRIndex1 on MyInfraONR(f2)", path);
@@ -194,7 +194,7 @@ public class InfraNWTableCreateIndex {
             env.undeployModuleContaining("indexOne");
 
             // two-key index order test
-            env.compileDeploy("@name('cw') create window MyInfraFour#keepall as SupportBean", path);
+            env.compileDeploy("@name('cw') @public create window MyInfraFour#keepall as SupportBean", path);
             env.compileDeploy("create index idx1 on MyInfraFour (theString, intPrimitive)", path);
             env.compileDeploy("on SupportBean sb select * from MyInfraFour w where w.theString = sb.theString and w.intPrimitive = sb.intPrimitive", path);
             env.compileDeploy("on SupportBean sb select * from MyInfraFour w where w.intPrimitive = sb.intPrimitive and w.theString = sb.theString", path);
@@ -220,8 +220,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfraDC#keepall as (f1 string, f2 int, f3 string, f4 string)" :
-                "@name('create') create table MyInfraDC as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
+                "@name('create') @public create window MyInfraDC#keepall as (f1 string, f2 int, f3 string, f4 string)" :
+                "@name('create') @public create table MyInfraDC as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("insert into MyInfraDC(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean", path);
             env.compileDeploy("@name('indexOne') create index MyInfraDCIndex1 on MyInfraDC(f1)", path);
@@ -282,8 +282,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "create window MyInfraMCMI#keepall as (f1 string, f2 int, f3 string, f4 string)" :
-                "create table MyInfraMCMI as (f1 string primary key, f2 int, f3 string, f4 string)";
+                "@public create window MyInfraMCMI#keepall as (f1 string, f2 int, f3 string, f4 string)" :
+                "@public create table MyInfraMCMI as (f1 string primary key, f2 int, f3 string, f4 string)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("insert into MyInfraMCMI(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean", path);
             env.compileDeploy("create index MyInfraMCMIIndex1 on MyInfraMCMI(f2, f3, f1)", path);
@@ -340,8 +340,8 @@ public class InfraNWTableCreateIndex {
 
             // create infra
             String stmtTextCreate = namedWindow ?
-                "@Name('Create') create window MyInfra.win:keepall() as SupportBean" :
-                "@Name('Create') create table MyInfra(theString string primary key, intPrimitive int primary key)";
+                "@Name('Create') @public create window MyInfra.win:keepall() as SupportBean" :
+                "@Name('Create') @public create table MyInfra(theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(stmtTextCreate, path).addListener("Create");
 
             // create insert into
@@ -387,8 +387,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "create window MyInfraLC#keepall as (f1 string, f2 int, f3 string, f4 string)" :
-                "create table MyInfraLC as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
+                "@public create window MyInfraLC#keepall as (f1 string, f2 int, f3 string, f4 string)" :
+                "@public create table MyInfraLC as (f1 string primary key, f2 int primary key, f3 string primary key, f4 string primary key)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("insert into MyInfraLC(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean", path);
 
@@ -430,8 +430,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = namedWindow ?
-                "create window MyInfraCI#keepall as (f1 string, f2 int, f3 string, f4 string)" :
-                "create table MyInfraCI as (f1 string primary key, f2 int, f3 string, f4 string)";
+                "@public create window MyInfraCI#keepall as (f1 string, f2 int, f3 string, f4 string)" :
+                "@public create table MyInfraCI as (f1 string primary key, f2 int, f3 string, f4 string)";
             env.compileDeploy(stmtTextCreate, path);
             EPCompiled compiledWindow = path.getCompileds().get(0);
             env.compileDeploy("insert into MyInfraCI(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean", path);
@@ -479,8 +479,8 @@ public class InfraNWTableCreateIndex {
             RegressionPath path = new RegressionPath();
             // widen to long
             String stmtTextCreate = namedWindow ?
-                "create window MyInfraW#keepall as (f1 long, f2 string)" :
-                "create table MyInfraW as (f1 long primary key, f2 string primary key)";
+                "@public create window MyInfraW#keepall as (f1 long, f2 string)" :
+                "@public create table MyInfraW as (f1 long primary key, f2 string primary key)";
             env.compileDeploy(stmtTextCreate, path);
             env.compileDeploy("insert into MyInfraW(f1, f2) select longPrimitive, theString from SupportBean", path);
             env.compileDeploy("create index MyInfraWIndex1 on MyInfraW(f1)", path);
@@ -495,8 +495,8 @@ public class InfraNWTableCreateIndex {
 
             // coerce to short
             stmtTextCreate = namedWindow ?
-                "create window MyInfraWTwo#keepall as (f1 short, f2 string)" :
-                "create table MyInfraWTwo as (f1 short primary key, f2 string primary key)";
+                "@public create window MyInfraWTwo#keepall as (f1 short, f2 string)" :
+                "@public create table MyInfraWTwo as (f1 short primary key, f2 string primary key)";
             env.compileDeploy(stmtTextCreate, path);
             env.compileDeploy("insert into MyInfraWTwo(f1, f2) select shortPrimitive, theString from SupportBean", path);
             env.compileDeploy("create index MyInfraWTwoIndex1 on MyInfraWTwo(f1)", path);
@@ -529,8 +529,8 @@ public class InfraNWTableCreateIndex {
             // widen to long
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfraHBTW#keepall as (f1 long, f2 string)" :
-                "create table MyInfraHBTW as (f1 long primary key, f2 string primary key)";
+                "@public create window MyInfraHBTW#keepall as (f1 long, f2 string)" :
+                "@public create table MyInfraHBTW as (f1 long primary key, f2 string primary key)";
             env.compileDeploy(eplCreate, path);
 
             String eplInsert = "insert into MyInfraHBTW(f1, f2) select longPrimitive, theString from SupportBean";
@@ -555,8 +555,8 @@ public class InfraNWTableCreateIndex {
 
             // coerce to short
             String eplCreateTwo = namedWindow ?
-                "create window MyInfraHBTWTwo#keepall as (f1 short, f2 string)" :
-                "create table MyInfraHBTWTwo as (f1 short primary key, f2 string primary key)";
+                "@public create window MyInfraHBTWTwo#keepall as (f1 short, f2 string)" :
+                "@public create table MyInfraHBTWTwo as (f1 short primary key, f2 string primary key)";
             env.compileDeploy(eplCreateTwo, path);
 
             String eplInsertTwo = "insert into MyInfraHBTWTwo(f1, f2) select shortPrimitive, theString from SupportBean";
@@ -590,8 +590,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "@name('create') create window MyInfraMRAK#keepall as SupportBeanRange" :
-                "@name('create') create table MyInfraMRAK(id string primary key, key string, keyLong long, rangeStartLong long primary key, rangeEndLong long primary key)";
+                "@name('create') @public create window MyInfraMRAK#keepall as SupportBeanRange" :
+                "@name('create') @public create table MyInfraMRAK(id string primary key, key string, keyLong long, rangeStartLong long primary key, rangeEndLong long primary key)";
             env.compileDeploy(eplCreate, path);
 
             String eplInsert = namedWindow ?
@@ -645,8 +645,8 @@ public class InfraNWTableCreateIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = isNamedWindow ?
-                "create window MyInfra.win:keepall() as (f1 string, f2 int, f3 string, f4 string)" :
-                "create table MyInfra as (f1 string primary key, f2 int, f3 string, f4 string)";
+                "@public create window MyInfra.win:keepall() as (f1 string, f2 int, f3 string, f4 string)" :
+                "@public create table MyInfra as (f1 string primary key, f2 int, f3 string, f4 string)";
             env.compileDeploy(stmtTextCreate, path);
             env.compileDeploy("insert into MyInfra(f1, f2, f3, f4) select theString, intPrimitive, '>'||theString||'<', '?'||theString||'?' from SupportBean", path);
             env.compileDeploy("create index MyInfraIndex on MyInfra(f2, f3, f1)", path);

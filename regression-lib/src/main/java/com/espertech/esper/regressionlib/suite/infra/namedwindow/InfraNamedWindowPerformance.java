@@ -55,7 +55,7 @@ public class InfraNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create window MyWindow#keepall as SupportBean_S0;\n" +
+            env.compileDeploy("@name('create') @public create window MyWindow#keepall as SupportBean_S0;\n" +
                 "insert into MyWindow select * from SupportBean_S0;\n", path);
 
             int maxRows = 10000;   // for performance testing change to int maxRows = 100000;
@@ -81,7 +81,7 @@ public class InfraNamedWindowPerformance {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create window MyWindow#keepall as SupportBean;\n" +
+            env.compileDeploy("@name('create') @public create window MyWindow#keepall as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean", path);
 
             // insert X rows
@@ -235,7 +235,7 @@ public class InfraNamedWindowPerformance {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow#keepall as select theString as a, longPrimitive as b from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow#keepall as select theString as a, longPrimitive as b from SupportBean";
             env.compileDeploy(stmtTextCreate, path);
 
             // create delete stmt

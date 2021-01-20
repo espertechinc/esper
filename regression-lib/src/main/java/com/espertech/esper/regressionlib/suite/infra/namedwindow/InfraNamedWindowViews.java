@@ -167,7 +167,7 @@ public class InfraNamedWindowViews {
             String[] fields = "theString".split(",");
 
             RegressionPath path = new RegressionPath();
-            String eplCreate = "@Name('create') create window MyWindow.win:keepall() as SupportBean";
+            String eplCreate = "@Name('create') @public create window MyWindow.win:keepall() as SupportBean";
             env.compileDeploy(eplCreate, path).addListener("create");
 
             String eplInsert = "@Name('insert') insert into MyWindow select * from SupportBean";
@@ -196,7 +196,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:keepall() as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:keepall() as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -348,8 +348,8 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // Test create from schema
-            String epl = "create schema ABC as " + SupportBean.class.getName() + ";\n" +
-                    "create window MyWindowBSB#keepall as ABC;\n" +
+            String epl = "@public create schema ABC as " + SupportBean.class.getName() + ";\n" +
+                    "@public create window MyWindowBSB#keepall as ABC;\n" +
                     "insert into MyWindowBSB select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -378,9 +378,9 @@ public class InfraNamedWindowViews {
 
     private static class InfraOnInsertPremptiveTwoWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create schema TypeOne(col1 int);\n";
-            epl += "@buseventtype create schema TypeTwo(col2 int);\n";
-            epl += "@buseventtype create schema TypeTrigger(trigger int);\n";
+            String epl = "@public @buseventtype create schema TypeOne(col1 int);\n";
+            epl += "@public @buseventtype create schema TypeTwo(col2 int);\n";
+            epl += "@public @buseventtype create schema TypeTrigger(trigger int);\n";
             epl += "create window WinOne#keepall as TypeOne;\n";
             epl += "create window WinTwo#keepall as TypeTwo;\n";
 
@@ -442,7 +442,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindowTW#time(10 sec) as MySimpleKeyValueMap";
+            String stmtTextCreate = "@name('create') @public create window MyWindowTW#time(10 sec) as MySimpleKeyValueMap";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
             env.assertPropsPerRowIterator("create", fields, null);
 
@@ -531,7 +531,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow#time(10 sec) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow#time(10 sec) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.milestone(0);
@@ -758,7 +758,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:ext_timed(value, 10 sec) as select theString as key, longBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:ext_timed(value, 10 sec) as select theString as key, longBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.milestone(0);
@@ -862,7 +862,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             env.advanceTime(0);
-            env.compileDeploy("create window ABCWin.win:time(10 sec) as SupportBean", path);
+            env.compileDeploy("@public create window ABCWin.win:time(10 sec) as SupportBean", path);
             env.compileDeploy("insert into ABCWin select * from SupportBean", path);
             env.compileDeploy("@Name('s0') select irstream * from ABCWin", path);
             env.compileDeploy("on SupportBean_A delete from ABCWin where theString = id", path);
@@ -920,7 +920,7 @@ public class InfraNamedWindowViews {
         public void run(RegressionEnvironment env) {
             String[] fields = new String[]{"key", "value"};
 
-            String epl = "@name('create') create window MyWindowTOW#time_order(value, 10 sec) as MySimpleKeyValueMap;\n" +
+            String epl = "@name('create') @public create window MyWindowTOW#time_order(value, 10 sec) as MySimpleKeyValueMap;\n" +
                     "insert into MyWindowTOW select theString as key, longBoxed as value from SupportBean;\n" +
                     "@name('s0') select irstream key, value as value from MyWindowTOW;\n" +
                     "@name('delete') on SupportMarketDataBean delete from MyWindowTOW where symbol = key;\n";
@@ -977,7 +977,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.ext:time_order(value, 10) as select theString as key, longBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.ext:time_order(value, 10) as select theString as key, longBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -1148,7 +1148,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:length(3) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:length(3) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -1422,7 +1422,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:time_accum(10 sec) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:time_accum(10 sec) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -1659,7 +1659,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:time_batch(10) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:time_batch(10) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -1794,7 +1794,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
             sendTimer(env, 0);
 
-            String epl = "@name('create') create window MyWindowTBLC#time_batch(10 sec) as MySimpleKeyValueMap;\n" +
+            String epl = "@name('create') @public create window MyWindowTBLC#time_batch(10 sec) as MySimpleKeyValueMap;\n" +
                     "insert into MyWindowTBLC select theString as key, longBoxed as value from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -1908,7 +1908,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:length_batch(3) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:length_batch(3) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.milestone(0);
@@ -2162,7 +2162,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.ext:sort(3, value) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.ext:sort(3, value) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -2317,7 +2317,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.win:time_length_batch(10 sec, 4) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.win:time_length_batch(10 sec, 4) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -2460,7 +2460,7 @@ public class InfraNamedWindowViews {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window ABCWin#length(2) as SupportBean", path);
+            env.compileDeploy("@public create window ABCWin#length(2) as SupportBean", path);
             env.compileDeploy("insert into ABCWin select * from SupportBean", path);
             env.compileDeploy("on SupportBean_A delete from ABCWin where theString = id", path);
             env.compileDeploy("@Name('s0') select irstream * from ABCWin", path).addListener("s0");
@@ -2688,7 +2688,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow.std:lastevent() as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow.std:lastevent() as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -2834,7 +2834,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindow#unique(key) as select theString as key, intBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow#unique(key) as select theString as key, intBoxed as value from SupportBean";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.milestone(0);
@@ -2998,7 +2998,7 @@ public class InfraNamedWindowViews {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String epl = "@name('create') create window MyWindowSGVS#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive from SupportBean;\n" +
+            String epl = "@name('create') @public create window MyWindowSGVS#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive from SupportBean;\n" +
                     "@name('insert') insert into MyWindowSGVS select theString, intPrimitive from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -3048,7 +3048,7 @@ public class InfraNamedWindowViews {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@name('create') create window MyWindowSGVLS#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive, longPrimitive, boolPrimitive from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindowSGVLS#groupwin(theString, intPrimitive)#length(9) as select theString, intPrimitive, longPrimitive, boolPrimitive from SupportBean";
             env.compileDeploy(stmtTextCreate, path);
 
             // create insert into
@@ -3056,7 +3056,7 @@ public class InfraNamedWindowViews {
             env.compileDeploy(stmtTextInsert, path);
 
             // create variable
-            env.compileDeploy("create variable string var_1_1_1", path);
+            env.compileDeploy("@public create variable string var_1_1_1", path);
             env.compileDeploy("on SupportVariableSetEvent(variableName='var_1_1_1') set var_1_1_1 = value", path);
 
             // fill window
@@ -3122,7 +3122,7 @@ public class InfraNamedWindowViews {
             String[] fields = new String[]{"sumvalue"};
             RegressionPath path = new RegressionPath();
 
-            String epl = "@name('create') create window MyWindowFCLS#keepall as select theString as key, intPrimitive as value from SupportBean;\n" +
+            String epl = "@name('create') @public create window MyWindowFCLS#keepall as select theString as key, intPrimitive as value from SupportBean;\n" +
                     "insert into MyWindowFCLS select theString as key, intPrimitive as value from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -3177,7 +3177,7 @@ public class InfraNamedWindowViews {
                     "A named window or table 'dummy' has not been declared [on MySimpleKeyValueMap delete from dummy]");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window SomeWindow#keepall as (a int)", path);
+            env.compileDeploy("@public create window SomeWindow#keepall as (a int)", path);
             env.tryInvalidCompile(path, "update SomeWindow set a = 'a' where a = 'b'",
                     "Provided EPL expression is an on-demand query expression (not a continuous query)");
             tryInvalidFAFCompile(env, path, "update istream SomeWindow set a = 'a' where a = 'b'",
@@ -3203,7 +3203,7 @@ public class InfraNamedWindowViews {
     private static class InfraNamedWindowInvalidConsumerDataWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowCDW#keepall as MySimpleKeyValueMap", path);
+            env.compileDeploy("@public create window MyWindowCDW#keepall as MySimpleKeyValueMap", path);
             env.tryInvalidCompile(path, "select key, value as value from MyWindowCDW#time(10 sec)",
                     "Consuming statements to a named window cannot declare a data window view onto the named window [select key, value as value from MyWindowCDW#time(10 sec)]");
             env.undeployAll();
@@ -3258,7 +3258,7 @@ public class InfraNamedWindowViews {
             String[] fieldsCnt = new String[]{"cnt"};
             RegressionPath path = new RegressionPath();
 
-            String stmtTextCreate = "@name('create') create window MyWindowLCL#keepall as MySimpleKeyValueMap";
+            String stmtTextCreate = "@name('create') @public create window MyWindowLCL#keepall as MySimpleKeyValueMap";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.assertStatement("create", statement -> {
@@ -3308,7 +3308,7 @@ public class InfraNamedWindowViews {
             String[] fieldsJoin = new String[]{"key", "value", "symbol"};
             RegressionPath path = new RegressionPath();
 
-            String stmtTextCreate = "@name('create') create window MyWindowLCJ#keepall as MySimpleKeyValueMap";
+            String stmtTextCreate = "@name('create') @public create window MyWindowLCJ#keepall as MySimpleKeyValueMap";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             env.assertStatement("create", statement -> {
@@ -3489,7 +3489,7 @@ public class InfraNamedWindowViews {
 
     private static void tryAssertionBeanContained(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(rep.getAnnotationText() + " @name('create') create window MyWindowBC#keepall as (bean SupportBean_S0)", path);
+        env.compileDeploy(rep.getAnnotationText() + " @name('create') @public create window MyWindowBC#keepall as (bean SupportBean_S0)", path);
         env.addListener("create");
         env.assertStatement("create", statement -> assertTrue(rep.matchesClass(statement.getEventType().getUnderlyingType())));
         env.compileDeploy("insert into MyWindowBC select bean.* as bean from SupportBean_S0 as bean", path);
@@ -3504,7 +3504,7 @@ public class InfraNamedWindowViews {
         String[] fields = new String[]{"key", "value"};
         RegressionPath path = new RegressionPath();
 
-        String epl = "@name('create') " + createWindowStatement + ";\n" +
+        String epl = "@name('create') @public " + createWindowStatement + ";\n" +
                 "@name('insert') insert into MyWindow select theString as key, longBoxed as value from SupportBean;\n" +
                 "@name('s0') select irstream key, value*2 as value from MyWindow;\n" +
                 "@name('s2') select irstream key, sum(value) as value from MyWindow group by key;\n" +
@@ -3583,9 +3583,9 @@ public class InfraNamedWindowViews {
     private static void tryAssertionBeanBacked(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
         // Test create from class
-        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('create') create window MyWindowBB#keepall as SupportBean", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationText() + " @name('create') @public create window MyWindowBB#keepall as SupportBean", path);
         env.addListener("create");
-        env.compileDeploy("insert into MyWindowBB select * from SupportBean", path);
+        env.compileDeploy("@public insert into MyWindowBB select * from SupportBean", path);
 
         env.compileDeploy("@name('s0') select * from MyWindowBB", path).addListener("s0");
         assertStatelessStmt(env, "s0", true);

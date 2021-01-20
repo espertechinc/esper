@@ -76,7 +76,7 @@ public class SupportCompileDeployUtil {
 
     public static EPCompiled compile(String epl, Configuration configuration, RegressionPath path) {
         try {
-            return EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(configuration).setPath(new CompilerPath().addAll(path.getCompileds())).setOptions(new CompilerOptions().setAccessModifierContext(ctx -> NameAccessModifier.PUBLIC).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC)));
+            return EPCompilerProvider.getCompiler().compile(epl, new CompilerArguments(configuration).setPath(new CompilerPath().addAll(path.getCompileds())));
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }

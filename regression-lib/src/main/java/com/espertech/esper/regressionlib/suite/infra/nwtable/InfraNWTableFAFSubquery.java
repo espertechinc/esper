@@ -63,8 +63,8 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "@public create window WinSB#keepall as SupportBean;\n" +
-                "create context MyContext partition by id from SupportBean_S0;\n" +
-                "context MyContext create window PartitionedWinS0#keepall as SupportBean_S0;\n";
+                "@public create context MyContext partition by id from SupportBean_S0;\n" +
+                "@public context MyContext create window PartitionedWinS0#keepall as SupportBean_S0;\n";
             env.compile(epl, path);
 
             tryInvalidFAFCompile(env, path, "select (select * from SupportBean#lastevent) from WinSB",
@@ -249,7 +249,7 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "create context MyContext partition by id from SupportBean_S0;\n" +
+                "@public create context MyContext partition by id from SupportBean_S0;\n" +
                     "@public context MyContext create window WinS0#keepall as SupportBean_S0;\n" +
                     "context MyContext on SupportBean_S0 as s0 merge WinS0 insert select *;\n" +
                     "@public create window WinSB#lastevent as SupportBean;\n" +
@@ -275,7 +275,7 @@ public class InfraNWTableFAFSubquery implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "create context MyContext partition by id from SupportBean_S0, id from SupportBean_S1;\n" +
+                "@public create context MyContext partition by id from SupportBean_S0, id from SupportBean_S1;\n" +
                     "@public context MyContext create window WinS0#keepall as SupportBean_S0;\n" +
                     "@public context MyContext create window WinS1#keepall as SupportBean_S1;\n" +
                     "context MyContext on SupportBean_S0 as s0 merge WinS0 insert select *;\n" +

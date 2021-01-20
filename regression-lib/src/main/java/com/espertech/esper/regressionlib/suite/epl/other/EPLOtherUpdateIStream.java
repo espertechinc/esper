@@ -80,7 +80,7 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateArrayElementInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplSchema = "@name('create') create schema MySchema(doublearray double[primitive], intarray int[primitive], notAnArray int)";
+            String eplSchema = "@name('create') @public create schema MySchema(doublearray double[primitive], intarray int[primitive], notAnArray int)";
             env.compile(eplSchema, path);
 
             // invalid property
@@ -220,7 +220,7 @@ public class EPLOtherUpdateIStream {
     public static class EPLOtherUpdateBean implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String text = "@Name('Insert') insert into MyStream select * from SupportBean";
+            String text = "@Name('Insert') @public insert into MyStream select * from SupportBean";
             env.compileDeploy(text, path).addListener("Insert");
 
             text = "@Name('Update') update istream MyStream set intPrimitive=10, theString='O_' || theString where intPrimitive=1";
@@ -272,9 +272,9 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into SupportBeanStream select * from SupportBean", path);
-            env.compileDeploy("insert into SupportBeanStreamTwo select * from pattern[a=SupportBean -> b=SupportBean]", path);
-            env.compileDeploy("insert into SupportBeanStreamRO select * from SupportBeanReadOnly", path);
+            env.compileDeploy("@public insert into SupportBeanStream select * from SupportBean", path);
+            env.compileDeploy("@public insert into SupportBeanStreamTwo select * from pattern[a=SupportBean -> b=SupportBean]", path);
+            env.compileDeploy("@public insert into SupportBeanStreamRO select * from SupportBeanReadOnly", path);
 
             env.tryInvalidCompile(path, "update istream SupportBeanStream set intPrimitive=longPrimitive",
                 "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
@@ -308,7 +308,7 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateInsertIntoWBeanWhere implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('insert') insert into MyStreamBW select * from SupportBean", path);
+            env.compileDeploy("@name('insert') @public insert into MyStreamBW select * from SupportBean", path);
             env.addListener("insert");
 
             env.compileDeploy("@name('update_1') update istream MyStreamBW set intPrimitive=10, theString='O_' || theString where intPrimitive=1", path);
@@ -396,7 +396,7 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('insert') insert into MyStreamII select * from MyMapTypeII", path).addListener("insert");
+            env.compileDeploy("@name('insert') @public insert into MyStreamII select * from MyMapTypeII", path).addListener("insert");
 
             EPCompiled update = env.compile("@name('update') update istream MyStreamII set p0=p1, p1=p0", path);
             env.deploy(update);
@@ -437,11 +437,11 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "create schema BaseInterface as " + BaseInterface.class.getName() + ";\n" +
-                    "create schema BaseOne as " + BaseOne.class.getName() + ";\n" +
-                    "create schema BaseOneA as " + BaseOneA.class.getName() + ";\n" +
-                    "create schema BaseOneB as " + BaseOneB.class.getName() + ";\n" +
-                    "create schema BaseTwo as " + BaseTwo.class.getName() + ";\n";
+                "@public create schema BaseInterface as " + BaseInterface.class.getName() + ";\n" +
+                    "@public create schema BaseOne as " + BaseOne.class.getName() + ";\n" +
+                    "@public create schema BaseOneA as " + BaseOneA.class.getName() + ";\n" +
+                    "@public create schema BaseOneB as " + BaseOneB.class.getName() + ";\n" +
+                    "@public create schema BaseTwo as " + BaseTwo.class.getName() + ";\n";
             env.compileDeploy(epl, path);
 
             // test update applies to child types via interface
@@ -497,7 +497,7 @@ public class EPLOtherUpdateIStream {
             String[] fields = "p0,p1".split(",");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("@name('window') create window AWindow#keepall select * from MyMapTypeNW", path).addListener("window");
+            env.compileDeploy("@name('window') @public create window AWindow#keepall select * from MyMapTypeNW", path).addListener("window");
             env.compileDeploy("@name('insert') insert into AWindow select * from MyMapTypeNW", path).addListener("insert");
             env.compileDeploy("@name('select') select * from AWindow", path).addListener("select");
             env.compileDeploy("update istream AWindow set p1='newvalue'", path);
@@ -515,7 +515,7 @@ public class EPLOtherUpdateIStream {
 
             env.milestone(1);
 
-            env.compileDeploy("@name('oninsert') on SupportBean(theString='B') insert into MyOtherStream select win.* from AWindow as win", path).addListener("oninsert");
+            env.compileDeploy("@name('oninsert') @public on SupportBean(theString='B') insert into MyOtherStream select win.* from AWindow as win", path).addListener("oninsert");
             env.sendEventBean(new SupportBean("B", 1));
             env.assertPropsNew("oninsert", fields, new Object[]{"E1", "newvalue"});
 
@@ -536,7 +536,7 @@ public class EPLOtherUpdateIStream {
             RegressionPath path = new RegressionPath();
             String[] fields = "theString,longBoxed,intBoxed".split(",");
 
-            env.compileDeploy("insert into AStream select * from SupportBean", path);
+            env.compileDeploy("@public insert into AStream select * from SupportBean", path);
             env.compileDeploy("update istream AStream set longBoxed=intBoxed, intBoxed=null", path);
             env.compileDeploy("@name('s0') select * from AStream", path).addListener("s0");
 
@@ -650,7 +650,7 @@ public class EPLOtherUpdateIStream {
             Document simpleDoc = SupportXML.getDocument(xml);
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into ABCStreamXML select 1 as valOne, 2 as valTwo, * from MyXMLEvent", path);
+            env.compileDeploy("@public insert into ABCStreamXML select 1 as valOne, 2 as valTwo, * from MyXMLEvent", path);
             env.compileDeploy("update istream ABCStreamXML set valOne = 987, valTwo=123 where prop1='SAMPLE_V1'", path);
             env.compileDeploy("@name('s0') select * from ABCStreamXML", path).addListener("s0");
 
@@ -664,7 +664,7 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateWrappedObject implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into ABCStreamWO select 1 as valOne, 2 as valTwo, * from SupportBean", path);
+            env.compileDeploy("@public insert into ABCStreamWO select 1 as valOne, 2 as valTwo, * from SupportBean", path);
             env.compileDeploy("@name('update') update istream ABCStreamWO set valOne = 987, valTwo=123", path);
             env.compileDeploy("@name('s0') select * from ABCStreamWO", path).addListener("s0");
 
@@ -690,7 +690,7 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateCopyMethod implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into ABCStreamCM select * from SupportBeanCopyMethod", path);
+            env.compileDeploy("@public insert into ABCStreamCM select * from SupportBeanCopyMethod", path);
             env.compileDeploy("update istream ABCStreamCM set valOne = 'x', valTwo='y'", path);
             env.compileDeploy("@name('s0') select * from ABCStreamCM", path).addListener("s0");
 
@@ -706,7 +706,7 @@ public class EPLOtherUpdateIStream {
 
             RegressionPath path = new RegressionPath();
             String[] fields = "theString,intPrimitive".split(",");
-            env.compileDeploy("insert into ABCStreamSQ select * from SupportBean", path);
+            env.compileDeploy("@public insert into ABCStreamSQ select * from SupportBean", path);
             env.compileDeploy("@name('update') update istream ABCStreamSQ set theString = (select s0 from MyMapTypeSelect#lastevent) where intPrimitive in (select w0 from MyMapTypeWhere#keepall)", path);
             env.compileDeploy("@name('s0') select * from ABCStreamSQ", path).addListener("s0");
 
@@ -760,7 +760,7 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
             String[] fields = "s0,s1".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into ABCStreamUO select * from MyMapTypeUO", path);
+            env.compileDeploy("@public insert into ABCStreamUO select * from MyMapTypeUO", path);
             env.compileDeploy("@Name('A') update istream ABCStreamUO set s0='A'", path);
             env.compileDeploy("@Name('B') update istream ABCStreamUO set s0='B'", path);
             env.compileDeploy("@Name('C') update istream ABCStreamUO set s0='C'", path);
@@ -784,7 +784,7 @@ public class EPLOtherUpdateIStream {
 
             RegressionPath path = new RegressionPath();
             String[] fields = "theString,intPrimitive,value1".split(",");
-            env.compileDeploy("@name('insert') insert into ABCStreamLD select *, 'orig' as value1 from SupportBean", path).statement("insert").addListener(listenerInsert);
+            env.compileDeploy("@name('insert') @public insert into ABCStreamLD select *, 'orig' as value1 from SupportBean", path).statement("insert").addListener(listenerInsert);
             env.compileDeploy("@Name('A') update istream ABCStreamLD set theString='A', value1='a' where intPrimitive in (1,2)", path).statement("A").addListener(listeners[0]);
             env.compileDeploy("@Name('B') update istream ABCStreamLD set theString='B', value1='b' where intPrimitive in (1,3)", path).statement("B").addListener(listeners[1]);
             env.compileDeploy("@Name('C') update istream ABCStreamLD set theString='C', value1='c' where intPrimitive in (2,3)", path).statement("C").addListener(listeners[2]);
@@ -838,7 +838,7 @@ public class EPLOtherUpdateIStream {
 
             RegressionPath path = new RegressionPath();
             String[] fields = "theString,intPrimitive,value1".split(",");
-            env.compileDeploy("@name('insert') insert into ABCStreamLDM select *, 'orig' as value1 from SupportBean", path).statement("insert").addListener(listenerInsert);
+            env.compileDeploy("@name('insert') @public insert into ABCStreamLDM select *, 'orig' as value1 from SupportBean", path).statement("insert").addListener(listenerInsert);
             env.compileDeploy("@name('s0') select * from ABCStreamLDM", path).addListener("s0");
 
             env.compileDeploy("@Name('A') update istream ABCStreamLDM set theString='A', value1='a'", path);
@@ -913,8 +913,8 @@ public class EPLOtherUpdateIStream {
     private static void runAssertionSetMapPropsBean(RegressionEnvironment env) {
         // test update-istream with bean
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@buseventtype create schema MyMapPropEvent as " + MyMapPropEvent.class.getName(), path);
-        env.compileDeploy("insert into MyStream select * from MyMapPropEvent", path);
+        env.compileDeploy("@public @buseventtype create schema MyMapPropEvent as " + MyMapPropEvent.class.getName(), path);
+        env.compileDeploy("@public insert into MyStream select * from MyMapPropEvent", path);
         env.compileDeploy("@name('s0') update istream MyStream set props('abc') = 1, array[2] = 10", path).addListener("s0");
 
         env.sendEventBean(new MyMapPropEvent());
@@ -927,7 +927,7 @@ public class EPLOtherUpdateIStream {
 
         // test update-istream with map
         RegressionPath path = new RegressionPath();
-        String eplType = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @buseventtype create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        String eplType = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @public @buseventtype create schema MyInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
         env.compileDeploy(eplType, path);
 
         env.compileDeploy("@name('update') update istream MyInfraTypeWithMapProp set simple='A', mymap('abc') = 1, myarray[2] = 10", path).addListener("update");
@@ -961,10 +961,10 @@ public class EPLOtherUpdateIStream {
 
         // test named-window update
         RegressionPath path = new RegressionPath();
-        String eplTypes = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @buseventtype create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
+        String eplTypes = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " @name('type') @public @buseventtype create schema MyNWInfraTypeWithMapProp(simple String, myarray int[], mymap java.util.Map)";
         env.compileDeploy(eplTypes, path);
 
-        env.compileDeploy("@name('window') create window MyWindowWithMapProp#keepall as MyNWInfraTypeWithMapProp", path);
+        env.compileDeploy("@name('window') @public create window MyWindowWithMapProp#keepall as MyNWInfraTypeWithMapProp", path);
         env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMapProp.class) + " insert into MyWindowWithMapProp select * from MyNWInfraTypeWithMapProp", path);
 
         if (eventRepresentationEnum.isObjectArrayEvent()) {
@@ -1027,8 +1027,8 @@ public class EPLOtherUpdateIStream {
     private static void tryAssertionFieldsWithPriority(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
         String prefix = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSB.class);
-        env.compileDeploy(prefix + " insert into MyStream select theString, intPrimitive from SupportBean(theString not like 'Z%')", path);
-        env.compileDeploy(prefix + " insert into MyStream select 'AX'||theString as theString, intPrimitive from SupportBean(theString like 'Z%')", path);
+        env.compileDeploy(prefix + " @public insert into MyStream select theString, intPrimitive from SupportBean(theString not like 'Z%')", path);
+        env.compileDeploy(prefix + " @public insert into MyStream select 'AX'||theString as theString, intPrimitive from SupportBean(theString like 'Z%')", path);
         env.compileDeploy(prefix + " @Name('a') @Priority(12) update istream MyStream set intPrimitive=-2 where intPrimitive=-1", path);
         env.compileDeploy(prefix + " @Name('b') @Priority(11) update istream MyStream set intPrimitive=-1 where theString like 'D%'", path);
         env.compileDeploy(prefix + " @Name('c') @Priority(9) update istream MyStream set intPrimitive=9 where theString like 'A%'", path);

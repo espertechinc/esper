@@ -45,8 +45,8 @@ public class EPLInsertIntoEmptyPropType {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema EmptyPropSchema()", path);
-            env.compileDeploy("@name('window') create window EmptyPropWin#keepall as EmptyPropSchema", path);
+            env.compileDeploy("@public create schema EmptyPropSchema()", path);
+            env.compileDeploy("@name('window') @public create window EmptyPropWin#keepall as EmptyPropSchema", path);
             env.compileDeploy("insert into EmptyPropWin() select null from SupportBean", path);
 
             env.sendEventBean(new SupportBean());
@@ -88,8 +88,8 @@ public class EPLInsertIntoEmptyPropType {
 
     private static void tryAssertionInsertBean(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create schema MyBeanWithoutProps as " + SupportBeanWithoutProps.class.getName(), path);
-        env.compileDeploy("insert into MyBeanWithoutProps select null from SupportBean", path);
+        env.compileDeploy("@public create schema MyBeanWithoutProps as " + SupportBeanWithoutProps.class.getName(), path);
+        env.compileDeploy("@public insert into MyBeanWithoutProps select null from SupportBean", path);
         env.compileDeploy("@name('s0') select * from MyBeanWithoutProps", path).addListener("s0");
 
         env.sendEventBean(new SupportBean());
@@ -100,7 +100,7 @@ public class EPLInsertIntoEmptyPropType {
 
     private static void tryAssertionInsertMap(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(soda, "create map schema EmptyMapSchema as ()", path);
+        env.compileDeploy(soda, "@public create map schema EmptyMapSchema as ()", path);
         env.compileDeploy("insert into EmptyMapSchema() select null from SupportBean", path);
         env.compileDeploy("@name('s0') select * from EmptyMapSchema", path).addListener("s0");
 
@@ -114,8 +114,8 @@ public class EPLInsertIntoEmptyPropType {
 
     private static void tryAssertionInsertOA(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create objectarray schema EmptyOASchema()", path);
-        env.compileDeploy("insert into EmptyOASchema select null from SupportBean", path);
+        env.compileDeploy("@public create objectarray schema EmptyOASchema()", path);
+        env.compileDeploy("@public insert into EmptyOASchema select null from SupportBean", path);
         env.compileDeploy("@name('s0') select * from EmptyOASchema", path).addListener("s0").setSubscriber("s0");
 
         env.sendEventBean(new SupportBean());

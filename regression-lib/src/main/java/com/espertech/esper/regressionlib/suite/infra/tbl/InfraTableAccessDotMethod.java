@@ -64,15 +64,15 @@ public class InfraTableAccessDotMethod {
 
             String myBean = MyBean.class.getName();
             RegressionPath path = new RegressionPath();
-            String eplType = "@buseventtype create objectarray schema MyEvent as (p0 string);" +
-                "@buseventtype create objectarray schema PopulateEvent as (" +
+            String eplType = "@public @buseventtype create objectarray schema MyEvent as (p0 string);" +
+                "@public @buseventtype create objectarray schema PopulateEvent as (" +
                 "key string, ts long" +
                 ", mb " + myBean +
                 ", mbarr " + myBean + "[]" +
                 ", me MyEvent, mearr MyEvent[])";
             env.compileDeploy(eplType, path);
 
-            String eplDeclare = "create table varaggPWD (key string" + (grouped ? " primary key" : "") +
+            String eplDeclare = "@public create table varaggPWD (key string" + (grouped ? " primary key" : "") +
                 ", ts long" +
                 ", mb " + myBean +
                 ", mbarr " + myBean + "[]" +
@@ -124,7 +124,7 @@ public class InfraTableAccessDotMethod {
     private static void tryAssertionNestedDotMethod(RegressionEnvironment env, boolean grouped, boolean soda, AtomicInteger milestone) {
 
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggNDM (" +
+        String eplDeclare = "@public create table varaggNDM (" +
             (grouped ? "key string primary key, " : "") +
             "windowSupportBean window(*) @type('SupportBean'))";
         env.compileDeploy(soda, eplDeclare, path);
@@ -176,7 +176,7 @@ public class InfraTableAccessDotMethod {
     private static void runAggregationWDatetimeEtc(RegressionEnvironment env, boolean grouped, boolean soda, AtomicInteger milestone) {
 
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggWDE (" + (grouped ? "key string primary key, " : "") +
+        String eplDeclare = "@public create table varaggWDE (" + (grouped ? "key string primary key, " : "") +
             "a1 lastever(long), a2 window(*) @type('SupportBean'))";
         env.compileDeploy(soda, eplDeclare, path);
 

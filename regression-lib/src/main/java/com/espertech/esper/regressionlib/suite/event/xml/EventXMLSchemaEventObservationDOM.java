@@ -69,11 +69,11 @@ public class EventXMLSchemaEventObservationDOM {
             "from " + eventTypeName;
         env.compileDeploy(stmtExampleOneText, path).addListener("s0");
 
-        env.compileDeploy("@name('e2_0') insert into ObservationStream\n" +
+        env.compileDeploy("@name('e2_0') @public insert into ObservationStream\n" +
             "select ID, Observation from " + eventTypeName, path);
         env.compileDeploy("@name('e2_1') select Observation.Command, Observation.Tag[0].ID from ObservationStream", path);
 
-        env.compileDeploy("@name('e3_0') insert into TagListStream\n" +
+        env.compileDeploy("@name('e3_0') @public insert into TagListStream\n" +
             "select ID as sensorId, Observation.* from " + eventTypeName, path);
         env.compileDeploy("@name('e3_1') select sensorId, Command, Tag[0].ID from TagListStream", path);
 

@@ -27,7 +27,7 @@ public class InfraTableOutputRateLimiting implements RegressionExecution {
         env.advanceTime(currentTime.get());
         RegressionPath path = new RegressionPath();
 
-        env.compileDeploy("@name('create') create table MyTable as (\n" +
+        env.compileDeploy("@name('create') @public create table MyTable as (\n" +
             "key string primary key, thesum sum(int))", path);
         env.compileDeploy("@name('intotable') into table MyTable " +
             "select sum(intPrimitive) as thesum from SupportBean group by theString", path);

@@ -225,7 +225,7 @@ public class PatternOperatorFollowedByMax {
 
             // test variable
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int myvar=3", path);
+            env.compileDeploy("@public create variable int myvar=3", path);
             expression = "@name('s0') select a.id as a, b.id as b from pattern [every a=SupportBean_A -[myvar-1]> b=SupportBean_B]";
             env.compileDeploy(expression, path).addListener("s0");
             runAssertionSingleMaxSimple(env, handler);

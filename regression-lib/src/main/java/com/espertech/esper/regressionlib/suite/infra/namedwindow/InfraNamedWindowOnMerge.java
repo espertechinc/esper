@@ -103,7 +103,7 @@ public class InfraNamedWindowOnMerge {
     private static class InfraNamedWindowOnMergeUpdateNonPropertySet implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowUNP#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindowUNP#keepall as SupportBean", path);
             env.compileDeploy("insert into MyWindowUNP select * from SupportBean", path);
             env.compileDeploy("@name('merge') on SupportBean_S0 as sb " +
                 "merge MyWindowUNP as mywin when matched then " +
@@ -130,8 +130,8 @@ public class InfraNamedWindowOnMerge {
             RegressionPath path = new RegressionPath();
 
             // test dispatch between named windows
-            env.compileDeploy("@Name('A') create window A#unique(id) as (id int)", path);
-            env.compileDeploy("@Name('B') create window B#unique(id) as (id int)", path);
+            env.compileDeploy("@Name('A') @public create window A#unique(id) as (id int)", path);
+            env.compileDeploy("@Name('B') @public create window B#unique(id) as (id int)", path);
             env.compileDeploy("@Name('C') on A merge B when not matched then insert select 1 as id when matched then insert select 1 as id", path);
 
             env.compileDeploy("@Name('D') select * from B", path).addListener("D");
@@ -171,7 +171,7 @@ public class InfraNamedWindowOnMerge {
     private static class InfraPropertyInsertBean implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('window') create window MergeWindow#unique(theString) as SupportBean", path);
+            env.compileDeploy("@name('window') @public create window MergeWindow#unique(theString) as SupportBean", path);
 
             String epl = "@name('merge') on SupportBean as up merge MergeWindow as mv where mv.theString=up.theString when not matched then insert select intPrimitive";
             env.compileDeploy(epl, path);
@@ -203,9 +203,9 @@ public class InfraNamedWindowOnMerge {
 
     private static void tryAssertionSubselect(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         String[] fields = "col1,col2".split(",");
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent as (in1 string, in2 int);\n";
-        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " @buseventtype create schema MySchema as (col1 string, col2 int);\n";
-        epl += "@name('create') create window MyWindowSS#lastevent as MySchema;\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @public @buseventtype create schema MyEvent as (in1 string, in2 int);\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " @public @buseventtype create schema MySchema as (col1 string, col2 int);\n";
+        epl += "@name('create') @public create window MyWindowSS#lastevent as MySchema;\n";
         epl += "on SupportBean_A delete from MyWindowSS;\n";
         epl += "on MyEvent me " +
             "merge MyWindowSS mw " +
@@ -293,7 +293,7 @@ public class InfraNamedWindowOnMerge {
 
         String appModuleOne = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProductTotalRec.class) + " create schema ProductTotalRec as (productId string, totalPrice double);" +
             "" +
-            "@Name('nwProd') create window ProductWindow#unique(productId) as ProductTotalRec;" +
+            "@Name('nwProd') @public create window ProductWindow#unique(productId) as ProductTotalRec;" +
             "" +
             "on OrderEvent oe\n" +
             "merge ProductWindow pw\n" +

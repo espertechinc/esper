@@ -29,9 +29,9 @@ public class EPLVariablesPerf implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+        env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
         env.compileDeploy("insert into MyWindow select * from SupportBean", path);
-        env.compileDeploy("create const variable String MYCONST = 'E331'", path);
+        env.compileDeploy("@public create const variable String MYCONST = 'E331'", path);
 
         for (int i = 0; i < 10000; i++) {
             env.sendEventBean(new SupportBean("E" + i, i * -1));

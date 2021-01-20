@@ -74,7 +74,7 @@ public class EPLDataflowTypes {
     private static class EPLDataflowMapType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create map schema MyMap (p0 String, p1 int)", path);
+            env.compileDeploy("@public create map schema MyMap (p0 String, p1 int)", path);
             env.compileDeploy("@name('flow') create dataflow MyDataFlowOne " +
                 "DefaultSupportSourceOp -> outstream<MyMap> {}" +
                 "MyMapOutputOp(outstream) {}" +

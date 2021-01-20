@@ -30,7 +30,7 @@ public class InfraTableNonAccessDotSubqueryAndJoin implements RegressionExecutio
 
     private static void runAssertionUse(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
-        String eplCreate = "create table MyTable (" +
+        String eplCreate = "@public create table MyTable (" +
             "col0 string, " +
             "col1 sum(int), " +
             "col2 sorted(intPrimitive) @type('SupportBean'), " +

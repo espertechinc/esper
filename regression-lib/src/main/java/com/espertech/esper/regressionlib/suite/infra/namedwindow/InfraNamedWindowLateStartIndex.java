@@ -67,7 +67,7 @@ public class InfraNamedWindowLateStartIndex implements RegressionExecution {
 
     private static RegressionPath preloadData(RegressionEnvironment env, boolean indexShare) {
         RegressionPath path = new RegressionPath();
-        String createEpl = "create window AWindow#keepall as SupportCountAccessEvent";
+        String createEpl = "@public create window AWindow#keepall as SupportCountAccessEvent";
         if (indexShare) {
             createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
         }

@@ -39,12 +39,12 @@ public class MultithreadStmtInsertInto implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
         env.compileDeploy(
-            "insert into XStream " +
+            "@public insert into XStream " +
                 " select theString as key, count(*) as mycount\n" +
                 " from SupportBean#time(5 min)" +
                 " group by theString", path);
         env.compileDeploy(
-            "insert into XStream " +
+            "@public insert into XStream " +
                 " select symbol as key, count(*) as mycount\n" +
                 " from SupportMarketDataBean#time(5 min)" +
                 " group by symbol", path);

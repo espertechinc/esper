@@ -29,9 +29,9 @@ public class EPLDatabaseNoJoinIteratePerf implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create variable boolean queryvar_bool", path);
-        env.compileDeploy("create variable int lower", path);
-        env.compileDeploy("create variable int upper", path);
+        env.compileDeploy("@public create variable boolean queryvar_bool", path);
+        env.compileDeploy("@public create variable int lower", path);
+        env.compileDeploy("@public create variable int upper", path);
         env.compileDeploy("on SupportBean set queryvar_bool=boolPrimitive, lower=intPrimitive,upper=intBoxed", path);
 
         String stmtText = "@name('s0') select * from sql:MyDBWithLRU100000 ['select mybigint, mybool from mytesttable where ${queryvar_bool} = mytesttable.mybool and myint between ${lower} and ${upper} order by mybigint']";

@@ -87,7 +87,7 @@ public class InfraNamedWindowConsumer {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create schema IncomingEvent(id int);\n" +
+            String epl = "@buseventtype @public create schema IncomingEvent(id int);\n" +
                 "create schema RetainedEvent(id int);\n" +
                 "insert into RetainedEvent select * from IncomingEvent#expr_batch(current_count >= 10000);\n" +
                 "create window RetainedEventWindow#keepall as RetainedEvent;\n" +

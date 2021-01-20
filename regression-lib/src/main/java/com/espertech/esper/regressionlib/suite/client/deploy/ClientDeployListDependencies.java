@@ -120,10 +120,10 @@ public class ClientDeployListDependencies {
             RegressionPath pathB = new RegressionPath();
             env.compileDeploy("module B;\n @name('createB') @protected create window MyWindow#keepall as SupportBean", pathB);
 
-            env.compileDeploy("@name('B1') select * from MyWindow", pathB);
-            env.compileDeploy("@name('A1') select * from MyWindow", pathA);
-            env.compileDeploy("@name('A2') select * from MyWindow", pathA);
-            env.compileDeploy("@name('B2') select * from MyWindow", pathB);
+            env.compileDeploy("module B; @name('B1') select * from MyWindow", pathB);
+            env.compileDeploy("module A; @name('A1') select * from MyWindow", pathA);
+            env.compileDeploy("module A; @name('A2') select * from MyWindow", pathA);
+            env.compileDeploy("module B; @name('B2') select * from MyWindow", pathB);
 
             assertProvided(env, env.deploymentId("createA"), makeProvided(EPObjectType.NAMEDWINDOW, "MyWindow", env.deploymentId("A1"), env.deploymentId("A2")));
             assertProvided(env, env.deploymentId("createB"), makeProvided(EPObjectType.NAMEDWINDOW, "MyWindow", env.deploymentId("B1"), env.deploymentId("B2")));

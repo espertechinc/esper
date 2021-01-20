@@ -42,9 +42,9 @@ public class EventJsonVisibility {
             RegressionPath pathB = new RegressionPath();
             env.compileDeploy(moduleB, pathB);
 
-            env.compileDeploy("insert into JsonSchema select theString as fruit, 'large' as size from SupportBean;\n" +
+            env.compileDeploy("module A; insert into JsonSchema select theString as fruit, 'large' as size from SupportBean;\n" +
                 "@name('a') select fruit, size from JsonSchema#keepall", pathA).addListener("a");
-            env.compileDeploy("insert into JsonSchema select theString as carId from SupportBean;\n" +
+            env.compileDeploy("module B; insert into JsonSchema select theString as carId from SupportBean;\n" +
                 "@name('b') select carId from JsonSchema#keepall", pathB).addListener("b");
 
             env.sendEventBean(new SupportBean("E1", 0));

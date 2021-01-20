@@ -115,8 +115,8 @@ public class ExprDTDataSources {
             RegressionPath path = new RegressionPath();
 
             // test Map inheritance via create-schema
-            String eplMap = "@buseventtype create schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "@buseventtype create schema ChildType as (foo string) inherits ParentType;\n";
+            String eplMap = "@buseventtype @public create schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype @public create schema ChildType as (foo string) inherits ParentType;\n";
             env.compileDeploy(eplMap, path);
 
             env.compileDeploy("@name('s0') select * from ChildType dt where dt.before(current_timestamp())", path);
@@ -129,8 +129,8 @@ public class ExprDTDataSources {
 
             // test Object-array inheritance via create-schema
             path.clear();
-            String eplObjectArray = "@buseventtype create objectarray schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "@buseventtype create objectarray schema ChildType as (foo string) inherits ParentType;\n";
+            String eplObjectArray = "@buseventtype @public create objectarray schema ParentType as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@buseventtype @public create objectarray schema ChildType as (foo string) inherits ParentType;\n";
             env.compileDeploy(eplObjectArray, path);
 
             env.compileDeploy("@name('s0') select * from ChildType dt where dt.before(current_timestamp())", path);
@@ -143,8 +143,8 @@ public class ExprDTDataSources {
 
             // test POJO inheritance via create-schema
             path.clear();
-            String eplPOJO = "@buseventtype create schema InterfaceType as " + SupportStartTSEndTSInterface.class.getName() + " starttimestamp startTS endtimestamp endTS;\n" +
-                "@buseventtype create schema DerivedType as " + SupportStartTSEndTSImpl.class.getName() + " inherits InterfaceType";
+            String eplPOJO = "@public @buseventtype create schema InterfaceType as " + SupportStartTSEndTSInterface.class.getName() + " starttimestamp startTS endtimestamp endTS;\n" +
+                "@public @buseventtype create schema DerivedType as " + SupportStartTSEndTSImpl.class.getName() + " inherits InterfaceType";
             env.compileDeploy(eplPOJO, path);
 
             EPCompiled compiled = env.compile("@name('s2') select * from DerivedType dt where dt.before(current_timestamp())", path);
@@ -161,7 +161,7 @@ public class ExprDTDataSources {
             String eplXML = "@XMLSchema(rootElementName='root', schemaText='') " +
                 "@XMLSchemaField(name='startTS', xpath='/abc', type='string', castToType='long')" +
                 "@XMLSchemaField(name='endTS', xpath='/def', type='string', castToType='long')" +
-                "@buseventtype create xml schema MyXMLEvent() starttimestamp startTS endtimestamp endTS;\n";
+                "@public @buseventtype create xml schema MyXMLEvent() starttimestamp startTS endtimestamp endTS;\n";
             env.compileDeploy(eplXML, path);
 
             compiled = env.compile("@name('s2') select * from MyXMLEvent dt where dt.before(current_timestamp())", path);
@@ -175,8 +175,8 @@ public class ExprDTDataSources {
 
             // test incompatible
             path.clear();
-            String eplT1T2 = "@buseventtype create schema T1 as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
-                "@buseventtype create schema T2 as (startTSOne long, endTSOne long) starttimestamp startTSOne endtimestamp endTSOne;\n";
+            String eplT1T2 = "@public @buseventtype create schema T1 as (startTS long, endTS long) starttimestamp startTS endtimestamp endTS;\n" +
+                "@public @buseventtype create schema T2 as (startTSOne long, endTSOne long) starttimestamp startTSOne endtimestamp endTSOne;\n";
             env.compileDeploy(eplT1T2, path);
 
             env.tryInvalidCompile(path, "create schema T12 as () inherits T1,T2",

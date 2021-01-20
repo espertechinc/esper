@@ -42,7 +42,7 @@ public class MultithreadStmtNamedWindowIterate implements RegressionExecution {
 
     private static RegressionPath setupStmts(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#groupwin(theString)#keepall as select theString, longPrimitive from SupportBean", path);
+        env.compileDeploy("@public create window MyWindow#groupwin(theString)#keepall as select theString, longPrimitive from SupportBean", path);
         env.compileDeploy("insert into MyWindow(theString, longPrimitive) select symbol, volume from SupportMarketDataBean", path);
         return path;
     }

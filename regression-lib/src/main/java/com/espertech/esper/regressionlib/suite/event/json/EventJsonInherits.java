@@ -71,8 +71,8 @@ public class EventJsonInherits {
     private static class EventJsonInheritsAcrossModules implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("module A; create json schema A(a1 string)", path);
-            env.compileDeploy("module B; create json schema B(b1 string) inherits A", path);
+            env.compileDeploy("module A; @public create json schema A(a1 string)", path);
+            env.compileDeploy("module B; @public create json schema B(b1 string) inherits A", path);
             env.compileDeploy("module C; @public @buseventtype create json schema C(c1 string) inherits B", path);
             env.compileDeploy("@name('s0') select * from C#keepall", path).addListener("s0");
 

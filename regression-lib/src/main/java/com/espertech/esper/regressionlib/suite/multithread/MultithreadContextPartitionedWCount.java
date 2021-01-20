@@ -48,8 +48,8 @@ public class MultithreadContextPartitionedWCount implements RegressionExecution 
 
         env.advanceTime(0);
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@Name('var') create variable boolean myvar = false", path);
-        env.compileDeploy("create context SegmentedByString as partition by theString from SupportBean", path);
+        env.compileDeploy("@Name('var') @public create variable boolean myvar = false", path);
+        env.compileDeploy("@public create context SegmentedByString as partition by theString from SupportBean", path);
         env.compileDeploy("@name('s0') context SegmentedByString select theString, count(*) - 1 as cnt from SupportBean output snapshot when myvar = true", path);
         SupportUpdateListener listener = new SupportUpdateListener();
         env.statement("s0").addListener(listener);

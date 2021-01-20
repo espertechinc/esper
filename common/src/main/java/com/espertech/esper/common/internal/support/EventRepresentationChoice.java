@@ -17,7 +17,7 @@ import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -96,7 +96,10 @@ public enum EventRepresentationChoice {
         if (this == JSON || this == JSONCLASSPROVIDED) {
             part.addValue("json");
         }
-        model.setAnnotations(Collections.singletonList(part));
+        if (model.getAnnotations() == null) {
+            model.setAnnotations(new ArrayList<>(2));
+        }
+        model.getAnnotations().add(part);
     }
 
     public boolean isAvroEvent() {

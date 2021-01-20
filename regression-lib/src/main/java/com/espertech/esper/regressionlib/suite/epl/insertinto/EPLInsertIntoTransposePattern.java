@@ -36,7 +36,7 @@ public class EPLInsertIntoTransposePattern {
     private static class EPLInsertIntoThisAsColumn implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('window') create window OneWindow#time(1 day) as select theString as alertId, this from SupportBeanWithThis", path);
+            env.compileDeploy("@name('window') @public create window OneWindow#time(1 day) as select theString as alertId, this from SupportBeanWithThis", path);
             env.compileDeploy("insert into OneWindow select '1' as alertId, stream0.quote.this as this " +
                 " from pattern [every quote=SupportBeanWithThis(theString='A')] as stream0", path);
             env.compileDeploy("insert into OneWindow select '2' as alertId, stream0.quote as this " +
@@ -48,7 +48,7 @@ public class EPLInsertIntoTransposePattern {
             env.sendEventBean(new SupportBeanWithThis("B", 20));
             env.assertPropsPerRowIteratorAnyOrder("window", new String[]{"alertId", "this.intPrimitive"}, new Object[][]{{"1", 10}, {"2", 20}});
 
-            env.compileDeploy("@Name('window-2') create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBeanWithThis", path);
+            env.compileDeploy("@Name('window-2') @public create window TwoWindow#time(1 day) as select theString as alertId, * from SupportBeanWithThis", path);
             env.compileDeploy("insert into TwoWindow select '3' as alertId, quote.* " +
                 " from pattern [every quote=SupportBeanWithThis(theString='C')] as stream0", path);
 
@@ -62,7 +62,7 @@ public class EPLInsertIntoTransposePattern {
     private static class EPLInsertIntoTransposePOJOEventPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "insert into MyStreamABBean select a, b from pattern [a=SupportBean_A -> b=SupportBean_B]";
+            String stmtTextOne = "@public insert into MyStreamABBean select a, b from pattern [a=SupportBean_A -> b=SupportBean_B]";
             env.compileDeploy(stmtTextOne, path);
 
             String stmtTextTwo = "@name('s0') select a.id, b.id from MyStreamABBean";
@@ -80,7 +80,7 @@ public class EPLInsertIntoTransposePattern {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String stmtTextOne = "@name('i1') insert into MyStreamABMap select a, b from pattern [a=AEventMap -> b=BEventMap]";
+            String stmtTextOne = "@name('i1') @public insert into MyStreamABMap select a, b from pattern [a=AEventMap -> b=BEventMap]";
             env.compileDeploy(stmtTextOne, path).addListener("i1");
             env.assertStatement("i1", statement -> {
                 assertEquals(Map.class, statement.getEventType().getPropertyType("a"));

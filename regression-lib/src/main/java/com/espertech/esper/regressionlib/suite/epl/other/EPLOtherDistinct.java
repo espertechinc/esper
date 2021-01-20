@@ -87,7 +87,7 @@ public class EPLOtherDistinct {
 
     private static class EPLOtherDistinctOnSelectMultikeyWArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+            String epl = "@public create window MyWindow#keepall as SupportEventWithManyArray;\n" +
                 "insert into MyWindow select * from SupportEventWithManyArray;\n" +
                 "@name('s0') on SupportBean_S0 select distinct intOne from MyWindow;\n" +
                 "@name('s1') on SupportBean_S1 select distinct intOne, intTwo from MyWindow;\n";
@@ -145,7 +145,7 @@ public class EPLOtherDistinct {
     private static class EPLOtherDistinctFireAndForgetMultikeyWArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('s0') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+            String epl = "@name('s0') @public create window MyWindow#keepall as SupportEventWithManyArray;\n" +
                 "insert into MyWindow select * from SupportEventWithManyArray;\n";
             env.compileDeploy(epl, path);
 
@@ -306,7 +306,7 @@ public class EPLOtherDistinct {
         public void run(RegressionEnvironment env) {
             String[] fields = new String[]{"theString", "intPrimitive"};
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as select * from SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as select * from SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -595,7 +595,7 @@ public class EPLOtherDistinct {
             String[] fields = new String[]{"theString", "intPrimitive"};
             RegressionPath path = new RegressionPath();
 
-            String statementText = "insert into MyStream select distinct theString, intPrimitive from SupportBean#length_batch(3)";
+            String statementText = "@public insert into MyStream select distinct theString, intPrimitive from SupportBean#length_batch(3)";
             env.compileDeploy(statementText, path);
 
             statementText = "@name('s0') select * from MyStream";

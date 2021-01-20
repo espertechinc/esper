@@ -60,7 +60,7 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
 
     private void runAssertionBean(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@buseventtype create schema MyIndexMappedSamplerBean as " + MyIndexMappedSamplerBean.class.getName(), path);
+        env.compileDeploy("@public @buseventtype create schema MyIndexMappedSamplerBean as " + MyIndexMappedSamplerBean.class.getName(), path);
 
         env.compileDeploy("@name('s0') select * from MyIndexMappedSamplerBean", path).addListener("s0");
 
@@ -91,7 +91,7 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
 
     private void runAssertionMap(RegressionEnvironment env) {
         String epl = "create schema MapEventInner(p0 string);\n" +
-            "@buseventtype create schema MapEvent(intarray int[], mapinner MapEventInner[]);\n" +
+            "@public @buseventtype create schema MapEvent(intarray int[], mapinner MapEventInner[]);\n" +
             "@name('s0') select * from MapEvent;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -111,8 +111,8 @@ public class EventInfraPropertyIndexedKeyExpr implements RegressionExecution {
     }
 
     private void runAssertionOA(RegressionEnvironment env) {
-        String epl = "create objectarray schema OAEventInner(p0 string);\n" +
-            "@buseventtype create objectarray schema OAEvent(intarray int[], oainner OAEventInner[]);\n" +
+        String epl = "@public create objectarray schema OAEventInner(p0 string);\n" +
+            "@buseventtype @public create objectarray schema OAEvent(intarray int[], oainner OAEventInner[]);\n" +
             "@name('s0') select * from OAEvent;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 

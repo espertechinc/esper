@@ -45,9 +45,9 @@ public class ContextVariables {
         public void run(RegressionEnvironment env) {
             String[] fields = "mycontextvar".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx as " +
+            env.compileDeploy("@public create context MyCtx as " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0", path);
-            env.compileDeploy("context MyCtx create variable int mycontextvar = 0", path);
+            env.compileDeploy("@public context MyCtx create variable int mycontextvar = 0", path);
             env.compileDeploy("context MyCtx on SupportBean(intPrimitive > 0) set mycontextvar = intPrimitive", path);
 
             env.compileDeploy("@name('s0') context MyCtx select mycontextvar from SupportBean_S0", path).addListener("s0");
@@ -87,9 +87,9 @@ public class ContextVariables {
         public void run(RegressionEnvironment env) {
             String[] fields = "mycontextvar".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx as " +
+            env.compileDeploy("@public create context MyCtx as " +
                 "initiated by SupportBean_S0 s0 terminated by SupportBean_S1(p10 = s0.p00)", path);
-            env.compileDeploy("context MyCtx create variable int mycontextvar = 5", path);
+            env.compileDeploy("@public context MyCtx create variable int mycontextvar = 5", path);
             env.compileDeploy("context MyCtx on SupportBean(theString = context.s0.p00) set mycontextvar = intPrimitive", path);
             env.compileDeploy("context MyCtx on SupportBean(intPrimitive < 0) set mycontextvar = intPrimitive", path);
 
@@ -176,10 +176,10 @@ public class ContextVariables {
     private static class ContextVariablesIterateAndListen implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyCtx as initiated by SupportBean_S0 s0 terminated after 24 hours", path);
+            env.compileDeploy("@name('ctx') @public create context MyCtx as initiated by SupportBean_S0 s0 terminated after 24 hours", path);
 
             String[] fields = "mycontextvar".split(",");
-            env.compileDeploy("@name('var') context MyCtx create variable int mycontextvar = 5", path);
+            env.compileDeploy("@name('var') @public context MyCtx create variable int mycontextvar = 5", path);
 
             env.milestone(0);
 
@@ -216,8 +216,8 @@ public class ContextVariables {
     private static class ContextVariablesGetSetAPI implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx as initiated by SupportBean_S0 s0 terminated after 24 hours", path);
-            env.compileDeploy("@name('var') context MyCtx create variable int mycontextvar = 5", path);
+            env.compileDeploy("@public create context MyCtx as initiated by SupportBean_S0 s0 terminated after 24 hours", path);
+            env.compileDeploy("@name('var') @public context MyCtx create variable int mycontextvar = 5", path);
             env.compileDeploy("context MyCtx on SupportBean(theString = context.s0.p00) set mycontextvar = intPrimitive", path);
             DeploymentIdNamePair namePairVariable = new DeploymentIdNamePair(env.deploymentId("var"), "mycontextvar");
 
@@ -262,9 +262,9 @@ public class ContextVariables {
     private static class ContextVariablesInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtxOne as partition by theString from SupportBean", path);
-            env.compileDeploy("create context MyCtxTwo as partition by p00 from SupportBean_S0", path);
-            env.compileDeploy("context MyCtxOne create variable int myctxone_int = 0", path);
+            env.compileDeploy("@public create context MyCtxOne as partition by theString from SupportBean", path);
+            env.compileDeploy("@public create context MyCtxTwo as partition by p00 from SupportBean_S0", path);
+            env.compileDeploy("@public context MyCtxOne create variable int myctxone_int = 0", path);
 
             // undefined context
             env.tryInvalidCompile(path, "context MyCtx create variable int mycontext_invalid1 = 0",

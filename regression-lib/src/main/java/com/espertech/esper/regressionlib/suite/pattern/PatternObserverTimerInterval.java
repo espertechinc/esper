@@ -235,8 +235,8 @@ public class PatternObserverTimerInterval {
 
             // Set up a timer:within
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable double M_isv=1", path);
-            env.compileDeploy("create variable double S_isv=2", path);
+            env.compileDeploy("@public create variable double M_isv=1", path);
+            env.compileDeploy("@public create variable double S_isv=2", path);
             env.compileDeploy("@name('s0') select * from pattern [timer:interval(M_isv minute S_isv seconds)]", path);
             env.addListener("s0");
 
@@ -259,8 +259,8 @@ public class PatternObserverTimerInterval {
 
             // Set up a timer:within
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable double MOne=1", path);
-            env.compileDeploy("create variable double SOne=2", path);
+            env.compileDeploy("@public create variable double MOne=1", path);
+            env.compileDeploy("@public create variable double SOne=2", path);
             env.compileDeploy("@name('s0') select * from pattern [timer:interval(MOne*60+SOne seconds)]", path);
             env.addListener("s0");
 

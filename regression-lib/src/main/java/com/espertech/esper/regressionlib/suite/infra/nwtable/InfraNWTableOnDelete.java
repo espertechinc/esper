@@ -50,8 +50,8 @@ public class InfraNWTableOnDelete {
         public void run(RegressionEnvironment env) {
             // create window
             String stmtTextCreate = namedWindow ?
-                "@Name('CreateInfra') create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@Name('CreateInfra') create table MyInfra (a string primary key, b int)";
+                "@Name('CreateInfra') @public create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@Name('CreateInfra') @public create table MyInfra (a string primary key, b int)";
             RegressionPath path = new RegressionPath();
             env.compileDeploy(stmtTextCreate, path).addListener("CreateInfra");
 
@@ -148,8 +148,8 @@ public class InfraNWTableOnDelete {
         public void run(RegressionEnvironment env) {
             // create infra
             String stmtTextCreate = namedWindow ?
-                "@name('CreateInfra') create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('CreateInfra') create table MyInfra(a string primary key, b int)";
+                "@name('CreateInfra') @public create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('CreateInfra') @public create table MyInfra(a string primary key, b int)";
             RegressionPath path = new RegressionPath();
             env.compileDeploy(stmtTextCreate, path).addListener("CreateInfra");
 
@@ -221,8 +221,8 @@ public class InfraNWTableOnDelete {
 
             // create infra
             String stmtTextCreate = namedWindow ?
-                "@name('CreateInfra') create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('CreateInfra') create table MyInfra (a string primary key, b int)";
+                "@name('CreateInfra') @public create window MyInfra#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('CreateInfra') @public create table MyInfra (a string primary key, b int)";
             env.compileDeploy(stmtTextCreate, path).addListener("CreateInfra");
 
             // create delete stmt

@@ -208,7 +208,7 @@ public class ResultSetOutputLimitCrontabWhen {
         public void run(RegressionEnvironment env) {
             // test count_total for insert and remove
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('var') create variable int var_cnt_total = 3", path);
+            env.compileDeploy("@name('var') @public create variable int var_cnt_total = 3", path);
             String expressionTotal = "@name('s0') select theString from SupportBean#length(2) output when count_insert_total = var_cnt_total or count_remove_total > 2";
             env.compileDeploy(expressionTotal, path).addListener("s0");
 

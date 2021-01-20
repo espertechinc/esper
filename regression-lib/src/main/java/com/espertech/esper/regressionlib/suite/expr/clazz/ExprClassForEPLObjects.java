@@ -122,7 +122,7 @@ public class ExprClassForEPLObjects {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreateClass =
-                "create inlined_class \"\"\"\n" +
+                "@public create inlined_class \"\"\"\n" +
                     "  public class MyFromClauseMethod {\n" +
                     "    public static MyBean[] getBeans() {\n" +
                     "       return new MyBean[] {new MyBean(1), new MyBean(2)};\n" +

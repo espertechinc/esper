@@ -57,7 +57,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString, p1".split(",");
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable as (p0 string primary key, p1 int);\n" +
+            String epl = "@public create table MyTable as (p0 string primary key, p1 int);\n" +
                 "@name('s0') select theString, p1 from SupportBean unidirectional left outer join MyTable on theString = p0;\n";
             env.compileDeploy(epl, path).addListener("s0");
             env.compileExecuteFAFNoResult("insert into MyTable select 'a' as p0, 10 as p1", path);
@@ -75,7 +75,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
     private static class InfraFromClause implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggFC as (" +
+            env.compileDeploy("@public create table varaggFC as (" +
                 "key string primary key, total sum(int))", path);
             env.compileDeploy("into table varaggFC " +
                 "select sum(intPrimitive) as total from SupportBean group by theString", path);
@@ -95,7 +95,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
     private static class InfraJoinIndexChoice implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String eplDeclare = "create table varagg as (k0 string primary key, k1 int primary key, v1 string, total sum(long))";
+            String eplDeclare = "@public create table varagg as (k0 string primary key, k1 int primary key, v1 string, total sum(long))";
             String eplPopulate = "into table varagg select sum(longPrimitive) as total from SupportBean group by theString, intPrimitive";
             String eplQuery = "select total as value from SupportBean_S0 as s0 unidirectional";
 
@@ -233,7 +233,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
     private static class InfraCoercion implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String eplDeclare = "create table varagg as (k0 int primary key, total sum(long))";
+            String eplDeclare = "@public create table varagg as (k0 int primary key, total sum(long))";
             String eplPopulate = "into table varagg select sum(longPrimitive) as total from SupportBean group by intPrimitive";
             String eplQuery = "select total as value from SupportBeanRange unidirectional";
 
@@ -265,7 +265,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             // Prepare
-            env.compileDeploy("create table MyTable (sumint sum(int))", path);
+            env.compileDeploy("@public create table MyTable (sumint sum(int))", path);
             env.compileDeploy("@name('into') into table MyTable select sum(intPrimitive) as sumint from SupportBean", path);
             env.sendEventBean(new SupportBean("E1", 100));
             env.sendEventBean(new SupportBean("E2", 101));
@@ -278,7 +278,7 @@ public class InfraTableJoin implements IndexBackingTableInfo {
             env.undeployModuleContaining("join");
 
             // test regular columns inserted-into
-            env.compileDeploy("create table SecondTable (a string, b int)", path);
+            env.compileDeploy("@public create table SecondTable (a string, b int)", path);
             env.compileExecuteFAFNoResult("insert into SecondTable values ('a1', 10)", path);
             env.compileDeploy("@name('s0')select a, b from SecondTable, SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());

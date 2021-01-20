@@ -56,8 +56,8 @@ public class InfraNWTableOnUpdate {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall() as (value int)" :
-                "@name('create') create table MyInfra(value int)";
+                "@name('create') @public create window MyInfra#keepall() as (value int)" :
+                "@name('create') @public create table MyInfra(value int)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
             env.compileExecuteFAFNoResult("insert into MyInfra select 0 as value", path);
 
@@ -106,8 +106,8 @@ public class InfraNWTableOnUpdate {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra.win:keepall() as SupportBean" :
-                "@name('create') create table MyInfra(theString string, intPrimitive int primary key)";
+                "@name('create') @public create window MyInfra.win:keepall() as SupportBean" :
+                "@name('create') @public create table MyInfra(theString string, intPrimitive int primary key)";
             env.compileDeploy(stmtTextCreate, path).addListener("create");
 
             // create insert into
@@ -171,8 +171,8 @@ public class InfraNWTableOnUpdate {
         public void run(RegressionEnvironment env) {
 
             String epl = namedWindow ?
-                "create window MyInfra#keepall as SupportBean;\n" :
-                "create table MyInfra(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double);\n";
+                "@public @public create window MyInfra#keepall as SupportBean;\n" :
+                "@public @public create table MyInfra(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double);\n";
             epl += "insert into MyInfra select theString, intPrimitive, intBoxed, doublePrimitive from SupportBean;\n";
             epl += "@name('update') on SupportBean_S0 as sb " +
                 "update MyInfra as mywin" +
@@ -217,8 +217,8 @@ public class InfraNWTableOnUpdate {
             // ESPER-507
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "@name('create') create window MyInfraSS#keepall as SupportBean" :
-                "@name('create') create table MyInfraSS(theString string primary key, intPrimitive int)";
+                "@name('create') @public create window MyInfraSS#keepall as SupportBean" :
+                "@name('create') @public create table MyInfraSS(theString string primary key, intPrimitive int)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfraSS select theString, intPrimitive from SupportBean", path);
 

@@ -51,8 +51,8 @@ public class InfraNWTableSubqUncorrel {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall as select theString as a, longPrimitive as b, longBoxed as c from SupportBean" :
-                "@name('create') create table MyInfra(a string primary key, b long, c long)";
+                "@name('create') @public create window MyInfra#keepall as select theString as a, longPrimitive as b, longBoxed as c from SupportBean" :
+                "@name('create') @public create table MyInfra(a string primary key, b long, c long)";
             if (enableIndexShareCreate) {
                 stmtTextCreate = "@Hint('enable_window_subquery_indexshare') " + stmtTextCreate;
             }

@@ -85,7 +85,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n";
             env.compileDeploy(epl, path);
@@ -128,7 +128,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexChoiceBetweenIndexTypes implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@Name('win') create window MyPointWindow#keepall as (id string, category string, px double, py double);\n" +
+            String epl = "@Name('win') @public create window MyPointWindow#keepall as (id string, category string, px double, py double);\n" +
                 "@Name('insert') insert into MyPointWindow select id, category, px, py from SupportSpatialPoint;\n" +
                 "@Name('idx1') create index IdxHash on MyPointWindow(category);\n" +
                 "@Name('idx2') create index IdxQuadtree on MyPointWindow((px, py) pointregionquadtree(0, 0, 100, 100));\n";
@@ -206,7 +206,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexUnusedNamedWindowFireAndForget implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -225,7 +225,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexTableFireAndForget implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(id string primary key, tx double, ty double)", path);
+            env.compileDeploy("@public create table MyTable(id string primary key, tx double, ty double)", path);
             env.compileDeploy("insert into MyTable select id, px as tx, py as ty from SupportSpatialPoint", path);
             env.sendEventBean(new SupportSpatialPoint("P1", 50d, 50d));
             env.sendEventBean(new SupportSpatialPoint("P2", 49d, 49d));
@@ -247,7 +247,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
             SupportQueryPlanIndexHook.reset();
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(id string primary key, tx double, ty double)", path);
+            env.compileDeploy("@public create table MyTable(id string primary key, tx double, ty double)", path);
             env.compileExecuteFAFNoResult("insert into MyTable values ('P1', 50, 30)", path);
             env.compileExecuteFAFNoResult("insert into MyTable values ('P2', 50, 28)", path);
             env.compileExecuteFAFNoResult("insert into MyTable values ('P3', 50, 30)", path);
@@ -275,7 +275,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             SupportQueryPlanIndexHook.reset();
             RegressionPath path = new RegressionPath();
             String epl =
-                "create table MyPointTable(" +
+                "@public create table MyPointTable(" +
                     " id string primary key," +
                     " x1 double, y1 double, \n" +
                     " x2 double, y2 double);\n" +
@@ -333,7 +333,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     private static class EPLSpatialPREventIndexUnusedOnTrigger implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
+            String epl = "@public create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
                 "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into MyWindow select * from SupportSpatialPoint;\n";
             env.compileDeploy(epl, path);
@@ -457,7 +457,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             SupportQueryPlanIndexHook.reset();
-            env.compileDeploy(soda, "create window MyWindow#length(5) as select * from SupportSpatialPoint", path);
+            env.compileDeploy(soda, "@public create window MyWindow#length(5) as select * from SupportSpatialPoint", path);
             env.compileDeploy(soda, "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100))", path);
             env.compileDeploy(soda, "insert into MyWindow select * from SupportSpatialPoint", path);
 
@@ -523,7 +523,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
             RegressionPath path = new RegressionPath();
             SupportQueryPlanIndexHook.reset();
             String epl =
-                "create table MyPointTable(my_x double primary key, my_y double primary key, my_id string);\n" +
+                "@public create table MyPointTable(my_x double primary key, my_y double primary key, my_id string);\n" +
                     "@Audit create index MyIndex on MyPointTable( (my_x, my_y) pointregionquadtree(0, 0, 100, 100));\n" +
                     "on SupportSpatialPoint ssp merge MyPointTable where ssp.px = my_x and ssp.py = my_y when not matched then insert select px as my_x, py as my_y, id as my_id;\n" +
                     IndexBackingTableInfo.INDEX_CALLBACK_HOOK +
@@ -560,7 +560,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,5));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -694,7 +694,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -764,7 +764,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create unique index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,1000,1000));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -851,7 +851,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table PointTable as (id string primary key, px double, py double);\n" +
+            String epl = "@public create table PointTable as (id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -927,7 +927,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
 
     public static class EPLSpatialPREventIndexTableSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create window PointWindow#keepall as (id string, px double, py double);\n" +
+            String epl = "@public create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointWindow as pt where point(px,py).inside(rectangle(x,y,width,height));\n";
@@ -1024,7 +1024,7 @@ public class EPLSpatialPointRegionQuadTreeEventIndex {
     public static class EPLSpatialPREventIndexTableSubdivideMergeDestroy implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table PointTable(id string primary key, px double, py double);\n" +
+            String epl = "@public create table PointTable(id string primary key, px double, py double);\n" +
                 "create index MyIndex on PointTable((px,py) pointregionquadtree(0,0,100,100,4,40));\n" +
                 "insert into PointTable select id, px, py from SupportSpatialPoint;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from PointTable as pt where point(px,py).inside(rectangle(x,y,width,height));\n";

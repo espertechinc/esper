@@ -20,7 +20,7 @@ public class MatchMakerEPL {
     public static void setup(EPRuntime runtime, MatchAlertListener listener) {
 
         // Allocate a partition (session) that lasts for a mobile user until they sent a new event with new location
-        String eplContext = "create context PerUser " +
+        String eplContext = "@public create context PerUser " +
             "initiated by MobileUserBean as mub " +
             "terminated by MobileUserBean(userId = mub.userId);\n";
 

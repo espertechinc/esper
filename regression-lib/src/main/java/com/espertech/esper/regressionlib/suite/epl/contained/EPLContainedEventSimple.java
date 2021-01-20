@@ -75,10 +75,10 @@ public class EPLContainedEventSimple {
             String[] fields = "bookId".split(",");
             RegressionPath path = new RegressionPath();
 
-            String stmtText = "@name('s0') insert into BookStream select * from OrderBean[books]";
+            String stmtText = "@name('s0') @public insert into BookStream select * from OrderBean[books]";
             env.compileDeploy(stmtText, path).addListener("s0");
 
-            env.compileDeploy("@name('nw') create window MyWindow#lastevent as BookDesc", path);
+            env.compileDeploy("@name('nw') @public create window MyWindow#lastevent as BookDesc", path);
             env.compileDeploy("insert into MyWindow select * from BookStream bs where not exists (select * from MyWindow mw where mw.price > bs.price)", path);
 
             env.sendEventBean(makeEventOne());
@@ -303,7 +303,7 @@ public class EPLContainedEventSimple {
     private static class EPLContainedArrayProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create objectarray schema ContainedId(id string)", path);
+            env.compileDeploy("@public create objectarray schema ContainedId(id string)", path);
             env.compileDeploy("@name('s0') select * from SupportStringBeanWithArray[select topId, * from containedIds @type(ContainedId)]", path).addListener("s0");
             env.sendEventBean(new SupportStringBeanWithArray("A", "one,two,three".split(",")));
             env.assertPropsPerRowLastNew("s0", "topId,id".split(","),

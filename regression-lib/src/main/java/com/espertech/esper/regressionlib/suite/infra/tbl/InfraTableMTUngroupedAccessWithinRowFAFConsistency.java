@@ -51,13 +51,13 @@ public class InfraTableMTUngroupedAccessWithinRowFAFConsistency implements Regre
 
     private static void tryMT(RegressionEnvironment env, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (cnt count(*), sumint sum(int), avgint avg(int))";
+        String eplCreateVariable = "@public create table vartotal (cnt count(*), sumint sum(int), avgint avg(int))";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplInto = "into table vartotal select count(*) as cnt, sum(intPrimitive) as sumint, avg(intPrimitive) as avgint from SupportBean";
         env.compileDeploy(eplInto, path);
 
-        env.compileDeploy("create window MyWindow#lastevent as SupportBean_S0", path);
+        env.compileDeploy("@public create window MyWindow#lastevent as SupportBean_S0", path);
         env.compileDeploy("insert into MyWindow select * from SupportBean_S0", path);
         env.sendEventBean(new SupportBean_S0(0));
 

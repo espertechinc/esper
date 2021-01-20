@@ -16,11 +16,11 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 
 public class EventObjectArrayInheritanceConfigRuntime implements RegressionExecution {
     public void run(RegressionEnvironment env) {
-        String epl = "@buseventtype create objectarray schema RootEvent(base string);\n" +
-            "@buseventtype create objectarray schema Sub1Event(sub1 string) inherits RootEvent;\n" +
-            "@buseventtype create objectarray schema Sub2Event(sub2 string) inherits RootEvent;\n" +
-            "@buseventtype create objectarray schema SubAEvent(suba string) inherits Sub1Event;\n" +
-            "@buseventtype create objectarray schema SubBEvent(subb string) inherits SubAEvent;\n";
+        String epl = "@buseventtype @public create objectarray schema RootEvent(base string);\n" +
+            "@buseventtype @public create objectarray schema Sub1Event(sub1 string) inherits RootEvent;\n" +
+            "@buseventtype @public create objectarray schema Sub2Event(sub2 string) inherits RootEvent;\n" +
+            "@buseventtype @public create objectarray schema SubAEvent(suba string) inherits Sub1Event;\n" +
+            "@buseventtype @public create objectarray schema SubBEvent(subb string) inherits SubAEvent;\n";
         RegressionPath path = new RegressionPath();
         env.compileDeploy(epl, path);
 

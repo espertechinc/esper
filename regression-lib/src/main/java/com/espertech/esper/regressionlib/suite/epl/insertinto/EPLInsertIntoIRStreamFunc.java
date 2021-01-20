@@ -24,7 +24,7 @@ public class EPLInsertIntoIRStreamFunc implements RegressionExecution {
         String[] fields = "c0,c1".split(",");
         RegressionPath path = new RegressionPath();
 
-        String stmtTextOne = "@name('i0') insert irstream into MyStream " +
+        String stmtTextOne = "@name('i0') @public insert irstream into MyStream " +
             "select irstream theString as c0, istream() as c1 " +
             "from SupportBean#lastevent";
         env.compileDeploy(stmtTextOne, path).addListener("i0");

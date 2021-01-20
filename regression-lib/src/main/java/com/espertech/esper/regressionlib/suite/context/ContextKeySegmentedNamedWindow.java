@@ -40,8 +40,8 @@ public class ContextKeySegmentedNamedWindow {
     private static class ContextKeyedNamedWindowFAF implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context SegmentedByString partition by theString from SupportBean", path);
-            env.compileDeploy("context SegmentedByString create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@public context SegmentedByString create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("context SegmentedByString insert into MyWindow select * from SupportBean", path);
             EPCompiled compiled = env.compileFAF("select * from MyWindow", path);
 
@@ -96,8 +96,8 @@ public class ContextKeySegmentedNamedWindow {
     private static class ContextKeyedSubqueryNamedWindowIndexShared implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
-            env.compileDeploy("@Hint('enable_window_subquery_indexshare') create window MyWindowTwo#keepall as SupportBean_S0", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Hint('enable_window_subquery_indexshare') @public create window MyWindowTwo#keepall as SupportBean_S0", path);
             env.compileDeploy("insert into MyWindowTwo select * from SupportBean_S0", path);
 
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -155,8 +155,8 @@ public class ContextKeySegmentedNamedWindow {
 
     private static void runAssertionNamedWindow(RegressionEnvironment env, String fromClause) {
         RegressionPath path = new RegressionPath();
-        String epl = "create context Ctx partition by theString from SupportBean;\n" +
-            "@name('window') context Ctx create window MyWindow#keepall as SupportBean;" +
+        String epl = "@public create context Ctx partition by theString from SupportBean;\n" +
+            "@name('window') @public context Ctx create window MyWindow#keepall as SupportBean;" +
             "@name('insert') context Ctx insert into MyWindow select * from SupportBean;" +
             "@name('s0') context Ctx select irstream context.key1 as c0, a.intPrimitive as c1 from " + fromClause;
         env.compileDeploy(epl, path).addListener("s0");

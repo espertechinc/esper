@@ -46,7 +46,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedAccessOnly implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "@Name('CTX') create context SegmentedByString partition by theString from SupportBean";
+            String eplContext = "@Name('CTX') @public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
 
             String[] fieldsGrouped = "theString,intPrimitive,col1".split(",");
@@ -78,7 +78,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedSubqueryWithAggregation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fields = new String[]{"theString", "intPrimitive", "val0"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -100,7 +100,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedRowPerGroupStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fieldsOne = "intPrimitive,count(*)".split(",");
             env.compileDeploy("@Name('s0') context SegmentedByString select intPrimitive, count(*) from SupportBean group by intPrimitive", path);
@@ -156,7 +156,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedRowPerGroupBatchContextProp implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fieldsOne = "intPrimitive,count(*)".split(",");
             env.compileDeploy("@Name('s0') context SegmentedByString select intPrimitive, count(*) from SupportBean#length_batch(2) group by intPrimitive order by intPrimitive asc", path);
@@ -232,7 +232,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedRowPerGroupWithAccess implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fieldsOne = "intPrimitive,col1,col2,col3".split(",");
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -268,7 +268,7 @@ public class ContextKeySegmentedAggregate {
             String[] fieldsOne = "col1".split(",");
             RegressionPath path = new RegressionPath();
 
-            String eplCtx = "@Name('context') create context SegmentedByString partition by theString from SupportBean";
+            String eplCtx = "@Name('context') @public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplCtx, path);
 
             String epl = "@Name('s0') context SegmentedByString select sum(intPrimitive) as col1 from SupportBean;\n";
@@ -366,7 +366,7 @@ public class ContextKeySegmentedAggregate {
     private static class ContextKeySegmentedRowPerGroupUnidirectionalJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fieldsOne = "intPrimitive,col1".split(",");
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -417,7 +417,7 @@ public class ContextKeySegmentedAggregate {
     public static class ContextKeySegmentedRowPerEvent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "@Name('CTX') create context SegmentedByString partition by theString from SupportBean";
+            String eplContext = "@Name('CTX') @public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
 
             String[] fields = "theString,col1".split(",");
@@ -488,7 +488,7 @@ public class ContextKeySegmentedAggregate {
     public static class ContextKeySegmentedRowPerGroup3Stmts implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "@Name('CTX') create context SegmentedByString partition by theString from SupportBean";
+            String eplContext = "@Name('CTX') @public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
 
             String[] fields = "theString,intPrimitive,col1".split(",");

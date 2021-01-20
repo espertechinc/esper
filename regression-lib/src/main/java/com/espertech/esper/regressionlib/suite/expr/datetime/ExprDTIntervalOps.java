@@ -71,7 +71,7 @@ public class ExprDTIntervalOps {
     private static class ExprDTIntervalTimePeriodWYearNonConst implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int somenumber = 1", path);
+            env.compileDeploy("@public create variable int somenumber = 1", path);
 
             String epl = "@name('s0') select " +
                 "longdate.before(longdate, somenumber years) as c0," +

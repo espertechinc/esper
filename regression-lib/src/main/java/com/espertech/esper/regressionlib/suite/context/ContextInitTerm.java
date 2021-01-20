@@ -187,7 +187,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             env.advanceTime(0);
 
-            String eplContext = "create context MyContext as start SupportBean_S0 as starter " +
+            String eplContext = "@public create context MyContext as start SupportBean_S0 as starter " +
                 "end pattern [s1=SupportBean_S1(id=starter.id) or timer:interval(30)] as ender";
             env.compileDeploy(soda, eplContext, path);
 
@@ -365,7 +365,7 @@ public class ContextInitTerm {
             env.advanceTime(0);
 
             // test start-after with immediate start
-            String contextExpr = "create context CtxPerId start after 0 sec end after 60 sec";
+            String contextExpr = "@public create context CtxPerId start after 0 sec end after 60 sec";
             env.compileDeploy(contextExpr, path);
             env.compileDeploy("@name('s0') context CtxPerId select theString as c0, intPrimitive as c1 from SupportBean", path);
             env.addListener("s0");
@@ -428,7 +428,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             env.advanceTime(0);
 
-            String contextExpr = "create context CtxPerId initiated by pattern [every-distinct (a.theString, 10 sec) a=SupportBean]@Inclusive terminated after 10 sec ";
+            String contextExpr = "@public create context CtxPerId initiated by pattern [every-distinct (a.theString, 10 sec) a=SupportBean]@Inclusive terminated after 10 sec ";
             env.compileDeploy(contextExpr, path);
             String streamExpr = "@name('s0') context CtxPerId select * from SupportBean(theString = context.a.theString) output last when terminated";
             env.compileDeploy(streamExpr, path).addListener("s0");
@@ -488,7 +488,7 @@ public class ContextInitTerm {
             path.clear();
 
             // test multiple pattern with multiple events
-            String contextExprMulti = "create context CtxPerId initiated by pattern [every a=SupportBean_S0 -> b=SupportBean_S1]@Inclusive terminated after 10 sec ";
+            String contextExprMulti = "@public create context CtxPerId initiated by pattern [every a=SupportBean_S0 -> b=SupportBean_S1]@Inclusive terminated after 10 sec ";
             env.compileDeploy(contextExprMulti, path);
             String streamExprMulti = "@name('s0') context CtxPerId select * from pattern [every a=SupportBean_S0 -> b=SupportBean_S1]";
             env.compileDeploy(streamExprMulti, path).addListener("s0");
@@ -515,7 +515,7 @@ public class ContextInitTerm {
 
             // same event terminates - not included
             fields = "c1,c2,c3,c4".split(",");
-            env.compileDeploy("create context MyCtx as " +
+            env.compileDeploy("@public create context MyCtx as " +
                 "start SupportBean " +
                 "end SupportBean(intPrimitive=11)", path);
             env.compileDeploy("@name('s0') context MyCtx " +
@@ -563,7 +563,7 @@ public class ContextInitTerm {
             env.undeployAll();
 
             // test with audit
-            epl = "@Audit create context AdBreakCtx as initiated by SupportBean(intPrimitive > 0) as ad " +
+            epl = "@Audit @public create context AdBreakCtx as initiated by SupportBean(intPrimitive > 0) as ad " +
                 " terminated by SupportBean(theString=ad.theString, intPrimitive < 0) as endAd";
             env.compileDeploy(epl, path);
             env.compileDeploy("context AdBreakCtx select count(*) from SupportBean", path);
@@ -582,7 +582,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             AtomicInteger milestone = new AtomicInteger();
 
-            env.compileDeploy("@name('ctx') create context MyCtx as initiated by SupportBean_S0 s0 terminated by SupportBean_S1(id=s0.id)", path);
+            env.compileDeploy("@name('ctx') @public create context MyCtx as initiated by SupportBean_S0 s0 terminated by SupportBean_S1(id=s0.id)", path);
             env.compileDeploy("@name('s0') context MyCtx select context.id as c0, context.s0.p00 as c1, theString as c2, sum(intPrimitive) as c3 from SupportBean#keepall group by theString", path);
 
             env.advanceTime(1000);
@@ -697,7 +697,7 @@ public class ContextInitTerm {
     private static class ContextInitTermFilterInitiatedFilterTerminatedCorrelatedOutputSnapshot implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EveryNowAndThen as " +
+            env.compileDeploy("@public create context EveryNowAndThen as " +
                 "initiated by SupportBean_S0 as s0 " +
                 "terminated by SupportBean_S1(p10 = s0.p00)", path);
 
@@ -868,7 +868,7 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T8:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplContext = "@Name('CTX') create context CtxInitiated " +
+            String eplContext = "@Name('CTX') @public create context CtxInitiated " +
                 "initiated by pattern [every s0=SupportBean_S0 -> s1=SupportBean_S1(id = s0.id)]" +
                 "terminated after 1 minute";
             env.compileDeploy(eplContext, path);
@@ -923,7 +923,7 @@ public class ContextInitTerm {
             // test initiated
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            String eplCtx = "@name('ctx') create context EverySupportBean as " +
+            String eplCtx = "@name('ctx') @public create context EverySupportBean as " +
                 "initiated by SupportBean as sb " +
                 "terminated after 1 minutes";
             env.compileDeploy(eplCtx, path);
@@ -971,7 +971,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
 
-            String eplCtx = "@name('ctx') create context EverySupportBean as " +
+            String eplCtx = "@name('ctx') @public create context EverySupportBean as " +
                 "initiated by pattern [every (a=SupportBean_S0 or b=SupportBean_S1)] " +
                 "terminated after 1 minutes";
             env.compileDeploy(eplCtx, path);
@@ -1009,7 +1009,7 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            String ctxEPL = "create context EverySupportBean as " +
+            String ctxEPL = "@public create context EverySupportBean as " +
                 "initiated by SupportBean(theString like \"I%\") as sb " +
                 "terminated after 1 minutes";
             env.compileDeploy(ctxEPL, path);
@@ -1061,7 +1061,7 @@ public class ContextInitTerm {
             AtomicInteger milestone = new AtomicInteger();
 
             // test plain
-            env.compileDeploy("create context EverySupportBean as " +
+            env.compileDeploy("@public create context EverySupportBean as " +
                 "initiated by SupportBean_S0 as sb " +
                 "terminated after 10 days 5 hours 2 minutes 1 sec 11 milliseconds", path);
 
@@ -1137,7 +1137,7 @@ public class ContextInitTerm {
     private static class ContextInitTermFilterBooleanOperator implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context EverySupportBean as " +
+            env.compileDeploy("@public create context EverySupportBean as " +
                 "initiated by SupportBean_S0 as sb " +
                 "terminated after 10 days 5 hours 2 minutes 1 sec 11 milliseconds", path);
 
@@ -1185,7 +1185,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
 
-            String eplContext = "@Name('CTX') create context CtxInitiated " +
+            String eplContext = "@Name('CTX') @public create context CtxInitiated " +
                 "initiated by SupportBean_S0 as sb0 " +
                 "terminated after 1 minute";
             env.compileDeploy(eplContext, path);
@@ -1246,7 +1246,7 @@ public class ContextInitTerm {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
 
-            env.compileDeploy("create context EveryMinute as " +
+            env.compileDeploy("@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min", path);
 
@@ -1321,7 +1321,7 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context EveryMinute as " +
+            env.compileDeploy("@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min", path);
 
@@ -1388,7 +1388,7 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
-            env.compileDeploy("create context EveryMinute as " +
+            env.compileDeploy("@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min", path);
 
@@ -1441,7 +1441,7 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context EveryMinute as " +
+            env.compileDeploy("@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min", path);
 
@@ -1481,13 +1481,13 @@ public class ContextInitTerm {
 
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
-            String eplContext = "create context EveryMinute as " +
+            String eplContext = "@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 1 min";
             env.compileDeploy(eplContext, path);
 
             // include then-set and both real-time and terminated output
-            String eplVariable = "@name('var') create variable int myvar = 0";
+            String eplVariable = "@name('var') @public create variable int myvar = 0";
             env.compileDeploy(eplVariable, path);
             String eplOne = "@name('s0') context EveryMinute select theString as c0 from SupportBean " +
                 "output when true " +
@@ -1527,8 +1527,8 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("@name('var') create variable int myvar = 0", path);
-            env.compileDeploy("create context EverySupportBeanS0 as " +
+            env.compileDeploy("@name('var') @public create variable int myvar = 0", path);
+            env.compileDeploy("@public create context EverySupportBeanS0 as " +
                 "initiated by SupportBean_S0 as s0 " +
                 "terminated after 1 min", path);
 
@@ -1558,7 +1558,7 @@ public class ContextInitTerm {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context EveryMinute as " +
+            env.compileDeploy("@public create context EveryMinute as " +
                 "initiated by pattern[every timer:at(*, *, *, *, *)] " +
                 "terminated after 3 min", path);
 
@@ -1690,7 +1690,7 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
             sendCurrentTime(env, "2002-02-01T09:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx start SupportBean_S1 end after 1 month", path);
+            env.compileDeploy("@public create context MyCtx start SupportBean_S1 end after 1 month", path);
             env.compileDeploy("@name('s0') context MyCtx select * from SupportBean", path).addListener("s0");
 
             env.sendEventBean(new SupportBean_S1(1));
@@ -1720,9 +1720,9 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
 
             String[] fields = "c0,c1".split(",");
-            String epl = "@buseventtype create schema SummedEvent(grp string, key string, value int);\n" +
-                "@buseventtype create schema InitEvent(grp string);\n" +
-                "@buseventtype create schema TermEvent(grp string);\n";
+            String epl = "@buseventtype @public create schema SummedEvent(grp string, key string, value int);\n" +
+                "@buseventtype @public create schema InitEvent(grp string);\n" +
+                "@buseventtype @public create schema TermEvent(grp string);\n";
 
             epl += "@Name('Ctx1') create context MyContext " +
                 "initiated by InitEvent as i " +
@@ -1820,7 +1820,7 @@ public class ContextInitTerm {
         public void run(RegressionEnvironment env) {
             sendTimeEvent(env, "2002-05-1T8:00:00.000");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@name('ctx') @public create context NineToFive as start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
 
             String[] fields = "col1,col2,col3,col4,col5".split(",");
             env.compileDeploy("@name('s0') context NineToFive " +
@@ -1878,7 +1878,7 @@ public class ContextInitTerm {
     private static void tryAssertionNoTerminationConditionOverlapping(RegressionEnvironment env, AtomicInteger milestone, boolean soda) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(soda, "@name('ctx') create context SupportBeanInstanceCtx as initiated by SupportBean as sb", path);
+        env.compileDeploy(soda, "@name('ctx') @public create context SupportBeanInstanceCtx as initiated by SupportBean as sb", path);
         env.compileDeploy(soda, "@name('s0') context SupportBeanInstanceCtx " +
             "select id, context.sb.intPrimitive as sbint, context.startTime as starttime, context.endTime as endtime from SupportBean_S0(p00=context.sb.theString)", path);
         env.addListener("s0");
@@ -1912,7 +1912,7 @@ public class ContextInitTerm {
     private static void tryAssertionNoTerminationConditionNonoverlapping(RegressionEnvironment env, AtomicInteger milestone, boolean soda) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(soda, "create context SupportBeanInstanceCtx as start SupportBean as sb", path);
+        env.compileDeploy(soda, "@public create context SupportBeanInstanceCtx as start SupportBean as sb", path);
         env.compileDeploy(soda, "@name('s0') context SupportBeanInstanceCtx " +
             "select id, context.sb.intPrimitive as sbint, context.startTime as starttime, context.endTime as endtime from SupportBean_S0(p00=context.sb.theString)", path);
         env.addListener("s0");

@@ -468,8 +468,8 @@ public class ClientCompileSubstitutionParams {
             // Test substitution parameter and inheritance in key matching
             RegressionPath path = new RegressionPath();
             String types =
-                    "@buseventtype create schema MyEventOne as " + MyEventOne.class.getName() + ";\n" +
-                    "@buseventtype create schema MyEventTwo as " + MyEventTwo.class.getName() + ";\n";
+                    "@public @buseventtype create schema MyEventOne as " + MyEventOne.class.getName() + ";\n" +
+                    "@public @buseventtype create schema MyEventTwo as " + MyEventTwo.class.getName() + ";\n";
             env.compileDeploy(types, path);
 
             String epl = "select * from MyEventOne(key = ?::IKey)";

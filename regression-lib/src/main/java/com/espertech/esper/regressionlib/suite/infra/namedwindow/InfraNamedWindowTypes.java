@@ -66,8 +66,8 @@ public class InfraNamedWindowTypes {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaOne.class) + " @name('schema') @buseventtype create schema SchemaOne(col1 int, col2 int);\n";
-            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaWindow.class) + " @name('create') create window SchemaWindow#lastevent as (s1 SchemaOne);\n";
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaOne.class) + " @name('schema') @buseventtype @public create schema SchemaOne(col1 int, col2 int);\n";
+            epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSchemaWindow.class) + " @name('create') @public create window SchemaWindow#lastevent as (s1 SchemaOne);\n";
             epl += "insert into SchemaWindow (s1) select sone from SchemaOne as sone;\n";
             env.compileDeploy(epl, new RegressionPath()).addListener("create");
 
@@ -242,9 +242,9 @@ public class InfraNamedWindowTypes {
 
             // test model-after for POJO with inheritance
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window ParentWindow#keepall as select * from SupportBeanAtoFBase", path);
+            env.compileDeploy("@public create window ParentWindow#keepall as select * from SupportBeanAtoFBase", path);
             env.compileDeploy("insert into ParentWindow select * from SupportBeanAtoFBase", path);
-            env.compileDeploy("create window ChildWindow#keepall as select * from SupportBean_A", path);
+            env.compileDeploy("@public create window ChildWindow#keepall as select * from SupportBean_A", path);
             env.compileDeploy("insert into ChildWindow select * from SupportBean_A", path);
 
             String parentQuery = "@Name('s0') select parent from ParentWindow as parent";
@@ -257,8 +257,8 @@ public class InfraNamedWindowTypes {
         }
 
         private void tryAssertionCreateSchemaModelAfter(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeOne.class) + " @buseventtype create schema EventTypeOne (hsi int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeTwo.class) + " @buseventtype create schema EventTypeTwo (event EventTypeOne);\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeOne.class) + " @public @buseventtype create schema EventTypeOne (hsi int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTypeTwo.class) + " @public @buseventtype create schema EventTypeTwo (event EventTypeOne);\n" +
                 "@name('create') create window NamedWindow#unique(event.hsi) as EventTypeTwo;\n" +
                 "on EventTypeOne as ev insert into NamedWindow select ev as event;\n";
             env.compileDeploy(epl, new RegressionPath());

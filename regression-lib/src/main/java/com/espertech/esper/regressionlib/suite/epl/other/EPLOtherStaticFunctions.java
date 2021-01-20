@@ -180,7 +180,7 @@ public class EPLOtherStaticFunctions {
     private static class EPLOtherReturnsMapIndexProperty implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String statementText = "insert into ABCStream select SupportStaticMethodLib.myMapFunc() as mymap, SupportStaticMethodLib.myArrayFunc() as myindex from SupportBean";
+            String statementText = "@public insert into ABCStream select SupportStaticMethodLib.myMapFunc() as mymap, SupportStaticMethodLib.myArrayFunc() as myindex from SupportBean";
             env.compileDeploy(statementText, path);
 
             statementText = "@name('s0') select mymap('A') as v0, myindex[1] as v1 from ABCStream";

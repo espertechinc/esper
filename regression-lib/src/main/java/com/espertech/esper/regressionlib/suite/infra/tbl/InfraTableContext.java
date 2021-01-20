@@ -35,8 +35,8 @@ public class InfraTableContext {
     private static class InfraTableContextInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context SimpleCtx start after 1 sec end after 1 sec", path);
-            env.compileDeploy("context SimpleCtx create table MyTable(pkey string primary key, thesum sum(int), col0 string)", path);
+            env.compileDeploy("@public create context SimpleCtx start after 1 sec end after 1 sec", path);
+            env.compileDeploy("@public context SimpleCtx create table MyTable(pkey string primary key, thesum sum(int), col0 string)", path);
 
             env.tryInvalidCompile(path, "select * from MyTable",
                 "Table by name 'MyTable' has been declared for context 'SimpleCtx' and can only be used within the same context [");
@@ -52,8 +52,8 @@ public class InfraTableContext {
     private static class InfraNonOverlapping implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context CtxNowTillS0 start @now end SupportBean_S0", path);
-            env.compileDeploy("context CtxNowTillS0 create table MyTable(pkey string primary key, thesum sum(int), col0 string)", path);
+            env.compileDeploy("@public create context CtxNowTillS0 start @now end SupportBean_S0", path);
+            env.compileDeploy("@public context CtxNowTillS0 create table MyTable(pkey string primary key, thesum sum(int), col0 string)", path);
             env.compileDeploy("context CtxNowTillS0 into table MyTable select sum(intPrimitive) as thesum from SupportBean group by theString", path);
             env.compileDeploy("@name('s0') context CtxNowTillS0 select pkey as c0, thesum as c1 from MyTable output snapshot when terminated", path).addListener("s0");
 
@@ -87,9 +87,9 @@ public class InfraTableContext {
     private static class InfraPartitioned implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context CtxPerString " +
+            env.compileDeploy("@public create context CtxPerString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0", path);
-            env.compileDeploy("context CtxPerString create table MyTable(thesum sum(int))", path);
+            env.compileDeploy("@public context CtxPerString create table MyTable(thesum sum(int))", path);
             env.compileDeploy("context CtxPerString into table MyTable select sum(intPrimitive) as thesum from SupportBean", path);
             env.compileDeploy("@name('s0') context CtxPerString select MyTable.thesum as c0 from SupportBean_S0", path).addListener("s0");
 

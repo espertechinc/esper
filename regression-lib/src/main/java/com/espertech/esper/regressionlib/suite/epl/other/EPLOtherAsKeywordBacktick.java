@@ -62,7 +62,7 @@ public class EPLOtherAsKeywordBacktick {
     private static class EPLOthernMergeAndUpdateAndSelect implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowMerge#keepall as (p0 string, p1 string)", path);
+            env.compileDeploy("@public create window MyWindowMerge#keepall as (p0 string, p1 string)", path);
             env.compileExecuteFAFNoResult("insert into MyWindowMerge select 'a' as p0, 'b' as p1", path);
             env.compileDeploy("on SupportBean_S0 merge MyWindowMerge as `order` when matched then update set `order`.p1 = `order`.p0", path);
             env.compileDeploy("on SupportBean_S1 update MyWindowMerge as `order` set p0 = 'x'", path);
@@ -93,7 +93,7 @@ public class EPLOtherAsKeywordBacktick {
     private static class EPLOtherFAFUpdateDelete implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowFAF#keepall as (p0 string, p1 string)", path);
+            env.compileDeploy("@public create window MyWindowFAF#keepall as (p0 string, p1 string)", path);
             env.compileExecuteFAF("insert into MyWindowFAF select 'a' as p0, 'b' as p1", path);
             assertFAF(env, path, "MyWindowFAF", "a", "b");
 
@@ -129,7 +129,7 @@ public class EPLOtherAsKeywordBacktick {
     private static class EPLOtherOnTrigger implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(k1 string primary key, v1 string)", path);
+            env.compileDeploy("@public create table MyTable(k1 string primary key, v1 string)", path);
             env.compileExecuteFAFNoResult("insert into MyTable select 'x' as k1, 'y' as v1", path);
             env.compileExecuteFAFNoResult("insert into MyTable select 'a' as k1, 'b' as v1", path);
 

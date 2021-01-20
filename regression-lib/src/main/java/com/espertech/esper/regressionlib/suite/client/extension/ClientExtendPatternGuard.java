@@ -47,7 +47,7 @@ public class ClientExtendPatternGuard implements RegressionExecution {
             return;
         }
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create variable int COUNT_TO = 3", path);
+        env.compileDeploy("@public create variable int COUNT_TO = 3", path);
         String stmtText = "@name('s0') select * from pattern [(every SupportBean) where myplugin:count_to(COUNT_TO)]";
         env.compileDeploy(stmtText, path).addListener("s0");
 

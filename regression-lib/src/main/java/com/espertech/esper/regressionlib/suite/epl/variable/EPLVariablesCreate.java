@@ -12,6 +12,7 @@ package com.espertech.esper.regressionlib.suite.epl.variable;
 
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.client.soda.AnnotationPart;
 import com.espertech.esper.common.client.soda.CreateVariableClause;
 import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.client.soda.Expressions;
@@ -124,14 +125,16 @@ public class EPLVariablesCreate {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             EPStatementObjectModel model = new EPStatementObjectModel();
+            model.setAnnotations(Collections.singletonList(new AnnotationPart("public")));
             model.setCreateVariable(CreateVariableClause.create("long", "var1OMCreate", null));
             env.compileDeploy(model, path);
-            assertEquals("create variable long var1OMCreate", model.toEPL());
+            assertEquals("@public create variable long var1OMCreate", model.toEPL());
 
             model = new EPStatementObjectModel();
+            model.setAnnotations(Collections.singletonList(new AnnotationPart("public")));
             model.setCreateVariable(CreateVariableClause.create("string", "var2OMCreate", Expressions.constant("abc")));
             env.compileDeploy(model, path);
-            assertEquals("create variable string var2OMCreate = \"abc\"", model.toEPL());
+            assertEquals("@public create variable string var2OMCreate = \"abc\"", model.toEPL());
 
             String stmtTextSelect = "@name('s0') select var1OMCreate, var2OMCreate from SupportBean";
             env.compileDeploy(stmtTextSelect, path).addListener("s0");
@@ -150,10 +153,10 @@ public class EPLVariablesCreate {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String text = "create variable long var1CSS";
+            String text = "@public create variable long var1CSS";
             env.eplToModelCompileDeploy(text, path);
 
-            text = "create variable string var2CSS = \"abc\"";
+            text = "@public create variable string var2CSS = \"abc\"";
             env.eplToModelCompileDeploy(text, path);
 
             String stmtTextSelect = "@name('s0') select var1CSS, var2CSS from SupportBean";
@@ -164,7 +167,7 @@ public class EPLVariablesCreate {
             env.assertPropsNew("s0", fieldsVar, new Object[]{null, "abc"});
 
             // ESPER-545
-            String createText = "@name('create') create variable int FOO = 0";
+            String createText = "@name('create') @public create variable int FOO = 0";
             env.compileDeploy(createText, path);
             env.compileDeploy("on pattern [every SupportBean] set FOO = FOO + 1", path);
             env.sendEventBean(new SupportBean());
@@ -191,7 +194,7 @@ public class EPLVariablesCreate {
     private static class EPLVariableSubscribeAndIterate implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtCreateTextOne = "@name('create-one') create variable long var1SAI = null";
+            String stmtCreateTextOne = "@name('create-one') @public create variable long var1SAI = null";
             env.compileDeploy(stmtCreateTextOne, path).addListener("create-one");
             env.assertStatement("create-one", statement -> {
                 assertEquals(StatementType.CREATE_VARIABLE, statement.getProperty(StatementProperty.STATEMENTTYPE));
@@ -209,7 +212,7 @@ public class EPLVariablesCreate {
                 assertArrayEquals(typeCreateOne.getPropertyNames(), new String[]{"var1SAI"});
             });
 
-            String stmtCreateTextTwo = "@name('create-two') create variable long var2SAI = 20";
+            String stmtCreateTextTwo = "@name('create-two') @public create variable long var2SAI = 20";
             env.compileDeploy(stmtCreateTextTwo, path).addListener("create-two");
             String[] fieldsVar2 = new String[]{"var2SAI"};
             env.assertPropsPerRowIterator("create-two", fieldsVar2, new Object[][]{{20L}});
@@ -278,7 +281,7 @@ public class EPLVariablesCreate {
 
             RegressionPath path = new RegressionPath();
             for (int i = 0; i < variables.length; i++) {
-                String text = "create variable " + variables[i][1] + " " + variables[i][0];
+                String text = "@public create variable " + variables[i][1] + " " + variables[i][0];
                 if (variables[i][2] != null) {
                     text += " = " + variables[i][2];
                 }
@@ -319,9 +322,9 @@ public class EPLVariablesCreate {
             stmt = "create variable string myvar = 5";
             env.tryInvalidCompile(stmt, "Variable 'myvar' of declared type String cannot be initialized by a value of type Integer [create variable string myvar = 5]");
 
-            stmt = "create variable string myvar = 'a'";
+            stmt = "@public create variable string myvar = 'a'";
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable string myvar = 'a'", path);
+            env.compileDeploy("@public create variable string myvar = 'a'", path);
             env.tryInvalidCompile(path, stmt, "A variable by name 'myvar' has already been declared");
 
             env.tryInvalidCompile("select * from SupportBean output every somevar events",

@@ -52,7 +52,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
 
         // setup statements
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#unique(theString, intPrimitive) as select * from SupportBean", path);
+        env.compileDeploy("@public create window MyWindow#unique(theString, intPrimitive) as select * from SupportBean", path);
         env.compileDeploy("insert into MyWindow select * from SupportBean(boolPrimitive = true)", path);
         env.compileDeploy("on SupportBean(boolPrimitive = false) sb " +
             "update MyWindow win set intBoxed = win.intBoxed + 1, doublePrimitive = win.doublePrimitive + sb.doublePrimitive" +

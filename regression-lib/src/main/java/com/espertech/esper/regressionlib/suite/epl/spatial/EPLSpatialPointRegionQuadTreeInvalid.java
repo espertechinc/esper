@@ -32,7 +32,7 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
     private static class EPLSpatialInvalidEventIndexCreate implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportSpatialPoint", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportSpatialPoint", path);
 
             // invalid number of columns
             env.tryInvalidCompile(path, "create index MyIndex on MyWindow(px pointregionquadtree(0, 0, 100, 100))",
@@ -89,7 +89,7 @@ public class EPLSpatialPointRegionQuadTreeInvalid {
                 "Failed to deploy: Invalid value for index 'MyIndex' parameter 'maxTreeHeight' received -1 and expected value>=2");
 
             // same index twice, by-name and by-columns
-            env.compileDeploy("create window SomeWindow#keepall as SupportSpatialPoint", path);
+            env.compileDeploy("@public create window SomeWindow#keepall as SupportSpatialPoint", path);
             env.compileDeploy("create index SomeWindowIdx1 on SomeWindow((px, py) pointregionquadtree(0, 0, 1, 1))", path);
             env.tryInvalidCompile(path, "create index SomeWindowIdx2 on SomeWindow((px, py) pointregionquadtree(0, 0, 1, 1))",
                 "An index for the same columns already exists");

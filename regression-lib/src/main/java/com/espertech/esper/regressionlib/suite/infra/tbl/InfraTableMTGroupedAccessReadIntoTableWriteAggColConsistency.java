@@ -58,7 +58,7 @@ public class InfraTableMTGroupedAccessReadIntoTableWriteAggColConsistency implem
 
     private static void tryMT(RegressionEnvironment env, int numGroups, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (key string primary key, " + CollectionUtil.toString(getDeclareCols()) + ")";
+        String eplCreateVariable = "@public create table vartotal (key string primary key, " + CollectionUtil.toString(getDeclareCols()) + ")";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplInto = "into table vartotal select " + CollectionUtil.toString(getIntoCols()) + " from Support10ColEvent group by groupKey";

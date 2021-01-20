@@ -34,7 +34,7 @@ public class ClientDeployRollout {
         public void run(RegressionEnvironment env) {
             EPCompiled base = env.compile("@name('basevar') @public create constant variable int basevar = 1");
             EPCompiled child0 = env.compile("@name('s0') select basevar from SupportBean", new RegressionPath().add(base));
-            EPCompiled child1 = env.compile("@name('child1var') create constant variable int child1var = 2;\n" +
+            EPCompiled child1 = env.compile("@name('child1var') @public create constant variable int child1var = 2;\n" +
                 "@name('s1') select basevar, child1var from SupportBean;\n", new RegressionPath().add(base));
             EPCompiled child11 = env.compile("@name('s2') select basevar, child1var from SupportBean;\n", new RegressionPath().add(base).add(child1));
 

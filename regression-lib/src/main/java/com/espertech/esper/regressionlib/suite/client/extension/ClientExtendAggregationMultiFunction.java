@@ -59,7 +59,7 @@ public class ClientExtendAggregationMultiFunction {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(col collectEvents())", path);
+            env.compileDeploy("@public create table MyTable(col collectEvents())", path);
             env.compileDeploy("into table MyTable select collectEvents(*) as col from SupportBean#length(2)", path);
             env.compileDeploy("@name('s0') on SupportBean_S0 select col as c0 from MyTable", path).addListener("s0");
 

@@ -134,7 +134,7 @@ public class EPLSpatialPointRegionQuadTreeFilterIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context PerPointCtx initiated by SupportSpatialPoint ssp", path);
+            env.compileDeploy("@public create context PerPointCtx initiated by SupportSpatialPoint ssp", path);
             env.compileDeploy("@name('s0') expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "context PerPointCtx select count(*) from SupportSpatialAABB(point(context.ssp.px, context.ssp.py, filterindex:myindex).inside(rectangle(x, y, width, height)))", path);
             env.addListener("s0");

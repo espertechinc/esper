@@ -19,6 +19,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,10 +41,10 @@ public class InfraNamedWindowOM {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String[] fields = new String[]{"key", "value"};
-            String stmtTextCreate = "@name('create') create window MyWindow#keepall as select theString as key, longBoxed as value from " + SupportBean.class.getSimpleName();
+            String stmtTextCreate = "@name('create') @public create window MyWindow#keepall as select theString as key, longBoxed as value from " + SupportBean.class.getSimpleName();
             EPStatementObjectModel modelCreate = env.eplToModel(stmtTextCreate);
             env.compileDeploy(modelCreate, path).addListener("create");
-            assertEquals("@name('create') create window MyWindow#keepall as select theString as key, longBoxed as value from SupportBean", modelCreate.toEPL());
+            assertEquals("@name('create') @public create window MyWindow#keepall as select theString as key, longBoxed as value from SupportBean", modelCreate.toEPL());
 
             String stmtTextOnSelect = "@name('onselect') on SupportBean_B select mywin.* from MyWindow as mywin";
             EPStatementObjectModel modelOnSelect = env.eplToModel(stmtTextOnSelect);
@@ -116,15 +117,14 @@ public class InfraNamedWindowOM {
 
             // create window object model
             EPStatementObjectModel model = new EPStatementObjectModel();
+            model.setAnnotations(Arrays.asList(AnnotationPart.nameAnnotation("create"), new AnnotationPart("public")));
             model.setCreateWindow(CreateWindowClause.create("MyWindow").addView("keepall").setAsEventTypeName("SupportBean"));
             model.setSelectClause(SelectClause.create()
                 .addWithAsProvidedName("theString", "key")
                 .addWithAsProvidedName("longBoxed", "value"));
 
-            String stmtTextCreate = "create window MyWindow#keepall as select theString as key, longBoxed as value from SupportBean";
+            String stmtTextCreate = "@name('create') @public create window MyWindow#keepall as select theString as key, longBoxed as value from SupportBean";
             assertEquals(stmtTextCreate, model.toEPL());
-
-            model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("create")));
             env.compileDeploy(model, path).addListener("create");
 
             String stmtTextInsert = "insert into MyWindow select theString as key, longBoxed as value from SupportBean";

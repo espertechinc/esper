@@ -86,7 +86,7 @@ public class ExprClassStaticMethod {
             env.compile(epl);
 
             RegressionPath path = new RegressionPath();
-            String eplCreate = "create inlined_class \"\"\" \n" +
+            String eplCreate = "@public create inlined_class \"\"\" \n" +
                 "  public class MyUtility {\n" +
                 "    public static double midPrice(double buy, double sell) {\n" +
                 "      return (buy + sell) / 2;\n" +
@@ -176,7 +176,7 @@ public class ExprClassStaticMethod {
                             "        }\n" +
                             "    }\n" +
                             "\"\"\";\n" +
-                            "create window MyWindow#keepall as (theString string);\n" +
+                            "@public create window MyWindow#keepall as (theString string);\n" +
                             "on SupportBean merge MyWindow insert select theString;\n";
             env.compileDeploy(eplWindow, path);
 
@@ -202,7 +202,7 @@ public class ExprClassStaticMethod {
     private static class ExprClassStaticMethodLocalFAFQuery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplWindow = "create window MyWindow#keepall as (theString string);\n" +
+            String eplWindow = "@public create window MyWindow#keepall as (theString string);\n" +
                     "on SupportBean merge MyWindow insert select theString;\n";
             env.compileDeploy(eplWindow, path);
 
@@ -242,7 +242,7 @@ public class ExprClassStaticMethod {
 
             // invalid already deployed
             RegressionPath path = new RegressionPath();
-            String createClassEPL = "create inlined_class \"\"\" public class MyClass {}\"\"\"";
+            String createClassEPL = "@public create inlined_class \"\"\" public class MyClass {}\"\"\"";
             env.compile(createClassEPL, path);
             env.tryInvalidCompile(path, createClassEPL,
                 "Class 'MyClass' has already been declared");

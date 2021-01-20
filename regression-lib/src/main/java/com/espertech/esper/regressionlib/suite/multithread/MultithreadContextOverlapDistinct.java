@@ -41,7 +41,7 @@ public class MultithreadContextOverlapDistinct implements RegressionExecutionPre
         runtime.initialize();
 
         RegressionPath path = new RegressionPath();
-        String eplCtx = "@name('ctx') create context theContext " +
+        String eplCtx = "@name('ctx') @public create context theContext " +
             " initiated by distinct(partitionKey) TestEvent as test " +
             " terminated after 100 milliseconds";
         EPCompiled compiledContext = compile(eplCtx, configuration, path);

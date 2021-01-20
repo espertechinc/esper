@@ -39,7 +39,7 @@ public class MultithreadStmtNamedWindowMultiple implements RegressionExecution {
     public void tryCount(RegressionEnvironment env, int numUsers, int numOrders, int numThreads) {
         RegressionPath path = new RegressionPath();
         for (int i = 0; i < numUsers; i++) {
-            env.compileDeploy("@Name('create_" + i + "') create window MyWindow_" + i + "#unique(orderId) as select * from OrderEvent", path);
+            env.compileDeploy("@Name('create_" + i + "') @public create window MyWindow_" + i + "#unique(orderId) as select * from OrderEvent", path);
             env.compileDeploy("@Name('insert_" + i + "') insert into MyWindow_" + i + " select * from OrderEvent(userId = 'user" + i + "')", path);
             env.compileDeploy("on OrderCancelEvent as d delete from MyWindow_" + i + " w where w.orderId = d.orderId", path);
             env.compileDeploy("@Name('select_" + i + "') on OrderEvent as s select sum(w.price) from MyWindow_" + i + " w where w.side = s.side group by w.side", path);

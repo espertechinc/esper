@@ -119,7 +119,7 @@ public class EPLOtherSplitStream {
             RegressionPath path = new RegressionPath();
 
             // test wildcard
-            String stmtOrigText = "@name('insert') on SupportBean insert into AStream select *";
+            String stmtOrigText = "@name('insert') @public on SupportBean insert into AStream select *";
             env.compileDeploy(stmtOrigText, path).addListener("insert");
 
             env.compileDeploy("@name('s0') select * from AStream", path).addListener("s0");
@@ -129,7 +129,7 @@ public class EPLOtherSplitStream {
             env.assertListenerNotInvoked("insert");
 
             // test select
-            stmtOrigText = "@name('s1') on SupportBean insert into BStreamABC select 3*intPrimitive as value";
+            stmtOrigText = "@name('s1') @public on SupportBean insert into BStreamABC select 3*intPrimitive as value";
             env.compileDeploy(stmtOrigText, path);
 
             env.compileDeploy("@name('s2') select value from BStreamABC", path).addListener("s2");
@@ -148,7 +148,7 @@ public class EPLOtherSplitStream {
     private static class EPLOtherSplitStream2SplitNoDefaultOutputFirst implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean " +
+            String stmtOrigText = "@name('split') @public on SupportBean " +
                 "insert into AStream2SP select * where intPrimitive=1 " +
                 "insert into BStream2SP select * where intPrimitive=1 or intPrimitive=2";
             env.compileDeploy(stmtOrigText, path).addListener("split");
@@ -157,7 +157,7 @@ public class EPLOtherSplitStream {
 
             // statement object model
             EPStatementObjectModel model = new EPStatementObjectModel();
-            model.setAnnotations(Collections.singletonList(new AnnotationPart("Audit")));
+            model.setAnnotations(Arrays.asList(new AnnotationPart("Audit"), new AnnotationPart("public")));
             model.setFromClause(FromClause.create(FilterStream.create("SupportBean")));
             model.setInsertInto(InsertIntoClause.create("AStream2SP"));
             model.setSelectClause(SelectClause.createWildcard());
@@ -169,7 +169,7 @@ public class EPLOtherSplitStream {
                 SelectClause.createWildcard(),
                 Expressions.or(Expressions.eq("intPrimitive", 1), Expressions.eq("intPrimitive", 2)));
             clause.addItem(item);
-            model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("split")));
+            model.setAnnotations(Arrays.asList(AnnotationPart.nameAnnotation("split"), new AnnotationPart("public")));
             assertEquals(stmtOrigText, model.toEPL());
             env.compileDeploy(model, path).addListener("split");
             tryAssertion(env, path);
@@ -183,7 +183,7 @@ public class EPLOtherSplitStream {
     private static class EPLOtherSplitStreamSubquery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean " +
+            String stmtOrigText = "@name('split') @public on SupportBean " +
                 "insert into AStreamSub select (select p00 from SupportBean_S0#lastevent) as string where intPrimitive=(select id from SupportBean_S0#lastevent) " +
                 "insert into BStreamSub select (select p01 from SupportBean_S0#lastevent) as string where intPrimitive<>(select id from SupportBean_S0#lastevent) or (select id from SupportBean_S0#lastevent) is null";
             env.compileDeploy(stmtOrigText, path).addListener("split");
@@ -212,7 +212,7 @@ public class EPLOtherSplitStream {
     private static class EPLOtherSplitStream2SplitNoDefaultOutputAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean " +
+            String stmtOrigText = "@name('split') @public on SupportBean " +
                 "insert into AStream2S select theString where intPrimitive=1 " +
                 "insert into BStream2S select theString where intPrimitive=1 or intPrimitive=2 " +
                 "output all";
@@ -253,7 +253,7 @@ public class EPLOtherSplitStream {
     private static class EPLOtherSplitStream3SplitOutputAll implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean " +
+            String stmtOrigText = "@name('split') @public on SupportBean " +
                 "insert into AStream2S select theString || '_1' as theString where intPrimitive in (1, 2) " +
                 "insert into BStream2S select theString || '_2' as theString where intPrimitive in (2, 3) " +
                 "insert into CStream2S select theString || '_3' as theString " +
@@ -295,7 +295,7 @@ public class EPLOtherSplitStream {
     private static class EPLOtherSplitStream3SplitDefaultOutputFirst implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean as mystream " +
+            String stmtOrigText = "@name('split') @public on SupportBean as mystream " +
                 "insert into AStream34 select mystream.theString||'_1' as theString where intPrimitive=1 " +
                 "insert into BStream34 select mystream.theString||'_2' as theString where intPrimitive=2 " +
                 "insert into CStream34 select theString||'_3' as theString";
@@ -342,7 +342,7 @@ public class EPLOtherSplitStream {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String stmtOrigText = "@name('split') on SupportBean " +
+            String stmtOrigText = "@name('split') @public on SupportBean " +
                 "insert into AStream34 select theString||'_1' as theString where intPrimitive=10 " +
                 "insert into BStream34 select theString||'_2' as theString where intPrimitive=20 " +
                 "insert into CStream34 select theString||'_3' as theString where intPrimitive<0 " +
@@ -424,12 +424,12 @@ public class EPLOtherSplitStream {
 
     private static void tryAssertionSplitPremptiveNamedWindow(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTrigger.class) + " @buseventtype create schema TypeTrigger(trigger int)", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTrigger.class) + " @public @buseventtype create schema TypeTrigger(trigger int)", path);
 
-        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create schema TypeTwo(col2 int)", path);
-        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " create window WinTwo#keepall as TypeTwo", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " @public create schema TypeTwo(col2 int)", path);
+        env.compileDeploy(eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTypeTwo.class) + " @public create window WinTwo#keepall as TypeTwo", path);
 
-        String stmtOrigText = "on TypeTrigger " +
+        String stmtOrigText = "@public on TypeTrigger " +
             "insert into OtherStream select 1 " +
             "insert into WinTwo(col2) select 2 " +
             "output all";
@@ -471,7 +471,7 @@ public class EPLOtherSplitStream {
 
     private static void tryAssertionFromClauseAsMultiple(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
-        String epl = "on OrderBean as oe " +
+        String epl = "@public on OrderBean as oe " +
             "insert into StartEvent select oe.orderdetail.orderId as oi " +
             "insert into ThenEvent select * from [select oe.orderdetail.orderId as oi, itemId from orderdetail.items] as item " +
             "insert into MoreEvent select oe.orderdetail.orderId as oi, item.itemId as itemId from [select oe, * from orderdetail.items] as item " +
@@ -495,7 +495,7 @@ public class EPLOtherSplitStream {
 
     private static void tryAssertionFromClauseBeginBodyEnd(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
-        String epl = "@name('split') on OrderBean " +
+        String epl = "@name('split') @public on OrderBean " +
             "insert into BeginEvent select orderdetail.orderId as orderId " +
             "insert into OrderItem select * from [select orderdetail.orderId as orderId, * from orderdetail.items] " +
             "insert into EndEvent select orderdetail.orderId as orderId " +
@@ -532,7 +532,7 @@ public class EPLOtherSplitStream {
     private static void tryAssertionFromClauseOutputFirstWhere(RegressionEnvironment env, boolean soda) {
         RegressionPath path = new RegressionPath();
         String[] fieldsOrderId = "oe.orderdetail.orderId".split(",");
-        String epl = "on OrderBean as oe " +
+        String epl = "@public on OrderBean as oe " +
             "insert into HeaderEvent select orderdetail.orderId as orderId where 1=2 " +
             "insert into StreamOne select * from [select oe, * from orderdetail.items] where productId=\"10020\" " +
             "insert into StreamTwo select * from [select oe, * from orderdetail.items] where productId=\"10022\" " +
@@ -570,7 +570,7 @@ public class EPLOtherSplitStream {
     private static void tryAssertionFromClauseDocSample(RegressionEnvironment env) {
         String epl =
             "create schema MyOrderItem(itemId string);\n" +
-                "@buseventtype create schema MyOrderEvent(orderId string, items MyOrderItem[]);\n" +
+                "@public @buseventtype create schema MyOrderEvent(orderId string, items MyOrderItem[]);\n" +
                 "on MyOrderEvent\n" +
                 "  insert into MyOrderBeginEvent select orderId\n" +
                 "  insert into MyOrderItemEvent select * from [select orderId, * from items]\n" +

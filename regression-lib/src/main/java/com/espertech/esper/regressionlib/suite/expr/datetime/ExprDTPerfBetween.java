@@ -31,7 +31,7 @@ public class ExprDTPerfBetween implements RegressionExecution {
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window AWindow#keepall as A", path);
+        env.compileDeploy("@public create window AWindow#keepall as A", path);
         env.compileDeploy("insert into AWindow select * from A", path);
 
         // preload

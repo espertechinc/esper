@@ -38,11 +38,11 @@ public class InfraNWTableContext {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context ContextOne start SupportBean_S0 end SupportBean_S1", path);
+            env.compileDeploy("@public create context ContextOne start SupportBean_S0 end SupportBean_S1", path);
 
             String eplCreate = namedWindow ?
-                "context ContextOne create window MyInfra#keepall as (pkey0 string, pkey1 int, c0 long)" :
-                "context ContextOne create table MyInfra as (pkey0 string primary key, pkey1 int primary key, c0 long)";
+                "@public context ContextOne create window MyInfra#keepall as (pkey0 string, pkey1 int, c0 long)" :
+                "@public context ContextOne create table MyInfra as (pkey0 string primary key, pkey1 int primary key, c0 long)";
             env.compileDeploy(eplCreate, path);
 
             env.compileDeploy("context ContextOne insert into MyInfra select theString as pkey0, intPrimitive as pkey1, longPrimitive as c0 from SupportBean", path);

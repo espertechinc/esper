@@ -60,7 +60,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
 
     private void runAssertionLateConsume(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdwwithparam() as SupportBean", path);
+        env.compileDeploy("@public create window MyVDW.test:vdwwithparam() as SupportBean", path);
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("S1", 100);
         window.setData(Collections.singleton(supportBean));
@@ -107,7 +107,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
 
     private void runAssertionLookupSPI(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdwnoparam() as SupportBean", path);
+        env.compileDeploy("@public create window MyVDW.test:vdwnoparam() as SupportBean", path);
 
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("E1", 100);
@@ -124,7 +124,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
     private void runAssertionInsertConsume(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdw() as SupportBean", path);
+        env.compileDeploy("@public create window MyVDW.test:vdw() as SupportBean", path);
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("S1", 100);
         window.setData(Collections.singleton(supportBean));
@@ -158,7 +158,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
     private void runAssertionOnMerge(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdw() as MapType", path);
+        env.compileDeploy("@public create window MyVDW.test:vdw() as MapType", path);
 
         // define some test data to return, via lookup
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
@@ -201,7 +201,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
 
     private void runAssertionLimitation(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('window') create window MyVDW.test:vdw() as SupportBean", path);
+        env.compileDeploy("@name('window') @public create window MyVDW.test:vdw() as SupportBean", path);
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("S1", 100);
         window.setData(Collections.singleton(supportBean));
@@ -222,7 +222,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
     private void runAssertionJoinAndLifecyle(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdw(1, 'abc') as SupportBean", path);
+        env.compileDeploy("@public create window MyVDW.test:vdw(1, 'abc') as SupportBean", path);
         String[] fields = "st0.id,vdw.theString,vdw.intPrimitive".split(",");
 
         // define some test data to return, via lookup
@@ -316,8 +316,8 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.undeployModuleContaining("s0");
 
         // test aggregation
-        env.compileDeploy("create schema SampleEvent as (id string)", path);
-        env.compileDeploy("create window MySampleWindow.test:vdw() as SampleEvent", path);
+        env.compileDeploy("@public create schema SampleEvent as (id string)", path);
+        env.compileDeploy("@public create window MySampleWindow.test:vdw() as SampleEvent", path);
         env.compileDeploy("@name('s0') select (select count(*) as cnt from MySampleWindow) as c0 "
             + "from SupportBean ste", path).addListener("s0");
 
@@ -344,11 +344,11 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         RegressionPath path = new RegressionPath();
 
         // prepare
-        env.compileDeploy("create context MyContext coalesce by " +
+        env.compileDeploy("@public create context MyContext coalesce by " +
             "consistent_hash_crc32(theString) from SupportBean, " +
             "consistent_hash_crc32(p00) from SupportBean_S0 " +
             "granularity 4 preallocate", path);
-        env.compileDeploy("context MyContext create window MyWindow.test:vdw() as SupportBean", path);
+        env.compileDeploy("@public context MyContext create window MyWindow.test:vdw() as SupportBean", path);
 
         // join
         String eplSubquerySameCtx = "@name('s0') context MyContext "
@@ -365,11 +365,11 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         RegressionPath path = new RegressionPath();
         SupportVirtualDW.setInitializationData(Collections.singleton(new SupportBean("E1", 1)));
 
-        env.compileDeploy("create context MyContext coalesce by " +
+        env.compileDeploy("@public create context MyContext coalesce by " +
             "consistent_hash_crc32(theString) from SupportBean, " +
             "consistent_hash_crc32(p00) from SupportBean_S0 " +
             "granularity 4 preallocate", path);
-        env.compileDeploy("context MyContext create window MyWindow.test:vdw() as SupportBean", path);
+        env.compileDeploy("@public context MyContext create window MyWindow.test:vdw() as SupportBean", path);
 
         // subquery - same context
         String eplSubquerySameCtx = "context MyContext "
@@ -541,7 +541,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         SupportVirtualDWForge.setUniqueKeys(new HashSet<>(Arrays.asList(uniqueFields.split(","))));
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyVDW.test:vdw() as SupportBean", path);
+        env.compileDeploy("@public create window MyVDW.test:vdw() as SupportBean", path);
         SupportVirtualDW window = (SupportVirtualDW) getFromContext(env, "/virtualdw/MyVDW");
         SupportBean supportBean = new SupportBean("S1", 101);
         supportBean.setDoublePrimitive(102);
@@ -578,7 +578,7 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
 
     private SupportVirtualDW registerTypeSetMapData(RegressionEnvironment env, RegressionPath path) {
         SupportVirtualDWForge.getInitializations().clear();
-        env.compileDeploy("@Name('create-nw') create window MyVDW.test:vdw() as MapType", path);
+        env.compileDeploy("@Name('create-nw') @public create window MyVDW.test:vdw() as MapType", path);
 
         Assert.assertEquals(1, SupportVirtualDWForge.getInitializations().size());
         VirtualDataWindowForgeContext forgeContext = SupportVirtualDWForge.getInitializations().get(0);

@@ -153,7 +153,7 @@ public class ResultSetAggregationMethodWindow {
     private static class ResultSetAggregateWindowInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(windowcol window(*) @type('SupportBean'));\n", path);
+            env.compileDeploy("@public create table MyTable(windowcol window(*) @type('SupportBean'));\n", path);
 
             env.tryInvalidCompile(path, "select MyTable.windowcol.first(id) from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.windowcol.first(id)': Failed to validate aggregation function parameter expression 'id': Property named 'id' is not valid in any stream");

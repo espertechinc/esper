@@ -165,8 +165,8 @@ public class ExprEnumDataSources {
 
     private static class ExprEnumPropertySchema implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create schema OrderDetail(itemId string);\n" +
-                "@buseventtype create schema OrderEvent(details OrderDetail[]);\n" +
+            String epl = "@public @buseventtype create schema OrderDetail(itemId string);\n" +
+                "@public @buseventtype create schema OrderEvent(details OrderDetail[]);\n" +
                 "@name('s0') select details.where(i => i.itemId = '001') as c0 from OrderEvent;\n";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -185,7 +185,7 @@ public class ExprEnumDataSources {
 
     private static class ExprEnumPropertyInsertIntoAtEventBean implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create objectarray schema StockTick(id string, price int);\n" +
+            String epl = "@public @buseventtype create objectarray schema StockTick(id string, price int);\n" +
                 "insert into TicksLarge select window(*).where(e => e.price > 100) @eventbean as ticksLargePrice\n" +
                 "from StockTick#time(10) having count(*) > 2;\n" +
                 "@name('s0') select ticksLargePrice.where(e => e.price < 200) as ticksLargeLess200 from TicksLarge;\n";
@@ -286,7 +286,7 @@ public class ExprEnumDataSources {
         public void run(RegressionEnvironment env) {
             // test table access expression
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTableUnkeyed(theWindow window(*) @type(SupportBean))", path);
+            env.compileDeploy("@public create table MyTableUnkeyed(theWindow window(*) @type(SupportBean))", path);
             env.compileDeploy("into table MyTableUnkeyed select window(*) as theWindow from SupportBean#time(30)", path);
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E2", 20));
@@ -487,7 +487,7 @@ public class ExprEnumDataSources {
     private static class ExprEnumNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#keepall as SupportBean_ST0;\n" +
+            String epl = "@public create window MyWindow#keepall as SupportBean_ST0;\n" +
                 "on SupportBean_A delete from MyWindow;\n" +
                 "insert into MyWindow select * from SupportBean_ST0;\n";
             env.compileDeploy(epl, path);
@@ -585,8 +585,8 @@ public class ExprEnumDataSources {
             env.undeployAll();
 
             // test subselect that delivers events
-            String epl = "@buseventtype create schema AEvent (symbol string);\n" +
-                "@buseventtype create schema BEvent (a AEvent);\n" +
+            String epl = "@public @buseventtype create schema AEvent (symbol string);\n" +
+                "@public @buseventtype create schema BEvent (a AEvent);\n" +
                 "@name('s0') select (select a from BEvent#keepall).anyOf(v => symbol = 'GE') as flag from SupportBean;\n";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -692,7 +692,7 @@ public class ExprEnumDataSources {
 
             // test map event type with object-array prop
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@buseventtype create schema MySchema (books BookDesc[])", path);
+            env.compileDeploy("@buseventtype @public create schema MySchema (books BookDesc[])", path);
 
             env.compileDeploy("@name('s0') select books.max(i => i.price) as mymax from MySchema", path);
             env.addListener("s0");

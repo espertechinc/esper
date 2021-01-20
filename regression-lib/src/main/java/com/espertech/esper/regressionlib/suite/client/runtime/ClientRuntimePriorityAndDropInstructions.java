@@ -116,7 +116,7 @@ public class ClientRuntimePriorityAndDropInstructions {
             RegressionPath path = new RegressionPath();
             SupportListener listener = env.listenerNew();
 
-            stmtText = "create window MyWindow#lastevent as select * from SupportBean";
+            stmtText = "@public create window MyWindow#lastevent as select * from SupportBean";
             env.compileDeploy(stmtText, path);
 
             stmtText = "insert into MyWindow select * from SupportBean";
@@ -176,7 +176,7 @@ public class ClientRuntimePriorityAndDropInstructions {
             RegressionPath path = new RegressionPath();
             SupportListener listener = env.listenerNew();
 
-            stmtText = "create window MyWindow#lastevent as select * from SupportBean";
+            stmtText = "@public create window MyWindow#lastevent as select * from SupportBean";
             env.compileDeploy(stmtText, path);
 
             stmtText = "insert into MyWindow select * from SupportBean";

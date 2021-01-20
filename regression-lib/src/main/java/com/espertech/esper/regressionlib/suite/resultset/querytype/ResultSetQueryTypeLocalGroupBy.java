@@ -178,7 +178,7 @@ public class ResultSetQueryTypeLocalGroupBy {
 
             // not allowed in combination with into-table
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table mytable (thesum sum(int))", path);
+            env.compileDeploy("@public create table mytable (thesum sum(int))", path);
             env.tryInvalidCompile(path, "into table mytable select sum(intPrimitive, group_by:theString) as thesum from SupportBean",
                 "Into-table and group-by parameters cannot be combined");
 
@@ -485,7 +485,7 @@ public class ResultSetQueryTypeLocalGroupBy {
     }
 
     private static void tryAssertionAggAndFullyAgg(RegressionEnvironment env, String selected, MyAssertion assertion) {
-        String epl = "create context StartS0EndS1 start SupportBean_S0 end SupportBean_S1;" +
+        String epl = "@public create context StartS0EndS1 start SupportBean_S0 end SupportBean_S1;" +
             "@name('s0') context StartS0EndS1 " +
             selected +
             " output snapshot when terminated;";
@@ -686,7 +686,7 @@ public class ResultSetQueryTypeLocalGroupBy {
 
     public static class ResultSetLocalUngroupedSameKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create objectarray schema MyEventOne (d1 String, d2 String, val int);\n" +
+            String epl = "@public @buseventtype create objectarray schema MyEventOne (d1 String, d2 String, val int);\n" +
                 "@name('s0') select sum(val, group_by: d1) as c0, sum(val, group_by: d2) as c1 from MyEventOne";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -713,7 +713,7 @@ public class ResultSetQueryTypeLocalGroupBy {
 
     public static class ResultSetLocalGroupedSameKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create objectarray schema MyEventTwo (g1 String, d1 String, d2 String, val int);\n" +
+            String epl = "@public @buseventtype create objectarray schema MyEventTwo (g1 String, d1 String, d2 String, val int);\n" +
                 "@name('s0') select sum(val) as c0, sum(val, group_by: d1) as c1, sum(val, group_by: d2) as c2 from MyEventTwo group by g1";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 

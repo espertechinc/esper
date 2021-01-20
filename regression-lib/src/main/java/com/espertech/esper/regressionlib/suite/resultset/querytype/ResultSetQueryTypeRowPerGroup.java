@@ -412,7 +412,7 @@ public class ResultSetQueryTypeRowPerGroup {
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#keepall as select * from SupportBean;\n" +
+            String epl = "@public create window MyWindow#keepall as select * from SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean;\n" +
                 "on SupportBean_A a delete from MyWindow w where w.theString = a.id;\n" +
                 "on SupportBean_B delete from MyWindow;\n";
@@ -487,8 +487,8 @@ public class ResultSetQueryTypeRowPerGroup {
             env.undeployAll();
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('define-age') create variable int myAge = 10;\n" +
-                "@name('define-freq') create variable int myFreq = 10;\n", path);
+            env.compileDeploy("@name('define-age') @public create variable int myAge = 10;\n" +
+                "@name('define-freq') @public create variable int myFreq = 10;\n", path);
 
             epl = "@name('s0') @Hint('reclaim_group_aged=myAge,reclaim_group_freq=myFreq') select longPrimitive, count(*) from SupportBean group by longPrimitive";
             env.compileDeploy(epl, path).addListener("s0");

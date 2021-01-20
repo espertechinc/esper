@@ -110,7 +110,7 @@ public class ExprEnumDocSamples {
             String epl;
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window ZoneWindow#keepall as Zone", path);
+            env.compileDeploy("@public create window ZoneWindow#keepall as Zone", path);
             env.compileDeploy("insert into ZoneWindow select * from Zone", path);
 
             epl = "@name('s0') select ZoneWindow.where(z => inrect(z.rectangle, location)) as zones from Item";
@@ -273,7 +273,7 @@ public class ExprEnumDocSamples {
             assertStmt(env, path, "select items.where(i => i.assetId=\"L001\").union(items.where(i => i.type=\"P\")) as itemsUnion from LocationReport");
             assertStmt(env, path, "select (select name from Zone#unique(name)).orderBy() as orderedZones from pattern [every timer:interval(30)]");
 
-            env.compileDeploy("@buseventtype create schema MyEvent as (seqone String[], seqtwo String[])", path);
+            env.compileDeploy("@buseventtype @public create schema MyEvent as (seqone String[], seqtwo String[])", path);
 
             assertStmt(env, path, "select seqone.sequenceEqual(seqtwo) from MyEvent");
             assertStmt(env, path, "select window(assetId).orderBy() as orderedAssetIds from Item#time(10) group by assetId");

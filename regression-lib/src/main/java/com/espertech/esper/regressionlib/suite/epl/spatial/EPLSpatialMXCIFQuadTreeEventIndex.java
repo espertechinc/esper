@@ -102,9 +102,9 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             SupportQueryPlanIndexHook.reset();
-            env.compileDeploy("@buseventtype create schema Geofence(x double, y double, vin string)", path);
+            env.compileDeploy("@public @buseventtype create schema Geofence(x double, y double, vin string)", path);
 
-            env.compileDeploy("create table Regions(regionId string primary key, rx double, ry double, rwidth double, rheight double)", path);
+            env.compileDeploy("@public create table Regions(regionId string primary key, rx double, ry double, rwidth double, rheight double)", path);
             env.compileDeploy("create index RectangleIndex on Regions((rx, ry, rwidth, rheight) mxcifquadtree(0, 0, 10, 12))", path);
             env.compileDeploy("@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on Geofence as vin insert into VINWithRegion select regionId, vin from Regions where rectangle(rx, ry, rwidth, rheight).intersects(rectangle(vin.x, vin.y, 0, 0))", path);
             env.addListener("s0");
@@ -123,7 +123,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     private static class EPLSpatialMXCIFEventIndexTableFireAndForget implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(id string primary key, tx double, ty double, tw double, th double)", path);
+            env.compileDeploy("@public create table MyTable(id string primary key, tx double, ty double, tw double, th double)", path);
             env.compileExecuteFAF("insert into MyTable values ('R1', 10, 20, 5, 6)", path);
             env.compileDeploy("create index MyIdxCIFQuadTree on MyTable( (tx, ty, tw, th) mxcifquadtree(0, 0, 100, 100))", path);
 
@@ -255,7 +255,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             SupportQueryPlanIndexHook.reset();
-            env.compileDeploy(soda, "create window MyWindow#length(5) as select * from SupportSpatialEventRectangle", path);
+            env.compileDeploy(soda, "@public create window MyWindow#length(5) as select * from SupportSpatialEventRectangle", path);
             env.compileDeploy(soda, "create index MyIndex on MyWindow((x,y,width,height) mxcifquadtree(0,0,100,100))", path);
             env.compileDeploy(soda, "insert into MyWindow select * from SupportSpatialEventRectangle", path);
 
@@ -323,7 +323,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create table RectangleTable(id string primary key, rx double, ry double, rw double, rh double);\n" +
+            String epl = "@public create table RectangleTable(id string primary key, rx double, ry double, rw double, rh double);\n" +
                 "create index MyIndex on RectangleTable((rx,ry,rw,rh) mxcifquadtree(0,0,100,100,4,20));\n" +
                 "insert into RectangleTable select id, x as rx, y as ry, width as rw, height as rh from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(rx,ry,rw,rh).intersects(rectangle(x,y,width,height));\n";
@@ -353,7 +353,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     public static class EPLSpatialMXCIFEventIndexTableSubdivideDeepAddDestroy implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
+            String epl = "@public create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleTable((x,y,width,height) mxcifquadtree(0,0,100,100,2,12));\n" +
                 "insert into RectangleTable select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
@@ -379,7 +379,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
     public static class EPLSpatialMXCIFEventIndexTableSubdivideDestroy implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
+            String epl = "@public create table RectangleTable(id string primary key, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleTable((x,y,width,height) mxcifquadtree(0,0,100,100,4,40));\n" +
                 "insert into RectangleTable select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
@@ -418,7 +418,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create window RectangleWindow#keepall as (id string, x double, y double, width double, height double);\n" +
+            String epl = "@public create window RectangleWindow#keepall as (id string, x double, y double, width double, height double);\n" +
                 "create index MyIndex on RectangleWindow((x,y,width,height) mxcifquadtree(0,0,100,100,2,5));\n" +
                 "insert into RectangleWindow select id, x, y, width, height from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(pt.x,pt.y,pt.width,pt.height).intersects(rectangle(aabb.x,aabb.y,aabb.width,aabb.height));\n";
@@ -559,7 +559,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
+            String epl = "@public create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
                 "create index MyIndex on RectangleWindow((px,py,pw,ph) mxcifquadtree(0,0,100,100));\n" +
                 "insert into RectangleWindow select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
@@ -634,7 +634,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table RectangleTable as (id string primary key, px double, py double, pw double, ph double);\n" +
+            String epl = "@public create table RectangleTable as (id string primary key, px double, py double, pw double, ph double);\n" +
                 "create index MyIndex on RectangleTable((px,py,pw,ph) mxcifquadtree(0,0,100,100));\n" +
                 "insert into RectangleTable select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleTable as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";
@@ -730,7 +730,7 @@ public class EPLSpatialMXCIFQuadTreeEventIndex {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
+            String epl = "@public create window RectangleWindow#keepall as (id string, px double, py double, pw double, ph double);\n" +
                 "create unique index MyIndex on RectangleWindow((px,py,pw,ph) mxcifquadtree(0,0,1000,1000));\n" +
                 "insert into RectangleWindow select id, x as px, y as py, width as pw, height as ph from SupportSpatialEventRectangle;\n" +
                 "@name('s0') on SupportSpatialAABB as aabb select pt.id as c0 from RectangleWindow as pt where rectangle(px,py,pw,ph).intersects(rectangle(x,y,width,height));\n";

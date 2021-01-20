@@ -62,8 +62,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             RegressionPath path = new RegressionPath();
             // create window one
             String eplCreate = namedWindow ?
-                "create window MyInfraFAFKB#keepall as SupportBean" :
-                "create table MyInfraFAFKB (theString string primary key, intPrimitive int primary key)";
+                "@public create window MyInfraFAFKB#keepall as SupportBean" :
+                "@public create table MyInfraFAFKB (theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfraFAFKB select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('idx') create index idx1 on MyInfraFAFKB(intPrimitive btree)", path);
@@ -122,8 +122,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             RegressionPath path = new RegressionPath();
             // create window one
             String eplCreate = namedWindow ?
-                "create window MyInfraFAFKR#keepall as SupportBean" :
-                "create table MyInfraFAFKR (theString string primary key, intPrimitive int primary key)";
+                "@public create window MyInfraFAFKR#keepall as SupportBean" :
+                "@public create table MyInfraFAFKR (theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfraFAFKR select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("create index idx1 on MyInfraFAFKR(theString hash, intPrimitive btree)", path);
@@ -183,8 +183,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             RegressionPath path = new RegressionPath();
             // create window one
             String eplCreate = namedWindow ?
-                "create window MyInfraRP#keepall as SupportBean" :
-                "create table MyInfraRP (theString string primary key, intPrimitive int primary key)";
+                "@public create window MyInfraRP#keepall as SupportBean" :
+                "@public create table MyInfraRP (theString string primary key, intPrimitive int primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfraRP select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("create index idx1 on MyInfraRP(intPrimitive btree)", path);
@@ -243,8 +243,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             // create window one
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "create window MyInfraOne#keepall as (f1 string, f2 int)" :
-                "create table MyInfraOne (f1 string primary key, f2 int primary key)";
+                "@public create window MyInfraOne#keepall as (f1 string, f2 int)" :
+                "@public create table MyInfraOne (f1 string primary key, f2 int primary key)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("insert into MyInfraOne(f1, f2) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("create index MyInfraOneIndex on MyInfraOne(f1)", path);
@@ -323,8 +323,8 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfraIKW#keepall as SupportBean" :
-                "create table MyInfraIKW (theString string primary key)";
+                "@public create window MyInfraIKW#keepall as SupportBean" :
+                "@public create table MyInfraIKW (theString string primary key)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("create index idx on MyInfraIKW(theString)", path);
             env.compileDeploy("insert into MyInfraIKW select theString from SupportBean", path);

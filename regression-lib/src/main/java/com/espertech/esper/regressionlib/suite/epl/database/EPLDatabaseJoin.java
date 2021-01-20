@@ -160,7 +160,7 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseVariables implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int queryvar", path);
+            env.compileDeploy("@public create variable int queryvar", path);
             env.compileDeploy("on SupportBean set queryvar=intPrimitive", path);
             String stmtText = "@name('s0') select myint from " +
                 " sql:MyDBWithRetain ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0, " +
@@ -337,7 +337,7 @@ public class EPLDatabaseJoin {
 
             // with variable
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable long VarLastTimestamp = 0", path);
+            env.compileDeploy("@public create variable long VarLastTimestamp = 0", path);
             String epl = "@Name('Poll every 5 seconds') insert into PollStream" +
                 " select * from pattern[every timer:interval(5 sec)]," +
                 " sql:MyDBWithRetain ['select mychar from mytesttable where mytesttable.mybigint > ${VarLastTimestamp}'] as s0";

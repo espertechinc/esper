@@ -45,7 +45,7 @@ public class ContextAdminListen {
         public void run(RegressionEnvironment env) {
             String name = "MyContextStartS0EndS1";
             RegressionPath path = new RegressionPath();
-            String contextEPL = "@name('ctx') create context MyContextStartS0EndS1 start SupportBean_S0 as s0 end SupportBean_S1";
+            String contextEPL = "@name('ctx') @public create context MyContextStartS0EndS1 start SupportBean_S0 as s0 end SupportBean_S1";
             env.compileDeploy(contextEPL, path);
             String depIdCtx = env.deploymentId("ctx");
 
@@ -87,7 +87,7 @@ public class ContextAdminListen {
 
     private static void runAssertionPartitionAddRemoveListener(RegressionEnvironment env, String eplContext, String contextName) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('ctx') " + eplContext, path);
+        env.compileDeploy("@name('ctx') @public " + eplContext, path);
         env.compileDeploy("@name('s0') context " + contextName + " select count(*) from SupportBean", path);
         EPContextPartitionService api = env.runtime().getContextPartitionService();
         String depIdCtx = env.deploymentId("ctx");
@@ -130,7 +130,7 @@ public class ContextAdminListen {
         public void run(RegressionEnvironment env) {
             EPContextPartitionService api = env.runtime().getContextPartitionService();
 
-            String epl = "@name('ctx') create context MyContext start SupportBean_S0 as s0 end SupportBean_S1";
+            String epl = "@name('ctx') @public create context MyContext start SupportBean_S0 as s0 end SupportBean_S1";
             SupportContextListener[] listeners = new SupportContextListener[3];
             for (int i = 0; i < listeners.length; i++) {
                 listeners[i] = new SupportContextListener(env);
@@ -175,7 +175,7 @@ public class ContextAdminListen {
             env.runtime().getContextPartitionService().addContextStateListener(listener);
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyContext " +
+            env.compileDeploy("@name('ctx') @public create context MyContext " +
                 "context ContextPosNeg group by intPrimitive > 0 as pos, group by intPrimitive < 0 as neg from SupportBean, " +
                 "context ByString partition by theString from SupportBean", path);
             String depIdCtx = env.deploymentId("ctx");
@@ -215,7 +215,7 @@ public class ContextAdminListen {
             env.runtime().getContextPartitionService().addContextStateListener(listener);
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyContext group by intPrimitive > 0 as pos, group by intPrimitive < 0 as neg from SupportBean", path);
+            env.compileDeploy("@name('ctx') @public create context MyContext group by intPrimitive > 0 as pos, group by intPrimitive < 0 as neg from SupportBean", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) from SupportBean", path);
 
             List<ContextStateEventContextPartitionAllocated> allocated = listener.getAllocatedEvents();
@@ -271,7 +271,7 @@ public class ContextAdminListen {
             env.runtime().getContextPartitionService().addContextStateListener(listener);
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context MyContext start SupportBean_S0 as s0 end SupportBean_S1", path);
+            env.compileDeploy("@name('ctx') @public create context MyContext start SupportBean_S0 as s0 end SupportBean_S1", path);
             String depIdCtx = env.deploymentId("ctx");
             listener.assertAndReset(eventContext(depIdCtx, "MyContext", ContextStateEventContextCreated.class));
 

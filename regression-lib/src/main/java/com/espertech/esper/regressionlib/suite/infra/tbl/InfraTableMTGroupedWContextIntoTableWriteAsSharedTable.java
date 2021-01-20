@@ -53,8 +53,8 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements R
 
     private static void tryMT(RegressionEnvironment env, int numThreads, int numLoops, int numGroups) throws InterruptedException {
         String eplDeclare =
-            "create table varTotal (key string primary key, total sum(int));\n" +
-                "create context ByStringHash\n" +
+            "@public create table varTotal (key string primary key, total sum(int));\n" +
+                "@public create context ByStringHash\n" +
                 "  coalesce by consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate\n;" +
                 "context ByStringHash into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n";
         String eplAssert = "select varTotal[p00].total as c0 from SupportBean_S0";

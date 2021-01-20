@@ -272,7 +272,7 @@ public class ResultSetAggregateFirstLastWindow {
             env.undeployAll();
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('var') create variable int indexvar = 2", path);
+            env.compileDeploy("@name('var') @public create variable int indexvar = 2", path);
             epl = "@name('s0') select first(intPrimitive, indexvar) as f0 from SupportBean#keepall";
             env.compileDeploy(epl, path).addListener("s0");
 
@@ -709,7 +709,7 @@ public class ResultSetAggregateFirstLastWindow {
     private static class ResultSetAggregateLateInitialize implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindowTwo#keepall as select * from SupportBean;\n" +
+            String epl = "@public create window MyWindowTwo#keepall as select * from SupportBean;\n" +
                 "insert into MyWindowTwo select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -793,7 +793,7 @@ public class ResultSetAggregateFirstLastWindow {
     private static class ResultSetAggregateOnDemandQuery implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindowFour#keepall as select * from SupportBean;\n" +
+            String epl = "@public create window MyWindowFour#keepall as select * from SupportBean;\n" +
                 "insert into MyWindowFour select * from SupportBean;";
             env.compileDeploy(epl, path);
 

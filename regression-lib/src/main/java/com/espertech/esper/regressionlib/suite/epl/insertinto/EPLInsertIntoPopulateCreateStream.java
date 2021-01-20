@@ -51,7 +51,7 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
     private static void runAssertionObjectArrPropertyReorder(RegressionEnvironment env) {
         String epl = "create objectarray schema MyInner (p_inner string);\n" +
             "create objectarray schema MyOATarget (unfilled string, p0 string, p1 string, i0 MyInner);\n" +
-            "@buseventtype create objectarray schema MyOASource (p0 string, p1 string, i0 MyInner);\n" +
+            "@public @buseventtype create objectarray schema MyOASource (p0 string, p1 string, i0 MyInner);\n" +
             "insert into MyOATarget select p0, p1, i0, null as unfilled from MyOASource;\n" +
             "@name('s0') select * from MyOATarget;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
@@ -64,10 +64,10 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
 
     private static void runAssertPopulateFromNamedWindow(RegressionEnvironment env, EventRepresentationChoice type) {
         RegressionPath path = new RegressionPath();
-        String schemaEPL = type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNode.class) + "@buseventtype create schema Node(nid string)";
+        String schemaEPL = type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNode.class) + "@public @buseventtype create schema Node(nid string)";
         env.compileDeploy(schemaEPL, path);
 
-        env.compileDeploy("create window NodeWindow#unique(nid) as Node", path);
+        env.compileDeploy("@public create window NodeWindow#unique(nid) as Node", path);
         env.compileDeploy("insert into NodeWindow select * from Node", path);
         env.compileDeploy(type.getAnnotationTextWJsonProvided(MyLocalJsonProvidedNodePlus.class) + "create schema NodePlus(npid string, node Node)", path);
         env.compileDeploy("@name('s0') insert into NodePlus select 'E1' as npid, n1 as node from NodeWindow n1", path).addListener("s0");
@@ -98,8 +98,8 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
     }
 
     private static void runAssertionCreateStream(RegressionEnvironment env, EventRepresentationChoice representation) {
-        String epl = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent(myId int);\n" +
-            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " @buseventtype create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
+        String epl = representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype @public create schema MyEvent(myId int);\n" +
+            representation.getAnnotationTextWJsonProvided(MyLocalJsonProvidedCompositeEvent.class) + " @buseventtype @public create schema CompositeEvent(c1 MyEvent, c2 MyEvent, rule string);\n" +
             "insert into MyStream select c, 'additionalValue' as value from MyEvent c;\n" +
             "insert into CompositeEvent select e1.c as c1, e2.c as c2, '4' as rule " +
             "  from pattern [e1=MyStream -> e2=MyStream];\n" +
@@ -133,9 +133,9 @@ public class EPLInsertIntoPopulateCreateStream implements RegressionExecution {
 
     private static void runAssertionCreateStreamTwo(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
         RegressionPath path = new RegressionPath();
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent(myId int)\n;" +
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedAllMyEvent.class) + " @buseventtype create schema AllMyEvent as (myEvent MyEvent, clazz String, reverse boolean);\n" +
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSuspectMyEvent.class) + " @buseventtype create schema SuspectMyEvent as (myEvent MyEvent, clazz String);\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @public @buseventtype create schema MyEvent(myId int)\n;" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedAllMyEvent.class) + " @public @buseventtype create schema AllMyEvent as (myEvent MyEvent, clazz String, reverse boolean);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSuspectMyEvent.class) + " @public @buseventtype create schema SuspectMyEvent as (myEvent MyEvent, clazz String);\n";
         env.compileDeploy(epl, path);
 
         env.compileDeploy("@name('s0') insert into AllMyEvent " +

@@ -35,7 +35,7 @@ public class ExprDTPlusMinus {
     private static class ExprDTPlusMinusSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('var') create variable long varmsec", path);
+            env.compileDeploy("@name('var') @public create variable long varmsec", path);
             String startTime = "2002-05-30T09:00:00.000";
             env.advanceTime(DateTime.parseDefaultMSec(startTime));
 

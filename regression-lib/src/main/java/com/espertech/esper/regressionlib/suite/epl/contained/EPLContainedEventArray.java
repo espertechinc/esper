@@ -63,12 +63,12 @@ public class EPLContainedEventArray {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.compileDeploy(
-                "create schema IdContainer(id int);" +
-                    "create schema MyEvent(ids int[]);" +
+                "@public create schema IdContainer(id int);" +
+                    "@public create schema MyEvent(ids int[]);" +
                     "select * from MyEvent[ids@type(IdContainer)];", path);
 
             env.compileDeploy(
-                "create window MyWindow#keepall (id int);" +
+                    "@public create window MyWindow#keepall (id int);" +
                     "on MyEvent[ids@type(IdContainer)] as my_ids \n" +
                     "delete from MyWindow my_window \n" +
                     "where my_ids.id = my_window.id;", path);
@@ -82,7 +82,7 @@ public class EPLContainedEventArray {
 
             RegressionPath path = new RegressionPath();
             String epl = "create objectarray schema DeleteId(id int);" +
-                "create window MyWindow#keepall as SupportBean;" +
+                "@public create window MyWindow#keepall as SupportBean;" +
                 "insert into MyWindow select * from SupportBean;" +
                 "on SupportBeanArrayCollMap[intArr@type(DeleteId)] delete from MyWindow where intPrimitive = id";
             env.compileDeploy(epl, path);

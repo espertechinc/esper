@@ -132,9 +132,9 @@ public class EPLVariablesOnSet {
     private static class EPLVariableOnSetArrayInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplVariables = "@name('create') create variable double[primitive] doublearray;\n" +
-                "create variable int[primitive] intarray;\n" +
-                "create variable int notAnArray;";
+            String eplVariables = "@name('create') @public create variable double[primitive] doublearray;\n" +
+                "@public create variable int[primitive] intarray;\n" +
+                "@public create variable int notAnArray;";
             env.compile(eplVariables, path);
 
             // invalid property
@@ -417,11 +417,11 @@ public class EPLVariablesOnSet {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
 
-            String textVar = "@name('s0_0') create variable int resvar = 1";
+            String textVar = "@name('s0_0') @public create variable int resvar = 1";
             env.compileDeploy(textVar, path).addListener("s0_0");
             String[] fieldsVarOne = new String[]{"resvar"};
 
-            textVar = "@name('s0_1') create variable int durvar = 10";
+            textVar = "@name('s0_1') @public create variable int durvar = 10";
             env.compileDeploy(textVar, path).addListener("s0_1");
             String[] fieldsVarTwo = new String[]{"durvar"};
 

@@ -101,7 +101,7 @@ public class ContextNested {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.advanceTime(0);
-            env.compileDeploy("create context Ctx "
+            env.compileDeploy("@public create context Ctx "
                 + "context C0 initiated by SupportBean as criteria terminated by SupportBean(theString='x'), "
                 + "context C1 start @now end (*,*,*,*,*,*/5)", path);
             env.compileDeploy("@name('s0') context Ctx select context.C0.criteria as c0, event, count(*) as cnt from SupportBean_S0(p00=context.C0.criteria.theString) as event", path);
@@ -139,7 +139,7 @@ public class ContextNested {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("@name('ctx') create context MyContext \n" +
+            env.compileDeploy("@name('ctx') @public create context MyContext \n" +
                 "context C0 initiated by SupportBean(intPrimitive=0) AS criteria terminated by SupportBean(intPrimitive=1), \n" +
                 "context C1 start @now end (*,*,*,*,*,*/5)", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) as cnt from SupportBean(theString = context.C0.criteria.theString)", path);
@@ -175,7 +175,7 @@ public class ContextNested {
     private static class ContextNestedPartitionedOverPatternInitiated implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context TheContext " +
+            env.compileDeploy("@public create context TheContext " +
                 "context C0 partition by theString from SupportBean," +
                 "context C1 initiated by SupportBean(intPrimitive=1) terminated by SupportBean(intPrimitive=2)", path);
             env.compileDeploy("@name('s0') context TheContext select theString, sum(longPrimitive) as theSum from SupportBean output last when terminated", path);
@@ -210,7 +210,7 @@ public class ContextNested {
     private static class ContextNestedWithFilterUDF implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ACtx initiated by SupportBean_S0 as s0 terminated after 24 hours, " +
                 "context BCtx initiated by SupportBean_S1 as s1 terminated after 1 hour", path);
             env.compileDeploy("@Name('s0') context NestedContext select * " +
@@ -241,7 +241,7 @@ public class ContextNested {
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ACtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id), " +
                 "context BCtx group by intPrimitive < 0 as grp1, group by intPrimitive = 0 as grp2, group by intPrimitive > 0 as grp3 from SupportBean", path);
 
@@ -296,7 +296,7 @@ public class ContextNested {
             path.clear();
 
             // test 3 nesting levels and targeted
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ACtx group by intPrimitive < 0 as i1, group by intPrimitive = 0 as i2, group by intPrimitive > 0 as i3 from SupportBean," +
                 "context BCtx group by longPrimitive < 0 as l1, group by longPrimitive = 0 as l2, group by longPrimitive > 0 as l3 from SupportBean," +
                 "context CCtx group by boolPrimitive = true as b1, group by boolPrimitive = false as b2 from SupportBean", path);
@@ -355,7 +355,7 @@ public class ContextNested {
 
             // validate statement added to nested context
             RegressionPath path = new RegressionPath();
-            epl = "create context ABC context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), context PartCtx as partition by theString from SupportBean";
+            epl = "@public create context ABC context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), context PartCtx as partition by theString from SupportBean";
             env.compileDeploy(epl, path);
             epl = "context ABC select * from SupportBean_S0";
             env.tryInvalidCompile(path, epl, "Segmented context 'ABC' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
@@ -369,7 +369,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context SegByString partition by theString from SupportBean", path);
 
@@ -404,7 +404,7 @@ public class ContextNested {
             SupportBean bean;
 
             // category over partition
-            eplContext = "@name('ctx') create context TheContext " +
+            eplContext = "@name('ctx') @public create context TheContext " +
                 "context CtxCategory as group intPrimitive < 0 as negative, group intPrimitive > 0 as positive from SupportBean, " +
                 "context CtxPartition as partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
@@ -421,7 +421,7 @@ public class ContextNested {
             env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             // category over partition over category
-            eplContext = "@name('ctx') create context TheContext " +
+            eplContext = "@name('ctx') @public create context TheContext " +
                 "context CtxCategoryOne as group intPrimitive < 0 as negative, group intPrimitive > 0 as positive from SupportBean, " +
                 "context CtxPartition as partition by theString from SupportBean," +
                 "context CtxCategoryTwo as group longPrimitive < 0 as negative, group longPrimitive > 0 as positive from SupportBean";
@@ -442,7 +442,7 @@ public class ContextNested {
             env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             // partition over partition over partition
-            eplContext = "@name('ctx') create context TheContext " +
+            eplContext = "@name('ctx') @public create context TheContext " +
                 "context CtxOne as partition by theString from SupportBean, " +
                 "context CtxTwo as partition by intPrimitive from SupportBean," +
                 "context CtxThree as partition by longPrimitive from SupportBean";
@@ -463,7 +463,7 @@ public class ContextNested {
             env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             // category over hash
-            eplContext = "@name('ctx') create context TheContext " +
+            eplContext = "@name('ctx') @public create context TheContext " +
                 "context CtxCategoryOne as group intPrimitive < 0 as negative, group intPrimitive > 0 as positive from SupportBean, " +
                 "context CtxTwo as coalesce by consistent_hash_crc32(theString) from SupportBean granularity 100";
             env.compileDeploy(eplContext, path);
@@ -482,7 +482,7 @@ public class ContextNested {
             path.clear();
             env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
-            eplContext = "@name('ctx') create context TheContext " +
+            eplContext = "@name('ctx') @public create context TheContext " +
                 "context CtxOne as partition by theString from SupportBean, " +
                 "context CtxTwo as start pattern [SupportBean_S0] end pattern[SupportBean_S1]";
             env.compileDeploy(eplContext, path);
@@ -507,7 +507,7 @@ public class ContextNested {
     private static class ContextNestedPartitionedWithFilterOverlap implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Audit('pattern-instances') create context TheContext"
+            env.compileDeploy("@Audit('pattern-instances') @public create context TheContext"
                 + " context CtxSession partition by id from SupportBean_S0, "
                 + " context CtxStartEnd start SupportBean_S0 as te end SupportBean_S1(id=te.id)", path);
             env.compileDeploy("@name('s0') context TheContext select firstEvent from SupportBean_S0#firstevent() as firstEvent"
@@ -553,7 +553,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplCtx = "@name('ctx') create context NestedContext as " +
+            String eplCtx = "@name('ctx') @public create context NestedContext as " +
                 "context ByCat as group intPrimitive < 0 as g1, group intPrimitive > 0 as g2, group intPrimitive = 0 as g3 from SupportBean, " +
                 "context InitCtx as initiated by pattern [every a=SupportBean_S0 -> b=SupportBean_S1(id = a.id)] terminated after 10 sec";
             env.compileDeploy(eplCtx, path);
@@ -637,7 +637,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplCtx = "@name('ctx') create context NestedContext as " +
+            String eplCtx = "@name('ctx') @public create context NestedContext as " +
                 "context SegByString as partition by theString from SupportBean(intPrimitive > 0), " +
                 "context InitCtx initiated by SupportBean_S0 as s0 terminated after 60 seconds";
             env.compileDeploy(eplCtx, path);
@@ -699,7 +699,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             AtomicInteger milestone = new AtomicInteger();
 
-            String eplCtxOne = "create context NestedContext as " +
+            String eplCtxOne = "@public create context NestedContext as " +
                 "context SegByString as partition by theString from SupportBean, " +
                 "context SegByInt as partition by intPrimitive from SupportBean, " +
                 "context SegByLong as partition by longPrimitive from SupportBean ";
@@ -737,7 +737,7 @@ public class ContextNested {
 
             // Test partitioned context
             //
-            String eplCtxTwo = "@name('ctx') create context NestedContext as " +
+            String eplCtxTwo = "@name('ctx') @public create context NestedContext as " +
                 "context HashOne coalesce by hash_code(theString) from SupportBean granularity 10, " +
                 "context HashTwo coalesce by hash_code(intPrimitive) from SupportBean granularity 10";
             env.compileDeploy(eplCtxTwo, path);
@@ -765,7 +765,7 @@ public class ContextNested {
 
             // Test partitioned context
             //
-            String eplCtxThree = "create context NestedContext as " +
+            String eplCtxThree = "@public create context NestedContext as " +
                 "context InitOne initiated by SupportBean(theString like 'I%') as sb0 terminated after 10 sec, " +
                 "context InitTwo initiated by SupportBean(intPrimitive > 0) as sb1 terminated after 10 sec";
             env.compileDeploy(eplCtxThree, path);
@@ -791,7 +791,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             AtomicInteger milestone = new AtomicInteger();
 
-            String eplCtx = "@name('ctx') create context NestedContext as " +
+            String eplCtx = "@name('ctx') @public create context NestedContext as " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context InitCtx0 initiated by SupportBean_S0 as s0 terminated after 60 seconds, " +
                 "context InitCtx1 initiated by SupportBean_S1 as s1 terminated after 30 seconds, " +
@@ -1027,7 +1027,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             AtomicInteger milestone = new AtomicInteger();
 
-            String eplCtx = "@name('ctx') create context NestedContext as " +
+            String eplCtx = "@name('ctx') @public create context NestedContext as " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context ByCat as group intPrimitive<0 as g1, group intPrimitive=0 as g2, group intPrimitive>0 as g3 from SupportBean, " +
                 "context SegmentedByString as partition by theString from SupportBean";
@@ -1068,7 +1068,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T07:00:00.000");
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context HashedCtx coalesce hash_code(intPrimitive) from SupportBean granularity 10 preallocate", path);
             env.assertThat(() -> Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
@@ -1126,7 +1126,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ByCat " +
                 "  group intPrimitive < 0 and intPrimitive != -9999 as g1, " +
                 "  group intPrimitive = 0 as g2, " +
@@ -1202,7 +1202,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T07:00:00.000");
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context SegmentedByAString partition by theString from SupportBean", path);
             env.assertThat(() -> Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
@@ -1302,7 +1302,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T07:00:00.000");
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context SegmentedByAString partition by theString from SupportBean, " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *)", path);
             env.assertThat(() -> {
@@ -1405,7 +1405,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:30:00.000");
 
-            env.compileDeploy("@name('ctx') create context NestedContext " +
+            env.compileDeploy("@name('ctx') @public create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context SegmentedByAString partition by theString from SupportBean", path);
 
@@ -1496,7 +1496,7 @@ public class ContextNested {
             RegressionPath path = new RegressionPath();
             sendTimeEvent(env, "2002-05-1T08:30:00.000");
 
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context SegmentedByAString partition by theString from SupportBean", path);
 
@@ -1556,7 +1556,7 @@ public class ContextNested {
     private static class ContextNestedPartitionWithMultiPropsAndTerm implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context PartitionedByKeys partition by theString, intPrimitive from SupportBean, " +
                 "context InitiateAndTerm start SupportBean as e1 " +
                 "end SupportBean_S0(id=e1.intPrimitive and p00=e1.theString)", path);
@@ -1587,7 +1587,7 @@ public class ContextNested {
     private static class ContextNestedOverlappingAndPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context PartitionedByKeys partition by theString from SupportBean, " +
                 "context TimedImmediate initiated @now and pattern[every timer:interval(10)] terminated after 10 seconds", path);
             tryAssertion(env, path);
@@ -1597,7 +1597,7 @@ public class ContextNested {
     private static class ContextNestedNonOverlapping implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context PartitionedByKeys partition by theString from SupportBean, " +
                 "context TimedImmediate start @now end after 10 seconds", path);
             tryAssertion(env, path);
@@ -1608,7 +1608,7 @@ public class ContextNested {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             env.advanceTime(0);
-            env.compileDeploy("@name('ctx') create context NestedCtxWTime " +
+            env.compileDeploy("@name('ctx') @public create context NestedCtxWTime " +
                 "context OuterCtx initiated @now and pattern[timer:interval(10000000)] terminated after 1 second, " +
                 "context InnerCtx partition by theString from SupportBean(intPrimitive=0) terminated by SupportBean(intPrimitive=1)", path);
             env.compileDeploy("context NestedCtxWTime select theString, count(*) as cnt from SupportBean", path);
@@ -1628,7 +1628,7 @@ public class ContextNested {
     private static class ContextNestedKeyedFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NestedCtxWPartition " +
+            env.compileDeploy("@name('ctx') @public create context NestedCtxWPartition " +
                 "context ByString partition by theString from SupportBean, " +
                 "context ByInt partition by intPrimitive from SupportBean terminated by SupportBean(boolPrimitive=false)", path);
             env.compileDeploy("@name('s0') context NestedCtxWPartition select theString, intPrimitive, sum(longPrimitive) as thesum from SupportBean output last when terminated", path);
@@ -1682,7 +1682,7 @@ public class ContextNested {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(soda, "create context MyCtx as " +
+            env.compileDeploy(soda, "@public create context MyCtx as " +
                 "context Lvl1Ctx as start SupportBean_S0 as s0, " +
                 "context Lvl2Ctx as start SupportBean_S1 as s1", path);
             env.compileDeploy("@name('s0') context MyCtx " +
@@ -1722,7 +1722,7 @@ public class ContextNested {
             sendTimeEvent(env, "2002-05-1T8:00:00.000");
             RegressionPath path = new RegressionPath();
 
-            String eplCtx = "@Name('ctx') create context NestedContext as " +
+            String eplCtx = "@Name('ctx') @public create context NestedContext as " +
                 "context EightToNine as start (0, 8, *, *, *) end (0, 9, *, *, *), " +
                 "context ByCat as group intPrimitive < 0 as g1, group intPrimitive = 0 as g2, group intPrimitive > 0 as g3 from SupportBean, " +
                 "context SegmentedByString as partition by theString from SupportBean";
@@ -1824,7 +1824,7 @@ public class ContextNested {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NestedContext " +
+            env.compileDeploy("@name('ctx') @public create context NestedContext " +
                 "context FirstCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id = s0.id), " +
                 "context SecondCtx coalesce by consistent_hash_crc32(theString) from SupportBean granularity 4 " + (preallocate ? "preallocate" : ""), path);
 
@@ -1889,7 +1889,7 @@ public class ContextNested {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NestedContext " +
+            env.compileDeploy("@name('ctx') @public create context NestedContext " +
                 "context FirstCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id = s0.id), " +
                 "context SecondCtx partition by theString from SupportBean", path);
 
@@ -1945,7 +1945,7 @@ public class ContextNested {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NestedContext " +
+            env.compileDeploy("@name('ctx') @public create context NestedContext " +
                 "context FirstCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id = s0.id), " +
                 "context SecondCtx group by theString = 'E1' as cat1, group by theString = 'E2' as cat2 from SupportBean", path);
 
@@ -2001,7 +2001,7 @@ public class ContextNested {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('ctx') create context NestedContext " +
+            env.compileDeploy("@name('ctx') @public create context NestedContext " +
                 "context FirstCtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id = s0.id), " +
                 "context SecondCtx initiated by SupportBean_S2 as s2 terminated after 24 hours", path);
 
@@ -2054,7 +2054,7 @@ public class ContextNested {
     public static class ContextNestedCategoryOverInitTermDistinct implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ACtx group by intPrimitive < 0 as grp1, group by intPrimitive = 0 as grp2, group by intPrimitive > 0 as grp3 from SupportBean, " +
                 "context BCtx initiated by distinct(a.intPrimitive) SupportBean(theString='A') as a terminated by SupportBean(theString='B') ", path);
             env.compileDeploy("@name('s0') context NestedContext select count(*) as cnt from SupportBean(intPrimitive = context.BCtx.a.intPrimitive and theString != 'B')", path).addListener("s0");

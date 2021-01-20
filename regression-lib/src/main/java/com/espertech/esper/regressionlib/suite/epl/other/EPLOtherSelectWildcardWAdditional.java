@@ -77,7 +77,7 @@ public class EPLOtherSelectWildcardWAdditional {
     private static class EPLOtherSingleInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String text = "@name('insert') insert into SomeEvent select *, myString||myString as concat from SupportBeanSimple#length(5)";
+            String text = "@name('insert') @public insert into SomeEvent select *, myString||myString as concat from SupportBeanSimple#length(5)";
             env.compileDeploy(text, path).addListener("insert");
 
             String textTwo = "@name('s0') select * from SomeEvent#length(5)";
@@ -92,7 +92,7 @@ public class EPLOtherSelectWildcardWAdditional {
     private static class EPLOtherJoinInsertInto implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String text = "@name('insert') insert into SomeJoinEvent select *, myString||myString as concat " +
+            String text = "@name('insert') @public insert into SomeJoinEvent select *, myString||myString as concat " +
                 "from SupportBeanSimple#length(5) as eventOne, SupportMarketDataBean#length(5) as eventTwo";
             env.compileDeploy(text, path).addListener("insert");
 

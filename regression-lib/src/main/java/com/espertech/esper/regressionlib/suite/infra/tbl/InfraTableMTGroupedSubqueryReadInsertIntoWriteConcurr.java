@@ -52,7 +52,7 @@ public class InfraTableMTGroupedSubqueryReadInsertIntoWriteConcurr implements Re
 
     private static void tryMT(RegressionEnvironment env, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table MyTable (pkey string primary key)";
+        String eplCreateVariable = "@public create table MyTable (pkey string primary key)";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplInsertInto = "insert into MyTable select theString as pkey from SupportBean";

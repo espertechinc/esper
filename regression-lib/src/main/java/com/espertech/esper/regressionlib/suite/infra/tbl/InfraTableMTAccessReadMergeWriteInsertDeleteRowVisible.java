@@ -61,7 +61,7 @@ public class InfraTableMTAccessReadMergeWriteInsertDeleteRowVisible implements R
 
     private static void tryMT(RegressionEnvironment env, int numSeconds, boolean grouped) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateTable = "create table MyTable (key string " + (grouped ? "primary key" : "") +
+        String eplCreateTable = "@public create table MyTable (key string " + (grouped ? "primary key" : "") +
             ", p0 int, p1 int, p2 int, p3 int, p4 int, p5 int)";
         env.compileDeploy(eplCreateTable, path);
 

@@ -286,7 +286,7 @@ public class ResultSetAggregateFilterNamedParameter {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplTable =
-                "create table MyTable(\n" +
+                "@public create table MyTable(\n" +
                     "totalA sum(int, true),\n" +
                     "totalB sum(int, true),\n" +
                     "winA window(*) @type(SupportBean),\n" +

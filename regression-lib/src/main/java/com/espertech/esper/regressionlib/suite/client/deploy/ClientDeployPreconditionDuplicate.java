@@ -47,13 +47,13 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierNamedWindow(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create window SimpleWindow#keepall as SupportBean";
+            String epl = "@public create window SimpleWindow#keepall as SupportBean";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
             path.clear();
 
-            epl = "module ABC; create window SimpleWindow#keepall as SupportBean";
+            epl = "module ABC; @public create window SimpleWindow#keepall as SupportBean";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A named window by name 'SimpleWindow'", "ABC", options);
 
@@ -69,7 +69,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierTable(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create table SimpleTable(col1 string)";
+            String epl = "@public create table SimpleTable(col1 string)";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A table by name 'SimpleTable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -84,7 +84,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create schema MySchema (col1 string)";
+            String epl = "@public create schema MySchema (col1 string)";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "An event type by name 'MySchema'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -99,7 +99,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierVariable(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create variable string myvariable";
+            String epl = "@public create variable string myvariable";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A variable by name 'myvariable'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -114,7 +114,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierExpression(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create expression expr_one {0}";
+            String epl = "@public create expression expr_one {0}";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A declared-expression by name 'expr_one'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -129,7 +129,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierScript(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create expression double myscript(stringvalue) [0]";
+            String epl = "@public create expression double myscript(stringvalue) [0]";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A script by name 'myscript (1 parameters)'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -144,7 +144,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierInlinedClass(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"";
+            String epl = "@public create inlined_class \"\"\" public class MyClass { public static String doIt() { return \"def\"; } }\"\"\"";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "An application-inlined class by name 'MyClass'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -159,7 +159,7 @@ public class ClientDeployPreconditionDuplicate {
         public void run(RegressionEnvironment env) {
             Consumer<CompilerOptions> options = opt -> opt.setAccessModifierContext(ctx -> NameAccessModifier.PUBLIC);
             RegressionPath path = new RegressionPath();
-            String epl = "create context MyContext as partition by theString from SupportBean";
+            String epl = "@public create context MyContext as partition by theString from SupportBean";
             env.compileDeploy(epl, path);
             tryInvalidDeploy(env, epl, "A context by name 'MyContext'", MODULE_NAME_UNNAMED, options);
             env.undeployAll();
@@ -176,13 +176,13 @@ public class ClientDeployPreconditionDuplicate {
             String epl;
             EPCompiled compiled;
 
-            env.compileDeploy("create table MyTable (col1 string primary key, col2 string)", path);
+            env.compileDeploy("@public create table MyTable (col1 string primary key, col2 string)", path);
             epl = "create index MyIndexOnTable on MyTable(col2)";
             compiled = env.compile(epl, path);
             env.deploy(compiled);
             tryInvalidDeploy(env, compiled, "An index by name 'MyIndexOnTable'", MODULE_NAME_UNNAMED);
 
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
             epl = "create index MyIndexOnNW on MyWindow(intPrimitive)";
             compiled = env.compile(epl, path);
             env.deploy(compiled);

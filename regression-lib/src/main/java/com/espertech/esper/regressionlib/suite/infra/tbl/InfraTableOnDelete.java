@@ -34,7 +34,7 @@ public class InfraTableOnDelete {
     private static class InfraDeleteSecondaryIndexUpd implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable as (pkey0 string primary key, " +
+            env.compileDeploy("@public create table MyTable as (pkey0 string primary key, " +
                 "pkey1 int primary key, thesum sum(long))", path);
             env.compileDeploy("into table MyTable select sum(longPrimitive) as thesum from SupportBean group by theString, intPrimitive", path);
 
@@ -83,7 +83,7 @@ public class InfraTableOnDelete {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String[] fields = "key,thesum".split(",");
-            env.compileDeploy("create table varagg as (key string primary key, thesum sum(int))", path);
+            env.compileDeploy("@public create table varagg as (key string primary key, thesum sum(int))", path);
             env.compileDeploy("into table varagg select sum(intPrimitive) as thesum from SupportBean group by theString", path);
             env.compileDeploy("@name('s0') select varagg[p00].thesum as value from SupportBean_S0", path).addListener("s0");
             env.compileDeploy("@name('sdf') on SupportBean_S1(id = 1) delete from varagg where key = p10", path).addListener("sdf");

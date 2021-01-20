@@ -46,7 +46,7 @@ public class MultithreadContextMultiStmtStartEnd implements RegressionExecutionP
         EPRuntime runtime = EPRuntimeProvider.getRuntime(runtimeURI, configuration);
 
         RegressionPath path = new RegressionPath();
-        String eplContext = "create context MyContext start @now end after 100 milliseconds;\n";
+        String eplContext = "@public create context MyContext start @now end after 100 milliseconds;\n";
         EPCompiled compiledContext = SupportCompileDeployUtil.compile(eplContext, configuration, path);
         SupportCompileDeployUtil.deploy(compiledContext, runtime);
         path.add(compiledContext);

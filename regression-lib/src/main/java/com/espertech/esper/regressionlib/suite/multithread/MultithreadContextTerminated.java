@@ -41,7 +41,7 @@ public class MultithreadContextTerminated implements RegressionExecutionWithConf
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        String eplStatement = "create context StartThenTwoSeconds start StartContextEvent end after 2 seconds";
+        String eplStatement = "@public create context StartThenTwoSeconds start StartContextEvent end after 2 seconds";
         env.compileDeploy(eplStatement, path);
 
         String aggStatement = "@name('select') context StartThenTwoSeconds " +

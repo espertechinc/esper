@@ -191,17 +191,17 @@ public class InfraTableInvalid {
     private static class InfraInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table aggvar_grouped_string (key string primary key, total count(*))", path);
-            env.compileDeploy("create table aggvar_twogrouped (keyone string primary key, keytwo string primary key, total count(*))", path);
-            env.compileDeploy("create table aggvar_grouped_int (key int primary key, total count(*))", path);
-            env.compileDeploy("create table aggvar_ungrouped as (total count(*))", path);
-            env.compileDeploy("create table aggvar_ungrouped_window as (win window(*) @type(SupportBean))", path);
-            env.compileDeploy("create context MyContext initiated by SupportBean_S0 terminated by SupportBean_S1", path);
-            env.compileDeploy("context MyContext create table aggvarctx (total count(*))", path);
-            env.compileDeploy("create context MyOtherContext initiated by SupportBean_S0 terminated by SupportBean_S1", path);
-            env.compileDeploy("create variable int myvariable", path);
-            env.compileDeploy("create window MyNamedWindow#keepall as select * from SupportBean", path);
-            env.compileDeploy("create schema SomeSchema(p0 string)", path);
+            env.compileDeploy("@public create table aggvar_grouped_string (key string primary key, total count(*))", path);
+            env.compileDeploy("@public create table aggvar_twogrouped (keyone string primary key, keytwo string primary key, total count(*))", path);
+            env.compileDeploy("@public create table aggvar_grouped_int (key int primary key, total count(*))", path);
+            env.compileDeploy("@public create table aggvar_ungrouped as (total count(*))", path);
+            env.compileDeploy("@public create table aggvar_ungrouped_window as (win window(*) @type(SupportBean))", path);
+            env.compileDeploy("@public create context MyContext initiated by SupportBean_S0 terminated by SupportBean_S1", path);
+            env.compileDeploy("@public context MyContext create table aggvarctx (total count(*))", path);
+            env.compileDeploy("@public create context MyOtherContext initiated by SupportBean_S0 terminated by SupportBean_S1", path);
+            env.compileDeploy("@public create variable int myvariable", path);
+            env.compileDeploy("@public create window MyNamedWindow#keepall as select * from SupportBean", path);
+            env.compileDeploy("@public create schema SomeSchema(p0 string)", path);
 
             // invalid declaration
             //
@@ -355,7 +355,7 @@ public class InfraTableInvalid {
 
     private static void tryInvalidAggMatch(RegressionEnvironment env, String name, String declared, boolean unbound, String provided, String messageOrNull) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('create') create table " + name + "(value " + declared + ")", path);
+        env.compileDeploy("@name('create') @public create table " + name + "(value " + declared + ")", path);
 
         try {
             String epl = "into table " + name + " select " + provided + " as value from SupportBean" +

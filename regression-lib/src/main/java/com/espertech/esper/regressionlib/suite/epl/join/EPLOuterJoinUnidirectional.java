@@ -126,7 +126,7 @@ public class EPLOuterJoinUnidirectional {
 
     private static class EPLJoin3StreamMixed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "create window MyCWindow#keepall as SupportBean_C;\n" +
+            String epl = "@public create window MyCWindow#keepall as SupportBean_C;\n" +
                 "insert into MyCWindow select * from SupportBean_C;\n" +
                 "@name('s0') select a.id as aid, b.id as bid, MyCWindow.id as cid, SupportBean_D.id as did " +
                 "from pattern[every a=SupportBean_A -> b=SupportBean_B] t1 unidirectional " +

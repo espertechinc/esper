@@ -247,7 +247,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedPatternFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "create context IndividualBean partition by theString from SupportBean";
+            String eplContext = "@public create context IndividualBean partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
 
             String eplAnalysis = "@name('s0') context IndividualBean " +
@@ -275,7 +275,7 @@ public class ContextKeySegmented {
         public void run(RegressionEnvironment env) {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
-            String eplContextOne = "create context SegmentedByString partition by theString from SupportBean";
+            String eplContextOne = "@public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContextOne, path);
 
             String eplMatchRecog = "@name('s0') context SegmentedByString " +
@@ -309,7 +309,7 @@ public class ContextKeySegmented {
 
             // try with "prev"
             path.clear();
-            String eplContextTwo = "create context SegmentedByString partition by theString from SupportBean";
+            String eplContextTwo = "@public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContextTwo, path);
 
             String eplMatchRecogWithPrev = "@name('s0') context SegmentedByString select * from SupportBean " +
@@ -347,7 +347,7 @@ public class ContextKeySegmented {
             env.advanceTime(0);
             RegressionPath path = new RegressionPath();
 
-            String stmtContext = "create context SegmentedBySession partition by sessionId from SupportWebEvent";
+            String stmtContext = "@public create context SegmentedBySession partition by sessionId from SupportWebEvent";
             env.compileDeploy(stmtContext, path);
 
             String epl = "@name('s0') context SegmentedBySession " +
@@ -389,7 +389,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedSelector implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context PartitionedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@public create context PartitionedByString partition by theString from SupportBean", path);
             String[] fields = "c0,c1".split(",");
             env.compileDeploy("@Name('s0') context PartitionedByString select context.key1 as c0, sum(intPrimitive) as c1 from SupportBean#length(5)", path);
 
@@ -469,19 +469,19 @@ public class ContextKeySegmented {
 
             // validate statement not applicable filters
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context SegmentedByAString partition by theString from SupportBean", path);
+            env.compileDeploy("@public create context SegmentedByAString partition by theString from SupportBean", path);
             epl = "context SegmentedByAString select * from SupportBean_S0";
             env.tryInvalidCompile(path, epl, "Segmented context 'SegmentedByAString' requires that any of the event types that are listed in the segmented context also appear in any of the filter expressions of the statement, type 'SupportBean_S0' is not one of the types listed [");
 
             // invalid attempt to partition a named window's streams
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
-            epl = "create context SegmentedByWhat partition by theString from MyWindow";
-            env.tryInvalidCompile(path, epl, "Partition criteria may not include named windows [create context SegmentedByWhat partition by theString from MyWindow]");
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
+            epl = "@public create context SegmentedByWhat partition by theString from MyWindow";
+            env.tryInvalidCompile(path, epl, "Partition criteria may not include named windows [@public create context SegmentedByWhat partition by theString from MyWindow]");
 
             // partitioned with named window
-            env.compileDeploy("create schema SomeSchema(ipAddress string)", path);
-            env.compileDeploy("create context TheSomeSchemaCtx Partition By ipAddress From SomeSchema", path);
-            epl = "context TheSomeSchemaCtx create window MyEvent#time(30 sec) (ipAddress string)";
+            env.compileDeploy("@public create schema SomeSchema(ipAddress string)", path);
+            env.compileDeploy("@public create context TheSomeSchemaCtx Partition By ipAddress From SomeSchema", path);
+            epl = "@public context TheSomeSchemaCtx create window MyEvent#time(30 sec) (ipAddress string)";
             env.tryInvalidCompile(path, epl, "Segmented context 'TheSomeSchemaCtx' requires that named windows are associated to an existing event type and that the event type is listed among the partitions defined by the create-context statement");
 
             env.undeployAll();
@@ -496,7 +496,7 @@ public class ContextKeySegmented {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByAString  partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByAString  partition by theString from SupportBean", path);
 
             String[] fields = "col1".split(",");
             env.compileDeploy("@name('s0') context SegmentedByAString " +
@@ -519,7 +519,7 @@ public class ContextKeySegmented {
     public static class ContextKeySegmentedAdditionalFilters implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByAString " +
+            env.compileDeploy("@Name('context') @public create context SegmentedByAString " +
                 "partition by theString from SupportBean(intPrimitive>0), p00 from SupportBean_S0(id > 0)", path);
 
             // first send a view events
@@ -577,7 +577,7 @@ public class ContextKeySegmented {
             env.milestone(7);
 
             // Test unnecessary filter
-            String epl = "create context CtxSegmented partition by theString from SupportBean;" +
+            String epl = "@public create context CtxSegmented partition by theString from SupportBean;" +
                 "context CtxSegmented select * from pattern [every a=SupportBean -> c=SupportBean(c.theString=a.theString)];";
             env.compileDeploy(epl);
             env.sendEventBean(new SupportBean("E1", 1));
@@ -590,7 +590,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedMultiStatementFilterCount implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByAString " +
+            env.compileDeploy("@Name('context') @public create context SegmentedByAString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0", path);
             env.assertThat(() -> Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
@@ -687,7 +687,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedJoinMultitypeMultifield implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedBy2Fields " +
+            env.compileDeploy("@Name('context') @public create context SegmentedBy2Fields " +
                 "partition by theString and intPrimitive from SupportBean, p00 and id from SupportBean_S0", path);
 
             String[] fields = "c1,c2,c3,c4,c5,c6".split(",");
@@ -734,7 +734,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedSubselectPrevPrior implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fieldsPrev = new String[]{"theString", "col1"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -789,7 +789,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedPrior implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fields = new String[]{"val0", "val1"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -817,7 +817,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedSubqueryFiltered implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fields = new String[]{"theString", "intPrimitive", "val0"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -859,7 +859,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fields = new String[]{"sb.theString", "sb.intPrimitive", "s0.id"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -891,7 +891,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('context') create context SegmentedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@Name('context') @public create context SegmentedByString partition by theString from SupportBean", path);
 
             String[] fields = new String[]{"a.theString", "a.intPrimitive", "b.theString", "b.intPrimitive"};
             env.compileDeploy("@Name('s0') context SegmentedByString " +
@@ -968,7 +968,7 @@ public class ContextKeySegmented {
     public static class ContextKeySegmentedPatternSceneTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "@Name('CTX') create context SegmentedByString partition by theString from SupportBean, p00 from SupportBean_S0;\n" +
+            String epl = "@Name('CTX') @public create context SegmentedByString partition by theString from SupportBean, p00 from SupportBean_S0;\n" +
                 "@Name('S1') context SegmentedByString " +
                 "select a.theString as c0, a.intPrimitive as c1, b.id as c2, b.p00 as c3 from pattern [" +
                 "every a=SupportBean -> b=SupportBean_S0(id=a.intPrimitive)];\n";
@@ -1004,7 +1004,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedViewSceneOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String contextEPL = "@Name('context') create context SegmentedByString as partition by theString from SupportBean";
+            String contextEPL = "@Name('context') @public create context SegmentedByString as partition by theString from SupportBean";
             env.compileDeploy(contextEPL, path);
 
             String[] fieldsIterate = "intPrimitive".split(",");
@@ -1056,8 +1056,8 @@ public class ContextKeySegmented {
 
             // test grouped delivery
             path.clear();
-            env.compileDeploy("@name('var') create variable boolean trigger = false", path);
-            env.compileDeploy("create context MyCtx partition by theString from SupportBean", path);
+            env.compileDeploy("@name('var') @public create variable boolean trigger = false", path);
+            env.compileDeploy("@public create context MyCtx partition by theString from SupportBean", path);
             env.compileDeploy("@Name('s0') context MyCtx select * from SupportBean#expr(not trigger) for grouped_delivery(theString)", path);
             env.addListener("s0");
 
@@ -1075,7 +1075,7 @@ public class ContextKeySegmented {
     public static class ContextKeySegmentedViewSceneTwo implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplContext = "@Name('CTX') create context SegmentedByString partition by theString from SupportBean";
+            String eplContext = "@Name('CTX') @public create context SegmentedByString partition by theString from SupportBean";
             env.compileDeploy(eplContext, path);
 
             String[] fields = "theString,intPrimitive".split(",");
@@ -1125,7 +1125,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedNullSingleKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext partition by theString from SupportBean", path);
+            env.compileDeploy("@public create context MyContext partition by theString from SupportBean", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 
@@ -1145,7 +1145,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedNullKeyMultiKey implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext partition by theString, intBoxed, intPrimitive from SupportBean", path);
+            env.compileDeploy("@public create context MyContext partition by theString, intBoxed, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('s0') context MyContext select count(*) as cnt from SupportBean", path);
             env.addListener("s0");
 
@@ -1186,7 +1186,7 @@ public class ContextKeySegmented {
     private static class ContextKeySegmentedTermByFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context ByP0 as partition by theString from SupportBean terminated by SupportBean(intPrimitive<0)", path);
+            env.compileDeploy("@public create context ByP0 as partition by theString from SupportBean terminated by SupportBean(intPrimitive<0)", path);
             env.compileDeploy("@name('s0') context ByP0 select theString, count(*) as cnt from SupportBean(intPrimitive>= 0)", path);
 
             env.addListener("s0");

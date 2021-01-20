@@ -52,7 +52,7 @@ public class ResultSetOutputLimitRowLimit {
             tryAssertionLimitOneMultiKeySortBatch(env, path, eplWithBatchMultiKey);
 
             // context output-when-terminated assertions
-            env.compileDeploy("create context StartS0EndS1 as start SupportBean_S0 end SupportBean_S1", path);
+            env.compileDeploy("@public create context StartS0EndS1 as start SupportBean_S0 end SupportBean_S1", path);
 
             String eplContextSingleKey = "@name('s0') context StartS0EndS1 " +
                 "select theString from SupportBean#keepall " +
@@ -103,8 +103,8 @@ public class ResultSetOutputLimitRowLimit {
     private static class ResultSetLengthOffsetVariable implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable int myrows = 2", path);
-            env.compileDeploy("create variable int myoffset = 1", path);
+            env.compileDeploy("@public create variable int myrows = 2", path);
+            env.compileDeploy("@public create variable int myoffset = 1", path);
             env.compileDeploy("on SupportBeanNumeric set myrows = intOne, myoffset = intTwo", path);
 
             String epl;
@@ -280,7 +280,7 @@ public class ResultSetOutputLimitRowLimit {
     private static class ResultSetInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create variable string myrows = 'abc'", path);
+            env.compileDeploy("@public create variable string myrows = 'abc'", path);
             env.tryInvalidCompile(path, "select * from SupportBean limit myrows",
                 "Limit clause requires a variable of numeric type [select * from SupportBean limit myrows]");
             env.tryInvalidCompile(path, "select * from SupportBean limit 1, myrows",

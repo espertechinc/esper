@@ -60,7 +60,7 @@ public class InfraTableMTGroupedFAFReadFAFWriteChain implements RegressionExecut
     private static void tryMT(RegressionEnvironment env, int numInserted) throws InterruptedException {
 
         RegressionPath path = new RegressionPath();
-        String epl = "create table MyTable (key int primary key, p0 int);";
+        String epl = "@public create table MyTable (key int primary key, p0 int);";
         env.compileDeploy(epl, path);
 
         List<BaseRunnable> runnables = new ArrayList<BaseRunnable>();

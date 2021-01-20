@@ -190,7 +190,7 @@ public class ClientRuntimeSubscriber {
     private static class ClientRuntimeSubscriberSubscriberAndListener implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into A1 select s.*, 1 as a from SupportBean as s", path);
+            env.compileDeploy("@public insert into A1 select s.*, 1 as a from SupportBean as s", path);
             EPStatement stmt = env.compileDeploy("@name('s0') select a1.* from A1 as a1", path).statement("s0");
 
             SupportUpdateListener listener = new SupportUpdateListener();
@@ -604,7 +604,7 @@ public class ClientRuntimeSubscriber {
             RegressionPath path = new RegressionPath();
             String[] fields = "myvar".split(",");
             SubscriberMap subscriberCreateVariable = new SubscriberMap();
-            String stmtTextCreate = "@name('s0') create variable string myvar = 'abc'";
+            String stmtTextCreate = "@name('s0') @public create variable string myvar = 'abc'";
             EPStatement stmt = env.compileDeploy(stmtTextCreate, path).statement("s0");
             stmt.setSubscriber(subscriberCreateVariable);
 
@@ -639,7 +639,7 @@ public class ClientRuntimeSubscriber {
         String[] fields = "key,value".split(",");
         RegressionPath path = new RegressionPath();
         SubscriberMap subscriberNamedWindow = new SubscriberMap();
-        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " @name('create') create window MyWindow#keepall as select theString as key, intPrimitive as value from SupportBean";
+        String stmtTextCreate = eventRepresentationEnum.getAnnotationText() + " @name('create') @public create window MyWindow#keepall as select theString as key, intPrimitive as value from SupportBean";
         EPStatement stmt = env.compileDeploy(stmtTextCreate, path).statement("create");
         stmt.setSubscriber(subscriberNamedWindow);
 

@@ -121,7 +121,7 @@ public class InfraTableIntoTable {
     private static class InfraIntoTableUnkeyedSimpleTwoModule implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('tbl') create table MyTable(mycnt count(*))", path);
+            env.compileDeploy("@name('tbl') @public create table MyTable(mycnt count(*))", path);
             env.compileDeploy("into table MyTable select count(*) as mycnt from SupportBean;\n", path);
             runAssertionIntoTableUnkeyedSimple(env);
             env.undeployAll();
@@ -131,7 +131,7 @@ public class InfraTableIntoTable {
     private static class InfraIntoTableWindowSortedFromJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(" +
+            env.compileDeploy("@public create table MyTable(" +
                 "thewin window(*) @type('SupportBean')," +
                 "thesort sorted(intPrimitive desc) @type('SupportBean')" +
                 ")", path);
@@ -181,7 +181,7 @@ public class InfraTableIntoTable {
     private static void tryAssertionLastFirstWindow(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         String[] fields = "lasteveru,firsteveru,windowb".split(",");
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varagg (" +
+        String eplDeclare = "@public create table varagg (" +
             "lasteveru lastever(*) @type('SupportBean'), " +
             "firsteveru firstever(*) @type('SupportBean'), " +
             "windowb window(*) @type('SupportBean'))";
@@ -230,7 +230,7 @@ public class InfraTableIntoTable {
         String[] fields = "maxbyeveru,minbyeveru,sortedb".split(",");
         RegressionPath path = new RegressionPath();
 
-        String eplDeclare = "create table varagg (" +
+        String eplDeclare = "@public create table varagg (" +
             "maxbyeveru maxbyever(intPrimitive) @type('SupportBean'), " +
             "minbyeveru minbyever(intPrimitive) @type('SupportBean'), " +
             "sortedb sorted(intPrimitive) @type('SupportBean'))";
@@ -276,7 +276,7 @@ public class InfraTableIntoTable {
             String[] fields = "sumint".split(",");
             RegressionPath path = new RegressionPath();
 
-            String eplCreateTable = "@Name('Create-Table') create table MyTable(sumint sum(int))";
+            String eplCreateTable = "@Name('Create-Table')@public  create table MyTable(sumint sum(int))";
             env.compileDeploy(eplCreateTable, path);
 
             String eplIntoTable = "@Name('Into-Table') into table MyTable select sum(intPrimitive) as sumint from SupportBean";
@@ -339,7 +339,7 @@ public class InfraTableIntoTable {
             String valueList = "E1,E2,E3";
             RegressionPath path = new RegressionPath();
 
-            String eplCreateTable = "@Name('Create-Table') create table MyTable(pkey string primary key, sumint sum(int))";
+            String eplCreateTable = "@Name('Create-Table') @public create table MyTable(pkey string primary key, sumint sum(int))";
             env.compileDeploy(eplCreateTable, path);
 
             String eplIntoTable = "@Name('Into-Table') into table MyTable select sum(intPrimitive) as sumint from SupportBean group by theString";
@@ -424,7 +424,7 @@ public class InfraTableIntoTable {
     private static void tryAssertionMinMax(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         String[] fields = "maxb,maxu,minb,minu".split(",");
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varagg (" +
+        String eplDeclare = "@public create table varagg (" +
             "maxb max(int), maxu maxever(int), minb min(int), minu minever(int))";
         env.compileDeploy(soda, eplDeclare, path);
 

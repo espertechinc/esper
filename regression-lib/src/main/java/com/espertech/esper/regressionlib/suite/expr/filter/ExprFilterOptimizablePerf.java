@@ -75,7 +75,7 @@ public class ExprFilterOptimizablePerf {
         public void run(RegressionEnvironment env) {
             // declared expression (...) = value
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create-expr') create expression thesplit {theString => libSplit(theString)}", path).addListener("create-expr");
+            env.compileDeploy("@name('create-expr') @public create expression thesplit {theString => libSplit(theString)}", path).addListener("create-expr");
             tryOptimizableEquals(env, path, "select * from SupportBean(thesplit(*) = !NUM!)", 10);
         }
     }
@@ -89,7 +89,7 @@ public class ExprFilterOptimizablePerf {
         public void run(RegressionEnvironment env) {
             // declared expression (...) implied true
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create-expr') create expression theE1Test {theString => libE1True(theString)}", path).addListener("create-expr");
+            env.compileDeploy("@name('create-expr') @public create expression theE1Test {theString => libE1True(theString)}", path).addListener("create-expr");
             tryOptimizableBoolean(env, path, "select * from SupportBean(theE1Test(*))");
         }
     }

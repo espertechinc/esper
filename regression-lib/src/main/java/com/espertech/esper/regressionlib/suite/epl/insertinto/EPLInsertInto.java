@@ -145,6 +145,7 @@ public class EPLInsertInto {
     private static class EPLInsertIntoNamedColsOMToStmt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             EPStatementObjectModel model = new EPStatementObjectModel();
+            model.setAnnotations(Collections.singletonList(new AnnotationPart("public")));
             model.setInsertInto(InsertIntoClause.create("Event_1_OMS", "delta", "product"));
             model.setSelectClause(SelectClause.create().add(Expressions.minus("intPrimitive", "intBoxed"), "deltaTag")
                 .add(Expressions.multiply("intPrimitive", "intBoxed"), "productTag"));
@@ -153,7 +154,7 @@ public class EPLInsertInto {
 
             tryAssertsVariant(env, null, model, "Event_1_OMS");
 
-            String epl = "@name('fl') insert into Event_1_OMS(delta, product) " +
+            String epl = "@name('fl') @public insert into Event_1_OMS(delta, product) " +
                 "select intPrimitive-intBoxed as deltaTag, intPrimitive*intBoxed as productTag " +
                 "from SupportBean#length(100)";
             assertEquals(epl, model.toEPL());
@@ -165,7 +166,7 @@ public class EPLInsertInto {
 
     private static class EPLInsertIntoNamedColsEPLToOMStmt implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@name('fl') insert into Event_1_EPL(delta, product) " +
+            String epl = "@name('fl') @public insert into Event_1_EPL(delta, product) " +
                 "select intPrimitive-intBoxed as deltaTag, intPrimitive*intBoxed as productTag " +
                 "from SupportBean#length(100)";
 
@@ -265,7 +266,7 @@ public class EPLInsertInto {
     private static class EPLInsertIntoUnnamedWildcard implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtText = "@name('stmt1') insert into event1 select * from SupportBean#length(100)";
+            String stmtText = "@name('stmt1') @public insert into event1 select * from SupportBean#length(100)";
             String otherText = "@name('stmt2') select * from event1#length(10)";
 
             // Attach listener to feed
@@ -323,10 +324,10 @@ public class EPLInsertInto {
         RegressionPath path = new RegressionPath();
         // Attach listener to feed
         if (model != null) {
-            model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("fl")));
+            model.setAnnotations(Arrays.asList(AnnotationPart.nameAnnotation("fl"), new AnnotationPart("public")));
             env.compileDeploy(model, path);
         } else {
-            env.compileDeploy("@name('fl') " + stmtText, path);
+            env.compileDeploy("@name('fl') @public " + stmtText, path);
         }
         env.addListener("fl");
 
@@ -444,7 +445,7 @@ public class EPLInsertInto {
     private static class EPLInsertIntoSingleBeanToMulti implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema EventOne(sbarr SupportBean[])", path);
+            env.compileDeploy("@public create schema EventOne(sbarr SupportBean[])", path);
             env.compileDeploy("insert into EventOne select maxby(intPrimitive) as sbarr from SupportBean as sb", path);
             env.compileDeploy("@name('s0') select * from EventOne", path).addListener("s0");
 
@@ -550,7 +551,7 @@ public class EPLInsertInto {
         public void run(RegressionEnvironment env) {
             // NOTICE: we are inserting the RSTREAM (removed events)
             RegressionPath path = new RegressionPath();
-            String stmtText = "insert rstream into StockTicks(mySymbol, myPrice) " +
+            String stmtText = "@public insert rstream into StockTicks(mySymbol, myPrice) " +
                 "select symbol, price from SupportMarketDataBean#time(60) " +
                 "output every 5 seconds " +
                 "order by symbol asc";
@@ -604,9 +605,9 @@ public class EPLInsertInto {
 
     private static class EPLInsertIntoStaggeredWithWildcard implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String statementOne = "@name('i0') insert into streamA select * from SupportBeanSimple#length(5)";
-            String statementTwo = "@name('i1') insert into streamB select *, myInt+myInt as summed, myString||myString as concat from streamA#length(5)";
-            String statementThree = "@name('i2') insert into streamC select * from streamB#length(5)";
+            String statementOne = "@name('i0') @public insert into streamA select * from SupportBeanSimple#length(5)";
+            String statementTwo = "@name('i1') @public insert into streamB select *, myInt+myInt as summed, myString||myString as concat from streamA#length(5)";
+            String statementThree = "@name('i2') @public insert into streamC select * from streamB#length(5)";
 
             // try one module
             String epl = statementOne + ";\n" + statementTwo + ";\n" + statementThree + ";\n";
@@ -659,14 +660,14 @@ public class EPLInsertInto {
     private static class EPLInsertIntoInsertIntoPlusPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOneTxt = "@name('s1') insert into InZone " +
+            String stmtOneTxt = "@name('s1') @public insert into InZone " +
                 "select 111 as statementId, mac, locationReportId " +
                 "from SupportRFIDEvent " +
                 "where mac in ('1','2','3') " +
                 "and zoneID = '10'";
             env.compileDeploy(stmtOneTxt, path).addListener("s1");
 
-            String stmtTwoTxt = "@name('s2') insert into OutOfZone " +
+            String stmtTwoTxt = "@name('s2') @public insert into OutOfZone " +
                 "select 111 as statementId, mac, locationReportId " +
                 "from SupportRFIDEvent " +
                 "where mac in ('1','2','3') " +
@@ -706,7 +707,7 @@ public class EPLInsertInto {
     private static class EPLInsertIntoNullType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String stmtOneTxt = "@name('s1') insert into InZoneTwo select null as dummy from SupportBean";
+            String stmtOneTxt = "@name('s1') @public insert into InZoneTwo select null as dummy from SupportBean";
             env.compileDeploy(stmtOneTxt, path);
             env.assertStatement("s1", statement -> assertNullTypeForDummyField(statement.getEventType()));
 
@@ -733,17 +734,17 @@ public class EPLInsertInto {
     public static class EPLInsertIntoChain implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String text = "insert into S0 select irstream symbol, 0 as val from SupportMarketDataBean";
+            String text = "@public insert into S0 select irstream symbol, 0 as val from SupportMarketDataBean";
             env.compileDeploy(text, path);
 
             env.milestone(0);
 
-            text = "insert into S1 select irstream symbol, 1 as val from S0";
+            text = "@public insert into S1 select irstream symbol, 1 as val from S0";
             env.compileDeploy(text, path);
 
             env.milestone(1);
 
-            text = "insert into S2 select irstream symbol, 2 as val from S1";
+            text = "@public insert into S2 select irstream symbol, 2 as val from S1";
             env.compileDeploy(text, path);
 
             env.milestone(2);
@@ -803,23 +804,23 @@ public class EPLInsertInto {
     private static void tryAssertionJoinWildcard(RegressionEnvironment env, boolean bean, EventRepresentationChoice rep) {
         String schema;
         if (bean) {
-            schema = "@name('schema1') @buseventtype create schema S0 as " + SupportBean.class.getName() + ";\n" +
-                "@name('schema2') @buseventtype create schema S1 as " + SupportBean_A.class.getName() + ";\n";
+            schema = "@name('schema1') @buseventtype @public create schema S0 as " + SupportBean.class.getName() + ";\n" +
+                "@name('schema2') @buseventtype @public create schema S1 as " + SupportBean_A.class.getName() + ";\n";
         } else if (rep.isMapEvent()) {
-            schema = "@name('schema1') @buseventtype create map schema S0 as (theString string);\n" +
-                "@name('schema2') @buseventtype create map schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype @public create map schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype @public create map schema S1 as (id string);\n";
         } else if (rep.isObjectArrayEvent()) {
-            schema = "@name('schema1') @buseventtype create objectarray schema S0 as (theString string);\n" +
-                "@name('schema2') @buseventtype create objectarray schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype @public create objectarray schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype @public create objectarray schema S1 as (id string);\n";
         } else if (rep.isAvroEvent()) {
-            schema = "@name('schema1') @buseventtype create avro schema S0 as (theString string);\n" +
-                "@name('schema2') @buseventtype create avro schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype @public create avro schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype @public create avro schema S1 as (id string);\n";
         } else if (rep.isJsonEvent()) {
-            schema = "@name('schema1') @buseventtype create json schema S0 as (theString string);\n" +
-                "@name('schema2') @buseventtype create json schema S1 as (id string);\n";
+            schema = "@name('schema1') @buseventtype @public create json schema S0 as (theString string);\n" +
+                "@name('schema2') @buseventtype @public create json schema S1 as (id string);\n";
         } else if (rep.isJsonProvidedClassEvent()) {
-            schema = "@name('schema1') @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0 as ();\n" +
-                "@name('schema2') @buseventtype @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1 as ();\n";
+            schema = "@name('schema1') @buseventtype @public @JsonSchema(className='" + MyLocalJsonProvidedS0.class.getName() + "') create json schema S0 as ();\n" +
+                "@name('schema2') @buseventtype @public @JsonSchema(className='" + MyLocalJsonProvidedS1.class.getName() + "') create json schema S1 as ();\n";
         } else {
             schema = null;
             fail();
@@ -828,7 +829,7 @@ public class EPLInsertInto {
         RegressionPath path = new RegressionPath();
         env.compileDeploy(schema, path);
 
-        String textOne = "@name('s1') " + (bean ? "" : rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedJoin.class)) + "insert into event2 select * " +
+        String textOne = "@name('s1') @public " + (bean ? "" : rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedJoin.class)) + "insert into event2 select * " +
             "from S0#length(100) as s0, S1#length(5) as s1 " +
             "where s0.theString = s1.id";
         env.compileDeploy(textOne, path).addListener("s1");
@@ -908,19 +909,19 @@ public class EPLInsertInto {
         // declare source type
         String schemaEPL;
         if (sourceBean) {
-            schemaEPL = "@buseventtype create schema SourceSchema as " + MyP0P1EventSource.class.getName();
+            schemaEPL = "@buseventtype @public create schema SourceSchema as " + MyP0P1EventSource.class.getName();
         } else {
-            schemaEPL = sourceType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSourceSchema.class) + "@buseventtype create schema SourceSchema as (p0 string, p1 int)";
+            schemaEPL = sourceType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSourceSchema.class) + "@buseventtype @public create schema SourceSchema as (p0 string, p1 int)";
         }
         RegressionPath path = new RegressionPath();
         env.compileDeploy(schemaEPL, path);
 
         // declare target type
         if (targetBean) {
-            env.compileDeploy("create schema TargetSchema as " + MyP0P1EventTarget.class.getName(), path);
+            env.compileDeploy("@public create schema TargetSchema as " + MyP0P1EventTarget.class.getName(), path);
         } else {
-            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetContainedSchema.class) + "create schema TargetContainedSchema as (c0 int)", path);
-            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetSchema.class) + "create schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)", path);
+            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetContainedSchema.class) + "@public create schema TargetContainedSchema as (c0 int)", path);
+            env.compileDeploy(targetType.getAnnotationTextWJsonProvided(MyLocalJsonProvidedTargetSchema.class) + "@public create schema TargetSchema (p0 string, p1 int, c0 TargetContainedSchema)", path);
         }
 
         // insert-into and select

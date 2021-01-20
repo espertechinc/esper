@@ -323,7 +323,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
     private static class EPLSubselectGroupedWOHavingWExists implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#keepall as (key string, anint int);\n" +
+            String epl = "@public create window MyWindow#keepall as (key string, anint int);\n" +
                 "insert into MyWindow(key, anint) select id, value from SupportIdAndValueEvent;\n" +
                 "@name('s0') select exists (select sum(anint) from MyWindow group by key) as c0," +
                 "not exists (select sum(anint) from MyWindow group by key) as c1 from SupportValueEvent;\n";
@@ -346,7 +346,7 @@ public class EPLSubselectAggregatedInExistsAnyAll {
     private static class EPLSubselectGroupedWHavingWExists implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindow#keepall as (key string, anint int);\n" +
+            String epl = "@public create window MyWindow#keepall as (key string, anint int);\n" +
                 "insert into MyWindow(key, anint) select id, value from SupportIdAndValueEvent;\n" +
                 "@name('s0') select exists (select sum(anint) from MyWindow group by key having sum(anint) < 15) as c0," +
                 "not exists (select sum(anint) from MyWindow group by key having sum(anint) < 15) as c1 from SupportValueEvent";

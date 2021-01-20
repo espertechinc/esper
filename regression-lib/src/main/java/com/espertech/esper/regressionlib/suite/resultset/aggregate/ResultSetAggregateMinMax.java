@@ -47,7 +47,7 @@ public class ResultSetAggregateMinMax {
             String[] fields = "lower,upper,lowerever,upperever".split(",");
             RegressionPath path = new RegressionPath();
 
-            String epl = "create window NamedWindow5m#length(2) as select * from SupportBean;\n" +
+            String epl = "@public create window NamedWindow5m#length(2) as select * from SupportBean;\n" +
                 "insert into NamedWindow5m select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 

@@ -59,10 +59,10 @@ public class EventInfraPropertyNestedSimple implements RegressionExecution {
         runAssertion(env, AVRO_TYPENAME, FAVRO, AvroConstant.EPTYPE_RECORD, AVRO_TYPENAME + "_1", path);
 
         String epl =
-            "create json schema " + JSON_TYPENAME + "_4(lvl4 int);\n" +
-                "create json schema " + JSON_TYPENAME + "_3(lvl3 int, l4 " + JSON_TYPENAME + "_4);\n" +
-                "create json schema " + JSON_TYPENAME + "_2(lvl2 int, l3 " + JSON_TYPENAME + "_3);\n" +
-                "create json schema " + JSON_TYPENAME + "_1(lvl1 int, l2 " + JSON_TYPENAME + "_2);\n" +
+                "@public create json schema " + JSON_TYPENAME + "_4(lvl4 int);\n" +
+                "@public create json schema " + JSON_TYPENAME + "_3(lvl3 int, l4 " + JSON_TYPENAME + "_4);\n" +
+                "@public create json schema " + JSON_TYPENAME + "_2(lvl2 int, l3 " + JSON_TYPENAME + "_3);\n" +
+                "@public create json schema " + JSON_TYPENAME + "_1(lvl1 int, l2 " + JSON_TYPENAME + "_2);\n" +
                 "@name('types') @public @buseventtype create json schema " + JSON_TYPENAME + "(l1 " + JSON_TYPENAME + "_1);\n";
         env.compileDeploy(epl, path);
         runAssertion(env, JSON_TYPENAME, FJSON, null, JSON_TYPENAME + "_1", path);

@@ -168,7 +168,7 @@ public class InfraTableOnMerge {
             RegressionPath path = new RegressionPath();
             String[] fields = "k1,v1".split(",");
 
-            env.compileDeploy("@name('tbl') create table varaggKV (k1 string primary key, v1 int)", path);
+            env.compileDeploy("@name('tbl') @public create table varaggKV (k1 string primary key, v1 int)", path);
             env.compileDeploy("on SupportBean as sb merge varaggKV as va where sb.theString = va.k1 " +
                 "when not matched then insert select theString as k1, intPrimitive as v1 " +
                 "when matched then update set v1 = intPrimitive", path);
@@ -198,7 +198,7 @@ public class InfraTableOnMerge {
     private static class InfraMergeWhereWithMethodRead implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggMMR (keyOne string primary key, cnt count(*))", path);
+            env.compileDeploy("@public create table varaggMMR (keyOne string primary key, cnt count(*))", path);
             env.compileDeploy("into table varaggMMR select count(*) as cnt " +
                 "from SupportBean#lastevent group by theString", path);
 
@@ -227,10 +227,10 @@ public class InfraTableOnMerge {
     private static class InfraMergeSelectWithAggReadAndEnum implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table varaggMS (eventset window(*) @type(SupportBean), total sum(int))", path);
+            env.compileDeploy("@public create table varaggMS (eventset window(*) @type(SupportBean), total sum(int))", path);
             env.compileDeploy("into table varaggMS select window(*) as eventset, " +
                 "sum(intPrimitive) as total from SupportBean#length(2)", path);
-            env.compileDeploy("on SupportBean_S0 merge varaggMS " +
+            env.compileDeploy("@public on SupportBean_S0 merge varaggMS " +
                 "when matched then insert into ResultStream select eventset, total, eventset.takeLast(1) as c0", path);
             env.compileDeploy("@name('s0') select * from ResultStream", path).addListener("s0");
 
@@ -273,7 +273,7 @@ public class InfraTableOnMerge {
 
     private static void runOnMergeInsertUpdDeleteUngrouped(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggIUD (p0 string, sumint sum(int))";
+        String eplDeclare = "@public create table varaggIUD (p0 string, sumint sum(int))";
         env.compileDeploy(soda, eplDeclare, path);
 
         String[] fields = "c0,c1".split(",");
@@ -339,7 +339,7 @@ public class InfraTableOnMerge {
     private static void runOnMergeInsertUpdDeleteSingleKey(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         String[] fieldsTable = "key,p0,p1,p2,sumint".split(",");
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggMIU (key int primary key, p0 string, p1 int, p2 int[], sumint sum(int))";
+        String eplDeclare = "@public create table varaggMIU (key int primary key, p0 string, p1 int, p2 int[], sumint sum(int))";
         env.compileDeploy(soda, eplDeclare, path);
 
         String[] fields = "c0,c1,c2,c3".split(",");
@@ -405,7 +405,7 @@ public class InfraTableOnMerge {
 
     private static void runOnMergeInsertUpdDeleteTwoKey(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
         RegressionPath path = new RegressionPath();
-        String eplDeclare = "create table varaggMIUD (keyOne int primary key, keyTwo string primary key, prop string)";
+        String eplDeclare = "@public create table varaggMIUD (keyOne int primary key, keyTwo string primary key, prop string)";
         env.compileDeploy(soda, eplDeclare, path);
 
         String[] fields = "c0,c1,c2".split(",");

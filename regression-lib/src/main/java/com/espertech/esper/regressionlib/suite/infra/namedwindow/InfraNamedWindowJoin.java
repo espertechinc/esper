@@ -60,7 +60,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
     private static class InfraWindowUnidirectionalJoin implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create window MyWindowWUJ#keepall as SupportBean;\n" +
+            String epl = "@public create window MyWindowWUJ#keepall as SupportBean;\n" +
                 "insert into MyWindowWUJ select * from SupportBean;\n" +
                 "on SupportBean_S1 as s1 delete from MyWindowWUJ where s1.p10 = theString;\n" +
                 "@name('s0') select window(win.*) as c0," +
@@ -173,7 +173,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         private static void assertIndexChoice(RegressionEnvironment env, String[] indexes, Object[] preloadedEvents, String datawindow,
                                               IndexAssertion... assertions) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow." + datawindow + " as SupportSimpleBeanOne", path);
+            env.compileDeploy("@public create window MyWindow." + datawindow + " as SupportSimpleBeanOne", path);
             env.compileDeploy("insert into MyWindow select * from SupportSimpleBeanOne", path);
             for (String index : indexes) {
                 env.compileDeploy(index, path);
@@ -226,18 +226,18 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         }
 
         private static void tryAssertionInnerJoinLateStart(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-            String schemaEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + "@name('schema') @buseventtype create schema Product (product string, size int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedPortfolio.class) + " @buseventtype create schema Portfolio (portfolio string, product string);\n";
+            String schemaEPL = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedProduct.class) + "@name('schema') @public @buseventtype create schema Product (product string, size int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedPortfolio.class) + " @public @buseventtype create schema Portfolio (portfolio string, product string);\n";
             RegressionPath path = new RegressionPath();
             env.compileDeploy(schemaEPL, path);
 
-            env.compileDeploy("@name('window') create window ProductWin#keepall as Product", path);
+            env.compileDeploy("@name('window') @public create window ProductWin#keepall as Product", path);
 
             env.assertStatement("schema", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
             env.assertStatement("window", statement -> assertTrue(eventRepresentationEnum.matchesClass(statement.getEventType().getUnderlyingType())));
 
             env.compileDeploy("insert into ProductWin select * from Product", path);
-            env.compileDeploy("create window PortfolioWin#keepall as Portfolio", path);
+            env.compileDeploy("@public create window PortfolioWin#keepall as Portfolio", path);
             env.compileDeploy("insert into PortfolioWin select * from Portfolio", path);
 
             sendProduct(env, eventRepresentationEnum, "productA", 1);
@@ -317,12 +317,12 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
 
             // create window for Leave events
-            String epl = "create window WindowLeave#time(6000) as select timeLeave, id, location from SupportQueueLeave;\n" +
+            String epl = "@public create window WindowLeave#time(6000) as select timeLeave, id, location from SupportQueueLeave;\n" +
                 "insert into WindowLeave select timeLeave, id, location from SupportQueueLeave;\n";
             env.compileDeploy(epl, path);
 
             // create second window for enter events
-            epl = "create window WindowEnter#time(6000) as select location, sku, timeEnter, id from SupportQueueEnter;\n" +
+            epl = "@public create window WindowEnter#time(6000) as select location, sku, timeEnter, id from SupportQueueEnter;\n" +
                 "insert into WindowEnter select location, sku, timeEnter, id from SupportQueueEnter;\n";
             env.compileDeploy(epl, path);
 
@@ -425,7 +425,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
     private static class InfraFullOuterJoinNamedAggregationLateStart implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('create') create window MyWindowFO#groupwin(theString, intPrimitive)#length(3) as select theString, intPrimitive, boolPrimitive from SupportBean;\n" +
+            String epl = "@name('create') @public create window MyWindowFO#groupwin(theString, intPrimitive)#length(3) as select theString, intPrimitive, boolPrimitive from SupportBean;\n" +
                 "insert into MyWindowFO select theString, intPrimitive, boolPrimitive from SupportBean;\n";
             env.compileDeploy(epl, path).addListener("create");
 
@@ -495,7 +495,7 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
     private static class InfraJoinNamedAndStream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('create') create window MyWindowJNS#keepall as select theString as a, intPrimitive as b from SupportBean;\n" +
+            String epl = "@name('create') @public create window MyWindowJNS#keepall as select theString as a, intPrimitive as b from SupportBean;\n" +
                 "on SupportBean_A delete from MyWindowJNS where id = a;\n" +
                 "insert into MyWindowJNS select theString as a, intPrimitive as b from SupportBean;\n";
             env.compileDeploy(epl, path);
@@ -553,8 +553,8 @@ public class InfraNamedWindowJoin implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             String[] fields = new String[]{"a1", "b1", "a2", "b2"};
 
-            String epl = "@name('createOne') create window MyWindowOne#keepall as select theString as a1, intPrimitive as b1 from SupportBean;\n" +
-                "@name('createTwo') create window MyWindowTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean;\n" +
+            String epl = "@name('createOne') @public create window MyWindowOne#keepall as select theString as a1, intPrimitive as b1 from SupportBean;\n" +
+                "@name('createTwo') @public create window MyWindowTwo#keepall as select theString as a2, intPrimitive as b2 from SupportBean;\n" +
                 "on SupportMarketDataBean(volume=1) delete from MyWindowOne where symbol = a1;\n" +
                 "on SupportMarketDataBean(volume=0) delete from MyWindowTwo where symbol = a2;\n" +
                 "insert into MyWindowOne select theString as a1, intPrimitive as b1 from SupportBean(boolPrimitive = true);\n" +

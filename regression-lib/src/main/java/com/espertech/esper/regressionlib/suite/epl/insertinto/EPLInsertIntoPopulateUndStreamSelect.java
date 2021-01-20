@@ -42,9 +42,9 @@ public class EPLInsertIntoPopulateUndStreamSelect {
 
     private static class EPLInsertIntoNamedWindowInheritsMap implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String epl = "@buseventtype create objectarray schema Event();\n" +
-                "@buseventtype create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
-                "@buseventtype create objectarray schema Incident(name string, event Event);\n" +
+            String epl = "@public @buseventtype @public create objectarray schema Event();\n" +
+                "@public @buseventtype create objectarray schema ChildEvent(id string, action string) inherits Event;\n" +
+                "@public @buseventtype create objectarray schema Incident(name string, event Event);\n" +
                 "@Name('window') create window IncidentWindow#keepall as Incident;\n" +
                 "\n" +
                 "on ChildEvent e\n" +
@@ -102,11 +102,11 @@ public class EPLInsertIntoPopulateUndStreamSelect {
 
     private static void tryAssertionNamedWindow(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        String schema = rep.getAnnotationText() + "@name('schema') @buseventtype create schema A as (myint int, mystr string);\n" +
-            rep.getAnnotationText() + "@buseventtype create schema C as (addprop int) inherits A;\n";
+        String schema = rep.getAnnotationText() + "@name('schema') @public @buseventtype create schema A as (myint int, mystr string);\n" +
+            rep.getAnnotationText() + "@public @buseventtype create schema C as (addprop int) inherits A;\n";
         env.compileDeploy(schema, path);
 
-        env.compileDeploy("create window MyWindow#time(5 days) as C", path);
+        env.compileDeploy("@public create window MyWindow#time(5 days) as C", path);
         env.compileDeploy("@name('s0') select * from MyWindow", path).addListener("s0");
 
         // select underlying
@@ -152,22 +152,22 @@ public class EPLInsertIntoPopulateUndStreamSelect {
     private static void tryAssertionStreamInsertWWidenMap(RegressionEnvironment env, EventRepresentationChoice rep) {
 
         RegressionPath path = new RegressionPath();
-        String schemaSrc = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "@name('schema') @buseventtype create schema Src as (myint int, mystr string)";
+        String schemaSrc = rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "@name('schema') @public @buseventtype create schema Src as (myint int, mystr string)";
         env.compileDeploy(schemaSrc, path);
 
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD1.class) + "create schema D1 as (myint int, mystr string, addprop long)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD1.class) + "@public create schema D1 as (myint int, mystr string, addprop long)", path);
         String eplOne = "insert into D1 select 1 as addprop, mysrc.* from Src as mysrc";
         runStreamInsertAssertion(env, path, rep, eplOne, "myint,mystr,addprop", new Object[]{123, "abc", 1L});
 
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD2.class) + "create schema D2 as (mystr string, myint int, addprop double)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD2.class) + "@public create schema D2 as (mystr string, myint int, addprop double)", path);
         String eplTwo = "insert into D2 select 1 as addprop, mysrc.* from Src as mysrc";
         runStreamInsertAssertion(env, path, rep, eplTwo, "myint,mystr,addprop", new Object[]{123, "abc", 1d});
 
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD3.class) + "create schema D3 as (mystr string, addprop int)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD3.class) + "@public create schema D3 as (mystr string, addprop int)", path);
         String eplThree = "insert into D3 select 1 as addprop, mysrc.* from Src as mysrc";
         runStreamInsertAssertion(env, path, rep, eplThree, "mystr,addprop", new Object[]{"abc", 1});
 
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD4.class) +  "create schema D4 as (myint int, mystr string)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedD4.class) +  "@public create schema D4 as (myint int, mystr string)", path);
         String eplFour = "insert into D4 select mysrc.* from Src as mysrc";
         runStreamInsertAssertion(env, path, rep, eplFour, "myint,mystr", new Object[]{123, "abc"});
 
@@ -181,17 +181,17 @@ public class EPLInsertIntoPopulateUndStreamSelect {
 
     private static void tryAssertionInvalid(RegressionEnvironment env, EventRepresentationChoice rep) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "create schema Src as (myint int, mystr string)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedSrc.class) + "@public create schema Src as (myint int, mystr string)", path);
 
         // mismatch in type
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE1.class) + "create schema E1 as (myint long)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE1.class) + "@public create schema E1 as (myint long)", path);
         String message = !rep.isAvroEvent() ?
             "Type by name 'E1' in property 'myint' expected Integer but receives Long" :
             "Type by name 'E1' in property 'myint' expected schema '\"long\"' but received schema '\"int\"'";
         env.tryInvalidCompile(path, "insert into E1 select mysrc.* from Src as mysrc", message);
 
         // mismatch in column name
-        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE2.class) + "create schema E2 as (someprop long)", path);
+        env.compileDeploy(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedE2.class) + "@public create schema E2 as (someprop long)", path);
         env.tryInvalidCompile(path, "insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc",
             "Failed to find column 'otherprop' in target type 'E2' [insert into E2 select mysrc.*, 1 as otherprop from Src as mysrc]");
 

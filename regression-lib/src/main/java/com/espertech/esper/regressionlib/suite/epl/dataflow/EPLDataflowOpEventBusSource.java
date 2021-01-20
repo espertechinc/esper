@@ -63,7 +63,7 @@ public class EPLDataflowOpEventBusSource {
 
             // test doc samples
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema SampleSchema(tagId string, locX double, locY double)", path);
+            env.compileDeploy("@public create schema SampleSchema(tagId string, locX double, locY double)", path);
             String epl = "@name('flow') create dataflow MyDataFlow\n" +
                 "\n" +
                 "  // Receive all SampleSchema events from the event bus.\n" +

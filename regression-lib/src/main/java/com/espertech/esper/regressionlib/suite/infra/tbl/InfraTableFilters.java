@@ -25,7 +25,7 @@ public class InfraTableFilters implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create table MyTable(pkey string primary key, col0 int)", path);
+        env.compileDeploy("@public create table MyTable(pkey string primary key, col0 int)", path);
         env.compileDeploy("insert into MyTable select theString as pkey, intPrimitive as col0 from SupportBean", path);
 
         for (int i = 0; i < 5; i++) {

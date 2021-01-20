@@ -169,7 +169,7 @@ public class ClientCompileLargeWConfig {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplNamedWindow = "create window MyWindow#lastevent (p0 string);\n";
+            String eplNamedWindow = "@public create window MyWindow#lastevent (p0 string);\n";
             env.compileDeploy(eplNamedWindow, path);
             env.compileExecuteFAF("insert into MyWindow select 'x' as p0", path);
 

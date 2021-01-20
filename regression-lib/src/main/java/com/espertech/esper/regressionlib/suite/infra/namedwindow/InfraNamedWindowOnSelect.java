@@ -47,7 +47,7 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
             String[] fields = "theString".split(",");
             RegressionPath path = new RegressionPath();
 
-            String eplCreate = "@Name('create') create window MyWindow.win:keepall() as SupportBean";
+            String eplCreate = "@Name('create') @public create window MyWindow.win:keepall() as SupportBean";
             env.compileDeploy(eplCreate, path).addListener("create");
 
             String eplInsert = "@Name('insert') insert into MyWindow select * from SupportBean";
@@ -78,7 +78,7 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
             String[] fields = new String[]{"theString", "intPrimitive"};
             RegressionPath path = new RegressionPath();
 
-            String epl = "@name('create') create window MyWindow#keepall as select * from SupportBean;\n" +
+            String epl = "@name('create') @public create window MyWindow#keepall as select * from SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean(theString like 'E%');\n" +
                 "@name('select') on SupportBean_A insert into MyStream select mywin.* from MyWindow as mywin order by theString asc;\n" +
                 "@name('consumer') select * from MyStream;\n" +
@@ -146,7 +146,7 @@ public class InfraNamedWindowOnSelect implements IndexBackingTableInfo {
     private static class InfraNamedWindowOnSelectWPattern implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow.win:keepall() as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow.win:keepall() as SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean(theString = 'Z')", path);
             env.sendEventBean(new SupportBean("Z", 0));
 

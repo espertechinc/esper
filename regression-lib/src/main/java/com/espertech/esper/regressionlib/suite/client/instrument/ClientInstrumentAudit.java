@@ -95,7 +95,7 @@ public class ClientInstrumentAudit {
             env.undeployAll();
 
             AUDITLOG.info("*** Named Window And Insert-Into: ");
-            env.compileDeploy("@Name('create') @Audit create window WinOne#keepall as SupportBean", path);
+            env.compileDeploy("@Name('create') @Audit @public create window WinOne#keepall as SupportBean", path);
             env.compileDeploy("@Name('insert') @Audit insert into WinOne select * from SupportBean", path);
             env.compileDeploy("@Name('select') @Audit select * from WinOne", path);
             env.sendEventBean(new SupportBean("E1", 1));
@@ -205,7 +205,7 @@ public class ClientInstrumentAudit {
 
             // table
             AUDITLOG.info("*** Table And Insert-Into and Into-table: ");
-            env.compileDeploy("@Name('create-table') @Audit create table TableOne(c0 string primary key, cnt count(*))", path);
+            env.compileDeploy("@Name('create-table') @Audit @public create table TableOne(c0 string primary key, cnt count(*))", path);
             env.compileDeploy("@Name('into-table') @Audit into table TableOne select count(*) as cnt from SupportBean group by theString", path);
             env.compileDeploy("@Name('access-table') @Audit select TableOne[id].cnt from SupportBean_ST0", path).addListener("access-table");
             env.sendEventBean(new SupportBean("E1", 1));

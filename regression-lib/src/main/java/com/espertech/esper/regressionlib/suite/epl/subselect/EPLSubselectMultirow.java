@@ -37,7 +37,7 @@ public class EPLSubselectMultirow {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             // test named window as well as stream
-            String epl = "create window SupportWindow#length(3) as SupportBean;\n" +
+            String epl = "@public create window SupportWindow#length(3) as SupportBean;\n" +
                 "insert into SupportWindow select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 

@@ -199,7 +199,7 @@ public class EPLOtherStreamExpr {
             env.undeployAll();
 
             // try instance method that accepts EventBean
-            String epl = "@buseventtype create schema MyTestEvent as " + MyTestEvent.class.getName() + ";\n" +
+            String epl = "@buseventtype @public create schema MyTestEvent as " + MyTestEvent.class.getName() + ";\n" +
                 "@name('s0') select " +
                 "s0.getValueAsInt(s0, 'id') as c0," +
                 "s0.getValueAsInt(*, 'id') as c1" +

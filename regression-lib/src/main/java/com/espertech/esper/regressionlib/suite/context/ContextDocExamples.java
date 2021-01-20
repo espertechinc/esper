@@ -27,25 +27,25 @@ public class ContextDocExamples implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        create(env, path, "create context SegmentedByCustomer partition by custId from BankTxn");
+        create(env, path, "@public create context SegmentedByCustomer partition by custId from BankTxn");
         create(env, path, "context SegmentedByCustomer select custId, account, sum(amount) from BankTxn group by account");
         create(env, path, "context SegmentedByCustomer\n" +
             "select * from pattern [\n" +
             "every a=BankTxn(amount > 400) -> b=BankTxn(amount > 400) where timer:within(10 minutes)\n" +
             "]");
         undeployClearPath(env, path);
-        create(env, path, "create context SegmentedByCustomer partition by\n" +
+        create(env, path, "@public create context SegmentedByCustomer partition by\n" +
             "custId from BankTxn, loginId from LoginEvent, loginId from LogoutEvent");
         undeployClearPath(env, path);
-        create(env, path, "create context SegmentedByCustomer partition by\n" +
+        create(env, path, "@public create context SegmentedByCustomer partition by\n" +
             "custId from BankTxn, loginId from LoginEvent(failed=false)");
         undeployClearPath(env, path);
-        create(env, path, "create context ByCustomerAndAccount partition by custId and account from BankTxn");
+        create(env, path, "@public create context ByCustomerAndAccount partition by custId and account from BankTxn");
         create(env, path, "context ByCustomerAndAccount select custId, account, sum(amount) from BankTxn");
         create(env, path, "context ByCustomerAndAccount\n" +
             "  select context.name, context.id, context.key1, context.key2 from BankTxn");
         undeployClearPath(env, path);
-        create(env, path, "create context ByCust partition by custId from BankTxn");
+        create(env, path, "@public create context ByCust partition by custId from BankTxn");
         create(env, path, "context ByCust\n" +
             "select * from BankTxn as t1 unidirectional, BankTxn#time(30) t2\n" +
             "where t1.amount = t2.amount");
@@ -53,7 +53,7 @@ public class ContextDocExamples implements RegressionExecution {
             "select * from SecurityEvent as t1 unidirectional, BankTxn#time(30) t2\n" +
             "where t1.customerName = t2.customerName");
         undeployClearPath(env, path);
-        create(env, path, "create context CategoryByTemp\n" +
+        create(env, path, "@public create context CategoryByTemp\n" +
             "group temp < 65 as cold,\n" +
             "group temp between 65 and 85 as normal,\n" +
             "group temp > 85 as large\n" +
@@ -61,11 +61,11 @@ public class ContextDocExamples implements RegressionExecution {
         create(env, path, "context CategoryByTemp select context.label, count(*) from SensorEvent");
         create(env, path, "context CategoryByTemp\n" +
             "select context.name, context.id, context.label from SensorEvent");
-        create(env, path, "create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)");
+        create(env, path, "@public create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)");
         create(env, path, "context NineToFive select * from TrafficEvent(speed >= 100)");
         create(env, path, "context NineToFive\n" +
             "select context.name, context.startTime, context.endTime from TrafficEvent(speed >= 100)");
-        create(env, path, "create context CtxTrainEnter\n" +
+        create(env, path, "@public create context CtxTrainEnter\n" +
             "initiated by TrainEnterEvent as te\n" +
             "terminated after 5 minutes");
         create(env, path, "context CtxTrainEnter\n" +
@@ -73,7 +73,7 @@ public class ContextDocExamples implements RegressionExecution {
         create(env, path, "context CtxTrainEnter\n" +
             "select t1 from pattern [\n" +
             "t1=TrainEnterEvent -> timer:interval(5 min) and not TrainLeaveEvent(trainId = context.te.trainId)]");
-        create(env, path, "create context CtxEachMinute\n" +
+        create(env, path, "@public create context CtxEachMinute\n" +
             "initiated by pattern [every timer:interval(1 minute)]\n" +
             "terminated after 1 minutes");
         create(env, path, "context CtxEachMinute select avg(temp) from SensorEvent");
@@ -85,33 +85,33 @@ public class ContextDocExamples implements RegressionExecution {
             "from CumulativePrice\n" +
             "where side='O'\n" +
             "group by venue, ccyPair, side");
-        create(env, path, "create context MyContext partition by venue, ccyPair, side from CumulativePrice(side='O')");
+        create(env, path, "@public create context MyContext partition by venue, ccyPair, side from CumulativePrice(side='O')");
         create(env, path, "context MyContext select venue, ccyPair, side, sum(qty) from CumulativePrice");
 
-        create(env, path, "create context SegmentedByCustomerHash\n" +
+        create(env, path, "@public create context SegmentedByCustomerHash\n" +
             "coalesce by consistent_hash_crc32(custId) from BankTxn granularity 16 preallocate");
         create(env, path, "context SegmentedByCustomerHash\n" +
             "select custId, account, sum(amount) from BankTxn group by custId, account");
-        create(env, path, "create context HashedByCustomer as coalesce\n" +
+        create(env, path, "@public create context HashedByCustomer as coalesce\n" +
             "consistent_hash_crc32(custId) from BankTxn,\n" +
             "consistent_hash_crc32(loginId) from LoginEvent,\n" +
             "consistent_hash_crc32(loginId) from LogoutEvent\n" +
             "granularity 32 preallocate");
 
         undeployClearPath(env, path);
-        create(env, path, "create context HashedByCustomer\n" +
+        create(env, path, "@public create context HashedByCustomer\n" +
             "coalesce consistent_hash_crc32(loginId) from LoginEvent(failed = false)\n" +
             "granularity 1024 preallocate");
-        create(env, path, "create context ByCustomerHash coalesce consistent_hash_crc32(custId) from BankTxn granularity 1024");
+        create(env, path, "@public create context ByCustomerHash coalesce consistent_hash_crc32(custId) from BankTxn granularity 1024");
         create(env, path, "context ByCustomerHash\n" +
             "select context.name, context.id from BankTxn");
 
-        create(env, path, "create context NineToFiveSegmented\n" +
+        create(env, path, "@public create context NineToFiveSegmented\n" +
             "context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *),\n" +
             "context SegmentedByCustomer partition by custId from BankTxn");
         create(env, path, "context NineToFiveSegmented\n" +
             "select custId, account, sum(amount) from BankTxn group by account");
-        create(env, path, "create context CtxNestedTrainEnter\n" +
+        create(env, path, "@public create context CtxNestedTrainEnter\n" +
             "context InitCtx initiated by TrainEnterEvent as te terminated after 5 minutes,\n" +
             "context HashCtx coalesce by consistent_hash_crc32(tagId) from PassengerScanEvent\n" +
             "granularity 16 preallocate");
@@ -122,28 +122,28 @@ public class ContextDocExamples implements RegressionExecution {
             "select context.NineToFive.startTime, context.SegmentedByCustomer.key1 from BankTxn");
         create(env, path, "context NineToFiveSegmented select context.name, context.id from BankTxn");
 
-        create(env, path, "create context MyContext start MyStartEvent end MyEndEvent");
-        create(env, path, "create context MyContext2 initiated MyEvent(level > 0) terminated after 10 seconds");
-        create(env, path, "create context MyContext3 \n" +
+        create(env, path, "@public create context MyContext start MyStartEvent end MyEndEvent");
+        create(env, path, "@public create context MyContext2 initiated MyEvent(level > 0) terminated after 10 seconds");
+        create(env, path, "@public create context MyContext3 \n" +
             "start MyEvent as myevent\n" +
             "end MyEvent(id=myevent.id)");
-        create(env, path, "create context MyContext4 \n" +
+        create(env, path, "@public create context MyContext4 \n" +
             "initiated by MyInitEvent as e1 \n" +
             "terminated by MyTermEvent(id=e1.id, level <> e1.level)");
-        create(env, path, "create context MyContext5 start pattern [StartEventOne or StartEventTwo] end after 5 seconds");
-        create(env, path, "create context MyContext6 initiated by pattern [every MyInitEvent -> MyOtherEvent where timer:within(5)] terminated by MyTermEvent");
-        create(env, path, "create context MyContext7 \n" +
+        create(env, path, "@public create context MyContext5 start pattern [StartEventOne or StartEventTwo] end after 5 seconds");
+        create(env, path, "@public create context MyContext6 initiated by pattern [every MyInitEvent -> MyOtherEvent where timer:within(5)] terminated by MyTermEvent");
+        create(env, path, "@public create context MyContext7 \n" +
             "  start pattern [a=StartEventOne or  b=StartEventTwo]\n" +
             "  end pattern [EndEventOne(id=a.id) or EndEventTwo(id=b.id)]");
-        create(env, path, "create context MyContext8 initiated (*, *, *, *, *) terminated after 10 seconds");
-        create(env, path, "create context NineToFive start after 10 seconds end after 1 minute");
-        create(env, path, "create context Overlap5SecFor1Min initiated after 5 seconds terminated after 1 minute");
-        create(env, path, "create context CtxSample\n" +
+        create(env, path, "@public create context MyContext8 initiated (*, *, *, *, *) terminated after 10 seconds");
+        create(env, path, "@public create context NineToFive start after 10 seconds end after 1 minute");
+        create(env, path, "@public create context Overlap5SecFor1Min initiated after 5 seconds terminated after 1 minute");
+        create(env, path, "@public create context CtxSample\n" +
             "initiated by MyStartEvent as startevent\n" +
             "terminated by MyEndEvent(id = startevent.id) as endevent");
         create(env, path, "context CtxSample select context.endevent.id, count(*) from MyEvent output snapshot when terminated");
 
-        create(env, path, "create context TxnCategoryContext \n" +
+        create(env, path, "@public create context TxnCategoryContext \n" +
             "  group by amount < 100 as small, \n" +
             "  group by amount between 100 and 1000 as medium, \n" +
             "  group by amount > 1000 as large from BankTxn");
@@ -159,13 +159,13 @@ public class ContextDocExamples implements RegressionExecution {
                 return new HashSet<String>(Arrays.asList("small", "medium"));
             }
         };
-        create(env, path, "context TxnCategoryContext create window BankTxnWindow#time(1 min) as BankTxn");
+        create(env, path, "@public context TxnCategoryContext create window BankTxnWindow#time(1 min) as BankTxn");
         env.assertThat(() -> {
             EPCompiled faf = env.compileFAF("select count(*) from BankTxnWindow", path);
             env.runtime().getFireAndForgetService().executeQuery(faf, new ContextPartitionSelector[]{categorySmallMed});
         });
 
-        create(env, path, "create context CtxPerKeysAndExternallyControlled\n" +
+        create(env, path, "@public create context CtxPerKeysAndExternallyControlled\n" +
             "context PartitionedByKeys " +
             "  partition by " +
             "    key1, key2 from MyTwoKeyInit\n," +
@@ -177,23 +177,23 @@ public class ContextDocExamples implements RegressionExecution {
             "output snapshot when terminated\n" +
             "// note: no group-by needed since \n");
 
-        create(env, path, "create context PerCustId_TriggeredByLargeAmount\n" +
+        create(env, path, "@public create context PerCustId_TriggeredByLargeAmount\n" +
             "  partition by custId from BankTxn \n" +
             "  initiated by BankTxn(amount>100) as largeTxn");
         create(env, path, "context PerCustId_TriggeredByLargeAmount select context.largeTxn, custId, sum(amount) from BankTxn");
-        create(env, path, "create context PerCustId_UntilExpired\n" +
+        create(env, path, "@public create context PerCustId_UntilExpired\n" +
             "  partition by custId from BankTxn \n" +
             "  terminated by BankTxn(expired=true)");
         create(env, path, "context PerCustId_UntilExpired select custId, sum(amount) from BankTxn output last when terminated");
-        create(env, path, "create context PerCustId_TriggeredByLargeAmount_UntilExpired\n" +
+        create(env, path, "@public create context PerCustId_TriggeredByLargeAmount_UntilExpired\n" +
             "  partition by custId from BankTxn \n" +
             "  initiated by BankTxn(amount>100) as txn\n" +
             "  terminated by BankTxn(expired=true and user=txn.user)");
-        create(env, path, "create context PerCust_AmountGreater100\n" +
+        create(env, path, "@public create context PerCust_AmountGreater100\n" +
             "  partition by custId from BankTxn(amount>100)\n" +
             "  initiated by BankTxn");
         create(env, path, "context PerCust_AmountGreater100 select custId, sum(amount) from BankTxn");
-        create(env, path, "create context PerCust_TriggeredByLargeTxn\n" +
+        create(env, path, "@public create context PerCust_TriggeredByLargeTxn\n" +
             "  partition by custId from BankTxn\n" +
             "  initiated by BankTxn(amount>100)");
         create(env, path, "context PerCust_TriggeredByLargeTxn select custId, sum(amount) from BankTxn");

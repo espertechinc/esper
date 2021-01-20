@@ -45,8 +45,8 @@ public class InfraNWTableSubqCorrelJoin {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String createEpl = namedWindow ?
-                "create window MyInfra#unique(theString) as select * from SupportBean" :
-                "create table MyInfra(theString string primary key, intPrimitive int primary key)";
+                "@public create window MyInfra#unique(theString) as select * from SupportBean" :
+                "@public create table MyInfra(theString string primary key, intPrimitive int primary key)";
             if (enableIndexShareCreate) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }

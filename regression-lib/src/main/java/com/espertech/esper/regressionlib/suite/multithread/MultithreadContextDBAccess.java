@@ -60,7 +60,7 @@ public class MultithreadContextDBAccess implements RegressionExecutionWithConfig
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create context CtxEachString partition by theString from SupportBean", path);
+        env.compileDeploy("@public create context CtxEachString partition by theString from SupportBean", path);
         env.compileDeploy("@Name('select') context CtxEachString " +
             "select * from SupportBean, " +
             "  sql:MyDB ['select mycol3 from mytesttable_large where ${theString} = mycol1']", path);

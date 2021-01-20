@@ -48,11 +48,11 @@ public class InfraTableCountMinSketch {
     private static class InfraDocSamples implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create schema WordEvent (word string)", path);
-            env.compileDeploy("create schema EstimateWordCountEvent (word string)", path);
+            env.compileDeploy("@public create schema WordEvent (word string)", path);
+            env.compileDeploy("@public create schema EstimateWordCountEvent (word string)", path);
 
-            env.compileDeploy("create table WordCountTable(wordcms countMinSketch())", path);
-            env.compileDeploy("create table WordCountTable2(wordcms countMinSketch({\n" +
+            env.compileDeploy("@public create table WordCountTable(wordcms countMinSketch())", path);
+            env.compileDeploy("@public create table WordCountTable2(wordcms countMinSketch({\n" +
                 "  epsOfTotalCount: 0.000002,\n" +
                 "  confidence: 0.999,\n" +
                 "  seed: 38576,\n" +
@@ -70,7 +70,7 @@ public class InfraTableCountMinSketch {
     private static class InfraNonStringType implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplTable = "create table MyApproxNS(bytefreq countMinSketch({" +
+            String eplTable = "@public create table MyApproxNS(bytefreq countMinSketch({" +
                 "  epsOfTotalCount: 0.02," +
                 "  confidence: 0.98," +
                 "  topk: null," +
@@ -102,7 +102,7 @@ public class InfraTableCountMinSketch {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "create table MyApproxFT(wordapprox countMinSketch({topk:3}));\n" +
+                "@public create table MyApproxFT(wordapprox countMinSketch({topk:3}));\n" +
                     "into table MyApproxFT select countMinSketchAdd(theString) as wordapprox from SupportBean;\n" +
                     "@name('frequency') select MyApproxFT.wordapprox.countMinSketchFrequency(p00) as freq from SupportBean_S0;\n" +
                     "@name('topk') select MyApproxFT.wordapprox.countMinSketchTopk() as topk from SupportBean_S1;\n";
@@ -162,7 +162,7 @@ public class InfraTableCountMinSketch {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyCMS(wordcms countMinSketch())", path);
+            env.compileDeploy("@public create table MyCMS(wordcms countMinSketch())", path);
 
             // invalid "countMinSketch" declarations
             //

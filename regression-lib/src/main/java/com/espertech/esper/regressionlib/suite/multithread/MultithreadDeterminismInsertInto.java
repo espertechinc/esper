@@ -60,7 +60,7 @@ public class MultithreadDeterminismInsertInto implements RegressionExecution {
         RegressionPath path = new RegressionPath();
         EPStatement[] insertIntoStmts = new EPStatement[numStatements];
         for (int i = 0; i < numStatements; i++) {
-            String epl = "@name('s" + i + "') insert into MyStream select " + i + " as ident,count(*) as cnt from SupportBean";
+            String epl = "@name('s" + i + "') @public insert into MyStream select " + i + " as ident,count(*) as cnt from SupportBean";
             insertIntoStmts[i] = env.compileDeploy(epl, path).statement("s" + i);
         }
         env.compileDeploy("@name('final') select ident, sum(cnt) as mysum from MyStream group by ident", path);
@@ -108,7 +108,7 @@ public class MultithreadDeterminismInsertInto implements RegressionExecution {
     private static void tryChainedCountSum(RegressionEnvironment env, int numThreads, int numEvents) {
         // setup statements
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("insert into MyStreamOne select count(*) as cnt from SupportBean", path);
+        env.compileDeploy("@public insert into MyStreamOne select count(*) as cnt from SupportBean", path);
         env.compileDeploy("@name('s0') insert into MyStreamTwo select sum(cnt) as mysum from MyStreamOne", path);
         SupportUpdateListener listener = new SupportUpdateListener();
         env.statement("s0").addListener(listener);

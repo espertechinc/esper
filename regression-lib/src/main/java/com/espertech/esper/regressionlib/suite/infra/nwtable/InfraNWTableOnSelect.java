@@ -100,8 +100,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
 
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraPC#keepall as (id string, array int[], value int)" :
-                "@name('create') create table MyInfraPC(id string primary key, array int[], value int)";
+                "@name('create') @public create window MyInfraPC#keepall as (id string, array int[], value int)" :
+                "@name('create') @public create table MyInfraPC(id string primary key, array int[], value int)";
             env.compileDeploy(stmtTextCreate, path);
 
             String stmtTextSelect = "@name('s0') on SupportBean select array, sum(value) as thesum from MyInfraPC group by array";
@@ -144,9 +144,9 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             RegressionPath path = new RegressionPath();
             if (namedWindow) {
-                env.compileDeploy("create window MyInfra.win:length(5) as (numericKey int, value string)", path);
+                env.compileDeploy("@public create window MyInfra.win:length(5) as (numericKey int, value string)", path);
             } else {
-                env.compileDeploy("create table MyInfra(numericKey int primary key, value string)", path);
+                env.compileDeploy("@public create table MyInfra(numericKey int primary key, value string)", path);
             }
             env.compileDeploy("create index MyIndex on MyInfra(value)", path);
             env.compileDeploy("insert into MyInfra select intPrimitive as numericKey, theString as value from SupportBean", path);
@@ -187,8 +187,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraPC#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfraPC(a string primary key, b int primary key)";
+                "@name('create') @public create window MyInfraPC#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfraPC(a string primary key, b int primary key)";
             env.compileDeploy(stmtTextCreate, path);
 
             // create select stmt
@@ -251,8 +251,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             String[] fields = new String[]{"a", "b"};
 
             String epl = namedWindow ?
-                "@name('create') create window MyInfraSCD#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
-                "@name('create') create table MyInfraSCD(a string primary key, b int primary key);\n";
+                "@name('create') @public create window MyInfraSCD#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
+                "@name('create') @public create table MyInfraSCD(a string primary key, b int primary key);\n";
             epl += "@name('select') on SupportBean_A select mywin.* from MyInfraSCD as mywin where id = a;\n";
             epl += "insert into MyInfraSCD select theString as a, intPrimitive as b from SupportBean;\n";
             epl += "@name('delete') on SupportBean_B delete from MyInfraSCD where a = id;\n";
@@ -316,8 +316,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             RegressionPath path = new RegressionPath();
             String epl = namedWindow ?
-                "@name('create') create window MyInfraSAG#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
-                "@name('create') create table MyInfraSAG(a string primary key, b int primary key);\n";
+                "@name('create') @public create window MyInfraSAG#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
+                "@name('create') @public create table MyInfraSAG(a string primary key, b int primary key);\n";
             epl += "@name('select') on SupportBean_A select a, sum(b) as sumb from MyInfraSAG group by a order by a desc;\n";
             epl += "@name('selectTwo') on SupportBean_A select a, sum(b) as sumb from MyInfraSAG group by a having sum(b) > 5 order by a desc;\n";
             epl += "@name('insert') insert into MyInfraSAG select theString as a, intPrimitive as b from SupportBean;\n";
@@ -393,8 +393,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             String[] fields = new String[]{"sumb"};
 
             String epl = namedWindow ?
-                "@name('create') create window MyInfraSAC#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
-                "@name('create') create table MyInfraSAC(a string primary key, b int primary key);\n";
+                "@name('create') @public create window MyInfraSAC#keepall as select theString as a, intPrimitive as b from SupportBean;\n" :
+                "@name('create') @public create table MyInfraSAC(a string primary key, b int primary key);\n";
             epl += "@name('select') on SupportBean_A select sum(b) as sumb from MyInfraSAC where a = id;\n";
             epl += "insert into MyInfraSAC select theString as a, intPrimitive as b from SupportBean;\n";
             env.compileDeploy(epl).addListener("select").addListener("create");
@@ -454,8 +454,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraSA#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfraSA (a string primary key, b int primary key)";
+                "@name('create') @public create window MyInfraSA#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfraSA (a string primary key, b int primary key)";
             env.compileDeploy(stmtTextCreate, path);
 
             // create select stmt
@@ -524,8 +524,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
 
             // create window
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window MyInfraSA#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table MyInfraSA (a string primary key, b int)";
+                "@name('create') @public create window MyInfraSA#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table MyInfraSA (a string primary key, b int)";
             env.compileDeploy(stmtTextCreate, path);
 
             // create select stmt
@@ -586,8 +586,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             // create window
             String infraName = "MyInfraSC" + (namedWindow ? "NW" : "Tbl");
             String stmtTextCreate = namedWindow ?
-                "@name('create') create window " + infraName + "#keepall as select theString as a, intPrimitive as b from SupportBean" :
-                "@name('create') create table " + infraName + " (a string primary key, b int)";
+                "@name('create') @public create window " + infraName + "#keepall as select theString as a, intPrimitive as b from SupportBean" :
+                "@name('create') @public create table " + infraName + " (a string primary key, b int)";
             env.compileDeploy(stmtTextCreate, path);
 
             // create select stmt
@@ -650,8 +650,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String stmtTextCreate = namedWindow ?
-                "create window MyInfraInvalid#keepall as select * from SupportBean" :
-                "create table MyInfraInvalid (theString string, intPrimitive int)";
+                "@public @public create window MyInfraInvalid#keepall as select * from SupportBean" :
+                "@public @public create table MyInfraInvalid (theString string, intPrimitive int)";
             env.compileDeploy(stmtTextCreate, path);
 
             env.tryInvalidCompile(path, "on SupportBean_A select * from MyInfraInvalid where sum(intPrimitive) > 100",
@@ -686,8 +686,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
 
             String stmtTextCreate = namedWindow ?
-                "create window MyInfraPTS#keepall as select * from SupportBean" :
-                "create table MyInfraPTS as (theString string)";
+                "@public create window MyInfraPTS#keepall as select * from SupportBean" :
+                "@public create table MyInfraPTS as (theString string)";
             env.compileDeploy(stmtTextCreate, path);
 
             String stmtCount = "on pattern[every timer:interval(10 sec)] select count(eve), eve from MyInfraPTS as eve";
@@ -734,8 +734,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
             RegressionPath path = new RegressionPath();
             // create window
             String stmtTextCreate = namedWindow ?
-                "create window MyInfraSHS#keepall as (a string, b int)" :
-                "create table MyInfraSHS as (a string primary key, b int primary key)";
+                "@public create window MyInfraSHS#keepall as (a string, b int)" :
+                "@public create table MyInfraSHS as (a string primary key, b int primary key)";
             env.compileDeploy(stmtTextCreate, path);
 
             String stmtTextInsertOne = "insert into MyInfraSHS select theString as a, intPrimitive as b from SupportBean";
@@ -782,8 +782,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "create window MyInfraWA#keepall as SupportBean" :
-                "create table MyInfraWA(theString string primary key, intPrimitive int)";
+                "@public create window MyInfraWA#keepall as SupportBean" :
+                "@public create table MyInfraWA(theString string primary key, intPrimitive int)";
             env.compileDeploy(eplCreate, path);
             String eplInsert = namedWindow ?
                 "insert into MyInfraWA select * from SupportBean" :
@@ -977,8 +977,8 @@ public class InfraNWTableOnSelect implements IndexBackingTableInfo {
                                           IndexAssertion[] assertions) {
         RegressionPath path = new RegressionPath();
         String eplCreate = namedWindow ?
-            "@name('create-window') create window MyInfra." + datawindow + " as SupportSimpleBeanOne" :
-            "@name('create-table') create table MyInfra(s1 string primary key, i1 int, d1 double, l1 long)";
+            "@name('create-window') @public create window MyInfra." + datawindow + " as SupportSimpleBeanOne" :
+            "@name('create-table') @public create table MyInfra(s1 string primary key, i1 int, d1 double, l1 long)";
         env.compileDeploy(eplCreate, path);
 
         env.compileDeploy("insert into MyInfra select s1,i1,d1,l1 from SupportSimpleBeanOne", path);

@@ -35,7 +35,7 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
 
         // test Bean-type Date-type timestamps
         String startA = "2002-05-30T09:00:00.000";
-        String epl = "@buseventtype create schema SupportBeanXXX as " + SupportBean.class.getName() + " starttimestamp longPrimitive endtimestamp longBoxed;\n";
+        String epl = "@public @buseventtype create schema SupportBeanXXX as " + SupportBean.class.getName() + " starttimestamp longPrimitive endtimestamp longBoxed;\n";
         epl += "@name('s0') select a.get('month') as val0 from SupportBeanXXX a;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -94,8 +94,8 @@ public class ExprDTIntervalOpsCreateSchema implements RegressionExecution {
     }
 
     private void runAssertionCreateSchemaWTypes(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum, String typeOfDatetimeProp, Object startA, Object endA, Object startB, Object endB, Class jsonClass) {
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
-        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype @public create schema TypeA as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
+        epl += eventRepresentationEnum.getAnnotationTextWJsonProvided(jsonClass) + " @buseventtype @public create schema TypeB as (startts " + typeOfDatetimeProp + ", endts " + typeOfDatetimeProp + ") starttimestamp startts endtimestamp endts;\n";
         epl += "@name('s0') select a.includes(b) as val0 from TypeA#lastevent as a, TypeB#lastevent as b;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 

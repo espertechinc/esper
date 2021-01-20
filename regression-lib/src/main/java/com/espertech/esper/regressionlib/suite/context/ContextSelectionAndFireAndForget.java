@@ -46,22 +46,22 @@ public class ContextSelectionAndFireAndForget {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context SegmentedSB as partition by theString from SupportBean", path);
-            env.compileDeploy("create context SegmentedS0 as partition by p00 from SupportBean_S0", path);
-            env.compileDeploy("context SegmentedSB create window WinSB#keepall as SupportBean", path);
-            env.compileDeploy("context SegmentedS0 create window WinS0#keepall as SupportBean_S0", path);
-            env.compileDeploy("create window WinS1#keepall as SupportBean_S1", path);
+            env.compileDeploy("@public create context SegmentedSB as partition by theString from SupportBean", path);
+            env.compileDeploy("@public create context SegmentedS0 as partition by p00 from SupportBean_S0", path);
+            env.compileDeploy("@public context SegmentedSB create window WinSB#keepall as SupportBean", path);
+            env.compileDeploy("@public context SegmentedS0 create window WinS0#keepall as SupportBean_S0", path);
+            env.compileDeploy("@public create window WinS1#keepall as SupportBean_S1", path);
 
             // when a context is declared, it must be the same context that applies to all named windows
             tryInvalidCompileQuery(env, path, "context SegmentedSB select * from WinSB, WinS0",
                 "Joins in runtime queries for context partitions are not supported [context SegmentedSB select * from WinSB, WinS0]");
 
             // test join
-            env.compileDeploy("create context PartitionedByString partition by theString from SupportBean", path);
-            env.compileDeploy("context PartitionedByString create window MyWindowOne#keepall as SupportBean", path);
+            env.compileDeploy("@public create context PartitionedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@public context PartitionedByString create window MyWindowOne#keepall as SupportBean", path);
 
-            env.compileDeploy("create context PartitionedByP00 partition by p00 from SupportBean_S0", path);
-            env.compileDeploy("context PartitionedByP00 create window MyWindowTwo#keepall as SupportBean_S0", path);
+            env.compileDeploy("@public create context PartitionedByP00 partition by p00 from SupportBean_S0", path);
+            env.compileDeploy("@public context PartitionedByP00 create window MyWindowTwo#keepall as SupportBean_S0", path);
 
             env.sendEventBean(new SupportBean("G1", 10));
             env.sendEventBean(new SupportBean("G2", 11));
@@ -83,8 +83,8 @@ public class ContextSelectionAndFireAndForget {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context PartitionedByString partition by theString from SupportBean", path);
-            env.compileDeploy("context PartitionedByString create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create context PartitionedByString partition by theString from SupportBean", path);
+            env.compileDeploy("@public context PartitionedByString create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean("E1", 10));
@@ -134,10 +134,10 @@ public class ContextSelectionAndFireAndForget {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context NestedContext " +
+            env.compileDeploy("@public create context NestedContext " +
                 "context ACtx initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id), " +
                 "context BCtx group by intPrimitive < 0 as grp1, group by intPrimitive = 0 as grp2, group by intPrimitive > 0 as grp3 from SupportBean", path);
-            env.compileDeploy("context NestedContext create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public context NestedContext create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean_S0(1, "S0_1"));

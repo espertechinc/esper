@@ -46,7 +46,7 @@ public class MultithreadContextPartitioned implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create context CtxEachString partition by theString from SupportBean", path);
+        env.compileDeploy("@public create context CtxEachString partition by theString from SupportBean", path);
         env.compileDeploy("@Name('select') context CtxEachString select * from SupportBean", path);
 
         tryPerformanceDispatch(env, 8, 100);

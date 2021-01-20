@@ -82,14 +82,14 @@ public class ClientCompileEnginePath {
 
     public static class ClientCompileEnginePathObjectTypes implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String deployed = "create variable int myvariable = 10;\n" +
-                "create schema MySchema();\n" +
-                "create expression myExpr { 'abc' };\n" +
-                "create window MyWindow#keepall as SupportBean_S0;\n" +
-                "create table MyTable(y string);\n" +
-                "create context MyContext start SupportBean_S0 end SupportBean_S1;\n" +
-                "create expression myScript() [ 2 ];\n" +
-                "create inlined_class \"\"\" public class MyClass { public static String doIt(String parameter) { return \"def\"; } }\"\"\";\n";
+            String deployed = "@public create variable int myvariable = 10;\n" +
+                "@public create schema MySchema();\n" +
+                "@public create expression myExpr { 'abc' };\n" +
+                "@public create window MyWindow#keepall as SupportBean_S0;\n" +
+                "@public create table MyTable(y string);\n" +
+                "@public create context MyContext start SupportBean_S0 end SupportBean_S1;\n" +
+                "@public create expression myScript() [ 2 ];\n" +
+                "@public create inlined_class \"\"\" public class MyClass { public static String doIt(String parameter) { return \"def\"; } }\"\"\";\n";
             env.compileDeploy(deployed, new RegressionPath());
 
             String epl = "@name('s0') select myvariable as c0, myExpr() as c1, myScript() as c2, preconfigured_variable as c3," +

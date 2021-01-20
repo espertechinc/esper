@@ -55,7 +55,7 @@ public class InfraTableMTGroupedAccessReadIntoTableWriteNewRowCreation implement
 
     private static void tryMT(RegressionEnvironment env, int numEvents) throws InterruptedException {
         String epl =
-            "create table varTotal (key string primary key, total sum(int));\n" +
+            "@public create table varTotal (key string primary key, total sum(int));\n" +
                 "into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n" +
                 "@Name('s0') select varTotal[p00].total as c0 from SupportBean_S0;\n";
         env.compileDeploy(epl).addListener("s0");

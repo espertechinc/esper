@@ -142,8 +142,8 @@ public class PatternUseResult {
     private static class PatternPatternTypeCacheForRepeat implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // UEJ-229-28464 bug fix for type reuse for dissimilar types
-            String epl = "@buseventtype create objectarray schema TypeOne(symbol string, price double);\n" +
-                "@buseventtype create objectarray schema TypeTwo(symbol string, market string, price double);\n" +
+            String epl = "@public @buseventtype create objectarray schema TypeOne(symbol string, price double);\n" +
+                "@public @buseventtype create objectarray schema TypeTwo(symbol string, market string, price double);\n" +
                 "\n" +
                 "@Name('Out2') select a[0].symbol from pattern [ [2] a=TypeOne ]\n;" +
                 "@Name('Out3') select a[0].market from pattern [ [2] a=TypeTwo ];";

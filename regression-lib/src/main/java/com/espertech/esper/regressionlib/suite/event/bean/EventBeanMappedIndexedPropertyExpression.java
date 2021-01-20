@@ -40,7 +40,7 @@ public class EventBeanMappedIndexedPropertyExpression implements RegressionExecu
         runAssertionBean(env, path, eplBeansPrefixed);
 
         // test wrap
-        env.compileDeploy("insert into SecondStream select 'a' as val0, * from SupportBeanComplexProps", path);
+        env.compileDeploy("@public insert into SecondStream select 'a' as val0, * from SupportBeanComplexProps", path);
 
         String eplWrap = "select " +
             "mapped(theString) as val0," +

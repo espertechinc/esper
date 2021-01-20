@@ -59,7 +59,7 @@ public class RowRecogDelete {
     private static class RowRecogNamedWindowOnDeleteOutOfSeq implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyNamedWindow#keepall as SupportRecogBean", path);
+            env.compileDeploy("@public create window MyNamedWindow#keepall as SupportRecogBean", path);
             env.compileDeploy("insert into MyNamedWindow select * from SupportRecogBean", path);
             env.compileDeploy("on SupportBean as d delete from MyNamedWindow w where d.intPrimitive = w.value", path);
 
@@ -136,7 +136,7 @@ public class RowRecogDelete {
     private static class RowRecogNamedWindowOutOfSequenceDelete implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportRecogBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportRecogBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportRecogBean", path);
             env.compileDeploy("on SupportBean as s delete from MyWindow as w where s.theString = w.theString", path);
 
@@ -213,7 +213,7 @@ public class RowRecogDelete {
     private static class RowRecogNamedWindowInSequenceDelete implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportRecogBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportRecogBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportRecogBean", path);
             env.compileDeploy("on SupportBean as s delete from MyWindow as w where s.theString = w.theString", path);
 

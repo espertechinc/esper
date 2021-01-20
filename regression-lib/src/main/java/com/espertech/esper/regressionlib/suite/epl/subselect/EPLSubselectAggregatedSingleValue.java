@@ -142,7 +142,7 @@ public class EPLSubselectAggregatedSingleValue {
     private static class EPLSubselectUngroupedTableWHaving implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(total sum(int))", path);
+            env.compileDeploy("@public create table MyTable(total sum(int))", path);
             env.compileDeploy("into table MyTable select sum(intPrimitive) as total from SupportBean", path);
             env.compileDeploy("@name('s0') select (select sum(total) from MyTable having sum(total) > 100) as c0 from SupportBean_S0", path);
             env.addListener("s0");

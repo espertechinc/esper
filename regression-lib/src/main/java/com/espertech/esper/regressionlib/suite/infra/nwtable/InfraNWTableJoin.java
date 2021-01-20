@@ -40,10 +40,10 @@ public class InfraNWTableJoin {
             RegressionPath path = new RegressionPath();
 
             // create window
-            String stmtTextCreate = "@buseventtype create schema MyEvent(cid string);\n";
+            String stmtTextCreate = "@public @buseventtype create schema MyEvent(cid string);\n";
             stmtTextCreate += namedWindow ?
-                "create window MyInfra.win:keepall() as MyEvent" :
-                "create table MyInfra(cid string primary key)";
+                "@public create window MyInfra.win:keepall() as MyEvent" :
+                "@public create table MyInfra(cid string primary key)";
             env.compileDeploy(stmtTextCreate, path);
 
             // create insert into

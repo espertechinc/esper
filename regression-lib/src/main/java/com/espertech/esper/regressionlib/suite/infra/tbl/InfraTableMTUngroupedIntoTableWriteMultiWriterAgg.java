@@ -51,7 +51,7 @@ public class InfraTableMTUngroupedIntoTableWriteMultiWriterAgg implements Regres
 
     private static void tryMT(RegressionEnvironment env, int numThreads, int numEvents) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table varagg (theEvents window(*) @type(SupportBean))";
+        String eplCreateVariable = "@public create table varagg (theEvents window(*) @type(SupportBean))";
         env.compileDeploy(eplCreateVariable, path);
 
         Thread[] threads = new Thread[numThreads];

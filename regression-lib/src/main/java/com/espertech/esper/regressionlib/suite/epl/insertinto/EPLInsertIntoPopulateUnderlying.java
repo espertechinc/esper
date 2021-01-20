@@ -245,9 +245,9 @@ public class EPLInsertIntoPopulateUnderlying {
             env.tryInvalidCompile(text, "Failed to find a suitable constructor for class '" + SupportBeanReadOnly.class.getName() + "': Could not find constructor in class '" + SupportBeanReadOnly.class.getName() + "' with matching parameter number and expected parameter type(s) 'String' (nearest matching constructor taking no parameters) [insert into SupportBeanReadOnly(side) select 'E1' from MyMap]");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("insert into ABCStream select *, 1+1 from SupportBean", path);
-            text = "insert into ABCStream(string) select 'E1' from MyMap";
-            env.tryInvalidCompile(path, text, "Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is '" + Pair.class.getName() + "') [insert into ABCStream(string) select 'E1' from MyMap]");
+            env.compileDeploy("@public insert into ABCStream select *, 1+1 from SupportBean", path);
+            text = "@public insert into ABCStream(string) select 'E1' from MyMap";
+            env.tryInvalidCompile(path, text, "Event type named 'ABCStream' has already been declared with differing column name or type information: Type by name 'ABCStream' is not a compatible type (target type underlying is '" + Pair.class.getName() + "') [@public insert into ABCStream(string) select 'E1' from MyMap]");
 
             text = "insert into xmltype select 1 from SupportBean";
             env.tryInvalidCompile(text, "Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is '" + Node.class.getName() + "') [insert into xmltype select 1 from SupportBean]");
@@ -292,8 +292,8 @@ public class EPLInsertIntoPopulateUnderlying {
 
             // allow automatic cast of same-type event
             path.clear();
-            env.compileDeploy("create schema MapOneA as (prop1 string)", path);
-            env.compileDeploy("create schema MapTwoA as (prop1 string)", path);
+            env.compileDeploy("@public create schema MapOneA as (prop1 string)", path);
+            env.compileDeploy("@public create schema MapTwoA as (prop1 string)", path);
             env.compileDeploy("insert into MapOneA select * from MapTwoA", path);
 
             env.undeployAll();
@@ -546,9 +546,9 @@ public class EPLInsertIntoPopulateUnderlying {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String epl = "create schema FinalEventInvalidNonArray as " + FinalEventInvalidNonArray.class.getName() + ";\n" +
-                "create schema FinalEventInvalidArray as " + FinalEventInvalidArray.class.getName() + ";\n" +
-                "create schema FinalEventValid as " + FinalEventValid.class.getName() + ";\n";
+            String epl = "@public create schema FinalEventInvalidNonArray as " + FinalEventInvalidNonArray.class.getName() + ";\n" +
+                "@public create schema FinalEventInvalidArray as " + FinalEventInvalidArray.class.getName() + ";\n" +
+                "@public create schema FinalEventValid as " + FinalEventValid.class.getName() + ";\n";
             env.compileDeploy(epl, path);
             env.advanceTime(0);
 
@@ -603,11 +603,11 @@ public class EPLInsertIntoPopulateUnderlying {
 
         RegressionPath path = new RegressionPath();
         String schema =
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventOne.class) + " @buseventtype create schema EventOne(id string);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTwo.class) + " @buseventtype create schema EventTwo(id string, val int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventValid.class) + " @buseventtype create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidNonArray.class) + " @buseventtype create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidArray.class) + " @buseventtype create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventOne.class) + " @public @buseventtype create schema EventOne(id string);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedEventTwo.class) + " @public @buseventtype create schema EventTwo(id string, val int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventValid.class) + " @public @buseventtype create schema FinalEventValid (startEvent EventOne, endEvent EventTwo[]);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidNonArray.class) + " @public @buseventtype create schema FinalEventInvalidNonArray (startEvent EventOne, endEvent EventTwo);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedFinalEventInvalidArray.class) + " @public @buseventtype create schema FinalEventInvalidArray (startEvent EventOne, endEvent EventTwo);\n";
         env.compileDeploy(schema, path);
 
         env.advanceTime(0);

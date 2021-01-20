@@ -23,9 +23,9 @@ public class InfraNamedWindowRemoveStream implements RegressionExecution {
         RegressionPath path = new RegressionPath();
 
         String[] fields = new String[]{"theString"};
-        env.compileDeploy("@name('c1') create window W1#length(2) as select * from SupportBean", path);
-        env.compileDeploy("@name('c2') create window W2#length(2) as select * from SupportBean", path);
-        env.compileDeploy("@name('c3') create window W3#length(2) as select * from SupportBean", path);
+        env.compileDeploy("@name('c1') @public create window W1#length(2) as select * from SupportBean", path);
+        env.compileDeploy("@name('c2') @public create window W2#length(2) as select * from SupportBean", path);
+        env.compileDeploy("@name('c3') @public create window W3#length(2) as select * from SupportBean", path);
 
         env.compileDeploy("insert into W1 select * from SupportBean", path);
         env.compileDeploy("insert rstream into W2 select rstream * from W1", path);

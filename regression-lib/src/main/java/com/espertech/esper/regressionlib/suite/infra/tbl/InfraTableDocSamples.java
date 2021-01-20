@@ -33,8 +33,8 @@ public class InfraTableDocSamples {
     private static class InfraIncreasingUseCase implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                    "@buseventtype create schema ValueEvent(value long);\n" +
-                    "@buseventtype create schema ResetEvent(startThreshold long);\n" +
+                    "@public @buseventtype create schema ValueEvent(value long);\n" +
+                    "@public @buseventtype create schema ResetEvent(startThreshold long);\n" +
                     "create table CurrentMaxTable(currentThreshold long);\n" +
                     "@name('s0') insert into ThresholdTriggered select * from ValueEvent(value >= CurrentMaxTable.currentThreshold);\n" +
                     "on ResetEvent merge CurrentMaxTable when matched then update set currentThreshold = startThreshold when not matched then insert select startThreshold as currentThreshold;\n" +
@@ -72,13 +72,13 @@ public class InfraTableDocSamples {
     private static class InfraDoc implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table agg_srcdst as (key0 string primary key, key1 string primary key, cnt count(*))", path);
-            env.compileDeploy("create schema IPAddressFirewallAlert(ip_src string, ip_dst string)", path);
+            env.compileDeploy("@public create table agg_srcdst as (key0 string primary key, key1 string primary key, cnt count(*))", path);
+            env.compileDeploy("@public create schema IPAddressFirewallAlert(ip_src string, ip_dst string)", path);
             env.compileDeploy("select agg_srcdst[ip_src, ip_dst].cnt from IPAddressFirewallAlert", path);
-            env.compileDeploy("create schema PortScanEvent(ip_src string, ip_dst string)", path);
+            env.compileDeploy("@public create schema PortScanEvent(ip_src string, ip_dst string)", path);
             env.compileDeploy("into table agg_srcdst select count(*) as cnt from PortScanEvent group by ip_src, ip_dst", path);
 
-            env.compileDeploy("create table MyStats (\n" +
+            env.compileDeploy("@public create table MyStats (\n" +
                 "  myKey string primary key,\n" +
                 "  myAvedev avedev(int), // column holds a mean deviation of int-typed values\n" +
                 "  myAvg avg(double), // column holds a average of double-typed values\n" +
@@ -91,14 +91,14 @@ public class InfraTableDocSamples {
                 "  myCountEver countever(*) // column holds the count-ever\n" +
                 ")", path);
 
-            env.compileDeploy("create table MyStatsMore (\n" +
+            env.compileDeploy("@public create table MyStatsMore (\n" +
                 "  myKey string primary key,\n" +
                 "  myAvgFiltered avg(double, boolean), // column holds a average of double-typed values\n" +
                 "                      // and filtered by a boolean expression to be provided\n" +
                 "  myAvgDistinct avg(distinct double) // column holds a average of distinct double-typed values\n" +
                 ")", path);
 
-            env.compileDeploy("create table MyEventAggregationTable (\n" +
+            env.compileDeploy("@public create table MyEventAggregationTable (\n" +
                 "  myKey string primary key,\n" +
                 "  myWindow window(*) @type(SupportMySortValueEvent), // column holds a window of SupportMySortValueEvent events\n" +
                 "  mySorted sorted(mySortValue) @type(SupportMySortValueEvent), // column holds SupportMySortValueEvent events sorted by mySortValue\n" +
@@ -106,11 +106,11 @@ public class InfraTableDocSamples {
                 "        // provided the highest value of mySortValue ever\n" +
                 ")", path);
 
-            env.compileDeploy("create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
-            env.compileDeploy("context NineToFive create table AverageSpeedTable (carId string primary key, avgSpeed avg(double))", path);
+            env.compileDeploy("@public create context NineToFive start (0, 9, *, *, *) end (0, 17, *, *, *)", path);
+            env.compileDeploy("@public context NineToFive create table AverageSpeedTable (carId string primary key, avgSpeed avg(double))", path);
             env.compileDeploy("context NineToFive into table AverageSpeedTable select avg(speed) as avgSpeed from SupportTrafficEvent group by carId", path);
 
-            env.compileDeploy("create table IntrusionCountTable (\n" +
+            env.compileDeploy("@public create table IntrusionCountTable (\n" +
                 "  fromAddress string primary key,\n" +
                 "  toAddress string primary key,\n" +
                 "  countIntrusion10Sec count(*),\n" +
@@ -126,13 +126,13 @@ public class InfraTableDocSamples {
                 "from SupportIntrusionEvent#time(60)\n" +
                 "group by fromAddress, toAddress", path);
 
-            env.compileDeploy("create table TotalIntrusionCountTable (totalIntrusions count(*))", path);
+            env.compileDeploy("@public create table TotalIntrusionCountTable (totalIntrusions count(*))", path);
             env.compileDeploy("into table TotalIntrusionCountTable select count(*) as totalIntrusions from SupportIntrusionEvent", path);
             env.compileDeploy("expression alias totalIntrusions {count(*)}\n" +
                 "select totalIntrusions from SupportIntrusionEvent", path);
             env.compileDeploy("select TotalIntrusionCountTable.totalIntrusions from pattern[every timer:interval(60 sec)]", path);
 
-            env.compileDeploy("create table MyTable (\n" +
+            env.compileDeploy("@public create table MyTable (\n" +
                 "theWindow window(*) @type(SupportMySortValueEvent),\n" +
                 "theSorted sorted(mySortValue) @type(SupportMySortValueEvent)\n" +
                 ")", path);
@@ -145,7 +145,7 @@ public class InfraTableDocSamples {
             env.compileDeploy("select * from IntrusionCountTable as intr, SupportIntrusionEvent as firewall\n" +
                 "where intr.fromAddress = firewall.fromAddress and intr.toAddress = firewall.toAddress", path);
 
-            env.compileDeploy("create table MyWindowTable (theWindow window(*) @type(SupportMySortValueEvent))", path);
+            env.compileDeploy("@public create table MyWindowTable (theWindow window(*) @type(SupportMySortValueEvent))", path);
             env.compileDeploy("select theWindow.first(), theWindow.last(), theWindow.window() from SupportMySortValueEvent, MyWindowTable", path);
 
             env.undeployAll();

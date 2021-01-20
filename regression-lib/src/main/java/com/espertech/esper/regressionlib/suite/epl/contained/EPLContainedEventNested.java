@@ -45,7 +45,7 @@ public class EPLContainedEventNested {
             String[] fields = "reviewId".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window OrderWindowNWF#lastevent as OrderBean", path);
+            env.compileDeploy("@public create window OrderWindowNWF#lastevent as OrderBean", path);
             env.compileDeploy("insert into OrderWindowNWF select * from OrderBean", path);
 
             String stmtText = "@name('s0') select reviewId from OrderWindowNWF[books][reviews] bookReviews order by reviewId asc";
@@ -66,7 +66,7 @@ public class EPLContainedEventNested {
             String[] fields = "theString,totalPrice".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window OrderWindowNWS#lastevent as OrderBean", path);
+            env.compileDeploy("@public create window OrderWindowNWS#lastevent as OrderBean", path);
             env.compileDeploy("insert into OrderWindowNWS select * from OrderBean", path);
 
             String stmtText = "@name('s0') select *, (select sum(price) from OrderWindowNWS[books]) as totalPrice from SupportBean";
@@ -89,9 +89,9 @@ public class EPLContainedEventNested {
             String[] fields = "theString,intPrimitive".split(",");
             RegressionPath path = new RegressionPath();
 
-            env.compileDeploy("create window SupportBeanWindow#lastevent as SupportBean", path);
+            env.compileDeploy("@public create window SupportBeanWindow#lastevent as SupportBean", path);
             env.compileDeploy("insert into SupportBeanWindow select * from SupportBean", path);
-            env.compileDeploy("create window OrderWindowNWOT#lastevent as OrderBean", path);
+            env.compileDeploy("@public create window OrderWindowNWOT#lastevent as OrderBean", path);
             env.compileDeploy("insert into OrderWindowNWOT select * from OrderBean", path);
 
             String stmtText = "@name('s0') on OrderWindowNWOT[books] owb select sbw.* from SupportBeanWindow sbw where theString = title";

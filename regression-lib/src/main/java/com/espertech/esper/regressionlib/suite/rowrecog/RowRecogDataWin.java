@@ -229,7 +229,7 @@ public class RowRecogDataWin {
     public static class RowRecogDataWinNamedWindow implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@Name('createwindow') create window MyWindow#keepall as select * from SupportBean", path);
+            env.compileDeploy("@Name('createwindow') @public create window MyWindow#keepall as select * from SupportBean", path);
             env.compileDeploy("@Name('insertwindow') insert into MyWindow select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean("A", 1));

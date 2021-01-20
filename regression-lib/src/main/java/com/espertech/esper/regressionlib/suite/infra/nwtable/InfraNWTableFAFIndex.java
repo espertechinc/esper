@@ -316,11 +316,11 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
 
             RegressionPath path = new RegressionPath();
             if (namedWindow) {
-                env.compileDeploy("create window W1." + datawindowOne + " as SupportSimpleBeanOne", path);
-                env.compileDeploy("create window W2." + datawindowTwo + " as SupportSimpleBeanTwo", path);
+                env.compileDeploy("@public create window W1." + datawindowOne + " as SupportSimpleBeanOne", path);
+                env.compileDeploy("@public create window W2." + datawindowTwo + " as SupportSimpleBeanTwo", path);
             } else {
-                env.compileDeploy("create table W1 (s1 String primary key, i1 int primary key, d1 double primary key, l1 long primary key)", path);
-                env.compileDeploy("create table W2 (s2 String primary key, i2 int primary key, d2 double primary key, l2 long primary key)", path);
+                env.compileDeploy("@public create table W1 (s1 String primary key, i1 int primary key, d1 double primary key, l1 long primary key)", path);
+                env.compileDeploy("@public create table W2 (s2 String primary key, i2 int primary key, d2 double primary key, l2 long primary key)", path);
             }
             env.compileDeploy("insert into W1 select s1,i1,d1,l1 from SupportSimpleBeanOne", path);
             env.compileDeploy("insert into W2 select s2,i2,d2,l2 from SupportSimpleBeanTwo", path);
@@ -449,8 +449,8 @@ public class InfraNWTableFAFIndex implements IndexBackingTableInfo {
                                           IndexAssertion[] assertions) {
         RegressionPath path = new RegressionPath();
         String eplCreate = namedWindow ?
-            "create window MyInfra." + datawindow + " as SupportSimpleBeanOne" :
-            "create table MyInfra(s1 String primary key, i1 int primary key, d1 double primary key, l1 long primary key)";
+            "@public create window MyInfra." + datawindow + " as SupportSimpleBeanOne" :
+            "@public create table MyInfra(s1 String primary key, i1 int primary key, d1 double primary key, l1 long primary key)";
         env.compileDeploy(eplCreate, path);
         env.compileDeploy("insert into MyInfra select s1,i1,d1,l1 from SupportSimpleBeanOne", path);
         for (String index : indexes) {

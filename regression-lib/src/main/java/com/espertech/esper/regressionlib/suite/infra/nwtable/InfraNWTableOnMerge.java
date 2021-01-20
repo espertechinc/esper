@@ -136,8 +136,8 @@ public class InfraNWTableOnMerge {
         private static void runAssertionSetWithIndex(RegressionEnvironment env, boolean namedWindow, boolean soda, String setter, int cntExpected, double... thearrayExpected) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "@name('create') create window MyInfra#keepall(cnt int, thearray double[primitive]);\n" :
-                "@name('create') create table MyInfra(cnt int, thearray double[primitive]);\n";
+                "@name('create') @public create window MyInfra#keepall(cnt int, thearray double[primitive]);\n" :
+                "@name('create') @public create table MyInfra(cnt int, thearray double[primitive]);\n";
             eplCreate += "@priority(1) on SupportBean merge MyInfra when not matched then insert select 0 as cnt, new double[3] as thearray;\n";
             env.compileDeploy(eplCreate, path);
 
@@ -161,7 +161,7 @@ public class InfraNWTableOnMerge {
     private static class InfraSetArrayElementWithIndexInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String eplTable = "@name('create') create table MyInfra(doublearray double[primitive], intarray int[primitive], notAnArray int)";
+            String eplTable = "@name('create') @public create table MyInfra(doublearray double[primitive], intarray int[primitive], notAnArray int)";
             env.compile(eplTable, path);
 
             // invalid property
@@ -242,8 +242,8 @@ public class InfraNWTableOnMerge {
             RegressionPath path = new RegressionPath();
 
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfra#keepall() as (c1 string, c2 string)" :
-                "@name('create') create table MyInfra(c1 string primary key, c2 string)";
+                "@name('create') @public create window MyInfra#keepall() as (c1 string, c2 string)" :
+                "@name('create') @public create table MyInfra(c1 string primary key, c2 string)";
             env.compileDeploy(stmtTextCreateOne, path);
 
             String epl = "@name('merge') on OrderBean[books] " +
@@ -276,8 +276,8 @@ public class InfraNWTableOnMerge {
             String[] fields = new String[]{"p0", "p1"};
             RegressionPath path = new RegressionPath();
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfra#keepall() as (p0 string, p1 int)" :
-                "@name('create') create table MyInfra(p0 string primary key, p1 int)";
+                "@name('create') @public create window MyInfra#keepall() as (p0 string, p1 int)" :
+                "@name('create') @public create table MyInfra(p0 string primary key, p1 int)";
             env.compileDeploy(stmtTextCreateOne, path);
             env.compileDeploy("on SupportBean_Container[beans] merge MyInfra where theString=p0 " +
                 "when matched then update set p1 = intPrimitive", path);
@@ -317,8 +317,8 @@ public class InfraNWTableOnMerge {
 
             // create window
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfra#keepall() as (p0 string, p1 int)" :
-                "@name('create') create table MyInfra(p0 string primary key, p1 int)";
+                "@name('create') @public create window MyInfra#keepall() as (p0 string, p1 int)" :
+                "@name('create') @public create table MyInfra(p0 string primary key, p1 int)";
             env.compileDeploy(stmtTextCreateOne, path);
 
             // create merge
@@ -362,8 +362,8 @@ public class InfraNWTableOnMerge {
 
             // create window
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfra#keepall() as (p0 string, p1 int)" :
-                "@name('create') create table MyInfra(p0 string primary key, p1 int)";
+                "@name('create') @public create window MyInfra#keepall() as (p0 string, p1 int)" :
+                "@name('create') @public create table MyInfra(p0 string primary key, p1 int)";
             env.compileDeploy(stmtTextCreateOne, path);
 
             // create merge
@@ -407,8 +407,8 @@ public class InfraNWTableOnMerge {
 
             // create window
             String stmtTextCreateOne = namedWindow ?
-                "@name('create') create window MyInfra.win:keepall() as SupportBean" :
-                "@name('create') create table MyInfra(theString string primary key, intPrimitive int)";
+                "@name('create') @public create window MyInfra.win:keepall() as SupportBean" :
+                "@name('create') @public create table MyInfra(theString string primary key, intPrimitive int)";
             env.compileDeploy(stmtTextCreateOne, path).addListener("create");
 
             // create merge
@@ -478,8 +478,8 @@ public class InfraNWTableOnMerge {
             String[] fields = "p0,p1,".split(",");
             RegressionPath path = new RegressionPath();
             String createEPL = namedWindow ?
-                "@Name('Window') create window InsertOnlyInfra#unique(p0) as (p0 string, p1 int)" :
-                "@Name('Window') create table InsertOnlyInfra (p0 string primary key, p1 int)";
+                "@Name('Window') @public create window InsertOnlyInfra#unique(p0) as (p0 string, p1 int)" :
+                "@Name('Window') @public create table InsertOnlyInfra (p0 string primary key, p1 int)";
             env.compileDeploy(createEPL, path);
 
             String epl;
@@ -538,8 +538,8 @@ public class InfraNWTableOnMerge {
             AtomicInteger milestone = new AtomicInteger();
             RegressionPath path = new RegressionPath();
             String createEPL = namedWindow ?
-                "@Name('Window') create window MyMergeInfra#unique(theString) as SupportBean" :
-                "@Name('Window') create table MyMergeInfra (theString string primary key, intPrimitive int, intBoxed int)";
+                "@Name('Window') @public create window MyMergeInfra#unique(theString) as SupportBean" :
+                "@Name('Window') @public create table MyMergeInfra (theString string primary key, intPrimitive int, intBoxed int)";
             env.compileDeploy(createEPL, path).addListener("Window");
 
             env.compileDeploy("@Name('Insert') insert into MyMergeInfra select theString, intPrimitive, intBoxed from SupportBean(boolPrimitive)", path);
@@ -584,8 +584,8 @@ public class InfraNWTableOnMerge {
             // Test ambiguous columns.
             epl = "create schema TypeOne (id long, mylong long, mystring long);\n";
             epl += namedWindow ?
-                "create window MyInfraTwo#unique(id) as select * from TypeOne;\n" :
-                "create table MyInfraTwo (id long, mylong long, mystring long);\n";
+                "@public create window MyInfraTwo#unique(id) as select * from TypeOne;\n" :
+                "@public create table MyInfraTwo (id long, mylong long, mystring long);\n";
             // The "and not matched" should not complain if "mystring" is ambiguous.
             // The "insert" should not complain as column names have been provided.
             epl += "on TypeOne as t1 merge MyInfraTwo nm where nm.id = t1.id\n" +
@@ -692,11 +692,11 @@ public class InfraNWTableOnMerge {
             EventRepresentationChoice rep = EventRepresentationChoice.getEngineDefault(env.getConfiguration());
             String[] fields = "col1,col2".split(",");
 
-            String epl = "@buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
+            String epl = "@public @buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
                 "create schema MySchema as (col1 string, col2 int);\n";
             epl += namedWindow ?
-                "create window MyInfraMI#keepall as MySchema;\n" :
-                "create table MyInfraMI (col1 string primary key, col2 int);\n";
+                "@public create window MyInfraMI#keepall as MySchema;\n" :
+                "@public create table MyInfraMI (col1 string primary key, col2 int);\n";
             epl += "@name('Merge') on MyEvent " +
                 "merge MyInfraMI " +
                 "where col1=in1 " +
@@ -753,11 +753,11 @@ public class InfraNWTableOnMerge {
             String[] fields = "col1,col2".split(",");
             EventRepresentationChoice rep = EventRepresentationChoice.getEngineDefault(env.getConfiguration());
 
-            String epl = "@buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
+            String epl = "@public @buseventtype create schema MyEvent as (in1 string, in2 int);\n" +
                 "create schema MySchema as (col1 string, col2 int);\n";
             epl += namedWindow ?
-                "@name('create') create window MyInfraNWC#keepall as MySchema;\n" :
-                "@name('create') create table MyInfraNWC (col1 string, col2 int);\n";
+                "@name('create') @public create window MyInfraNWC#keepall as MySchema;\n" :
+                "@name('create') @public create table MyInfraNWC (col1 string, col2 int);\n";
             epl += "on SupportBean_A delete from MyInfraNWC;\n";
             epl += "on MyEvent me " +
                 "merge MyInfraNWC mw " +
@@ -821,12 +821,12 @@ public class InfraNWTableOnMerge {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = namedWindow ?
-                "create window MergeInfra#unique(theString) as SupportBean;\n" :
-                "create table MergeInfra as (theString string, intPrimitive int, boolPrimitive bool);\n";
+                "@public create window MergeInfra#unique(theString) as SupportBean;\n" :
+                "@public create table MergeInfra as (theString string, intPrimitive int, boolPrimitive bool);\n";
             epl += "create schema ABCSchema as (val int);\n";
             epl += namedWindow ?
-                "create window ABCInfra#keepall as ABCSchema;\n" :
-                "create table ABCInfra (val int);\n";
+                "@public create window ABCInfra#keepall as ABCSchema;\n" :
+                "@public create table ABCInfra (val int);\n";
             env.compileDeploy(epl, path);
 
             epl = "on SupportBean_A merge MergeInfra as windowevent where id = theString when not matched and exists(select * from MergeInfra mw where mw.theString = windowevent.theString) is not null then insert into ABC select '1'";
@@ -865,7 +865,7 @@ public class InfraNWTableOnMerge {
             epl = "on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A'";
             env.tryInvalidCompile(path, epl, "Failed to validate match where-clause expression 'theString=\"A\"': Property named 'theString' is not valid in any stream [on SupportBean_A as up merge MergeInfra as mv where mv.boolPrimitive=true when not matched then insert select * where theString = 'A']");
 
-            epl = "create variable int myvariable;\n" +
+            epl = "@public create variable int myvariable;\n" +
                 "on SupportBean_A merge MergeInfra when matched then update set myvariable = 1;\n";
             env.tryInvalidCompile(path, epl, "Left-hand-side does not allow variables for variable 'myvariable'");
 
@@ -876,10 +876,10 @@ public class InfraNWTableOnMerge {
 
             // invalid assignment: wrong event type
             path.clear();
-            env.compileDeploy("create map schema Composite as (c0 int)", path);
-            env.compileDeploy("create window AInfra#keepall as (c Composite)", path);
-            env.compileDeploy("create map schema SomeOther as (c1 int)", path);
-            env.compileDeploy("create map schema MyEvent as (so SomeOther)", path);
+            env.compileDeploy("@public create map schema Composite as (c0 int)", path);
+            env.compileDeploy("@public create window AInfra#keepall as (c Composite)", path);
+            env.compileDeploy("@public create map schema SomeOther as (c1 int)", path);
+            env.compileDeploy("@public create map schema MyEvent as (so SomeOther)", path);
 
             env.tryInvalidCompile(path, "on MyEvent as me update AInfra set c = me.so",
                 "Failed to validate assignment expression 'c=me.so': Invalid assignment to property 'c' event type 'Composite' from event type 'SomeOther' [on MyEvent as me update AInfra set c = me.so]");
@@ -905,15 +905,15 @@ public class InfraNWTableOnMerge {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schema = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInnerSchema.class) + " create schema MyInnerSchema(in1 string, in2 int);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventSchema.class) + " @buseventtype create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
+            String schema = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInnerSchema.class) + " @public create schema MyInnerSchema(in1 string, in2 int);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEventSchema.class) + " @public @buseventtype @public create schema MyEventSchema(col1 string, col2 MyInnerSchema)";
             env.compileDeploy(schema, path);
 
             String eplCreate = namedWindow ?
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInfraITV.class) + " create window MyInfraITV#keepall as (c1 string, c2 MyInnerSchema)" :
-                "create table MyInfraITV as (c1 string primary key, c2 MyInnerSchema)";
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyInfraITV.class) + " @public create window MyInfraITV#keepall as (c1 string, c2 MyInnerSchema)" :
+                "@public create table MyInfraITV as (c1 string primary key, c2 MyInnerSchema)";
             env.compileDeploy(eplCreate, path);
-            env.compileDeploy("@name('createvar') create variable boolean myvar", path);
+            env.compileDeploy("@name('createvar') @public create variable boolean myvar", path);
 
             String epl = "@name('Merge') on MyEventSchema me " +
                 "merge MyInfraITV mw " +
@@ -1000,8 +1000,8 @@ public class InfraNWTableOnMerge {
             RegressionPath path = new RegressionPath();
 
             String eplCreate = namedWindow ?
-                "@name('create') create window MyInfraPM#keepall as (c1 string, c2 string)" :
-                "@name('create') create table MyInfraPM as (c1 string primary key, c2 string primary key)";
+                "@name('create') @public create window MyInfraPM#keepall as (c1 string, c2 string)" :
+                "@name('create') @public create table MyInfraPM as (c1 string primary key, c2 string primary key)";
             env.compileDeploy(eplCreate, path);
 
             String epl = "@name('Merge') on pattern[every a=SupportBean(theString like 'A%') -> b=SupportBean(theString like 'B%', intPrimitive = a.intPrimitive)] me " +
@@ -1094,8 +1094,8 @@ public class InfraNWTableOnMerge {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreate = namedWindow ?
-                "@name('Create') create window WinMDU#keepall as SupportBean" :
-                "@name('Create') create table WinMDU (theString string primary key, intPrimitive int)";
+                "@name('Create') @public create window WinMDU#keepall as SupportBean" :
+                "@name('Create') @public create table WinMDU (theString string primary key, intPrimitive int)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into WinMDU select theString, intPrimitive from SupportBean", path);
 
@@ -1163,14 +1163,14 @@ public class InfraNWTableOnMerge {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String eplCreateOne = namedWindow ?
-                "@name('Create') create window InfraOne#unique(string) (string string, intPrimitive int)" :
-                "@name('Create') create table InfraOne (string string primary key, intPrimitive int)";
+                "@name('Create') @public create window InfraOne#unique(string) (string string, intPrimitive int)" :
+                "@name('Create') @public create table InfraOne (string string primary key, intPrimitive int)";
             env.compileDeploy(eplCreateOne, path);
             assertStatelessStmt(env, "Create", false);
 
             String eplCreateTwo = namedWindow ?
-                "create window InfraTwo#unique(val0) (val0 string, val1 int)" :
-                "create table InfraTwo (val0 string primary key, val1 int primary key)";
+                "@public create window InfraTwo#unique(val0) (val0 string, val1 int)" :
+                "@public create table InfraTwo (val0 string primary key, val1 int primary key)";
             env.compileDeploy(eplCreateTwo, path);
             env.compileDeploy("insert into InfraTwo select 'W2' as val0, id as val1 from SupportBean_S0", path);
 
@@ -1208,8 +1208,8 @@ public class InfraNWTableOnMerge {
 
         public void run(RegressionEnvironment env) {
             String epl = namedWindow ?
-                "create window MyInfraUOF#keepall as SupportBean;\n" :
-                "create table MyInfraUOF(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double);\n";
+                "@public create window MyInfraUOF#keepall as SupportBean;\n" :
+                "@public create table MyInfraUOF(theString string primary key, intPrimitive int, intBoxed int, doublePrimitive double);\n";
             epl += "insert into MyInfraUOF select theString, intPrimitive, intBoxed, doublePrimitive from SupportBean;\n";
             epl += "@name('Merge') on SupportBean_S0 as sb " +
                 "merge MyInfraUOF as mywin where mywin.theString = sb.p00 when matched then " +
@@ -1251,10 +1251,10 @@ public class InfraNWTableOnMerge {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @buseventtype create schema MyEvent as (name string, value double);\n" +
+            String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @public @buseventtype @public create schema MyEvent as (name string, value double);\n" +
                 (namedWindow ?
-                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " create window MyInfraIOS#unique(name) as MyEvent;\n" :
-                    "create table MyInfraIOS (name string primary key, value double primary key);\n"
+                    eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMyEvent.class) + " @public create window MyInfraIOS#unique(name) as MyEvent;\n" :
+                    "@public create table MyInfraIOS (name string primary key, value double primary key);\n"
                 ) +
                 "insert into MyInfraIOS select * from MyEvent;\n" +
                 eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedInputEvent.class) + " create schema InputEvent as (col1 string, col2 double);\n" +
@@ -1333,13 +1333,13 @@ public class InfraNWTableOnMerge {
 
     private static void runUpdateNestedEvent(RegressionEnvironment env, boolean namedWindow, String metaType, AtomicInteger milestone) {
         String eplTypes =
-                "create " + metaType + " schema Composite as (c0 int);\n" +
-                "@buseventtype create " + metaType + " schema AInfraType as (k string, cflat Composite, carr Composite[]);\n" +
+                "@public create " + metaType + " schema Composite as (c0 int);\n" +
+                "@buseventtype @public create " + metaType + " schema AInfraType as (k string, cflat Composite, carr Composite[]);\n" +
                 (namedWindow ?
-                    "create window AInfra#lastevent as AInfraType;\n" :
-                    "create table AInfra (k string, cflat Composite, carr Composite[]);\n") +
+                    "@public create window AInfra#lastevent as AInfraType;\n" :
+                    "@public create table AInfra (k string, cflat Composite, carr Composite[]);\n") +
                 "insert into AInfra select theString as k, null as cflat, null as carr from SupportBean;\n" +
-                "@buseventtype create " + metaType + " schema MyEvent as (cf Composite, ca Composite[]);\n" +
+                "@public @buseventtype create " + metaType + " schema MyEvent as (cf Composite, ca Composite[]);\n" +
                 "on MyEvent e merge AInfra when matched then update set cflat = e.cf, carr = e.ca";
         RegressionPath path = new RegressionPath();
         env.compileDeploy(eplTypes, path);

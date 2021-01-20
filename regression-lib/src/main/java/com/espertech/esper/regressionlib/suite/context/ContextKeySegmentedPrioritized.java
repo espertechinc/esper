@@ -19,7 +19,7 @@ public class ContextKeySegmentedPrioritized implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create context SegmentedByMessage partition by theString from SupportBean", path);
+        env.compileDeploy("@public create context SegmentedByMessage partition by theString from SupportBean", path);
 
         env.compileDeploy("@name('s0') @Drop @Priority(1) context SegmentedByMessage select 'test1' from SupportBean", path);
         env.addListener("s0");

@@ -23,7 +23,7 @@ public class InfraNamedWindowContainedEvent implements RegressionExecution {
     public void run(RegressionEnvironment env) {
         String epl;
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window BookWindow#time(30) as BookDesc", path);
+        env.compileDeploy("@public create window BookWindow#time(30) as BookDesc", path);
 
         epl = "select * from SupportBean unidirectional, BookWindow[reviews]";
         env.tryInvalidCompile(path, epl, "Failed to validate named window use in join, contained-event is only allowed for named windows when marked as unidirectional");

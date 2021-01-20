@@ -35,7 +35,7 @@ public class EPLSubselectWithinPattern {
     private static class EPLSubselectInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindowInvalid#lastevent as select * from SupportBean_S0", path);
+            env.compileDeploy("@public create window MyWindowInvalid#lastevent as select * from SupportBean_S0", path);
 
             env.tryInvalidCompile("select * from SupportBean_S0(exists (select * from SupportBean_S1))",
                 "Failed to validate subquery number 1 querying SupportBean_S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from SupportBean_S0(exists (select * from SupportBean_S1))]");

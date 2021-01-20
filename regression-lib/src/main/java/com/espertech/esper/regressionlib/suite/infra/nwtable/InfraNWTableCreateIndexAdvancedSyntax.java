@@ -25,7 +25,7 @@ public class InfraNWTableCreateIndexAdvancedSyntax implements RegressionExecutio
         assertCompileSODA(env, "create index MyIndex on MyWindow(x dummy_name, (y,z) dummy_name_2(\"a\"), p dummyname3)");
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window MyWindow#keepall as SupportSpatialPoint", path);
+        env.compileDeploy("@public create window MyWindow#keepall as SupportSpatialPoint", path);
 
         env.tryInvalidCompile(path, "create index MyIndex on MyWindow(())",
             "Invalid empty list of index expressions");

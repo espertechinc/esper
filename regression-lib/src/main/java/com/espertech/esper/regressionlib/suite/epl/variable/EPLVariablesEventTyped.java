@@ -69,11 +69,11 @@ public class EPLVariablesEventTyped {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            String vars = "@name('vars') create variable " + SupportBean.class.getName() + " varbeannull;\n" +
-                "create variable " + SupportBean.class.getName() + " varbean;\n" +
-                "create variable SupportBean_S0 vars0;\n" +
-                "create variable long varobj;\n" +
-                "create variable long varobjnull;\n";
+            String vars = "@name('vars') @public create variable " + SupportBean.class.getName() + " varbeannull;\n" +
+                "@public create variable " + SupportBean.class.getName() + " varbean;\n" +
+                "@public create variable SupportBean_S0 vars0;\n" +
+                "@public create variable long varobj;\n" +
+                "@public create variable long varobjnull;\n";
             env.compileDeploy(vars, path);
 
             String[] fields = "c0,c1,c2,c3,c4,c5,c6".split(",");
@@ -154,7 +154,7 @@ public class EPLVariablesEventTyped {
     private static class EPLVariableEventTypedSetProp implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create variable SupportBean varbean", path);
+            env.compileDeploy("@name('create') @public create variable SupportBean varbean", path);
 
             String[] fields = "varbean.theString,varbean.intPrimitive,varbean.getTheString()".split(",");
             env.compileDeploy("@name('s0') select varbean.theString,varbean.intPrimitive,varbean.getTheString() from SupportBean_S0", path);
@@ -211,9 +211,9 @@ public class EPLVariablesEventTyped {
     private static class EPLVariableEventTypedSceneOne implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('v0') create variable Object varobject = null", path);
-            env.compileDeploy("@name('v1') create variable " + SupportBean_A.class.getName() + " varbean = null", path);
-            env.compileDeploy("@name('v2') create variable SupportBean_S0 vartype = null", path);
+            env.compileDeploy("@name('v0') @public create variable Object varobject = null", path);
+            env.compileDeploy("@name('v1') @public create variable " + SupportBean_A.class.getName() + " varbean = null", path);
+            env.compileDeploy("@name('v2') @public create variable SupportBean_S0 vartype = null", path);
             String depIdVarobject = env.deploymentId("v0");
             String depIdVarbean = env.deploymentId("v1");
             String depIdVartype = env.deploymentId("v2");

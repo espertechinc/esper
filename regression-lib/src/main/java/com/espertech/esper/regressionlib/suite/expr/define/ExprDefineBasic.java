@@ -95,7 +95,7 @@ public class ExprDefineBasic {
     private static class ExprDefineExpressionSimpleTwoModule implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression returnsOne {1}", path);
+            env.compileDeploy("@public create expression returnsOne {1}", path);
             env.compileDeploy("@name('s0') select returnsOne as c0 from SupportBean", path).addListener("s0");
             env.sendEventBean(new SupportBean());
             env.assertEqualsNew("s0", "c0", 1);
@@ -108,9 +108,9 @@ public class ExprDefineBasic {
             String[] fields = "c0".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression F1 { (select intPrimitive from SupportBean#lastevent)}", path);
-            env.compileDeploy("create expression F2 { param => (select a.intPrimitive from SupportBean#unique(theString) as a where a.theString = param.theString) }", path);
-            env.compileDeploy("create expression F3 { s => F1()+F2(s) }", path);
+            env.compileDeploy("@public create expression F1 { (select intPrimitive from SupportBean#lastevent)}", path);
+            env.compileDeploy("@public create expression F2 { param => (select a.intPrimitive from SupportBean#unique(theString) as a where a.theString = param.theString) }", path);
+            env.compileDeploy("@public create expression F3 { s => F1()+F2(s) }", path);
             env.compileDeploy("@name('s0') select F3(myevent) as c0 from SupportBean as myevent", path).addListener("s0");
 
             env.sendEventBean(new SupportBean("E1", 10));
@@ -150,10 +150,10 @@ public class ExprDefineBasic {
     private static class ExprDefineSequenceAndNested implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window WindowOne#keepall as (col1 string, col2 string)", path);
+            env.compileDeploy("@public create window WindowOne#keepall as (col1 string, col2 string)", path);
             env.compileDeploy("insert into WindowOne select p00 as col1, p01 as col2 from SupportBean_S0", path);
 
-            env.compileDeploy("create window WindowTwo#keepall as (col1 string, col2 string)", path);
+            env.compileDeploy("@public create window WindowTwo#keepall as (col1 string, col2 string)", path);
             env.compileDeploy("insert into WindowTwo select p10 as col1, p11 as col2 from SupportBean_S1", path);
 
             env.sendEventBean(new SupportBean_S0(1, "A", "B1"));
@@ -185,7 +185,7 @@ public class ExprDefineBasic {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "@name('s0') expression gettotal {" +
+            String epl = "@name('s0') @public expression gettotal {" +
                 " x => case " +
                 "  when theString = 'A' then new { col1 = 'X', col2 = 10 } " +
                 "  when theString = 'B' then new { col1 = 'Y', col2 = 20 } " +
@@ -448,7 +448,7 @@ public class ExprDefineBasic {
             String[] fieldsInside = "val0".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)", path);
+            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " @public create window MyWindow#keepall as (val0 string, val1 int)", path);
             env.compileDeploy("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy(epl, path).addListener("s0");
 
@@ -513,7 +513,7 @@ public class ExprDefineBasic {
 
             // test ambiguous property names
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindowTwo#keepall as (id string, p00 int)", path);
+            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " @public create window MyWindowTwo#keepall as (id string, p00 int)", path);
             env.compileDeploy("insert into MyWindowTwo (id, p00) select theString, intPrimitive from SupportBean", path);
             epl = "expression subqnamedwin {" +
                 "  x => MyWindowTwo(MyWindowTwo.id = x.id).where(y => y.p00 > 10)" +
@@ -528,7 +528,7 @@ public class ExprDefineBasic {
             String[] fieldInside = "val0".split(",");
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " create window MyWindow#keepall as (val0 string, val1 int)", path);
+            env.compileDeploy(EventRepresentationChoice.MAP.getAnnotationText() + " @public create window MyWindow#keepall as (val0 string, val1 int)", path);
             env.compileDeploy("insert into MyWindow (val0, val1) select theString, intPrimitive from SupportBean", path);
             env.compileDeploy(epl, path).addListener("s0");
 
@@ -592,7 +592,7 @@ public class ExprDefineBasic {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl = "@name('split') expression myLittleExpression { event => false }" +
-                "on SupportBean as myEvent " +
+                "@public on SupportBean as myEvent " +
                 " insert into ABC select * where myLittleExpression(myEvent)" +
                 " insert into DEF select * where not myLittleExpression(myEvent)";
             env.compileDeploy(epl, path);
@@ -659,7 +659,7 @@ public class ExprDefineBasic {
         private void tryAssertionNamedWindowCast(RegressionEnvironment env, String epl, String windowPostfix) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow" + windowPostfix + "#keepall as (myObject long)", path);
+            env.compileDeploy("@public create window MyWindow" + windowPostfix + "#keepall as (myObject long)", path);
             env.compileDeploy("insert into MyWindow" + windowPostfix + "(myObject) select cast(intPrimitive, long) from SupportBean", path);
             env.compileDeploy(epl, path).addListener("s0");
 
@@ -844,7 +844,7 @@ public class ExprDefineBasic {
         private void tryAssertionNoParameterVariable(RegressionEnvironment env, String epl) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('var') create variable int myvar = 2", path);
+            env.compileDeploy("@name('var') @public create variable int myvar = 2", path);
 
             String[] fields = "val1,val2,val3".split(",");
             env.compileDeploy(epl, path).addListener("s0");

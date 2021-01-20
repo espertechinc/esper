@@ -53,7 +53,7 @@ public class InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd implements 
 
     private static void tryMT(RegressionEnvironment env, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (topgroup int primary key, subgroup int primary key, thecnt count(*))";
+        String eplCreateVariable = "@public create table vartotal (topgroup int primary key, subgroup int primary key, thecnt count(*))";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplCreateIndex = "create index myindex on vartotal (topgroup)";
@@ -71,7 +71,7 @@ public class InfraTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd implements 
         env.sendEventBean(new SupportTopGroupSubGroupEvent(0, 0));
 
         // select/read
-        String eplMergeSelect = "on SupportBean merge vartotal as vt " +
+        String eplMergeSelect = "@public on SupportBean merge vartotal as vt " +
             "where vt.topgroup = intPrimitive and vt.thecnt > 0 " +
             "when matched then insert into MyOutputStream select *";
         env.compileDeploy(eplMergeSelect, path);

@@ -51,7 +51,7 @@ public class InfraTableMTUngroupedAccessReadInotTableWriteIterate implements Reg
 
     private static void tryMT(RegressionEnvironment env, int numReadThreads, int numSeconds) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table vartotal (s0 sum(int), s1 sum(double), s2 sum(long))";
+        String eplCreateVariable = "@public create table vartotal (s0 sum(int), s1 sum(double), s2 sum(long))";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplInto = "into table vartotal select sum(intPrimitive) as s0, " +

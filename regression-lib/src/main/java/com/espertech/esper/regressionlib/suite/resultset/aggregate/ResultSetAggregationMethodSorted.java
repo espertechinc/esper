@@ -54,7 +54,7 @@ public class ResultSetAggregationMethodSorted {
     private static class ResultSetAggregateSortedDocSample implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                "@buseventtype @public create schema OrderEvent(orderId string, price double);\n" +
+                "@public @buseventtype @public create schema OrderEvent(orderId string, price double);\n" +
                 "@name('a') select sorted(price).lowerKey(price) as lowerPrice from OrderEvent#time(10 minutes);\n" +
                 "@name('b') select sorted(price).lowerEvent(price).orderId as lowerPriceOrderId from OrderEvent#time(10 minutes);\n" +
                 "create table OrderPrices(prices sorted(price) @type('OrderEvent'));\n" +
@@ -85,7 +85,7 @@ public class ResultSetAggregationMethodSorted {
     private static class ResultSetAggregateSortedInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n", path);
+            env.compileDeploy("@public create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n", path);
 
             env.tryInvalidCompile(path, "select MyTable.sortcol.notAnAggMethod() from SupportBean_S0",
                 "Failed to validate select-clause expression 'MyTable.sortcol.notAnAggMethod()': Could not find event property or method named 'notAnAggMethod' in collection of events of type ");
@@ -424,7 +424,7 @@ public class ResultSetAggregationMethodSorted {
     private static class ResultSetAggregateSortedCFHL implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n" +
+            String epl = "@public create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n" +
                 "into table MyTable select sorted(*) as sortcol from SupportBean;\n";
             env.compileDeploy(epl, path);
 
@@ -533,7 +533,7 @@ public class ResultSetAggregationMethodSorted {
     private static class ResultSetAggregateSortedTableIdent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n" +
+            String epl = "@public create table MyTable(sortcol sorted(intPrimitive) @type('SupportBean'));\n" +
                 "into table MyTable select sorted(*) as sortcol from SupportBean;\n";
             env.compileDeploy(epl, path);
 

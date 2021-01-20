@@ -52,7 +52,7 @@ public class InfraTableMTUngroupedAccessReadMergeWrite implements RegressionExec
 
     private static void tryMT(RegressionEnvironment env, int numSeconds, int numWriteThreads) throws InterruptedException {
         RegressionPath path = new RegressionPath();
-        String eplCreateVariable = "create table varagg (c0 int, c1 int, c2 int, c3 int, c4 int, c5 int)";
+        String eplCreateVariable = "@public create table varagg (c0 int, c1 int, c2 int, c3 int, c4 int, c5 int)";
         env.compileDeploy(eplCreateVariable, path);
 
         String eplMerge = "on SupportBean_S0 merge varagg " +

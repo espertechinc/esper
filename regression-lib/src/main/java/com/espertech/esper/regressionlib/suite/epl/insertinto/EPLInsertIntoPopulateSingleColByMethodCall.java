@@ -99,8 +99,8 @@ public class EPLInsertIntoPopulateSingleColByMethodCall implements RegressionExe
                                                            String[] propertyName,
                                                            Object[] propertyValues) {
         String streamName = prefix + "_Stream";
-        String textOne = "@name('s1') insert into " + streamName + " select * from " + typeNameOrigin;
-        String textTwo = "@name('s2') insert into " + streamName + " select " + SupportStaticMethodLib.class.getName() + "." + functionName + "(s0) from " + typeNameEvent + " as s0";
+        String textOne = "@name('s1') @public insert into " + streamName + " select * from " + typeNameOrigin;
+        String textTwo = "@name('s2') @public insert into " + streamName + " select " + SupportStaticMethodLib.class.getName() + "." + functionName + "(s0) from " + typeNameEvent + " as s0";
 
         env.compileDeploy(textOne, path).addListener("s1");
         env.assertStatement("s1", statement -> assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(statement.getEventType().getUnderlyingType(), underlyingType)));

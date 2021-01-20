@@ -76,7 +76,7 @@ public class InfraNamedWindowSubquery {
     private static class InfraSubqueryLateConsumerAggregation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window MyWindow#keepall as SupportBean", path);
+            env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("insert into MyWindow select * from SupportBean", path);
 
             env.sendEventBean(new SupportBean("E1", 1));

@@ -45,7 +45,7 @@ public class EPLOtherCreateExpression {
     private static class EPLOtherInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s0') create expression E1 {''}", path);
+            env.compileDeploy("@name('s0') @public create expression E1 {''}", path);
             env.assertStatement("s0", statement -> {
                 assertEquals(StatementType.CREATE_EXPRESSION, statement.getProperty(StatementProperty.STATEMENTTYPE));
                 assertEquals("E1", statement.getProperty(StatementProperty.CREATEOBJECTNAME));
@@ -54,7 +54,7 @@ public class EPLOtherCreateExpression {
             env.tryInvalidCompile(path, "create expression E1 {''}",
                 "Expression 'E1' has already been declared [create expression E1 {''}]");
 
-            env.compileDeploy("create expression int js:abc(p1, p2) [p1*p2]", path);
+            env.compileDeploy("@public create expression int js:abc(p1, p2) [p1*p2]", path);
             env.tryInvalidCompile(path, "create expression int js:abc(a, a) [p1*p2]",
                 "Script 'abc' that takes the same number of parameters has already been declared [create expression int js:abc(a, a) [p1*p2]]");
 
@@ -66,8 +66,8 @@ public class EPLOtherCreateExpression {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression string js:myscript(p1) [\"--\"+p1+\"--\"]", path);
-            env.compileDeploy("create expression myexpr {sb => '--'||theString||'--'}", path);
+            env.compileDeploy("@public create expression string js:myscript(p1) [\"--\"+p1+\"--\"]", path);
+            env.compileDeploy("@public create expression myexpr {sb => '--'||theString||'--'}", path);
 
             // test mapped property syntax
             String eplMapped = "@name('s0') select myscript('x') as c0, myexpr(sb) as c1 from SupportBean as sb";
@@ -79,7 +79,7 @@ public class EPLOtherCreateExpression {
 
             // test expression chained syntax
             String eplExpr = "" +
-                "create expression scalarfilter {s => " +
+                "@public create expression scalarfilter {s => " +
                 "   strvals.where(y => y != 'E1') " +
                 "}";
             env.compileDeploy(eplExpr, path);
@@ -91,7 +91,7 @@ public class EPLOtherCreateExpression {
             env.undeployAll();
 
             // test script chained synax
-            String eplScript = "create expression " + SupportBean.class.getName() + " js:callIt() [ new " + SupportBean.class.getName() + "('E1', 10); ]";
+            String eplScript = "@public create expression " + SupportBean.class.getName() + " js:callIt() [ new " + SupportBean.class.getName() + "('E1', 10); ]";
             env.compileDeploy(eplScript, path);
             env.compileDeploy("@name('s0') select callIt() as val0, callIt().getTheString() as val1 from SupportBean as sb", path).addListener("s0");
             env.sendEventBean(new SupportBean());
@@ -104,8 +104,8 @@ public class EPLOtherCreateExpression {
     private static class EPLOtherScriptUse implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression int js:abc(p1, p2) [p1*p2*10]", path);
-            env.compileDeploy("create expression int js:abc(p1) [p1*10]", path);
+            env.compileDeploy("@public create expression int js:abc(p1, p2) [p1*p2*10]", path);
+            env.compileDeploy("@public create expression int js:abc(p1) [p1*10]", path);
 
             String epl = "@name('s0') select abc(intPrimitive, doublePrimitive) as c0, abc(intPrimitive) as c1 from SupportBean";
             env.compileDeploy(epl, path).addListener("s0");
@@ -116,7 +116,7 @@ public class EPLOtherCreateExpression {
             env.undeployAll();
 
             // test SODA
-            String eplExpr = "@name('expr') create expression somescript(i1) ['a']";
+            String eplExpr = "@name('expr') @public create expression somescript(i1) ['a']";
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
             Assert.assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
@@ -136,8 +136,8 @@ public class EPLOtherCreateExpression {
         public void run(RegressionEnvironment env) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression TwoPi {Math.PI * 2}", path);
-            env.compileDeploy("create expression factorPi {sb => Math.PI * intPrimitive}", path);
+            env.compileDeploy("@public create expression TwoPi {Math.PI * 2}", path);
+            env.compileDeploy("@public create expression factorPi {sb => Math.PI * intPrimitive}", path);
 
             String[] fields = "c0,c1,c2".split(",");
             String epl = "@name('s0') select " +
@@ -161,7 +161,7 @@ public class EPLOtherCreateExpression {
             env.assertPropsNew("s0", "c0".split(","), new Object[]{Math.PI * 10});
 
             // test SODA
-            String eplExpr = "@name('expr') create expression JoinMultiplication {(s1,s2) => s1.intPrimitive*s2.id}";
+            String eplExpr = "@name('expr') @public create expression JoinMultiplication {(s1,s2) => s1.intPrimitive*s2.id}";
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
             Assert.assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
@@ -185,10 +185,10 @@ public class EPLOtherCreateExpression {
         private static void tryAssertionTestExpressionUse(RegressionEnvironment env, boolean namedWindow) {
 
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create expression myexpr {(select intPrimitive from MyInfra)}", path);
+            env.compileDeploy("@public create expression myexpr {(select intPrimitive from MyInfra)}", path);
             String eplCreate = namedWindow ?
-                "create window MyInfra#keepall as SupportBean" :
-                "create table MyInfra(theString string, intPrimitive int)";
+                "@public create window MyInfra#keepall as SupportBean" :
+                "@public create table MyInfra(theString string, intPrimitive int)";
             env.compileDeploy(eplCreate, path);
             env.compileDeploy("insert into MyInfra select theString, intPrimitive from SupportBean", path);
             env.compileDeploy("@name('s0') select myexpr() as c0 from SupportBean_S0", path).addListener("s0");
@@ -205,14 +205,14 @@ public class EPLOtherCreateExpression {
     private static class EPLOtherExprAndScriptLifecycleAndFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             // expression assertion
-            tryAssertionLifecycleAndFilter(env, "create expression MyFilter {sb => intPrimitive = 1}",
+            tryAssertionLifecycleAndFilter(env, "@public create expression MyFilter {sb => intPrimitive = 1}",
                 "select * from SupportBean(MyFilter(sb)) as sb",
-                "create expression MyFilter {sb => intPrimitive = 2}");
+                "@public create expression MyFilter {sb => intPrimitive = 2}");
 
             // script assertion
-            tryAssertionLifecycleAndFilter(env, "create expression boolean js:MyFilter(intPrimitive) [intPrimitive==1]",
+            tryAssertionLifecycleAndFilter(env, "@public create expression boolean js:MyFilter(intPrimitive) [intPrimitive==1]",
                 "select * from SupportBean(MyFilter(intPrimitive)) as sb",
-                "create expression boolean js:MyFilter(intPrimitive) [intPrimitive==2]");
+                "@public create expression boolean js:MyFilter(intPrimitive) [intPrimitive==2]");
         }
 
         public EnumSet<RegressionFlag> flags() {

@@ -60,9 +60,9 @@ public class EventXMLSchemaEventObservationXPath {
     private static void runAssertion(RegressionEnvironment env, String eventTypeName, RegressionPath path) {
 
         env.compileDeploy("@name('s0') select countTags, countTagsInt, idarray, tagArray, tagOne from " + eventTypeName, path);
-        env.compileDeploy("@name('e0') insert into TagOneStream select tagOne.* from " + eventTypeName, path);
+        env.compileDeploy("@name('e0') @public insert into TagOneStream select tagOne.* from " + eventTypeName, path);
         env.compileDeploy("@name('e1') select ID from TagOneStream", path);
-        env.compileDeploy("@name('e2') insert into TagArrayStream select tagArray as mytags from " + eventTypeName, path);
+        env.compileDeploy("@name('e2') @public insert into TagArrayStream select tagArray as mytags from " + eventTypeName, path);
         env.compileDeploy("@name('e3') select mytags[1].ID from TagArrayStream", path);
 
         Document doc = SupportXML.getDocument(OBSERVATION_XML);

@@ -44,12 +44,12 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsContextTable implements 
 
     private static void tryMT(RegressionEnvironment env, int numThreads, int numLoops, int numGroups) throws InterruptedException {
         String eplDeclare =
-            "create context ByStringHash\n" +
+            "@public create context ByStringHash\n" +
                 "  coalesce by consistent_hash_crc32(theString) from SupportBean, " +
                 "    consistent_hash_crc32(p00) from SupportBean_S0 " +
                 "  granularity 16 preallocate\n;" +
-                "context ByStringHash create table varTotal (key string primary key, total sum(int));\n" +
-                "context ByStringHash into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n";
+                "@public context ByStringHash create table varTotal (key string primary key, total sum(int));\n" +
+                "@public context ByStringHash into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n";
         String eplAssert = "context ByStringHash select varTotal[p00].total as c0 from SupportBean_S0";
 
         InfraTableMTGroupedWContextIntoTableWriteAsSharedTable.runAndAssert(env, eplDeclare, eplAssert, numThreads, numLoops, numGroups);

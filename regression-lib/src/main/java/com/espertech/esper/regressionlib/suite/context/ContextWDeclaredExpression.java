@@ -31,14 +31,14 @@ public class ContextWDeclaredExpression {
     private static class ContextWDeclaredExpressionSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx as " +
+            env.compileDeploy("@public create context MyCtx as " +
                 "group by intPrimitive < 0 as n, " +
                 "group by intPrimitive > 0 as p " +
                 "from SupportBean", path);
-            env.compileDeploy("create expression getLabelOne { context.label }", path);
-            env.compileDeploy("create expression getLabelTwo { 'x'||context.label||'x' }", path);
+            env.compileDeploy("@public create expression getLabelOne { context.label }", path);
+            env.compileDeploy("@public create expression getLabelTwo { 'x'||context.label||'x' }", path);
 
-            env.compileDeploy("@name('s0') expression getLabelThree { context.label } " +
+            env.compileDeploy("@public @name('s0') expression getLabelThree { context.label } " +
                 "context MyCtx " +
                 "select getLabelOne() as c0, getLabelTwo() as c1, getLabelThree() as c2 from SupportBean", path).addListener("s0");
 
@@ -51,12 +51,12 @@ public class ContextWDeclaredExpression {
     private static class ContextWDeclaredExpressionAlias implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyCtx as " +
+            env.compileDeploy("@public create context MyCtx as " +
                 "group by intPrimitive < 0 as n, " +
                 "group by intPrimitive > 0 as p " +
                 "from SupportBean", path);
-            env.compileDeploy("create expression getLabelOne alias for { context.label }", path);
-            env.compileDeploy("create expression getLabelTwo alias for { 'x'||context.label||'x' }", path);
+            env.compileDeploy("@public create expression getLabelOne alias for { context.label }", path);
+            env.compileDeploy("@public create expression getLabelTwo alias for { 'x'||context.label||'x' }", path);
 
             env.compileDeploy("@name('s0') expression getLabelThree alias for { context.label } " +
                 "context MyCtx " +
@@ -71,10 +71,10 @@ public class ContextWDeclaredExpression {
     private static class ContextWDeclaredExpressionWFilter implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String expr = "create expression THE_EXPRESSION alias for {theString='x'}";
+            String expr = "@public create expression THE_EXPRESSION alias for {theString='x'}";
             env.compileDeploy(expr, path);
 
-            String context = "create context context2 initiated @now and pattern[every(SupportBean(THE_EXPRESSION))] terminated after 10 minutes";
+            String context = "@public create context context2 initiated @now and pattern[every(SupportBean(THE_EXPRESSION))] terminated after 10 minutes";
             env.compileDeploy(context, path);
 
             String statement = "@name('s0') context context2 select * from pattern[e1=SupportBean(THE_EXPRESSION) -> e2=SupportBean(theString='y')]";

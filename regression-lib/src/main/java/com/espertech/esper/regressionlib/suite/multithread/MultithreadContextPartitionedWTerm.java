@@ -40,7 +40,7 @@ public class MultithreadContextPartitionedWTerm implements RegressionExecutionWi
     public void run(RegressionEnvironment env) {
         env.advanceTime(0);
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create context MyCtx partition by theString from SupportBean terminated after 1 second", path);
+        env.compileDeploy("@public create context MyCtx partition by theString from SupportBean terminated after 1 second", path);
         env.compileDeploy("@name('s0') context MyCtx select count(*) as cnt from SupportBean output last when terminated", path);
         SupportUpdateListener listener = new SupportUpdateListener();
         env.statement("s0").addListener(listener);

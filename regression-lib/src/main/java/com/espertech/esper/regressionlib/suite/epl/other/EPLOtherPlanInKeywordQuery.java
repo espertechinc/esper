@@ -93,7 +93,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             // assert named window
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window S1Window#keepall as SupportBean_S1", path);
+            env.compileDeploy("@public create window S1Window#keepall as SupportBean_S1", path);
             env.compileDeploy("insert into S1Window select * from SupportBean_S1", path);
 
             String eplNamedWindow = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportBean_S0 as s0 select * from S1Window as s1 " +
@@ -109,7 +109,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             // assert table
             path.clear();
-            env.compileDeploy("create table S1Table(id int primary key, p10 string primary key, p11 string primary key, p12 string primary key, p13 string primary key)", path);
+            env.compileDeploy("@public create table S1Table(id int primary key, p10 string primary key, p11 string primary key, p12 string primary key, p13 string primary key)", path);
             env.compileDeploy("insert into S1Table select * from SupportBean_S1", path);
             env.compileDeploy("create index S1Idx1 on S1Table(p10)", path);
             env.compileDeploy("create index S1Idx2 on S1Table(p11)", path);
@@ -232,7 +232,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             // assert named window
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create window S0Window#keepall as SupportBean_S0", path);
+            env.compileDeploy("@public create window S0Window#keepall as SupportBean_S0", path);
             env.compileDeploy("insert into S0Window select * from SupportBean_S0", path);
 
             String eplNamedWindow = "@name('s0') " + IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportBean_S1 as s1 select * from S0Window as s0 " +
@@ -248,7 +248,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             // assert table
             path.clear();
-            env.compileDeploy("create table S0Table(id int primary key, p00 string primary key, p01 string primary key, p02 string primary key, p03 string primary key)", path);
+            env.compileDeploy("@public create table S0Table(id int primary key, p00 string primary key, p01 string primary key, p02 string primary key, p03 string primary key)", path);
             env.compileDeploy("insert into S0Table select * from SupportBean_S0", path);
             env.compileDeploy("create index S0Idx1 on S0Table(p00)", path);
             env.compileDeploy("create index S0Idx2 on S0Table(p01)", path);

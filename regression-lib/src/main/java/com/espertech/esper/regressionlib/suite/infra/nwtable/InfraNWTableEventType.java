@@ -32,7 +32,7 @@ public class InfraNWTableEventType {
     private static class InfraNWTableEventTypeInsertIntoProtected implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "module test;\n" +
-                "@name('event') @buseventtype @public create map schema Fubar as (foo string, bar double);\n" +
+                "@name('event') @public @buseventtype @public create map schema Fubar as (foo string, bar double);\n" +
                 "@name('window') @protected create window Snafu#keepall as Fubar;\n" +
                 "@name('insert') @private insert into Snafu select * from Fubar;\n";
             env.compileDeploy(epl);
@@ -72,8 +72,8 @@ public class InfraNWTableEventType {
 
     private static void runAssertionType(RegressionEnvironment env, boolean namedWindow) {
         String eplCreate = namedWindow ?
-            "@name('s0') create window MyInfra#keepall as (c0 int[], c1 int[primitive])" :
-            "@name('s0') create table MyInfra (c0 int[], c1 int[primitive])";
+            "@name('s0') @public create window MyInfra#keepall as (c0 int[], c1 int[primitive])" :
+            "@name('s0') @public create table MyInfra (c0 int[], c1 int[primitive])";
         env.compileDeploy(eplCreate);
 
         Object[][] expectedType = new Object[][]{{"c0", Integer[].class}, {"c1", int[].class}};

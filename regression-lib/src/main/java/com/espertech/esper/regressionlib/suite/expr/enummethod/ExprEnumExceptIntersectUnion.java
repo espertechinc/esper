@@ -45,7 +45,7 @@ public class ExprEnumExceptIntersectUnion {
     private static class ExprEnumStringArrayIntersection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
 
-            String epl = "@buseventtype create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
+            String epl = "@buseventtype @public create objectarray schema Event(meta1 string[], meta2 string[]);\n" +
                 "@Name('s0') select * from Event(meta1.intersect(meta2).countOf() > 0);\n";
             env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 
@@ -244,9 +244,9 @@ public class ExprEnumExceptIntersectUnion {
 
     private static void tryAssertionInheritance(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
-        String epl = eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema BaseEvent as (b1 string);\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema SubEvent as (s1 string) inherits BaseEvent;\n";
-        epl += eventRepresentationEnum.getAnnotationText() + " @buseventtype create schema OuterEvent as (bases BaseEvent[], subs SubEvent[]);\n";
+        String epl = eventRepresentationEnum.getAnnotationText() + " @public @buseventtype create schema BaseEvent as (b1 string);\n";
+        epl += eventRepresentationEnum.getAnnotationText() + " @public @buseventtype create schema SubEvent as (s1 string) inherits BaseEvent;\n";
+        epl += eventRepresentationEnum.getAnnotationText() + " @public @buseventtype create schema OuterEvent as (bases BaseEvent[], subs SubEvent[]);\n";
         epl += eventRepresentationEnum.getAnnotationText() + " @name('s0') select bases.union(subs) as val from OuterEvent;\n";
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");
 

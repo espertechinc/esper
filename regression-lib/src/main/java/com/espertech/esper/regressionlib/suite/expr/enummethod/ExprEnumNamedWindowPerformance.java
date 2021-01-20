@@ -33,7 +33,7 @@ public class ExprEnumNamedWindowPerformance implements RegressionExecution {
     public void run(RegressionEnvironment env) {
 
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("create window Win#keepall as SupportBean", path);
+        env.compileDeploy("@public create window Win#keepall as SupportBean", path);
         env.compileDeploy("insert into Win select * from SupportBean", path);
 
         // preload

@@ -42,7 +42,7 @@ public class EPLVariablesInlinedClass {
                 "\"\"\"\n";
             env.compileDeploy(eplClass, path);
 
-            String epl = "create variable MyStateful msf = new MyStateful();\n" +
+            String epl = "@public create variable MyStateful msf = new MyStateful();\n" +
                 "@name('s0') select msf.value as c0 from SupportBean;\n" +
                 "on SupportBean_S0 set msf.setValue(p00);\n";
             env.compileDeploy(epl, path).addListener("s0");

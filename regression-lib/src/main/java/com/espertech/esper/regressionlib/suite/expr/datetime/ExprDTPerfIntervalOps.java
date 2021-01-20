@@ -32,7 +32,7 @@ public class ExprDTPerfIntervalOps implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        env.compileDeploy("@name('create') create window AWindow#keepall as SupportTimeStartEndA", path);
+        env.compileDeploy("@name('create') @public create window AWindow#keepall as SupportTimeStartEndA", path);
         env.compileDeploy("insert into AWindow select * from SupportTimeStartEndA", path);
 
         env.assertStatement("create", statement -> {

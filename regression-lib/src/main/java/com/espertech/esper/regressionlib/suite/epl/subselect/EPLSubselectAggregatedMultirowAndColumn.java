@@ -53,7 +53,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
         public void run(RegressionEnvironment env) {
             // test uncorrelated
             RegressionPath path = new RegressionPath();
-            String epl = "@Hint('enable_window_subquery_indexshare') create window MyWindow#keepall as SupportEventWithManyArray;\n" +
+            String epl = "@Hint('enable_window_subquery_indexshare') @public create window MyWindow#keepall as SupportEventWithManyArray;\n" +
                 "insert into MyWindow select * from SupportEventWithManyArray;\n";
             env.compileDeploy(epl, path);
 
@@ -211,7 +211,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             env.undeployAll();
 
             // test named window with delete/remove
-            String epl = "create window MyWindow#keepall as SupportBean;\n" +
+            String epl = "@public create window MyWindow#keepall as SupportBean;\n" +
                 "insert into MyWindow select * from SupportBean;\n" +
                 "on SupportBean_S1 delete from MyWindow where id = intPrimitive;\n" +
                 "@name('s0') @Hint('disable_reclaim_group') select (select theString as c0, sum(intPrimitive) as c1 " +
@@ -352,7 +352,7 @@ public class EPLSubselectAggregatedMultirowAndColumn {
             // test uncorrelated
             RegressionPath path = new RegressionPath();
             String epl = "@Hint('enable_window_subquery_indexshare')" +
-                "create window SBWindow#keepall as SupportBean;\n" +
+                "@public create window SBWindow#keepall as SupportBean;\n" +
                 "insert into SBWindow select * from SupportBean;\n";
             env.compileDeploy(epl, path);
 

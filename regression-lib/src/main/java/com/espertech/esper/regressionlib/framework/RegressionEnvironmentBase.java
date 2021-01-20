@@ -745,14 +745,6 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
     private CompilerArguments getArgsWithExportToPath(RegressionPath path) {
         CompilerArguments args = new CompilerArguments(getConfiguration());
         args.getPath().getCompileds().addAll(path.getCompileds());
-        args.getOptions().setAccessModifierNamedWindow(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierVariable(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierContext(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierExpression(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierScript(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierTable(ctx -> NameAccessModifier.PUBLIC);
-        args.getOptions().setAccessModifierInlinedClass(ctx -> NameAccessModifier.PUBLIC);
         return args;
     }
 

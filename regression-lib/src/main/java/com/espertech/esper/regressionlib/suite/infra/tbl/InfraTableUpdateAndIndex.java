@@ -46,7 +46,7 @@ public class InfraTableUpdateAndIndex {
     private static class InfraEarlyUniqueIndexViolation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableEUIV as (pkey0 string primary key, pkey1 int primary key, thecnt count(*))", path);
+            env.compileDeploy("@name('create') @public create table MyTableEUIV as (pkey0 string primary key, pkey1 int primary key, thecnt count(*))", path);
             env.compileDeploy("into table MyTableEUIV select count(*) as thecnt from SupportBean group by theString, intPrimitive", path);
             env.sendEventBean(new SupportBean("E1", 10));
             env.sendEventBean(new SupportBean("E1", 20));
@@ -100,7 +100,7 @@ public class InfraTableUpdateAndIndex {
     private static class InfraLateUniqueIndexViolation implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('create') create table MyTableLUIV as (" +
+            env.compileDeploy("@name('create') @public create table MyTableLUIV as (" +
                 "pkey0 string primary key, " +
                 "pkey1 int primary key, " +
                 "col0 int, " +
@@ -148,7 +148,7 @@ public class InfraTableUpdateAndIndex {
     private static class InfraFAFUpdate implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create table MyTableFAFU as (pkey0 string primary key, col0 int, col1 int, thecnt count(*))", path);
+            env.compileDeploy("@public create table MyTableFAFU as (pkey0 string primary key, col0 int, col1 int, thecnt count(*))", path);
             env.compileDeploy("create index MyIndex on MyTableFAFU(col0)", path);
 
             env.compileDeploy("into table MyTableFAFU select count(*) as thecnt from SupportBean group by theString", path);
@@ -174,7 +174,7 @@ public class InfraTableUpdateAndIndex {
         public void run(RegressionEnvironment env) {
             String[] fields = "pkey0,pkey1,c0".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s1') create table MyTableMultiKey(pkey0 string primary key, pkey1 int primary key, c0 long)", path);
+            env.compileDeploy("@name('s1') @public create table MyTableMultiKey(pkey0 string primary key, pkey1 int primary key, c0 long)", path);
             env.compileDeploy("insert into MyTableMultiKey select theString as pkey0, intPrimitive as pkey1, longPrimitive as c0 from SupportBean", path);
             env.compileDeploy("on SupportBean_S0 update MyTableMultiKey set pkey0 = p01 where pkey0 = p00", path);
 
@@ -210,7 +210,7 @@ public class InfraTableUpdateAndIndex {
 
             String[] fields = "pkey0,c0".split(",");
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("@name('s0') create table MyTableSingleKey(pkey0 string primary key, c0 int)", path);
+            env.compileDeploy("@name('s0') @public create table MyTableSingleKey(pkey0 string primary key, c0 int)", path);
             env.compileDeploy("insert into MyTableSingleKey select theString as pkey0, intPrimitive as c0 from SupportBean", path);
             env.compileDeploy("on SupportBean_S0 update MyTableSingleKey set pkey0 = p01 where pkey0 = p00", path);
 

@@ -50,8 +50,8 @@ public class InfraNWTableSubqFilteredCorrel {
 
         public void run(RegressionEnvironment env) {
             String createEpl = namedWindow ?
-                "create window MyInfra#keepall as select * from SupportBean" :
-                "create table MyInfra (theString string primary key, intPrimitive int primary key)";
+                "@public create window MyInfra#keepall as select * from SupportBean" :
+                "@public create table MyInfra (theString string primary key, intPrimitive int primary key)";
             if (enableIndexShareCreate) {
                 createEpl = "@Hint('enable_window_subquery_indexshare') " + createEpl;
             }

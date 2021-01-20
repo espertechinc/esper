@@ -83,7 +83,7 @@ public class TestSuiteExprFilterWConfig extends TestCase {
 
         // conditions
         String hintCondition = "@Hint('filterindex(condition)')";
-        String eplContext = "create context MyContext start SupportBean_S0 as s0;\n";
+        String eplContext = "@public create context MyContext start SupportBean_S0 as s0;\n";
         String eplCondition = HOOK + "context MyContext select * from SupportBean(theString = 'a' or context.s0.p00 = 'x');\n";
         runAssertionBooleanExpression(none, eplContext + eplCondition, FilterOperator.BOOLEAN_EXPRESSION);
         assertEquals(2, compileGetPlan(basic, eplContext + eplCondition).getPaths().length);

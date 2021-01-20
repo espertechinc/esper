@@ -53,7 +53,7 @@ public class EPLOtherFromClauseOptional {
 
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            env.compileDeploy("create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id)", path);
+            env.compileDeploy("@public create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id)", path);
 
             String eplOnInit = "@name('s0') context MyContext select context.s0 as ctxs0";
             env.compileDeploy(soda, eplOnInit, path).addListener("s0");
@@ -153,7 +153,7 @@ public class EPLOtherFromClauseOptional {
     private static class EPLOtherFromOptionalInvalid implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String context = "create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id);";
+            String context = "@public create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id);";
             env.compileDeploy(context, path);
 
             // subselect needs from clause
@@ -187,7 +187,7 @@ public class EPLOtherFromClauseOptional {
     private static class EPLOtherFromOptionalFAFContext implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String epl = "create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id);\n" +
+            String epl = "@public create context MyContext initiated by SupportBean_S0 as s0 terminated by SupportBean_S1(id=s0.id);\n" +
                     "context MyContext select count(*) from SupportBean;\n";
             env.compileDeploy(epl, path);
 

@@ -55,7 +55,7 @@ public class ExprCoreTypeOf {
     private static class ExprCoreTypeOfDynamicProps implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
-            String schema = MAP.getAnnotationText() + " @buseventtype create schema MyDynoPropSchema as (key string);\n";
+            String schema = MAP.getAnnotationText() + " @public @buseventtype create schema MyDynoPropSchema as (key string);\n";
             env.compileDeploy(schema, path);
 
             String[] fields = "typeof(prop?),typeof(key)".split(",");
@@ -113,17 +113,17 @@ public class ExprCoreTypeOf {
     private static void tryAssertionVariantStream(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
 
         String eplSchemas =
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " @buseventtype create schema EventOne as (key string);\n" +
-                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " @buseventtype create schema EventTwo as (key string);\n" +
-                " @buseventtype create schema S0 as " + SupportBean_S0.class.getName() + ";\n" +
-                " create variant schema VarSchema as *;\n";
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " @public @buseventtype create schema EventOne as (key string);\n" +
+                eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedWKey.class) + " @public @buseventtype create schema EventTwo as (key string);\n" +
+                " @public @buseventtype create schema S0 as " + SupportBean_S0.class.getName() + ";\n" +
+                " @public create variant schema VarSchema as *;\n";
         RegressionPath path = new RegressionPath();
         env.compileDeploy(eplSchemas, path);
 
-        env.compileDeploy("insert into VarSchema select * from EventOne", path);
-        env.compileDeploy("insert into VarSchema select * from EventTwo", path);
-        env.compileDeploy("insert into VarSchema select * from S0", path);
-        env.compileDeploy("insert into VarSchema select * from SupportBean", path);
+        env.compileDeploy("@public insert into VarSchema select * from EventOne", path);
+        env.compileDeploy("@public insert into VarSchema select * from EventTwo", path);
+        env.compileDeploy("@public insert into VarSchema select * from S0", path);
+        env.compileDeploy("@public insert into VarSchema select * from SupportBean", path);
 
         String stmtText = "@name('s0') select typeof(A) as t0 from VarSchema as A";
         env.compileDeploy(stmtText, path).addListener("s0");
@@ -198,8 +198,8 @@ public class ExprCoreTypeOf {
     }
 
     private static void tryAssertionFragment(RegressionEnvironment env, EventRepresentationChoice eventRepresentationEnum) {
-        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedInnerSchema.class) + " create schema InnerSchema as (key string);\n" +
-            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " @buseventtype create schema MySchema as (inside InnerSchema, insidearr InnerSchema[]);\n" +
+        String epl = eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedInnerSchema.class) + " @public create schema InnerSchema as (key string);\n" +
+            eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + " @buseventtype @public create schema MySchema as (inside InnerSchema, insidearr InnerSchema[]);\n" +
             eventRepresentationEnum.getAnnotationTextWJsonProvided(MyLocalJsonProvidedOut.class) + " @name('s0') select typeof(s0.inside) as t0, typeof(s0.insidearr) as t1 from MySchema as s0;\n";
         String[] fields = new String[]{"t0", "t1"};
         env.compileDeploy(epl, new RegressionPath()).addListener("s0");

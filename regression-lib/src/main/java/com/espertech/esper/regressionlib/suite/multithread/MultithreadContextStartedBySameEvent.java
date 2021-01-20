@@ -40,7 +40,7 @@ public class MultithreadContextStartedBySameEvent implements RegressionExecution
 
     public void run(RegressionEnvironment env) {
         RegressionPath path = new RegressionPath();
-        String eplStatement = "create context MyContext start PayloadEvent end after 0.5 seconds";
+        String eplStatement = "@public create context MyContext start PayloadEvent end after 0.5 seconds";
         env.compileDeploy(eplStatement, path);
 
         String aggStatement = "@name('select') context MyContext " +
