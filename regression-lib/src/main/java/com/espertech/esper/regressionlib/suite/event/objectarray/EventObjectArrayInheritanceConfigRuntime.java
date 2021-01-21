@@ -12,7 +12,10 @@ package com.espertech.esper.regressionlib.suite.event.objectarray;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+
+import java.util.EnumSet;
 
 public class EventObjectArrayInheritanceConfigRuntime implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -25,5 +28,9 @@ public class EventObjectArrayInheritanceConfigRuntime implements RegressionExecu
         env.compileDeploy(epl, path);
 
         EventObjectArrayInheritanceConfigInit.runObjectArrInheritanceAssertion(env, path);
+    }
+
+    public EnumSet<RegressionFlag> flags() {
+        return EnumSet.of(RegressionFlag.OBSERVEROPS);
     }
 }

@@ -12,10 +12,12 @@ package com.espertech.esper.regressionlib.suite.infra.nwtable;
 
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.events.SupportGenericColUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static com.espertech.esper.regressionlib.support.events.SupportGenericColUtil.assertPropertyEPTypes;
 
@@ -60,6 +62,10 @@ public class InfraNWTableCreate {
             return this.getClass().getSimpleName() + "{" +
                 "namedWindow=" + namedWindow +
                 '}';
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.SERDEREQUIRED);
         }
     }
 }

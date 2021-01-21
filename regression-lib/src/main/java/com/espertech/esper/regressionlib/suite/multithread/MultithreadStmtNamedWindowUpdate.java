@@ -44,7 +44,7 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.MULTITHREADED);
     }
 
     private static void trySend(RegressionEnvironment env, int numThreads, int numEventsPerThread) {

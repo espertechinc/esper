@@ -39,7 +39,7 @@ public class InfraNWTableOnMergePerf {
     private static class InfraPerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         private final boolean namedWindow;

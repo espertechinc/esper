@@ -159,10 +159,6 @@ public class EPLInsertIntoTransposeStream {
 
             env.undeployAll();
         }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
-        }
     }
 
     private static class EPLInsertIntoTransposeSingleColumnInsert implements RegressionExecution {

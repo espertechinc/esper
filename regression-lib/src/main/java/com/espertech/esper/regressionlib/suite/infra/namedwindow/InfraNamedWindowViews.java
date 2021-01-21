@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
+import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
@@ -29,10 +30,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportVariableSetEvent;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import org.apache.avro.Schema;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidDeploy;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
@@ -137,7 +135,7 @@ public class InfraNamedWindowViews {
             env.advanceTime(1000);
             assertIterate(env, "E4");
 
-            env.milestone(1);
+            env.milestone(2);
 
             env.advanceTime(2000);
             assertIterate(env);
@@ -352,7 +350,7 @@ public class InfraNamedWindowViews {
             env.compileDeploy(epl, path);
 
             env.sendEventBean(new SupportBean());
-            assertEvent(env.compileExecuteFAF("select * from MyWindowBSB", path).getArray()[0], "MyWindowBSB");
+            env.assertThat(() -> assertEvent(env.compileExecuteFAF("select * from MyWindowBSB", path).getArray()[0], "MyWindowBSB"));
 
             env.compileDeploy("@name('s0') select * from ABC", path).addListener("s0");
 
@@ -403,6 +401,10 @@ public class InfraNamedWindowViews {
             env.assertEqualsNew("s0", "col2", 9);
 
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.EVENTSENDER);
         }
     }
 
@@ -3187,6 +3189,10 @@ public class InfraNamedWindowViews {
 
             env.undeployAll();
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class InfraNamedWindowInvalidAlreadyExists implements RegressionExecution {
@@ -3195,6 +3201,10 @@ public class InfraNamedWindowViews {
             env.deploy(compiled);
             tryInvalidDeploy(env, compiled, "A precondition is not satisfied: A named window by name 'MyWindowAE' has already been created for module '(unnamed)'");
             env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
         }
     }
 

@@ -280,10 +280,6 @@ public class EPLOtherCreateSchema {
 
             env.undeployAll();
         }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
-        }
     }
 
     private static class EPLOtherCreateSchemaCopyProperties implements RegressionExecution {

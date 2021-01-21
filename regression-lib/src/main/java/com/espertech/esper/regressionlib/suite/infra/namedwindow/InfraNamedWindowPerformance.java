@@ -50,7 +50,7 @@ public class InfraNamedWindowPerformance {
 
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -76,7 +76,7 @@ public class InfraNamedWindowPerformance {
     private static class InfraOnSelectEqualsAndRangePerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -120,7 +120,7 @@ public class InfraNamedWindowPerformance {
     private static class InfraDeletePerformance implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -156,7 +156,7 @@ public class InfraNamedWindowPerformance {
     private static class InfraDeletePerformanceCoercion implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -191,7 +191,7 @@ public class InfraNamedWindowPerformance {
     private static class InfraDeletePerformanceTwoDeleters implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -228,7 +228,7 @@ public class InfraNamedWindowPerformance {
     private static class InfraDeletePerformanceIndexReuse implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {

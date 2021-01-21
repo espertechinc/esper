@@ -44,7 +44,7 @@ public class EPLJoin3StreamRangePerformance {
     private static class EPLJoinPerf3StreamKeyAndRange implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -85,7 +85,7 @@ public class EPLJoin3StreamRangePerformance {
     private static class EPLJoinPerf3StreamRangeOnly implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -130,7 +130,7 @@ public class EPLJoin3StreamRangePerformance {
     private static class EPLJoinPerf3StreamUnidirectionalKeyAndRange implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {

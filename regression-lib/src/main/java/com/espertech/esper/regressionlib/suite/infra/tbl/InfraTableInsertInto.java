@@ -14,8 +14,6 @@ import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.json.minimaljson.JsonObject;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.client.util.EventTypeBusModifier;
-import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -110,7 +108,7 @@ public class InfraTableInsertInto {
         public void run(RegressionEnvironment env) {
             String[] fields = "theString".split(",");
             String epl = "@name('create') @public create table MyTableSM(theString string);\n" +
-                "@name('tbl-insert') insert into MyTableSM select theString from SupportBean;\n";
+                    "@name('tbl-insert') insert into MyTableSM select theString from SupportBean;\n";
             env.compileDeploy(epl);
 
             env.assertPropsPerRowIterator("create", fields, new Object[0][]);
@@ -160,7 +158,7 @@ public class InfraTableInsertInto {
             env.compileDeploy("@name('create') @public create table MyTableNWM(pkey string)", path);
             env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
             env.compileDeploy("on SupportBean as sb merge MyWindow when not matched " +
-                "then insert into MyTableNWM select sb.theString as pkey", path);
+                    "then insert into MyTableNWM select sb.theString as pkey", path);
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.assertPropsPerRowIteratorAnyOrder("create", "pkey".split(","), new Object[][]{{"E1"}});
@@ -176,9 +174,9 @@ public class InfraTableInsertInto {
             env.compileDeploy("@name('createTwo') @public create table MyTableTwo(pkey string primary key, col int)", path);
 
             String eplSplit = "@name('split') @public on SupportBean \n" +
-                "  insert into MyTableOne select theString as pkey, intPrimitive as col where intPrimitive > 0\n" +
-                "  insert into MyTableTwo select theString as pkey, intPrimitive as col where intPrimitive < 0\n" +
-                "  insert into OtherStream select theString as pkey, intPrimitive as col where intPrimitive = 0\n";
+                    "  insert into MyTableOne select theString as pkey, intPrimitive as col where intPrimitive > 0\n" +
+                    "  insert into MyTableTwo select theString as pkey, intPrimitive as col where intPrimitive < 0\n" +
+                    "  insert into OtherStream select theString as pkey, intPrimitive as col where intPrimitive = 0\n";
             env.compileDeploy(eplSplit, path);
 
             env.compileDeploy("@name('s1') select * from OtherStream", path).addListener("s1");
@@ -272,8 +270,8 @@ public class InfraTableInsertInto {
         public void run(RegressionEnvironment env) {
             String[] fields = "pkey,thesum".split(",");
             String epl = "@name('create') create table MyTableIIK(" +
-                "pkey string primary key," +
-                "thesum sum(int));\n";
+                    "pkey string primary key," +
+                    "thesum sum(int));\n";
             epl += "insert into MyTableIIK select theString as pkey from SupportBean;\n";
             epl += "into table MyTableIIK select sum(id) as thesum from SupportBean_S0 group by p00;\n";
             epl += "on SupportBean_S1 insert into MyTableIIK select p10 as pkey;\n";
@@ -325,9 +323,9 @@ public class InfraTableInsertInto {
 
         EPCompiled schemaCompiled;
         if (bean) {
-            schemaCompiled = env.compile("create schema MySchema as " + MyP0P1Event.class.getName(), options -> options.setBusModifierEventType(ctx -> EventTypeBusModifier.BUS).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC));
+            schemaCompiled = env.compile("@public @buseventtype create schema MySchema as " + MyP0P1Event.class.getName());
         } else {
-            schemaCompiled = env.compile(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "create schema MySchema (p0 string, p1 string)", options -> options.setBusModifierEventType(ctx -> EventTypeBusModifier.BUS).setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC));
+            schemaCompiled = env.compile(rep.getAnnotationTextWJsonProvided(MyLocalJsonProvidedMySchema.class) + "@public @buseventtype create schema MySchema (p0 string, p1 string)");
         }
         path.add(schemaCompiled);
         env.deploy(schemaCompiled);

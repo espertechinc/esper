@@ -29,7 +29,7 @@ import java.util.concurrent.*;
 public class MultithreadStmtListenerAddRemove implements RegressionExecutionWithConfigure {
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.MULTITHREADED);
     }
 
     public void configure(Configuration configuration) {

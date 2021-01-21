@@ -34,7 +34,7 @@ public class InfraTableMTUngroupedAccessReadMergeWrite implements RegressionExec
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.MULTITHREADED);
     }
 
     /**

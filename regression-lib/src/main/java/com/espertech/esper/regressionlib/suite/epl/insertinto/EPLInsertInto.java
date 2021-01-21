@@ -250,6 +250,10 @@ public class EPLInsertInto {
                 // Expected
             }
         }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.INVALIDITY);
+        }
     }
 
     private static class EPLInsertIntoUnnamedSimple implements RegressionExecution {

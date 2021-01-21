@@ -16,8 +16,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.FragmentEventType;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.common.client.util.EventTypeBusModifier;
-import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.*;
@@ -246,7 +244,7 @@ public class InfraTableAccessCore {
 
         private static void tryAssertionTopLevelReadGrouped2Keys(RegressionEnvironment env, boolean soda, AtomicInteger milestone) {
             RegressionPath path = new RegressionPath();
-            EPCompiled typeCompiled = env.compile("create objectarray schema MyEventOA as (c0 int, c1 string, c2 int)", options -> options.setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC).setBusModifierEventType(ctx -> EventTypeBusModifier.BUS));
+            EPCompiled typeCompiled = env.compile("@buseventtype @public create objectarray schema MyEventOA as (c0 int, c1 string, c2 int)");
             env.deploy(typeCompiled);
             path.add(typeCompiled);
 
@@ -300,7 +298,7 @@ public class InfraTableAccessCore {
             Object[] e3 = new Object[]{30};
 
             RegressionPath path = new RegressionPath();
-            EPCompiled typeCompiled = env.compile("create objectarray schema MyEventOATLRU(c0 int)", options -> options.setAccessModifierEventType(ctx -> NameAccessModifier.PUBLIC).setBusModifierEventType(ctx -> EventTypeBusModifier.BUS));
+            EPCompiled typeCompiled = env.compile("@public @buseventtype create objectarray schema MyEventOATLRU(c0 int)");
             env.deploy(typeCompiled);
             path.add(typeCompiled);
 

@@ -16,7 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements R
 
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.MULTITHREADED);
     }
 
     /**
@@ -53,10 +52,10 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements R
 
     private static void tryMT(RegressionEnvironment env, int numThreads, int numLoops, int numGroups) throws InterruptedException {
         String eplDeclare =
-            "@public create table varTotal (key string primary key, total sum(int));\n" +
-                "@public create context ByStringHash\n" +
-                "  coalesce by consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate\n;" +
-                "context ByStringHash into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n";
+                "@public create table varTotal (key string primary key, total sum(int));\n" +
+                        "@public create context ByStringHash\n" +
+                        "  coalesce by consistent_hash_crc32(theString) from SupportBean granularity 16 preallocate\n;" +
+                        "context ByStringHash into table varTotal select theString, sum(intPrimitive) as total from SupportBean group by theString;\n";
         String eplAssert = "select varTotal[p00].total as c0 from SupportBean_S0";
 
         runAndAssert(env, eplDeclare, eplAssert, numThreads, numLoops, numGroups);
@@ -92,7 +91,6 @@ public class InfraTableMTGroupedWContextIntoTableWriteAsSharedTable implements R
 
         // each group should total up to "numLoops*numThreads"
         env.compileDeploy("@name('s0') " + eplAssert, path).addListener("s0");
-        SupportListener listener = env.listener("s0");
 
         Integer expected = numLoops * numThreads;
         for (int i = 0; i < numGroups; i++) {

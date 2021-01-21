@@ -174,37 +174,37 @@ public class InfraNamedWindowOnDelete {
             String stmtTextDelete = "@name('d1') on SupportBean(theString='DB') as s0 delete from MyWindowCK as win where win.intPrimitive = s0.doubleBoxed";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d1");
-            assertEquals(1, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 1, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d2') on SupportBean(theString='DP') as s0 delete from MyWindowCK as win where win.intPrimitive = s0.doublePrimitive";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d2");
-            assertEquals(1, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 1, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d3') on SupportBean(theString='IB') as s0 delete from MyWindowCK where MyWindowCK.intPrimitive = s0.intBoxed";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d3");
-            assertEquals(2, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 2, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d4') on SupportBean(theString='IPDP') as s0 delete from MyWindowCK as win where win.intPrimitive = s0.intPrimitive and win.doublePrimitive = s0.doublePrimitive";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d4");
-            assertEquals(3, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 3, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d5') on SupportBean(theString='IPDP2') as s0 delete from MyWindowCK as win where win.doublePrimitive = s0.doublePrimitive and win.intPrimitive = s0.intPrimitive";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d5");
-            assertEquals(4, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 4, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d6') on SupportBean(theString='IPDPIB') as s0 delete from MyWindowCK as win where win.doublePrimitive = s0.doublePrimitive and win.intPrimitive = s0.intPrimitive and win.intBoxed = s0.intBoxed";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d6");
-            assertEquals(5, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 5, "createOne", "MyWindowCK");
 
             stmtTextDelete = "@name('d7') on SupportBean(theString='CAST') as s0 delete from MyWindowCK as win where win.intBoxed = s0.intPrimitive and win.doublePrimitive = s0.doubleBoxed and win.intPrimitive = s0.intBoxed";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d7");
-            assertEquals(6, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 6, "createOne", "MyWindowCK");
 
             // create insert into
             String stmtTextInsertOne = "insert into MyWindowCK select theString, intPrimitive, intBoxed, doublePrimitive, doubleBoxed "
@@ -281,17 +281,17 @@ public class InfraNamedWindowOnDelete {
             for (String stmtName : deleteStatements) {
                 env.undeployModuleContaining(stmtName);
             }
-            assertEquals(0, getIndexCount(env, "createOne", "MyWindowCK"));
+            assertIndexCount(env, 0, "createOne", "MyWindowCK");
             env.undeployAll();
 
             // test single-two-field index reuse
             path = new RegressionPath();
             env.compileDeploy("@name('createTwo') @public create window WinOne#keepall as SupportBean", path);
             env.compileDeploy("on SupportBean_ST0 select * from WinOne where theString = key0", path);
-            assertEquals(1, getIndexCount(env, "createTwo", "WinOne"));
+            assertIndexCount(env, 1, "createTwo", "WinOne");
 
             env.compileDeploy("on SupportBean_ST0 select * from WinOne where theString = key0 and intPrimitive = p00", path);
-            assertEquals(2, getIndexCount(env, "createTwo", "WinOne"));
+            assertIndexCount(env, 2, "createTwo", "WinOne");
 
             env.undeployAll();
         }
@@ -321,7 +321,7 @@ public class InfraNamedWindowOnDelete {
             String stmtTextDelete = "@name('d0') on SupportBeanTwo as s2 delete from MyWindowCR as win where win.intPrimitive between s2.doublePrimitiveTwo and s2.doubleBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d0");
-            assertEquals(1, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 1, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", 0, 0, 0d, null);
             env.assertListenerNotInvoked("createOne");
@@ -331,7 +331,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d1') on SupportBeanTwo as s2 delete from MyWindowCR as win where win.intPrimitive between s2.intPrimitiveTwo and s2.intBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d1");
-            assertEquals(2, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 2, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", -2, 2, 0d, 0d);
             env.assertPropsOld("createOne", fields, new Object[]{"E2"});
@@ -340,7 +340,7 @@ public class InfraNamedWindowOnDelete {
                 "where win.intPrimitive between s2.intPrimitiveTwo and s2.intBoxedTwo and win.doublePrimitive between s2.intPrimitiveTwo and s2.intBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d2");
-            assertEquals(3, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 3, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", -3, 3, -3d, 3d);
             env.assertPropsOld("createOne", fields, new Object[]{"E3"});
@@ -349,7 +349,7 @@ public class InfraNamedWindowOnDelete {
                 "where win.doublePrimitive between s2.intPrimitiveTwo and s2.intPrimitiveTwo and win.intPrimitive between s2.intPrimitiveTwo and s2.intPrimitiveTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d3");
-            assertEquals(4, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 4, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", -4, 4, -4, 4d);
             env.assertPropsOld("createOne", fields, new Object[]{"E4"});
@@ -357,7 +357,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d4') on SupportBeanTwo as s2 delete from MyWindowCR as win where win.intPrimitive <= doublePrimitiveTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d4");
-            assertEquals(4, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 4, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", 0, 0, 5, 1d);
             env.assertPropsOld("createOne", fields, new Object[]{"E5"});
@@ -365,7 +365,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d5') on SupportBeanTwo as s2 delete from MyWindowCR as win where win.intPrimitive not between s2.intPrimitiveTwo and s2.intBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d5");
-            assertEquals(4, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 4, "createOne", "MyWindowCR");
 
             sendSupportBeanTwo(env, "T", 100, 200, 0, 0d);
             env.assertPropsOld("createOne", fields, new Object[]{"E6"});
@@ -375,7 +375,7 @@ public class InfraNamedWindowOnDelete {
                 env.undeployModuleContaining(stmtName);
             }
             deleteStatements.clear();
-            assertEquals(0, getIndexCount(env, "createOne", "MyWindowCR"));
+            assertIndexCount(env, 0, "createOne", "MyWindowCR");
 
             env.undeployAll();
         }
@@ -402,7 +402,7 @@ public class InfraNamedWindowOnDelete {
             String stmtTextDelete = "@name('d0') on SupportBeanTwo delete from MyWindowCKR where theString = stringTwo and intPrimitive between doublePrimitiveTwo and doubleBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d0");
-            assertEquals(1, getIndexCount(env, "createOne", "MyWindowCKR"));
+            assertIndexCount(env, 1, "createOne", "MyWindowCKR");
 
             sendSupportBeanTwo(env, "T", 0, 0, 1d, 200d);
             env.assertListenerNotInvoked("createOne");
@@ -412,7 +412,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d1') on SupportBeanTwo delete from MyWindowCKR where theString = stringTwo and intPrimitive = intPrimitiveTwo and intBoxed between doublePrimitiveTwo and doubleBoxedTwo";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d1");
-            assertEquals(2, getIndexCount(env, "createOne", "MyWindowCKR"));
+            assertIndexCount(env, 2, "createOne", "MyWindowCKR");
 
             sendSupportBeanTwo(env, "E2", 2, 0, 19d, 21d);
             env.assertPropsOld("createOne", fields, new Object[]{"E2"});
@@ -420,7 +420,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d2') on SupportBeanTwo delete from MyWindowCKR where intBoxed between doubleBoxedTwo and doublePrimitiveTwo and intPrimitive = intPrimitiveTwo and theString = stringTwo ";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d2");
-            assertEquals(3, getIndexCount(env, "createOne", "MyWindowCKR"));
+            assertIndexCount(env, 3, "createOne", "MyWindowCKR");
 
             sendSupportBeanTwo(env, "E3", 3, 0, 29d, 34d);
             env.assertPropsOld("createOne", fields, new Object[]{"E3"});
@@ -428,7 +428,7 @@ public class InfraNamedWindowOnDelete {
             stmtTextDelete = "@name('d3') on SupportBeanTwo delete from MyWindowCKR where intBoxed between intBoxedTwo and intBoxedTwo and intPrimitive = intPrimitiveTwo and theString = stringTwo ";
             env.compileDeploy(stmtTextDelete, path);
             deleteStatements.add("d3");
-            assertEquals(4, getIndexCount(env, "createOne", "MyWindowCKR"));
+            assertIndexCount(env, 4, "createOne", "MyWindowCKR");
 
             sendSupportBeanTwo(env, "E4", 4, 40, 0d, null);
             env.assertPropsOld("createOne", fields, new Object[]{"E4"});
@@ -438,7 +438,7 @@ public class InfraNamedWindowOnDelete {
                 env.undeployModuleContaining(stmtName);
             }
             deleteStatements.clear();
-            assertEquals(0, getIndexCount(env, "createOne", "MyWindowCKR"));
+            assertIndexCount(env, 0, "createOne", "MyWindowCKR");
 
             env.undeployAll();
         }
@@ -551,12 +551,18 @@ public class InfraNamedWindowOnDelete {
         env.assertEqualsNew("count", "cnt", expected);
     }
 
+    private static void assertIndexCount(RegressionEnvironment env, int expected, String statementName, String windowName) {
+        env.assertThat(() -> assertEquals(expected, getIndexCount(env, statementName, windowName)));
+    }
+
     public static class MyLocalJsonProvidedSTAG implements Serializable {
+        private static final long serialVersionUID = -5128566696391061839L;
         public String a1;
         public int b1;
     }
 
     public static class MyLocalJsonProvidedSTAGTwo implements Serializable {
+        private static final long serialVersionUID = -1701272438987837552L;
         public String a2;
         public int b2;
     }

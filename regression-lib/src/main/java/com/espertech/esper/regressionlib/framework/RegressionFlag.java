@@ -12,13 +12,13 @@ package com.espertech.esper.regressionlib.framework;
 
 public enum RegressionFlag {
     EXCLUDEWHENINSTRUMENTED,
+    MULTITHREADED,
     FIREANDFORGET,
     INVALIDITY,
     PERFORMANCE,
     STATICHOOK,
     SERDEREQUIRED,
     OBSERVEROPS,
-    VISIBILITY,
     RUNTIMEOPS,
     COMPILEROPS,
     ENUMHASHCODEPROCESSDEPENDENT,

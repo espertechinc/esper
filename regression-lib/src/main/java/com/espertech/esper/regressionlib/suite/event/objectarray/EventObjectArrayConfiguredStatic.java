@@ -23,11 +23,13 @@ import static org.junit.Assert.assertEquals;
 public class EventObjectArrayConfiguredStatic implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured("MyOAType");
-        assertEquals(Object[].class, eventType.getUnderlyingType());
-        assertEquals(String.class, eventType.getPropertyType("theString"));
-        assertEquals(Map.class, eventType.getPropertyType("map"));
-        assertEquals(SupportBean.class, eventType.getPropertyType("bean"));
+        env.assertThat(() -> {
+            EventType eventType = env.runtime().getEventTypeService().getEventTypePreconfigured("MyOAType");
+            assertEquals(Object[].class, eventType.getUnderlyingType());
+            assertEquals(String.class, eventType.getPropertyType("theString"));
+            assertEquals(Map.class, eventType.getPropertyType("map"));
+            assertEquals(SupportBean.class, eventType.getPropertyType("bean"));
+        });
 
         env.compileDeploy("@name('s0') select bean, theString, map('key'), bean.theString from MyOAType");
         env.addListener("s0");

@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class MultithreadStmtNamedWindowDelete implements RegressionExecution {
     @Override
     public EnumSet<RegressionFlag> flags() {
-        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+        return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.MULTITHREADED);
     }
 
     public void run(RegressionEnvironment env) {

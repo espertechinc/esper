@@ -75,10 +75,6 @@ public class ClientDeployRedefinition {
             env.compileDeploy("create window MyWindow#time(30) as (col1 short, col2 long)");
             env.undeployAll();
         }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
-        }
     }
 
     private static class ClientDeployRedefinitionInsertInto implements RegressionExecution {
@@ -88,10 +84,6 @@ public class ClientDeployRedefinition {
             env.compileDeploy("create schema MySchema (col1 short, col2 long);"
                 + "insert into MyStream select * from MySchema;");
             env.undeployAll();
-        }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 
@@ -104,10 +96,6 @@ public class ClientDeployRedefinition {
                 + "create schema MySchema (col1 short, col2 long);"
                 + "select MyVar from MySchema;");
             env.undeployAll();
-        }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 }

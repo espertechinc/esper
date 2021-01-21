@@ -184,10 +184,6 @@ public class EPLVariablesCreate {
 
             env.undeployAll();
         }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
-        }
     }
 
     private static class EPLVariableSubscribeAndIterate implements RegressionExecution {

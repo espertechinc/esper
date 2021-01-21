@@ -42,7 +42,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfEqualsWithFunc implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -54,7 +54,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfTrueWithFunc implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -66,7 +66,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfEqualsDeclaredExpr implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -80,7 +80,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfTrueDeclaredExpr implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -94,7 +94,7 @@ public class ExprFilterOptimizablePerf {
     private static class ExprFilterOptimizablePerfOr implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.OBSERVEROPS, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {

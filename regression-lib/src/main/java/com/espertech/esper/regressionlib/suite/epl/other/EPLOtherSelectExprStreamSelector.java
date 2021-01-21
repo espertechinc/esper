@@ -18,12 +18,14 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -106,10 +108,6 @@ public class EPLOtherSelectExprStreamSelector {
             });
 
             env.undeployAll();
-        }
-
-        public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.VISIBILITY);
         }
     }
 

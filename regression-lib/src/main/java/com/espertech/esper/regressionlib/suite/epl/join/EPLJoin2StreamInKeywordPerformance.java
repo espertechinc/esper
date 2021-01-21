@@ -36,7 +36,7 @@ public class EPLJoin2StreamInKeywordPerformance {
     private static class EPLJoinInKeywordSingleIndexLookup implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
@@ -65,7 +65,7 @@ public class EPLJoin2StreamInKeywordPerformance {
     private static class EPLJoinInKeywordMultiIndexLookup implements RegressionExecution {
         @Override
         public EnumSet<RegressionFlag> flags() {
-            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED);
+            return EnumSet.of(RegressionFlag.EXCLUDEWHENINSTRUMENTED, RegressionFlag.PERFORMANCE);
         }
 
         public void run(RegressionEnvironment env) {
