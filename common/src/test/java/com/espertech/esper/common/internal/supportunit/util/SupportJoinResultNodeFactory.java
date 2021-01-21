@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.supportunit.event.SupportEventBeanFactory;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class SupportJoinResultNodeFactory {
         if (numObjects == 0) {
             return null;
         }
-        Set<EventBean> set = new HashSet<EventBean>();
+        Set<EventBean> set = new LinkedHashSet<EventBean>();
         for (int i = 0; i < numObjects; i++) {
             set.add(makeEvent());
         }
