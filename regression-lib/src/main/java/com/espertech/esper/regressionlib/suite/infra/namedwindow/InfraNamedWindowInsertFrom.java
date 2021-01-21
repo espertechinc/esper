@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import static com.espertech.esper.common.internal.util.CollectionUtil.buildMap;
 import static org.junit.Assert.*;
@@ -50,9 +49,9 @@ public class InfraNamedWindowInsertFrom {
     private static class InfraCreateNamedAfterNamed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('windowOne') create window MyWindow#keepall as SupportBean;\n" +
-                "@name('windowTwo')create window MyWindowTwo#keepall as MyWindow;\n" +
-                "insert into MyWindow select * from SupportBean;\n" +
-                "@name('selectOne') select theString from MyWindow;\n";
+                    "@name('windowTwo')create window MyWindowTwo#keepall as MyWindow;\n" +
+                    "insert into MyWindow select * from SupportBean;\n" +
+                    "@name('selectOne') select theString from MyWindow;\n";
             env.compileDeploy(epl).addListener("selectOne").addListener("windowOne");
 
             env.sendEventBean(new SupportBean("E1", 1));
@@ -70,7 +69,7 @@ public class InfraNamedWindowInsertFrom {
             RegressionPath path = new RegressionPath();
 
             String epl = "@name('window') @public create window MyWindowIWT#keepall as SupportBean;\n" +
-                "insert into MyWindowIWT select * from SupportBean(intPrimitive > 0);\n";
+                    "insert into MyWindowIWT select * from SupportBean(intPrimitive > 0);\n";
             env.compileDeploy(epl, path).addListener("window");
 
             env.milestone(0);
@@ -264,15 +263,15 @@ public class InfraNamedWindowInsertFrom {
             env.compileDeploy(stmtTextCreateOne, path);
 
             env.tryInvalidCompile("create window testWindow3#keepall as SupportBean insert",
-                "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
+                    "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
             env.tryInvalidCompile("create window testWindow3#keepall as select * from SupportBean insert where (intPrimitive = 10)",
-                "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
+                    "A named window by name 'SupportBean' could not be located, the insert-keyword requires an existing named window");
             env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where (select intPrimitive from SupportBean#lastevent)",
-                "Create window where-clause may not have a subselect");
+                    "Create window where-clause may not have a subselect");
             env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where sum(intPrimitive) > 2",
-                "Create window where-clause may not have an aggregation function");
+                    "Create window where-clause may not have an aggregation function");
             env.tryInvalidCompile(path, "create window MyWindowTwo#keepall as MyWindowINV insert where prev(1, intPrimitive) = 1",
-                "Create window where-clause may not have a function that requires view resources (prior, prev)");
+                    "Create window where-clause may not have a function that requires view resources (prior, prev)");
 
             env.undeployAll();
         }
