@@ -28,6 +28,7 @@ import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.EPSubscriberException;
 import com.espertech.esper.runtime.client.UpdateListener;
+import com.espertech.esper.runtime.client.scopetest.SupportSubscriber;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 
 import java.io.Serializable;
@@ -50,7 +51,31 @@ public class ClientRuntimeSubscriber {
         execs.add(new ClientRuntimeSubscriberSimpleSelectUpdateOnly());
         execs.add(new ClientRuntimeSubscriberPerformanceSyntheticUndelivered());
         execs.add(new ClientRuntimeSubscriberPerformanceSynthetic());
+        execs.add(new ClientRuntimeSubscriberAddRemove());
         return execs;
+    }
+
+    private static class ClientRuntimeSubscriberAddRemove implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            SupportSubscriber supportSubscriber = new SupportSubscriber();
+            String epl = "@name('s0') select * from SupportBean";
+            env.compileDeploy(epl);
+            env.statement("s0").setSubscriber(supportSubscriber);
+
+            env.sendEventBean(new SupportBean());
+            supportSubscriber.assertOneGetNewAndReset();
+
+            env.statement("s0").setSubscriber(null);
+
+            env.sendEventBean(new SupportBean());
+            assertFalse(supportSubscriber.isInvoked());
+
+            env.undeployAll();
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.OBSERVEROPS);
+        }
     }
 
     private static class ClientRuntimeSubscriberBindings implements RegressionExecution {
