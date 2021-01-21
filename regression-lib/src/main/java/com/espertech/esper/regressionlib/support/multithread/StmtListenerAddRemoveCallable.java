@@ -18,11 +18,13 @@ import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StmtListenerAddRemoveCallable implements Callable {
     private final EPRuntime runtime;
@@ -70,7 +72,7 @@ public class StmtListenerAddRemoveCallable implements Callable {
                         found = true;
                     }
                 }
-                Assert.assertTrue(found);
+                assertTrue(found);
                 assertListener.reset();
 
                 // Remove assertListener
@@ -95,7 +97,7 @@ public class StmtListenerAddRemoveCallable implements Callable {
                         found = true;
                     }
                 }
-                Assert.assertFalse(found);
+                assertFalse(found);
             }
         } catch (AssertionFailedError ex) {
             log.error("Assertion error in thread " + Thread.currentThread().getId(), ex);

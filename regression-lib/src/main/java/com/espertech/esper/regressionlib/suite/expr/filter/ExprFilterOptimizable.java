@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanBasicOrMore;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ExprFilterOptimizable {

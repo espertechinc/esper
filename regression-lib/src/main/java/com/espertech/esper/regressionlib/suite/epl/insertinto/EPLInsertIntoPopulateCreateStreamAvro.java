@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.avro.core.AvroEventType;
 import com.espertech.esper.common.internal.avro.support.SupportAvroUtil;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import org.apache.avro.Schema;
@@ -49,8 +48,8 @@ public class EPLInsertIntoPopulateCreateStreamAvro {
                 "from SupportBean";
             env.compileDeploy(epl).addListener("s0");
 
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), "myLong,myLongArray,myByteArray,myMap".split(","), new EPTypeClass[]{
-                LONGBOXED.getEPType(), EPTypeClassParameterized.from(Collection.class, LONGBOXED.getEPType()), BYTEBUFFER.getEPType(), EPTypeClassParameterized.from(Map.class, String.class, String.class)}));
+            env.assertStmtTypes("s0", "myLong,myLongArray,myByteArray,myMap".split(","), new EPTypeClass[]{
+                LONGBOXED.getEPType(), EPTypeClassParameterized.from(Collection.class, LONGBOXED.getEPType()), BYTEBUFFER.getEPType(), EPTypeClassParameterized.from(Map.class, String.class, String.class)});
 
             env.sendEventBean(new SupportBean());
             env.assertEventNew("s0", event -> {

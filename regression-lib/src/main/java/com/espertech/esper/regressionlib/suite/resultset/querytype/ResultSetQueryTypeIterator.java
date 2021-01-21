@@ -16,13 +16,11 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ResultSetQueryTypeIterator {
     public static Collection<RegressionExecution> executions() {
@@ -74,8 +72,8 @@ public class ResultSetQueryTypeIterator {
 
             env.assertIterator("s0", itr -> {
                 EventBean theEvent = itr.next();
-                Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
-                Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+                assertEquals(myEventBean1, theEvent.get("addressInfo"));
+                assertEquals(myEventBean2, theEvent.get("txnWD"));
             });
 
             env.undeployAll();
@@ -104,8 +102,8 @@ public class ResultSetQueryTypeIterator {
 
             env.assertIterator("s0", itr -> {
                 EventBean theEvent = itr.next();
-                Assert.assertEquals(myEventBean1, theEvent.get("addressInfo"));
-                Assert.assertEquals(myEventBean2, theEvent.get("txnWD"));
+                assertEquals(myEventBean1, theEvent.get("addressInfo"));
+                assertEquals(myEventBean2, theEvent.get("txnWD"));
             });
 
             env.undeployAll();

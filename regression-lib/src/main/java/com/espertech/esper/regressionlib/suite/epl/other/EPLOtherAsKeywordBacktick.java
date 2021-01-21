@@ -18,11 +18,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherAsKeywordBacktick {
     public static List<RegressionExecution> executions() {
@@ -103,7 +104,7 @@ public class EPLOtherAsKeywordBacktick {
             env.milestone(0);
 
             env.compileExecuteFAF("delete from MyWindowFAF as `order` where `order`.p0 = 'b'", path);
-            Assert.assertEquals(0, env.compileExecuteFAF("select * from MyWindowFAF", path).getArray().length);
+            assertEquals(0, env.compileExecuteFAF("select * from MyWindowFAF", path).getArray().length);
 
             env.undeployAll();
         }

@@ -29,7 +29,6 @@ import org.w3c.dom.Node;
 import java.io.Serializable;
 import java.util.*;
 
-import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.apache.avro.SchemaBuilder.record;
 import static org.junit.Assert.*;

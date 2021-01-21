@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.*;
 
 public class ResultAssertExecution {
     private static final Logger log = LoggerFactory.getLogger(ResultAssertExecution.class);
@@ -162,12 +163,12 @@ public class ResultAssertExecution {
         // If there is no assertion, there should be no event received
         env.assertListener("s0", listener -> {
             if (stepDesc == null) {
-                Assert.assertFalse("At time " + timeInSec + " expected no events but received one or more", listener.isInvoked());
+                assertFalse("At time " + timeInSec + " expected no events but received one or more", listener.isInvoked());
             } else {
                 // If we do expect remove stream events, asset both
                 if (!isExpectNullRemoveStream) {
                     String message = "At time " + timeInSec;
-                    Assert.assertTrue(message + " expected events but received none", listener.isInvoked());
+                    assertTrue(message + " expected events but received none", listener.isInvoked());
                     if (assertAllowAnyOrder) {
                         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), expected.getProperties(),
                             stepDesc.getNewDataPerRow());
@@ -183,7 +184,7 @@ public class ResultAssertExecution {
                     // If we don't expect remove stream events (istream only), then asset new data only if there
                     // If we do expect new data, assert
                     if (stepDesc.getNewDataPerRow() != null) {
-                        Assert.assertTrue("At time " + timeInSec + " expected events but received none", listener.isInvoked());
+                        assertTrue("At time " + timeInSec + " expected events but received none", listener.isInvoked());
                         if (assertAllowAnyOrder) {
                             EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastNewData(), expected.getProperties(), stepDesc.getNewDataPerRow());
                         } else {
@@ -192,10 +193,10 @@ public class ResultAssertExecution {
                         }
                     } else {
                         // If we don't expect new data, make sure its null
-                        Assert.assertNull("At time " + timeInSec + " expected no insert stream events but received some", listener.getLastNewData());
+                        assertNull("At time " + timeInSec + " expected no insert stream events but received some", listener.getLastNewData());
                     }
 
-                    Assert.assertNull("At time " + timeInSec + " expected no remove stream events but received some(check irstream/istream(default) test case)", listener.getLastOldData());
+                    assertNull("At time " + timeInSec + " expected no remove stream events but received some(check irstream/istream(default) test case)", listener.getLastOldData());
                 }
             }
             listener.reset();

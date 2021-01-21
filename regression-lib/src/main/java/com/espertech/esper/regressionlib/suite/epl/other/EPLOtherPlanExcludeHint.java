@@ -32,12 +32,13 @@ import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanBuilder;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHelper;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
 
@@ -72,13 +73,13 @@ public class EPLOtherPlanExcludeHint implements IndexBackingTableInfo {
             SupportQueryPlanIndexHook.reset();
             env.compileDeploy(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') select (select * from SupportBean_S0#unique(p00) as s0 where s1.p10 = p00) from SupportBean_S1 as s1", path);
             QueryPlanIndexDescSubquery subq = SupportQueryPlanIndexHook.getAndResetSubqueries().get(0);
-            Assert.assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subq.getTableLookupStrategy());
+            assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subq.getTableLookupStrategy());
 
             // test named window
             env.compileDeploy("@public create window S0Window#keepall as SupportBean_S0", path);
             env.compileDeploy(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "@hint('exclude_plan(true)') on SupportBean_S1 as s1 select * from S0Window as s0 where s1.p10 = s0.p00", path);
             QueryPlanIndexDescOnExpr onExpr = SupportQueryPlanIndexHook.getAndResetOnExpr();
-            Assert.assertEquals(SubordWMatchExprLookupStrategyAllFilteredForge.class.getSimpleName(), onExpr.getStrategyName());
+            assertEquals(SubordWMatchExprLookupStrategyAllFilteredForge.class.getSimpleName(), onExpr.getStrategyName());
 
             env.undeployAll();
         }

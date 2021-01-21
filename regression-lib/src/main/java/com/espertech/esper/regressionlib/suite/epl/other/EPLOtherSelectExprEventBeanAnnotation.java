@@ -23,11 +23,11 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EPLOtherSelectExprEventBeanAnnotation {
@@ -143,11 +143,11 @@ public class EPLOtherSelectExprEventBeanAnnotation {
 
     private static void assertFragment(String prop, EventType eventType, String fragmentTypeName, boolean indexed) {
         EventPropertyDescriptor desc = eventType.getPropertyDescriptor(prop);
-        Assert.assertEquals(true, desc.isFragment());
+        assertEquals(true, desc.isFragment());
         FragmentEventType fragment = eventType.getFragmentType(prop);
-        Assert.assertEquals(fragmentTypeName, fragment.getFragmentType().getName());
-        Assert.assertEquals(false, fragment.isNative());
-        Assert.assertEquals(indexed, fragment.isIndexed());
+        assertEquals(fragmentTypeName, fragment.getFragmentType().getName());
+        assertEquals(false, fragment.isNative());
+        assertEquals(indexed, fragment.isIndexed());
     }
 
     private static Object sendEvent(RegressionEnvironment env, EventRepresentationChoice rep, String value) {

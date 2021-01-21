@@ -19,13 +19,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportSensorEvent;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class ViewIntersect {
 
@@ -503,7 +501,7 @@ public class ViewIntersect {
             sendEvent(env, "E7", 3, 30);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E7"));
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(2, listener.getLastOldData().length);
                 Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
                 EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
                 EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E7"});

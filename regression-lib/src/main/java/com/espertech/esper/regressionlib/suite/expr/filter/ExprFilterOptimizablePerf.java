@@ -25,10 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ExprFilterOptimizablePerf {
 

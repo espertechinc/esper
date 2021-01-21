@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,7 @@ public class ResultSetQueryTypeHaving {
             String epl = "select irstream symbol, price, avg(price) as avgPrice " +
                 "from SupportMarketDataBean#length(5) " +
                 "having price<avg(price)";
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -217,9 +216,9 @@ public class ResultSetQueryTypeHaving {
     private static void tryAssertion(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("price"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("avgPrice"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("price"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("avgPrice"));
         });
 
         sendEvent(env, SYMBOL_DELL, 10);
@@ -259,9 +258,9 @@ public class ResultSetQueryTypeHaving {
             assertNull(oldData);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(newPrice, newData[0].get("price"));
-            Assert.assertEquals(newAvgPrice, newData[0].get("avgPrice"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(newPrice, newData[0].get("price"));
+            assertEquals(newAvgPrice, newData[0].get("avgPrice"));
 
             listener.reset();
         });
@@ -277,9 +276,9 @@ public class ResultSetQueryTypeHaving {
             assertNull(newData);
             assertEquals(1, oldData.length);
 
-            Assert.assertEquals(symbol, oldData[0].get("symbol"));
-            Assert.assertEquals(oldPrice, oldData[0].get("price"));
-            Assert.assertEquals(oldAvgPrice, oldData[0].get("avgPrice"));
+            assertEquals(symbol, oldData[0].get("symbol"));
+            assertEquals(oldPrice, oldData[0].get("price"));
+            assertEquals(oldAvgPrice, oldData[0].get("avgPrice"));
 
             listener.reset();
         });
@@ -335,10 +334,10 @@ public class ResultSetQueryTypeHaving {
     private static void assertOldNewSpreadEvent(RegressionEnvironment env, double oldaprice, double oldbprice, double oldspread,
                                                 double newaprice, double newbprice, double newspread) {
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getOldDataList().size());
-            Assert.assertEquals(1, listener.getLastOldData().length);
-            Assert.assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
-            Assert.assertEquals(1, listener.getLastNewData().length);
+            assertEquals(1, listener.getOldDataList().size());
+            assertEquals(1, listener.getLastOldData().length);
+            assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
+            assertEquals(1, listener.getLastNewData().length);
 
             EventBean oldEvent = listener.getLastOldData()[0];
             EventBean newEvent = listener.getLastNewData()[0];
@@ -352,10 +351,10 @@ public class ResultSetQueryTypeHaving {
 
     private static void assertOldSpreadEvent(RegressionEnvironment env, double aprice, double bprice, double spread) {
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getOldDataList().size());
-            Assert.assertEquals(1, listener.getLastOldData().length);
-            Assert.assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
-            Assert.assertNull(listener.getLastNewData());
+            assertEquals(1, listener.getOldDataList().size());
+            assertEquals(1, listener.getLastOldData().length);
+            assertEquals(1, listener.getNewDataList().size());   // since event null is put into the list
+            assertNull(listener.getLastNewData());
 
             EventBean theEvent = listener.getLastOldData()[0];
 
@@ -366,10 +365,10 @@ public class ResultSetQueryTypeHaving {
 
     private static void assertNewSpreadEvent(RegressionEnvironment env, double aprice, double bprice, double spread) {
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getNewDataList().size());
-            Assert.assertEquals(1, listener.getLastNewData().length);
-            Assert.assertEquals(1, listener.getOldDataList().size());
-            Assert.assertNull(listener.getLastOldData());
+            assertEquals(1, listener.getNewDataList().size());
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(1, listener.getOldDataList().size());
+            assertNull(listener.getLastOldData());
 
             EventBean theEvent = listener.getLastNewData()[0];
             compareSpreadEvent(theEvent, aprice, bprice, spread);
@@ -378,9 +377,9 @@ public class ResultSetQueryTypeHaving {
     }
 
     private static void compareSpreadEvent(EventBean theEvent, double aprice, double bprice, double spread) {
-        Assert.assertEquals(aprice, theEvent.get("aPrice"));
-        Assert.assertEquals(bprice, theEvent.get("bPrice"));
-        Assert.assertEquals(spread, theEvent.get("spread"));
+        assertEquals(aprice, theEvent.get("aPrice"));
+        assertEquals(bprice, theEvent.get("bPrice"));
+        assertEquals(spread, theEvent.get("spread"));
     }
 
     private static void sendPriceEvent(RegressionEnvironment env, String symbol, double price) {

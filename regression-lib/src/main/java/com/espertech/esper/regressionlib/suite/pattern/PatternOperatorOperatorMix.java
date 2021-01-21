@@ -15,7 +15,8 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternOperatorOperatorMix implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -42,7 +43,7 @@ public class PatternOperatorOperatorMix implements RegressionExecution {
         model.setFromClause(FromClause.create(PatternStream.create(pattern)));
         model = SerializableObjectCopier.copyMayFail(model);
         String text = "select * from pattern [b=SupportBean_B -> d=SupportBean_D or a=SupportBean_A]";
-        Assert.assertEquals(text, model.toEPL());
+        assertEquals(text, model.toEPL());
         testCase = new EventExpressionCase(model);
         testCase.add("A2", "b", events.getEvent("B1"), "a", events.getEvent("A2"));
         testCaseList.addTest(testCase);
@@ -69,7 +70,7 @@ public class PatternOperatorOperatorMix implements RegressionExecution {
         testCase.add("A1", "a", events.getEvent("A1"));
         testCaseList.addTest(testCase);
 
-        PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+        PatternTestHarness util = new PatternTestHarness(events, testCaseList);
         util.runTest(env);
     }
 }

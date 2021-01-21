@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,7 +119,7 @@ public class PatternOperatorNot {
             testCase.add("D3", "b", events.getEvent("B3"), "d", events.getEvent("D3"));
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -143,7 +142,7 @@ public class PatternOperatorNot {
                 .add(Patterns.notFilter("SupportBean_G", "g"));
             model.setFromClause(FromClause.create(PatternStream.create(pattern)));
             model = SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             testCase = new EventExpressionCase(model);
             testCase.add("B1", "b", events.getEvent("B1"));
             testCase.add("B2", "b", events.getEvent("B2"));
@@ -207,7 +206,7 @@ public class PatternOperatorNot {
             testCase.add("D3", "b", events.getEvent("B3"), "d", events.getEvent("D3"));
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -223,7 +222,7 @@ public class PatternOperatorNot {
             desc.add("B3", "a", events.getEvent("B3"));
             results.addTest(desc);
 
-            PatternTestHarness util = new PatternTestHarness(events, results, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, results);
             util.runTest(env);
         }
     }

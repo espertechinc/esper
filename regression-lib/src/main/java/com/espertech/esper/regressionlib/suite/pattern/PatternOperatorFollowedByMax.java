@@ -21,7 +21,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
 import com.espertech.esper.regressionlib.support.client.SupportConditionHandlerFactory;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +132,7 @@ public class PatternOperatorFollowedByMax {
         public void run(RegressionEnvironment env) {
             env.advanceTime(0);
             ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
-            Assert.assertEquals("default", context.getRuntimeURI());
+            assertEquals("default", context.getRuntimeURI());
             SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
             handler.getAndResetContexts();
 
@@ -210,7 +209,7 @@ public class PatternOperatorFollowedByMax {
     private static class PatternSingleMaxSimple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
-            Assert.assertEquals(env.runtimeURI(), context.getRuntimeURI());
+            assertEquals(env.runtimeURI(), context.getRuntimeURI());
             SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
 
             String expression = "@name('s0') select a.id as a, b.id as b from pattern [every a=SupportBean_A -[2]> b=SupportBean_B]";
@@ -281,11 +280,11 @@ public class PatternOperatorFollowedByMax {
         env.assertThat(() -> {
             assertEquals(1, contexts.size());
             ConditionHandlerContext context = contexts.get(0);
-            Assert.assertEquals("default", context.getRuntimeURI());
-            Assert.assertEquals(env.statement("s0").getDeploymentId(), context.getDeploymentId());
-            Assert.assertEquals("s0", context.getStatementName());
+            assertEquals("default", context.getRuntimeURI());
+            assertEquals(env.statement("s0").getDeploymentId(), context.getDeploymentId());
+            assertEquals("s0", context.getStatementName());
             ConditionPatternSubexpressionMax condition = (ConditionPatternSubexpressionMax) context.getCondition();
-            Assert.assertEquals(max, condition.getMax());
+            assertEquals(max, condition.getMax());
             contexts.clear();
         });
     }

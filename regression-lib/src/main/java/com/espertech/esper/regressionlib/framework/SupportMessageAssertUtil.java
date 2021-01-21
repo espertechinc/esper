@@ -21,7 +21,6 @@ import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.compiler.client.EPCompilerProvider;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
-import org.junit.Assert;
 
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -116,7 +115,7 @@ public class SupportMessageAssertUtil {
     public static void tryInvalidProperty(EventBean event, String propertyName) {
         try {
             event.get(propertyName);
-            Assert.fail();
+            fail();
         } catch (PropertyAccessException ex) {
             // expected
             assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");
@@ -126,7 +125,7 @@ public class SupportMessageAssertUtil {
     public static void tryInvalidGetFragment(EventBean event, String propertyName) {
         try {
             event.getFragment(propertyName);
-            Assert.fail();
+            fail();
         } catch (PropertyAccessException ex) {
             // expected
             assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");

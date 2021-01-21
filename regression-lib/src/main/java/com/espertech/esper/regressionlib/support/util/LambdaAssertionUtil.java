@@ -17,10 +17,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalAssertionBuilder;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import org.junit.Assert;
 
 import java.io.StringWriter;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class LambdaAssertionUtil {
 
@@ -42,7 +44,7 @@ public class LambdaAssertionUtil {
 
     public static void assertValuesArrayScalar(Object result, Object... expected) {
         if (expected == null) {
-            Assert.assertNull(result);
+            assertNull(result);
             return;
         }
         Object[] arr = ((Collection) result).toArray();
@@ -72,9 +74,9 @@ public class LambdaAssertionUtil {
             return;
         }
         String[] expected = expectedList.split(",");
-        Assert.assertEquals("Received: " + getIds(arr), expected.length, arr.length);
+        assertEquals("Received: " + getIds(arr), expected.length, arr.length);
         for (int i = 0; i < expected.length; i++) {
-            Assert.assertEquals(expected[i], arr[i].getId());
+            assertEquals(expected[i], arr[i].getId());
         }
     }
 

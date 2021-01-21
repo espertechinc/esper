@@ -16,13 +16,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeRowPerGroupHaving {
     private final static String SYMBOL_DELL = "DELL";
@@ -136,8 +135,8 @@ public class ResultSetQueryTypeRowPerGroupHaving {
             assertNull(oldData);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(newSum, newData[0].get("mySum"));
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(newSum, newData[0].get("mySum"));
+            assertEquals(symbol, newData[0].get("symbol"));
 
             listener.reset();
         });
@@ -151,8 +150,8 @@ public class ResultSetQueryTypeRowPerGroupHaving {
             assertNull(newData);
             assertEquals(1, oldData.length);
 
-            Assert.assertEquals(newSum, oldData[0].get("mySum"));
-            Assert.assertEquals(symbol, oldData[0].get("symbol"));
+            assertEquals(newSum, oldData[0].get("mySum"));
+            assertEquals(symbol, oldData[0].get("symbol"));
 
             listener.reset();
         });

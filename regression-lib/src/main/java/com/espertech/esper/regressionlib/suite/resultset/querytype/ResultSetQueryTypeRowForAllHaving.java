@@ -15,11 +15,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class ResultSetQueryTypeRowForAllHaving {
@@ -95,7 +95,7 @@ public class ResultSetQueryTypeRowForAllHaving {
 
     private static void tryAssert(RegressionEnvironment env) {
         // assert select result type
-        env.assertStatement("s0", statement -> Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("mySum")));
+        env.assertStatement("s0", statement -> assertEquals(Long.class, statement.getEventType().getPropertyType("mySum")));
 
         sendTimerEvent(env, 0);
         sendEvent(env, 10);
@@ -109,13 +109,13 @@ public class ResultSetQueryTypeRowForAllHaving {
 
         sendTimerEvent(env, 8000);
         sendEvent(env, -5);
-        env.assertListener("s0", listener -> Assert.assertEquals(20L, listener.getAndResetLastNewData()[0].get("mySum")));
+        env.assertListener("s0", listener -> assertEquals(20L, listener.getAndResetLastNewData()[0].get("mySum")));
 
         env.milestone(1);
 
         sendTimerEvent(env, 10000);
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(20L, listener.getLastOldData()[0].get("mySum"));
+            assertEquals(20L, listener.getLastOldData()[0].get("mySum"));
             assertNull(listener.getAndResetLastNewData());
         });
     }

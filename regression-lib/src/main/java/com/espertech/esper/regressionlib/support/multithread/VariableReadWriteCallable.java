@@ -18,11 +18,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertEquals;
 
 public class VariableReadWriteCallable implements Callable {
     private final EPRuntime runtime;
@@ -61,7 +62,7 @@ public class VariableReadWriteCallable implements Callable {
                 // determining if the set operation is atomic
                 runtime.getEventService().sendEventBean(new SupportBean_A(Integer.toString(threadNum)), SupportBean_A.class.getSimpleName());
                 EventBean received = selectListener.assertOneGetNewAndReset();
-                Assert.assertEquals(received.get("var1"), received.get("var2"));
+                assertEquals(received.get("var1"), received.get("var2"));
             }
         } catch (AssertionFailedError ex) {
             log.error("Assertion error in thread " + Thread.currentThread().getId(), ex);

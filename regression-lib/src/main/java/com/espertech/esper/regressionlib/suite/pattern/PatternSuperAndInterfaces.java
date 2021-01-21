@@ -168,7 +168,7 @@ public class PatternSuperAndInterfaces implements RegressionExecution {
         testCase.add("e10", "a", events.getEvent("e10"));
         testCaseList.addTest(testCase);
 
-        PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+        PatternTestHarness util = new PatternTestHarness(events, testCaseList);
         util.runTest(env);
     }
 }

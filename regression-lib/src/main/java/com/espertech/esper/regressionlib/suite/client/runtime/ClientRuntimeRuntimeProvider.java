@@ -32,8 +32,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.TestCase.assertSame;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ClientRuntimeRuntimeProvider {

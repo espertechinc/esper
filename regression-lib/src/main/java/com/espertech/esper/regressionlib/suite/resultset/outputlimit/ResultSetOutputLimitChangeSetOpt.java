@@ -17,9 +17,10 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementSPI;
-import org.junit.Assert;
 
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetOutputLimitChangeSetOpt implements RegressionExecution {
     private final boolean enableOutputLimitOpt;
@@ -129,7 +130,7 @@ public class ResultSetOutputLimitChangeSetOpt implements RegressionExecution {
             StatementResourceHolder resources = spi.getStatementContext().getStatementCPCacheService().getStatementResourceService().getResourcesUnpartitioned();
             OutputProcessView outputProcessView = (OutputProcessView) resources.getFinalView();
             try {
-                Assert.assertEquals("enableOutputLimitOpt=" + enableOutputLimitOpt, numExpectedChangeset, outputProcessView.getNumChangesetRows());
+                assertEquals("enableOutputLimitOpt=" + enableOutputLimitOpt, numExpectedChangeset, outputProcessView.getNumChangesetRows());
             } catch (UnsupportedOperationException ex) {
                 // allowed
             }

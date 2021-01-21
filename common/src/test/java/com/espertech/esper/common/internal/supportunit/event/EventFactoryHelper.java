@@ -16,6 +16,8 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
+import static org.junit.Assert.fail;
+
 public class EventFactoryHelper {
     public static EventBean makeEvent(String id) {
         SupportBeanString bean = new SupportBeanString(id);
@@ -50,7 +52,7 @@ public class EventFactoryHelper {
         for (int i = 0; i < eventArr.length; i++) {
             eventArr[i] = events.get(ids[i]);
             if (eventArr[i] == null) {
-                TestCase.fail();
+                fail();
             }
         }
         return eventArr;
@@ -61,7 +63,7 @@ public class EventFactoryHelper {
         for (int i = 0; i < ids.length; i++) {
             EventBean bean = events.get(ids[i]);
             if (bean == null) {
-                TestCase.fail();
+                fail();
             }
             eventList.add(bean);
         }

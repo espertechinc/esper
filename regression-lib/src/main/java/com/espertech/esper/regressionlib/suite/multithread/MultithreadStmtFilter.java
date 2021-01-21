@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.support.multithread.GeneratorIteratorCa
 import com.espertech.esper.regressionlib.support.multithread.MTListener;
 import com.espertech.esper.regressionlib.support.multithread.SendEventCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
-import org.junit.Assert;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,7 +75,7 @@ public class MultithreadStmtFilter implements RegressionExecution {
         SupportCompileDeployUtil.assertFutures(future);
 
         // verify results
-        Assert.assertEquals(numMessages * numThreads, listener.getValues().size());
+        assertEquals(numMessages * numThreads, listener.getValues().size());
         TreeSet<Integer> result = new TreeSet<Integer>();
         for (Object row : listener.getValues()) {
             result.add(((Number) row).intValue());

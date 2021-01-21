@@ -17,7 +17,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTimestamp;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -605,8 +604,8 @@ public class ViewTimeOrderAndTimeToLive {
             sendTimer(env, 30000);
             env.assertListener("s0", listener -> {
                 assertNull(listener.getLastNewData());
-                Assert.assertEquals(1, listener.getOldDataList().size());
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(2, listener.getLastOldData().length);
                 EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getLastOldData(), "id".split(","), new Object[][]{{"E4"}, {"E3"}});
                 listener.reset();
             });
@@ -657,13 +656,13 @@ public class ViewTimeOrderAndTimeToLive {
 
             sendEvent(env, "E2", 21000);
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals("E2", theEvent.get("id"));
-                Assert.assertEquals("E2", theEvent.get("prevIdZero"));
-                Assert.assertEquals("E1", theEvent.get("prevIdOne"));
-                Assert.assertEquals("E1", theEvent.get("priorIdOne"));
-                Assert.assertEquals("E1", theEvent.get("prevTailIdZero"));
-                Assert.assertEquals("E2", theEvent.get("prevTailIdOne"));
-                Assert.assertEquals(2L, theEvent.get("prevCountId"));
+                assertEquals("E2", theEvent.get("id"));
+                assertEquals("E2", theEvent.get("prevIdZero"));
+                assertEquals("E1", theEvent.get("prevIdOne"));
+                assertEquals("E1", theEvent.get("priorIdOne"));
+                assertEquals("E1", theEvent.get("prevTailIdZero"));
+                assertEquals("E2", theEvent.get("prevTailIdOne"));
+                assertEquals(2L, theEvent.get("prevCountId"));
                 EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("prevWindowId"), new Object[]{"E2", "E1"});
             });
             env.assertPropsPerRowIterator("s0", fields,
@@ -671,13 +670,13 @@ public class ViewTimeOrderAndTimeToLive {
 
             sendEvent(env, "E3", 22000);
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals("E3", theEvent.get("id"));
-                Assert.assertEquals("E2", theEvent.get("prevIdZero"));
-                Assert.assertEquals("E3", theEvent.get("prevIdOne"));
-                Assert.assertEquals("E2", theEvent.get("priorIdOne"));
-                Assert.assertEquals("E1", theEvent.get("prevTailIdZero"));
-                Assert.assertEquals("E3", theEvent.get("prevTailIdOne"));
-                Assert.assertEquals(3L, theEvent.get("prevCountId"));
+                assertEquals("E3", theEvent.get("id"));
+                assertEquals("E2", theEvent.get("prevIdZero"));
+                assertEquals("E3", theEvent.get("prevIdOne"));
+                assertEquals("E2", theEvent.get("priorIdOne"));
+                assertEquals("E1", theEvent.get("prevTailIdZero"));
+                assertEquals("E3", theEvent.get("prevTailIdOne"));
+                assertEquals(3L, theEvent.get("prevCountId"));
                 EPAssertionUtil.assertEqualsExactOrder((Object[]) theEvent.get("prevWindowId"), new Object[]{"E2", "E3", "E1"});
             });
             env.assertPropsPerRowIterator("s0", fields,
@@ -686,17 +685,17 @@ public class ViewTimeOrderAndTimeToLive {
             sendTimer(env, 31000);
             env.assertListener("s0", listener -> {
                 assertNull(listener.getLastNewData());
-                Assert.assertEquals(1, listener.getOldDataList().size());
-                Assert.assertEquals(1, listener.getLastOldData().length);
+                assertEquals(1, listener.getOldDataList().size());
+                assertEquals(1, listener.getLastOldData().length);
                 EventBean theEvent = env.listener("s0").getLastOldData()[0];
-                Assert.assertEquals("E2", theEvent.get("id"));
-                Assert.assertNull(theEvent.get("prevIdZero"));
-                Assert.assertNull(theEvent.get("prevIdOne"));
-                Assert.assertEquals("E1", theEvent.get("priorIdOne"));
-                Assert.assertNull(theEvent.get("prevTailIdZero"));
-                Assert.assertNull(theEvent.get("prevTailIdOne"));
-                Assert.assertNull(theEvent.get("prevCountId"));
-                Assert.assertNull(theEvent.get("prevWindowId"));
+                assertEquals("E2", theEvent.get("id"));
+                assertNull(theEvent.get("prevIdZero"));
+                assertNull(theEvent.get("prevIdOne"));
+                assertEquals("E1", theEvent.get("priorIdOne"));
+                assertNull(theEvent.get("prevTailIdZero"));
+                assertNull(theEvent.get("prevTailIdOne"));
+                assertNull(theEvent.get("prevCountId"));
+                assertNull(theEvent.get("prevWindowId"));
                 env.listener("s0").reset();
             });
             env.assertPropsPerRowIterator("s0", fields,

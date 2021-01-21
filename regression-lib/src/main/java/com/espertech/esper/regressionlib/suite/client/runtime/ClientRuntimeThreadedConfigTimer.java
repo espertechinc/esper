@@ -18,13 +18,13 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ClientRuntimeThreadedConfigTimer implements RegressionExecutionWithConfigure {
@@ -85,7 +85,7 @@ public class ClientRuntimeThreadedConfigTimer implements RegressionExecutionWith
             }
         }
 
-        Assert.assertEquals(100, listener.getNewEvents().size());
+        assertEquals(100, listener.getNewEvents().size());
         // analyze result
         //List<Pair<Long, EventBean[]>> events = listener.getNewEvents();
         //OccuranceResult result = OccuranceAnalyzer.analyze(events, new long[] {100 * 1000 * 1000L, 10*1000 * 1000L});

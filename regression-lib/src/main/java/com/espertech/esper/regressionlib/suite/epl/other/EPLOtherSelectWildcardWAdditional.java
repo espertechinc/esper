@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
-import org.junit.Assert;
 
 import java.util.*;
 
@@ -50,7 +49,7 @@ public class EPLOtherSelectWildcardWAdditional {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String text = "select *, myString||myString as concat from SupportBeanSimple#length(5)";
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
 
@@ -213,17 +212,17 @@ public class EPLOtherSelectWildcardWAdditional {
         SupportBeanSimple theEvent = sendSimpleEvent(env, "string");
 
         env.assertListener("s0", listener -> {
-            Assert.assertEquals("stringstring", listener.getLastNewData()[0].get("concat"));
+            assertEquals("stringstring", listener.getLastNewData()[0].get("concat"));
             Map<String, Object> properties = new HashMap<>();
             properties.put("concat", "stringstring");
             properties.put("myString", "string");
             properties.put("myInt", 0);
             assertProperties(env, "s0", properties);
 
-            Assert.assertEquals(Pair.class, listener.getLastNewData()[0].getEventType().getUnderlyingType());
+            assertEquals(Pair.class, listener.getLastNewData()[0].getEventType().getUnderlyingType());
             assertTrue(listener.getLastNewData()[0].getUnderlying() instanceof Pair);
             Pair pair = (Pair) listener.getLastNewData()[0].getUnderlying();
-            Assert.assertEquals(theEvent, pair.getFirst());
+            assertEquals(theEvent, pair.getFirst());
             assertEquals("stringstring", ((Map) pair.getSecond()).get("concat"));
         });
     }
@@ -245,15 +244,15 @@ public class EPLOtherSelectWildcardWAdditional {
         env.assertListener("s0", listener -> {
             EventBean eventBean = listener.getLastNewData()[0];
 
-            Assert.assertEquals("0ma0", eventBean.get("indexed[0].mapped('0ma').value"));
-            Assert.assertEquals("0ma1", eventBean.get("indexed[0].mapped('0mb').value"));
-            Assert.assertEquals("1ma0", eventBean.get("indexed[1].mapped('1ma').value"));
-            Assert.assertEquals("1ma1", eventBean.get("indexed[1].mapped('1mb').value"));
+            assertEquals("0ma0", eventBean.get("indexed[0].mapped('0ma').value"));
+            assertEquals("0ma1", eventBean.get("indexed[0].mapped('0mb').value"));
+            assertEquals("1ma0", eventBean.get("indexed[1].mapped('1ma').value"));
+            assertEquals("1ma1", eventBean.get("indexed[1].mapped('1mb').value"));
 
-            Assert.assertEquals("0ma0", eventBean.get("array[0].mapped('0ma').value"));
-            Assert.assertEquals("1ma1", eventBean.get("array[1].mapped('1mb').value"));
+            assertEquals("0ma0", eventBean.get("array[0].mapped('0ma').value"));
+            assertEquals("1ma1", eventBean.get("array[1].mapped('1mb').value"));
 
-            Assert.assertEquals("0ma00ma1", eventBean.get("concat"));
+            assertEquals("0ma00ma1", eventBean.get("concat"));
         });
     }
 
@@ -261,7 +260,7 @@ public class EPLOtherSelectWildcardWAdditional {
         env.assertListener(statementName, listener -> {
             EventBean theEvent = listener.getLastNewData()[0];
             for (String property : properties.keySet()) {
-                Assert.assertEquals(properties.get(property), theEvent.get(property));
+                assertEquals(properties.get(property), theEvent.get(property));
             }
         });
     }

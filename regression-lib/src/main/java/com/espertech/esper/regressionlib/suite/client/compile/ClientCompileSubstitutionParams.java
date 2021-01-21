@@ -35,7 +35,6 @@ import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPDeploySubstitutionParameterException;
 import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterContext;
 import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.*;
@@ -160,7 +159,7 @@ public class ClientCompileSubstitutionParams {
             EPCompiled compiled;
             if (soda) {
                 EPStatementObjectModel copy = env.eplToModel(epl);
-                Assert.assertEquals(epl.trim(), copy.toEPL());
+                assertEquals(epl.trim(), copy.toEPL());
                 compiled = env.compile(copy, new CompilerArguments(env.getConfiguration()));
             } else {
                 compiled = env.compile(epl);

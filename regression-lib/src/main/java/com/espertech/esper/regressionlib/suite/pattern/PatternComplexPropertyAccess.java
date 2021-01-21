@@ -16,12 +16,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 public class PatternComplexPropertyAccess {
@@ -98,7 +98,7 @@ public class PatternComplexPropertyAccess {
             testCase = new EventExpressionCase("s=SupportBeanCombinedProps(array[0].mapped('xxx').value = 'x')");
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -144,7 +144,7 @@ public class PatternComplexPropertyAccess {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String patternText = "select * from pattern [every a=" + type + " -> b=" + type + "(indexed[0]=a.indexed[0])]";
-            Assert.assertEquals(patternText, model.toEPL());
+            assertEquals(patternText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");

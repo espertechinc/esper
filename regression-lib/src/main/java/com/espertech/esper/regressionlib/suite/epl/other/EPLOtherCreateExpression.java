@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCollection;
 import com.espertech.esper.regressionlib.support.util.LambdaAssertionUtil;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -118,13 +117,13 @@ public class EPLOtherCreateExpression {
             // test SODA
             String eplExpr = "@name('expr') @public create expression somescript(i1) ['a']";
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
-            Assert.assertEquals(eplExpr, modelExpr.toEPL());
+            assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
             env.assertStatement("expr", statement -> assertEquals(eplExpr, statement.getProperty(StatementProperty.EPL)));
 
             String eplSelect = "@name('select') select somescript(1) from SupportBean";
             EPStatementObjectModel modelSelect = env.eplToModel(eplSelect);
-            Assert.assertEquals(eplSelect, modelSelect.toEPL());
+            assertEquals(eplSelect, modelSelect.toEPL());
             env.compileDeploy(modelSelect, path);
             env.assertStatement("select", statement -> assertEquals(eplSelect, statement.getProperty(StatementProperty.EPL)));
 
@@ -163,14 +162,14 @@ public class EPLOtherCreateExpression {
             // test SODA
             String eplExpr = "@name('expr') @public create expression JoinMultiplication {(s1,s2) => s1.intPrimitive*s2.id}";
             EPStatementObjectModel modelExpr = env.eplToModel(eplExpr);
-            Assert.assertEquals(eplExpr, modelExpr.toEPL());
+            assertEquals(eplExpr, modelExpr.toEPL());
             env.compileDeploy(modelExpr, path);
             env.assertStatement("expr", statement -> assertEquals(eplExpr, statement.getProperty(StatementProperty.EPL)));
 
             // test SODA and join and 2-stream parameter
             String eplJoin = "@name('join') select JoinMultiplication(sb,s0) from SupportBean#lastevent as sb, SupportBean_S0#lastevent as s0";
             EPStatementObjectModel modelJoin = env.eplToModel(eplJoin);
-            Assert.assertEquals(eplJoin, modelJoin.toEPL());
+            assertEquals(eplJoin, modelJoin.toEPL());
             env.compileDeploy(modelJoin, path);
             env.assertStatement("join", statement -> assertEquals(eplJoin, statement.getProperty(StatementProperty.EPL)));
             env.undeployAll();

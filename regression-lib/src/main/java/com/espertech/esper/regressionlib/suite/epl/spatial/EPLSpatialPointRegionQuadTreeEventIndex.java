@@ -36,9 +36,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.support.util.SupportSpatialUtil.*;
-import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLSpatialPointRegionQuadTreeEventIndex {
     private final static List<BoundingBox> BOXES = Arrays.asList(

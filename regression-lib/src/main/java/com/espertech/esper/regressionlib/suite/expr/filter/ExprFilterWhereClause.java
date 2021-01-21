@@ -15,13 +15,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 
 public class ExprFilterWhereClause {
 
@@ -85,12 +85,12 @@ public class ExprFilterWhereClause {
 
             sendSupportBeanEvent(env, 2, 2, 2, 2);
             env.assertEventNew("s0", event -> {
-                Assert.assertEquals(Long.class, event.getEventType().getPropertyType("p1"));
-                Assert.assertEquals(4L, event.get("p1"));
-                Assert.assertEquals(Double.class, event.getEventType().getPropertyType("p2"));
-                Assert.assertEquals(4d, event.get("p2"));
-                Assert.assertEquals(Double.class, event.getEventType().getPropertyType("p3"));
-                Assert.assertEquals(1d, event.get("p3"));
+                assertEquals(Long.class, event.getEventType().getPropertyType("p1"));
+                assertEquals(4L, event.get("p1"));
+                assertEquals(Double.class, event.getEventType().getPropertyType("p2"));
+                assertEquals(4d, event.get("p2"));
+                assertEquals(Double.class, event.getEventType().getPropertyType("p3"));
+                assertEquals(1d, event.get("p3"));
             });
 
             env.undeployAll();

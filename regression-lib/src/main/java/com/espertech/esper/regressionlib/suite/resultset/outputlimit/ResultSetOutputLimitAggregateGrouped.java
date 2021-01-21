@@ -24,7 +24,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestResult;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -132,10 +131,10 @@ public class ResultSetOutputLimitAggregateGrouped {
                 EventBean[] events = listener.getNewDataListFlattened();
                 env.listenerReset("s0");
                 assertEquals(2, events.length);
-                Assert.assertEquals("ATT", events[0].get("theString"));
-                Assert.assertEquals(11, events[0].get("intPrimitive"));
-                Assert.assertEquals("IBM", events[1].get("theString"));
-                Assert.assertEquals(100, events[1].get("intPrimitive"));
+                assertEquals("ATT", events[0].get("theString"));
+                assertEquals(11, events[0].get("intPrimitive"));
+                assertEquals("IBM", events[1].get("theString"));
+                assertEquals(100, events[1].get("intPrimitive"));
             });
             env.undeployAll();
 
@@ -150,12 +149,12 @@ public class ResultSetOutputLimitAggregateGrouped {
             env.assertListener("s0", listener -> {
                 EventBean[] events = listener.getNewDataListFlattened();
                 assertEquals(3, events.length);
-                Assert.assertEquals("IBM", events[0].get("theString"));
-                Assert.assertEquals(10, events[0].get("intPrimitive"));
-                Assert.assertEquals("ATT", events[1].get("theString"));
-                Assert.assertEquals(11, events[1].get("intPrimitive"));
-                Assert.assertEquals("IBM", events[2].get("theString"));
-                Assert.assertEquals(100, events[2].get("intPrimitive"));
+                assertEquals("IBM", events[0].get("theString"));
+                assertEquals(10, events[0].get("intPrimitive"));
+                assertEquals("ATT", events[1].get("theString"));
+                assertEquals(11, events[1].get("intPrimitive"));
+                assertEquals("IBM", events[2].get("theString"));
+                assertEquals(100, events[2].get("intPrimitive"));
             });
 
             env.undeployAll();
@@ -566,11 +565,11 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(2, result.getFirst().length);
-                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-                Assert.assertEquals(1, result.getSecond().length);
-                Assert.assertEquals(2.0, result.getSecond()[0].get("maxVol"));
+                assertEquals(2, result.getFirst().length);
+                assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                assertEquals(1, result.getSecond().length);
+                assertEquals(2.0, result.getSecond()[0].get("maxVol"));
             });
 
             env.undeployAll();
@@ -679,12 +678,12 @@ public class ResultSetOutputLimitAggregateGrouped {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(2, result.getFirst().length);
-                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-                Assert.assertEquals(2, result.getSecond().length);
-                Assert.assertEquals(null, result.getSecond()[0].get("maxVol"));
-                Assert.assertEquals(null, result.getSecond()[1].get("maxVol"));
+                assertEquals(2, result.getFirst().length);
+                assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                assertEquals(2, result.getSecond().length);
+                assertEquals(null, result.getSecond()[0].get("maxVol"));
+                assertEquals(null, result.getSecond()[1].get("maxVol"));
             });
 
             env.undeployAll();
@@ -851,7 +850,7 @@ public class ResultSetOutputLimitAggregateGrouped {
 
         sendEvent(env, "IBM", 6, 1);
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(3, listener.getLastNewData().length);
+            assertEquals(3, listener.getLastNewData().length);
             EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"IBM", 4L, 18.0});
             EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"IBM", 5L, 18.0});
             EPAssertionUtil.assertProps(listener.getLastNewData()[2], fields, new Object[]{"IBM", 6L, 19.0});
@@ -860,7 +859,7 @@ public class ResultSetOutputLimitAggregateGrouped {
 
         sendTimer(env, 11000);
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(3, listener.getLastOldData().length);
+            assertEquals(3, listener.getLastOldData().length);
             EPAssertionUtil.assertProps(listener.getLastOldData()[0], fields, new Object[]{"IBM", 1L, 11.0});
             EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"IBM", 2L, 11.0});
             env.listenerReset("s0");
@@ -871,9 +870,9 @@ public class ResultSetOutputLimitAggregateGrouped {
         // assert select result type
         env.assertStatement("s0", statement -> {
             EventType eventType = statement.getEventType();
-            Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
-            Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
-            Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+            assertEquals(String.class, eventType.getPropertyType("symbol"));
+            assertEquals(Long.class, eventType.getPropertyType("volume"));
+            assertEquals(Double.class, eventType.getPropertyType("mySum"));
         });
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
@@ -910,9 +909,9 @@ public class ResultSetOutputLimitAggregateGrouped {
         // assert select result type
         env.assertStatement("s0", statement -> {
             EventType eventType = statement.getEventType();
-            Assert.assertEquals(String.class, eventType.getPropertyType("symbol"));
-            Assert.assertEquals(Long.class, eventType.getPropertyType("volume"));
-            Assert.assertEquals(Double.class, eventType.getPropertyType("mySum"));
+            assertEquals(String.class, eventType.getPropertyType("symbol"));
+            assertEquals(Long.class, eventType.getPropertyType("volume"));
+            assertEquals(Double.class, eventType.getPropertyType("mySum"));
         });
 
         sendEvent(env, SYMBOL_IBM, 500, 20);
@@ -1303,9 +1302,9 @@ public class ResultSetOutputLimitAggregateGrouped {
         env.assertListener("s0", listener -> {
             EventBean[] newData = listener.getLastNewData();
             assertEquals(1, newData.length);
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(mySum, newData[0].get("mySum"));
-            Assert.assertEquals(volume, newData[0].get("volume"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(mySum, newData[0].get("mySum"));
+            assertEquals(volume, newData[0].get("volume"));
             listener.reset();
         });
     }
@@ -1313,9 +1312,9 @@ public class ResultSetOutputLimitAggregateGrouped {
     private static void tryAssertionSingle(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
-            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
         });
 
         sendEvent(env, SYMBOL_DELL, 10, 100);

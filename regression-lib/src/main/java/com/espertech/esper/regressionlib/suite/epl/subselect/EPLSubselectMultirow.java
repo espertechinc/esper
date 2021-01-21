@@ -17,11 +17,11 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class EPLSubselectMultirow {
@@ -54,8 +54,8 @@ public class EPLSubselectMultirow {
                 for (int i = 0; i < rows.length; i++) {
                     String message = "Failed assertion for " + rows[i][0];
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                    assertEquals(message, rows[i][0], prop.getPropertyName());
+                    assertEquals(message, rows[i][1], prop.getPropertyType());
                 }
             });
 
@@ -101,8 +101,8 @@ public class EPLSubselectMultirow {
                 for (int i = 0; i < rows.length; i++) {
                     String message = "Failed assertion for " + rows[i][0];
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                    assertEquals(message, rows[i][0], prop.getPropertyName());
+                    assertEquals(message, rows[i][1], prop.getPropertyType());
                 }
             });
 
@@ -114,7 +114,7 @@ public class EPLSubselectMultirow {
             env.sendEventBean(new SupportBean_S0(2, "T1"));
 
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(SupportBean[].class, received.get("val").getClass());
+                assertEquals(SupportBean[].class, received.get("val").getClass());
                 EPAssertionUtil.assertEqualsAnyOrder((Object[]) received.get("val"), new Object[]{sb1});
             });
 

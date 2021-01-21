@@ -15,9 +15,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.EnumSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class FilterTestCaseSingleFieldExecution implements RegressionExecution {
     private final FilterTestCaseSingleField testCase;
@@ -48,7 +50,7 @@ public class FilterTestCaseSingleFieldExecution implements RegressionExecution {
 
         for (int i = 0; i < testCase.getValues().length; i++) {
             sendBean(env, testCase.getFieldName(), testCase.getValues()[i]);
-            Assert.assertEquals("Listener invocation unexpected for " + testCase.getFilterExpr() + " field " + testCase.getFieldName() + "=" + testCase.getValues()[i], testCase.getIsInvoked()[i], env.listener(stmtName).getIsInvokedAndReset());
+            assertEquals("Listener invocation unexpected for " + testCase.getFilterExpr() + " field " + testCase.getFieldName() + "=" + testCase.getValues()[i], testCase.getIsInvoked()[i], env.listener(stmtName).getIsInvokedAndReset());
         }
 
         env.milestone(1);
@@ -57,7 +59,7 @@ public class FilterTestCaseSingleFieldExecution implements RegressionExecution {
 
         for (int i = 0; i < testCase.getValues().length; i++) {
             sendBean(env, testCase.getFieldName(), testCase.getValues()[i]);
-            Assert.assertFalse(initialListener.isInvoked());
+            assertFalse(initialListener.isInvoked());
         }
     }
 

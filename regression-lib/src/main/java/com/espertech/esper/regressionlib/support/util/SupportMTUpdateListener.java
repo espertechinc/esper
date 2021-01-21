@@ -14,11 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 
 public class SupportMTUpdateListener implements UpdateListener {
@@ -62,13 +63,13 @@ public class SupportMTUpdateListener implements UpdateListener {
     }
 
     public synchronized EventBean assertOneGetNewAndReset() {
-        Assert.assertTrue(isInvoked);
+        assertTrue(isInvoked);
 
-        Assert.assertEquals(1, newDataList.size());
-        Assert.assertEquals(1, oldDataList.size());
+        assertEquals(1, newDataList.size());
+        assertEquals(1, oldDataList.size());
 
-        Assert.assertEquals(1, lastNewData.length);
-        Assert.assertNull(lastOldData);
+        assertEquals(1, lastNewData.length);
+        assertNull(lastOldData);
 
         EventBean lastNew = lastNewData[0];
         reset();
@@ -76,13 +77,13 @@ public class SupportMTUpdateListener implements UpdateListener {
     }
 
     public synchronized EventBean assertOneGetOldAndReset() {
-        Assert.assertTrue(isInvoked);
+        assertTrue(isInvoked);
 
-        Assert.assertEquals(1, newDataList.size());
-        Assert.assertEquals(1, oldDataList.size());
+        assertEquals(1, newDataList.size());
+        assertEquals(1, oldDataList.size());
 
-        Assert.assertEquals(1, lastOldData.length);
-        Assert.assertNull(lastNewData);
+        assertEquals(1, lastOldData.length);
+        assertNull(lastNewData);
 
         EventBean lastNew = lastOldData[0];
         reset();

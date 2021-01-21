@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -632,7 +631,7 @@ public class ResultSetQueryTypeRowPerGroup {
 
             sendEvent(env, SYMBOL_IBM, 5);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"IBM", 5.0, 3L});
                 EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"IBM", 5.0, 2L});
                 EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"DELL", 10.0, 1L});
@@ -643,7 +642,7 @@ public class ResultSetQueryTypeRowPerGroup {
 
             sendEvent(env, SYMBOL_IBM, 5);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 EPAssertionUtil.assertProps(listener.getLastNewData()[1], fields, new Object[]{"IBM", 5.0, 4L});
                 EPAssertionUtil.assertProps(listener.getLastOldData()[1], fields, new Object[]{"IBM", 5.0, 3L});
                 EPAssertionUtil.assertProps(listener.getLastNewData()[0], fields, new Object[]{"DELL", 11.0, 0L});
@@ -677,7 +676,7 @@ public class ResultSetQueryTypeRowPerGroup {
             sendTimer(env, 2000);
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> received = listener.getDataListsFlattened();
-                Assert.assertEquals("IBM", received.getFirst()[0].get("symbol"));
+                assertEquals("IBM", received.getFirst()[0].get("symbol"));
             });
 
             env.undeployAll();
@@ -731,13 +730,13 @@ public class ResultSetQueryTypeRowPerGroup {
             assertEquals(1, oldData.length);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbol, oldData[0].get("symbol"));
-            Assert.assertEquals(oldSum, oldData[0].get("mySum"));
-            Assert.assertEquals(oldAvg, oldData[0].get("myAvg"));
+            assertEquals(symbol, oldData[0].get("symbol"));
+            assertEquals(oldSum, oldData[0].get("mySum"));
+            assertEquals(oldAvg, oldData[0].get("myAvg"));
 
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(newSum, newData[0].get("mySum"));
-            Assert.assertEquals("newData myAvg wrong", newAvg, newData[0].get("myAvg"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(newSum, newData[0].get("mySum"));
+            assertEquals("newData myAvg wrong", newAvg, newData[0].get("myAvg"));
 
             listener.reset();
         });

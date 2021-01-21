@@ -15,8 +15,8 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class SupportContextPropUtil {
     public static void assertContextProps(RegressionEnvironment env, String stmtName, String contextName, int[] ids, String fieldsCSV, Object[][] values) {

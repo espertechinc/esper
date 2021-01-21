@@ -17,10 +17,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternGuardWhile {
     public static Collection<RegressionExecution> executions() {
@@ -91,7 +92,7 @@ public class PatternGuardWhile {
             PatternExpr every = Patterns.every(Patterns.filter(Filter.create("SupportBean_B"), "b"));
             PatternExpr patternGuarded = Patterns.whileGuard(every, guardExpr);
             model.setFromClause(FromClause.create(PatternStream.create(patternGuarded)));
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             testCase = new EventExpressionCase(model);
             testCase.add("B1", "b", events.getEvent("B1"));
             testCase.add("B2", "b", events.getEvent("B2"));
@@ -100,7 +101,7 @@ public class PatternGuardWhile {
             testCase = new EventExpressionCase("(every b=SupportBean_B) while(b.id != 'B1')");
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -120,7 +121,7 @@ public class PatternGuardWhile {
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("B1", 100));
-            env.assertListener("s0", listener -> Assert.assertEquals(2, listener.getAndResetLastNewData().length));
+            env.assertListener("s0", listener -> assertEquals(2, listener.getAndResetLastNewData().length));
 
             env.runtimeSetVariable("var", "myVariable", false);
 

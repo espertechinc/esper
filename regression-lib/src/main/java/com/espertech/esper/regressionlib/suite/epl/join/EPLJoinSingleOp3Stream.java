@@ -17,12 +17,12 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_C;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 public class EPLJoinSingleOp3Stream {
@@ -74,7 +74,7 @@ public class EPLJoinSingleOp3Stream {
                 "where streamA.id=streamB.id " +
                 "and streamB.id=streamC.id " +
                 "and streamA.id=streamC.id";
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
@@ -135,7 +135,7 @@ public class EPLJoinSingleOp3Stream {
 
     private static void assertEventsReceived(RegressionEnvironment env, SupportBean_A eventA, SupportBean_B eventB, SupportBean_C eventC) {
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getLastNewData().length);
+            assertEquals(1, listener.getLastNewData().length);
             assertSame(eventA, listener.getLastNewData()[0].get("streamA"));
             assertSame(eventB, listener.getLastNewData()[0].get("streamB"));
             assertSame(eventC, listener.getLastNewData()[0].get("streamC"));

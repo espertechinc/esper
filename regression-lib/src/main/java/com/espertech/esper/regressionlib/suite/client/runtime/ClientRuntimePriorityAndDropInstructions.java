@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -323,16 +322,16 @@ public class ClientRuntimePriorityAndDropInstructions {
             }
             assertFalse(env.listener(names[i]).isInvoked());
         }
-        Assert.assertEquals(stringValue, env.listener(names[index]).assertOneGetNewAndReset().get("theString"));
+        assertEquals(stringValue, env.listener(names[index]).assertOneGetNewAndReset().get("theString"));
     }
 
     private static void assertPrio(SupportListener listener, String theString, int[] prioValues) {
         EventBean[] events = listener.getNewDataListFlattened();
         assertEquals(prioValues.length, events.length);
         for (int i = 0; i < prioValues.length; i++) {
-            Assert.assertEquals(prioValues[i], events[i].get("prio"));
+            assertEquals(prioValues[i], events[i].get("prio"));
             if (theString != null) {
-                Assert.assertEquals(theString, events[i].get("theString"));
+                assertEquals(theString, events[i].get("theString"));
             }
         }
         listener.reset();

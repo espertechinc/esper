@@ -24,7 +24,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestResult;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -654,9 +653,9 @@ public class ResultSetOutputLimitRowPerGroup {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(2, result.getFirst().length);
+                assertEquals(2, result.getFirst().length);
                 EPAssertionUtil.assertPropsPerRow(result.getFirst(), fields, new Object[][]{{"JOIN_KEY", 1.0}, {"JOIN_KEY", 2.0}});
-                Assert.assertEquals(2, result.getSecond().length);
+                assertEquals(2, result.getSecond().length);
                 EPAssertionUtil.assertPropsPerRow(result.getSecond(), fields, new Object[][]{{"JOIN_KEY", null}, {"JOIN_KEY", 1.0}});
             });
 
@@ -818,9 +817,9 @@ public class ResultSetOutputLimitRowPerGroup {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(3, result.getFirst().length);
+                assertEquals(3, result.getFirst().length);
                 EPAssertionUtil.assertPropsPerRow(result.getFirst(), fields, new Object[][]{{"SYM1", 1.0}, {"SYM1", 2.0}, {"SYM1", null}});
-                Assert.assertEquals(3, result.getSecond().length);
+                assertEquals(3, result.getSecond().length);
                 EPAssertionUtil.assertPropsPerRow(result.getSecond(), fields, new Object[][]{{"SYM1", null}, {"SYM1", 1.0}, {"SYM1", 2.0}});
             });
 
@@ -980,9 +979,9 @@ public class ResultSetOutputLimitRowPerGroup {
     private static void tryAssertionLast(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
         });
 
         sendMDEvent(env, SYMBOL_DELL, 10);
@@ -1071,9 +1070,9 @@ public class ResultSetOutputLimitRowPerGroup {
     private static void tryAssertionSingle(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
         });
 
         sendMDEvent(env, SYMBOL_DELL, 10);
@@ -1090,9 +1089,9 @@ public class ResultSetOutputLimitRowPerGroup {
     private static void tryAssertionAll(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("myAvg"));
         });
 
         sendMDEvent(env, SYMBOL_IBM, 70);
@@ -1316,13 +1315,13 @@ public class ResultSetOutputLimitRowPerGroup {
             assertEquals(1, oldData.length);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbol, oldData[0].get("symbol"));
-            Assert.assertEquals(oldSum, oldData[0].get("mySum"));
-            Assert.assertEquals(oldAvg, oldData[0].get("myAvg"));
+            assertEquals(symbol, oldData[0].get("symbol"));
+            assertEquals(oldSum, oldData[0].get("mySum"));
+            assertEquals(oldAvg, oldData[0].get("myAvg"));
 
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(newSum, newData[0].get("mySum"));
-            Assert.assertEquals("newData myAvg wrong", newAvg, newData[0].get("myAvg"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(newSum, newData[0].get("mySum"));
+            assertEquals("newData myAvg wrong", newAvg, newData[0].get("myAvg"));
 
             listener.reset();
         });

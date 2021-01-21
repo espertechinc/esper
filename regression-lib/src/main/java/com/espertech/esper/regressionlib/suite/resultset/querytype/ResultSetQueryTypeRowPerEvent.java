@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,7 +86,7 @@ public class ResultSetQueryTypeRowPerEvent {
                 EventBean[] events = listener.getAndResetLastNewData();
                 assertEquals(2, events.length);
                 for (EventBean event : events) {
-                    Assert.assertEquals(b1, event.get("sb"));
+                    assertEquals(b1, event.get("sb"));
                     assertEquals(2, ((SupportBean_S0[]) event.get("rows")).length);
                 }
             });
@@ -96,7 +95,7 @@ public class ResultSetQueryTypeRowPerEvent {
             env.sendEventBean(new SupportBean_S0(1, "K1", "V3"));
             env.assertListener("s0", listener -> {
                 EventBean event = listener.assertOneGetNewAndReset();
-                Assert.assertEquals(b1, event.get("sb"));
+                assertEquals(b1, event.get("sb"));
                 assertEquals(3, ((SupportBean_S0[]) event.get("rows")).length);
             });
 
@@ -170,8 +169,8 @@ public class ResultSetQueryTypeRowPerEvent {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-                Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volSum"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("volSum"));
             });
 
             sendEvent(env, SYMBOL_DELL, 10000);
@@ -263,9 +262,9 @@ public class ResultSetQueryTypeRowPerEvent {
             assertNull(oldData);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals("IBM stats", newData[0].get("title"));
-            Assert.assertEquals(newAvg, newData[0].get("myAvg"));
-            Assert.assertEquals(newSum, newData[0].get("mySum"));
+            assertEquals("IBM stats", newData[0].get("title"));
+            assertEquals(newAvg, newData[0].get("myAvg"));
+            assertEquals(newSum, newData[0].get("mySum"));
 
             listener.reset();
         });
@@ -357,8 +356,8 @@ public class ResultSetQueryTypeRowPerEvent {
             assertNull(oldData);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(volSum, newData[0].get("volSum"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(volSum, newData[0].get("volSum"));
 
             listener.reset();
         });
@@ -373,11 +372,11 @@ public class ResultSetQueryTypeRowPerEvent {
             assertEquals(1, oldData.length);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbolOld, oldData[0].get("symbol"));
-            Assert.assertEquals(volSumOld, oldData[0].get("volSum"));
+            assertEquals(symbolOld, oldData[0].get("symbol"));
+            assertEquals(volSumOld, oldData[0].get("volSum"));
 
-            Assert.assertEquals(symbolNew, newData[0].get("symbol"));
-            Assert.assertEquals(volSumNew, newData[0].get("volSum"));
+            assertEquals(symbolNew, newData[0].get("symbol"));
+            assertEquals(volSumNew, newData[0].get("volSum"));
 
             listener.reset();
         });

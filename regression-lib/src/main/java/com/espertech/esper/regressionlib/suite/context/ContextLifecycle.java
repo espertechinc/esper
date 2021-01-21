@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDW;
 import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDWFactory;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
 import com.espertech.esper.runtime.client.EPUndeployException;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +24,7 @@ import java.util.EnumSet;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ContextLifecycle {
 
@@ -94,9 +94,9 @@ public class ContextLifecycle {
             env.undeployAll();
             env.assertThat(() -> {
                 for (SupportVirtualDW vdw : SupportVirtualDWFactory.getWindows()) {
-                    TestCase.assertTrue(vdw.isDestroyed());
+                    assertTrue(vdw.isDestroyed());
                 }
-                TestCase.assertTrue(SupportVirtualDWFactory.isDestroyed());
+                assertTrue(SupportVirtualDWFactory.isDestroyed());
             });
         }
     }

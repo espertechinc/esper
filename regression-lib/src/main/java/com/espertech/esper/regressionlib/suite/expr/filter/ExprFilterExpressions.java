@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.multistmtassert.EPLWithInvokedF
 import com.espertech.esper.regressionlib.support.multistmtassert.MultiStmtAssertUtil;
 import com.espertech.esper.regressionlib.support.multistmtassert.SendAssertPair;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1073,7 +1072,7 @@ public class ExprFilterExpressions {
             SupportBeanComplexProps eventTwo = SupportBeanComplexProps.makeDefaultBean();
             eventTwo.setSimpleProperty("2");
 
-            Assert.assertEquals(eventOne.getNested(), eventTwo.getNested());
+            assertEquals(eventOne.getNested(), eventTwo.getNested());
 
             env.sendEventBean(eventOne);
             env.assertListenerNotInvoked("s0");
@@ -1191,7 +1190,7 @@ public class ExprFilterExpressions {
         for (int i = 0; i < intBoxed.length; i++) {
             sendBeanIntIntDouble(env, intPrimitive[i], intBoxed[i], doubleBoxed[i]);
             int index = i;
-            env.assertListener("s0", listener -> Assert.assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
+            env.assertListener("s0", listener -> assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
             if (i == 1) {
                 env.milestone(milestone.incrementAndGet());
             }
@@ -1221,7 +1220,7 @@ public class ExprFilterExpressions {
 
             sendBeanIntDouble(env, intBoxedB[i], doubleBoxedB[i]);
             int index = i;
-            env.assertListener("s0", listener -> Assert.assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
+            env.assertListener("s0", listener -> assertEquals("failed at index " + index, expected[index], listener.getAndClearIsInvoked()));
             env.undeployAll();
         }
     }

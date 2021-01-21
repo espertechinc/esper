@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
-import org.junit.Assert;
 
 import java.util.*;
 
@@ -298,6 +297,6 @@ public class ContextVariables {
         assertEquals(1, states.size());
         List<ContextPartitionVariableState> list = states.get(namePairVariable);
         assertEquals(1, list.size());
-        Assert.assertEquals(expected, list.get(0).getState());
+        assertEquals(expected, list.get(0).getState());
     }
 }

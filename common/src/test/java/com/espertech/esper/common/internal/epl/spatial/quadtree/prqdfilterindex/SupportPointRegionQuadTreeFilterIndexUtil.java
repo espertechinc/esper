@@ -17,8 +17,8 @@ import com.espertech.esper.common.internal.epl.spatial.quadtree.pointregion.Poin
 
 import java.util.*;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SupportPointRegionQuadTreeFilterIndexUtil {
     private static final QuadTreeCollector<String, Map<Integer, String>> MAP_COLLECTOR = (event, s, target, ctx) -> {

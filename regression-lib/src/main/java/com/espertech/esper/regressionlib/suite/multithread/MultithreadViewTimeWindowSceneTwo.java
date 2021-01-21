@@ -18,15 +18,13 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for N threads feeding events that affect M statements which employ a small time window.
@@ -171,7 +169,7 @@ public class MultithreadViewTimeWindowSceneTwo implements RegressionExecution {
 
                 String symbol = (String) newEvents[0].get("symbol");
                 if (lastSymbol != null) {
-                    Assert.assertEquals(lastSymbol, symbol);
+                    assertEquals(lastSymbol, symbol);
                 } else {
                     lastSymbol = symbol;
                 }

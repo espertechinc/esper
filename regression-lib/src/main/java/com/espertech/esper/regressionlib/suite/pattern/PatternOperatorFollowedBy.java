@@ -16,7 +16,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +139,7 @@ public class PatternOperatorFollowedBy {
             testCase.add("B3", "a", events.getEvent("A2"), "b", events.getEvent("B3"));
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -220,11 +219,11 @@ public class PatternOperatorFollowedBy {
                 assertEquals(1, listener.getNewDataList().size());
                 assertEquals(2, listener.getLastNewData().length);
                 EventBean theEvent = listener.getLastNewData()[0];
-                TestCase.assertSame(eventOne, theEvent.get("A"));
-                TestCase.assertSame(eventThree, theEvent.get("B"));
+                assertSame(eventOne, theEvent.get("A"));
+                assertSame(eventThree, theEvent.get("B"));
                 theEvent = listener.getLastNewData()[1];
-                TestCase.assertSame(eventTwo, theEvent.get("A"));
-                TestCase.assertSame(eventThree, theEvent.get("B"));
+                assertSame(eventTwo, theEvent.get("A"));
+                assertSame(eventThree, theEvent.get("B"));
             });
 
             env.undeployAll();

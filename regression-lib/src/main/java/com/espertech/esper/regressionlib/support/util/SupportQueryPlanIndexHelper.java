@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEn
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphValueEntryRangeForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.*;
 import com.espertech.esper.common.internal.epl.join.queryplanouter.LookupInstructionPlanForge;
-import org.junit.Assert;
 
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -24,8 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SupportQueryPlanIndexHelper {
 
@@ -84,7 +82,7 @@ public class SupportQueryPlanIndexHelper {
         } else if (actual instanceof LookupInstructionQueryPlanNodeForge && expected instanceof LookupInstructionQueryPlanNodeForge) {
             compareInstruction(streamNum, (LookupInstructionQueryPlanNodeForge) expected, (LookupInstructionQueryPlanNodeForge) actual, indexNameMapping);
         } else {
-            Assert.fail("Failed to compare plan node for stream " + streamNum + ", unhandled plan " + actual.getClass().getName());
+            fail("Failed to compare plan node for stream " + streamNum + ", unhandled plan " + actual.getClass().getName());
         }
     }
 
@@ -145,7 +143,7 @@ public class SupportQueryPlanIndexHelper {
             assertEquals(inExpected.getLookupStream(), inActual.getLookupStream());
             assertTrue(ExprNodeUtilityCompare.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions(), false));
         } else {
-            Assert.fail("Failed to compare plan for stream " + streamNum + ", found type " + actualPlan.getClass());
+            fail("Failed to compare plan for stream " + streamNum + ", found type " + actualPlan.getClass());
         }
     }
 
@@ -170,7 +168,7 @@ public class SupportQueryPlanIndexHelper {
 
     private static void compareIndexItem(int stream, int num, QueryPlanIndexItemForge expectedIndex, QueryPlanIndexItemForge actualIndex) {
         if (!expectedIndex.equalsCompareSortedProps(actualIndex)) {
-            Assert.fail("At stream " + stream + " index " + num + "\nExpected:\n" + expectedIndex + "\n" +
+            fail("At stream " + stream + " index " + num + "\nExpected:\n" + expectedIndex + "\n" +
                 "Received:\n" + actualIndex + "\n");
         }
     }

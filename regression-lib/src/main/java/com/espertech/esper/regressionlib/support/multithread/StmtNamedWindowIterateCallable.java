@@ -18,11 +18,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.EPStatement;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertEquals;
 
 public class StmtNamedWindowIterateCallable implements Callable {
     private final RegressionEnvironment env;
@@ -56,7 +57,7 @@ public class StmtNamedWindowIterateCallable implements Callable {
                 for (int i = 0; i < received.length; i++) {
                     if (received[i].get("theString").equals(threadKey)) {
                         long sum = (Long) received[i].get("sumLong");
-                        Assert.assertEquals(total, sum);
+                        assertEquals(total, sum);
                     }
                 }
             }

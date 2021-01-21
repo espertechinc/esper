@@ -13,7 +13,8 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherComments implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -30,9 +31,9 @@ public class EPLOtherComments implements RegressionExecution {
         env.sendEventBean(new SupportBean("e1", 100));
 
         env.assertEventNew("s0", theEvent -> {
-            Assert.assertEquals("e1", theEvent.get("theString"));
-            Assert.assertEquals(100, theEvent.get("intPrimitive"));
-            Assert.assertEquals(100, theEvent.get("myPrimitive"));
+            assertEquals("e1", theEvent.get("theString"));
+            assertEquals(100, theEvent.get("intPrimitive"));
+            assertEquals(100, theEvent.get("myPrimitive"));
         });
 
         env.sendEventBean(new SupportBean("e1", -1));

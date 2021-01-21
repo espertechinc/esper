@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S4;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,16 +141,16 @@ public class EPLSubselectUnfiltered {
 
             // check type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS3"));
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS4"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("idS3"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("idS4"));
             });
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
             env.sendEventBean(new SupportBean_S1(0));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals(null, theEvent.get("idS3"));
-                Assert.assertEquals(null, theEvent.get("idS4"));
+                assertEquals(null, theEvent.get("idS3"));
+                assertEquals(null, theEvent.get("idS4"));
             });
 
             // send one event
@@ -159,8 +158,8 @@ public class EPLSubselectUnfiltered {
             env.sendEventBean(new SupportBean_S0(1));
             env.sendEventBean(new SupportBean_S1(1));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals(-1, theEvent.get("idS3"));
-                Assert.assertEquals(null, theEvent.get("idS4"));
+                assertEquals(-1, theEvent.get("idS3"));
+                assertEquals(null, theEvent.get("idS4"));
             });
 
             // send one event
@@ -168,8 +167,8 @@ public class EPLSubselectUnfiltered {
             env.sendEventBean(new SupportBean_S0(2));
             env.sendEventBean(new SupportBean_S1(2));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals(-1, theEvent.get("idS3"));
-                Assert.assertEquals(-2, theEvent.get("idS4"));
+                assertEquals(-1, theEvent.get("idS3"));
+                assertEquals(-2, theEvent.get("idS4"));
             });
 
             // send second event
@@ -177,8 +176,8 @@ public class EPLSubselectUnfiltered {
             env.sendEventBean(new SupportBean_S0(3));
             env.sendEventBean(new SupportBean_S1(3));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals(-1, theEvent.get("idS3"));
-                Assert.assertEquals(null, theEvent.get("idS4"));
+                assertEquals(-1, theEvent.get("idS3"));
+                assertEquals(null, theEvent.get("idS4"));
             });
 
             env.sendEventBean(new SupportBean_S3(-2));
@@ -188,8 +187,8 @@ public class EPLSubselectUnfiltered {
                 EventBean[] events = listener.getNewDataListFlattened();
                 assertEquals(3, events.length);
                 for (int i = 0; i < events.length; i++) {
-                    Assert.assertEquals(null, events[i].get("idS3"));
-                    Assert.assertEquals(null, events[i].get("idS4"));
+                    assertEquals(null, events[i].get("idS3"));
+                    assertEquals(null, events[i].get("idS4"));
                 }
             });
 
@@ -243,7 +242,7 @@ public class EPLSubselectUnfiltered {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String stmtText = "select (select prior(0,id) from SupportBean_S1#length(1000)) as idS1 from SupportBean_S0";
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -268,7 +267,7 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            env.assertStatement("s0", statement -> Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("idS1")));
+            env.assertStatement("s0", statement -> assertEquals(Double.class, statement.getEventType().getPropertyType("idS1")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
@@ -294,7 +293,7 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
+            env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(0));
@@ -403,7 +402,7 @@ public class EPLSubselectUnfiltered {
             env.compileDeployAddListenerMileZero(stmtText, "s0");
 
             // check type
-            env.assertStatement("s0", statement -> Assert.assertEquals(String.class, statement.getEventType().getPropertyType("value")));
+            env.assertStatement("s0", statement -> assertEquals(String.class, statement.getEventType().getPropertyType("value")));
 
             // test no event, should return null
             env.sendEventBean(new SupportBean_S0(1));
@@ -428,8 +427,8 @@ public class EPLSubselectUnfiltered {
 
             // check type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_0"));
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_1"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_0"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1_1"));
             });
 
             // test no event, should return null
@@ -458,7 +457,7 @@ public class EPLSubselectUnfiltered {
         env.compileDeployAddListenerMileZero(stmtText, "s0");
 
         // check type
-        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
+        env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));
@@ -483,7 +482,7 @@ public class EPLSubselectUnfiltered {
 
     private static void runUnfilteredStreamPrior(RegressionEnvironment env) {
         // check type
-        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
+        env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType("idS1")));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));
@@ -507,7 +506,7 @@ public class EPLSubselectUnfiltered {
         env.compileDeployAddListenerMileZero(stmtText, "s0");
 
         // check type
-        env.assertStatement("s0", statement -> Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
+        env.assertStatement("s0", statement -> assertEquals(Integer.class, statement.getEventType().getPropertyType(columnName)));
 
         // test no event, should return null
         env.sendEventBean(new SupportBean_S0(0));

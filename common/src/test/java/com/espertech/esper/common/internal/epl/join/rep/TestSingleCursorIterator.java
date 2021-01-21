@@ -30,14 +30,14 @@ public class TestSingleCursorIterator extends TestCase {
         assertSame(cursor, filledIterator.next());
         try {
             filledIterator.next();
-            TestCase.fail();
+            fail();
         } catch (NoSuchElementException ex) {
             // Expected exception
         }
 
         try {
             emptyIterator.next();
-            TestCase.fail();
+            fail();
         } catch (NoSuchElementException ex) {
             // Expected exception
         }

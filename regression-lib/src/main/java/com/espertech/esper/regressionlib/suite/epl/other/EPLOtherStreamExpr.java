@@ -21,14 +21,12 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class EPLOtherStreamExpr {
     public static List<RegressionExecution> executions() {
@@ -65,8 +63,8 @@ public class EPLOtherStreamExpr {
 
             env.sendEventBean(new SupportBeanStaticOuter());
             env.assertEventNew("s0", result -> {
-                Assert.assertEquals("hello", result.get("val"));
-                Assert.assertEquals("hello2", result.get("val2"));
+                assertEquals("hello", result.get("val"));
+                assertEquals("hello2", result.get("val2"));
             });
             env.undeployAll();
         }
@@ -79,15 +77,15 @@ public class EPLOtherStreamExpr {
                 };
                 for (int i = 0; i < rows.length; i++) {
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                    assertEquals(rows[i][0], prop.getPropertyName());
+                    assertEquals(rows[i][1], prop.getPropertyType());
                 }
             });
 
             env.sendEventBean(new SupportChainTop());
             env.assertEventNew("s0", event -> {
                 Object result = event.get(subexpr);
-                Assert.assertEquals("abcappend", ((SupportChainChildTwo) result).getText());
+                assertEquals("abcappend", ((SupportChainChildTwo) result).getText());
             });
         }
     }
@@ -166,10 +164,10 @@ public class EPLOtherStreamExpr {
 
             env.assertStatement("s0", statement -> {
                 EventType type = statement.getEventType();
-                Assert.assertEquals(3, type.getPropertyNames().length);
-                Assert.assertEquals(Long.class, type.getPropertyType("volume"));
-                Assert.assertEquals(String.class, type.getPropertyType("symbol"));
-                Assert.assertEquals(Double.class, type.getPropertyType("pvf"));
+                assertEquals(3, type.getPropertyNames().length);
+                assertEquals(Long.class, type.getPropertyType("volume"));
+                assertEquals(String.class, type.getPropertyType("symbol"));
+                assertEquals(Double.class, type.getPropertyType("pvf"));
             });
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 99L, null);
@@ -188,9 +186,9 @@ public class EPLOtherStreamExpr {
 
             env.assertStatement("s0", statement -> {
                 EventType type = statement.getEventType();
-                Assert.assertEquals(2, type.getPropertyNames().length);
-                Assert.assertEquals(Long.class, type.getPropertyType("s0.getVolume()"));
-                Assert.assertEquals(Double.class, type.getPropertyType("s0.getPriceTimesVolume(3)"));
+                assertEquals(2, type.getPropertyNames().length);
+                assertEquals(Long.class, type.getPropertyType("s0.getVolume()"));
+                assertEquals(Double.class, type.getPropertyType("s0.getPriceTimesVolume(3)"));
             });
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 4, 2L, null);
@@ -223,13 +221,13 @@ public class EPLOtherStreamExpr {
             // Attach listener to feed
             env.compileDeploy(textOne).addListener("s0");
             EPStatementObjectModel model = env.eplToModel(textOne);
-            Assert.assertEquals(textOne, model.toEPL());
+            assertEquals(textOne, model.toEPL());
 
             env.assertStatement("s0", statement -> {
                 EventType type = statement.getEventType();
-                Assert.assertEquals(2, type.getPropertyNames().length);
-                Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s0stream"));
-                Assert.assertEquals(SupportBean.class, type.getPropertyType("s1stream"));
+                assertEquals(2, type.getPropertyNames().length);
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s0stream"));
+                assertEquals(SupportBean.class, type.getPropertyType("s1stream"));
             });
 
             SupportMarketDataBean eventA = new SupportMarketDataBean("ACME", 0, 0L, null);
@@ -249,9 +247,9 @@ public class EPLOtherStreamExpr {
 
             env.assertStatement("s0", statement -> {
                 EventType type = statement.getEventType();
-                Assert.assertEquals(2, type.getPropertyNames().length);
-                Assert.assertEquals(SupportMarketDataBean.class, type.getPropertyType("s0"));
-                Assert.assertEquals(SupportBean.class, type.getPropertyType("s1"));
+                assertEquals(2, type.getPropertyNames().length);
+                assertEquals(SupportMarketDataBean.class, type.getPropertyType("s0"));
+                assertEquals(SupportBean.class, type.getPropertyType("s1"));
             });
 
             env.sendEventBean(eventA);

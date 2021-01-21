@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +67,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             env.assertListener("s0", listener -> {
-                TestCase.assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
+                assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
                 assertNull(listener.getLastOldData());  // receive no more old data
             });
 
@@ -94,7 +93,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             env.assertListener("s0", listener -> {
-                TestCase.assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
+                assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
                 assertNull(listener.getLastOldData());  // receive no more old data
             });
 
@@ -114,7 +113,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             env.assertListener("s0", listener -> {
-                TestCase.assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
+                assertSame(theEvent, listener.getLastNewData()[0].getUnderlying());    // receive 'a' as new data
                 assertNull(listener.getLastOldData());  // receive no more old data
             });
 
@@ -174,7 +173,7 @@ public class EPLOtherIStreamRStreamKeywords {
 
             sendEvent(env, "d", 2);
             env.assertListener("s0", listener -> {
-                TestCase.assertSame("a", listener.getLastNewData()[0].get("theString"));    // receive 'a' as new data
+                assertSame("a", listener.getLastNewData()[0].get("theString"));    // receive 'a' as new data
                 assertNull(listener.getLastOldData());  // receive no more old data
             });
             env.assertListener("ii", listener -> {

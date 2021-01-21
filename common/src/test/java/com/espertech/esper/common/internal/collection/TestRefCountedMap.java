@@ -23,14 +23,14 @@ public class TestRefCountedMap extends TestCase {
     public void testPut() {
         try {
             refMap.put("a", 10);
-            TestCase.fail();
+            fail();
         } catch (IllegalStateException ex) {
             // Expected exception
         }
 
         try {
             refMap.put(null, 10);
-            TestCase.fail();
+            fail();
         } catch (IllegalArgumentException ex) {
             // Expected exception
         }
@@ -49,7 +49,7 @@ public class TestRefCountedMap extends TestCase {
 
         try {
             refMap.reference("b");
-            TestCase.fail();
+            fail();
         } catch (IllegalStateException ex) {
             // Expected exception
         }
@@ -66,7 +66,7 @@ public class TestRefCountedMap extends TestCase {
 
         try {
             refMap.dereference("b");
-            TestCase.fail();
+            fail();
         } catch (IllegalStateException ex) {
             // Expected exception
         }

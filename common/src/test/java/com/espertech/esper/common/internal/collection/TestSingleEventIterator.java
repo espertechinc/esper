@@ -30,7 +30,7 @@ public class TestSingleEventIterator extends TestCase {
         assertEquals(eventBean, iterator.next());
         try {
             iterator.next();
-            TestCase.fail();
+            fail();
         } catch (NoSuchElementException ex) {
             // Expected exception
         }

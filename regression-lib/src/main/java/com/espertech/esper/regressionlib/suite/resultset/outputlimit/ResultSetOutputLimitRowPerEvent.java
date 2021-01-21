@@ -22,15 +22,13 @@ import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecutionTestSelector;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestResult;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ResultSetOutputLimitRowPerEvent {
     private static final String EVENT_NAME = SupportMarketDataBean.class.getSimpleName();
@@ -371,12 +369,12 @@ public class ResultSetOutputLimitRowPerEvent {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(2, result.getFirst().length);
-                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-                Assert.assertEquals(2, result.getSecond().length);
-                Assert.assertEquals(null, result.getSecond()[0].get("maxVol"));
-                Assert.assertEquals(null, result.getSecond()[1].get("maxVol"));
+                assertEquals(2, result.getFirst().length);
+                assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                assertEquals(2, result.getSecond().length);
+                assertEquals(null, result.getSecond()[0].get("maxVol"));
+                assertEquals(null, result.getSecond()[1].get("maxVol"));
             });
 
             env.undeployAll();
@@ -488,11 +486,11 @@ public class ResultSetOutputLimitRowPerEvent {
             sendTimer(env, 1000);        // newdata is 2 eventa, old data is the same 2 events, therefore the sum is null
             env.assertListener("s0", listener -> {
                 UniformPair<EventBean[]> result = listener.getDataListsFlattened();
-                Assert.assertEquals(2, result.getFirst().length);
-                Assert.assertEquals(1.0, result.getFirst()[0].get("maxVol"));
-                Assert.assertEquals(2.0, result.getFirst()[1].get("maxVol"));
-                Assert.assertEquals(1, result.getSecond().length);
-                Assert.assertEquals(2.0, result.getSecond()[0].get("maxVol"));
+                assertEquals(2, result.getFirst().length);
+                assertEquals(1.0, result.getFirst()[0].get("maxVol"));
+                assertEquals(2.0, result.getFirst()[1].get("maxVol"));
+                assertEquals(1, result.getSecond().length);
+                assertEquals(2.0, result.getSecond()[0].get("maxVol"));
             });
 
             env.undeployAll();
@@ -684,11 +682,11 @@ public class ResultSetOutputLimitRowPerEvent {
 
         // check update, all events present
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(2, listener.getLastNewData().length);
-            Assert.assertEquals(1L, listener.getLastNewData()[0].get("longBoxed"));
-            Assert.assertEquals(1L, listener.getLastNewData()[0].get("result"));
-            Assert.assertEquals(2L, listener.getLastNewData()[1].get("longBoxed"));
-            Assert.assertEquals(3L, listener.getLastNewData()[1].get("result"));
+            assertEquals(2, listener.getLastNewData().length);
+            assertEquals(1L, listener.getLastNewData()[0].get("longBoxed"));
+            assertEquals(1L, listener.getLastNewData()[0].get("result"));
+            assertEquals(2L, listener.getLastNewData()[1].get("longBoxed"));
+            assertEquals(3L, listener.getLastNewData()[1].get("result"));
             assertNull(listener.getLastOldData());
         });
 
@@ -869,7 +867,7 @@ public class ResultSetOutputLimitRowPerEvent {
         sendTimer(env, 2000);
 
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(3, listener.getLastNewData().length);
+            assertEquals(3, listener.getLastNewData().length);
             assertNull(listener.getLastOldData());
             EPAssertionUtil.assertPropsPerRow(listener.getLastNewData(), fields,
                 new Object[][]{{"SYM1", 43 / 4.0}, {"SYM1", 53.0 / 5.0}, {"SYM1", 62 / 6.0}});
@@ -890,9 +888,9 @@ public class ResultSetOutputLimitRowPerEvent {
 
         // check update, all events present
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getLastNewData().length);
-            Assert.assertEquals(2L, listener.getLastNewData()[0].get("longBoxed"));
-            Assert.assertEquals(3L, listener.getLastNewData()[0].get("result"));
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(2L, listener.getLastNewData()[0].get("longBoxed"));
+            assertEquals(3L, listener.getLastNewData()[0].get("result"));
             assertNull(listener.getLastOldData());
         });
 
@@ -929,8 +927,8 @@ public class ResultSetOutputLimitRowPerEvent {
     private static void assertEvent(RegressionEnvironment env, long volume) {
         env.assertListener("s0", listener -> {
             assertTrue(listener.getLastNewData() != null);
-            Assert.assertEquals(1, listener.getLastNewData().length);
-            Assert.assertEquals(volume, listener.getLastNewData()[0].get("sum(volume)"));
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(volume, listener.getLastNewData()[0].get("sum(volume)"));
             listener.reset();
         });
     }

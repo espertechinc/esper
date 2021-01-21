@@ -16,11 +16,12 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResul
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertEquals;
 
 public class StmtNamedWindowQueryCallable implements Callable {
     private final RegressionEnvironment env;
@@ -50,9 +51,9 @@ public class StmtNamedWindowQueryCallable implements Callable {
 
                 prepared.setObject(1, loop);
                 EPFireAndForgetQueryResult queryResult = env.runtime().getFireAndForgetService().executeQuery(prepared);
-                Assert.assertEquals(1, queryResult.getArray().length);
-                Assert.assertEquals(threadKey, queryResult.getArray()[0].get("theString"));
-                Assert.assertEquals((long) loop, queryResult.getArray()[0].get("longPrimitive"));
+                assertEquals(1, queryResult.getArray().length);
+                assertEquals(threadKey, queryResult.getArray()[0].get("theString"));
+                assertEquals((long) loop, queryResult.getArray()[0].get("longPrimitive"));
             }
         } catch (Exception ex) {
             log.error("Error in thread " + Thread.currentThread().getId(), ex);

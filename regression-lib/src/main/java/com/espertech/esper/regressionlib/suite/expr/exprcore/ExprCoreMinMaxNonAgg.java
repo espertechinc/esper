@@ -18,11 +18,12 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreMinMaxNonAgg {
     private final static String EPL = "select max(longBoxed,intBoxed) as myMax, " +
@@ -50,10 +51,10 @@ public class ExprCoreMinMaxNonAgg {
 
             builder.statementConsumer(stmt -> {
                 EventType type = stmt.getEventType();
-                Assert.assertEquals(Long.class, type.getPropertyType("myMax"));
-                Assert.assertEquals(Long.class, type.getPropertyType("myMin"));
-                Assert.assertEquals(Long.class, type.getPropertyType("myMinEx"));
-                Assert.assertEquals(Long.class, type.getPropertyType("myMaxEx"));
+                assertEquals(Long.class, type.getPropertyType("myMax"));
+                assertEquals(Long.class, type.getPropertyType("myMin"));
+                assertEquals(Long.class, type.getPropertyType("myMinEx"));
+                assertEquals(Long.class, type.getPropertyType("myMaxEx"));
             });
 
             builder.assertion(makeBoxedEvent(10L, 20, (short) 4)).expect(fields, 20L, 20L, 10L, 4L);
@@ -78,7 +79,7 @@ public class ExprCoreMinMaxNonAgg {
             );
             model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getSimpleName()).addView("length", Expressions.constant(3))));
             model = SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(EPL, model.toEPL());
+            assertEquals(EPL, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -101,19 +102,19 @@ public class ExprCoreMinMaxNonAgg {
         sendEvent(env, 10, 20, (short) 4);
         env.assertListener("s0", listener -> {
             EventBean received = listener.getAndResetLastNewData()[0];
-            Assert.assertEquals(20L, received.get("myMax"));
-            Assert.assertEquals(10L, received.get("myMin"));
-            Assert.assertEquals(4L, received.get("myMinEx"));
-            Assert.assertEquals(20L, received.get("myMaxEx"));
+            assertEquals(20L, received.get("myMax"));
+            assertEquals(10L, received.get("myMin"));
+            assertEquals(4L, received.get("myMinEx"));
+            assertEquals(20L, received.get("myMaxEx"));
         });
 
         sendEvent(env, -10, -20, (short) -30);
         env.assertListener("s0", listener -> {
             EventBean received = listener.getAndResetLastNewData()[0];
-            Assert.assertEquals(-10L, received.get("myMax"));
-            Assert.assertEquals(-20L, received.get("myMin"));
-            Assert.assertEquals(-30L, received.get("myMinEx"));
-            Assert.assertEquals(-10L, received.get("myMaxEx"));
+            assertEquals(-10L, received.get("myMax"));
+            assertEquals(-20L, received.get("myMin"));
+            assertEquals(-30L, received.get("myMinEx"));
+            assertEquals(-10L, received.get("myMaxEx"));
         });
     }
 

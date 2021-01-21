@@ -37,10 +37,8 @@ import java.util.List;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidDeploy;
 import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.tryInvalidFAFCompile;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
-import static junit.framework.TestCase.assertTrue;
 import static org.apache.avro.SchemaBuilder.record;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"

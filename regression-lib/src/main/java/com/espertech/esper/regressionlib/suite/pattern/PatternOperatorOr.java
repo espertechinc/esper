@@ -17,14 +17,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PatternOperatorOr {
 
@@ -165,7 +163,7 @@ public class PatternOperatorOr {
             }
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -178,7 +176,7 @@ public class PatternOperatorOr {
         Object eventA1 = new SupportBean_A("A1");
         env.sendEventBean(eventA1);
         env.assertEventNew("s0", theEvent -> {
-            Assert.assertEquals(eventA1, theEvent.get("a"));
+            assertEquals(eventA1, theEvent.get("a"));
             assertNull(theEvent.get("b"));
         });
 
@@ -187,8 +185,8 @@ public class PatternOperatorOr {
         Object eventB1 = new SupportBean_B("B1");
         env.sendEventBean(eventB1);
         env.assertEventNew("s0", theEvent -> {
-            Assert.assertEquals(eventA1, theEvent.get("a"));
-            Assert.assertEquals(eventB1, theEvent.get("b"));
+            assertEquals(eventA1, theEvent.get("a"));
+            assertEquals(eventB1, theEvent.get("b"));
         });
 
         env.undeployAll();

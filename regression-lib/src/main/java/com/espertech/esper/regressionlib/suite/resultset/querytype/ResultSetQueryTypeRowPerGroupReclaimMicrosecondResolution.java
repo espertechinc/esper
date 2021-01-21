@@ -15,7 +15,8 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.runtime.client.EPStatement;
-import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetQueryTypeRowPerGroupReclaimMicrosecondResolution implements RegressionExecution {
 
@@ -46,6 +47,6 @@ public class ResultSetQueryTypeRowPerGroupReclaimMicrosecondResolution implement
     }
 
     private static void assertCount(EPStatement stmt, long count) {
-        Assert.assertEquals(count, EPAssertionUtil.iteratorCount(stmt.iterator()));
+        assertEquals(count, EPAssertionUtil.iteratorCount(stmt.iterator()));
     }
 }

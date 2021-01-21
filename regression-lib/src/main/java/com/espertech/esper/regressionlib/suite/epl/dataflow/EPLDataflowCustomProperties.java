@@ -28,8 +28,8 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 // Further relevant tests in JSONUtil/PopulateUtil
 public class EPLDataflowCustomProperties {
@@ -128,10 +128,10 @@ public class EPLDataflowCustomProperties {
             assertEquals(1L, (long) instanceOne.getTheLongOne());
             assertEquals(2, instanceOne.getTheLongTwo());
             assertEquals(null, instanceOne.getTheLongThree());
-            assertEquals(1.0, instanceOne.getTheDoubleOne());
-            assertEquals(2.0, instanceOne.getTheDoubleTwo());
-            assertEquals(1f, instanceOne.getTheFloatOne());
-            assertEquals(2f, instanceOne.getTheFloatTwo());
+            assertEquals(1.0, instanceOne.getTheDoubleOne(), 0);
+            assertEquals(2.0, instanceOne.getTheDoubleTwo(), 0);
+            assertEquals(1f, instanceOne.getTheFloatOne(), 0);
+            assertEquals(2f, instanceOne.getTheFloatTwo(), 0);
             assertEquals(">b<", instanceOne.getTheStringWithSetter());
 
             // test array etc. properties

@@ -25,7 +25,6 @@ import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecution;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertExecutionTestSelector;
 import com.espertech.esper.regressionlib.support.patternassert.ResultAssertTestResult;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -392,7 +391,7 @@ public class ResultSetOutputLimitSimple {
 
             // test statement model
             EPStatementObjectModel model = env.eplToModel(stmtText);
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             env.undeployAll();
         }
@@ -496,7 +495,7 @@ public class ResultSetOutputLimitSimple {
             sendJoinEvents(env, "IBM");
 
             env.assertListener("s1", listener -> {
-                Assert.assertEquals(1, listener.getLastNewData().length);
+                assertEquals(1, listener.getLastNewData().length);
                 assertNull(listener.getLastOldData());
             });
             env.assertListenerNotInvoked("s3");
@@ -569,7 +568,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListener("s0", listener -> {
                 EventBean[] newEvents = listener.getAndResetLastNewData();
                 assertEquals(1, newEvents.length);
-                Assert.assertEquals("e1", newEvents[0].get("theString"));
+                assertEquals("e1", newEvents[0].get("theString"));
                 listener.reset();
             });
 
@@ -588,8 +587,8 @@ public class ResultSetOutputLimitSimple {
             env.assertListener("s0", listener -> {
                 EventBean[] newEvents = listener.getAndResetLastNewData();
                 assertEquals(2, newEvents.length);
-                Assert.assertEquals("e2", newEvents[0].get("theString"));
-                Assert.assertEquals("e3", newEvents[1].get("theString"));
+                assertEquals("e2", newEvents[0].get("theString"));
+                assertEquals("e3", newEvents[1].get("theString"));
             });
 
             sendTimer(env, 90000);
@@ -697,7 +696,7 @@ public class ResultSetOutputLimitSimple {
 
             env.assertListenerInvoked("s0");
             env.assertListener("s1", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 assertNull(listener.getLastOldData());
                 listener.reset();
             });
@@ -709,7 +708,7 @@ public class ResultSetOutputLimitSimple {
             env.assertListenerInvoked("s0");
             env.assertListenerNotInvoked("s1");
             env.assertListener("s2", listener -> {
-                Assert.assertEquals(3, listener.getLastNewData().length);
+                assertEquals(3, listener.getLastNewData().length);
                 assertNull(listener.getLastOldData());
             });
 
@@ -912,8 +911,8 @@ public class ResultSetOutputLimitSimple {
 
         // check update, only the last event present
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getLastNewData().length);
-            Assert.assertEquals(2L, listener.getLastNewData()[0].get("longBoxed"));
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(2L, listener.getLastNewData()[0].get("longBoxed"));
             assertNull(listener.getLastOldData());
         });
         env.undeployAll();
@@ -983,7 +982,7 @@ public class ResultSetOutputLimitSimple {
         // check that the listener has been updated
         env.assertListener("s0", listener -> {
             assertTrue(listener.isInvoked());
-            Assert.assertEquals(1, listener.getLastNewData().length);
+            assertEquals(1, listener.getLastNewData().length);
             assertNull(listener.getLastOldData());
             listener.reset();
         });
@@ -1063,9 +1062,9 @@ public class ResultSetOutputLimitSimple {
 
         // check update, all events present
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(2, listener.getLastNewData().length);
-            Assert.assertEquals(1L, listener.getLastNewData()[0].get("longBoxed"));
-            Assert.assertEquals(2L, listener.getLastNewData()[1].get("longBoxed"));
+            assertEquals(2, listener.getLastNewData().length);
+            assertEquals(1L, listener.getLastNewData()[0].get("longBoxed"));
+            assertEquals(2L, listener.getLastNewData()[1].get("longBoxed"));
             assertNull(listener.getLastOldData());
         });
 

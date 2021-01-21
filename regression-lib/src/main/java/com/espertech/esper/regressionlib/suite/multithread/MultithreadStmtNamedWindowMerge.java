@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowMergeCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
-import org.junit.Assert;
 
 import java.util.EnumSet;
 import java.util.concurrent.ExecutorService;
@@ -67,7 +66,7 @@ public class MultithreadStmtNamedWindowMerge implements RegressionExecution {
         EventBean[] rows = env.compileExecuteFAF("select * from MyWindow", path).getArray();
         assertEquals(numEventsPerThread, rows.length);
         for (EventBean row : rows) {
-            Assert.assertEquals(numThreads - 1, row.get("intPrimitive"));
+            assertEquals(numThreads - 1, row.get("intPrimitive"));
         }
         //long deltaTime = endTime - startTime;
         //System.out.println("Totals updated: " + totalUpdates + "  Delta cumu: " + deltaCumulative + "  Delta pooled: " + deltaTime);

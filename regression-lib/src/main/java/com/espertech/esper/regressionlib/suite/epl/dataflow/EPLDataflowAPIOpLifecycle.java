@@ -35,9 +35,7 @@ import com.espertech.esper.regressionlib.support.dataflow.MyLineFeedSource;
 import java.util.*;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class EPLDataflowAPIOpLifecycle {
 

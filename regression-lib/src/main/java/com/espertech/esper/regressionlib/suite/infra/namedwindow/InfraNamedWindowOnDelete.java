@@ -26,7 +26,8 @@ import com.espertech.esper.regressionlib.support.util.SupportInfraUtil;
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * NOTE: More namedwindow-related tests in "nwtable"

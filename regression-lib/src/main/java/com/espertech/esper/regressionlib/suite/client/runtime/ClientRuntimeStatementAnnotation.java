@@ -24,7 +24,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.client.*;
 import com.espertech.esper.runtime.client.EPStatement;
-import junit.framework.TestCase;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -238,7 +237,7 @@ public class ClientRuntimeStatementAnnotation {
 
                 MyAnnotationNested nested = (MyAnnotationNested) annotations[0];
                 assertNotNull(nested.nestableSimple());
-                TestCase.assertTrue(Arrays.deepEquals(toObjectArray(nested.nestableValues().arr()), new Object[]{2, 1}));
+                assertTrue(Arrays.deepEquals(toObjectArray(nested.nestableValues().arr()), new Object[]{2, 1}));
                 assertEquals(999, nested.nestableValues().val());
                 assertEquals("CDF", nested.nestableNestable().value());
             });
@@ -413,7 +412,7 @@ public class ClientRuntimeStatementAnnotation {
         assertEquals("@Tag(name=\"UserId\", value=\"value\")", annotations[2].toString());
 
         assertFalse(annotations[2].equals(annotations[1]));
-        TestCase.assertTrue(annotations[1].equals(annotations[1]));
-        TestCase.assertTrue(annotations[1].hashCode() != 0);
+        assertTrue(annotations[1].equals(annotations[1]));
+        assertTrue(annotations[1].hashCode() != 0);
     }
 }

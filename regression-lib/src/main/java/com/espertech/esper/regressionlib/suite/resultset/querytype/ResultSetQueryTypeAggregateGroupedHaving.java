@@ -16,10 +16,11 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetQueryTypeAggregateGroupedHaving {
     private final static String SYMBOL_DELL = "DELL";
@@ -108,9 +109,9 @@ public class ResultSetQueryTypeAggregateGroupedHaving {
     private static void tryAssertionSum(RegressionEnvironment env) {
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
         });
 
         String[] fields = "symbol,volume,mySum".split(",");

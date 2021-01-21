@@ -15,9 +15,7 @@ import com.espertech.esper.runtime.client.EPStatement;
 
 import java.util.ArrayList;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public abstract class SupportSubscriberBase {
     private final boolean requiresStatementDelivery;

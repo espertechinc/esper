@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.espertech.esper.common.internal.epl.spatial.quadtree.core.SupportQuadTreeUtil.assertIds;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public class SupportExecNonUniqueRandomMovingRectangles {
     public static <L> void runAssertion(SupportQuadTreeToolNonUnique<L> tools) {

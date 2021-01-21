@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportCarEvent;
 import com.espertech.esper.regressionlib.support.bean.SupportCarInfoEvent;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,8 +58,8 @@ public class ResultSetQueryTypeRollupGroupingFuncs {
                 "from CarWindow group by grouping sets((name, place),name, place,())";
             EPFireAndForgetQueryResult result = env.compileExecuteFAF(epl, path);
 
-            Assert.assertEquals(Integer.class, result.getEventType().getPropertyType("grouping(name)"));
-            Assert.assertEquals(Integer.class, result.getEventType().getPropertyType("gid"));
+            assertEquals(Integer.class, result.getEventType().getPropertyType("grouping(name)"));
+            assertEquals(Integer.class, result.getEventType().getPropertyType("gid"));
 
             String[] fields = new String[]{"name", "place", "sum(count)", "grouping(name)", "grouping(place)", "gid"};
             EPAssertionUtil.assertPropsPerRow(result.getArray(), fields, new Object[][]{

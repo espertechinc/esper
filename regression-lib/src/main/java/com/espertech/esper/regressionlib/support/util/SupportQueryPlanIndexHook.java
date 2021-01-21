@@ -15,12 +15,11 @@ import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexForg
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItemForge;
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupIndexReqKey;
 import com.espertech.esper.common.internal.epl.join.support.*;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
 
@@ -106,32 +105,32 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
             assertEquals(indexDescription, onexp.getTables()[0].getIndexDesc());
             assertEquals(indexName, onexp.getTables()[0].getIndexName()); // can be null
         } else {
-            Assert.assertNull(onexp.getTables());
-            Assert.assertNull(onexp.getTableLookupStrategy());
+            assertNull(onexp.getTables());
+            assertNull(onexp.getTableLookupStrategy());
         }
         reset();
     }
 
     public static QueryPlanIndexDescOnExpr assertOnExprAndReset() {
-        Assert.assertTrue(ONEXPRS.size() == 1);
+        assertTrue(ONEXPRS.size() == 1);
         QueryPlanIndexDescOnExpr onexp = ONEXPRS.get(0);
         reset();
         return onexp;
     }
 
     public static void assertFAFAndReset(String tableName, String indexBackingClassStartsWith) {
-        Assert.assertTrue(FAFSNAPSHOTS.size() == 1);
+        assertTrue(FAFSNAPSHOTS.size() == 1);
         QueryPlanIndexDescFAF fafdesc = FAFSNAPSHOTS.get(0);
         assertEquals(tableName, fafdesc.getTables()[0].getIndexName());
         String name = fafdesc.getTables()[0].getIndexDesc();
         if (indexBackingClassStartsWith != null) {
-            Assert.assertTrue(name.startsWith(indexBackingClassStartsWith));
+            assertTrue(name.startsWith(indexBackingClassStartsWith));
         }
         reset();
     }
 
     public static void assertJoinOneStreamAndReset(boolean unique) {
-        Assert.assertTrue(JOINS.size() == 1);
+        assertTrue(JOINS.size() == 1);
         QueryPlanForge join = JOINS.get(0);
         QueryPlanIndexForge first = join.getIndexSpecs()[1];
         TableLookupIndexReqKey firstName = first.getItems().keySet().iterator().next();
@@ -141,14 +140,14 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static QueryPlanForge assertJoinAndReset() {
-        Assert.assertTrue(JOINS.size() == 1);
+        assertTrue(JOINS.size() == 1);
         QueryPlanForge join = JOINS.get(0);
         reset();
         return join;
     }
 
     public static void assertJoinAllStreamsAndReset(boolean unique) {
-        Assert.assertTrue(JOINS.size() == 1);
+        assertTrue(JOINS.size() == 1);
         QueryPlanForge join = JOINS.get(0);
         for (QueryPlanIndexForge index : join.getIndexSpecs()) {
             TableLookupIndexReqKey firstName = index.getItems().keySet().iterator().next();

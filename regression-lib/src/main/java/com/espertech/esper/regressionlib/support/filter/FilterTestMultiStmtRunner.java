@@ -12,9 +12,10 @@ package com.espertech.esper.regressionlib.support.filter;
 
 import com.espertech.esper.common.internal.collection.PermutationEnumeration;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.*;
+
+import static org.junit.Assert.fail;
 
 public class FilterTestMultiStmtRunner {
 
@@ -37,7 +38,7 @@ public class FilterTestMultiStmtRunner {
             // determine that filters is different
             Set<String> filtersUnique = new HashSet<String>(Arrays.asList(permutableCase.getFilters()));
             if (filtersUnique.size() == 1 && permutableCase.getFilters().length > 1) {
-                Assert.fail("Filters are all the same, specify a single permutation instead");
+                fail("Filters are all the same, specify a single permutation instead");
             }
 
             List<FilterTestMultiStmtExecution> executions = new ArrayList<>();

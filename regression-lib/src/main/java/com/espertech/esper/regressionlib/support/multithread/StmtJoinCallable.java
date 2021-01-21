@@ -17,11 +17,12 @@ import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertTrue;
 
 public class StmtJoinCallable implements Callable {
     private final int threadNum;
@@ -67,7 +68,7 @@ public class StmtJoinCallable implements Callable {
                 }
                 if (!found) {
                 }
-                Assert.assertTrue(found);
+                assertTrue(found);
                 assertListener.reset();
             }
         } catch (AssertionFailedError ex) {

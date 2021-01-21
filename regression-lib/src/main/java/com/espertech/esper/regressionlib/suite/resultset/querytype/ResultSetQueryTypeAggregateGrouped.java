@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -238,9 +237,9 @@ public class ResultSetQueryTypeAggregateGrouped {
 
             env.sendEventBean(new SupportMarketDataBean("IBM", 10D, 20000L, null));
             env.assertEventNew("s0", eventBean -> {
-                Assert.assertEquals("IBM", eventBean.get("symbol"));
-                Assert.assertEquals(10d, eventBean.get("average"));
-                Assert.assertEquals(20000L, eventBean.get("sumation"));
+                assertEquals("IBM", eventBean.get("symbol"));
+                assertEquals(10d, eventBean.get("average"));
+                assertEquals(20000L, eventBean.get("sumation"));
             });
 
             // create insert into statements
@@ -252,15 +251,15 @@ public class ResultSetQueryTypeAggregateGrouped {
             // send event
             env.sendEventBean(new SupportMarketDataBean("IBM", 20D, 40000L, null));
             env.assertEventNew("s0", eventBean -> {
-                Assert.assertEquals("IBM", eventBean.get("symbol"));
-                Assert.assertEquals(15d, eventBean.get("average"));
-                Assert.assertEquals(60000L, eventBean.get("sumation"));
+                assertEquals("IBM", eventBean.get("symbol"));
+                assertEquals(15d, eventBean.get("average"));
+                assertEquals(60000L, eventBean.get("sumation"));
             });
 
             env.assertEventNew("s2", eventBean -> {
-                Assert.assertEquals("IBM", eventBean.get("symbol"));
-                Assert.assertEquals(20d, eventBean.get("average"));
-                Assert.assertEquals(40000L, eventBean.get("sumation"));
+                assertEquals("IBM", eventBean.get("symbol"));
+                assertEquals(20d, eventBean.get("average"));
+                assertEquals(40000L, eventBean.get("sumation"));
             });
 
             env.undeployAll();
@@ -273,9 +272,9 @@ public class ResultSetQueryTypeAggregateGrouped {
 
         // assert select result type
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("volume"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("mySum"));
         });
 
         sendEvent(env, SYMBOL_DELL, 10000, 51);
@@ -316,9 +315,9 @@ public class ResultSetQueryTypeAggregateGrouped {
             assertNull(oldData);
             assertEquals(1, newData.length);
 
-            Assert.assertEquals(symbol, newData[0].get("symbol"));
-            Assert.assertEquals(volume, newData[0].get("volume"));
-            Assert.assertEquals(sum, newData[0].get("mySum"));
+            assertEquals(symbol, newData[0].get("symbol"));
+            assertEquals(volume, newData[0].get("volume"));
+            assertEquals(sum, newData[0].get("mySum"));
 
             listener.reset();
         });

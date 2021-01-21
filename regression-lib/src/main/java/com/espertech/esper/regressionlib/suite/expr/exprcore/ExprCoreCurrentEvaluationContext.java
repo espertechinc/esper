@@ -20,11 +20,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.client.SupportPortableCompileOptionStmtUserObject;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreCurrentEvaluationContext {
     public static Collection<RegressionExecution> executions() {
@@ -57,11 +58,11 @@ public class ExprCoreCurrentEvaluationContext {
             env.sendEventBean(new SupportBean());
             env.assertEventNew("s0", event -> {
                 EPLExpressionEvaluationContext ctx = (EPLExpressionEvaluationContext) event.get("c0");
-                Assert.assertEquals(env.runtimeURI(), ctx.getRuntimeURI());
-                Assert.assertEquals(env.statement("s0").getName(), ctx.getStatementName());
-                Assert.assertEquals(-1, ctx.getContextPartitionId());
-                Assert.assertEquals("my_user_object", ctx.getStatementUserObject());
-                Assert.assertEquals(env.runtimeURI(), event.get("c2"));
+                assertEquals(env.runtimeURI(), ctx.getRuntimeURI());
+                assertEquals(env.statement("s0").getName(), ctx.getStatementName());
+                assertEquals(-1, ctx.getContextPartitionId());
+                assertEquals("my_user_object", ctx.getStatementUserObject());
+                assertEquals(env.runtimeURI(), event.get("c2"));
             });
 
             env.undeployAll();

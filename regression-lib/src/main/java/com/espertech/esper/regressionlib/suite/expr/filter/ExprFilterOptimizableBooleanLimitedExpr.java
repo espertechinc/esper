@@ -35,8 +35,6 @@ import static com.espertech.esper.common.internal.filterspec.FilterOperator.EQUA
 import static com.espertech.esper.common.internal.filterspec.FilterOperator.REBOOL;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterOptimizableHelper.hasFilterIndexPlanAdvanced;
 import static com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper.*;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ExprFilterOptimizableBooleanLimitedExpr {

@@ -21,7 +21,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -217,7 +216,7 @@ public class ResultSetOrderBySimple {
             model.setOutputLimitClause(OutputLimitClause.create(6));
             model.setOrderByClause(OrderByClause.create().add("price", true));
             model = SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -961,7 +960,7 @@ public class ResultSetOrderBySimple {
             log.debug(".assertValuesMayConvert events.length==" + events.length);
             for (int i = 0; i < events.length; i++) {
                 SupportMarketDataBean theEvent = (SupportMarketDataBean) events[i].get("one");
-                Assert.assertEquals(symbols.get(i), theEvent.getSymbol());
+                assertEquals(symbols.get(i), theEvent.getSymbol());
             }
         });
     }
@@ -973,7 +972,7 @@ public class ResultSetOrderBySimple {
             log.debug(".assertValuesMayConvert values: " + values);
             for (int i = 0; i < events.length; i++) {
                 log.debug(".assertValuesMayConvert events[" + i + "]==" + events[i].get(valueName));
-                Assert.assertEquals(values.get(i), events[i].get(valueName));
+                assertEquals(values.get(i), events[i].get(valueName));
             }
         });
     }

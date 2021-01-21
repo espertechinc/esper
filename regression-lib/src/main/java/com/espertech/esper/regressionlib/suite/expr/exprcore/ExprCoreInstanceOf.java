@@ -18,15 +18,13 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ExprCoreInstanceOf {
 
@@ -55,7 +53,7 @@ public class ExprCoreInstanceOf {
 
             builder.statementConsumer(stmt -> {
                 for (int i = 0; i < fields.length; i++) {
-                    Assert.assertEquals(Boolean.class, stmt.getEventType().getPropertyType(fields[i]));
+                    assertEquals(Boolean.class, stmt.getEventType().getPropertyType(fields[i]));
                 }
             });
 
@@ -84,7 +82,7 @@ public class ExprCoreInstanceOf {
                 .add(Expressions.instanceOf(Expressions.property("theString"), "float", "string", "int"), "t1"));
             model.setFromClause(FromClause.create(FilterStream.create(SupportBean.class.getSimpleName())));
             model = (EPStatementObjectModel) SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
@@ -199,7 +197,7 @@ public class ExprCoreInstanceOf {
 
     private static void assertResults(EventBean theEvent, boolean[] result) {
         for (int i = 0; i < result.length; i++) {
-            Assert.assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
+            assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
         }
     }
 }

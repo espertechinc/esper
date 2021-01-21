@@ -15,7 +15,8 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckTypeOne;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanDuckTypeTwo;
-import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreDotExpressionDuckTyping implements RegressionExecution {
 
@@ -39,8 +40,8 @@ public class ExprCoreDotExpressionDuckTyping implements RegressionExecution {
         env.assertStatement("s0", statement -> {
             for (int i = 0; i < rows.length; i++) {
                 EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                assertEquals(rows[i][0], prop.getPropertyName());
+                assertEquals(rows[i][1], prop.getPropertyType());
             }
         });
 

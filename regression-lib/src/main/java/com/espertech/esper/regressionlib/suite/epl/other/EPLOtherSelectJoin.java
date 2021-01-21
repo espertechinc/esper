@@ -15,7 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +121,7 @@ public class EPLOtherSelectJoin {
             env.assertListener("s0", listener -> {
                 assertSame(holder.eventsASetTwo[0], listener.getLastOldData()[0].get("streamA"));
                 assertSame(holder.eventsB[0], listener.getLastOldData()[0].get("streamB"));
-                Assert.assertEquals(1, listener.getLastOldData().length);
+                assertEquals(1, listener.getLastOldData().length);
             });
 
             env.undeployAll();
@@ -136,9 +135,9 @@ public class EPLOtherSelectJoin {
         env.compileDeploy(epl).addListener("s0");
 
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(SupportBean_A.class, statement.getEventType().getPropertyType("streamA"));
-            Assert.assertEquals(SupportBean_B.class, statement.getEventType().getPropertyType("streamB"));
-            Assert.assertEquals(2, statement.getEventType().getPropertyNames().length);
+            assertEquals(SupportBean_A.class, statement.getEventType().getPropertyType("streamA"));
+            assertEquals(SupportBean_B.class, statement.getEventType().getPropertyType("streamB"));
+            assertEquals(2, statement.getEventType().getPropertyNames().length);
         });
 
         holder.eventsA = new SupportBean_A[10];

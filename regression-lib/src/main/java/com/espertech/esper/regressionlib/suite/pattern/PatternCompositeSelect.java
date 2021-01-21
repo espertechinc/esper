@@ -18,14 +18,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PatternCompositeSelect {
 
@@ -83,25 +81,25 @@ public class PatternCompositeSelect {
                 // test fragment B type and event
                 FragmentEventType typeFragB = theEvent.getEventType().getFragmentType("b");
                 assertFalse(typeFragB.isIndexed());
-                Assert.assertEquals("SupportBean_B", typeFragB.getFragmentType().getName());
-                Assert.assertEquals(String.class, typeFragB.getFragmentType().getPropertyType("id"));
+                assertEquals("SupportBean_B", typeFragB.getFragmentType().getName());
+                assertEquals(String.class, typeFragB.getFragmentType().getPropertyType("id"));
 
                 EventBean eventFragB = (EventBean) theEvent.getFragment("b");
-                Assert.assertEquals("SupportBean_B", eventFragB.getEventType().getName());
+                assertEquals("SupportBean_B", eventFragB.getEventType().getName());
 
                 // test fragment A type and event
                 FragmentEventType typeFragA = theEvent.getEventType().getFragmentType("a");
                 assertTrue(typeFragA.isIndexed());
-                Assert.assertEquals("SupportBean_A", typeFragA.getFragmentType().getName());
-                Assert.assertEquals(String.class, typeFragA.getFragmentType().getPropertyType("id"));
+                assertEquals("SupportBean_A", typeFragA.getFragmentType().getName());
+                assertEquals(String.class, typeFragA.getFragmentType().getPropertyType("id"));
 
                 assertTrue(theEvent.getFragment("a") instanceof EventBean[]);
                 EventBean eventFragA1 = (EventBean) theEvent.getFragment("a[0]");
-                Assert.assertEquals("SupportBean_A", eventFragA1.getEventType().getName());
-                Assert.assertEquals("A1", eventFragA1.get("id"));
+                assertEquals("SupportBean_A", eventFragA1.getEventType().getName());
+                assertEquals("A1", eventFragA1.get("id"));
                 EventBean eventFragA2 = (EventBean) theEvent.getFragment("a[1]");
-                Assert.assertEquals("SupportBean_A", eventFragA2.getEventType().getName());
-                Assert.assertEquals("A2", eventFragA2.get("id"));
+                assertEquals("SupportBean_A", eventFragA2.getEventType().getName());
+                assertEquals("A2", eventFragA2.get("id"));
             });
 
             env.undeployAll();

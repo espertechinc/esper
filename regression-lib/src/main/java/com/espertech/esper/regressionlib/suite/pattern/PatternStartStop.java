@@ -23,13 +23,11 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
 public class PatternStartStop {
@@ -82,9 +80,9 @@ public class PatternStartStop {
             assertNull(stmt.getProperty(StatementProperty.CONTEXTDEPLOYMENTID));
 
             // Pattern started when created
-            TestCase.assertFalse(env.statement("s0").iterator().hasNext());
+            assertFalse(env.statement("s0").iterator().hasNext());
             SafeIterator<EventBean> safe = env.statement("s0").safeIterator();
-            TestCase.assertFalse(safe.hasNext());
+            assertFalse(safe.hasNext());
             safe.close();
 
             // Stop pattern
@@ -103,7 +101,7 @@ public class PatternStartStop {
             SupportBean theEvent = sendEvent(env);
             assertSame(theEvent, env.iterator("s0").next().get("tag"));
             safe = env.statement("s0").safeIterator();
-            TestCase.assertSame(theEvent, safe.next().get("tag"));
+            assertSame(theEvent, safe.next().get("tag"));
             safe.close();
 
             // Stop pattern
@@ -141,23 +139,23 @@ public class PatternStartStop {
             SupportUpdateListener listener = new SupportUpdateListener();
             env.statement("s0").addListener(listener);
             assertNull(env.listener("s0").getLastNewData());
-            TestCase.assertFalse(env.iterator("s0").hasNext());
+            assertFalse(env.iterator("s0").hasNext());
 
             // Send event
             SupportBean theEvent = sendEvent(env);
             assertEquals(theEvent, listener.getAndResetLastNewData()[0].get("tag"));
-            TestCase.assertSame(theEvent, env.statement("s0").iterator().next().get("tag"));
+            assertSame(theEvent, env.statement("s0").iterator().next().get("tag"));
 
             // Remove listener
             env.statement("s0").removeListener(listener);
             theEvent = sendEvent(env);
-            TestCase.assertSame(theEvent, env.iterator("s0").next().get("tag"));
+            assertSame(theEvent, env.iterator("s0").next().get("tag"));
             assertNull(listener.getLastNewData());
 
             // Add listener back
             env.statement("s0").addListener(listener);
             theEvent = sendEvent(env);
-            TestCase.assertSame(theEvent, env.iterator("s0").next().get("tag"));
+            assertSame(theEvent, env.iterator("s0").next().get("tag"));
             assertEquals(theEvent, listener.getAndResetLastNewData()[0].get("tag"));
 
             env.undeployAll();
@@ -181,10 +179,10 @@ public class PatternStartStop {
 
             env.assertEventNew("s0", eventBean -> {
                 if (theEvent instanceof SupportBean) {
-                    TestCase.assertSame(theEvent, eventBean.get("a"));
+                    assertSame(theEvent, eventBean.get("a"));
                     assertNull(eventBean.get("b"));
                 } else {
-                    TestCase.assertSame(theEvent, eventBean.get("b"));
+                    assertSame(theEvent, eventBean.get("b"));
                     assertNull(eventBean.get("a"));
                 }
             });

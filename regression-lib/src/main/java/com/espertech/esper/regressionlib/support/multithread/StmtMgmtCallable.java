@@ -19,11 +19,13 @@ import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.EPDeployment;
 import com.espertech.esper.runtime.client.EPRuntime;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StmtMgmtCallable implements Callable {
     private final EPRuntime runtime;
@@ -61,7 +63,7 @@ public class StmtMgmtCallable implements Callable {
 
                     // Should have received one or more events, one of them must be mine
                     EventBean[] newEvents = listener.getNewDataListFlattened();
-                    Assert.assertTrue("No event received", newEvents.length >= 1);
+                    assertTrue("No event received", newEvents.length >= 1);
                     ThreadLogUtil.trace("assert received, size is", newEvents.length);
                     boolean found = false;
                     for (int i = 0; i < newEvents.length; i++) {
@@ -70,7 +72,7 @@ public class StmtMgmtCallable implements Callable {
                             found = true;
                         }
                     }
-                    Assert.assertTrue(found);
+                    assertTrue(found);
                     listener.reset();
 
                     // Stopping statement, the event should not be received, another event may however
@@ -89,7 +91,7 @@ public class StmtMgmtCallable implements Callable {
                             found = true;
                         }
                     }
-                    Assert.assertFalse(found);
+                    assertFalse(found);
                 }
             }
         } catch (AssertionFailedError ex) {

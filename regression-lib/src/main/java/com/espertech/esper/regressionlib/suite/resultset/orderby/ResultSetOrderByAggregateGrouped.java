@@ -16,11 +16,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanString;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetOrderByAggregateGrouped {
     public static Collection<RegressionExecution> executions() {
@@ -66,7 +67,7 @@ public class ResultSetOrderByAggregateGrouped {
                 "group by symbol " +
                 "output every 6 events " +
                 "order by sum(price), symbol";
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");

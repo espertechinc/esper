@@ -19,15 +19,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportSpatialEventRectang
 import com.espertech.esper.regressionlib.support.bean.SupportSpatialPoint;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class SupportSpatialUtil {
     private static final Logger log = LoggerFactory.getLogger(SupportSpatialUtil.class);
@@ -49,7 +46,7 @@ public class SupportSpatialUtil {
         env.sendEventBean(new SupportSpatialAABB("", x, y, width, height));
         EventBean[] events = env.listener("s0").getAndResetLastNewData();
         if (events == null || events.length == 0) {
-            TestCase.assertTrue(expected.isEmpty());
+            assertTrue(expected.isEmpty());
             return;
         }
         assertEquals(expected.size(), events.length);
@@ -59,7 +56,7 @@ public class SupportSpatialUtil {
         }
         assertEquals(expected.size(), received.size());
         for (SupportSpatialEventRectangle r : expected) {
-            TestCase.assertTrue(received.contains(r.getId()));
+            assertTrue(received.contains(r.getId()));
         }
     }
 
@@ -121,7 +118,7 @@ public class SupportSpatialUtil {
         env.sendEventBean(new SupportSpatialAABB("", x, y, width, height));
         EventBean[] events = env.listener("s0").getAndResetLastNewData();
         if (events == null || events.length == 0) {
-            TestCase.assertTrue(expected.isEmpty());
+            assertTrue(expected.isEmpty());
             return;
         }
         assertEquals(expected.size(), events.length);
@@ -131,7 +128,7 @@ public class SupportSpatialUtil {
         }
         assertEquals(expected.size(), received.size());
         for (SupportSpatialPoint p : expected) {
-            TestCase.assertTrue(received.contains(p.getId()));
+            assertTrue(received.contains(p.getId()));
         }
     }
 

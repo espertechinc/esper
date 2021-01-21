@@ -17,13 +17,13 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.threadJoin;
+import static org.junit.Assert.assertEquals;
 
 public class MultithreadUpdateIStreamSubselect implements RegressionExecution {
     @Override
@@ -61,10 +61,10 @@ public class MultithreadUpdateIStreamSubselect implements RegressionExecution {
         }
 
         // validate results, price must be 5 for each symbol
-        Assert.assertEquals(numGroups, listener.getNewDataList().size());
+        assertEquals(numGroups, listener.getNewDataList().size());
         for (EventBean[] newData : listener.getNewDataList()) {
             SupportBean result = (SupportBean) (newData[0]).getUnderlying();
-            Assert.assertEquals(numRepeats, result.getLongPrimitive());
+            assertEquals(numRepeats, result.getLongPrimitive());
         }
 
         env.undeployAll();

@@ -14,7 +14,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class FilterTestMultiStmtExecution implements RegressionExecution {
     private static final Logger log = LoggerFactory.getLogger(FilterTestMultiStmtExecution.class);
@@ -124,7 +122,7 @@ public class FilterTestMultiStmtExecution implements RegressionExecution {
             String message = "Failed at event " + eventNum;
 
             if (item.getExpectedPerStmt().length != startedStatements.length) {
-                Assert.fail("Number of boolean expected-values not matching number of statements for item " + eventNum);
+                fail("Number of boolean expected-values not matching number of statements for item " + eventNum);
             }
 
             for (int i = 0; i < startedStatements.length; i++) {
@@ -140,8 +138,8 @@ public class FilterTestMultiStmtExecution implements RegressionExecution {
                         assertFalse(message, listener.getAndClearIsInvoked());
                     } else {
                         SupportListener listener = env.listener(stmtName);
-                        Assert.assertTrue(message, listener.isInvoked());
-                        Assert.assertSame(message, item.getBean(), listener.assertOneGetNewAndReset().getUnderlying());
+                        assertTrue(message, listener.isInvoked());
+                        assertSame(message, item.getBean(), listener.assertOneGetNewAndReset().getUnderlying());
                     }
                 }
             }

@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.support.multithread.GeneratorIteratorCa
 import com.espertech.esper.regressionlib.support.multithread.SendEventCallable;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
-import org.junit.Assert;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +28,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for multithread-safety for a simple aggregation case using count(*).
@@ -70,6 +71,6 @@ public class MultithreadStmtStatelessEnummethod implements RegressionExecution {
         SupportCompileDeployUtil.threadpoolAwait(threadPool, 10, TimeUnit.SECONDS);
         SupportCompileDeployUtil.assertFutures(future);
 
-        Assert.assertEquals(numMessages * numThreads, listener.getNewDataListFlattened().length);
+        assertEquals(numMessages * numThreads, listener.getNewDataListFlattened().length);
     }
 }

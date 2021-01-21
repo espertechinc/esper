@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreInBetween {
     public static Collection<RegressionExecution> executions() {

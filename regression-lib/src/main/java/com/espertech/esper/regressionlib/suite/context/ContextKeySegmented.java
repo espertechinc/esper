@@ -26,8 +26,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportWebEvent;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorPartitioned;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
-import junit.framework.TestCase;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -431,7 +429,7 @@ public class ContextKeySegmented {
                     });
                     fail();
                 } catch (InvalidContextPartitionSelector ex) {
-                    TestCase.assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorSegmented] interfaces but received com."));
+                    assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorSegmented] interfaces but received com."));
                 }
             });
 
@@ -525,7 +523,7 @@ public class ContextKeySegmented {
             // first send a view events
             env.sendEventBean(new SupportBean("B1", -1));
             env.sendEventBean(new SupportBean_S0(-2, "S0"));
-            env.assertThat(() -> Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             String[] fields = "col1,col2".split(",");
             env.compileDeploy("@name('s0') context SegmentedByAString " +
@@ -533,7 +531,7 @@ public class ContextKeySegmented {
                 "from pattern [every (s0=SupportBean_S0 or sb=SupportBean)]", path);
             env.addListener("s0");
 
-            env.assertThat(() -> Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.milestone(0);
 
@@ -541,7 +539,7 @@ public class ContextKeySegmented {
             env.sendEventBean(new SupportBean("S0", -1));
             env.sendEventBean(new SupportBean("S1", -2));
             env.assertListenerNotInvoked("s0");
-            env.assertThat(() -> Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.milestone(1);
 
@@ -592,7 +590,7 @@ public class ContextKeySegmented {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@Name('context') @public create context SegmentedByAString " +
                 "partition by theString from SupportBean, p00 from SupportBean_S0", path);
-            env.assertThat(() -> Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             // first send a view events
             env.sendEventBean(new SupportBean("B1", 1));
@@ -602,56 +600,56 @@ public class ContextKeySegmented {
             env.compileDeploy("@name('s0') context SegmentedByAString select sum(id) as col1 from SupportBean_S0", path);
             env.addListener("s0");
 
-            env.assertThat(() -> Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.sendEventBean(new SupportBean_S0(10, "S0"));
             env.assertPropsNew("s0", fields, new Object[]{10});
 
             env.milestone(0);
 
-            env.assertThat(() -> Assert.assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(3, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.sendEventBean(new SupportBean_S0(8, "S1"));
             env.assertPropsNew("s0", fields, new Object[]{8});
 
             env.milestone(1);
 
-            env.assertThat(() -> Assert.assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.sendEventBean(new SupportBean_S0(4, "S0"));
             env.assertPropsNew("s0", fields, new Object[]{14});
 
             env.milestone(2);
 
-            env.assertThat(() -> Assert.assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(4, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.compileDeploy("@name('s1') context SegmentedByAString select sum(intPrimitive) as col1 from SupportBean", path);
             env.addListener("s1");
 
-            env.assertThat(() -> Assert.assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.sendEventBean(new SupportBean("S0", 5));
             env.assertPropsNew("s1", fields, new Object[]{5});
 
-            env.assertThat(() -> Assert.assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(6, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.milestone(3);
 
             env.sendEventBean(new SupportBean("S2", 6));
             env.assertPropsNew("s1", fields, new Object[]{6});
 
-            env.assertThat(() -> Assert.assertEquals(8, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(8, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.undeployModuleContaining("s0");
-            env.assertThat(() -> Assert.assertEquals(5, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));  // 5 = 3 from context instances and 2 from context itself
+            env.assertThat(() -> assertEquals(5, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));  // 5 = 3 from context instances and 2 from context itself
 
             env.milestone(4);
 
             env.undeployModuleContaining("s1");
-            env.assertThat(() -> Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.undeployModuleContaining("context");
-            env.assertThat(() -> Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
+            env.assertThat(() -> assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env)));
 
             env.undeployAll();
         }
@@ -1164,18 +1162,18 @@ public class ContextKeySegmented {
 
     private static void assertViewData(RegressionEnvironment env, int newIntExpected, Object[][] newArrayExpected, Integer oldIntExpected) {
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getLastNewData().length);
-            Assert.assertEquals(newIntExpected, listener.getLastNewData()[0].get("intPrimitive"));
+            assertEquals(1, listener.getLastNewData().length);
+            assertEquals(newIntExpected, listener.getLastNewData()[0].get("intPrimitive"));
             SupportBean[] beans = (SupportBean[]) listener.getLastNewData()[0].get("pw");
             assertEquals(newArrayExpected.length, beans.length);
             for (int i = 0; i < beans.length; i++) {
-                Assert.assertEquals(newArrayExpected[i][0], beans[i].getTheString());
-                Assert.assertEquals(newArrayExpected[i][1], beans[i].getIntPrimitive());
+                assertEquals(newArrayExpected[i][0], beans[i].getTheString());
+                assertEquals(newArrayExpected[i][1], beans[i].getIntPrimitive());
             }
 
             if (oldIntExpected != null) {
-                Assert.assertEquals(1, listener.getLastOldData().length);
-                Assert.assertEquals(oldIntExpected, listener.getLastOldData()[0].get("intPrimitive"));
+                assertEquals(1, listener.getLastOldData().length);
+                assertEquals(oldIntExpected, listener.getLastOldData()[0].get("intPrimitive"));
             } else {
                 assertNull(listener.getLastOldData());
             }

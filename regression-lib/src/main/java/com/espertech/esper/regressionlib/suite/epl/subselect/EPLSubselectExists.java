@@ -17,11 +17,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S2;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLSubselectExists {
 
@@ -62,7 +63,7 @@ public class EPLSubselectExists {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String stmtText = "select exists (select * from SupportBean_S1#length(1000)) as value from SupportBean_S0";
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -176,7 +177,7 @@ public class EPLSubselectExists {
             model = SerializableObjectCopier.copyMayFail(model);
 
             String stmtText = "select id from SupportBean_S0 where not exists (select * from SupportBean_S1#length(1000))";
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");

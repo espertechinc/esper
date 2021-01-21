@@ -14,9 +14,11 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowExecutionExcept
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstance;
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class SupportDataFlowAssertionUtil {
     private static final Logger log = LoggerFactory.getLogger(SupportDataFlowAssertionUtil.class);
@@ -27,7 +29,7 @@ public class SupportDataFlowAssertionUtil {
 
         try {
             df.run();
-            Assert.fail();
+            fail();
         } catch (EPDataFlowExecutionException ex) {
             assertException(message, ex.getMessage());
         }
@@ -40,7 +42,7 @@ public class SupportDataFlowAssertionUtil {
 
         try {
             env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), name);
-            Assert.fail();
+            fail();
         } catch (EPDataFlowInstantiationException ex) {
             log.info("Expected exception: " + ex.getMessage(), ex);
             assertException(message, ex.getMessage());
@@ -57,9 +59,9 @@ public class SupportDataFlowAssertionUtil {
             received = message;
         }
         if (message.startsWith(expected)) {
-            Assert.assertFalse("empty expected message, received:\n" + message, expected.trim().isEmpty());
+            assertFalse("empty expected message, received:\n" + message, expected.trim().isEmpty());
             return;
         }
-        Assert.fail("Expected:\n" + expected + "\nbut received:\n" + received + "\n");
+        fail("Expected:\n" + expected + "\nbut received:\n" + received + "\n");
     }
 }

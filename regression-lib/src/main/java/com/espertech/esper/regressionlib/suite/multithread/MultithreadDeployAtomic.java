@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.runtime.client.*;
-import junit.framework.TestCase;
 
 import java.io.StringWriter;
 import java.util.EnumSet;
@@ -80,8 +79,8 @@ public class MultithreadDeployAtomic implements RegressionExecution {
 
         // all first events should be the same
         UniformPair<EventBean> reference = listener.firstLastPerStmt.values().iterator().next();
-        TestCase.assertNotNull(reference.getFirst());
-        TestCase.assertNotNull(reference.getSecond());
+        assertNotNull(reference.getFirst());
+        assertNotNull(reference.getSecond());
         assertNotSame(reference.getFirst(), reference.getSecond());
         for (UniformPair<EventBean> other : listener.firstLastPerStmt.values()) {
             assertSame("last event not the same", reference.getSecond(), other.getSecond());

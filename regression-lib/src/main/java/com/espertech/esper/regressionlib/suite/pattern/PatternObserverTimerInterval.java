@@ -21,10 +21,11 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternObserverTimerInterval {
 
@@ -58,7 +59,7 @@ public class PatternObserverTimerInterval {
             PatternExpr pattern = Patterns.timerInterval(1.999d);
             model.setFromClause(FromClause.create(PatternStream.create(pattern)));
             model = SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             testCase = new EventExpressionCase(model);
             testCase.add("B1");
             testCaseList.addTest(testCase);
@@ -189,7 +190,7 @@ public class PatternObserverTimerInterval {
             testCaseList.addTest(testCase);
 
             // Run all tests
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
 

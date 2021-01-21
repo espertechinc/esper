@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.multithread.SendEventRWLockCall
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test for multithread-safety and deterministic behavior when using insert-into.
@@ -99,7 +99,7 @@ public class MultithreadDeterminismInsertIntoLockConfig implements RegressionExe
 
         // assert result
         for (int i = 0; i < numEvents - 1; i++) {
-            Assert.assertEquals("Listener not invoked: #" + i, 1, listeners[i].getNewDataList().size());
+            assertEquals("Listener not invoked: #" + i, 1, listeners[i].getNewDataList().size());
         }
 
         runtime.destroy();

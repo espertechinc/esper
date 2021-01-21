@@ -22,7 +22,6 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.client.variable.VariableValueException;
 import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
@@ -52,9 +51,9 @@ public class EPLVariablesCreate {
                 "@name('s0') select mylist as c0, mylist.where(v => v = 'a') as c1 from SupportBean;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), "c0,c1".split(","), new EPTypeClass[] {
+            env.assertStmtTypes("s0", "c0,c1".split(","), new EPTypeClass[] {
                 EPTypeClassParameterized.from(List.class, String.class), EPTypeClassParameterized.from(Collection.class, String.class)
-            }));
+            });
 
             env.milestone(0);
 

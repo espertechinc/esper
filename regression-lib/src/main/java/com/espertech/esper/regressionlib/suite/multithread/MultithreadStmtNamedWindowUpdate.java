@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil;
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowUpdateCallable;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
-import org.junit.Assert;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -112,8 +111,8 @@ public class MultithreadStmtNamedWindowUpdate implements RegressionExecution {
         long totalUpdates = 0;
         for (EventBean row : rows) {
             UpdateTotals total = totals.get(new Pair<>((String) row.get("theString"), (Integer) row.get("intPrimitive")));
-            Assert.assertEquals(total.getNum(), row.get("intBoxed"));
-            Assert.assertEquals(total.getSum(), row.get("doublePrimitive"));
+            assertEquals(total.getNum(), row.get("intBoxed"));
+            assertEquals(total.getSum(), row.get("doublePrimitive"));
             totalUpdates += total.getNum();
         }
 

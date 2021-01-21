@@ -17,11 +17,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithIntArray;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternOperatorEveryDistinct {
 
@@ -297,8 +298,8 @@ public class PatternOperatorEveryDistinct {
 
             env.sendEventBean(new SupportBean("E3", 2));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals("E1", theEvent.get("a[0].theString"));
-                Assert.assertEquals("E3", theEvent.get("a[1].theString"));
+                assertEquals("E1", theEvent.get("a[0].theString"));
+                assertEquals("E3", theEvent.get("a[1].theString"));
             });
 
             env.milestoneInc(milestone);
@@ -334,8 +335,8 @@ public class PatternOperatorEveryDistinct {
 
             env.sendEventBean(new SupportBean("E2", 1));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals("E1", theEvent.get("a[0].theString"));
-                Assert.assertEquals("E2", theEvent.get("a[1].theString"));
+                assertEquals("E1", theEvent.get("a[0].theString"));
+                assertEquals("E2", theEvent.get("a[1].theString"));
             });
 
             env.milestoneInc(milestone);
@@ -350,8 +351,8 @@ public class PatternOperatorEveryDistinct {
 
             env.sendEventBean(new SupportBean("E6", 1));
             env.assertEventNew("s0", theEvent -> {
-                Assert.assertEquals("E5", theEvent.get("a[0].theString"));
-                Assert.assertEquals("E6", theEvent.get("a[1].theString"));
+                assertEquals("E5", theEvent.get("a[0].theString"));
+                assertEquals("E6", theEvent.get("a[1].theString"));
             });
 
             env.undeployAll();

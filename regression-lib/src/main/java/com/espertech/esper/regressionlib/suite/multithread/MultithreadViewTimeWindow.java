@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumSet;
 import java.util.concurrent.*;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for multithread-safety of a time window -based statement.

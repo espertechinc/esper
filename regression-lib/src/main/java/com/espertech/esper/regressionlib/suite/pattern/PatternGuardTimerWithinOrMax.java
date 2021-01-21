@@ -15,7 +15,8 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.patternassert.*;
-import org.junit.Assert;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternGuardTimerWithinOrMax implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -40,7 +41,7 @@ public class PatternGuardTimerWithinOrMax implements RegressionExecution {
         Expression filter = Expressions.eq("id", "B3");
         PatternExpr pattern = Patterns.timerWithinMax(10.001, 1, Patterns.filter(Filter.create("SupportBean_B", filter), "b"));
         model.setFromClause(FromClause.create(PatternStream.create(pattern)));
-        Assert.assertEquals(text, model.toEPL().replace("\"", "'"));
+        assertEquals(text, model.toEPL().replace("\"", "'"));
         testCase = new EventExpressionCase(model);
         testCase.add("B3", "b", events.getEvent("B3"));
         testCaseList.addTest(testCase);
@@ -124,7 +125,7 @@ public class PatternGuardTimerWithinOrMax implements RegressionExecution {
         testCase.add("D3", "b", events.getEvent("B3"), "d", events.getEvent("D3"));
         testCaseList.addTest(testCase);
 
-        PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+        PatternTestHarness util = new PatternTestHarness(events, testCaseList);
         util.runTest(env);
     }
 }

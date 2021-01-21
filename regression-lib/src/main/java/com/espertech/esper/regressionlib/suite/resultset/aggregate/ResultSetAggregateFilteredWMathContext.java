@@ -17,7 +17,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetAggregateFilteredWMathContext implements RegressionExecution {
     public void run(RegressionEnvironment env) {
@@ -28,7 +28,7 @@ public class ResultSetAggregateFilteredWMathContext implements RegressionExecuti
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(0, 2, RoundingMode.HALF_UP)));
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(0, 2, RoundingMode.HALF_UP)));
         env.sendEventBean(new SupportBeanNumeric(null, makeBigDec(1, 2, RoundingMode.HALF_UP)));
-        env.assertListener("s0", listener -> assertEquals(0.33, ((BigDecimal) listener.getAndResetLastNewData()[0].get("c0")).doubleValue()));
+        env.assertListener("s0", listener -> assertEquals(0.33, ((BigDecimal) listener.getAndResetLastNewData()[0].get("c0")).doubleValue(), 0));
 
         env.undeployAll();
     }

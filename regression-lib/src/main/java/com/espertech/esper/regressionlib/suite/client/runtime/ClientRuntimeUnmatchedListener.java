@@ -17,7 +17,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.runtime.client.UnmatchedListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -115,7 +114,7 @@ public class ClientRuntimeUnmatchedListener {
             // no statement, should be unmatched
             sendEvent(env, "E1");
             assertEquals(1, listener.getReceived().size());
-            Assert.assertEquals("E1", listener.getReceived().get(0).get("theString"));
+            assertEquals("E1", listener.getReceived().get(0).get("theString"));
             listener.reset();
 
             // stop insert into, now SupportBean itself is unmatched
@@ -128,7 +127,7 @@ public class ClientRuntimeUnmatchedListener {
             // start insert-into
             sendEvent(env, "E3");
             assertEquals(1, listener.getReceived().size());
-            Assert.assertEquals("E3", listener.getReceived().get(0).get("theString"));
+            assertEquals("E3", listener.getReceived().get(0).get("theString"));
             listener.reset();
         }
 

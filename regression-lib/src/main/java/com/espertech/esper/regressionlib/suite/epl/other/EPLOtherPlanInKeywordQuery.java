@@ -38,9 +38,10 @@ import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanBuilder;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHelper;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
-import org.junit.Assert;
 
 import java.util.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
     public static List<RegressionExecution> executions() {
@@ -65,7 +66,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
             env.compileDeploy(epl);
 
             Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> items = SupportQueryPlanIndexHook.assertJoinAndReset().getIndexSpecs()[1].getItems();
-            Assert.assertEquals("[]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
+            assertEquals("[]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
 
             env.undeployAll();
         }
@@ -85,7 +86,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> items = SupportQueryPlanIndexHook.assertJoinAndReset().getIndexSpecs()[1].getItems();
-                Assert.assertEquals("[p10][p11]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
+                assertEquals("[p10][p11]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
             });
 
             tryAssertionMultiIdx(env);
@@ -102,7 +103,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescOnExpr onExprNamedWindow = SupportQueryPlanIndexHook.assertOnExprAndReset();
-                Assert.assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), onExprNamedWindow.getTableLookupStrategy());
+                assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), onExprNamedWindow.getTableLookupStrategy());
             });
 
             tryAssertionMultiIdx(env);
@@ -122,7 +123,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescOnExpr onExprTable = SupportQueryPlanIndexHook.assertOnExprAndReset();
-                Assert.assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), onExprTable.getTableLookupStrategy());
+                assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), onExprTable.getTableLookupStrategy());
             });
 
             tryAssertionMultiIdx(env);
@@ -143,7 +144,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescSubquery subquery = SupportQueryPlanIndexHook.assertSubqueryAndReset();
-                Assert.assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), subquery.getTableLookupStrategy());
+                assertEquals(SubordInKeywordMultiTableLookupStrategyFactoryForge.class.getSimpleName(), subquery.getTableLookupStrategy());
             });
 
             // single row tests
@@ -208,7 +209,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
             env.compileDeploy(eplCoercion);
             env.assertThat(() -> {
                 QueryPlanIndexDescSubquery subqueryCoercion = SupportQueryPlanIndexHook.assertSubqueryAndReset();
-                Assert.assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
+                assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
             });
             env.undeployAll();
         }
@@ -224,7 +225,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> items = SupportQueryPlanIndexHook.assertJoinAndReset().getIndexSpecs()[0].getItems();
-                Assert.assertEquals("[p00]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
+                assertEquals("[p00]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
             });
 
             tryAssertionSingleIdx(env);
@@ -241,7 +242,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescOnExpr onExprNamedWindow = SupportQueryPlanIndexHook.assertOnExprAndReset();
-                Assert.assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), onExprNamedWindow.getTableLookupStrategy());
+                assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), onExprNamedWindow.getTableLookupStrategy());
             });
 
             tryAssertionSingleIdx(env);
@@ -259,7 +260,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescOnExpr onExprTable = SupportQueryPlanIndexHook.assertOnExprAndReset();
-                Assert.assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), onExprTable.getTableLookupStrategy());
+                assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), onExprTable.getTableLookupStrategy());
             });
 
             tryAssertionSingleIdx(env);
@@ -280,7 +281,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 QueryPlanIndexDescSubquery subquery = SupportQueryPlanIndexHook.assertSubqueryAndReset();
-                Assert.assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), subquery.getTableLookupStrategy());
+                assertEquals(SubordInKeywordSingleTableLookupStrategyFactoryForge.class.getSimpleName(), subquery.getTableLookupStrategy());
             });
 
             // single row tests
@@ -345,7 +346,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
             env.compileDeploy(eplCoercion);
             env.assertThat(() -> {
                 QueryPlanIndexDescSubquery subqueryCoercion = SupportQueryPlanIndexHook.assertSubqueryAndReset();
-                Assert.assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
+                assertEquals(SubordFullTableScanLookupStrategyFactoryForge.class.getSimpleName(), subqueryCoercion.getTableLookupStrategy());
             });
             env.undeployAll();
         }
@@ -361,7 +362,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> items = SupportQueryPlanIndexHook.assertJoinAndReset().getIndexSpecs()[1].getItems();
-                Assert.assertEquals("[p10]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
+                assertEquals("[p10]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
             });
 
             env.sendEventBean(new SupportBean_S1(100, "x"));
@@ -388,7 +389,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
             env.assertThat(() -> {
                 Map<TableLookupIndexReqKey, QueryPlanIndexItemForge> items = SupportQueryPlanIndexHook.assertJoinAndReset().getIndexSpecs()[1].getItems();
-                Assert.assertEquals("[p10][p11]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
+                assertEquals("[p10][p11]", SupportQueryPlanIndexHelper.getIndexedExpressions(items));
             });
 
             env.sendEventBean(new SupportBean_S1(100, "x", "y"));
@@ -522,7 +523,7 @@ public class EPLOtherPlanInKeywordQuery implements IndexBackingTableInfo {
 
     private static void assertSubqueryC0C1(RegressionEnvironment env, int c0, Integer[] c1) {
         env.assertEventNew("s0", event -> {
-            Assert.assertEquals(c0, event.get("c0"));
+            assertEquals(c0, event.get("c0"));
             Collection<Object> c1Coll = (Collection<Object>) event.get("c1");
             EPAssertionUtil.assertEqualsAnyOrder(c1, c1Coll == null ? null : c1Coll.toArray());
         });

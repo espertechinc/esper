@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
 public class SupportIndexTreeBuilderRunnable implements Runnable {
     protected final static Random random = new Random(System.currentTimeMillis());
 
@@ -72,7 +75,7 @@ public class SupportIndexTreeBuilderRunnable implements Runnable {
         if (matches.size() != 0) {
             log.error(".run (" + currentThreadId + ") Got a match but expected no-match, matchCount=" + matches.size() + "  bean=" + unmatchedEvent +
                     "  match=" + matches.get(0).hashCode());
-            TestCase.assertFalse(true);
+            fail();
         }
 
         // Fire a match
@@ -81,7 +84,7 @@ public class SupportIndexTreeBuilderRunnable implements Runnable {
         if (matches.size() != 1) {
             log.error(".run (" + currentThreadId + ") Got zero or two or more match but expected a match, count=" + matches.size() +
                     "  bean=" + matchedEvent);
-            TestCase.assertFalse(true);
+            fail();
         }
 
         // Remove the same expression again

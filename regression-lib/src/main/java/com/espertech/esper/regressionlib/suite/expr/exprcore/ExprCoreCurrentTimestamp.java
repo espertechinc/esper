@@ -18,12 +18,13 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExprCoreCurrentTimestamp {
     public static Collection<RegressionExecution> executions() {
@@ -46,10 +47,10 @@ public class ExprCoreCurrentTimestamp {
 
             env.assertStatement("s0", statement -> {
                 EventType type = statement.getEventType();
-                Assert.assertEquals(Long.class, type.getPropertyType("current_timestamp()"));
-                Assert.assertEquals(Long.class, type.getPropertyType("t0"));
-                Assert.assertEquals(Long.class, type.getPropertyType("t1"));
-                Assert.assertEquals(Long.class, type.getPropertyType("t2"));
+                assertEquals(Long.class, type.getPropertyType("current_timestamp()"));
+                assertEquals(Long.class, type.getPropertyType("t0"));
+                assertEquals(Long.class, type.getPropertyType("t1"));
+                assertEquals(Long.class, type.getPropertyType("t2"));
             });
 
             sendTimer(env, 100);
@@ -60,7 +61,7 @@ public class ExprCoreCurrentTimestamp {
             env.sendEventBean(new SupportBean());
             env.assertEventNew("s0", theEvent -> {
                 assertResults(theEvent, new Object[]{999L, 999L, 1000L});
-                Assert.assertEquals(theEvent.get("current_timestamp()"), theEvent.get("t0"));
+                assertEquals(theEvent.get("current_timestamp()"), theEvent.get("t0"));
             });
 
             env.undeployAll();
@@ -76,7 +77,7 @@ public class ExprCoreCurrentTimestamp {
             model.setSelectClause(SelectClause.create().add(Expressions.currentTimestamp(), "t0"));
             model.setFromClause(FromClause.create().add(FilterStream.create(SupportBean.class.getSimpleName())));
             model = (EPStatementObjectModel) SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0").milestone(0);
@@ -113,7 +114,7 @@ public class ExprCoreCurrentTimestamp {
 
     private static void assertResults(EventBean theEvent, Object[] result) {
         for (int i = 0; i < result.length; i++) {
-            Assert.assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
+            assertEquals("failed for index " + i, result[i], theEvent.get("t" + i));
         }
     }
 }

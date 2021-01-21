@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.support.client.SupportCompileDeployUtil
 import com.espertech.esper.regressionlib.support.multithread.StmtNamedWindowDeleteCallable;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,8 +77,8 @@ public class MultithreadStmtNamedWindowDelete implements RegressionExecution {
         }
         String[] expectedIds = expectedIdsList.toArray(new String[0]);
 
-        Assert.assertEquals(2 * numThreads * numRepeats, listenerWindow.getNewDataList().size());  // old and new each
-        Assert.assertEquals(2 * numThreads * numRepeats, listenerConsumer.getNewDataList().size());  // old and new each
+        assertEquals(2 * numThreads * numRepeats, listenerWindow.getNewDataList().size());  // old and new each
+        assertEquals(2 * numThreads * numRepeats, listenerConsumer.getNewDataList().size());  // old and new each
 
         // compute list of received
         EventBean[] newEvents = listenerWindow.getNewDataListFlattened();

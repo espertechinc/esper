@@ -27,7 +27,6 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import java.io.Serializable;
 import java.util.*;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 public class ResultSetAggregationMethodSorted {

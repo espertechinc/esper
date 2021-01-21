@@ -28,7 +28,7 @@ import com.espertech.esper.runtime.client.scopetest.SupportListener;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ExprFilterInAndBetween {

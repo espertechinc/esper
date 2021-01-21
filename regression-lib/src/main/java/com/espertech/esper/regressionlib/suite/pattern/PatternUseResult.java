@@ -254,7 +254,7 @@ public class PatternUseResult {
             testCase.add("N7", "na", events.getEvent("N1"), "nb", events.getEvent("N7"));
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -300,7 +300,7 @@ public class PatternUseResult {
             testCase.add("e12", "X1", events.getEvent("e7"), "X2", events.getEvent("e12"));
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }

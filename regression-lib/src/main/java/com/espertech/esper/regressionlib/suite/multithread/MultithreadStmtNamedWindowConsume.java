@@ -23,7 +23,6 @@ import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPDeployException;
 import com.espertech.esper.runtime.client.EPStatement;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +95,7 @@ public class MultithreadStmtNamedWindowConsume implements RegressionExecution {
         }
         String[] expectedIds = expectedIdsList.toArray(new String[0]);
 
-        Assert.assertEquals(numThreads * numRepeats, listenerWindow.getNewDataList().size());  // old and new each
+        assertEquals(numThreads * numRepeats, listenerWindow.getNewDataList().size());  // old and new each
 
         // compute list of received
         for (int i = 0; i < listenerConsumers.length; i++) {

@@ -29,7 +29,6 @@ import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.EPSubscriberException;
 import com.espertech.esper.runtime.client.UpdateListener;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.*;
@@ -201,8 +200,8 @@ public class ClientRuntimeSubscriber {
             env.sendEventBean(new SupportBean("E1", 1));
 
             EventBean theEvent = listener.assertOneGetNewAndReset();
-            Assert.assertEquals("E1", theEvent.get("theString"));
-            Assert.assertEquals(1, theEvent.get("intPrimitive"));
+            assertEquals("E1", theEvent.get("theString"));
+            assertEquals(1, theEvent.get("intPrimitive"));
             assertTrue(theEvent.getUnderlying() instanceof Pair);
 
             for (String property : stmt.getEventType().getPropertyNames()) {
@@ -482,7 +481,7 @@ public class ClientRuntimeSubscriber {
         stmt.setSubscriber(subscriberWStmt);
         env.sendEventBean(new SupportBean("E2", 200));
         EPAssertionUtil.assertEqualsExactOrder(new Object[][]{{"E2", 200}}, SupportSubscriberRowByRowStaticWStatement.getIndicate());
-        Assert.assertEquals(stmt, SupportSubscriberRowByRowStaticWStatement.getStatements().get(0));
+        assertEquals(stmt, SupportSubscriberRowByRowStaticWStatement.getStatements().get(0));
         subscriberWStmt.reset();
 
         env.undeployAll();

@@ -16,11 +16,12 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPStatement;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertTrue;
 
 public class StmtIterateCallable implements Callable {
     private static final Logger log = LoggerFactory.getLogger(StmtIterateCallable.class);
@@ -55,7 +56,7 @@ public class StmtIterateCallable implements Callable {
                         }
                     }
                     it.close();
-                    Assert.assertTrue(found);
+                    assertTrue(found);
                     log.info(".call Thread " + Thread.currentThread().getId() + " end iterator " + loop);
                 }
             }

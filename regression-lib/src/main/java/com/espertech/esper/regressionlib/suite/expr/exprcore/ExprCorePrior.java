@@ -18,7 +18,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +26,8 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.assertStatelessStmt;
-import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ExprCorePrior {
     public static Collection<RegressionExecution> executions() {
@@ -240,8 +239,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
             });
 
             sendTimer(env, 0);
@@ -328,8 +327,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
             });
 
             sendMarketEvent(env, "D1", 1, 0);
@@ -399,8 +398,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
             });
 
             sendTimer(env, 0);
@@ -412,7 +411,7 @@ public class ExprCorePrior {
 
             sendTimer(env, 60000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 assertEvent(listener.getLastNewData()[0], "A", null, null);
                 assertEvent(listener.getLastNewData()[1], "B", null, null);
                 assertNull(listener.getLastOldData());
@@ -425,9 +424,9 @@ public class ExprCorePrior {
 
             sendTimer(env, 120000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(1, listener.getLastNewData().length);
+                assertEquals(1, listener.getLastNewData().length);
                 assertEvent(listener.getLastNewData()[0], "C", null, 1d);
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(2, listener.getLastOldData().length);
                 assertEvent(listener.getLastOldData()[0], "A", null, null);
                 listener.reset();
             });
@@ -439,7 +438,7 @@ public class ExprCorePrior {
             sendMarketEvent(env, "G", 7);
             sendTimer(env, 360000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(4, listener.getLastNewData().length);
+                assertEquals(4, listener.getLastNewData().length);
                 assertEvent(listener.getLastNewData()[0], "D", "A", 2d);
                 assertEvent(listener.getLastNewData()[1], "E", "B", 3d);
                 assertEvent(listener.getLastNewData()[2], "F", "C", 4d);
@@ -460,8 +459,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
             });
 
             sendMarketEvent(env, "A", 1);
@@ -624,8 +623,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prior0Symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prior0Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prior0Symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prior0Price"));
             });
 
             sendMarketEvent(env, "A", 1);
@@ -769,8 +768,8 @@ public class ExprCorePrior {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("priorSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("priorPrice"));
             });
 
             sendTimer(env, 0);
@@ -783,7 +782,7 @@ public class ExprCorePrior {
 
             sendTimer(env, 60000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 assertEvent(listener.getLastNewData()[0], "X1", null, null);
                 assertEvent(listener.getLastNewData()[1], "X1", null, 1d);
                 assertNull(listener.getLastOldData());
@@ -797,7 +796,7 @@ public class ExprCorePrior {
 
             sendTimer(env, 120000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(3, listener.getLastNewData().length);
+                assertEquals(3, listener.getLastNewData().length);
                 assertEvent(listener.getLastNewData()[0], "X1", "A", 2d);
                 assertEvent(listener.getLastNewData()[1], "X1", "B", 11d);
                 assertEvent(listener.getLastNewData()[2], "X1", "C1", 12d);
@@ -899,9 +898,9 @@ public class ExprCorePrior {
                                     String currSymbol,
                                     String priorSymbol,
                                     Double priorPrice) {
-        Assert.assertEquals(currSymbol, eventBean.get("currSymbol"));
-        Assert.assertEquals(priorSymbol, eventBean.get("priorSymbol"));
-        Assert.assertEquals(priorPrice, eventBean.get("priorPrice"));
+        assertEquals(currSymbol, eventBean.get("currSymbol"));
+        assertEquals(priorSymbol, eventBean.get("priorSymbol"));
+        assertEquals(priorPrice, eventBean.get("priorPrice"));
     }
 
     private static void assertNewEvents(RegressionEnvironment env, String currSymbol,
@@ -935,15 +934,15 @@ public class ExprCorePrior {
                                          Double prior2Price,
                                          String prior3Symbol,
                                          Double prior3Price) {
-        Assert.assertEquals(currSymbol, eventBean.get("currSymbol"));
-        Assert.assertEquals(prior0Symbol, eventBean.get("prior0Symbol"));
-        Assert.assertEquals(prior0Price, eventBean.get("prior0Price"));
-        Assert.assertEquals(prior1Symbol, eventBean.get("prior1Symbol"));
-        Assert.assertEquals(prior1Price, eventBean.get("prior1Price"));
-        Assert.assertEquals(prior2Symbol, eventBean.get("prior2Symbol"));
-        Assert.assertEquals(prior2Price, eventBean.get("prior2Price"));
-        Assert.assertEquals(prior3Symbol, eventBean.get("prior3Symbol"));
-        Assert.assertEquals(prior3Price, eventBean.get("prior3Price"));
+        assertEquals(currSymbol, eventBean.get("currSymbol"));
+        assertEquals(prior0Symbol, eventBean.get("prior0Symbol"));
+        assertEquals(prior0Price, eventBean.get("prior0Price"));
+        assertEquals(prior1Symbol, eventBean.get("prior1Symbol"));
+        assertEquals(prior1Price, eventBean.get("prior1Price"));
+        assertEquals(prior2Symbol, eventBean.get("prior2Symbol"));
+        assertEquals(prior2Price, eventBean.get("prior2Price"));
+        assertEquals(prior3Symbol, eventBean.get("prior3Symbol"));
+        assertEquals(prior3Price, eventBean.get("prior3Price"));
 
         env.listenerReset("s0");
     }
@@ -982,9 +981,9 @@ public class ExprCorePrior {
             assertNull(newData);
             assertEquals(1, oldData.length);
 
-            Assert.assertEquals(currSymbol, oldData[0].get("currSymbol"));
-            Assert.assertEquals(priorSymbol, oldData[0].get("priorSymbol"));
-            Assert.assertEquals(priorPrice, oldData[0].get("priorPrice"));
+            assertEquals(currSymbol, oldData[0].get("currSymbol"));
+            assertEquals(priorSymbol, oldData[0].get("priorSymbol"));
+            assertEquals(priorPrice, oldData[0].get("priorPrice"));
 
             listener.reset();
         });

@@ -16,12 +16,13 @@ import com.espertech.esper.common.internal.support.SupportEventTypeAssertionUtil
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.util.SupportXML;
 import org.apache.avro.generic.GenericData;
-import org.junit.Assert;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 
 import java.util.Map;
 import java.util.function.Function;
+
+import static org.junit.Assert.assertEquals;
 
 public class SupportEventInfra {
 
@@ -41,7 +42,7 @@ public class SupportEventInfra {
 
         for (int i = 0; i < receivedValues.length; i++) {
             boolean exists = (Boolean) eventBean.get("exists_" + propertyNames[i]);
-            Assert.assertEquals("Assertion failed for property 'exists_" + propertyNames[i] + "'", expected[i].isExists(), exists);
+            assertEquals("Assertion failed for property 'exists_" + propertyNames[i] + "'", expected[i].isExists(), exists);
         }
     }
 
@@ -51,8 +52,8 @@ public class SupportEventInfra {
         if (optionalValueConversion != null) {
             value = optionalValueConversion.apply(value);
         }
-        Assert.assertEquals(expected.getValue(), value);
-        Assert.assertEquals(expected.isExists(), eventBean.get("exists_" + propertyName));
+        assertEquals(expected.getValue(), value);
+        assertEquals(expected.isExists(), eventBean.get("exists_" + propertyName));
     }
 
     @FunctionalInterface

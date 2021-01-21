@@ -315,7 +315,7 @@ public class PatternOperatorMatchUntil {
             testCase = new EventExpressionCase("SupportBean_B until not SupportBean_B");
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }

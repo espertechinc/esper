@@ -21,9 +21,10 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import org.junit.Assert;
 
 import java.util.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternObserverTimerAt {
 
@@ -273,7 +274,7 @@ public class PatternObserverTimerAt {
             PatternExpr pattern = Patterns.timerAt(10, 8, null, null, null, null);
             model.setFromClause(FromClause.create(PatternStream.create(pattern)));
             model = SerializableObjectCopier.copyMayFail(model);
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             testCase = new EventExpressionCase(model);
             testCase.add("A1");
             testCaseList.addTest(testCase);
@@ -290,7 +291,7 @@ public class PatternObserverTimerAt {
              */
 
             // Run all tests
-            PatternTestHarness util = new PatternTestHarness(testData, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(testData, testCaseList);
             util.runTest(env);
         }
     }
@@ -385,7 +386,7 @@ public class PatternObserverTimerAt {
             // test SODA
             String epl = "select * from pattern [every timer:at(*/VFREQ,VMIN:VMAX,1 last,*,[8,2:VMAX,*/VREQ])]";
             EPStatementObjectModel model = env.eplToModel(epl);
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
 
             // test timezone
             if (TimeZone.getDefault().getRawOffset() == -5 * 60 * 60 * 1000) {    // asserting only in EST timezone, see schedule util tests

@@ -16,12 +16,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class EPLVariablesOutputRate {
@@ -57,7 +57,7 @@ public class EPLVariablesOutputRate {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
 
             String stmtTextSelect = "@name('s0') select count(*) as cnt from SupportBean output last every var_output_limit events";
-            Assert.assertEquals(stmtTextSelect, model.toEPL());
+            assertEquals(stmtTextSelect, model.toEPL());
             env.compileDeploy(model, new RegressionPath()).addListener("s0");
 
             tryAssertionOutputRateEventsAll(env);

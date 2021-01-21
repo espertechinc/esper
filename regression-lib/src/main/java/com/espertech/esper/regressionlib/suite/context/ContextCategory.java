@@ -19,7 +19,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.context.*;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
-import junit.framework.TestCase;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -224,8 +223,8 @@ public class ContextCategory {
             env.assertStatement("s0", statement -> {
                 MySelectorFilteredCategory filtered = new MySelectorFilteredCategory("grp1");
                 EPAssertionUtil.assertPropsPerRowAnyOrder(statement.iterator(filtered), statement.safeIterator(filtered), fields, new Object[][]{{0, "grp1", "E3", -108}});
-                TestCase.assertFalse(statement.iterator(new SupportSelectorCategory((Set<String>) null)).hasNext());
-                TestCase.assertFalse(statement.iterator(new SupportSelectorCategory(Collections.emptySet())).hasNext());
+                assertFalse(statement.iterator(new SupportSelectorCategory((Set<String>) null)).hasNext());
+                assertFalse(statement.iterator(new SupportSelectorCategory(Collections.emptySet())).hasNext());
             });
 
             env.milestoneInc(milestone);
@@ -244,7 +243,7 @@ public class ContextCategory {
                     });
                     fail();
                 } catch (InvalidContextPartitionSelector ex) {
-                    TestCase.assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorCategory] interfaces but received com."));
+                    assertTrue("message: " + ex.getMessage(), ex.getMessage().startsWith("Invalid context partition selector, expected an implementation class of any of [ContextPartitionSelectorAll, ContextPartitionSelectorFiltered, ContextPartitionSelectorById, ContextPartitionSelectorCategory] interfaces but received com."));
                 }
             });
 

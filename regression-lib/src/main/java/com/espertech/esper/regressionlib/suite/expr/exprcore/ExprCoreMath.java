@@ -15,7 +15,6 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 import com.espertech.esper.runtime.client.EPStatement;
-import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -200,7 +199,7 @@ public class ExprCoreMath {
                     if (field.equals("c8") || field.equals("c9")) {
                         expected = Long.class;
                     }
-                    Assert.assertEquals("for field " + field, expected, stmt.getEventType().getPropertyType(field));
+                    assertEquals("for field " + field, expected, stmt.getEventType().getPropertyType(field));
                 }
             };
             builder.statementConsumer(typeVerifier);

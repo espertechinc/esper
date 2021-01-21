@@ -17,12 +17,13 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.epl.SupportOutputLimitOpt;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetOutputLimitAfter {
     public static Collection<RegressionExecution> executions() {
@@ -62,7 +63,7 @@ public class ResultSetOutputLimitAfter {
             model.setSelectClause(SelectClause.create("theString"));
             model.setFromClause(FromClause.create(FilterStream.create("SupportBean").addView("keepall")));
             model.setOutputLimitClause(OutputLimitClause.create(Expressions.timePeriod(0, 0, 0, 5, 0)).afterTimePeriodExpression(Expressions.timePeriod(0, 0, 0, 20, 0)));
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
         }
     }
 
@@ -116,7 +117,7 @@ public class ResultSetOutputLimitAfter {
             model.setSelectClause(SelectClause.create("theString"));
             model.setFromClause(FromClause.create(FilterStream.create("SupportBean").addView("keepall")));
             model.setOutputLimitClause(OutputLimitClause.createAfter(3));
-            Assert.assertEquals("select theString from SupportBean#keepall output after 3 events ", model.toEPL());
+            assertEquals("select theString from SupportBean#keepall output after 3 events ", model.toEPL());
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
 
             env.compileDeploy(model).addListener("s0");
@@ -133,7 +134,7 @@ public class ResultSetOutputLimitAfter {
             env.assertPropsNew("s0", fields, new Object[]{"E5"});
 
             model = env.eplToModel("select theString from SupportBean#keepall output after 3 events");
-            Assert.assertEquals("select theString from SupportBean#keepall output after 3 events ", model.toEPL());
+            assertEquals("select theString from SupportBean#keepall output after 3 events ", model.toEPL());
 
             env.undeployAll();
         }
@@ -212,8 +213,8 @@ public class ResultSetOutputLimitAfter {
             env.assertListenerInvoked("s0");
             env.assertRuntime(runtime -> {
                 String depId = env.deploymentId("s0");
-                Assert.assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar1"));
-                Assert.assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar2"));
+                assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar1"));
+                assertEquals(true, runtime.getVariableService().getVariableValue(depId, "myvar2"));
             });
 
             env.undeployAll();

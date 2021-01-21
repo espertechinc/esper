@@ -13,12 +13,13 @@ package com.espertech.esper.regressionlib.suite.epl.other;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLOtherSelectExprSQLCompat {
     public static List<RegressionExecution> executions() {
@@ -34,8 +35,8 @@ public class EPLOtherSelectExprSQLCompat {
 
             sendEvent(env, "E1", 10);
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals("E1", received.get("val1"));
-                Assert.assertEquals(10, received.get("val2"));
+                assertEquals("E1", received.get("val1"));
+                assertEquals(10, received.get("val2"));
             });
 
             env.undeployAll();

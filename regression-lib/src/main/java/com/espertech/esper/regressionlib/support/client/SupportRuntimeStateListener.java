@@ -12,10 +12,11 @@ package com.espertech.esper.regressionlib.support.client;
 
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeStateListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class SupportRuntimeStateListener implements EPRuntimeStateListener {
     private List<EPRuntime> destroyedEvents = new ArrayList<>();
@@ -30,14 +31,14 @@ public class SupportRuntimeStateListener implements EPRuntimeStateListener {
     }
 
     public EPRuntime assertOneGetAndResetDestroyedEvents() {
-        Assert.assertEquals(1, destroyedEvents.size());
+        assertEquals(1, destroyedEvents.size());
         EPRuntime item = destroyedEvents.get(0);
         destroyedEvents.clear();
         return item;
     }
 
     public EPRuntime assertOneGetAndResetInitializedEvents() {
-        Assert.assertEquals(1, initializedEvents.size());
+        assertEquals(1, initializedEvents.size());
         EPRuntime item = initializedEvents.get(0);
         initializedEvents.clear();
         return item;

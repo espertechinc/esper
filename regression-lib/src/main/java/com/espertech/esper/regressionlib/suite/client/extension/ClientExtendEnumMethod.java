@@ -24,7 +24,6 @@ import com.espertech.esper.common.internal.rettype.EPChainableTypeEventSingle;
 import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_ST0_Container;
@@ -224,7 +223,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInEarlyExit() as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()}));
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
 
             sendAssert(env, fields, 12, "12,1,1");
             sendAssert(env, fields, 10, "5,5,5");
@@ -245,7 +244,7 @@ public class ClientExtendEnumMethod {
                 "intvals.enumPlugInOne(10, 20) as val0 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{INTEGERBOXED.getEPType()}));
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{INTEGERBOXED.getEPType()});
 
             sendAssert(env, fields, 11, "1,2,11,3");
             sendAssert(env, fields, 0, "");
@@ -269,7 +268,7 @@ public class ClientExtendEnumMethod {
                 "strvals.enumPlugInMedian((v, i, s) => extractNum(v) + i*10+s*100) as c2 " +
                 "from SupportCollection";
             env.compileDeploy(epl).addListener("s0");
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()}));
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType(), DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 3d, 18d, 418d, "E2,E1,E5,E4");
             sendAssert(env, fields, null, null, null, "E1");
@@ -293,7 +292,7 @@ public class ClientExtendEnumMethod {
                 "from SupportBean_ST0_Container";
             env.compileDeploy(epl).addListener("s0");
 
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()}));
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 11d, "E1,12", "E2,11", "E3,2");
             sendAssert(env, fields, null, null);
@@ -315,7 +314,7 @@ public class ClientExtendEnumMethod {
             String eplFragment = "@name('s0') select intvals.enumPlugInMedian() as val0 from SupportCollection";
             env.compileDeploy(eplFragment).addListener("s0");
 
-            env.assertStatement("s0", statement -> SupportEventPropUtil.assertTypes(statement.getEventType(), fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()}));
+            env.assertStmtTypes("s0", fields, new EPTypeClass[]{DOUBLEBOXED.getEPType()});
 
             sendAssert(env, fields, 2d, "1,2,2,4");
             sendAssert(env, fields, 2d, "1,2,2,10");

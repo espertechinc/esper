@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.events.SampleEnumInEventsPackage;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
-import org.junit.Assert;
 
 import java.util.*;
 
@@ -147,10 +146,10 @@ public class ExprCoreDotExpression {
             env.compileDeploy(epl).addListener("s0");
 
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c0"));
-                Assert.assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c1"));
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("c2"));
-                Assert.assertEquals(Integer.class, statement.getEventType().getPropertyType("c3"));
+                assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c0"));
+                assertEquals(SupportEventInnerTypeWGetIds.class, statement.getEventType().getPropertyType("c1"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("c2"));
+                assertEquals(Integer.class, statement.getEventType().getPropertyType("c3"));
             });
 
             SupportEventTypeErasure event = new SupportEventTypeErasure("key1", 2, Collections.singletonMap("key1", new SupportEventInnerTypeWGetIds(new int[]{20, 30, 40})), new SupportEventInnerTypeWGetIds[]{new SupportEventInnerTypeWGetIds(new int[]{2, 3}), new SupportEventInnerTypeWGetIds(new int[]{4, 5}), new SupportEventInnerTypeWGetIds(new int[]{6, 7, 8})});
@@ -228,8 +227,8 @@ public class ExprCoreDotExpression {
             env.assertStatement("s0", statement -> {
                 for (int i = 0; i < rows.length; i++) {
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                    assertEquals(rows[i][0], prop.getPropertyName());
+                    assertEquals(rows[i][1], prop.getPropertyType());
                 }
             });
 
@@ -276,8 +275,8 @@ public class ExprCoreDotExpression {
             env.assertStatement("s0", statement -> {
                 for (int i = 0; i < rows.length; i++) {
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals("failed for " + rows[i][0], rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals("failed for " + rows[i][0], rows[i][1], prop.getPropertyType());
+                    assertEquals("failed for " + rows[i][0], rows[i][0], prop.getPropertyName());
+                    assertEquals("failed for " + rows[i][0], rows[i][1], prop.getPropertyType());
                 }
             });
 
@@ -305,8 +304,8 @@ public class ExprCoreDotExpression {
             env.assertStatement("s0", statement -> {
                 for (int i = 0; i < rows.length; i++) {
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(rows[i][1], prop.getPropertyType());
+                    assertEquals(rows[i][0], prop.getPropertyName());
+                    assertEquals(rows[i][1], prop.getPropertyType());
                 }
             });
 

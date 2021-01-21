@@ -32,7 +32,6 @@ import com.espertech.esper.regressionlib.support.context.SupportSelectorById;
 import com.espertech.esper.regressionlib.support.context.SupportSelectorFilteredInitTerm;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
 import com.espertech.esper.regressionlib.support.util.SupportScheduleHelper;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -915,10 +914,10 @@ public class ContextInitTerm {
             env.compileDeploy("@name('s0') select * from SupportBean#time(30)");
 
             env.sendEventBean(new SupportBean("E1", 1));
-            env.assertThat(() -> Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
+            env.assertThat(() -> assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
 
             env.undeployModuleContaining("s0");
-            env.assertThat(() -> Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
+            env.assertThat(() -> assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime())));
 
             // test initiated
             sendTimeEvent(env, "2002-05-1T08:00:00.000");
@@ -930,38 +929,38 @@ public class ContextInitTerm {
 
             env.compileDeploy("context EverySupportBean select * from SupportBean_S0#time(2 min) sb0", path);
             env.assertThat(() -> {
-                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-                Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             });
 
             env.milestone(0);
 
             env.sendEventBean(new SupportBean("E1", 0));
             env.assertThat(() -> {
-                Assert.assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-                Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(1, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             });
 
             env.milestone(1);
 
             env.sendEventBean(new SupportBean_S0(0, "S0_1"));
             env.assertThat(() -> {
-                Assert.assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-                Assert.assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(2, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(2, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             });
 
             env.milestone(2);
 
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             env.assertThat(() -> {
-                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-                Assert.assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(1, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             });
 
             env.undeployAll();
             env.assertThat(() -> {
-                Assert.assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
-                Assert.assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
+                assertEquals(0, SupportScheduleHelper.scheduleCountOverall(env.runtime()));
+                assertEquals(0, SupportFilterServiceHelper.getFilterSvcCountApprox(env));
             });
         }
     }
@@ -1547,7 +1546,7 @@ public class ContextInitTerm {
             // terminate, new context partition
             sendTimeEvent(env, "2002-05-1T08:01:00.000");
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"E4"}});
-            env.assertThat(() -> Assert.assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar")));
+            env.assertThat(() -> assertEquals(10, env.runtime().getVariableService().getVariableValue(env.deploymentId("var"), "myvar")));
 
             assertSODA(env, path, eplTwo);
         }

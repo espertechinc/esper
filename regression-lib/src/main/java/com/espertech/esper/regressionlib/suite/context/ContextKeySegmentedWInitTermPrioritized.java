@@ -28,7 +28,6 @@ import com.espertech.esper.regressionlib.support.bean.ISupportAImpl;
 import com.espertech.esper.regressionlib.support.bean.ISupportBImpl;
 import com.espertech.esper.regressionlib.support.context.SupportContextPropUtil;
 import com.espertech.esper.regressionlib.support.filter.SupportFilterServiceHelper;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,7 +171,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
         private static void assertPartitionsInitWCorrelatedTermFilter(RegressionEnvironment env) {
             env.assertThat(() -> {
                 ContextPartitionCollection partitions = env.runtime().getContextPartitionService().getContextPartitions(env.deploymentId("ctx"), "CtxPartitionInitWCorrTerm", ContextPartitionSelectorAll.INSTANCE);
-                Assert.assertEquals(2, partitions.getIdentifiers().size());
+                assertEquals(2, partitions.getIdentifiers().size());
                 ContextPartitionIdentifierPartitioned first = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(0);
                 ContextPartitionIdentifierPartitioned second = (ContextPartitionIdentifierPartitioned) partitions.getIdentifiers().get(1);
                 EPAssertionUtil.assertEqualsExactOrder(new Object[]{"A"}, first.getKeys());
@@ -196,8 +195,8 @@ public class ContextKeySegmentedWInitTermPrioritized {
             String[] fields = "ctx0id,ctx1id,p20,theSum".split(",");
 
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("ctx0"));
-                Assert.assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("ctx1"));
+                assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("ctx0"));
+                assertEquals(SupportBean_S1.class, statement.getEventType().getPropertyType("ctx1"));
             });
 
             env.sendEventBean(new SupportBean_S0(1, "A"));
@@ -236,7 +235,7 @@ public class ContextKeySegmentedWInitTermPrioritized {
             env.compileDeploy("@Name('s0') context CtxInitS0PositiveId select p00, p01, context.s0 as s0, sum(id) as theSum from SupportBean_S0", path);
             env.addListener("s0");
 
-            env.assertStatement("s0", statement -> Assert.assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("s0")));
+            env.assertStatement("s0", statement -> assertEquals(SupportBean_S0.class, statement.getEventType().getPropertyType("s0")));
 
             sendS0AssertNone(env, 0, "A", "G1");
             sendS0AssertNone(env, -1, "B", "G1");

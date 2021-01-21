@@ -28,7 +28,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_N;
 import com.espertech.esper.regressionlib.support.bean.SupportEventWithManyArray;
 import com.espertech.esper.runtime.client.scopetest.SupportSubscriberMRD;
-import org.junit.Assert;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -276,17 +275,17 @@ public class EPLOtherDistinct {
             sendEvent(env, "Query", 0, 10L);
 
             assertTrue(subscriber.isInvoked());
-            Assert.assertEquals(1, subscriber.getInsertStreamList().size());
+            assertEquals(1, subscriber.getInsertStreamList().size());
             Object[][] inserted = subscriber.getInsertStreamList().get(0);
             assertEquals(2, inserted.length);
-            Assert.assertEquals("Query", ((SupportBean) inserted[0][0]).getTheString());
-            Assert.assertEquals("Query", ((SupportBean) inserted[1][0]).getTheString());
+            assertEquals("Query", ((SupportBean) inserted[0][0]).getTheString());
+            assertEquals("Query", ((SupportBean) inserted[1][0]).getTheString());
             Map mapOne = (Map) inserted[0][1];
-            Assert.assertEquals("E2", ((EventBean) mapOne.get("wooA")).get("theString"));
-            Assert.assertEquals("E1", ((EventBean) mapOne.get("fooA")).get("theString"));
+            assertEquals("E2", ((EventBean) mapOne.get("wooA")).get("theString"));
+            assertEquals("E1", ((EventBean) mapOne.get("fooA")).get("theString"));
             Map mapTwo = (Map) inserted[1][1];
-            Assert.assertEquals("E3", ((EventBean) mapTwo.get("wooA")).get("theString"));
-            Assert.assertEquals("E1", ((EventBean) mapTwo.get("fooA")).get("theString"));
+            assertEquals("E3", ((EventBean) mapTwo.get("wooA")).get("theString"));
+            assertEquals("E1", ((EventBean) mapTwo.get("fooA")).get("theString"));
 
             env.undeployAll();
         }
@@ -392,12 +391,12 @@ public class EPLOtherDistinct {
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{"E1"}, {"E2"}});
 
             EPStatementObjectModel model = env.eplToModel(statementText);
-            Assert.assertEquals(statementText, model.toEPL());
+            assertEquals(statementText, model.toEPL());
 
             model = new EPStatementObjectModel();
             model.setSelectClause(SelectClause.createWildcard().distinct(true));
             model.setFromClause(FromClause.create(FilterStream.create("SupportBean_A")));
-            Assert.assertEquals("select distinct * from SupportBean_A", model.toEPL());
+            assertEquals("select distinct * from SupportBean_A", model.toEPL());
 
             env.undeployAll();
         }

@@ -24,14 +24,14 @@ import com.espertech.esper.regressionlib.support.bean.SupportChainTop;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.bean.SupportTemperatureBean;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EPLOtherStaticFunctions {
     private final static String STREAM_MDB_LEN5 = " from SupportMarketDataBean#length(5) ";
@@ -151,8 +151,8 @@ public class EPLOtherStaticFunctions {
             env.assertStatement("s0", statement -> {
                 EventPropertyDescriptor[] prop = statement.getEventType().getPropertyDescriptors();
                 for (int i = 0; i < rows.length; i++) {
-                    Assert.assertEquals(rows[i][0], prop[i].getPropertyName());
-                    Assert.assertEquals(rows[i][1], prop[i].getPropertyType());
+                    assertEquals(rows[i][0], prop[i].getPropertyName());
+                    assertEquals(rows[i][1], prop[i].getPropertyType());
                 }
             });
 
@@ -287,7 +287,7 @@ public class EPLOtherStaticFunctions {
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             String statementText = "@name('s0') select Integer.toBinaryString(7) as value" + STREAM_MDB_LEN5;
 
-            Assert.assertEquals(statementText.trim(), model.toEPL());
+            assertEquals(statementText.trim(), model.toEPL());
             env.compileDeploy(model).addListener("s0");
 
             sendEvent(env, "IBM", 10d, 4L);
@@ -385,10 +385,10 @@ public class EPLOtherStaticFunctions {
             env.assertEqualsNew("s0", className + ".staticMethodWithContext(2)", 2);
             env.assertThat(() -> {
                 EPLMethodInvocationContext first = SupportStaticMethodLib.getMethodInvocationContexts().get(0);
-                Assert.assertEquals("s0", first.getStatementName());
-                Assert.assertEquals(env.runtimeURI(), first.getRuntimeURI());
-                Assert.assertEquals(-1, first.getContextPartitionId());
-                Assert.assertEquals("staticMethodWithContext", first.getFunctionName());
+                assertEquals("s0", first.getStatementName());
+                assertEquals(env.runtimeURI(), first.getRuntimeURI());
+                assertEquals(-1, first.getContextPartitionId());
+                assertEquals("staticMethodWithContext", first.getFunctionName());
             });
             env.undeployAll();
         }
@@ -488,9 +488,9 @@ public class EPLOtherStaticFunctions {
             env.assertListener("s0", listener -> {
                 EventBean[] newEvents = listener.getAndResetLastNewData();
                 assertTrue(newEvents.length == 3);
-                Assert.assertEquals("MAT", newEvents[0].get("symbol"));
-                Assert.assertEquals("IBM", newEvents[1].get("symbol"));
-                Assert.assertEquals("CAT", newEvents[2].get("symbol"));
+                assertEquals("MAT", newEvents[0].get("symbol"));
+                assertEquals("IBM", newEvents[1].get("symbol"));
+                assertEquals("CAT", newEvents[2].get("symbol"));
             });
             env.undeployAll();
         }

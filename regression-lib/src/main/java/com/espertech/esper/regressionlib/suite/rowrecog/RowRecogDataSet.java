@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.rowrecog.SupportRecogBean;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class RowRecogDataSet {
     private static final Logger log = LoggerFactory.getLogger(RowRecogDataSet.class);
@@ -273,7 +271,7 @@ public class RowRecogDataSet {
                     for (int i = 0; i < expected.length; i++) {
                         log.info(expected[i]);
                     }
-                    Assert.fail();
+                    fail();
                 }
             }
 

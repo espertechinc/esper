@@ -18,11 +18,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 public class ResultSetOutputLimitRowLimit {
 
@@ -169,7 +170,7 @@ public class ResultSetOutputLimitRowLimit {
             model.setRowLimitClause(RowLimitClause.create(1));
 
             String epl = "select irstream * from SupportBean#length_batch(3) limit 1";
-            Assert.assertEquals(epl, model.toEPL());
+            assertEquals(epl, model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");

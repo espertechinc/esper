@@ -13,7 +13,6 @@ package com.espertech.esper.regressionlib.suite.resultset.orderby;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.text.Collator;
 import java.util.Locale;
@@ -74,7 +73,7 @@ public class ResultSetOrderBySimpleSortCollator implements RegressionExecution {
         env.sendEventBean(new SupportBean(frenchForFruit, 1));
         env.sendEventBean(new SupportBean("abc", 1));
 
-        env.assertListener("s0", listener -> Assert.assertEquals(frenchForSin, listener.getLastOldData()[0].get("theString")));
+        env.assertListener("s0", listener -> assertEquals(frenchForSin, listener.getLastOldData()[0].get("theString")));
         Locale.setDefault(Locale.US);
 
         env.undeployAll();

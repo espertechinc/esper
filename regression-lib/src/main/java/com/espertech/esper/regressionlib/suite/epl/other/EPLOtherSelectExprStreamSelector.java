@@ -22,13 +22,10 @@ import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import junit.framework.TestCase;
 
 import java.util.*;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class EPLOtherSelectExprStreamSelector {
     public static List<RegressionExecution> executions() {
@@ -290,7 +287,7 @@ public class EPLOtherSelectExprStreamSelector {
             env.assertEventNew("s0", event -> {
                 EPAssertionUtil.assertProps(event, fields, new Object[]{13, "E2", "E1", eventOne, eventTwo});
                 EventBean theEvent = (EventBean) ((Map) event.getUnderlying()).get("s0stream");
-                TestCase.assertSame(eventOne, theEvent.getUnderlying());
+                assertSame(eventOne, theEvent.getUnderlying());
             });
 
             env.undeployAll();
@@ -339,7 +336,7 @@ public class EPLOtherSelectExprStreamSelector {
             String[] fields = new String[]{"intPrimitive", "sym", "symbol"};
             env.assertEventNew("s0", event -> {
                 EPAssertionUtil.assertProps(event, fields, new Object[]{11, "E1", "E1"});
-                TestCase.assertSame(theEvent, ((Pair) event.getUnderlying()).getFirst());
+                assertSame(theEvent, ((Pair) event.getUnderlying()).getFirst());
             });
 
             env.undeployAll();

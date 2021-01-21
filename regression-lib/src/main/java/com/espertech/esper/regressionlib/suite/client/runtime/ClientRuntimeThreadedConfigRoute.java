@@ -12,19 +12,19 @@ package com.espertech.esper.regressionlib.suite.client.runtime;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionFlag;
 import com.espertech.esper.regressionlib.support.epl.SupportStaticMethodLib;
 import com.espertech.esper.regressionlib.support.util.SupportListenerTimerHRes;
 import com.espertech.esper.runtime.client.DeploymentOptions;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ClientRuntimeThreadedConfigRoute implements RegressionExecutionWithConfigure {
@@ -71,7 +71,7 @@ public class ClientRuntimeThreadedConfigRoute implements RegressionExecutionWith
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Assert.assertEquals(100, listener.getNewEvents().size());
+        assertEquals(100, listener.getNewEvents().size());
         listener.getNewEvents().clear();
 
         // destroy all statements
@@ -85,7 +85,7 @@ public class ClientRuntimeThreadedConfigRoute implements RegressionExecutionWith
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Assert.assertEquals(1, listener.getNewEvents().size());
+        assertEquals(1, listener.getNewEvents().size());
 
         env.undeployAll();
     }

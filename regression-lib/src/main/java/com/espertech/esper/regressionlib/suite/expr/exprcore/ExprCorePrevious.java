@@ -19,7 +19,6 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,10 +138,10 @@ public class ExprCorePrevious {
                     for (int i = 0; i < rows.length; i++) {
                         String message = "For prop '" + rows[i][0] + "'";
                         EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                        Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                        Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                        assertEquals(message, rows[i][0], prop.getPropertyName());
+                        assertEquals(message, rows[i][1], prop.getPropertyType());
                         Object result = resultBean.get(prop.getPropertyName());
-                        Assert.assertEquals(message, prop.getPropertyType(), result.getClass());
+                        assertEquals(message, prop.getPropertyType(), result.getClass());
                     }
                 });
             });
@@ -307,13 +306,13 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
-                Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("countPrice"));
-                Assert.assertEquals(Double[].class, statement.getEventType().getPropertyType("windowPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
+                assertEquals(Long.class, statement.getEventType().getPropertyType("countPrice"));
+                assertEquals(Double[].class, statement.getEventType().getPropertyType("windowPrice"));
             });
 
             sendMarketEvent(env, "IBM", 75);
@@ -361,11 +360,11 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
             });
 
             sendMarketEvent(env, "IBM", 75);
@@ -426,11 +425,11 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
             });
 
             sendMarketEvent(env, "IBM", 75);
@@ -555,8 +554,8 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
             });
 
             sendTimer(env, 0);
@@ -630,10 +629,10 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prevTailSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTailPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prevTailSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevTailPrice"));
             });
 
             sendMarketEvent(env, "D1", 1, 0);
@@ -688,8 +687,8 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
             });
 
             sendTimer(env, 0);
@@ -714,9 +713,9 @@ public class ExprCorePrevious {
 
             sendTimer(env, 120000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(1, listener.getLastNewData().length);
+                assertEquals(1, listener.getLastNewData().length);
                 assertEventWTail(listener.getLastNewData()[0], "C", null, null, "C", 3d, null, null, 1L, splitDoubles("3d"));
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(2, listener.getLastOldData().length);
                 assertEventWTail(listener.getLastOldData()[0], "A", null, null, null, null, null, null, null, null);
                 listener.reset();
             });
@@ -728,7 +727,7 @@ public class ExprCorePrevious {
             sendMarketEvent(env, "G", 7);
             sendTimer(env, 360000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(4, listener.getLastNewData().length);
+                assertEquals(4, listener.getLastNewData().length);
                 assertEventWTail(listener.getLastNewData()[0], "D", null, null, "D", 4d, "E", 5d, 4L, splitDoubles("7d,6d,5d,4d"));
                 assertEventWTail(listener.getLastNewData()[1], "E", null, null, "D", 4d, "E", 5d, 4L, splitDoubles("7d,6d,5d,4d"));
                 assertEventWTail(listener.getLastNewData()[2], "F", "D", 4d, "D", 4d, "E", 5d, 4L, splitDoubles("7d,6d,5d,4d"));
@@ -755,8 +754,8 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prevSymbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
             });
 
             sendTimer(env, 0);
@@ -769,7 +768,7 @@ public class ExprCorePrevious {
 
             sendTimer(env, 60000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastNewData().length);
+                assertEquals(2, listener.getLastNewData().length);
                 assertEventWTail(listener.getLastNewData()[0], "X1", null, null, "A", 1d, "B", 2d, 2L, splitDoubles("2d,1d"));
                 assertEventWTail(listener.getLastNewData()[1], "X1", null, 1d, "A", 1d, "B", 2d, 2L, splitDoubles("2d,1d"));
                 assertNull(listener.getLastOldData());
@@ -783,7 +782,7 @@ public class ExprCorePrevious {
 
             sendTimer(env, 120000);
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(3, listener.getLastNewData().length);
+                assertEquals(3, listener.getLastNewData().length);
                 assertEventWTail(listener.getLastNewData()[0], "X1", null, null, "C1", 11d, "C2", 12d, 3L, splitDoubles("13d,12d,11d"));
                 assertEventWTail(listener.getLastNewData()[1], "X1", null, 11d, "C1", 11d, "C2", 12d, 3L, splitDoubles("13d,12d,11d"));
                 assertEventWTail(listener.getLastNewData()[2], "X1", "C1", 12d, "C1", 11d, "C2", 12d, 3L, splitDoubles("13d,12d,11d"));
@@ -813,8 +812,8 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
             });
 
             sendMarketEvent(env, "A", 1);
@@ -864,8 +863,8 @@ public class ExprCorePrevious {
 
             // assert select result type
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
             });
 
             sendMarketEvent(env, "A", 1);
@@ -966,8 +965,8 @@ public class ExprCorePrevious {
             env.compileDeploy(epl).addListener("s0");
 
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
-                Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
+                assertEquals(String.class, statement.getEventType().getPropertyType("prev0Symbol"));
+                assertEquals(Double.class, statement.getEventType().getPropertyType("prev0Price"));
             });
 
             sendMarketEvent(env, "COX", 30);
@@ -1068,14 +1067,14 @@ public class ExprCorePrevious {
                                          Double prevTail1Price,
                                          Long prevcount,
                                          Object[] prevwindow) {
-        Assert.assertEquals(currSymbol, eventBean.get("currSymbol"));
-        Assert.assertEquals(prevSymbol, eventBean.get("prevSymbol"));
-        Assert.assertEquals(prevPrice, eventBean.get("prevPrice"));
-        Assert.assertEquals(prevTailSymbol, eventBean.get("prevTailSymbol"));
-        Assert.assertEquals(prevTailPrice, eventBean.get("prevTailPrice"));
-        Assert.assertEquals(prevTail1Symbol, eventBean.get("prevTail1Symbol"));
-        Assert.assertEquals(prevTail1Price, eventBean.get("prevTail1Price"));
-        Assert.assertEquals(prevcount, eventBean.get("prevCountPrice"));
+        assertEquals(currSymbol, eventBean.get("currSymbol"));
+        assertEquals(prevSymbol, eventBean.get("prevSymbol"));
+        assertEquals(prevPrice, eventBean.get("prevPrice"));
+        assertEquals(prevTailSymbol, eventBean.get("prevTailSymbol"));
+        assertEquals(prevTailPrice, eventBean.get("prevTailPrice"));
+        assertEquals(prevTail1Symbol, eventBean.get("prevTail1Symbol"));
+        assertEquals(prevTail1Price, eventBean.get("prevTail1Price"));
+        assertEquals(prevcount, eventBean.get("prevCountPrice"));
         EPAssertionUtil.assertEqualsExactOrder((Object[]) eventBean.get("prevWindowPrice"), prevwindow);
     }
 
@@ -1120,18 +1119,18 @@ public class ExprCorePrevious {
                                          Double prevTail1Price,
                                          Long prevCount,
                                          Object[] prevWindow) {
-        Assert.assertEquals(currSymbol, eventBean.get("currSymbol"));
-        Assert.assertEquals(prev0Symbol, eventBean.get("prev0Symbol"));
-        Assert.assertEquals(prev0Price, eventBean.get("prev0Price"));
-        Assert.assertEquals(prev1Symbol, eventBean.get("prev1Symbol"));
-        Assert.assertEquals(prev1Price, eventBean.get("prev1Price"));
-        Assert.assertEquals(prev2Symbol, eventBean.get("prev2Symbol"));
-        Assert.assertEquals(prev2Price, eventBean.get("prev2Price"));
-        Assert.assertEquals(prevTail0Symbol, eventBean.get("prevTail0Symbol"));
-        Assert.assertEquals(prevTail0Price, eventBean.get("prevTail0Price"));
-        Assert.assertEquals(prevTail1Symbol, eventBean.get("prevTail1Symbol"));
-        Assert.assertEquals(prevTail1Price, eventBean.get("prevTail1Price"));
-        Assert.assertEquals(prevCount, eventBean.get("prevCountPrice"));
+        assertEquals(currSymbol, eventBean.get("currSymbol"));
+        assertEquals(prev0Symbol, eventBean.get("prev0Symbol"));
+        assertEquals(prev0Price, eventBean.get("prev0Price"));
+        assertEquals(prev1Symbol, eventBean.get("prev1Symbol"));
+        assertEquals(prev1Price, eventBean.get("prev1Price"));
+        assertEquals(prev2Symbol, eventBean.get("prev2Symbol"));
+        assertEquals(prev2Price, eventBean.get("prev2Price"));
+        assertEquals(prevTail0Symbol, eventBean.get("prevTail0Symbol"));
+        assertEquals(prevTail0Price, eventBean.get("prevTail0Price"));
+        assertEquals(prevTail1Symbol, eventBean.get("prevTail1Symbol"));
+        assertEquals(prevTail1Price, eventBean.get("prevTail1Price"));
+        assertEquals(prevCount, eventBean.get("prevCountPrice"));
         EPAssertionUtil.assertEqualsExactOrder((Object[]) eventBean.get("prevWindowPrice"), prevWindow);
 
         env.listenerReset("s0");
@@ -1214,13 +1213,13 @@ public class ExprCorePrevious {
 
         // assert select result type.
         env.assertStatement("s0", statement -> {
-            Assert.assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
-            Assert.assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
-            Assert.assertEquals(Long.class, statement.getEventType().getPropertyType("countPrice"));
-            Assert.assertEquals(Double[].class, statement.getEventType().getPropertyType("windowPrice"));
+            assertEquals(String.class, statement.getEventType().getPropertyType("symbol"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrice"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("prevPrevPrice"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail0Price"));
+            assertEquals(Double.class, statement.getEventType().getPropertyType("prevTail1Price"));
+            assertEquals(Long.class, statement.getEventType().getPropertyType("countPrice"));
+            assertEquals(Double[].class, statement.getEventType().getPropertyType("windowPrice"));
         });
 
         sendMarketEvent(env, "IBM", 75);
@@ -1265,12 +1264,12 @@ public class ExprCorePrevious {
     private static void assertReceived(EventBean theEvent, String symbol, Double prevPrice, Double prevPrevPrice,
                                        Double prevTail0Price, Double prevTail1Price,
                                        Long countPrice, Object[] windowPrice) {
-        Assert.assertEquals(symbol, theEvent.get("symbol"));
-        Assert.assertEquals(prevPrice, theEvent.get("prevPrice"));
-        Assert.assertEquals(prevPrevPrice, theEvent.get("prevPrevPrice"));
-        Assert.assertEquals(prevTail0Price, theEvent.get("prevTail0Price"));
-        Assert.assertEquals(prevTail1Price, theEvent.get("prevTail1Price"));
-        Assert.assertEquals(countPrice, theEvent.get("countPrice"));
+        assertEquals(symbol, theEvent.get("symbol"));
+        assertEquals(prevPrice, theEvent.get("prevPrice"));
+        assertEquals(prevPrevPrice, theEvent.get("prevPrevPrice"));
+        assertEquals(prevTail0Price, theEvent.get("prevTail0Price"));
+        assertEquals(prevTail1Price, theEvent.get("prevTail1Price"));
+        assertEquals(countPrice, theEvent.get("countPrice"));
         EPAssertionUtil.assertEqualsExactOrder(windowPrice, (Object[]) theEvent.get("windowPrice"));
     }
 
@@ -1279,8 +1278,8 @@ public class ExprCorePrevious {
     }
 
     private static void assertCountAndPrice(EventBean event, Long total, Double price) {
-        Assert.assertEquals(total, event.get("total"));
-        Assert.assertEquals(price, event.get("firstPrice"));
+        assertEquals(total, event.get("total"));
+        assertEquals(price, event.get("firstPrice"));
     }
 
     private static void assertPrevCount(RegressionEnvironment env) {
@@ -1305,7 +1304,7 @@ public class ExprCorePrevious {
 
         sendTimer(env, 60000);
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getOldDataList().size());
+            assertEquals(1, listener.getOldDataList().size());
             EventBean[] oldData = listener.getLastOldData();
             assertEquals(2, oldData.length);
             assertCountAndPrice(oldData[0], 3L, null);
@@ -1320,7 +1319,7 @@ public class ExprCorePrevious {
 
         sendTimer(env, 70000);
         env.assertListener("s0", listener -> {
-            Assert.assertEquals(1, listener.getOldDataList().size());
+            assertEquals(1, listener.getOldDataList().size());
             EventBean[] oldData = listener.getLastOldData();
             assertEquals(1, oldData.length);
             assertCountAndPrice(oldData[0], 3L, null);

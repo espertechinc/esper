@@ -18,11 +18,12 @@ import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
 import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.runtime.client.*;
 import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertTrue;
 
 public class StmtListenerRouteCallable implements Callable {
     private final int numThread;
@@ -101,14 +102,14 @@ public class StmtListenerRouteCallable implements Callable {
                         found = true;
                     }
                 }
-                Assert.assertTrue(found);
+                assertTrue(found);
             } catch (Throwable t) {
                 lastException = t;
             }
         }
 
         public void assertCalled() {
-            Assert.assertTrue(isCalled);
+            assertTrue(isCalled);
         }
     }
 

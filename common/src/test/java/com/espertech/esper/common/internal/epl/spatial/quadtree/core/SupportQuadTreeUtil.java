@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

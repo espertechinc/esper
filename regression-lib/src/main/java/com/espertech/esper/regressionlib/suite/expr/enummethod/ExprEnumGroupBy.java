@@ -30,6 +30,7 @@ import static com.espertech.esper.common.client.type.EPTypePremade.OBJECT;
 import static com.espertech.esper.common.client.type.EPTypePremade.STRING;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypes;
 import static com.espertech.esper.common.internal.support.SupportEventPropUtil.assertTypesAllSame;
+import static org.junit.Assert.fail;
 
 public class ExprEnumGroupBy {
 
@@ -185,7 +186,7 @@ public class ExprEnumGroupBy {
     public static String extractAfterUnderscore(String string) {
         int indexUnderscore = string.indexOf("_");
         if (indexUnderscore == -1) {
-            Assert.fail();
+            fail();
         }
         return string.substring(indexUnderscore + 1);
     }

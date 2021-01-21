@@ -16,11 +16,12 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class ViewUnion {
 
@@ -424,7 +425,7 @@ public class ViewUnion {
             sendEvent(env, "E4", -1, -1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(2, listener.getLastOldData().length);
                 Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
                 EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E1", "E2"});
                 EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E4"});
@@ -436,7 +437,7 @@ public class ViewUnion {
             sendEvent(env, "E5", 1, 1);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E3", "E4"));
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(1, listener.getLastOldData().length);
+                assertEquals(1, listener.getLastOldData().length);
                 EPAssertionUtil.assertProps(listener.assertOneGetOld(), fields, new Object[]{"E5"});
                 EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E5"});
                 listener.reset();
@@ -447,7 +448,7 @@ public class ViewUnion {
             sendEvent(env, "E6", 0, 0);
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, toArr("E4", "E6"));
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(1, listener.getLastOldData().length);
+                assertEquals(1, listener.getLastOldData().length);
                 EPAssertionUtil.assertProps(listener.assertOneGetOld(), fields, new Object[]{"E3"});
                 EPAssertionUtil.assertProps(listener.assertOneGetNew(), fields, new Object[]{"E6"});
                 listener.reset();
@@ -553,7 +554,7 @@ public class ViewUnion {
 
             env.sendEventBean(new SupportBean_S0(50));
             env.assertListener("s0", listener -> {
-                Assert.assertEquals(2, listener.getLastOldData().length);
+                assertEquals(2, listener.getLastOldData().length);
                 Object[] result = {listener.getLastOldData()[0].get("theString"), listener.getLastOldData()[1].get("theString")};
                 EPAssertionUtil.assertEqualsAnyOrder(result, new String[]{"E5", "E6"});
                 listener.reset();

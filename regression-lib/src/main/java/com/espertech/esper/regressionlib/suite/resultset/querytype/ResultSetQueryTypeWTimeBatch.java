@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -359,18 +358,18 @@ public class ResultSetQueryTypeWTimeBatch {
     }
 
     private static void assertEvent(EventBean theEvent, String symbol, Double sumPrice, Long volume) {
-        Assert.assertEquals(symbol, theEvent.get("symbol"));
-        Assert.assertEquals(sumPrice, theEvent.get("sumPrice"));
-        Assert.assertEquals(volume, theEvent.get("volume"));
+        assertEquals(symbol, theEvent.get("symbol"));
+        assertEquals(sumPrice, theEvent.get("sumPrice"));
+        assertEquals(volume, theEvent.get("volume"));
     }
 
     private static void assertEvent(EventBean theEvent, String symbol, Double sumPrice) {
-        Assert.assertEquals(symbol, theEvent.get("symbol"));
-        Assert.assertEquals(sumPrice, theEvent.get("sumPrice"));
+        assertEquals(symbol, theEvent.get("symbol"));
+        assertEquals(sumPrice, theEvent.get("sumPrice"));
     }
 
     private static void assertEvent(EventBean theEvent, Double sumPrice) {
-        Assert.assertEquals(sumPrice, theEvent.get("sumPrice"));
+        assertEquals(sumPrice, theEvent.get("sumPrice"));
     }
 
     private static void sendTimer(RegressionEnvironment env, long time) {

@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySub
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -556,17 +555,17 @@ public class ViewTimeWin {
 
         assertEquals(1, newData.length);
 
-        Assert.assertEquals(symbol, newData[0].get("symbol"));
-        Assert.assertEquals(volume, newData[0].get("volume"));
-        Assert.assertEquals(sum, newData[0].get("mySum"));
+        assertEquals(symbol, newData[0].get("symbol"));
+        assertEquals(volume, newData[0].get("volume"));
+        assertEquals(sum, newData[0].get("mySum"));
 
         listener.reset();
     }
 
     private static void assertSelectResultType(EPStatement stmt) {
-        Assert.assertEquals(String.class, stmt.getEventType().getPropertyType("symbol"));
-        Assert.assertEquals(Long.class, stmt.getEventType().getPropertyType("volume"));
-        Assert.assertEquals(Double.class, stmt.getEventType().getPropertyType("mySum"));
+        assertEquals(String.class, stmt.getEventType().getPropertyType("symbol"));
+        assertEquals(Long.class, stmt.getEventType().getPropertyType("volume"));
+        assertEquals(Double.class, stmt.getEventType().getPropertyType("mySum"));
     }
 
     private static void sendEvent(RegressionEnvironment env, String symbol, long volume, double price) {

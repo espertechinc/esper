@@ -14,7 +14,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanNumeric;
-import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -207,11 +206,11 @@ public class ExprCoreBigNumberSupport {
             env.listenerReset("s0");
 
             env.assertStatement("s0", statement -> {
-                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v1"));
-                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v2"));
-                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v3"));
-                Assert.assertEquals(BigInteger.class, statement.getEventType().getPropertyType("v4"));
-                Assert.assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v5"));
+                assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v1"));
+                assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v2"));
+                assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v3"));
+                assertEquals(BigInteger.class, statement.getEventType().getPropertyType("v4"));
+                assertEquals(BigDecimal.class, statement.getEventType().getPropertyType("v5"));
             });
 
             sendBigNumEvent(env, 1, 2);

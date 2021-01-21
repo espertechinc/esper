@@ -22,7 +22,6 @@ import com.espertech.esper.regressionlib.support.util.SupportMTUpdateListener;
 import com.espertech.esper.regressionlib.support.util.SupportThreadFactory;
 import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +131,7 @@ public class MultithreadDeterminismInsertInto implements RegressionExecution {
         EventBean[] newEvents = listener.getNewDataListFlattened();
         for (int i = 0; i < numEvents - 1; i++) {
             long expected = total(i + 1);
-            Assert.assertEquals(expected, newEvents[i].get("mysum"));
+            assertEquals(expected, newEvents[i].get("mysum"));
         }
 
         env.undeployAll();

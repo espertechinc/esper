@@ -14,11 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class EPLDatabase2StreamOuterJoin {
     private final static String ALL_FIELDS = "mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal";
@@ -106,7 +107,7 @@ public class EPLDatabase2StreamOuterJoin {
             // Result as the SQL query returns 1 row and therefore the on-clause filters it out, but because of left out still getting a row
             sendEvent(env, 1, "xxx");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(1, received.get("MyInt"));
+                assertEquals(1, received.get("MyInt"));
                 assertReceived(received, null, null, null, null, null, null, null, null, null);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
@@ -114,14 +115,14 @@ public class EPLDatabase2StreamOuterJoin {
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(-1, received.get("MyInt"));
+                assertEquals(-1, received.get("MyInt"));
                 assertReceived(received, null, null, null, null, null, null, null, null, null);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(2, received.get("MyInt"));
+                assertEquals(2, received.get("MyInt"));
                 assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
@@ -143,7 +144,7 @@ public class EPLDatabase2StreamOuterJoin {
             // No result as the SQL query returns 1 row and therefore the on-clause filters it out
             sendEvent(env, 1, "xxx");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(1, received.get("MyInt"));
+                assertEquals(1, received.get("MyInt"));
                 assertReceived(received, null, null, null, null, null, null, null, null, null);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{1, null}});
@@ -151,14 +152,14 @@ public class EPLDatabase2StreamOuterJoin {
             // Result as the SQL query returns 0 rows
             sendEvent(env, -1, "xxx");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(-1, received.get("MyInt"));
+                assertEquals(-1, received.get("MyInt"));
                 assertReceived(received, null, null, null, null, null, null, null, null, null);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, null}});
 
             sendEvent(env, 2, "B");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(2, received.get("MyInt"));
+                assertEquals(2, received.get("MyInt"));
                 assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{2, 20}});
@@ -186,8 +187,8 @@ public class EPLDatabase2StreamOuterJoin {
 
             sendEvent(env, -1, "A");
             env.assertEventNew("s0", received -> {
-                Assert.assertEquals(-1, received.get("MyInt"));
-                Assert.assertEquals("A", received.get("MyVarChar"));
+                assertEquals(-1, received.get("MyInt"));
+                assertEquals("A", received.get("MyVarChar"));
             });
             env.assertPropsPerRowIterator("s0", fields, new Object[][]{{-1, "A"}});
 
@@ -200,7 +201,7 @@ public class EPLDatabase2StreamOuterJoin {
 
         sendEvent(env, 2);
         env.assertEventNew("s0", received -> {
-            Assert.assertEquals(2, received.get("MyInt"));
+            assertEquals(2, received.get("MyInt"));
             assertReceived(received, 2L, 20, "B", "Y", false, new BigDecimal(100), new BigDecimal(200), 2.2d, 2.3d);
         });
 
@@ -215,13 +216,13 @@ public class EPLDatabase2StreamOuterJoin {
 
         sendEvent(env, 1);
         env.assertEventNew("s0", received -> {
-            Assert.assertEquals(1, received.get("MyInt"));
+            assertEquals(1, received.get("MyInt"));
             assertReceived(received, 1L, 10, "A", "Z", true, new BigDecimal(5000), new BigDecimal(100), 1.2d, 1.3d);
         });
 
         sendEvent(env, 11);
         env.assertEventNew("s0", received -> {
-            Assert.assertEquals(11, received.get("MyInt"));
+            assertEquals(11, received.get("MyInt"));
             assertReceived(received, null, null, null, null, null, null, null, null, null);
         });
 
@@ -229,15 +230,15 @@ public class EPLDatabase2StreamOuterJoin {
     }
 
     private static void assertReceived(EventBean theEvent, Long mybigint, Integer myint, String myvarchar, String mychar, Boolean mybool, BigDecimal mynumeric, BigDecimal mydecimal, Double mydouble, Double myreal) {
-        Assert.assertEquals(mybigint, theEvent.get("mybigint"));
-        Assert.assertEquals(myint, theEvent.get("myint"));
-        Assert.assertEquals(myvarchar, theEvent.get("myvarchar"));
-        Assert.assertEquals(mychar, theEvent.get("mychar"));
-        Assert.assertEquals(mybool, theEvent.get("mybool"));
-        Assert.assertEquals(mynumeric, theEvent.get("mynumeric"));
-        Assert.assertEquals(mydecimal, theEvent.get("mydecimal"));
-        Assert.assertEquals(mydouble, theEvent.get("mydouble"));
-        Assert.assertEquals(myreal, theEvent.get("myreal"));
+        assertEquals(mybigint, theEvent.get("mybigint"));
+        assertEquals(myint, theEvent.get("myint"));
+        assertEquals(myvarchar, theEvent.get("myvarchar"));
+        assertEquals(mychar, theEvent.get("mychar"));
+        assertEquals(mybool, theEvent.get("mybool"));
+        assertEquals(mynumeric, theEvent.get("mynumeric"));
+        assertEquals(mydecimal, theEvent.get("mydecimal"));
+        assertEquals(mydouble, theEvent.get("mydouble"));
+        assertEquals(myreal, theEvent.get("myreal"));
     }
 
     private static void sendEvent(RegressionEnvironment env, int intPrimitive) {

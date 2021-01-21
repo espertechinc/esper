@@ -22,11 +22,12 @@ import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySub
 import com.espertech.esper.regressionlib.support.patternassert.*;
 import com.espertech.esper.runtime.client.DeploymentOptions;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class PatternGuardTimerWithin {
 
@@ -65,7 +66,7 @@ public class PatternGuardTimerWithin {
             Expression filter = Expressions.eq("id", "B3");
             PatternExpr pattern = Patterns.timerWithin(10.001, Patterns.filter(Filter.create("SupportBean_B", filter), "b"));
             model.setFromClause(FromClause.create(PatternStream.create(pattern)));
-            Assert.assertEquals(text, model.toEPL());
+            assertEquals(text, model.toEPL());
             testCase = new EventExpressionCase(model);
             testCase.add("B3", "b", events.getEvent("B3"));
             testCaseList.addTest(testCase);
@@ -222,7 +223,7 @@ public class PatternGuardTimerWithin {
             testCase = new EventExpressionCase("(every b=SupportBean_B) where timer:within (2000 msec) and every d=SupportBean_D() where timer:within(6001 msec)");
             testCaseList.addTest(testCase);
 
-            PatternTestHarness util = new PatternTestHarness(events, testCaseList, this.getClass());
+            PatternTestHarness util = new PatternTestHarness(events, testCaseList);
             util.runTest(env);
         }
     }
@@ -231,7 +232,7 @@ public class PatternGuardTimerWithin {
         public void run(RegressionEnvironment env) {
             // External clocking
             sendTimer(0, env);
-            env.assertRuntime(runtime -> Assert.assertEquals(0, runtime.getEventService().getCurrentTime()));
+            env.assertRuntime(runtime -> assertEquals(0, runtime.getEventService().getCurrentTime()));
 
             // Set up a timer:within
             env.compileDeploy("@name('s0') select * from pattern [(every SupportBean) where timer:within(1 days 2 hours 3 minutes 4 seconds 5 milliseconds)]");
@@ -256,7 +257,7 @@ public class PatternGuardTimerWithin {
             tryAssertion(env);
 
             EPStatementObjectModel model = env.eplToModel(stmtText);
-            Assert.assertEquals(stmtText, model.toEPL());
+            assertEquals(stmtText, model.toEPL());
 
             env.undeployAll();
         }
@@ -379,7 +380,7 @@ public class PatternGuardTimerWithin {
 
         long time = 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000 + 3 * 60 * 1000 + 4 * 1000 + 5;
         sendTimer(time - 1, env);
-        env.assertRuntime(runtime -> Assert.assertEquals(time - 1, runtime.getEventService().getCurrentTime()));
+        env.assertRuntime(runtime -> assertEquals(time - 1, runtime.getEventService().getCurrentTime()));
         sendEvent(env);
         env.assertListener("s0", SupportListener::assertOneGetNewAndReset);
 

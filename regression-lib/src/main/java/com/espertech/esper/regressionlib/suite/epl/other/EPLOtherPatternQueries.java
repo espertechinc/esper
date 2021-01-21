@@ -18,7 +18,6 @@ import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.bean.SupportMarketDataBean;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -250,10 +249,10 @@ public class EPLOtherPatternQueries {
     }
 
     private static void compareEvent(EventBean eventBean, int idA, int idB, String p00) {
-        Assert.assertEquals(idA, eventBean.get("idA"));
-        Assert.assertEquals(idB, eventBean.get("idB"));
-        Assert.assertEquals(p00, eventBean.get("p00A"));
-        Assert.assertEquals(p00, eventBean.get("p00B"));
+        assertEquals(idA, eventBean.get("idA"));
+        assertEquals(idB, eventBean.get("idB"));
+        assertEquals(p00, eventBean.get("p00A"));
+        assertEquals(p00, eventBean.get("p00B"));
     }
 
     private static void sendEvent(RegressionEnvironment env, int id, String p00) {
@@ -274,8 +273,8 @@ public class EPLOtherPatternQueries {
     private static void assertEventIds(RegressionEnvironment env, Integer idS0, Integer idS1) {
         env.assertListener("s0", listener -> {
             EventBean eventBean = listener.getAndResetLastNewData()[0];
-            Assert.assertEquals(idS0, eventBean.get("idS0"));
-            Assert.assertEquals(idS1, eventBean.get("idS1"));
+            assertEquals(idS0, eventBean.get("idS0"));
+            assertEquals(idS1, eventBean.get("idS1"));
             listener.reset();
         });
     }
@@ -283,9 +282,9 @@ public class EPLOtherPatternQueries {
     private static void assertEventSums(RegressionEnvironment env, Integer sumS0, Integer sumS1, Integer sumS0S1) {
         env.assertListener("s0", listener -> {
             EventBean eventBean = listener.getAndResetLastNewData()[0];
-            Assert.assertEquals(sumS0, eventBean.get("sumS0"));
-            Assert.assertEquals(sumS1, eventBean.get("sumS1"));
-            Assert.assertEquals(sumS0S1, eventBean.get("sumS0S1"));
+            assertEquals(sumS0, eventBean.get("sumS0"));
+            assertEquals(sumS1, eventBean.get("sumS1"));
+            assertEquals(sumS0S1, eventBean.get("sumS0S1"));
             listener.reset();
         });
     }

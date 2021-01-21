@@ -28,7 +28,6 @@ import com.espertech.esper.regressionlib.support.extend.vdw.SupportVirtualDWForg
 import com.espertech.esper.regressionlib.support.util.IndexAssertionEventSend;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 import com.espertech.esper.regressionlib.support.util.SupportQueryPlanIndexHook;
-import org.junit.Assert;
 
 import javax.naming.NamingException;
 import java.util.*;
@@ -89,9 +88,9 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         VirtualDataWindowEventConsumerRemove removeConsumerEvent = (VirtualDataWindowEventConsumerRemove) window.getEvents().get(1);
 
         for (VirtualDataWindowEventConsumerBase base : new VirtualDataWindowEventConsumerBase[]{addConsumerEvent, removeConsumerEvent}) {
-            Assert.assertEquals(-1, base.getAgentInstanceId());
-            Assert.assertEquals("MyVDW", base.getNamedWindowName());
-            Assert.assertEquals("s0", base.getStatementName());
+            assertEquals(-1, base.getAgentInstanceId());
+            assertEquals("MyVDW", base.getNamedWindowName());
+            assertEquals("s0", base.getStatementName());
         }
         assertSame(removeConsumerEvent.getConsumerObject(), addConsumerEvent.getConsumerObject());
         window.getEvents().clear();
@@ -232,12 +231,12 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         window.setData(Collections.singleton(supportBean));
 
         assertNotNull(window.getContext().getEventFactory());
-        Assert.assertEquals("MyVDW", window.getContext().getEventType().getName());
+        assertEquals("MyVDW", window.getContext().getEventType().getName());
         assertNotNull(window.getContext().getStatementContext());
-        Assert.assertEquals(2, window.getContext().getParameters().length);
-        Assert.assertEquals(1, window.getContext().getParameters()[0]);
-        Assert.assertEquals("abc", window.getContext().getParameters()[1]);
-        Assert.assertEquals("MyVDW", window.getContext().getNamedWindowName());
+        assertEquals(2, window.getContext().getParameters().length);
+        assertEquals(1, window.getContext().getParameters()[0]);
+        assertEquals("abc", window.getContext().getParameters()[1]);
+        assertEquals("MyVDW", window.getContext().getNamedWindowName());
 
         // test no-criteria join
         env.compileDeploy("@name('s0') select * from MyVDW vdw, SupportBean_ST0#lastevent st0", path).addListener("s0");
@@ -400,8 +399,8 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         // test no-criteria FAF
         EPFireAndForgetQueryResult result = env.compileExecuteFAF("select col1 from MyVDW vdw", path);
         assertIndexSpec(window.getLastRequestedLookup(), "", "");
-        Assert.assertEquals("MyVDW", window.getLastRequestedLookup().getNamedWindowName());
-        Assert.assertEquals(-1, window.getLastRequestedLookup().getStatementId());
+        assertEquals("MyVDW", window.getLastRequestedLookup().getNamedWindowName());
+        assertEquals(-1, window.getLastRequestedLookup().getStatementId());
         assertNull(window.getLastRequestedLookup().getStatementName());
         assertNotNull(window.getLastRequestedLookup().getStatementAnnotations());
         assertTrue(window.getLastRequestedLookup().isFireAndForget());
@@ -458,10 +457,10 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         env.compileDeploy("@Name('s0') on SupportBeanRange r delete " +
             "from MyVDW vdw where col1=r.id and col2=r.key and col3 between r.rangeStart and r.rangeEnd", path).addListener("s0");
         assertIndexSpec(window.getLastRequestedLookup(), "col1=(String)|col2=(String)", "col3[,](Integer)");
-        Assert.assertEquals("MyVDW", window.getLastRequestedLookup().getNamedWindowName());
+        assertEquals("MyVDW", window.getLastRequestedLookup().getNamedWindowName());
         assertNotNull(window.getLastRequestedLookup().getStatementId());
-        Assert.assertEquals("s0", window.getLastRequestedLookup().getStatementName());
-        Assert.assertEquals(1, window.getLastRequestedLookup().getStatementAnnotations().length);
+        assertEquals("s0", window.getLastRequestedLookup().getStatementName());
+        assertEquals(1, window.getLastRequestedLookup().getStatementAnnotations().length);
         assertFalse(window.getLastRequestedLookup().isFireAndForget());
 
         env.sendEventBean(new SupportBeanRange("key1", "key2", 5, 10));
@@ -492,27 +491,27 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         vdw.getEvents().clear();
         env.compileDeploy("@name('idx') create index IndexOne on MyVDW (col3, col2 btree)", path);
         VirtualDataWindowEventStartIndex startEvent = (VirtualDataWindowEventStartIndex) vdw.getEvents().get(0);
-        Assert.assertEquals("MyVDW", startEvent.getNamedWindowName());
-        Assert.assertEquals("IndexOne", startEvent.getIndexName());
-        Assert.assertEquals(2, startEvent.getFields().size());
-        Assert.assertEquals("col3", startEvent.getFields().get(0).getName());
-        Assert.assertEquals("hash", startEvent.getFields().get(0).getType());
-        Assert.assertEquals("col2", startEvent.getFields().get(1).getName());
-        Assert.assertEquals("btree", startEvent.getFields().get(1).getType());
+        assertEquals("MyVDW", startEvent.getNamedWindowName());
+        assertEquals("IndexOne", startEvent.getIndexName());
+        assertEquals(2, startEvent.getFields().size());
+        assertEquals("col3", startEvent.getFields().get(0).getName());
+        assertEquals("hash", startEvent.getFields().get(0).getType());
+        assertEquals("col2", startEvent.getFields().get(1).getName());
+        assertEquals("btree", startEvent.getFields().get(1).getType());
         assertFalse(startEvent.isUnique());
 
         // stop-index event
         vdw.getEvents().clear();
         env.undeployModuleContaining("idx");
         VirtualDataWindowEventStopIndex stopEvent = (VirtualDataWindowEventStopIndex) vdw.getEvents().get(0);
-        Assert.assertEquals("MyVDW", stopEvent.getNamedWindowName());
-        Assert.assertEquals("IndexOne", stopEvent.getIndexName());
+        assertEquals("MyVDW", stopEvent.getNamedWindowName());
+        assertEquals("IndexOne", stopEvent.getIndexName());
 
         // stop named window
         vdw.getEvents().clear();
         env.undeployAll();
         VirtualDataWindowEventStopWindow stopWindow = (VirtualDataWindowEventStopWindow) vdw.getEvents().get(0);
-        Assert.assertEquals("MyVDW", stopWindow.getNamedWindowName());
+        assertEquals("MyVDW", stopWindow.getNamedWindowName());
     }
 
     private void runAssertionIndexChoicesJoinUniqueVirtualDW(RegressionEnvironment env) {
@@ -580,12 +579,12 @@ public class ClientExtendVirtualDataWindow implements RegressionExecution, Index
         SupportVirtualDWForge.getInitializations().clear();
         env.compileDeploy("@Name('create-nw') @public create window MyVDW.test:vdw() as MapType", path);
 
-        Assert.assertEquals(1, SupportVirtualDWForge.getInitializations().size());
+        assertEquals(1, SupportVirtualDWForge.getInitializations().size());
         VirtualDataWindowForgeContext forgeContext = SupportVirtualDWForge.getInitializations().get(0);
-        Assert.assertEquals("MyVDW", forgeContext.getEventType().getName());
+        assertEquals("MyVDW", forgeContext.getEventType().getName());
         assertNotNull("MyVDW", forgeContext.getNamedWindowName());
-        Assert.assertEquals(0, forgeContext.getParameters().length);
-        Assert.assertEquals(0, forgeContext.getParameterExpressions().length);
+        assertEquals(0, forgeContext.getParameters().length);
+        assertEquals(0, forgeContext.getParameterExpressions().length);
         assertNotNull(forgeContext.getViewForgeEnv());
 
         // define some test data to return, via lookup

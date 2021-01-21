@@ -21,7 +21,6 @@ import com.espertech.esper.common.internal.util.apachecommonstext.StringEscapeUt
 import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
-import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,16 +41,13 @@ public class PatternTestHarness {
 
     private final EventCollection sendEventCollection;
     private final CaseList caseList;
-    private final Class testClass;
 
     // Array of expressions and match listeners for listening to events for each test descriptor
 
     public PatternTestHarness(EventCollection sendEventCollection,
-                              CaseList caseList,
-                              Class testClass) {
+                              CaseList caseList) {
         this.sendEventCollection = sendEventCollection;
         this.caseList = caseList;
-        this.testClass = testClass;
     }
 
     public void runTest(RegressionEnvironment env) {
@@ -127,7 +123,7 @@ public class PatternTestHarness {
                     text = "Model: " + model.toEPL();
                 }
                 log.error(".runTest Failed to create statement for style " + testStyle + " pattern expression=" + text, ex);
-                TestCase.fail();
+                fail();
                 compiled = null;
             }
 
@@ -252,7 +248,7 @@ public class PatternTestHarness {
                     log.debug(".checkResults Received, have " + (receivedResults == null ? 0 : receivedResults.length) + " entries");
                     printList(receivedResults);
 
-                    TestCase.assertFalse(true);
+                    fail();
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -16,7 +16,6 @@ import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +70,7 @@ public class ClientCompileStatementObjectModel {
             model.setOutputLimitClause(OutputLimitClause.create(Expressions.timePeriod(null, null, null, 10, null)));
             model.setOrderByClause(OrderByClause.create("line"));
 
-            Assert.assertEquals("insert into ReadyStreamAvg(line, avgAge) select line, avg(age) as avgAge from " + SupportBean.class.getName() + "(line in (1,8,10))#time(10) as RS where waverId is not null group by line having avg(age)<0 output every 10 seconds order by line", model.toEPL());
+            assertEquals("insert into ReadyStreamAvg(line, avgAge) select line, avg(age) as avgAge from " + SupportBean.class.getName() + "(line in (1,8,10))#time(10) as RS where waverId is not null group by line having avg(age)<0 output every 10 seconds order by line", model.toEPL());
             SerializableObjectCopier.copyMayFail(model);
         }
     }
@@ -88,7 +87,7 @@ public class ClientCompileStatementObjectModel {
             Object theEvent = new SupportBean();
             env.sendEventBean(theEvent);
             env.assertEventNew("s0", event -> assertEquals(theEvent, event.getUnderlying()));
-            env.assertStatement("s0", statement -> Assert.assertEquals("@name('s0') " + stmtText, statement.getProperty(StatementProperty.EPL)));
+            env.assertStatement("s0", statement -> assertEquals("@name('s0') " + stmtText, statement.getProperty(StatementProperty.EPL)));
 
             env.undeployAll();
         }
@@ -132,8 +131,8 @@ public class ClientCompileStatementObjectModel {
 
                 // get where clause root expression of both models
                 EPStatementObjectModel modelAfter = env.eplToModel(eplAfter);
-                Assert.assertEquals(modelAfter.getWhereClause().getClass(), modelBefore.getWhereClause().getClass());
-                Assert.assertEquals(expressionLowestPrecedenceClass, modelAfter.getWhereClause().getClass().getSimpleName());
+                assertEquals(modelAfter.getWhereClause().getClass(), modelBefore.getWhereClause().getClass());
+                assertEquals(expressionLowestPrecedenceClass, modelAfter.getWhereClause().getClass().getSimpleName());
             }
         }
     }
@@ -177,8 +176,8 @@ public class ClientCompileStatementObjectModel {
 
                 // get where clause root expression of both models
                 EPStatementObjectModel modelAfter = env.eplToModel(eplAfter);
-                Assert.assertEquals(failText, getPatternRootExpr(modelAfter).getClass(), getPatternRootExpr(modelBefore).getClass());
-                Assert.assertEquals(failText, expressionLowestPrecedenceClass, getPatternRootExpr(modelAfter).getClass().getSimpleName());
+                assertEquals(failText, getPatternRootExpr(modelAfter).getClass(), getPatternRootExpr(modelBefore).getClass());
+                assertEquals(failText, expressionLowestPrecedenceClass, getPatternRootExpr(modelAfter).getClass().getSimpleName());
             }
 
             env.undeployAll();

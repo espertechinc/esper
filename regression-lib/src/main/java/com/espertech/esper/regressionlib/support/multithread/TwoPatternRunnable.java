@@ -14,10 +14,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.support.bean.SupportTradeEvent;
 import com.espertech.esper.runtime.client.scopetest.SupportUpdateListener;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class TwoPatternRunnable implements Runnable {
     private final RegressionEnvironment env;
@@ -58,9 +60,9 @@ public class TwoPatternRunnable implements Runnable {
 
             // check results
             EventBean[] received = listener.getNewDataListFlattened();
-            Assert.assertEquals(matches.size(), received.length);
+            assertEquals(matches.size(), received.length);
             for (int i = 0; i < received.length; i++) {
-                Assert.assertSame(matches.get(i), received[i].get("event1"));
+                assertSame(matches.get(i), received[i].get("event1"));
             }
 
             // System.out.println("Found " + received.length + " matches in loop #" + countLoops);

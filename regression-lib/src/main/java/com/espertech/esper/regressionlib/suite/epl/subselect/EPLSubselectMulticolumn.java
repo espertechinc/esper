@@ -18,15 +18,13 @@ import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class EPLSubselectMulticolumn {
 
@@ -136,9 +134,9 @@ public class EPLSubselectMulticolumn {
                 for (int i = 0; i < rows.length; i++) {
                     String message = "Failed assertion for " + rows[i][0];
                     EventPropertyDescriptor prop = statement.getEventType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
-                    Assert.assertEquals(message, rows[i][2], prop.isFragment());
+                    assertEquals(message, rows[i][0], prop.getPropertyName());
+                    assertEquals(message, rows[i][1], prop.getPropertyType());
+                    assertEquals(message, rows[i][2], prop.isFragment());
                 }
 
                 FragmentEventType fragmentType = statement.getEventType().getFragmentType("subrow");
@@ -153,8 +151,8 @@ public class EPLSubselectMulticolumn {
                 for (int i = 0; i < rows.length; i++) {
                     String message = "Failed assertion for " + rows[i][0];
                     EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
-                    Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                    Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                    assertEquals(message, rows[i][0], prop.getPropertyName());
+                    assertEquals(message, rows[i][1], prop.getPropertyType());
                 }
             });
 
@@ -203,8 +201,8 @@ public class EPLSubselectMulticolumn {
             for (int i = 0; i < rows.length; i++) {
                 String message = "Failed assertion for " + rows[i][0];
                 EventPropertyDescriptor prop = fragmentType.getFragmentType().getPropertyDescriptors()[i];
-                Assert.assertEquals(message, rows[i][0], prop.getPropertyName());
-                Assert.assertEquals(message, rows[i][1], prop.getPropertyType());
+                assertEquals(message, rows[i][0], prop.getPropertyName());
+                assertEquals(message, rows[i][1], prop.getPropertyType());
             }
         });
 

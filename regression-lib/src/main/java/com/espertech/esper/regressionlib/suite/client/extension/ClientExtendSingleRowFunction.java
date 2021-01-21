@@ -22,12 +22,12 @@ import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunction;
 import com.espertech.esper.regressionlib.support.client.SupportSingleRowFunctionTwo;
-import org.junit.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ClientExtendSingleRowFunction {
@@ -146,11 +146,11 @@ public class ClientExtendSingleRowFunction {
             tryAssertionSingleMethod(env);
             env.assertThat(() -> {
                 EPLMethodInvocationContext context = SupportSingleRowFunction.getMethodInvocationContexts().get(0);
-                Assert.assertEquals("s0", context.getStatementName());
-                Assert.assertEquals(env.runtime().getURI(), context.getRuntimeURI());
-                Assert.assertEquals(-1, context.getContextPartitionId());
-                Assert.assertEquals("power3Context", context.getFunctionName());
-                Assert.assertEquals("my_user_object", context.getStatementUserObject());
+                assertEquals("s0", context.getStatementName());
+                assertEquals(env.runtime().getURI(), context.getRuntimeURI());
+                assertEquals(-1, context.getContextPartitionId());
+                assertEquals("power3Context", context.getFunctionName());
+                assertEquals("my_user_object", context.getStatementUserObject());
             });
 
             env.undeployAll();
@@ -168,7 +168,7 @@ public class ClientExtendSingleRowFunction {
                     env.sendEventBean(new SupportBean("E1", 1));
                     fail();
                 } catch (EPException ex) {
-                    Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': Invocation exception when invoking method 'throwexception' of class '" + SupportSingleRowFunction.class.getName() + "' passing parameters [] for statement 's0': RuntimeException : This is a 'throwexception' generated exception", ex.getMessage());
+                    assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': Invocation exception when invoking method 'throwexception' of class '" + SupportSingleRowFunction.class.getName() + "' passing parameters [] for statement 's0': RuntimeException : This is a 'throwexception' generated exception", ex.getMessage());
                     env.undeployAll();
                 }
             });
@@ -181,7 +181,7 @@ public class ClientExtendSingleRowFunction {
                     env.sendEventBean(new SupportBean("E1", 1));
                     fail();
                 } catch (EPException ex) {
-                    Assert.assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': NullPointerException invoking method 'computePower3' of class '" + SupportSingleRowFunction.class.getName() + "' in parameter 0 passing parameters [null] for statement 's0': The method expects a primitive int value but received a null value", ex.getMessage());
+                    assertEquals("java.lang.RuntimeException: Unexpected exception in statement 's0': NullPointerException invoking method 'computePower3' of class '" + SupportSingleRowFunction.class.getName() + "' in parameter 0 passing parameters [null] for statement 's0': The method expects a primitive int value but received a null value", ex.getMessage());
                 }
             });
 
