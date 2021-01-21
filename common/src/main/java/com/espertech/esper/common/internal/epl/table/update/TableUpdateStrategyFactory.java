@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.join.lookup.IndexedPropDesc;
 import com.espertech.esper.common.internal.epl.lookupplansubord.EventTableIndexMetadataEntry;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperNoCopy;
+import com.espertech.esper.common.internal.type.NameAndModule;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class TableUpdateStrategyFactory {
     }
 
     private static IndexUpdateDesc getAffectedIndexes(TableMetaData tableMetadata, String[] updatedProperties) {
-        Set<String> affectedIndexNames = null;
+        Set<NameAndModule> affectedIndexNames = null;
         boolean uniqueIndexUpdated = false;
 
         for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> index :
@@ -71,9 +72,10 @@ public class TableUpdateStrategyFactory {
                 boolean match = determineUpdatesIndex(updatedProperty, index.getKey());
                 if (match) {
                     if (affectedIndexNames == null) {
-                        affectedIndexNames = new LinkedHashSet<String>();
+                        affectedIndexNames = new LinkedHashSet<>();
                     }
-                    affectedIndexNames.add(index.getValue().getOptionalIndexName());
+                    EventTableIndexMetadataEntry indexMeta = index.getValue();
+                    affectedIndexNames.add(new NameAndModule(indexMeta.getOptionalIndexName(), indexMeta.getOptionalIndexModuleName()));
                     uniqueIndexUpdated |= index.getKey().isUnique();
                 }
             }
@@ -97,20 +99,12 @@ public class TableUpdateStrategyFactory {
     }
 
     private static class IndexUpdateDesc {
-        private final Set<String> affectedIndexNames;
+        private final Set<NameAndModule> affectedIndexNames;
         private final boolean uniqueIndexUpdated;
 
-        public IndexUpdateDesc(Set<String> affectedIndexNames, boolean uniqueIndexUpdated) {
+        public IndexUpdateDesc(Set<NameAndModule> affectedIndexNames, boolean uniqueIndexUpdated) {
             this.affectedIndexNames = affectedIndexNames;
             this.uniqueIndexUpdated = uniqueIndexUpdated;
-        }
-
-        public Set<String> getAffectedIndexNames() {
-            return affectedIndexNames;
-        }
-
-        public boolean isUniqueIndexUpdated() {
-            return uniqueIndexUpdated;
         }
     }
 }

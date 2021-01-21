@@ -48,9 +48,9 @@ public interface TableInstance {
 
     void addExplicitIndex(String indexName, String indexModuleName, QueryPlanIndexItem explicitIndexDesc, boolean isRecoveringResilient) throws ExprValidationException;
 
-    void removeExplicitIndex(String indexName);
+    void removeExplicitIndex(String indexName, String indexModuleName);
 
-    EventTable getIndex(String indexName);
+    EventTable getIndex(String indexName, String indexModuleName);
 
     ReadWriteLock getTableLevelRWLock();
 

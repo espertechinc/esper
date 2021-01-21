@@ -37,7 +37,7 @@ public abstract class TableInstanceUngroupedBase extends TableInstanceBase imple
         throw new UnsupportedOperationException("Ungrouped tables do not allow explicit indexes");
     }
 
-    public void removeExplicitIndex(String indexName) {
+    public void removeExplicitIndex(String indexName, String indexModuleName) {
         throw new UnsupportedOperationException("Ungrouped tables do not allow explicit indexes");
     }
 }

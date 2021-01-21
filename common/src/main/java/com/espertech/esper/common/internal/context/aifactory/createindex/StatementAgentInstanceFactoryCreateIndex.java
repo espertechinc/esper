@@ -130,7 +130,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                     public void stop(AgentInstanceStopServices services) {
                         NamedWindowInstance instance = namedWindow.getNamedWindowInstance(services.getAgentInstanceContext());
                         if (instance != null) {
-                            instance.removeExplicitIndex(indexName);
+                            instance.removeExplicitIndex(indexName, indexModuleName);
                         }
                     }
                 };
@@ -148,7 +148,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                 public void stop(AgentInstanceStopServices services) {
                     TableInstance instance = table.getTableInstance(services.getAgentInstanceContext().getAgentInstanceId());
                     if (instance != null) {
-                        instance.removeExplicitIndex(indexName);
+                        instance.removeExplicitIndex(indexName, indexModuleName);
                     }
                 }
             };

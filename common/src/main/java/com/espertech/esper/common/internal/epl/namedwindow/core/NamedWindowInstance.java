@@ -52,7 +52,7 @@ public class NamedWindowInstance {
         return tailViewInstance.getNumberOfEvents();
     }
 
-    public void removeExplicitIndex(String indexName) {
-        rootViewInstance.getIndexRepository().removeExplicitIndex(indexName);
+    public void removeExplicitIndex(String indexName, String moduleName) {
+        rootViewInstance.getIndexRepository().removeExplicitIndex(indexName, moduleName);
     }
 }

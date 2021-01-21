@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperNoCopy;
 import com.espertech.esper.common.internal.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.common.internal.event.core.ObjectArrayBackedEventBean;
+import com.espertech.esper.common.internal.type.NameAndModule;
 
 import java.util.Collection;
 import java.util.Set;
@@ -24,9 +25,9 @@ import java.util.Set;
 public class TableUpdateStrategyIndexNonUnique implements TableUpdateStrategy {
 
     private final EventBeanUpdateHelperNoCopy updateHelper;
-    private final Set<String> affectedIndexNames;
+    private final Set<NameAndModule> affectedIndexNames;
 
-    public TableUpdateStrategyIndexNonUnique(EventBeanUpdateHelperNoCopy updateHelper, Set<String> affectedIndexNames) {
+    public TableUpdateStrategyIndexNonUnique(EventBeanUpdateHelperNoCopy updateHelper, Set<NameAndModule> affectedIndexNames) {
         this.updateHelper = updateHelper;
         this.affectedIndexNames = affectedIndexNames;
     }
@@ -41,8 +42,8 @@ public class TableUpdateStrategyIndexNonUnique implements TableUpdateStrategy {
         }
 
         // remove from affected indexes
-        for (String affectedIndexName : affectedIndexNames) {
-            EventTable index = instance.getIndex(affectedIndexName);
+        for (NameAndModule affectedIndexName : affectedIndexNames) {
+            EventTable index = instance.getIndex(affectedIndexName.getName(), affectedIndexName.getModuleName());
             index.remove(events, instance.getAgentInstanceContext());
         }
 
@@ -64,8 +65,8 @@ public class TableUpdateStrategyIndexNonUnique implements TableUpdateStrategy {
         }
 
         // add to affected indexes
-        for (String affectedIndexName : affectedIndexNames) {
-            EventTable index = instance.getIndex(affectedIndexName);
+        for (NameAndModule affectedIndexName : affectedIndexNames) {
+            EventTable index = instance.getIndex(affectedIndexName.getName(), affectedIndexName.getModuleName());
             index.add(events, instance.getAgentInstanceContext());
         }
     }

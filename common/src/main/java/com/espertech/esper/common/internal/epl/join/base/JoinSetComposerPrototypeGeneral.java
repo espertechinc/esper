@@ -28,6 +28,7 @@ import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWQueryPlanUtil;
 import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWView;
+import com.espertech.esper.common.internal.type.NameAndModule;
 import com.espertech.esper.common.internal.view.core.DerivedValueView;
 import com.espertech.esper.common.internal.view.core.Viewable;
 import org.slf4j.Logger;
@@ -91,12 +92,12 @@ public class JoinSetComposerPrototypeGeneral extends JoinSetComposerPrototypeBas
                 // build for tables
                 Table table = streamJoinAnalysisResult.getTables()[streamNo];
                 TableInstance state = table.getTableInstance(agentInstanceContext.getAgentInstanceId());
-                for (String indexName : state.getIndexRepository().getExplicitIndexNames()) { // add secondary indexes
-                    EventTable index = state.getIndex(indexName);
-                    indexesPerStream[streamNo].put(new TableLookupIndexReqKey(indexName, null, table.getName()), index);
+                for (NameAndModule indexName : state.getIndexRepository().getExplicitIndexNames()) { // add secondary indexes
+                    EventTable index = state.getIndex(indexName.getName(), indexName.getModuleName());
+                    indexesPerStream[streamNo].put(new TableLookupIndexReqKey(indexName.getName(), indexName.getModuleName(), table.getName()), index);
                 }
-                EventTable index = state.getIndex(table.getName()); // add primary index
-                indexesPerStream[streamNo].put(new TableLookupIndexReqKey(table.getName(), null, table.getName()), index);
+                EventTable index = state.getIndex(table.getName(), table.getMetaData().getTableModuleName()); // add primary index
+                indexesPerStream[streamNo].put(new TableLookupIndexReqKey(table.getName(), table.getMetaData().getTableModuleName(), table.getName()), index);
                 hasTable = true;
                 tableSecondaryIndexLocks[streamNo] = agentInstanceContext.getStatementContext().getStatementInformationals().isWritesToTables() ?
                         state.getTableLevelRWLock().writeLock() : state.getTableLevelRWLock().readLock();

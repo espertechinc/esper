@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.index.base.EventTableUtil;
 import com.espertech.esper.common.internal.epl.join.hint.IndexHintInstruction;
 import com.espertech.esper.common.internal.epl.join.lookup.IndexMultiKey;
 import com.espertech.esper.common.internal.epl.join.queryplan.QueryPlanIndexItem;
+import com.espertech.esper.common.internal.type.NameAndModule;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ import java.util.*;
 public class EventTableIndexRepository {
     private final List<EventTable> tables;
     private final Map<IndexMultiKey, EventTableIndexRepositoryEntry> tableIndexesRefCount;
-    private final HashMap<String, EventTable> explicitIndexes;
+    private final HashMap<NameAndModule, EventTable> explicitIndexes;
     private final EventTableIndexMetadata eventTableIndexMetadata;
 
     /**
@@ -44,9 +45,9 @@ public class EventTableIndexRepository {
      * @param eventTableIndexMetadata metadata for index
      */
     public EventTableIndexRepository(EventTableIndexMetadata eventTableIndexMetadata) {
-        tables = new ArrayList<EventTable>();
-        tableIndexesRefCount = new HashMap<IndexMultiKey, EventTableIndexRepositoryEntry>();
-        explicitIndexes = new HashMap<String, EventTable>();
+        tables = new ArrayList<>();
+        tableIndexesRefCount = new HashMap<>();
+        explicitIndexes = new HashMap<>();
         this.eventTableIndexMetadata = eventTableIndexMetadata;
     }
 
@@ -72,10 +73,10 @@ public class EventTableIndexRepository {
         IndexMultiKey indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), indexMultiKey);
         if (indexPropKeyMatch != null) {
             EventTableIndexRepositoryEntry refTablePair = tableIndexesRefCount.get(indexPropKeyMatch);
-            return new Pair<IndexMultiKey, EventTableAndNamePair>(indexPropKeyMatch, new EventTableAndNamePair(refTablePair.getTable(), refTablePair.getOptionalIndexName()));
+            return new Pair<>(indexPropKeyMatch, new EventTableAndNamePair(refTablePair.getTable(), refTablePair.getOptionalIndexName()));
         }
 
-        return addIndex(desc, prefilledEvents, indexedType, indexName, indexModuleName, false, agentInstanceContext, optionalValueSerde);
+        return addIndex(desc, prefilledEvents, indexedType, indexName, indexModuleName, agentInstanceContext, optionalValueSerde);
     }
 
     public void addIndex(IndexMultiKey indexMultiKey, EventTableIndexRepositoryEntry entry) {
@@ -109,12 +110,12 @@ public class EventTableIndexRepository {
             return null;
         }
         EventTable tableFound = ((EventTableIndexRepositoryEntry) pair.getSecond()).getTable();
-        return new Pair<IndexMultiKey, EventTableAndNamePair>(pair.getFirst(), new EventTableAndNamePair(tableFound, pair.getSecond().getOptionalIndexName()));
+        return new Pair<>(pair.getFirst(), new EventTableAndNamePair(tableFound, pair.getSecond().getOptionalIndexName()));
     }
 
     public IndexMultiKey[] getIndexDescriptors() {
         Set<IndexMultiKey> keySet = tableIndexesRefCount.keySet();
-        return keySet.toArray(new IndexMultiKey[keySet.size()]);
+        return keySet.toArray(new IndexMultiKey[0]);
     }
 
     public Map<IndexMultiKey, EventTableIndexRepositoryEntry> getTableIndexesRefCount() {
@@ -123,7 +124,7 @@ public class EventTableIndexRepository {
 
     public void validateAddExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem explicitIndexDesc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, DataInputOutputSerde<Object> optionalValueSerde)
             throws ExprValidationException {
-        if (explicitIndexes.containsKey(explicitIndexName)) {
+        if (explicitIndexes.containsKey(new NameAndModule(explicitIndexName, explicitIndexModuleName))) {
             if (allowIndexExists) {
                 return;
             }
@@ -135,11 +136,11 @@ public class EventTableIndexRepository {
 
     public void addExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, DataInputOutputSerde<Object> optionalSerde) {
         Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc, dataWindowContents, eventType, explicitIndexName, explicitIndexModuleName, agentInstanceContext, optionalSerde);
-        explicitIndexes.put(explicitIndexName, pair.getSecond().getEventTable());
+        explicitIndexes.put(new NameAndModule(explicitIndexName, explicitIndexModuleName), pair.getSecond().getEventTable());
     }
 
-    public EventTable getExplicitIndexByName(String indexName) {
-        return explicitIndexes.get(indexName);
+    public EventTable getExplicitIndexByName(String indexName, String moduleName) {
+        return explicitIndexes.get(new NameAndModule(indexName, moduleName));
     }
 
     public EventTable getIndexByDesc(IndexMultiKey indexKey) {
@@ -150,7 +151,7 @@ public class EventTableIndexRepository {
         return entry.getTable();
     }
 
-    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(QueryPlanIndexItem indexItem, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, String indexModuleName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, DataInputOutputSerde<Object> optionalValueSerde) {
+    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(QueryPlanIndexItem indexItem, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, String indexModuleName, AgentInstanceContext agentInstanceContext, DataInputOutputSerde<Object> optionalValueSerde) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = indexItem.toIndexMultiKey();
@@ -175,12 +176,12 @@ public class EventTableIndexRepository {
         // add index, reference counted
         tableIndexesRefCount.put(indexPropKey, new EventTableIndexRepositoryEntry(indexName, indexModuleName, table));
 
-        return new Pair<IndexMultiKey, EventTableAndNamePair>(indexPropKey, new EventTableAndNamePair(table, indexName));
+        return new Pair<>(indexPropKey, new EventTableAndNamePair(table, indexName));
     }
 
-    public String[] getExplicitIndexNames() {
-        Set<String> names = explicitIndexes.keySet();
-        return names.toArray(new String[names.size()]);
+    public NameAndModule[] getExplicitIndexNames() {
+        Set<NameAndModule> names = explicitIndexes.keySet();
+        return names.toArray(NameAndModule.EMPTY_ARRAY);
     }
 
     public void removeIndex(IndexMultiKey index) {
@@ -188,23 +189,14 @@ public class EventTableIndexRepository {
         if (entry != null) {
             tables.remove(entry.getTable());
             if (entry.getOptionalIndexName() != null) {
-                explicitIndexes.remove(entry.getOptionalIndexName());
+                explicitIndexes.remove(new NameAndModule(entry.getOptionalIndexName(), entry.getOptionalIndexModuleName()));
             }
             entry.getTable().destroy();
         }
     }
 
-    public IndexMultiKey getIndexByName(String indexName) {
-        for (Map.Entry<IndexMultiKey, EventTableIndexRepositoryEntry> entry : tableIndexesRefCount.entrySet()) {
-            if (entry.getValue().getOptionalIndexName().equals(indexName)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    public void removeExplicitIndex(String indexName) {
-        EventTable eventTable = explicitIndexes.remove(indexName);
+    public void removeExplicitIndex(String indexName, String moduleName) {
+        EventTable eventTable = explicitIndexes.remove(new NameAndModule(indexName, moduleName));
         if (eventTable != null) {
             eventTable.destroy();
         }

@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.client;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.regressionlib.suite.client.multitenancy.ClientMultitenancyIndex;
 import com.espertech.esper.regressionlib.suite.client.multitenancy.ClientMultitenancyInsertInto;
 import com.espertech.esper.regressionlib.suite.client.multitenancy.ClientMultitenancyProtected;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -38,6 +39,10 @@ public class TestSuiteClientMultitenancy extends TestCase {
 
     public void testClientMultitenancyInsertInto() {
         RegressionRunner.run(session, ClientMultitenancyInsertInto.executions());
+    }
+
+    public void testClientMultitenancyIndex() {
+        RegressionRunner.run(session, ClientMultitenancyIndex.executions());
     }
 
     private static void configure(Configuration configuration) {

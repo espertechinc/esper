@@ -63,15 +63,15 @@ public class TableInstanceGroupedImpl extends TableInstanceGroupedBase implement
         indexRepository.validateAddExplicitIndex(indexName, indexModuleName, explicitIndexDesc, table.getMetaData().getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient, null);
     }
 
-    public void removeExplicitIndex(String indexName) {
-        indexRepository.removeExplicitIndex(indexName);
+    public void removeExplicitIndex(String indexName, String indexModuleName) {
+        indexRepository.removeExplicitIndex(indexName, indexModuleName);
     }
 
-    public EventTable getIndex(String indexName) {
+    public EventTable getIndex(String indexName, String moduleName) {
         if (indexName.equals(table.getMetaData().getTableName())) {
             return indexRepository.getIndexByDesc(table.getMetaData().getKeyIndexMultiKey());
         }
-        return indexRepository.getExplicitIndexByName(indexName);
+        return indexRepository.getExplicitIndexByName(indexName, moduleName);
     }
 
     public void clearInstance() {

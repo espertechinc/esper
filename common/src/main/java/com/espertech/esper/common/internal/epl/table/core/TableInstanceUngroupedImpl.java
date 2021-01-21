@@ -92,7 +92,7 @@ public class TableInstanceUngroupedImpl extends TableInstanceUngroupedBase {
         agentInstanceContext.getInstrumentationProvider().aTableDeleteEvent();
     }
 
-    public EventTable getIndex(String indexName) {
+    public EventTable getIndex(String indexName, String indexModuleName) {
         if (indexName.equals(table.getName())) {
             EventTableOrganization org = new EventTableOrganization(table.getName(),
                     true, false, 0, new String[0], EventTableOrganizationType.UNORGANIZED);
