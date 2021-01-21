@@ -16,7 +16,10 @@ import com.espertech.esper.common.client.configuration.common.ConfigurationCommo
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.epl.database.*;
-import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanRange;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.util.SupportDataSourceFactory;
 import com.espertech.esper.regressionlib.support.util.SupportDatabaseService;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
@@ -105,6 +108,7 @@ public class TestSuiteEPLDatabase extends TestCase {
         common.addVariable("myvariableOCC", int.class, 10);
         common.addVariable("myvariableIPC", String.class, "x10");
         common.addVariable("myvariableORC", int.class, 10);
+        common.getLogging().setEnableJDBC(true);
 
         ConfigurationCommonDBRef configDBWithRetain = new ConfigurationCommonDBRef();
         configDBWithRetain.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());

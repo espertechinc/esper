@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.context.util;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
 import com.espertech.esper.common.client.type.EPTypeClass;
@@ -365,5 +366,9 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
 
     public boolean isWritesToTables() {
         return statementContext.isWritesToTables();
+    }
+
+    public Configuration getConfigSnapshot() {
+        return statementContext.getConfigSnapshot();
     }
 }

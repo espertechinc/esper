@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.context.util;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.client.render.EPRenderEventService;
 import com.espertech.esper.common.client.util.StatementProperty;
@@ -497,5 +498,9 @@ public class StatementContext implements ExprEvaluatorContext, SubSelectStrategy
 
     public boolean isWritesToTables() {
         return getStatementInformationals().isWritesToTables();
+    }
+
+    public Configuration getConfigSnapshot() {
+        return statementContextRuntimeServices.getConfigSnapshot();
     }
 }

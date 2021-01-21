@@ -42,13 +42,14 @@ public class HistoricalEventViewableDatabaseFactory extends HistoricalEventViewa
     protected boolean enableJDBCLogging;
 
     public HistoricalEventViewable activate(AgentInstanceContext agentInstanceContext) {
-        ConnectionCache connectionCache = null;
+        ConnectionCache connectionCache;
         try {
             connectionCache = agentInstanceContext.getDatabaseConfigService().getConnectionCache(databaseName, preparedStatementText);
         } catch (DatabaseConfigException e) {
             throw new EPException("Failed to obtain connection cache: " + e.getMessage(), e);
         }
         PollExecStrategyDBQuery pollExecStrategy = new PollExecStrategyDBQuery(this, agentInstanceContext, connectionCache);
+        this.enableJDBCLogging = agentInstanceContext.getConfigSnapshot().getCommon().getLogging().isEnableJDBC();
         return new HistoricalEventViewableDatabase(this, pollExecStrategy, agentInstanceContext);
     }
 

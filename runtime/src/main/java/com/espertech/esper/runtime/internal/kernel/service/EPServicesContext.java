@@ -274,6 +274,7 @@ public class EPServicesContext implements EPServicesEvaluation, EPServicesPath {
     public StatementContextRuntimeServices getStatementContextRuntimeServices() {
         if (statementContextRuntimeServices == null) {
             statementContextRuntimeServices = new StatementContextRuntimeServices(
+                configSnapshot,
                 contextManagementService,
                 contextPathRegistry,
                 contextServiceFactory,
