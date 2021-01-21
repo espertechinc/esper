@@ -51,7 +51,7 @@ public class ExprCoreBigNumberSupportMathContext {
             env.assertStatement("s0", statement -> {
                 statement.setSubscriber(new Object() {
                     public void update(BigDecimal value) {
-                        assertEquals(0.1739130d, value.doubleValue());
+                        assertEquals(0.1739130d, value.doubleValue(), 0);
                     }
                 });
             });

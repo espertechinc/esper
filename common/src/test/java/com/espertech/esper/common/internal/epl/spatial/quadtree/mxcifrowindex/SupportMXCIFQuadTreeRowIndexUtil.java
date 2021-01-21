@@ -67,10 +67,10 @@ public class SupportMXCIFQuadTreeRowIndexUtil {
     }
 
     protected static void compare(double x, double y, double width, double height, String expected, XYWHRectangleMultiType rectangle) {
-        assertEquals(x, rectangle.getX());
-        assertEquals(y, rectangle.getY());
-        assertEquals(width, rectangle.getW());
-        assertEquals(height, rectangle.getH());
+        assertEquals(x, rectangle.getX(), 0);
+        assertEquals(y, rectangle.getY(), 0);
+        assertEquals(width, rectangle.getW(), 0);
+        assertEquals(height, rectangle.getH(), 0);
         assertEquals(expected, rectangle.getMultityped().toString());
     }
 }

@@ -58,8 +58,8 @@ public class SupportPointRegionQuadTreeRowIndexUtil {
     }
 
     protected static void compare(double x, double y, String expected, XYPointMultiType point) {
-        assertEquals(x, point.getX());
-        assertEquals(y, point.getY());
+        assertEquals(x, point.getX(), 0);
+        assertEquals(y, point.getY(), 0);
         assertEquals(expected, point.getMultityped().toString());
     }
 }
