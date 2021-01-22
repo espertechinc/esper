@@ -102,6 +102,9 @@ public class EventTypeUtility {
         if (eventType instanceof JsonEventType) {
             return new JsonEventBean(null, eventType);
         }
+        if (eventType instanceof WrapperEventType) {
+            return new WrapperEventBean(null, null, eventType);
+        }
         throw new EventAdapterException("Event type '" + eventType.getName() + "' is not an runtime-native event type");
     }
 
@@ -1775,6 +1778,14 @@ public class EventTypeUtility {
         if (eventType instanceof JsonEventType) {
             return new EventBeanAdapterFactoryJson(eventType, eventBeanTypedEventFactory);
         }
+        if (eventType instanceof WrapperEventType) {
+            WrapperEventType wrapperEventType = (WrapperEventType) eventType;
+            EventBeanAdapterFactory factoryWrapped = getAdapterFactoryForType(wrapperEventType.getUnderlyingEventType(), eventBeanTypedEventFactory, eventTypeAvroHandler);
+            if (wrapperEventType.isNoMapProperties()) {
+                return new EventBeanAdapterFactoryWrapperNoProps(wrapperEventType, eventBeanTypedEventFactory, factoryWrapped);
+            }
+            return new EventBeanAdapterFactoryWrapperWithProps(wrapperEventType, eventBeanTypedEventFactory, factoryWrapped);
+        }
         throw new EventAdapterException("Event type '" + eventType.getName() + "' is not a runtime-native event type");
     }
 
@@ -1859,6 +1870,41 @@ public class EventTypeUtility {
 
         public EventBean makeAdapter(Object underlying) {
             return eventBeanTypedEventFactory.adapterForTypedJson(underlying, eventType);
+        }
+    }
+
+    public static class EventBeanAdapterFactoryWrapperWithProps implements EventBeanAdapterFactory {
+        private final WrapperEventType eventType;
+        private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
+        private final EventBeanAdapterFactory factoryWrapped;
+
+        public EventBeanAdapterFactoryWrapperWithProps(EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventBeanAdapterFactory factoryWrapped) {
+            this.eventType = (WrapperEventType) eventType;
+            this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
+            this.factoryWrapped = factoryWrapped;
+        }
+
+        public EventBean makeAdapter(Object underlying) {
+            Pair<Object, Map<String, Object>> pair = (Pair<Object, Map<String, Object>>) underlying;
+            EventBean inner = factoryWrapped.makeAdapter(pair.getFirst());
+            return eventBeanTypedEventFactory.adapterForTypedWrapper(inner, pair.getSecond(), eventType);
+        }
+    }
+
+    public static class EventBeanAdapterFactoryWrapperNoProps implements EventBeanAdapterFactory {
+        private final WrapperEventType eventType;
+        private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
+        private final EventBeanAdapterFactory factoryWrapped;
+
+        public EventBeanAdapterFactoryWrapperNoProps(EventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventBeanAdapterFactory factoryWrapped) {
+            this.eventType = (WrapperEventType) eventType;
+            this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
+            this.factoryWrapped = factoryWrapped;
+        }
+
+        public EventBean makeAdapter(Object underlying) {
+            EventBean inner = factoryWrapped.makeAdapter(underlying);
+            return eventBeanTypedEventFactory.adapterForTypedWrapper(inner, Collections.emptyMap(), eventType);
         }
     }
 }

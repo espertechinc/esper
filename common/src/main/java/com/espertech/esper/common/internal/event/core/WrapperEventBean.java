@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.internal.collection.Pair;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -26,9 +27,9 @@ import java.util.Map;
  * The event type of such events is always {@link WrapperEventType}. Additional properties are stored in a
  * Map.
  */
-public class WrapperEventBean implements EventBean, DecoratingEventBean {
-    private final EventBean theEvent;
-    private final Map<String, Object> map;
+public class WrapperEventBean implements EventBeanSPI, DecoratingEventBean {
+    private EventBean theEvent;
+    private Map<String, Object> map;
     private final EventType eventType;
 
     /**
@@ -94,5 +95,18 @@ public class WrapperEventBean implements EventBean, DecoratingEventBean {
             throw PropertyAccessException.notAValidProperty(propertyExpression);
         }
         return getter.getFragment(this);
+    }
+
+    public void setUnderlying(Object underlying) {
+        WrapperEventType type = (WrapperEventType) eventType;
+        theEvent = EventTypeUtility.getShellForType(type.getUnderlyingEventType());
+        if (underlying instanceof Pair) {
+            Pair<Object, Map<String, Object>> pair = (Pair<Object, Map<String, Object>>) underlying;
+            ((EventBeanSPI) theEvent).setUnderlying(pair.getFirst());
+            map = pair.getSecond();
+        } else {
+            ((EventBeanSPI) theEvent).setUnderlying(underlying);
+            map = Collections.emptyMap();
+        }
     }
 }

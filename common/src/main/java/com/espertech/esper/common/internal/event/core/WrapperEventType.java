@@ -302,6 +302,10 @@ public class WrapperEventType implements EventTypeSPI {
         }
     }
 
+    public boolean isNoMapProperties() {
+        return isNoMapProperties;
+    }
+
     /**
      * Returns the wrapped event type.
      *

@@ -51,7 +51,7 @@ public class TestSuiteEPLDataflow extends TestCase {
     }
 
     public void testEPLDataflowOpLogSink() {
-        RegressionRunner.run(session, new EPLDataflowOpLogSink());
+        RegressionRunner.run(session, EPLDataflowOpLogSink.executions());
     }
 
     public void testEPLDataflowOpFilter() {

@@ -32,14 +32,20 @@ public class StmtClassForgeableStmtFields implements StmtClassForgeable {
 
     private final String className;
     private final CodegenPackageScope packageScope;
+    private final boolean dataflowOperatorFields;
 
     public StmtClassForgeableStmtFields(String className, CodegenPackageScope packageScope) {
+        this(className, packageScope, false);
+    }
+
+    public StmtClassForgeableStmtFields(String className, CodegenPackageScope packageScope, boolean dataflowOperatorFields) {
         this.className = className;
         this.packageScope = packageScope;
+        this.dataflowOperatorFields = dataflowOperatorFields;
     }
 
     public CodegenClass forge(boolean includeDebugSymbols, boolean fireAndForget) {
-        if (!packageScope.hasAnyFields()) {
+        if (!dataflowOperatorFields && !packageScope.hasAnyFields()) {
             return null;
         }
         List<MemberFieldPair> memberFields = getMembers();

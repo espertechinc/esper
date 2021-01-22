@@ -376,7 +376,7 @@ public class StmtForgeMethodSelectUtil {
         forgeables.add(new StmtClassForgeableRSPFactoryProvider(resultSetProcessorProviderClassName, resultSetProcessorDesc, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
         forgeables.add(new StmtClassForgeableOPVFactoryProvider(outputProcessViewProviderClassName, outputProcessViewFactoryForge, packageScope, numStreams, base.getStatementRawInfo()));
         forgeables.add(new StmtClassForgeableAIFactoryProviderSelect(statementAIFactoryProviderClassName, packageScope, forge));
-        forgeables.add(new StmtClassForgeableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope));
+        forgeables.add(new StmtClassForgeableStmtFields(packageScope.getFieldsClassNameOptional(), packageScope, true));
 
         if (!dataflowOperator) {
             StatementInformationalsCompileTime informationals = StatementInformationalsUtil.getInformationals(base, filterSpecCompileds, scheduleHandleCallbackProviders, namedWindowConsumers, true, resultSetProcessorDesc.getSelectSubscriberDescriptor(), packageScope, services);

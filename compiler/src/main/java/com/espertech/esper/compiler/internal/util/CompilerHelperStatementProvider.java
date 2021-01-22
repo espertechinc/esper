@@ -342,7 +342,7 @@ public class CompilerHelperStatementProvider {
             names.add(forgeable.getClassName());
         }
 
-        // there can be only one fields and statement provider
+        // there can be only one statement provider
         StmtClassForgeable stmtProvider = null;
         for (StmtClassForgeable forgeable : forgeables) {
             if (forgeable.getForgeableType() == StmtClassForgeableType.STMTPROVIDER) {

@@ -16,6 +16,7 @@ import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstanceCaptive
 import com.espertech.esper.common.client.dataflow.core.EPDataFlowInstantiationOptions;
 import com.espertech.esper.common.client.dataflow.util.EPDataFlowSignalFinalMarker;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.epl.dataflow.util.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
@@ -30,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 
 public class EPLDataflowOpSelect {
@@ -46,6 +49,8 @@ public class EPLDataflowOpSelect {
         execs.add(new EPLDataflowFromClauseJoinOrder());
         execs.add(new EPLDataflowSelectPerformance());
         execs.add(new EPLDataflowOuterJoinMultirow());
+        execs.add(new EPLDataflowOpSelectWrapper(false));
+        execs.add(new EPLDataflowOpSelectWrapper(true));
         return execs;
     }
 
@@ -366,6 +371,61 @@ public class EPLDataflowOpSelect {
             runAssertionAllTypes(env, "MyXMLEvent", DefaultSupportGraphEventUtil.getXMLEvents());
             runAssertionAllTypes(env, "MyOAEvent", DefaultSupportGraphEventUtil.getOAEvents());
             runAssertionAllTypes(env, "MyMapEvent", DefaultSupportGraphEventUtil.getMapEvents());
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.DATAFLOW);
+        }
+    }
+
+    private static class EPLDataflowOpSelectWrapper implements RegressionExecution {
+        private final boolean wrapperWithAdditionalProps;
+
+        public EPLDataflowOpSelectWrapper(boolean wrapperWithAdditionalProps) {
+            this.wrapperWithAdditionalProps = wrapperWithAdditionalProps;
+        }
+
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema A(value int);\n" +
+                    (wrapperWithAdditionalProps ? "insert into B select 'a' as hello, * from A; \n" : "insert into B select * from A; \n") +
+                    "@name('flow') create dataflow OutputFlow\n" +
+                    "  EventBusSource -> TheEvents<B> {}\n" +
+                    "  Select(TheEvents) -> outstream {\n" +
+                    "    select: (select * from TheEvents)\n" +
+                    "  }\n" +
+                    "  DefaultSupportCaptureOp(outstream) {}\n";
+
+            env.compileDeploy(epl);
+            DefaultSupportCaptureOp<Object> capture = new DefaultSupportCaptureOp<>(1);
+            EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
+            options.operatorProvider(new DefaultSupportGraphOpProvider(capture));
+            EPDataFlowInstance instance = env.runtime().getDataFlowService().instantiate(env.deploymentId("flow"), "OutputFlow", options);
+            instance.start();
+
+            env.sendEventMap(singletonMap("value", 10), "A");
+            Object[] result;
+            try {
+                result = capture.get(1, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                throw new RuntimeException("Timeout: " + e.getMessage(), e);
+            }
+            if (wrapperWithAdditionalProps) {
+                Pair<Object, Map<String, Object>> underlying = (Pair<Object, Map<String, Object>>) result[0];
+                assertEquals("a", underlying.getSecond().get("hello"));
+                assertEquals(10, ((Map<String, Object>) underlying.getFirst()).get("value"));
+            } else {
+                EPAssertionUtil.assertPropsPerRow(result, "value".split(","), new Object[][]{{10}});
+            }
+
+            instance.cancel();
+
+            env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                    "wrapperWithAdditionalProps=" + wrapperWithAdditionalProps +
+                    '}';
         }
 
         public EnumSet<RegressionFlag> flags() {
