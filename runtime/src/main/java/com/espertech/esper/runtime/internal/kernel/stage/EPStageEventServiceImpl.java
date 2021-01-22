@@ -828,7 +828,7 @@ public class EPStageEventServiceImpl implements EPStageEventServiceSPI, Internal
 
     private void initThreadLocals() {
         removeFromThreadLocals();
-        threadLocals = allocateThreadLocals(isPrioritized, runtimeServices.getRuntimeURI(), runtimeServices.getEventBeanService(), runtimeServices.getExceptionHandlingService(), specificServices.getSchedulingService(), runtimeServices.getClasspathImportServiceRuntime().getTimeZone(), runtimeServices.getClasspathImportServiceRuntime().getTimeAbacus(), runtimeServices.getVariableManagementService());
+        threadLocals = allocateThreadLocals(isPrioritized, runtimeServices.getRuntimeURI(), runtimeServices.getConfigSnapshot(), runtimeServices.getEventBeanService(), runtimeServices.getExceptionHandlingService(), specificServices.getSchedulingService(), runtimeServices.getClasspathImportServiceRuntime().getTimeZone(), runtimeServices.getClasspathImportServiceRuntime().getTimeAbacus(), runtimeServices.getVariableManagementService());
     }
 
     private void processSchedule(long time) {

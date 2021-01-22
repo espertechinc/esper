@@ -74,7 +74,24 @@ public class EPLOtherUpdateIStream {
         execs.add(new EPLOtherUpdateArrayElementBoxed());
         execs.add(new EPLOtherUpdateArrayElementInvalid());
         execs.add(new EPLOtherUpdateExpression());
+        execs.add(new EPLOtherUpdateIStreamEnumAnyOf());
         return execs;
+    }
+
+    private static class EPLOtherUpdateIStreamEnumAnyOf implements RegressionExecution {
+
+        @Override
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEvent as " + SupportEventWithListOfObject.class.getName() + ";\n" +
+                    "@name('update') update istream MyEvent set updated = true where mylist.anyOf(e -> e is not null); \n" +
+                    "@name('s0') select updated from MyEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportEventWithListOfObject(Arrays.asList("first", "second")), "MyEvent");
+            env.assertEqualsNew("s0", "updated", true);
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherUpdateArrayElementInvalid implements RegressionExecution {
@@ -85,29 +102,29 @@ public class EPLOtherUpdateIStream {
 
             // invalid property
             env.tryInvalidCompile(path, "update istream MySchema set c1[0]=1",
-                "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
+                    "Failed to validate assignment expression 'c1[0]=1': Property 'c1[0]' is not available for write access");
 
             // index expression is not Integer
             env.tryInvalidCompile(path, "update istream MySchema set doublearray[null]=1",
-                "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
+                    "Incorrect index expression for array operation, expected an expression returning an integer value but the expression 'null' returns 'null' for expression 'doublearray'");
 
             // type incompatible cannot assign
             env.tryInvalidCompile(path, "update istream MySchema set intarray[notAnArray]='x'",
-                "Failed to validate assignment expression 'intarray[notAnArray]=\"x\"': Invalid assignment of column '\"x\"' of type 'String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
+                    "Failed to validate assignment expression 'intarray[notAnArray]=\"x\"': Invalid assignment of column '\"x\"' of type 'String' to event property 'intarray' typed as 'int', column and parameter types mismatch");
 
             // not-an-array
             env.tryInvalidCompile(path, "update istream MySchema set notAnArray[notAnArray]=1",
-                "Failed to validate assignment expression 'notAnArray[notAnArray]=1': Property 'notAnArray' type is not array");
+                    "Failed to validate assignment expression 'notAnArray[notAnArray]=1': Property 'notAnArray' type is not array");
 
             // not found
             env.tryInvalidCompile(path, "update istream MySchema set dummy[intPrimitive]=1",
-                "Failed to validate update assignment expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream");
+                    "Failed to validate update assignment expression 'intPrimitive': Property named 'intPrimitive' is not valid in any stream");
 
             path.clear();
 
             // runtime-behavior for index-overflow and null-array and null-index and
             String epl = "@name('create') @public @buseventtype create schema MySchema(doublearray double[primitive], indexvalue int, rhsvalue int);\n" +
-                "update istream MySchema set doublearray[indexvalue]=rhsvalue;\n";
+                    "update istream MySchema set doublearray[indexvalue]=rhsvalue;\n";
             env.compileDeploy(epl);
 
             // index returned is too large
@@ -131,22 +148,22 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateExpression implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl =
-                "@public @buseventtype create map schema MyEvent(a int, b int);\n" +
-                "inlined_class \"\"\"\n" +
-                "  public class Helper {\n" +
-                "    public static void swap(java.util.Map event) {\n" +
-                "      Object temp = event.get(\"a\");\n" +
-                "      event.put(\"a\", event.get(\"b\"));\n" +
-                "      event.put(\"b\", temp);\n" +
-                "    }\n" +
-                "  }\n" +
-                "\"\"\"\n" +
-                "update istream MyEvent as me set Helper.swap(me);\n" +
-                "@name('s0') select * from MyEvent;\n";
+                    "@public @buseventtype create map schema MyEvent(a int, b int);\n" +
+                            "inlined_class \"\"\"\n" +
+                            "  public class Helper {\n" +
+                            "    public static void swap(java.util.Map event) {\n" +
+                            "      Object temp = event.get(\"a\");\n" +
+                            "      event.put(\"a\", event.get(\"b\"));\n" +
+                            "      event.put(\"b\", temp);\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "\"\"\"\n" +
+                            "update istream MyEvent as me set Helper.swap(me);\n" +
+                            "@name('s0') select * from MyEvent;\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventMap(CollectionUtil.buildMap("a", 1, "b", 10), "MyEvent");
-            env.assertPropsNew("s0", "a,b".split(","), new Object[] {10, 1});
+            env.assertPropsNew("s0", "a,b".split(","), new Object[]{10, 1});
 
             env.undeployAll();
         }
@@ -156,12 +173,12 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
             String epl =
                     "@public @buseventtype create schema MyEvent(dbls double[]);\n" +
-                    "update istream MyEvent set dbls[3-2] = 1;\n" +
-                    "@name('s0') select dbls as c0 from MyEvent;\n";
+                            "update istream MyEvent set dbls[3-2] = 1;\n" +
+                            "@name('s0') select dbls as c0 from MyEvent;\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventMap(Collections.singletonMap("dbls", new Double[3]), "MyEvent");
-            env.assertEventNew("s0", event -> assertArrayEquals(new Double[] {null, 1d, null}, (Double[]) event.get("c0")));
+            env.assertEventNew("s0", event -> assertArrayEquals(new Double[]{null, 1d, null}, (Double[]) event.get("c0")));
 
             env.undeployAll();
         }
@@ -170,28 +187,28 @@ public class EPLOtherUpdateIStream {
     private static class EPLOtherUpdateArrayElement implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create schema Arriving(position int, intarray int[], objectarray java.lang.Object[]);\n" +
-                "update istream Arriving set intarray[position] = 1, objectarray[position] = 1;\n" +
-                "@name('s0') select * from Arriving;\n";
+                    "update istream Arriving set intarray[position] = 1, objectarray[position] = 1;\n" +
+                    "@name('s0') select * from Arriving;\n";
             env.compileDeploy(epl).addListener("s0");
 
-            assertUpdate(env, 1, new int[] {0, 1, 0}, new Object[] {null, 1, null});
-            assertUpdate(env, 0, new int[] {1, 0, 0}, new Object[] {1, null, null});
-            assertUpdate(env, 2, new int[] {0, 0, 1}, new Object[] {null, null, 1});
+            assertUpdate(env, 1, new int[]{0, 1, 0}, new Object[]{null, 1, null});
+            assertUpdate(env, 0, new int[]{1, 0, 0}, new Object[]{1, null, null});
+            assertUpdate(env, 2, new int[]{0, 0, 1}, new Object[]{null, null, 1});
 
             env.undeployAll();
         }
 
         private void assertUpdate(RegressionEnvironment env, int position, int[] expectedInt, Object[] expectedObj) {
             env.sendEventMap(CollectionUtil.buildMap("position", position, "intarray", new int[3], "objectarray", new Object[3]), "Arriving");
-            env.assertPropsNew("s0", "position,intarray,objectarray".split(","), new Object[] {position, expectedInt, expectedObj});
+            env.assertPropsNew("s0", "position,intarray,objectarray".split(","), new Object[]{position, expectedInt, expectedObj});
         }
     }
 
     private static class EPLOtherUpdateSubqueryMultikeyWArray implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create schema Arriving(value int);\n" +
-                "update istream Arriving set value = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array);\n" +
-                "@name('s0') select * from Arriving;\n";
+                    "update istream Arriving set value = (select sum(value) as c0 from SupportEventWithIntArray#keepall group by array);\n" +
+                    "@name('s0') select * from Arriving;\n";
             env.compileDeploy(epl).addListener("s0");
 
             env.sendEventBean(new SupportEventWithIntArray("E1", new int[]{1, 2}, 10));
@@ -255,7 +272,7 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
 
             env.compileDeploy("@name('update') update istream SupportBean " +
-                "set intPrimitive=myvar, intBoxed=intPrimitive");
+                    "set intPrimitive=myvar, intBoxed=intPrimitive");
             env.assertStatement("update", statement -> assertEquals(StatementType.UPDATE, statement.getProperty(StatementProperty.STATEMENTTYPE)));
 
             env.compileDeploy("@name('s0') select * from SupportBean").addListener("s0");
@@ -277,29 +294,29 @@ public class EPLOtherUpdateIStream {
             env.compileDeploy("@public insert into SupportBeanStreamRO select * from SupportBeanReadOnly", path);
 
             env.tryInvalidCompile(path, "update istream SupportBeanStream set intPrimitive=longPrimitive",
-                "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
+                    "Failed to validate assignment expression 'intPrimitive=longPrimitive': Invalid assignment of column 'longPrimitive' of type 'Long' to event property 'intPrimitive' typed as 'int', column and parameter types mismatch [update istream SupportBeanStream set intPrimitive=longPrimitive]");
             env.tryInvalidCompile(path, "update istream SupportBeanStream set xxx='abc'",
-                "Failed to validate assignment expression 'xxx=\"abc\"': Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
+                    "Failed to validate assignment expression 'xxx=\"abc\"': Property 'xxx' is not available for write access [update istream SupportBeanStream set xxx='abc']");
             env.tryInvalidCompile(path, "update istream SupportBeanStream set intPrimitive=null",
-                "Failed to validate assignment expression 'intPrimitive=null': Invalid assignment of column 'null' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [update istream SupportBeanStream set intPrimitive=null]");
+                    "Failed to validate assignment expression 'intPrimitive=null': Invalid assignment of column 'null' of null type to event property 'intPrimitive' typed as 'int', nullable type mismatch [update istream SupportBeanStream set intPrimitive=null]");
             env.tryInvalidCompile(path, "update istream SupportBeanStreamTwo set a.intPrimitive=10",
-                "Failed to validate assignment expression 'a.intPrimitive=10': Property 'a.intPrimitive' is not available for write access [update istream SupportBeanStreamTwo set a.intPrimitive=10]");
+                    "Failed to validate assignment expression 'a.intPrimitive=10': Property 'a.intPrimitive' is not available for write access [update istream SupportBeanStreamTwo set a.intPrimitive=10]");
             env.tryInvalidCompile(path, "update istream SupportBeanStreamRO set side='a'",
-                "Failed to validate assignment expression 'side=\"a\"': Property 'side' is not available for write access [update istream SupportBeanStreamRO set side='a']");
+                    "Failed to validate assignment expression 'side=\"a\"': Property 'side' is not available for write access [update istream SupportBeanStreamRO set side='a']");
             env.tryInvalidCompile(path, "update istream SupportBean set longPrimitive=sum(intPrimitive)",
-                "Aggregation functions may not be used within update-set [update istream SupportBean set longPrimitive=sum(intPrimitive)]");
+                    "Aggregation functions may not be used within update-set [update istream SupportBean set longPrimitive=sum(intPrimitive)]");
             env.tryInvalidCompile(path, "update istream SupportBean set longPrimitive=longPrimitive where sum(intPrimitive) = 1",
-                "Aggregation functions may not be used within an update-clause [update istream SupportBean set longPrimitive=longPrimitive where sum(intPrimitive) = 1]");
+                    "Aggregation functions may not be used within an update-clause [update istream SupportBean set longPrimitive=longPrimitive where sum(intPrimitive) = 1]");
             env.tryInvalidCompile(path, "update istream SupportBean set longPrimitive=prev(1, longPrimitive)",
-                "Failed to validate update assignment expression 'prev(1,longPrimitive)': Previous function cannot be used in this context [update istream SupportBean set longPrimitive=prev(1, longPrimitive)]");
+                    "Failed to validate update assignment expression 'prev(1,longPrimitive)': Previous function cannot be used in this context [update istream SupportBean set longPrimitive=prev(1, longPrimitive)]");
             env.tryInvalidCompile(path, "update istream MyXmlEvent set abc=1",
-                "Failed to validate assignment expression 'abc=1': Property 'abc' is not available for write access [update istream MyXmlEvent set abc=1]");
+                    "Failed to validate assignment expression 'abc=1': Property 'abc' is not available for write access [update istream MyXmlEvent set abc=1]");
             env.tryInvalidCompile(path, "update istream SupportBeanErrorTestingOne set value='1'",
-                "The update-clause requires the underlying event representation to support copy (via Serializable by default) [update istream SupportBeanErrorTestingOne set value='1']");
+                    "The update-clause requires the underlying event representation to support copy (via Serializable by default) [update istream SupportBeanErrorTestingOne set value='1']");
             env.tryInvalidCompile(path, "update istream SupportBean set longPrimitive=(select p0 from MyMapTypeInv#lastevent where theString=p3)",
-                "Failed to plan subquery number 1 querying MyMapTypeInv: Failed to validate filter expression 'theString=p3': Property named 'theString' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [update istream SupportBean set longPrimitive=(select p0 from MyMapTypeInv#lastevent where theString=p3)]");
+                    "Failed to plan subquery number 1 querying MyMapTypeInv: Failed to validate filter expression 'theString=p3': Property named 'theString' must be prefixed by a stream name, use the stream name itself or use the as-clause to name the stream with the property in the format \"stream.property\" [update istream SupportBean set longPrimitive=(select p0 from MyMapTypeInv#lastevent where theString=p3)]");
             env.tryInvalidCompile(path, "update istream XYZ.GYH set a=1",
-                "Failed to resolve event type, named window or table by name 'XYZ.GYH' [update istream XYZ.GYH set a=1]");
+                    "Failed to resolve event type, named window or table by name 'XYZ.GYH' [update istream XYZ.GYH set a=1]");
 
             env.undeployAll();
         }
@@ -437,11 +454,11 @@ public class EPLOtherUpdateIStream {
         public void run(RegressionEnvironment env) {
             RegressionPath path = new RegressionPath();
             String epl =
-                "@public create schema BaseInterface as " + BaseInterface.class.getName() + ";\n" +
-                    "@public create schema BaseOne as " + BaseOne.class.getName() + ";\n" +
-                    "@public create schema BaseOneA as " + BaseOneA.class.getName() + ";\n" +
-                    "@public create schema BaseOneB as " + BaseOneB.class.getName() + ";\n" +
-                    "@public create schema BaseTwo as " + BaseTwo.class.getName() + ";\n";
+                    "@public create schema BaseInterface as " + BaseInterface.class.getName() + ";\n" +
+                            "@public create schema BaseOne as " + BaseOne.class.getName() + ";\n" +
+                            "@public create schema BaseOneA as " + BaseOneA.class.getName() + ";\n" +
+                            "@public create schema BaseOneB as " + BaseOneB.class.getName() + ";\n" +
+                            "@public create schema BaseTwo as " + BaseTwo.class.getName() + ";\n";
             env.compileDeploy(epl, path);
 
             // test update applies to child types via interface
@@ -997,10 +1014,10 @@ public class EPLOtherUpdateIStream {
             env.sendEventMap(makeMapEvent(null, new int[2]), "MyNWInfraTypeWithMapProp");
         } else if (eventRepresentationEnum.isAvroEvent()) {
             GenericData.Record event = new GenericData.Record(record("name").fields()
-                .optionalString("simple")
-                .name("myarray").type(array().items().longType()).noDefault()
-                .name("mymap").type(map().values().stringType()).noDefault()
-                .endRecord());
+                    .optionalString("simple")
+                    .name("myarray").type(array().items().longType()).noDefault()
+                    .name("mymap").type(map().values().stringType()).noDefault()
+                    .endRecord());
             event.put("myarray", Arrays.asList(0, 0));
             event.put("mymap", null);
             env.sendEventAvro(event, "MyNWInfraTypeWithMapProp");
@@ -1251,13 +1268,45 @@ public class EPLOtherUpdateIStream {
     }
 
     public static class MyLocalJsonProvidedMapProp implements Serializable {
+        private static final long serialVersionUID = 2968655066129958928L;
         public String simple;
         public Integer[] myarray;
         public Map mymap;
     }
 
     public static class MyLocalJsonProvidedSB implements Serializable {
+        private static final long serialVersionUID = 5566215092313226334L;
         public String theString;
         public int intPrimitive;
+    }
+
+    /**
+     * Test event; only serializable because it *may* go over the wire  when running remote tests and serialization is just convenient. Serialization generally not used for HA and HA testing.
+     */
+    public static class SupportEventWithListOfObject implements Serializable {
+        private static final long serialVersionUID = 4081092838548265144L;
+        private List<Object> mylist;
+        private boolean updated;
+
+        public SupportEventWithListOfObject(List<Object> mylist) {
+            this.mylist = mylist;
+            this.updated = false;
+        }
+
+        public boolean isUpdated() {
+            return updated;
+        }
+
+        public void setUpdated(boolean updated) {
+            this.updated = updated;
+        }
+
+        public List<Object> getMylist() {
+            return mylist;
+        }
+
+        public void setMylist(List<Object> mylist) {
+            this.mylist = mylist;
+        }
     }
 }

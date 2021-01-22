@@ -39,12 +39,14 @@ public class EPEventServiceExprEvaluatorContext implements ExprEvaluatorContext 
     private final TimeZone timeZone;
     private final TimeAbacus timeAbacus;
     private final VariableManagementService variableManagementService;
+    private final ExpressionResultCacheService expressionResultCacheService;
     private Object filterReboolConstant;
 
-    public EPEventServiceExprEvaluatorContext(String runtimeURI, EventBeanService eventBeanService, ExceptionHandlingService exceptionHandlingService, SchedulingService schedulingService, TimeZone timeZone, TimeAbacus timeAbacus, VariableManagementService variableManagementService) {
+    public EPEventServiceExprEvaluatorContext(String runtimeURI, EventBeanService eventBeanService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, SchedulingService schedulingService, TimeZone timeZone, TimeAbacus timeAbacus, VariableManagementService variableManagementService) {
         this.runtimeURI = runtimeURI;
         this.eventBeanService = eventBeanService;
         this.exceptionHandlingService = exceptionHandlingService;
+        this.expressionResultCacheService = expressionResultCacheService;
         this.schedulingService = schedulingService;
         this.timeZone = timeZone;
         this.timeAbacus = timeAbacus;
@@ -92,7 +94,7 @@ public class EPEventServiceExprEvaluatorContext implements ExprEvaluatorContext 
     }
 
     public ExpressionResultCacheService getExpressionResultCacheService() {
-        return null;
+        return expressionResultCacheService;
     }
 
     public TableExprEvaluatorContext getTableExprEvaluatorContext() {
