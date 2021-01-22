@@ -771,7 +771,7 @@ public class ConfigurationCommon implements Serializable {
         imports = new ArrayList<>();
         annotationImports = new ArrayList<>(2);
         addDefaultImports();
-        variables = new HashMap<>();
+        variables = new LinkedHashMap<>();
         methodInvocationReferences = new HashMap<>();
         variantStreams = new HashMap<>();
         mapTypeConfigurations = new HashMap<>();
@@ -780,7 +780,7 @@ public class ConfigurationCommon implements Serializable {
         logging = new ConfigurationCommonLogging();
         timeSource = new ConfigurationCommonTimeSource();
         transientConfiguration = new HashMap<>(2);
-        eventTypeAutoNamePackages = new HashSet<>(2);
+        eventTypeAutoNamePackages = new LinkedHashSet<>(2);
         execution = new ConfigurationCommonExecution();
     }
 
