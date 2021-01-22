@@ -297,6 +297,7 @@ public class EPServicesContext implements EPServicesEvaluation, EPServicesPath {
                 eventTypePathRegistry,
                 eventTypeRepositoryBus,
                 eventTypeResolvingBeanFactory,
+                eventProcessingRWLock,
                 exceptionHandlingService,
                 expressionResultCacheService,
                 filterBooleanExpressionFactory,

@@ -30,6 +30,7 @@ import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelpe
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategy;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactory;
 import com.espertech.esper.common.internal.util.CollectionUtil;
+import com.espertech.esper.common.internal.util.ManagedReadWriteLock;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -49,6 +50,7 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
     private Map<Integer, ExprTableEvalStrategyFactory> tableAccesses;
     private boolean hasTableAccess;
     private Map<Integer, SubSelectFactory> subselects;
+    private ManagedReadWriteLock eventProcessingRWLock;
 
     public void setContextName(String contextName) {
         this.contextName = contextName;
@@ -92,12 +94,15 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
         if (!subselects.isEmpty()) {
             initializeSubselects(services, annotations, subselects);
         }
+        eventProcessingRWLock = services.getEventProcessingRWLock();
     }
 
     public EPPreparedQueryResult execute(AtomicBoolean serviceStatusProvider, FAFQueryMethodAssignerSetter assignerSetter, ContextPartitionSelector[] contextPartitionSelectors, ContextManagementService contextManagementService) {
         if (!serviceStatusProvider.get()) {
             throw FAFQueryMethodUtil.runtimeDestroyed();
         }
+
+        eventProcessingRWLock.acquireReadLock();
         try {
             if (contextPartitionSelectors != null && contextPartitionSelectors.length != 1) {
                 throw new IllegalArgumentException("Number of context partition selectors must be one");
@@ -157,6 +162,7 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
             }
             return new EPPreparedQueryResult(processor.getEventTypeResultSetProcessor(), allRows.toArray(new EventBean[allRows.size()]));
         } finally {
+            eventProcessingRWLock.releaseReadLock();
             if (hasTableAccess) {
                 processor.getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
