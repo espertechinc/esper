@@ -69,12 +69,24 @@ public class SimpleTypeCasterFactory {
         } else if ((targetType.getType() == Character.class) && (fromType == String.class)) {
             return CharacterCaster.INSTANCE;
         } else if (targetType.getType() == BigInteger.class) {
-            return BigIntCaster.INSTANCE;
+            if (fromType == BigDecimal.class) {
+                return BigIntObjectCaster.INSTANCE;
+            }
+            if (JavaClassHelper.isNumeric(fromType)) {
+                return BigIntCaster.INSTANCE;
+            }
+            return BigIntObjectCaster.INSTANCE;
         } else if (targetType.getType() == BigDecimal.class) {
+            if (fromType == BigInteger.class) {
+                return BigDecObjectCaster.INSTANCE;
+            }
             if (JavaClassHelper.isFloatingPointClass(fromType)) {
                 return BigDecDoubleCaster.INSTANCE;
             }
-            return BigDecLongCaster.INSTANCE;
+            if (JavaClassHelper.isNumeric(fromType)) {
+                return BigDecLongCaster.INSTANCE;
+            }
+            return BigDecObjectCaster.INSTANCE;
         } else {
             return new SimpleTypeCasterAnyType(targetType);
         }
@@ -319,6 +331,86 @@ public class SimpleTypeCasterFactory {
                 return SimpleNumberCoercerFactory.SimpleNumberCoercerBigDecLong.codegenBigDec(input, inputType);
             }
             return staticMethod(BigDecimal.class, "valueOf", exprDotMethod(CodegenExpressionBuilder.cast(EPTypePremade.NUMBER.getEPType(), input), "longValue"));
+        }
+    }
+
+    /**
+     * Cast implementation for BigDecimal from object.
+     */
+    public static class BigDecObjectCaster implements SimpleTypeCaster {
+        public final static BigDecObjectCaster INSTANCE = new BigDecObjectCaster();
+
+        private BigDecObjectCaster() {
+        }
+
+        public Object cast(Object object) {
+            return castObjectToBigDecimal(object);
+        }
+
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         * @param object to cast
+         * @return bigdecimal
+         */
+        public static BigDecimal castObjectToBigDecimal(Object object) {
+            if (object instanceof BigDecimal) {
+                return (BigDecimal) object;
+            }
+            if (object instanceof BigInteger) {
+                return new BigDecimal((BigInteger) object);
+            }
+            if (object.getClass() == Double.class || object.getClass() == Float.class) {
+                double value = ((Number) object).doubleValue();
+                return BigDecimal.valueOf(value);
+            }
+            long value = ((Number) object).longValue();
+            return BigDecimal.valueOf(value);
+        }
+
+        public boolean isNumericCast() {
+            return true;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return staticMethod(this.getClass(), "castObjectToBigDecimal", input);
+        }
+    }
+
+    /**
+     * Cast implementation for BigInteger from object.
+     */
+    public static class BigIntObjectCaster implements SimpleTypeCaster {
+        public final static BigIntObjectCaster INSTANCE = new BigIntObjectCaster();
+
+        private BigIntObjectCaster() {
+        }
+
+        public Object cast(Object object) {
+            return castObjectToBigInteger(object);
+        }
+
+        /**
+         * NOTE: Code-generation-invoked method, method name and parameter order matters
+         * @param object to cast
+         * @return biginteger
+         */
+        public static BigInteger castObjectToBigInteger(Object object) {
+            if (object instanceof BigInteger) {
+                return (BigInteger) object;
+            }
+            if (object instanceof BigDecimal) {
+                return ((BigDecimal) object).toBigInteger();
+            }
+            long value = ((Number) object).longValue();
+            return BigInteger.valueOf(value);
+        }
+
+        public boolean isNumericCast() {
+            return true;
+        }
+
+        public CodegenExpression codegen(CodegenExpression input, EPTypeClass inputType, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+            return staticMethod(this.getClass(), "castObjectToBigInteger", input);
         }
     }
 

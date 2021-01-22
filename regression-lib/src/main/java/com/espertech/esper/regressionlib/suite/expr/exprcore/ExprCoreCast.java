@@ -54,7 +54,44 @@ public class ExprCoreCast {
         executions.add(new ExprCoreCastWArray(false));
         executions.add(new ExprCoreCastWArray(true));
         executions.add(new ExprCoreCastGeneric());
+        executions.add(new ExprCoreCastBigDecimalBigInt());
         return executions;
+    }
+
+    private static class ExprCoreCastBigDecimalBigInt implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@buseventtype @public create schema MyEvent(value java.lang.Object);\n" +
+                    "@name('s0') select cast(value, BigDecimal) as c0, cast(value, BigInteger) as c1 from MyEvent;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, 1, BigDecimal.valueOf(1), BigInteger.valueOf(1));
+            sendAssert(env, 2L, BigDecimal.valueOf(2L), BigInteger.valueOf(2L));
+            sendAssert(env, 2.4d, BigDecimal.valueOf(2.4d), BigInteger.valueOf(Double.valueOf(2.4).longValue()));
+
+            BigDecimal bdOne = new BigDecimal("156.78");
+            sendAssert(env, bdOne, bdOne, bdOne.toBigInteger());
+
+            BigInteger biOne = new BigInteger("200");
+            sendAssert(env, biOne, new BigDecimal(biOne), biOne);
+
+            BigDecimal bdTwo = BigDecimal.valueOf(2).pow(500500).add(new BigDecimal("0.1"));
+            sendAssert(env, bdTwo, bdTwo, bdTwo.toBigInteger());
+
+            BigInteger biTwo = BigInteger.valueOf(2).pow(500500);
+            sendAssert(env, biTwo, new BigDecimal(biTwo), biTwo);
+
+            sendAssert(env, null, null, null);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, Object value, BigDecimal c0Expected, BigInteger c1Expected) {
+            env.sendEventMap(Collections.singletonMap("value", value), "MyEvent");
+            env.assertEventNew("s0", event -> {
+                assertEquals(c0Expected, event.get("c0"));
+                assertEquals(c1Expected, event.get("c1"));
+            });
+        }
     }
 
     private static class ExprCoreCastGeneric implements RegressionExecution {
