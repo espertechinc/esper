@@ -801,7 +801,7 @@ public class EventTypeUtility {
                 EventPropertyGetterSPI getter = factory.getGetterEventBean(name, eventType.getUnderlyingEPType());
                 EPTypeClass epType = eventType.getUnderlyingEPType();
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, epType, false, false, false, false, true);
-                FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
+                FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false, true);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
@@ -816,7 +816,7 @@ public class EventTypeUtility {
                 EPTypeClass arrayType = JavaClassHelper.getArrayType(underlyingType);
                 EventPropertyGetterSPI getter = factory.getGetterEventBeanArray(name, eventType);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, arrayType, false, false, true, false, true);
-                FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false);
+                FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false, true);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
@@ -834,7 +834,7 @@ public class EventTypeUtility {
                 EPTypeClass underlyingType = eventType.getUnderlyingEPType();
                 EventPropertyGetterSPI getter = factory.getGetterBeanNested(name, eventType, eventBeanTypedEventFactory);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, false, false, false, false, true);
-                FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
+                FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false, true);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);
@@ -855,7 +855,7 @@ public class EventTypeUtility {
                 }
                 EventPropertyGetterSPI getter = factory.getGetterBeanNestedArray(name, eventType, eventBeanTypedEventFactory);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, underlyingType, false, false, true, false, true);
-                FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false);
+                FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false, true);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentEventType);
                 propertyNameList.add(name);
                 propertyDescriptors.add(descriptor);

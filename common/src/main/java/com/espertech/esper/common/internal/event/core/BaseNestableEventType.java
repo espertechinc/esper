@@ -288,13 +288,13 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
                     return null;
                 } else if (type instanceof EventType[]) {
                     EventType eventType = ((EventType[]) type)[0];
-                    return new FragmentEventType(eventType, false, false);
+                    return new FragmentEventType(eventType, false, false, true);
                 } else if (type instanceof TypeBeanOrUnderlying[]) {
                     EventType innerType = ((TypeBeanOrUnderlying[]) type)[0].getEventType();
                     if (!(innerType instanceof BaseNestableEventType)) {
                         return null;
                     }
-                    return new FragmentEventType(innerType, false, false);  // false since an index is present
+                    return new FragmentEventType(innerType, false, false, true);  // false since an index is present
                 } else if (type instanceof EPTypeClass) {
                     EPTypeClass typeClass = (EPTypeClass) type;
                     if (!typeClass.getType().isArray()) {

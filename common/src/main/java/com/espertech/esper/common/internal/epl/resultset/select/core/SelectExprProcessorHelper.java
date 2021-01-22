@@ -17,7 +17,10 @@ import com.espertech.esper.common.client.meta.EventTypeApplicationType;
 import com.espertech.esper.common.client.meta.EventTypeIdPair;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.meta.EventTypeTypeClass;
-import com.espertech.esper.common.client.type.*;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
 import com.espertech.esper.common.client.util.NameAccessModifier;
@@ -182,6 +185,7 @@ public class SelectExprProcessorHelper {
         EPTypesAndPropertyDescPair insertInfo = determineInsertedEventTypeTargets(insertIntoTargetType, selectionList, insertIntoDesc);
         EPChainableType[] insertIntoTargetsPerCol = insertInfo.insertIntoTargetsPerCol;
         EventPropertyDescriptor[] insertIntoPropertyDescriptors = insertInfo.propertyDescriptors;
+        boolean[] canHandleInsertEventBean = insertInfo.canInsertEventBean;
 
         // Get expression nodes
         ExprForge[] exprForges = new ExprForge[selectionList.size()];
@@ -196,7 +200,7 @@ public class SelectExprProcessorHelper {
             // if there is insert-into specification, use that
             if (insertIntoDesc != null) {
                 // handle insert-into, with well-defined target event-typed column, and enumeration
-                TypeAndForgePair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], expr, forge);
+                TypeAndForgePair pair = handleInsertIntoEnumeration(spec.getProvidedName(), insertIntoTargetsPerCol[i], canHandleInsertEventBean[i], expr, forge);
                 if (pair != null) {
                     expressionReturnTypes[i] = pair.getType();
                     exprForges[i] = pair.getForge();
@@ -1149,8 +1153,9 @@ public class SelectExprProcessorHelper {
     private static EPTypesAndPropertyDescPair determineInsertedEventTypeTargets(EventType targetType, List<SelectClauseExprCompiledSpec> selectionList, InsertIntoDesc insertIntoDesc) {
         EPChainableType[] targets = new EPChainableType[selectionList.size()];
         EventPropertyDescriptor[] propertyDescriptors = new EventPropertyDescriptor[selectionList.size()];
+        boolean[] canInsertEventBean = new boolean[selectionList.size()];
         if (targetType == null) {
-            return new EPTypesAndPropertyDescPair(targets, propertyDescriptors);
+            return new EPTypesAndPropertyDescPair(targets, propertyDescriptors, canInsertEventBean);
         }
 
         for (int i = 0; i < selectionList.size(); i++) {
@@ -1187,9 +1192,10 @@ public class SelectExprProcessorHelper {
             } else {
                 targets[i] = EPChainableTypeHelper.singleEvent(fragmentEventType.getFragmentType());
             }
+            canInsertEventBean[i] = fragmentEventType.isCanInsertEventBean();
         }
 
-        return new EPTypesAndPropertyDescPair(targets, propertyDescriptors);
+        return new EPTypesAndPropertyDescPair(targets, propertyDescriptors, canInsertEventBean);
     }
 
     private TypeAndForgePair handleTypableExpression(ExprForge forge, int expressionNum, EventTypeNameGeneratorStatement eventTypeNameGeneratorStatement)
@@ -1214,9 +1220,9 @@ public class SelectExprProcessorHelper {
         return new TypeAndForgePair(mapType, newForge);
     }
 
-    private TypeAndForgePair handleInsertIntoEnumeration(String insertIntoColName, EPChainableType insertIntoTarget, ExprNode expr, ExprForge forge)
+    private TypeAndForgePair handleInsertIntoEnumeration(String insertIntoColName, EPChainableType insertIntoTarget, boolean canInsertEventBean, ExprNode expr, ExprForge forge)
         throws ExprValidationException {
-        if (insertIntoTarget == null || (!EPChainableTypeHelper.isCarryEvent(insertIntoTarget))) {
+        if (!EPChainableTypeHelper.isCarryEvent(insertIntoTarget)) {
             return null;
         }
         final EventType targetType = EPChainableTypeHelper.getEventType(insertIntoTarget);
@@ -1253,25 +1259,49 @@ public class SelectExprProcessorHelper {
         // check type info
         checkTypeCompatible(insertIntoColName, targetType, sourceType);
 
-        // handle collection target - produce EventBean[]
+        // handle collection target - produce EventBean[] or Underlying[]
         if (insertIntoTarget instanceof EPChainableTypeEventMulti) {
+            ExprForge exprForge;
             if (eventTypeColl != null) {
-                ExprEvalEnumerationCollForge enumerationCollForge = new ExprEvalEnumerationCollForge(enumeration, targetType, false);
-                return new TypeAndForgePair(new EventType[]{targetType}, enumerationCollForge);
+                if (canInsertEventBean) {
+                    // conversion collection-of-eventbean to array-of-eventbean
+                    exprForge = new ExprEvalEnumerationCollToEventBeanArrayForge(enumeration, targetType);
+                } else {
+                    // conversion collection-of-eventbean to array-of-underlying
+                    exprForge = new ExprEvalEnumerationCollToUnderlyingArrayForge(enumeration, targetType);
+                }
+            } else {
+                if (canInsertEventBean) {
+                    // conversion single-eventbean to array-of-eventbean
+                    exprForge = new ExprEvalEnumerationEventBeanToEventBeanArrayForge(enumeration, targetType);
+                } else {
+                    // conversion single-eventbean to array-of-underlying
+                    exprForge = new ExprEvalEnumerationEventBeanToUnderlyingArrayForge(enumeration, targetType);
+                }
             }
-            ExprEvalEnumerationSingleToCollForge singleToCollForge = new ExprEvalEnumerationSingleToCollForge(enumeration, targetType);
-            return new TypeAndForgePair(new EventType[]{targetType}, singleToCollForge);
+            return new TypeAndForgePair(new EventType[]{targetType}, exprForge);
         }
 
-        // handle single-bean target
-        // handle single-source
+        // handle single-bean-source
         if (eventTypeSingle != null) {
-            ExprEvalEnumerationAtBeanSingleForge singleForge = new ExprEvalEnumerationAtBeanSingleForge(enumeration, targetType);
-            return new TypeAndForgePair(targetType, singleForge);
+            if (canInsertEventBean) {
+                // passing of eventbean as eventbean
+                forge = new ExprEvalEnumerationAtBeanSingleForge(enumeration, targetType);
+            }
+            // when inserting class-bean no need to transform
+            return new TypeAndForgePair(targetType, forge);
         }
 
-        ExprEvalEnumerationCollForge enumerationCollForge = new ExprEvalEnumerationCollForge(enumeration, targetType, true);
-        return new TypeAndForgePair(targetType, enumerationCollForge);
+        // conversion of collection-of-eventbean to single
+        ExprForge exprForge;
+        if (canInsertEventBean) {
+            // conversion collection-of-eventbean to eventbean
+            exprForge = new ExprEvalEnumerationCollToEventBeanForge(enumeration, targetType);
+        } else {
+            // conversion collection-of-eventbean to eventbean
+            exprForge = new ExprEvalEnumerationCollToUnderlyingForge(enumeration, targetType);
+        }
+        return new TypeAndForgePair(targetType, exprForge);
     }
 
     private void checkTypeCompatible(String insertIntoCol, EventType targetType, EventType selectedType)
@@ -1495,10 +1525,12 @@ public class SelectExprProcessorHelper {
     private static class EPTypesAndPropertyDescPair {
         private final EPChainableType[] insertIntoTargetsPerCol;
         private final EventPropertyDescriptor[] propertyDescriptors;
+        private final boolean[] canInsertEventBean;
 
-        public EPTypesAndPropertyDescPair(EPChainableType[] insertIntoTargetsPerCol, EventPropertyDescriptor[] propertyDescriptors) {
+        public EPTypesAndPropertyDescPair(EPChainableType[] insertIntoTargetsPerCol, EventPropertyDescriptor[] propertyDescriptors, boolean[] canInsertEventBean) {
             this.insertIntoTargetsPerCol = insertIntoTargetsPerCol;
             this.propertyDescriptors = propertyDescriptors;
+            this.canInsertEventBean = canInsertEventBean;
         }
 
         public EPChainableType[] getInsertIntoTargetsPerCol() {
@@ -1507,6 +1539,10 @@ public class SelectExprProcessorHelper {
 
         public EventPropertyDescriptor[] getPropertyDescriptors() {
             return propertyDescriptors;
+        }
+
+        public boolean[] getCanInsertEventBean() {
+            return canInsertEventBean;
         }
     }
 }

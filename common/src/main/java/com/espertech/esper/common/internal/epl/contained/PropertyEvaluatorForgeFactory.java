@@ -152,7 +152,7 @@ public class PropertyEvaluatorForgeFactory {
                     containedEventEval = new ContainedEventEvalExprNodeForge(validatedExprNode.getForge(), streamEventType);
                 }
                 expressionText = ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(validatedExprNode);
-                fragmentEventType = new FragmentEventType(streamEventType, true, false);
+                fragmentEventType = new FragmentEventType(streamEventType, true, false, false);
             }
 
             // validate where clause, if any

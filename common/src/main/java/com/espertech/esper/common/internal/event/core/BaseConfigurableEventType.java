@@ -217,7 +217,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
             return null;
         }
 
-        FragmentEventType fragmentType = new FragmentEventType(existingType, pair.getFirst().isFragmentArray(), false);
+        FragmentEventType fragmentType = new FragmentEventType(existingType, pair.getFirst().isFragmentArray(), false, false);
         pair.setSecond(fragmentType);
         return fragmentType;
     }

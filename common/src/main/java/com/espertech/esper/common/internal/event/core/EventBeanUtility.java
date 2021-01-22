@@ -529,7 +529,7 @@ public class EventBeanUtility {
         }
 
         EventType eventType = beanEventTypeFactory.getCreateBeanType(fragmentableType, publicFields);
-        return new FragmentEventType(eventType, isIndexed, true);
+        return new FragmentEventType(eventType, isIndexed, true, false);
     }
 
     public static EventBean[] getDistinctByProp(ArrayDeque<EventBean> events, EventPropertyValueGetter getter) {

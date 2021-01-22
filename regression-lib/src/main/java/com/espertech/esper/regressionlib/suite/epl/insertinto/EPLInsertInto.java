@@ -57,7 +57,6 @@ public class EPLInsertInto {
         execs.add(new EPLInsertIntoNullType());
         execs.add(new EPLInsertIntoChain());
         execs.add(new EPLInsertIntoMultiBeanToMulti());
-        execs.add(new EPLInsertIntoSingleBeanToMulti());
         execs.add(new EPLInsertIntoProvidePartitialCols());
         execs.add(new EPLInsertIntoRStreamOMToStmt());
         execs.add(new EPLInsertIntoNamedColsOMToStmt());
@@ -440,25 +439,6 @@ public class EPLInsertInto {
             env.assertEventNew("s0", event -> {
                 SupportObjectArrayOneDim resultTwo = (SupportObjectArrayOneDim) event.getUnderlying();
                 EPAssertionUtil.assertEqualsExactOrder(resultTwo.getArr(), new Object[]{e1, e2});
-            });
-
-            env.undeployAll();
-        }
-    }
-
-    private static class EPLInsertIntoSingleBeanToMulti implements RegressionExecution {
-        public void run(RegressionEnvironment env) {
-            RegressionPath path = new RegressionPath();
-            env.compileDeploy("@public create schema EventOne(sbarr SupportBean[])", path);
-            env.compileDeploy("insert into EventOne select maxby(intPrimitive) as sbarr from SupportBean as sb", path);
-            env.compileDeploy("@name('s0') select * from EventOne", path).addListener("s0");
-
-            SupportBean bean = new SupportBean("E1", 1);
-            env.sendEventBean(bean);
-            env.assertEventNew("s0", event -> {
-                EventBean[] events = (EventBean[]) event.get("sbarr");
-                assertEquals(1, events.length);
-                assertSame(bean, events[0].getUnderlying());
             });
 
             env.undeployAll();

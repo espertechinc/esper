@@ -157,7 +157,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // check if the type exists, use the existing type if found
         EventType existingType = this.getXmlEventTypeFactory().getTypeByName(derivedEventTypeName);
         if (existingType != null) {
-            return new FragmentEventType(existingType, complex.isArray(), false);
+            return new FragmentEventType(existingType, complex.isArray(), false, false);
         }
 
         EventType newType;
@@ -168,7 +168,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
             log.error("Failed to add dynamic event type for fragment of XML schema for property '" + property + "' :" + ex.getMessage(), ex);
             return null;
         }
-        return new FragmentEventType(newType, complex.isArray(), false);
+        return new FragmentEventType(newType, complex.isArray(), false, false);
     }
 
     protected EPType doResolvePropertyType(String propertyExpression) {

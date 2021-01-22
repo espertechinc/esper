@@ -20,23 +20,19 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
-import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalEnumerationCollForge implements ExprForge, SelectExprProcessorTypableForge {
+public class ExprEvalEnumerationCollToUnderlyingForge implements ExprForge {
     protected final ExprEnumerationForge enumerationForge;
     private final EventType targetType;
-    private final boolean firstRowOnly;
 
-    public ExprEvalEnumerationCollForge(ExprEnumerationForge enumerationForge, EventType targetType, boolean firstRowOnly) {
+    public ExprEvalEnumerationCollToUnderlyingForge(ExprEnumerationForge enumerationForge, EventType targetType) {
         this.enumerationForge = enumerationForge;
         this.targetType = targetType;
-        this.firstRowOnly = firstRowOnly;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -44,37 +40,19 @@ public class ExprEvalEnumerationCollForge implements ExprForge, SelectExprProces
     }
 
     public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        if (firstRowOnly) {
-            CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, ExprEvalEnumerationCollForge.class, codegenClassScope);
-            methodNode.getBlock()
-                    .declareVar(EPTypeClassParameterized.from(Collection.class, EventBean.class), "events", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
-                    .ifRefNullReturnNull("events")
-                    .ifCondition(equalsIdentity(exprDotMethod(ref("events"), "size"), constant(0)))
-                    .blockReturn(constantNull())
-                    .methodReturn(staticMethod(EventBeanUtility.class, "getNonemptyFirstEvent", ref("events")));
-            return localMethod(methodNode);
-        }
-
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, ExprEvalEnumerationCollForge.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprEvalEnumerationCollToUnderlyingForge.class, codegenClassScope);
         methodNode.getBlock()
                 .declareVar(EPTypeClassParameterized.from(Collection.class, EventBean.class), "events", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
                 .ifRefNullReturnNull("events")
-                .methodReturn(cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("events"), "toArray", newArrayByLength(EventBean.EPTYPE, exprDotMethod(ref("events"), "size")))));
+                .ifCondition(equalsIdentity(exprDotMethod(ref("events"), "size"), constant(0)))
+                .blockReturn(constantNull())
+                .declareVar(EventBean.EPTYPE, "event", staticMethod(EventBeanUtility.class, "getNonemptyFirstEvent", ref("events")))
+                .methodReturn(cast(getEvaluationType(), exprDotUnderlying(ref("event"))));
         return localMethod(methodNode);
     }
 
-    public EPTypeClass getUnderlyingEvaluationType() {
-        if (firstRowOnly) {
-            return targetType.getUnderlyingEPType();
-        }
-        return JavaClassHelper.getArrayType(targetType.getUnderlyingEPType());
-    }
-
     public EPTypeClass getEvaluationType() {
-        if (firstRowOnly) {
-            return EventBean.EPTYPE;
-        }
-        return EventBean.EPTYPEARRAY;
+        return targetType.getUnderlyingEPType();
     }
 
     public ExprNodeRenderable getForgeRenderable() {

@@ -13,22 +13,26 @@ package com.espertech.esper.common.internal.epl.expression.etc;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
-import com.espertech.esper.common.internal.epl.resultset.select.typable.SelectExprProcessorTypableForge;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
-public class ExprEvalEnumerationSingleToCollForge implements ExprForge, SelectExprProcessorTypableForge {
+public class ExprEvalEnumerationCollToUnderlyingArrayForge implements ExprForge {
     protected final ExprEnumerationForge enumerationForge;
     private final EventType targetType;
 
-    public ExprEvalEnumerationSingleToCollForge(ExprEnumerationForge enumerationForge, EventType targetType) {
+    public ExprEvalEnumerationCollToUnderlyingArrayForge(ExprEnumerationForge enumerationForge, EventType targetType) {
         this.enumerationForge = enumerationForge;
         this.targetType = targetType;
     }
@@ -38,30 +42,31 @@ public class ExprEvalEnumerationSingleToCollForge implements ExprForge, SelectEx
     }
 
     public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPEARRAY, ExprEvalEnumerationSingleToCollForge.class, codegenClassScope);
-
+        CodegenMethod methodNode = codegenMethodScope.makeChild(getEvaluationType(), ExprEvalEnumerationCollToUnderlyingArrayForge.class, codegenClassScope);
         methodNode.getBlock()
-                .declareVar(EventBean.EPTYPE, "event", enumerationForge.evaluateGetEventBeanCodegen(methodNode, exprSymbol, codegenClassScope))
-                .ifRefNullReturnNull("event")
-                .declareVar(EventBean.EPTYPEARRAY, "events", newArrayByLength(EventBean.EPTYPE, constant(1)))
-                .assignArrayElement(ref("events"), constant(0), ref("event"))
-                .methodReturn(ref("events"));
+                .declareVar(EPTypeClassParameterized.from(Collection.class, EventBean.class), "events", enumerationForge.evaluateGetROCollectionEventsCodegen(methodNode, exprSymbol, codegenClassScope))
+                .ifRefNullReturnNull("events")
+                .declareVar(JavaClassHelper.getArrayType(targetType.getUnderlyingEPType()), "array", newArrayByLength(targetType.getUnderlyingEPType(), exprDotMethod(ref("events"), "size")))
+                .declareVar(EPTypeClassParameterized.from(Iterator.class, EventBean.class), "it", exprDotMethod(ref("events"), "iterator"))
+                .declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "index", constant(0))
+                .whileLoop(exprDotMethod(ref("it"), "hasNext"))
+                .declareVar(EventBean.EPTYPE, "event", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
+                .assignArrayElement("array", ref("index"), cast(targetType.getUnderlyingEPType(), exprDotUnderlying(ref("event"))))
+                .incrementRef("index")
+                .blockEnd()
+                .methodReturn(ref("array"));
         return localMethod(methodNode);
     }
 
-    public ExprForgeConstantType getForgeConstantType() {
-        return ExprForgeConstantType.NONCONST;
-    }
-
     public EPTypeClass getEvaluationType() {
-        return EventBean.EPTYPEARRAY;
-    }
-
-    public EPTypeClass getUnderlyingEvaluationType() {
         return JavaClassHelper.getArrayType(targetType.getUnderlyingEPType());
     }
 
     public ExprNodeRenderable getForgeRenderable() {
         return enumerationForge.getForgeRenderable();
+    }
+
+    public ExprForgeConstantType getForgeConstantType() {
+        return ExprForgeConstantType.NONCONST;
     }
 }

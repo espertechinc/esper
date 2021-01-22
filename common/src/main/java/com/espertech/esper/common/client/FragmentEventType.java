@@ -26,6 +26,7 @@ public class FragmentEventType {
     private EventType fragmentType;
     private boolean isIndexed;
     private boolean isNative;
+    private boolean canInsertEventBean;
 
     /**
      * Ctor.
@@ -34,10 +35,11 @@ public class FragmentEventType {
      * @param indexed      true to indicate that property value is an array of events
      * @param isNative     true
      */
-    public FragmentEventType(EventType fragmentType, boolean indexed, boolean isNative) {
+    public FragmentEventType(EventType fragmentType, boolean indexed, boolean isNative, boolean canInsertEventBean) {
         this.fragmentType = fragmentType;
         this.isIndexed = indexed;
         this.isNative = isNative;
+        this.canInsertEventBean = canInsertEventBean;
     }
 
     /**
@@ -67,5 +69,9 @@ public class FragmentEventType {
      */
     public boolean isNative() {
         return isNative;
+    }
+
+    public boolean isCanInsertEventBean() {
+        return canInsertEventBean;
     }
 }

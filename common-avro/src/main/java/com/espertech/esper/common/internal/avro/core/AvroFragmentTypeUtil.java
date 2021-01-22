@@ -66,7 +66,7 @@ public class AvroFragmentTypeUtil {
 
         AvroSchemaEventType cached = fragmentTypeCache.get(recordSchema.getName());
         if (cached != null) {
-            return new FragmentEventType(cached, indexed, false);
+            return new FragmentEventType(cached, indexed, false, false);
         }
 
         EventTypeMetadata metadata = new EventTypeMetadata(recordSchema.getName(), moduleName, EventTypeTypeClass.STREAM, EventTypeApplicationType.AVRO, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
@@ -76,6 +76,6 @@ public class AvroFragmentTypeUtil {
         AvroSchemaEventType fragmentType = eventTypeAvroHandler.newEventTypeFromSchema(metadata, eventBeanTypedEventFactory, config, null, null);
 
         fragmentTypeCache.add(recordSchema.getName(), fragmentType);
-        return new FragmentEventType(fragmentType, indexed, false);
+        return new FragmentEventType(fragmentType, indexed, false, false);
     }
 }

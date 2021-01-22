@@ -65,8 +65,12 @@ public class TestSuiteEPLInsertInto extends TestCase {
         RegressionRunner.run(session, EPLInsertIntoPopulateCreateStreamAvro.executions());
     }
 
-    public void testEPLInsertIntoPopulateEventTypeColumn() {
-        RegressionRunner.run(session, EPLInsertIntoPopulateEventTypeColumn.executions());
+    public void testHAEPLInsertIntoPopulateEventTypeColumnBean() {
+        RegressionRunner.run(session, EPLInsertIntoPopulateEventTypeColumnBean.executions());
+    }
+
+    public void testHAEPLInsertIntoPopulateEventTypeColumnNonBean() {
+        RegressionRunner.run(session, EPLInsertIntoPopulateEventTypeColumnNonBean.executions());
     }
 
     public void testEPLInsertIntoPopulateSingleColByMethodCall() {
