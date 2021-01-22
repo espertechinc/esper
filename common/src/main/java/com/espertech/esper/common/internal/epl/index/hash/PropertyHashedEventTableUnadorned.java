@@ -20,7 +20,7 @@ public class PropertyHashedEventTableUnadorned extends PropertyHashedEventTable 
 
     public PropertyHashedEventTableUnadorned(PropertyHashedEventTableFactory factory) {
         super(factory);
-        propertyIndex = new HashMap<Object, Set<EventBean>>();
+        propertyIndex = new HashMap<>();
     }
 
     /**
@@ -33,15 +33,19 @@ public class PropertyHashedEventTableUnadorned extends PropertyHashedEventTable 
         return propertyIndex.get(key);
     }
 
+    /**
+     * Same as lookup except always returns a copy of the set
+     * @param key key
+     * @return copy
+     */
+    public Set<EventBean> lookupFAF(Object key) {
+        Set<EventBean> result = propertyIndex.get(key);
+        return result == null ? null : new LinkedHashSet<>(result);
+    }
+
     public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         Object key = getKey(theEvent);
-
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null) {
-            events = new LinkedHashSet<EventBean>();
-            propertyIndex.put(key, events);
-        }
-
+        Set<EventBean> events = propertyIndex.computeIfAbsent(key, k -> new LinkedHashSet<>());
         events.add(theEvent);
     }
 
@@ -69,7 +73,7 @@ public class PropertyHashedEventTableUnadorned extends PropertyHashedEventTable 
     }
 
     public Iterator<EventBean> iterator() {
-        return new PropertyHashedEventTableIterator<Object>(propertyIndex);
+        return new PropertyHashedEventTableIterator<>(propertyIndex);
     }
 
     public void clear() {
@@ -92,7 +96,7 @@ public class PropertyHashedEventTableUnadorned extends PropertyHashedEventTable 
         return propertyIndex;
     }
 
-    public Class getProviderClass() {
+    public Class<?> getProviderClass() {
         return PropertyHashedEventTable.class;
     }
 }

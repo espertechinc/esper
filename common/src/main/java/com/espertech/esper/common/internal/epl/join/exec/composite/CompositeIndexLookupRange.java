@@ -35,7 +35,7 @@ public class CompositeIndexLookupRange implements CompositeIndexLookup {
         this.coercionType = coercionType;
     }
 
-    public void lookup(Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+    public void lookup(Map<Object, Object> parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
         if (lookupValue instanceof RangeIndexLookupValueEquals) {
             RangeIndexLookupValueEquals equals = (RangeIndexLookupValueEquals) lookupValue;
             Object inner = parent.get(equals.getValue());

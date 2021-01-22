@@ -36,6 +36,10 @@ public class PropertyHashedEventTableUnique extends PropertyHashedEventTable imp
         return null;
     }
 
+    public Set<EventBean> lookupFAF(Object key) {
+        return lookup(key);
+    }
+
     public int getNumKeys() {
         return propertyIndex.size();
     }

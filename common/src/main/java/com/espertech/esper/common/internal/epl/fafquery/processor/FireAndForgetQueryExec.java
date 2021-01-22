@@ -243,10 +243,10 @@ public class FireAndForgetQueryExec {
         if (indexMultiKey.getHashIndexedProps().length > 0 && indexMultiKey.getRangeIndexedProps().length == 0) {
             PropertyHashedEventTable table = (PropertyHashedEventTable) eventTable;
             Object lookupKey = table.getMultiKeyTransform().from(keyValues);
-            result = table.lookup(lookupKey);
+            result = table.lookupFAF(lookupKey);
         } else if (indexMultiKey.getHashIndexedProps().length == 0 && indexMultiKey.getRangeIndexedProps().length == 1) {
             PropertySortedEventTable table = (PropertySortedEventTable) eventTable;
-            result = table.lookupConstants(rangeValues[0]);
+            result = table.lookupConstantsFAF(rangeValues[0]);
         } else {
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) eventTable;
             EPTypeClass[] rangeCoercion = table.getOptRangeCoercedTypes();

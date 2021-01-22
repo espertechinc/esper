@@ -92,6 +92,10 @@ public class TestSuiteMultithread extends TestCase {
         RegressionRunner.run(session, new MultithreadStmtFilter());
     }
 
+    public void testMultithreadFireAndForgetIndex() {
+        RegressionRunner.run(session, new MultithreadFireAndForgetIndex());
+    }
+
     public void testMultithreadStmtFilterSubquery() {
         RegressionRunner.run(session, new MultithreadStmtFilterSubquery());
     }

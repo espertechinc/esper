@@ -22,6 +22,7 @@ public abstract class PropertyHashedEventTable implements EventTable {
     protected final PropertyHashedEventTableFactory factory;
 
     public abstract Set<EventBean> lookup(Object key);
+    public abstract Set<EventBean> lookupFAF(Object key);
 
     public PropertyHashedEventTable(PropertyHashedEventTableFactory factory) {
         this.factory = factory;

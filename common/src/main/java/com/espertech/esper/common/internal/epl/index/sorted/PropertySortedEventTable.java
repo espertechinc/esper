@@ -49,7 +49,7 @@ public abstract class PropertySortedEventTable implements EventTable {
 
     public abstract Collection<EventBean> lookupGreaterColl(Object keyStart);
 
-    public abstract Set<EventBean> lookupConstants(RangeIndexLookupValue lookupValueBase);
+    public abstract Set<EventBean> lookupConstantsFAF(RangeIndexLookupValue lookupValueBase);
 
     public PropertySortedEventTable(PropertySortedEventTableFactory factory) {
         this.factory = factory;

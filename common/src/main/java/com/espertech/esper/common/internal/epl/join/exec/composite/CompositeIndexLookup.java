@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CompositeIndexLookup {
-    public void lookup(Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor);
-
-    public void setNext(CompositeIndexLookup action);
+    void lookup(Map<Object, Object> parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor);
+    void setNext(CompositeIndexLookup action);
 }

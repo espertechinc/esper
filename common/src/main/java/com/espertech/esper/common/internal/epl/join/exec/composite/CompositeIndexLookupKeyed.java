@@ -31,7 +31,7 @@ public class CompositeIndexLookupKeyed implements CompositeIndexLookup {
         this.next = next;
     }
 
-    public void lookup(Map parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
+    public void lookup(Map<Object, Object> parent, Set<EventBean> result, CompositeIndexQueryResultPostProcessor postProcessor) {
         Object key = multiKeyTransform.from(keys);
         Map innerIndex = (Map) parent.get(key);
         if (innerIndex == null) {

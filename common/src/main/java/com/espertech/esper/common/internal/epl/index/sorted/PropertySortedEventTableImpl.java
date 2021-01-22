@@ -45,8 +45,8 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
 
     public PropertySortedEventTableImpl(PropertySortedEventTableFactory factory) {
         super(factory);
-        propertyIndex = new TreeMap<Object, Set<EventBean>>();
-        nullKeyedValues = new LinkedHashSet<EventBean>();
+        propertyIndex = new TreeMap<>();
+        nullKeyedValues = new LinkedHashSet<>();
     }
 
     /**
@@ -203,12 +203,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
             return;
         }
 
-        Set<EventBean> events = propertyIndex.get(key);
-        if (events == null) {
-            events = new LinkedHashSet<EventBean>();
-            propertyIndex.put(key, events);
-        }
-
+        Set<EventBean> events = propertyIndex.computeIfAbsent(key, k -> new LinkedHashSet<>());
         events.add(theEvent);
     }
 
@@ -246,7 +241,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
         if (nullKeyedValues.isEmpty()) {
             return new PropertySortedEventTableIterator(propertyIndex);
         }
-        return new SuperIterator<EventBean>(new PropertySortedEventTableIterator(propertyIndex), nullKeyedValues.iterator());
+        return new SuperIterator<>(new PropertySortedEventTableIterator(propertyIndex), nullKeyedValues.iterator());
     }
 
     public void clear() {
@@ -257,7 +252,12 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
         clear();
     }
 
-    public Set<EventBean> lookupConstants(RangeIndexLookupValue lookupValueBase) {
+    public Set<EventBean> lookupConstantsFAF(RangeIndexLookupValue lookupValueBase) {
+        Set<EventBean> result = lookupConstants(lookupValueBase);
+        return result == null ? null : new LinkedHashSet<>(result);
+    }
+
+    private Set<EventBean> lookupConstants(RangeIndexLookupValue lookupValueBase) {
 
         if (lookupValueBase instanceof RangeIndexLookupValueEquals) {
             RangeIndexLookupValueEquals equals = (RangeIndexLookupValueEquals) lookupValueBase;
@@ -302,7 +302,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
         }
     }
 
-    public Class getProviderClass() {
+    public Class<?> getProviderClass() {
         return PropertySortedEventTable.class;
     }
 }
