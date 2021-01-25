@@ -85,8 +85,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
         // determine if there is an implied binding, replace first chain element with evaluation node if there is
         if (validationContext.getStreamTypeService().hasTableTypes() &&
-            validationContext.getTableCompileTimeResolver() != null &&
-            chainSpec.size() > 1 && chainSpec.get(0) instanceof ChainableName) {
+                validationContext.getTableCompileTimeResolver() != null &&
+                chainSpec.size() > 1 && chainSpec.get(0) instanceof ChainableName) {
             Pair<ExprNode, List<Chainable>> tableNode = TableCompileTimeUtil.getTableNodeChainable(validationContext.getStreamTypeService(), chainSpec, validationContext.isAllowTableAggReset(), validationContext.getTableCompileTimeResolver());
             if (tableNode != null) {
                 ExprNode node = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.DOTNODE, tableNode.getFirst(), validationContext);
@@ -116,15 +116,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
         // determine if there are enumeration method expressions in the chain
         boolean hasEnumerationMethod = false;
-        for (Chainable chain : chainSpec) {
-            if (!(chain instanceof ChainableCall)) {
-                continue;
-            }
-            ChainableCall call = (ChainableCall) chain;
-            if (EnumMethodResolver.isEnumerationMethod(call.getName(), validationContext.getClasspathImportService())) {
-                hasEnumerationMethod = true;
-                break;
-            }
+        for (Chainable chainable : chainSpec) {
+            hasEnumerationMethod |= isEnumerationMethod(chainable, validationContext);
         }
 
         // The root node expression may provide the input value:
@@ -134,22 +127,44 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         if (this.getChildNodes().length != 0) {
             // the root expression is the first child node
             ExprNode rootNode = this.getChildNodes()[0];
+            EPType rootEvaluationType = rootNode.getForge().getEvaluationType();
+            EPTypeClass rootEvaluationTypeClassOrNull = rootEvaluationType == null || rootEvaluationType == EPTypeNull.INSTANCE ? null : (EPTypeClass) rootEvaluationType;
+            EPChainableType rootEvalTypeNonEnum = EPChainableTypeHelper.singleValue(rootEvaluationTypeClassOrNull);    // not a collection type, treat as scalar
 
             // the root expression may also provide a lambda-function input (Iterator<EventBean>)
             // Determine collection-type and evaluator if any for root node
             ExprDotEnumerationSourceForge enumSrc = ExprDotNodeUtility.getEnumerationSource(rootNode, validationContext.getStreamTypeService(), hasEnumerationMethod, validationContext.isDisablePropertyExpressionEventCollCache(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+            boolean canEnum = enumSrc.getReturnType() != null;
 
-            EPChainableType typeInfo;
-            if (enumSrc.getReturnType() == null) {
-                EPType type = rootNode.getForge().getEvaluationType();
-                EPTypeClass typeClassOrNull = type == null || type == EPTypeNull.INSTANCE ? null : (EPTypeClass) type;
-                typeInfo = EPChainableTypeHelper.singleValue(typeClassOrNull);    // not a collection type, treat as scalar
+            ChainEval chainEval = (chainable, streamNumberOfEnum) ->
+                    ExprDotNodeUtility.getChainEvaluators(streamNumberOfEnum, chainable, chainSpec, validationContext, isDuckTyping, new ExprDotNodeFilterAnalyzerInputExpr());
+
+            ExprDotNodeRealizedChain evals;
+            ExprEnumerationForge enumerationForge = null;
+            EPChainableType type = rootEvalTypeNonEnum;
+            if (!canEnum) {
+                // no enumerable input, ie. not one of these: Collection<EventBean> or EventBean or Collection<value-type>
+                evals = chainEval.chainFor(rootEvalTypeNonEnum, null);
             } else {
-                typeInfo = enumSrc.getReturnType();
+                try {
+                    // try a chain based on enumerable i.e. either one of these: Collection<EventBean> or EventBean or Collection<value-type>
+                    evals = chainEval.chainFor(enumSrc.getReturnType(), enumSrc.getStreamOfProviderIfApplicable());
+                    type = enumSrc.getReturnType();
+                    enumerationForge = enumSrc.getEnumeration();
+                } catch (ExprValidationException ex) {
+                    if (isEnumerationMethod(chainSpec.get(0), validationContext)) {
+                        throw ex;
+                    }
+                    // not an enumeration method, try value-based chain
+                    try {
+                        evals = chainEval.chainFor(rootEvalTypeNonEnum, null);
+                    } catch (ExprValidationException further) {
+                        throw ex;
+                    }
+                }
             }
 
-            ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(enumSrc.getStreamOfProviderIfApplicable(), typeInfo, chainSpec, validationContext, isDuckTyping, new ExprDotNodeFilterAnalyzerInputExpr());
-            forge = new ExprDotNodeForgeRootChild(this, null, null, null, hasEnumerationMethod, rootNode.getForge(), enumSrc.getEnumeration(), typeInfo, evals.getChain(), evals.getChainWithUnpack(), false);
+            forge = new ExprDotNodeForgeRootChild(this, null, null, null, hasEnumerationMethod, rootNode.getForge(), enumerationForge, type, evals.getChain(), evals.getChainWithUnpack(), false);
             return null;
         }
 
@@ -340,7 +355,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
             EPTypeClass enumTypeClass = ClassHelperGenericType.getClassEPType(enumconstantDesc.getValue().getClass());
             ExprNodeUtilMethodDesc methodDesc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(enumTypeClass.getType().getName(), enumTypeClass, methodSpec.getName(),
-                methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
+                    methodSpec.getParameters(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getStatementRawInfo(), validationContext.getStatementCompileTimeService());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
@@ -350,7 +365,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
 
             ExprDotNodeRealizedChain evals = ExprDotNodeUtility.getChainEvaluators(null, typeInfo, modifiedChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStatic());
             forge = new ExprDotNodeForgeStaticMethod(this, false, firstItemName, methodDesc.getReflectionMethod(),
-                methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName(), methodDesc.isLocalInlinedClass());
+                    methodDesc.getChildForges(), false, evals.getChainWithUnpack(), optionalLambdaWrap, false, enumconstantDesc, validationContext.getStatementName(), methodDesc.isLocalInlinedClass());
             return null;
         }
 
@@ -589,7 +604,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
     }
 
     private ExprDotNodeForge getPropertyPairEvaluator(ExprForge parameterForge, Pair<PropertyResolutionDescriptor, String> propertyInfoPair, ExprValidationContext validationContext)
-        throws ExprValidationException {
+            throws ExprValidationException {
         String propertyName = propertyInfoPair.getFirst().getPropertyName();
         EventPropertyDescriptor propertyDesc = EventTypeUtility.getNestablePropertyDescriptor(propertyInfoPair.getFirst().getStreamEventType(), propertyName);
         if (propertyDesc == null || (!propertyDesc.isMapped() && !propertyDesc.isIndexed())) {
@@ -826,6 +841,14 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         return new ExprValidationException(lhsName + "." + operationName + " requires a single rectangle as parameter");
     }
 
+    private boolean isEnumerationMethod(Chainable chainable, ExprValidationContext validationContext) throws ExprValidationException {
+        if (!(chainable instanceof ChainableCall)) {
+            return false;
+        }
+        ChainableCall call = (ChainableCall) chainable;
+        return EnumMethodResolver.isEnumerationMethod(call.getName(), validationContext.getClasspathImportService());
+    }
+
     private static class PropertyInfoPairDesc {
         private final ExprDotNodeForgeRootChild forge;
 
@@ -840,6 +863,10 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
         public void apply(ExprDotNodeImpl node) {
             node.forge = forge;
         }
+    }
+
+    private interface ChainEval {
+        ExprDotNodeRealizedChain chainFor(EPChainableType chainable, Integer streamNumberOfEnum) throws ExprValidationException;
     }
 }
 

@@ -21,6 +21,7 @@ import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.events.SampleEnumInEventsPackage;
 import com.espertech.esper.regressionlib.support.expreval.SupportEvalBuilder;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -40,7 +41,21 @@ public class ExprCoreDotExpression {
         execs.add(new ExprCoreDotNestedPropertyInstanceNW());
         execs.add(new ExprCoreDotCollectionSelectFromGetAndSize());
         execs.add(new ExprCoreDotToArray());
+        execs.add(new ExprCoreDotAggregationSimpleValueMethod());
         return execs;
+    }
+
+    private static class ExprCoreDotAggregationSimpleValueMethod implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEvent(col BigDecimal);\n" +
+                    "@name('s0') select first(col).abs() as c0 from MyEvent#keepall";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventMap(Collections.singletonMap("col", BigDecimal.valueOf(-1)), "MyEvent");
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{BigDecimal.valueOf(1)});
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprCoreDotToArray implements RegressionExecution {
