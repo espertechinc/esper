@@ -1,6 +1,24 @@
 Esper Changelog
 ===================
 
+Changes in version 8.7.0
+------------------------
+  - Support for EsperHA state backwards compatibility starting from this version
+  - Support for module line item to have content line numbers and end line numbers
+  - Support for dataflow EventBusSource operator to populate events of implicitly-created wrap event type
+  - Reduced compile time and compiler output size for many types of typical statements and when using the compiler path    
+  - Fixed issue #215 chained method invocation with 'first' aggregation function failed
+  - Fixed issue #216 Fire-and-Forget query fails with ConcurrentModificationException and when using create-index
+  - Fixed issue #217 Downcasting from Object to BigDecimal incorrectly uses Number#longValue
+  - Fixed issue #220 NullPointer when using List field in update istream query
+  - Fixed issue #228 Configuration-Compiler byte code option "attachModuleEPL" only works for modules
+  - Fixed issue #229 Create-inlined-class visibility controlled by wrong compiler option
+  - Fixed issue #230 Tables defined within modules do not work in joins
+  - Fixed issue #231 Logging configuration setEnableJDBC ignored
+  - Fixed issue LME-522-32405 Insert-into to column declared as bean event produces eventbean instance
+  - Fixed issue ZRG-950-63119 Very large number of selected fields and aggregation cause compiler code to grow beyond 64 KB
+  - Fixed issue LPQ-234-51126 Janino keep flag not honored when Janino debug is enabled
+
 Changes in version 8.6.0
 ------------------------
   - Visual Studio Code Extension for EPL can be download from the Visual Studio Code Marketplace at https://marketplace.visualstudio.com/items?itemName=EsperTech.esperepl
@@ -10,6 +28,7 @@ Changes in version 8.6.0
   - Support for queries without a from-clause
   - Support for the as-keyword for patterns in context conditions
   - Support for a compiler option to receive the compiler output for example for last-minute class analysis
+  - Reduced compile time and compiler output size for many types of typical statements 
   - Fixed issue #205 Compiler Index 1 out of bounds when second+ argument to variadic function is an EventBean 
   - Fixed issue #211 WHERE-expression returning null when rewritten as filter negation lets filter pass when it should not
   - Fixed issue #212 Nested nested property with escape cannot find property
@@ -17,7 +36,6 @@ Changes in version 8.6.0
   - Fixed issue QEQ-496-54542 Filter analyzer should disallow current_timestamp() as a negating expression
   - Fixed issue IMQ-251-72540 Keyed context with termination condition as filter with as-name not populating termination event
   - Fixed issue EWQ-541-63692 Exists-subselect in filter expression against virtual-data-window ignores criteria
-  - Reduced compile time and compiler output size for many types of typical statements 
   - There are minor changes to some of the extension APIs due to support for parameterized types. 
     Extension APIs now use EPType (in replacement of java.lang.Class) and EPChainableType (in replacement of EPType). Please review the extension SPI interfaces and examples. 
     The changes only affect parameter and return type information that are provided to extensions and that extensions may return as result types.   
