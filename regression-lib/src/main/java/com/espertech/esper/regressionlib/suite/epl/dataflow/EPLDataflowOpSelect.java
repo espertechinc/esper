@@ -386,6 +386,10 @@ public class EPLDataflowOpSelect {
         }
 
         public void run(RegressionEnvironment env) {
+            if (env.isHA()) {
+                return;
+            }
+
             String epl = "@public @buseventtype create schema A(value int);\n" +
                     (wrapperWithAdditionalProps ? "insert into B select 'a' as hello, * from A; \n" : "insert into B select * from A; \n") +
                     "@name('flow') create dataflow OutputFlow\n" +
