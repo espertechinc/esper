@@ -12,6 +12,15 @@ package com.espertech.esper.common.client.hook.recompile;
 
 import com.espertech.esper.common.client.EPCompiled;
 
+/**
+ * Provider for a re-compiler that acts on existing deployment to either re-compile or re-load from an external source
+ */
 public interface EPRecompileProvider {
+    /**
+     * Provide compiler output
+     * @param context deployment information
+     * @return compiler output
+     * @throws EPRecompileProviderException to indicate that compiler output cannot be obtained
+     */
     EPCompiled provide(EPRecompileProviderContext context) throws EPRecompileProviderException;
 }

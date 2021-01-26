@@ -22,6 +22,9 @@ public class AggregationFunctionModeManaged implements AggregationFunctionMode {
     private boolean hasHA;
     private Class serde;
 
+    /**
+     * Ctor.
+     */
     public AggregationFunctionModeManaged() {
     }
 

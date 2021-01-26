@@ -10,11 +10,23 @@
  */
 package com.espertech.esper.common.client.hook.recompile;
 
+/**
+ * Exception for use with {@link EPRecompileProvider}
+ */
 public class EPRecompileProviderException extends Exception {
+    /**
+     * Ctor
+     * @param message message
+     */
     public EPRecompileProviderException(String message) {
         super(message);
     }
 
+    /**
+     * Ctor
+     * @param message message
+     * @param cause cause
+     */
     public EPRecompileProviderException(String message, Throwable cause) {
         super(message, cause);
     }

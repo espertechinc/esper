@@ -3,6 +3,7 @@ Esper Changelog
 
 Changes in version 8.7.0
 ------------------------
+  - Visual Studio Code Extension now has a debugging support, see https://marketplace.visualstudio.com/items?itemName=EsperTech.esperepl
   - Support for EsperHA state backwards compatibility starting from this version
   - Support for module line item to have content line numbers and end line numbers
   - Support for dataflow EventBusSource operator to populate events of implicitly-created wrap event type

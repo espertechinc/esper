@@ -14,6 +14,10 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.serdeset.builtin.DIONullableObjectArraySerdeForge;
 
+/**
+ * For use with high-availability and scale-out only, this class instructs the compiler that the serializer and de-serializer (serde)
+ * is available for a given component type and component type serde
+ */
 public class SerdeProvisionArrayOfNonPrimitive extends SerdeProvision {
     private final EPTypeClass componentType;
     private final SerdeProvision componentSerde;

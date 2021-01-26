@@ -17,6 +17,9 @@ import com.espertech.esper.common.client.module.ModuleProperty;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Context for use with {@link EPRecompileProvider}
+ */
 public class EPRecompileProviderContext {
     private final EPCompiled compiled;
     private final Configuration configuration;
@@ -29,6 +32,19 @@ public class EPRecompileProviderContext {
     private final Map<Integer, String> statementNamesWhenProvidedByAPI;
     private final Map<Integer, Map<Integer, Object>> substitutionParameters;
 
+    /**
+     * Ctor.
+     * @param compiled compiler output
+     * @param configuration runtime configuration
+     * @param deploymentId deployment id
+     * @param moduleName module name
+     * @param moduleProperties module properties
+     * @param path compile path
+     * @param statementIdFirstStatement statement id of the first statement in the module
+     * @param userObjectsRuntime user objects
+     * @param statementNamesWhenProvidedByAPI statement names when provided as part of deployment
+     * @param substitutionParameters substitution parameters when provided as part of deployment
+     */
     public EPRecompileProviderContext(EPCompiled compiled, Configuration configuration, String deploymentId, String moduleName, Map<ModuleProperty, Object> moduleProperties, List<EPCompiled> path, int statementIdFirstStatement, Map<Integer, Object> userObjectsRuntime, Map<Integer, String> statementNamesWhenProvidedByAPI, Map<Integer, Map<Integer, Object>> substitutionParameters) {
         this.compiled = compiled;
         this.configuration = configuration;
