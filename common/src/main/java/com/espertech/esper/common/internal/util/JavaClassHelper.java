@@ -1422,6 +1422,7 @@ public class JavaClassHelper {
      * @param classForNameProvider       lookup of class for class name
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
+     * @param <T> type
      */
     public static <T> T instantiate(Class<T> implementedOrExtendedClass, String className, ClassForNameProvider classForNameProvider) throws ClassInstantiationException {
         Class<T> clazz;

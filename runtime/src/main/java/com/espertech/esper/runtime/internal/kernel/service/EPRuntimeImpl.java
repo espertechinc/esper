@@ -85,7 +85,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
      * @param configuration is the runtimeconfiguration
      * @param runtimeURI    is the runtime URI or "default" (or null which it assumes as "default") if this is the default provider
      * @param runtimes      map of URI and runtime
-     * @param options
+     * @param options       runtime options or null when not provided
      * @throws ConfigurationException is thrown to indicate a configuraton error
      */
     public EPRuntimeImpl(Configuration configuration, String runtimeURI, Map<String, EPRuntimeSPI> runtimes, EPRuntimeOptions options) throws ConfigurationException {
@@ -257,6 +257,8 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
      * Performs the initialization.
      *
      * @param startTime optional start time
+     * @param options runtime options or null when not provided
+     * @param runAfterDestroy consumer to execute after destroy
      */
     protected void doInitialize(Long startTime, EPRuntimeOptions options, Consumer<EPRuntimeSPIRunAfterDestroyCtx> runAfterDestroy) {
         log.info("Initializing runtime URI '" + runtimeURI + "' version " + RuntimeVersion.RUNTIME_VERSION);

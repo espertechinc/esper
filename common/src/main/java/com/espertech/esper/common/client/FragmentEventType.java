@@ -34,6 +34,7 @@ public class FragmentEventType {
      * @param fragmentType the event type for a property value for an event.
      * @param indexed      true to indicate that property value is an array of events
      * @param isNative     true
+     * @param canInsertEventBean whether the fragment can hold {@link EventBean} instances or only native objects
      */
     public FragmentEventType(EventType fragmentType, boolean indexed, boolean isNative, boolean canInsertEventBean) {
         this.fragmentType = fragmentType;

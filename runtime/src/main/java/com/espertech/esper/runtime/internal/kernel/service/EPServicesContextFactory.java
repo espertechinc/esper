@@ -24,7 +24,7 @@ public interface EPServicesContextFactory {
      *
      * @param epRuntime             is the runtime instance
      * @param configurationSnapshot is a snapshot of configs at the time of runtime creation
-     * @param options
+     * @param options               runtime options or null when not provided
      * @return services context
      */
     EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configurationSnapshot, EPRuntimeOptions options);

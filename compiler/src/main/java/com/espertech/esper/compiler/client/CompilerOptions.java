@@ -155,8 +155,9 @@ public class CompilerOptions {
      * @param accessModifierInlinedClass callback returning an access modifier for an inlined-class
      * @return itself
      */
-    public void setAccessModifierInlinedClass(AccessModifierInlinedClassOption accessModifierInlinedClass) {
+    public CompilerOptions setAccessModifierInlinedClass(AccessModifierInlinedClassOption accessModifierInlinedClass) {
         this.accessModifierInlinedClass = accessModifierInlinedClass;
+        return this;
     }
 
     /**

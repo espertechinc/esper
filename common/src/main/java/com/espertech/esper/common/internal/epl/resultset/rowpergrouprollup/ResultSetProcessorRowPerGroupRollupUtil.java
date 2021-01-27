@@ -99,6 +99,7 @@ public class ResultSetProcessorRowPerGroupRollupUtil {
      * @param groupKeyTypes                   types
      * @param groupByRollupDesc               rollup into
      * @param outputConditionPolledFactory    condition factory
+     * @param outputLimitHelperSettings       state management settings for output rate limiter
      * @return helpers
      */
     public static ResultSetProcessorGroupedOutputFirstHelper[] initializeOutputFirstHelpers(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, AggregationGroupByRollupDesc groupByRollupDesc, OutputConditionPolledFactory outputConditionPolledFactory, StateMgmtSetting outputLimitHelperSettings) {

@@ -27,7 +27,8 @@ public class OutputConditionCountFactory implements OutputConditionFactory {
      *
      * @param eventRate is the number of old or new events that
      *                  must arrive in order for the condition to be satisfied
-     * @param variable  varianle
+     * @param variable  variable
+     * @param stateMgmtSetting state management settings
      */
     public OutputConditionCountFactory(int eventRate, Variable variable, StateMgmtSetting stateMgmtSetting) {
         if ((eventRate < 1) && (variable == null)) {
