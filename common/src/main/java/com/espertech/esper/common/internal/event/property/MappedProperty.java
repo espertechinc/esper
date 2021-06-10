@@ -122,6 +122,9 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
     }
 
     public EPType getPropertyTypeMap(Map optionalMapPropTypes, BeanEventTypeFactory beanEventTypeFactory) {
+        if (optionalMapPropTypes == null) {
+            return null;
+        }
         Object type = optionalMapPropTypes.get(this.getPropertyNameAtomic());
         if (type == null) {
             return null;
