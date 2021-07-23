@@ -59,7 +59,7 @@ public class ContextCategory {
                 assertEquals(1, env.runtime().getContextPartitionService().getContextNestingLevel(deploymentIdContext, "CategoryContext"));
                 Set<Integer> ids = env.runtime().getContextPartitionService().getContextPartitionIds(deploymentIdContext, "CategoryContext", new ContextPartitionSelectorAll());
                 assertEquals(2, env.runtime().getContextPartitionService().getContextPartitionCount(deploymentIdContext, "CategoryContext"));
-                EPAssertionUtil.assertEqualsExactOrder(new Integer[]{0, 1}, ids.toArray());
+                EPAssertionUtil.assertEqualsAnyOrder(new Integer[]{0, 1}, ids.toArray());
             });
 
             env.assertStatement("context", statement -> {
@@ -297,7 +297,7 @@ public class ContextCategory {
 
             env.sendEventBean(new SupportBean("E1", 5));
             env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 5});
-            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{ctx, "cat1", 5}, {ctx, "cat2", null}, {ctx, "cat3", null}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{ctx, "cat1", 5}, {ctx, "cat2", null}, {ctx, "cat3", null}});
 
             env.milestoneInc(milestone);
 
@@ -320,7 +320,7 @@ public class ContextCategory {
             env.sendEventBean(new SupportBean("E6", 3));
             env.assertPropsNew("s0", fields, new Object[]{ctx, "cat1", 12});
 
-            env.assertPropsPerRowIterator("s0", fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
+            env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{ctx, "cat1", 12}, {ctx, "cat2", 11}, {ctx, "cat3", 50}});
 
             env.assertThat(() -> {
                 assertEquals(1, SupportContextMgmtHelper.getContextCount(env));
