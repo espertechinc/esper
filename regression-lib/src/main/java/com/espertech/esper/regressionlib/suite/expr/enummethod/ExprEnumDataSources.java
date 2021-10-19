@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -63,13 +64,68 @@ public class ExprEnumDataSources {
         execs.add(new ExprEnumUDFStaticMethodGeneric());
         execs.add(new ExprEnumSubqueryGenericComponentType());
         execs.add(new ExprEnumBeanWithMap());
+        execs.add(new ExprEnumContextPropUnnested());
+        execs.add(new ExprEnumContextPropNested());
         return execs;
+    }
+
+    private static class ExprEnumContextPropUnnested implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyLocalEventWithInts as " + MyLocalEventWithInts.class.getName() + ";\n" +
+                "@public create context MyContext start MyLocalEventWithInts as mle end SupportBean_S0;\n" +
+                "@name('s0') context MyContext select \n" +
+                "  context.mle.myFunc() as c0,\n" +
+                "  context.mle.intValues.anyOf(i => i.intValue() > 0) as c1,\n" +
+                "  context.mle.intValues.where(i => i.intValue() > 0).countOf() > 0 as c2\n" +
+                "  from SupportBean\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, true, 0, 1);
+            sendAssert(env, false, 0, 0);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, boolean expected, Integer... intValues) {
+            env.sendEventBean(new MyLocalEventWithInts(new HashSet<>(Arrays.asList(intValues))));
+            env.sendEventBean(new SupportBean());
+            env.assertPropsNew("s0", new String[]{"c0", "c1", "c2"}, new Object[]{expected, expected, expected});
+            env.sendEventBean(new SupportBean_S0(0));
+        }
+    }
+
+    private static class ExprEnumContextPropNested implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyLocalEventWithInts as " + MyLocalEventWithInts.class.getName() + ";\n" +
+                "@public create context MyContext " +
+                "  context ACtx start MyLocalEventWithInts as mle end SupportBean_S0,\n" +
+                "  context BCtx start SupportBean\n" +
+                ";\n" +
+                "@name('s0') context MyContext select \n" +
+                "  context.ACtx.mle.myFunc() as c0,\n" +
+                "  context.ACtx.mle.intValues.anyOf(i => i.intValue() > 0) as c1,\n" +
+                "  context.ACtx.mle.intValues.where(i => i.intValue() > 0).countOf() > 0 as c2\n" +
+                "  from SupportBean\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, true, 0, 1);
+            sendAssert(env, false, 0, 0);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, boolean expected, Integer... intValues) {
+            env.sendEventBean(new MyLocalEventWithInts(new HashSet<>(Arrays.asList(intValues))));
+            env.sendEventBean(new SupportBean());
+            env.assertPropsNew("s0", new String[]{"c0", "c1", "c2"}, new Object[]{expected, expected, expected});
+            env.sendEventBean(new SupportBean_S0(0));
+        }
     }
 
     private static class ExprEnumBeanWithMap implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@public @buseventtype create schema MyEvent as " + SupportEventWithMapOfCollOfString.class.getName() + ";\n" +
-                    "@name('s0') select * from MyEvent(mymap('a').anyOf(x -> x = 'x'));\n";
+                "@name('s0') select * from MyEvent(mymap('a').anyOf(x -> x = 'x'));\n";
             env.compileDeploy(epl).addListener("s0");
 
             sendAssert(env, "a", Collections.emptyList(), false);
@@ -95,7 +151,7 @@ public class ExprEnumDataSources {
             sendEvent(env, 10);
             sendEvent(env, -2);
             env.sendEventBean(new SupportBean());
-            env.assertPropsNew("s0", "c0".split(","), new Object[] {8});
+            env.assertPropsNew("s0", "c0".split(","), new Object[]{8});
 
             env.undeployAll();
         }
@@ -136,7 +192,7 @@ public class ExprEnumDataSources {
             event.put("arrayOfOptionalInt", makeOptional(10, -1));
             event.put("listOfOptionalInt", Arrays.asList(makeOptional(5, -2)));
             env.sendEventMap(event, "MyEvent");
-            env.assertPropsNew("s0", "c0,c1,c2,c3".split(","), new Object[] {9, 10, 3, 5});
+            env.assertPropsNew("s0", "c0,c1,c2,c3".split(","), new Object[]{9, 10, 3, 5});
 
             env.undeployAll();
         }
@@ -827,7 +883,7 @@ public class ExprEnumDataSources {
                 "makeSampleArrayString().where(x => x != 'E1') as val3 " +
                 "from SupportBean#length(2) as sb";
             env.compileDeploy(eplScalar).addListener("s0");
-            env.assertStatement("s0", statement -> env.assertStmtTypesAllSame("s0",  fields, EPTypeClassParameterized.from(Collection.class, String.class)));
+            env.assertStatement("s0", statement -> env.assertStmtTypesAllSame("s0", fields, EPTypeClassParameterized.from(Collection.class, String.class)));
 
             SupportCollection.setSampleCSV("E1,E2,E3");
             env.sendEventBean(new SupportBean());
@@ -908,6 +964,28 @@ public class ExprEnumDataSources {
 
         public Object getValue() {
             return value;
+        }
+    }
+
+    public static class MyLocalEventWithInts implements Serializable {
+        private static final long serialVersionUID = 7831666209757672187L;
+        private final Set<Integer> intValues;
+
+        public MyLocalEventWithInts(Set<Integer> intValues) {
+            this.intValues = intValues;
+        }
+
+        public Set<Integer> getIntValues() {
+            return intValues;
+        }
+
+        public boolean myFunc() {
+            for (Integer val : intValues) {
+                if (val > 0) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

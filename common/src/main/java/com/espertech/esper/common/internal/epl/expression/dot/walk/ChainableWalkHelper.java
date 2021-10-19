@@ -144,8 +144,7 @@ public class ChainableWalkHelper {
 
         // Handle context property
         if (mapContext.getContextCompileTimeDescriptor() != null && mapContext.getContextCompileTimeDescriptor().getContextPropertyRegistry().isContextPropertyPrefix(chainFirstName)) {
-            String subproperty = toPlainPropertyString(chain, 1);
-            return new ExprContextPropertyNodeImpl(subproperty);
+            return handleContextProp(chain, dotNodeFunction);
         }
 
         // Handle min-max case
@@ -159,6 +158,31 @@ public class ChainableWalkHelper {
         List<Chainable> classChain = handleClassPrefixedNonProp(mapContext, chain);
         if (classChain != null) {
             return dotNodeFunction.apply(classChain);
+        }
+
+        return null;
+    }
+
+    private static ExprNode handleContextProp(List<Chainable> chain, Function<List<Chainable>, ExprDotNodeImpl> dotNodeFunction) {
+        try {
+            String subproperty = toPlainPropertyString(chain, 1);
+            return new ExprContextPropertyNodeImpl(subproperty);
+        } catch (ChainableWalkNotAPropertyException ex) {
+            // may not be a property, handle as a dot-expression
+        }
+
+        for (int i = chain.size() - 1; i > 1; i--) {
+            List<Chainable> subchain = chain.subList(1, i);
+            try {
+                String subproperty = toPlainPropertyString(subchain, 0);
+                ExprContextPropertyNodeImpl contextProperty = new ExprContextPropertyNodeImpl(subproperty);
+                List<Chainable> calls = chain.subList(i, chain.size());
+                ExprNode dot = dotNodeFunction.apply(calls);
+                dot.addChildNode(contextProperty);
+                return dot;
+            } catch (ChainableWalkNotAPropertyException ex) {
+                // may not be a property, handle as a dot-expression
+            }
         }
 
         return null;
@@ -361,14 +385,24 @@ public class ChainableWalkHelper {
             if (useChainAsIs) {
                 return dotNodeFunction.apply(chain);
             }
-            String propertyName = toPlainPropertyString(chain, 0);
+            String propertyName = null;
+            try {
+                propertyName = toPlainPropertyString(chain, 0);
+            } catch (ChainableWalkNotAPropertyException e) {
+                throw new IllegalArgumentException(e);
+            }
             return new ExprIdentNodeImpl(propertyName);
         }
 
         // Handle properties that can be prefixed by a stream name
         String leadingIdentifier = chain.get(0).getRootNameOrEmptyString();
         String streamOrNestedPropertyName = DotEscaper.escapeDot(leadingIdentifier);
-        String propertyName = toPlainPropertyString(chain, 1);
+        String propertyName = null;
+        try {
+            propertyName = toPlainPropertyString(chain, 1);
+        } catch (ChainableWalkNotAPropertyException e) {
+            throw new IllegalArgumentException(e);
+        }
         return new ExprIdentNodeImpl(propertyName, streamOrNestedPropertyName);
     }
 
@@ -518,7 +552,7 @@ public class ChainableWalkHelper {
         return JavaClassHelper.getBoxedType(typeClass).getType() == expected;
     }
 
-    private static String toPlainPropertyString(List<Chainable> chain, int startIndex) {
+    private static String toPlainPropertyString(List<Chainable> chain, int startIndex) throws ChainableWalkNotAPropertyException {
         StringWriter buffer = new StringWriter();
         String delimiter = "";
         for (Chainable element : chain.subList(startIndex, chain.size())) {
@@ -529,7 +563,7 @@ public class ChainableWalkHelper {
             } else if (element instanceof ChainableArray) {
                 ChainableArray array = (ChainableArray) element;
                 if (array.getIndexes().size() != 1) {
-                    throw new IllegalStateException("Expected plain array property but found multiple index expressions");
+                    throw new ChainableWalkNotAPropertyException("Expected plain array property but found multiple index expressions");
                 }
                 buffer.append("[");
                 buffer.append(toExpressionStringMinPrecedenceSafe(array.getIndexes().get(0)));
@@ -537,12 +571,16 @@ public class ChainableWalkHelper {
             } else if (element instanceof ChainableCall) {
                 ChainableCall call = (ChainableCall) element;
                 if (call.getParameters().size() != 1) {
-                    throw new IllegalStateException("Expected plain mapped property but found multiple key expressions");
+                    throw new ChainableWalkNotAPropertyException("Expected plain mapped property but found multiple key expressions");
                 }
                 buffer.append(delimiter);
                 buffer.append(call.getNameUnescaped());
                 buffer.append("(");
-                ExprConstantNode constantNode = (ExprConstantNode) call.getParameters().get(0);
+                ExprNode param = call.getParameters().get(0);
+                if (!(param instanceof ExprConstantNode)) {
+                    throw new ChainableWalkNotAPropertyException("Expected plain mapped property single constant parameter");
+                }
+                ExprConstantNode constantNode = (ExprConstantNode) param;
                 if (constantNode.getStringConstantWhenProvided() != null) {
                     buffer.append(constantNode.getStringConstantWhenProvided());
                 } else {

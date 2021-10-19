@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.expr;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompiler;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.expr.enummethod.*;
 import com.espertech.esper.regressionlib.support.bean.*;
 import com.espertech.esper.regressionlib.support.bookexample.BookDesc;
@@ -149,7 +150,7 @@ public class TestSuiteExprEnum extends TestCase {
     }
 
     private static void configure(Configuration configuration) {
-        for (Class clazz : new Class[]{SupportBean_ST0_Container.class, SupportBean.class, SupportBean_ST0_Container.class,
+        for (Class clazz : new Class[]{SupportBean_ST0_Container.class, SupportBean.class, SupportBean_S0.class, SupportBean_ST0_Container.class,
             SupportCollection.class, PersonSales.class, SupportBean_A.class,
             SupportBean_ST0.class, SupportSelectorWithListEvent.class, SupportEnumTwoEvent.class,
             SupportSelectorEvent.class, SupportContainerEvent.class,
