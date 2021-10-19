@@ -50,7 +50,26 @@ public class ExprFilterOptimizableOrRewrite {
         executions.add(new ExprFilterOrRewriteContextPartitionedCategory());
         executions.add(new ExprFilterOrRewriteContextPartitionedInitiatedSameEvent());
         executions.add(new ExprFilterOrRewriteContextPartitionedInitiated());
+        executions.add(new ExprFilterOrRewriteAndRewriteNotEqualsLimitedExpr());
         return executions;
+    }
+
+    private static class ExprFilterOrRewriteAndRewriteNotEqualsLimitedExpr implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(cast(intPrimitive, String) != '321' and (cast(intPrimitive, String) != '123'))";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, 123, false);
+            sendAssert(env, 321, false);
+            sendAssert(env, 13, true);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, int intPrimitive, boolean expected) {
+            env.sendEventBean(new SupportBean("", intPrimitive));
+            env.assertListenerInvokedFlag("s0", expected);
+        }
     }
 
     public static class ExprFilterOrRewriteHint implements RegressionExecution {

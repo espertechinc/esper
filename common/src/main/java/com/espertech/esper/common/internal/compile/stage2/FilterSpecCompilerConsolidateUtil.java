@@ -64,12 +64,15 @@ public final class FilterSpecCompilerConsolidateUtil {
 
     // remove duplicate propertyName + filterOperator items making a judgement to optimize or simply remove the optimized form
     private static void consolidate(List<FilterSpecPlanPathTripletForge> items, FilterSpecParaForgeMap filterParamExprMap, String statementName) {
+        boolean eligible = false;
         FilterOperator op = items.get(0).getParam().getFilterOperator();
         if (op == FilterOperator.NOT_EQUAL) {
-            handleConsolidateNotEqual(items, filterParamExprMap, statementName);
-        } else {
-            // for all others we simple remove the second optimized form (filter param with same prop name and filter op)
-            // and thus the boolean expression that started this is included
+            eligible = handleConsolidateNotEqual(items, filterParamExprMap, statementName);
+        }
+
+        // for all others we simple remove the second optimized form (filter param with same prop name and filter op)
+        // and thus the boolean expression that started this is included
+        if (!eligible) {
             for (int i = 1; i < items.size(); i++) {
                 filterParamExprMap.removeValue(items.get(i));
             }
@@ -78,10 +81,21 @@ public final class FilterSpecCompilerConsolidateUtil {
 
     // consolidate "val != 3 and val != 4 and val != 5"
     // to "val not in (3, 4, 5)"
-    private static void handleConsolidateNotEqual(List<FilterSpecPlanPathTripletForge> parameters, FilterSpecParaForgeMap filterParamExprMap, String statementName) {
-        List<FilterSpecParamInValueForge> values = new ArrayList<>();
+    private static boolean handleConsolidateNotEqual(List<FilterSpecPlanPathTripletForge> parameters, FilterSpecParaForgeMap filterParamExprMap, String statementName) {
+        // determine eligible
+        for (FilterSpecPlanPathTripletForge triplet : parameters) {
+            FilterSpecParamForge param = triplet.getParam();
+            if (param instanceof FilterSpecParamConstantForge ||
+                param instanceof FilterSpecParamEventPropForge ||
+                param instanceof FilterSpecParamEventPropIndexedForge) {
+                continue;
+            }
+            return false;
+        }
 
+        List<FilterSpecParamInValueForge> values = new ArrayList<>();
         ExprNode lastNotEqualsExprNode = null;
+
         for (FilterSpecPlanPathTripletForge triplet : parameters) {
             FilterSpecParamForge param = triplet.getParam();
             if (param instanceof FilterSpecParamConstantForge) {
@@ -97,7 +111,7 @@ public final class FilterSpecCompilerConsolidateUtil {
                 values.add(new FilterForEvalEventPropIndexedForge(eventProp.getResultEventAsName(), eventProp.getResultEventIndex(), eventProp.getResultEventProperty(),
                         eventProp.getEventType(), eventProp.isMustCoerce(), JavaClassHelper.getBoxedType(eventProp.getCoercionType())));
             } else {
-                throw new IllegalArgumentException("Unknown filter parameter:" + param.toString());
+                throw new IllegalStateException("Unknown filter parameter:" + param.toString());
             }
 
             lastNotEqualsExprNode = filterParamExprMap.removeEntry(triplet);
@@ -106,6 +120,7 @@ public final class FilterSpecCompilerConsolidateUtil {
         FilterSpecParamInForge param = new FilterSpecParamInForge(parameters.get(0).getParam().getLookupable(), FilterOperator.NOT_IN_LIST_OF_VALUES, values);
         FilterSpecPlanPathTripletForge triplet = new FilterSpecPlanPathTripletForge(param, null);
         filterParamExprMap.put(lastNotEqualsExprNode, triplet);
-    }
 
+        return true;
+    }
 }
