@@ -22,6 +22,7 @@ import com.espertech.esper.common.internal.epl.script.core.NameAndParamNum;
 import com.espertech.esper.common.internal.epl.script.core.NameParamNumAndModule;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.type.NameAndModule;
+import com.espertech.esper.common.internal.util.CRC32Util;
 import com.espertech.esper.runtime.client.*;
 import com.espertech.esper.runtime.client.option.DeploymentClassLoaderContext;
 import com.espertech.esper.runtime.client.option.DeploymentClassLoaderOption;
@@ -44,7 +45,13 @@ public class DeployerHelperResolver {
     static String determineDeploymentIdCheckExists(int rolloutItemNumber, DeploymentOptions optionsMayNull, DeploymentLifecycleService deploymentLifecycleService) throws EPDeployDeploymentExistsException {
         String deploymentId;
         if (optionsMayNull == null || optionsMayNull.getDeploymentId() == null) {
-            deploymentId = UUID.randomUUID().toString();
+            // the CRC may already exists, however this is very unlikely
+            long crc;
+            do {
+                deploymentId = UUID.randomUUID().toString();
+                crc = CRC32Util.computeCRC32(deploymentId);
+            }
+            while (deploymentLifecycleService.getDeploymentByCRC(crc) != null);
         } else {
             deploymentId = optionsMayNull.getDeploymentId();
         }
@@ -52,6 +59,7 @@ public class DeployerHelperResolver {
         if (deploymentLifecycleService.getDeploymentById(deploymentId) != null) {
             throw new EPDeployDeploymentExistsException("Deployment by id '" + deploymentId + "' already exists", rolloutItemNumber);
         }
+
         return deploymentId;
     }
 
