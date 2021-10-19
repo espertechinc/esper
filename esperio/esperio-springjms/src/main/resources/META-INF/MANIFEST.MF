@@ -9,14 +9,14 @@ Bundle-Name: EsperIO-SpringJMS
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-springjms
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.7.0
+Bundle-Version: 8.8.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esperio.jms;uses:="com.espertech.esper.com
  mon.client,com.espertech.esper.runtime.client,com.espertech.esper.runti
  me.client.plugin,com.espertech.esper.runtime.client.util,com.espertech.
  esper.runtime.internal.kernel.service,javax.jms,org.springframework.jms
- .core";version="8.7.0"
+ .core";version="8.8.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.configuration,com.espertech.esper.common.internal.event.cor
  e,com.espertech.esper.common.internal.event.eventtyperepo,com.espertech

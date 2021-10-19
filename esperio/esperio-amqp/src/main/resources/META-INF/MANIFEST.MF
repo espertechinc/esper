@@ -7,9 +7,9 @@ Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: EsperIO-AMQP
 Bundle-SymbolicName: com.espertech.esperio-amqp
-Bundle-Version: 8.7.0
+Bundle-Version: 8.8.0
 Created-By: Apache Maven Bundle Plugin
-Export-Package: com.espertech.esperio.amqp;version="8.7.0";uses:="com.es
+Export-Package: com.espertech.esperio.amqp;version="8.8.0";uses:="com.es
  pertech.esper.common.client.dataflow.annotations,com.espertech.esper.co
  mmon.internal.bytecodemodel.base,com.espertech.esper.common.internal.by
  tecodemodel.model.expression,com.espertech.esper.common.internal.contex

@@ -9,19 +9,19 @@ Bundle-Name: EsperIO-CSV
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-csv
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.7.0
+Bundle-Version: 8.8.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esperio.csv;uses:="com.espertech.esper.com
  mon.client,com.espertech.esper.runtime.client,com.espertech.esper.runti
- me.client.util,org.slf4j";version="8.7.0",com.espertech.esperio.file;us
+ me.client.util,org.slf4j";version="8.8.0",com.espertech.esperio.file;us
  es:="com.espertech.esper.common.client,com.espertech.esper.common.clien
  t.dataflow.annotations,com.espertech.esper.common.client.dataflow.util,
  com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.es
  per.common.internal.bytecodemodel.model.expression,com.espertech.esper.
  common.internal.context.aifactory.core,com.espertech.esper.common.inter
  nal.epl.dataflow.interfaces,com.espertech.esper.common.internal.epl.exp
- ression.core,com.espertech.esperio.csv";version="8.7.0"
+ ression.core,com.espertech.esperio.csv";version="8.8.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.dataflow.annotations,com.espertech.esper.common.client.data
  flow.util,com.espertech.esper.common.client.render,com.espertech.esper.
