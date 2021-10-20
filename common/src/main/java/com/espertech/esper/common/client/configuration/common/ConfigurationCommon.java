@@ -177,8 +177,14 @@ public class ConfigurationCommon implements Serializable {
 
     /**
      * Add an name for an event type represented by Java-bean plain-old Java object events.
-     * Note that when adding multiple names for the same Java class the names represent an
-     * alias to the same event type since event type identity for Java classes is per Java class.
+     * <p>
+     *     A given class can be associated to multiple event types, each representing a separate event stream.
+     *     I.e. event type identity is by event type name and not by Java class (version 8.x and newer).
+     * </p>
+     * <p>
+     *     Applications should register superclasses and interfaces before registering child classes and implementations,
+     *     for applications that intend to use superclasses and interfaces by a name other than the fully-qualified class name.
+     * </p>
      *
      * @param eventTypeName  is the name for the event type
      * @param eventClassName fully-qualified class name of the event type
@@ -189,8 +195,14 @@ public class ConfigurationCommon implements Serializable {
 
     /**
      * Add an name for an event type represented by Java-bean plain-old Java object events.
-     * Note that when adding multiple names for the same Java class the names represent an
-     * alias to the same event type since event type identity for Java classes is per Java class.
+     * <p>
+     *     A given class can be associated to multiple event types, each representing a separate event stream.
+     *     I.e. event type identity is by event type name and not by Java class (version 8.x and newer).
+     * </p>
+     * <p>
+     *     Applications should register superclasses and interfaces before registering child classes and implementations,
+     *     for applications that intend to use superclasses and interfaces by a name other than the fully-qualified class name.
+     * </p>
      *
      * @param eventTypeName is the name for the event type
      * @param eventClass    is the Java event class for which to add the name
@@ -394,8 +406,14 @@ public class ConfigurationCommon implements Serializable {
 
     /**
      * Add an name for an event type that represents bean Java type (non-JavaBean style) events.
-     * Note that when adding multiple names for the same Java class the names represent an
-     * alias to the same event type since event type identity for Java classes is per Java class.
+     * <p>
+     *     A given class can be associated to multiple event types, each representing a separate event stream.
+     *     I.e. event type identity is by event type name and not by Java class (version 8.x and newer).
+     * </p>
+     * <p>
+     *     Applications should register superclasses and interfaces before registering child classes and implementations,
+     *     for applications that intend to use superclasses and interfaces by a name other than the fully-qualified class name.
+     * </p>
      *
      * @param eventTypeName     is the name for the event type
      * @param eventClass        fully-qualified class name of the event type
