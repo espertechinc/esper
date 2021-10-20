@@ -40,6 +40,7 @@ public class EPLDatabaseJoin {
 
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
+        /*
         execs.add(new EPLDatabaseMySQLDatabaseConnection());
         execs.add(new EPLDatabaseSimpleJoinLeft());
         execs.add(new EPLDatabase2HistoricalStar());
@@ -60,6 +61,8 @@ public class EPLDatabaseJoin {
         execs.add(new EPLDatabasePropertyResolution());
         execs.add(new EPLDatabaseRestartStatement());
         execs.add(new EPLDatabaseSimpleJoinRight());
+        */
+        execs.add(new EPLDatabaseJoinIndexNullType());
         return execs;
     }
 
@@ -358,6 +361,21 @@ public class EPLDatabaseJoin {
             env.sendEventBean(SupportBeanComplexProps.makeDefaultBean());
             assertReceived(env, 10, 100, "J", "P", true, null, new BigDecimal(1000), 10.2, 10.3);
 
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLDatabaseJoinIndexNullType implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String stmtText = "@public @buseventtype create schema InputEvent(id string, fieldTypeNull null);\n" +
+                    "@name('s0') select mybigint from InputEvent#unique(id) as s0," +
+                    " sql:MyDBWithRetain ['select mybigint from mytesttable where ${fieldTypeNull} = mytesttable.mybigint'] as s1" +
+                    " where s1.mybigint is null";
+            env.compileDeploy(stmtText).addListener("s0");
+
+            env.sendEventMap(Collections.emptyMap(), "InputEvent");
+            env.assertListenerNotInvoked("s0");
+            
             env.undeployAll();
         }
     }

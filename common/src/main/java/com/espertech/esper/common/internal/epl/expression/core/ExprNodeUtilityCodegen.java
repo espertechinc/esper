@@ -117,7 +117,7 @@ public class ExprNodeUtilityCodegen {
             CodegenMethod evalMethod = CodegenLegoMethodExpression.codegenExpression(forge, method, classScope);
             result = localMethod(evalMethod, REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT);
 
-            if (optCoercionType != null) {
+            if (optCoercionType != null && !EPTypeNull.INSTANCE.equals(forge.getEvaluationType())) {
                 EPTypeClass type = (EPTypeClass) forge.getEvaluationType();
                 EPTypeClass boxed = JavaClassHelper.getBoxedType(type);
                 if (boxed.getType() != JavaClassHelper.getBoxedType(optCoercionType).getType()) {
