@@ -84,7 +84,7 @@ public class ResultSetAggregateFirstEverLastEver {
         }
 
         public void run(RegressionEnvironment env) {
-            String epl = "@Name('s0') select " +
+            String epl = "@Audit @Name('s0') select " +
                 "firstever(theString) as firsteverstring, " +
                 "lastever(theString) as lasteverstring, " +
                 "first(theString) as firststring, " +

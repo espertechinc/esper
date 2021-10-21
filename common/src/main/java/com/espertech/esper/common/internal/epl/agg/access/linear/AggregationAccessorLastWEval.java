@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMet
 import java.util.Collections;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.NAME_EXPREVALCONTEXT;
 
 /**
  * Represents the aggregation accessor that provides the result for the "last" aggregation function without index.
@@ -30,7 +31,7 @@ public class AggregationAccessorLastWEval {
                 .ifRefNullReturnNull("bean")
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .methodReturn(localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()));
+                .methodReturn(localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), ref(NAME_EXPREVALCONTEXT)));
     }
 
     public static void getEnumerableEventsCodegen(AggregationAccessorLastWEvalForge forge, AggregationStateLinearForge factoryLinear, AggregationAccessorForgeGetCodegenContext context) {
@@ -45,7 +46,7 @@ public class AggregationAccessorLastWEval {
                 .ifRefNullReturnNull("bean")
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), ref(NAME_EXPREVALCONTEXT)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(staticMethod(Collections.class, "singletonList", ref("value")));
     }

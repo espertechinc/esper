@@ -20,6 +20,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMet
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.NAME_EXPREVALCONTEXT;
 
 /**
  * Represents the aggregation accessor that provides the result for the "window" aggregation function.
@@ -40,7 +41,7 @@ public class AggregationAccessorWindowWEval {
                 .whileLoop(exprDotMethod(ref("it"), "hasNext"))
                 .declareVar(EventBean.EPTYPE, "bean", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .assignArrayElement(ref("array"), ref("count"), localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), constantNull()))
+                .assignArrayElement(ref("array"), ref("count"), localMethod(childExpr, ref("eventsPerStreamBuf"), constant(true), ref(NAME_EXPREVALCONTEXT)))
                 .incrementRef("count")
                 .blockEnd()
                 .methodReturn(ref("array"));
@@ -61,7 +62,7 @@ public class AggregationAccessorWindowWEval {
         .whileLoop(exprDotMethod(ref("it"), "hasNext"))
         .declareVar(EventBean.EPTYPE, "bean", cast(EventBean.EPTYPE, exprDotMethod(ref("it"), "next")))
         .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-        .declareVar((EPTypeClass) JavaClassHelper.getBoxedType(forge.getChildNode().getEvaluationType()), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), constantNull()))
+        .declareVar((EPTypeClass) JavaClassHelper.getBoxedType(forge.getChildNode().getEvaluationType()), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), ref(NAME_EXPREVALCONTEXT)))
         .exprDotMethod(ref("values"), "add", ref("value"))
         .blockEnd()
         .methodReturn(ref("values"));

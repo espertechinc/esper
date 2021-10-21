@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 import java.util.Collections;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.NAME_EXPREVALCONTEXT;
 
 /**
  * Represents the aggregation accessor that provides the result for the "first" and "last" aggregation function with index.
@@ -36,7 +37,7 @@ public class AggregationAccessorFirstLastIndexWEval {
                 .ifRefNullReturnNull("bean")
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .methodReturn(localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), constantNull()));
+                .methodReturn(localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), ref(NAME_EXPREVALCONTEXT)));
     }
 
     public static void getEnumerableEventsCodegen(AggregationAccessorFirstLastIndexWEvalForge forge, AggregationAccessorForgeGetCodegenContext context) {
@@ -54,7 +55,7 @@ public class AggregationAccessorFirstLastIndexWEval {
                 .ifRefNullReturnNull("bean")
                 .declareVar(EventBean.EPTYPEARRAY, "eventsPerStreamBuf", newArrayByLength(EventBean.EPTYPE, constant(forge.getStreamNum() + 1)))
                 .assignArrayElement("eventsPerStreamBuf", constant(forge.getStreamNum()), ref("bean"))
-                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), constantNull()))
+                .declareVar(EPTypePremade.OBJECT.getEPType(), "value", localMethod(CodegenLegoMethodExpression.codegenExpression(forge.getChildNode(), context.getMethod(), context.getClassScope()), ref("eventsPerStreamBuf"), constantTrue(), ref(NAME_EXPREVALCONTEXT)))
                 .ifRefNullReturnNull("value")
                 .methodReturn(staticMethod(Collections.class, "singletonList", ref("value")));
     }
