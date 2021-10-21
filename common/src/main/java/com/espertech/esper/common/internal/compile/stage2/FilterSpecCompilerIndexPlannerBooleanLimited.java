@@ -32,12 +32,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerHelper.getMatchEventConvertor;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerHelper.hasLevelOrHint;
 
 public class FilterSpecCompilerIndexPlannerBooleanLimited {
-    protected static FilterSpecParamForge handleBooleanLimited(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StreamTypeService streamTypeService, StatementRawInfo raw, StatementCompileTimeServices services)
+    protected static FilterSpecParamForge handleBooleanLimited(ExprNode constituent, Function<String, Boolean> limitedExprExists, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, StreamTypeService streamTypeService, StatementRawInfo raw, StatementCompileTimeServices services)
         throws ExprValidationException {
 
         if (!hasLevelOrHint(FilterSpecCompilerIndexPlannerHint.BOOLCOMPOSITE, raw, services)) {
@@ -75,6 +76,11 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
         MatchedEventConvertorForge convertor = getMatchEventConvertor(valueExpression, taggedEventTypes, arrayEventTypes, allTagNamesOrdered);
 
         String reboolExpression = ExprNodeUtilityPrint.toExpressionStringMinPrecedence(constituent, new ExprNodeRenderableFlags(false));
+        if (limitedExprExists.apply(reboolExpression)) {
+            ExprNodeUtilityModify.replaceChildNode(withValueExpr.valueExpressionParent, replacement, valueExpression);
+            return null;
+        }
+
         ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(reboolExpression, null, rebool.getForge(), valueExpressionType, true, serde);
         return new FilterSpecParamValueLimitedExprForge(lookupable, FilterOperator.REBOOL, valueExpression, convertor, null);
     }

@@ -52,7 +52,42 @@ public class ExprFilterOptimizableBooleanLimitedExpr {
         executions.add(new ExprFilterOptReboolWithEquals());
         executions.add(new ExprFilterOptReboolMultiple());
         executions.add(new ExprFilterOptReboolDisqualify());
+        executions.add(new ExprFilterOptReboolDuplicateLike());
+        executions.add(new ExprFilterOptReboolDuplicateRegexp());
         return executions;
+    }
+
+    public static class ExprFilterOptReboolDuplicateLike implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(theString like '%' and theString like '%')";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("x", 0));
+            env.assertListenerInvoked("s0");
+
+            env.undeployAll();
+        }
+    }
+
+    public static class ExprFilterOptReboolDuplicateRegexp implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(theString regexp \"test.*\"\n" +
+                    "    and theString not regexp \".*\\\\.gov\"\n" +
+                    "    and theString not regexp \".*\\\\.org\")";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, "test.com", true);
+            sendAssert(env, "test.gov", false);
+            sendAssert(env, "test.org", false);
+            sendAssert(env, "x.com", false);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, String theString, boolean expected) {
+            env.sendEventBean(new SupportBean(theString, 0));
+            env.assertListenerInvokedFlag("s0", expected);
+        }
     }
 
     private static class ExprFilterOptReboolWithEquals implements RegressionExecution {

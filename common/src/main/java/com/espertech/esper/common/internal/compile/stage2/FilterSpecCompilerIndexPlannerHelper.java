@@ -41,6 +41,7 @@ import com.espertech.esper.common.internal.util.SimpleNumberCoercerFactory;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlanner.PROPERTY_NAME_BOOLEAN_EXPRESSION;
 
@@ -71,8 +72,11 @@ public class FilterSpecCompilerIndexPlannerHelper {
         }
 
         // Make filter parameter for each expression node, if it can be optimized
+        // Make sure rebool-expressions only are added once per rebool-expression
+        Set<String> reboolExpressions = new HashSet<>();
+        Function<String, Boolean> limitedExprExists = reboolExpression -> !reboolExpressions.add(reboolExpression);
         for (ExprNode constituent : constituents) {
-            FilterSpecPlanPathTripletForge triplet = FilterSpecCompilerIndexPlannerConstituent.makeFilterParam(constituent, performConditionPlanning, args.taggedEventTypes, args.arrayEventTypes, args.allTagNamesOrdered, args.statementRawInfo.getStatementName(), args.streamTypeService, args.statementRawInfo, args.compileTimeServices);
+            FilterSpecPlanPathTripletForge triplet = FilterSpecCompilerIndexPlannerConstituent.makeFilterParam(constituent, performConditionPlanning, limitedExprExists, args.taggedEventTypes, args.arrayEventTypes, args.allTagNamesOrdered, args.statementRawInfo.getStatementName(), args.streamTypeService, args.statementRawInfo, args.compileTimeServices);
             filterParamExprMap.put(constituent, triplet); // accepts null values as the expression may not be optimized
         }
 

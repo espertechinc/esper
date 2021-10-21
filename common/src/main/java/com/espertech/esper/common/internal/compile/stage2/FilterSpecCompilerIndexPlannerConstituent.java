@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.filterspec.FilterSpecCompilerAdvIndex
 import com.espertech.esper.common.internal.filterspec.FilterSpecParamForge;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerAdvancedIndex.handleAdvancedIndexDescProvider;
 import static com.espertech.esper.common.internal.compile.stage2.FilterSpecCompilerIndexPlannerBooleanLimited.handleBooleanLimited;
@@ -54,6 +55,7 @@ public class FilterSpecCompilerIndexPlannerConstituent {
      */
     protected static FilterSpecPlanPathTripletForge makeFilterParam(ExprNode constituent,
                                                                     boolean performConditionPlanning,
+                                                                    Function<String, Boolean> limitedExprExists,
                                                                     LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                                     LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
                                                                     LinkedHashSet<String> allTagNamesOrdered,
@@ -103,17 +105,17 @@ public class FilterSpecCompilerIndexPlannerConstituent {
         }
 
         if (constituent instanceof ExprOrNode && performConditionPlanning) {
-            return handleOrAlternateExpression((ExprOrNode) constituent, performConditionPlanning, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, streamTypeService, raw, services);
+            return handleOrAlternateExpression((ExprOrNode) constituent, performConditionPlanning, limitedExprExists, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, streamTypeService, raw, services);
         }
 
-        FilterSpecParamForge param = handleBooleanLimited(constituent, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, raw, services);
+        FilterSpecParamForge param = handleBooleanLimited(constituent, limitedExprExists, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, streamTypeService, raw, services);
         if (param != null) {
             return new FilterSpecPlanPathTripletForge(param, null);
         }
         return null;
     }
 
-    private static FilterSpecPlanPathTripletForge handleOrAlternateExpression(ExprOrNode orNode, boolean performConditionPlanning, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, StreamTypeService streamTypeService, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
+    private static FilterSpecPlanPathTripletForge handleOrAlternateExpression(ExprOrNode orNode, boolean performConditionPlanning, Function<String, Boolean> limitedExprExists, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTagNamesOrdered, String statementName, StreamTypeService streamTypeService, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
         List<ExprNode> valueExpressions = new ArrayList<>(orNode.getChildNodes().length);
         for (ExprNode child : orNode.getChildNodes()) {
             FilterSpecExprNodeVisitorValueLimitedExpr visitor = new FilterSpecExprNodeVisitorValueLimitedExpr();
@@ -134,7 +136,7 @@ public class FilterSpecCompilerIndexPlannerConstituent {
         }
         ExprNode constituent = constituents.get(0);
 
-        FilterSpecPlanPathTripletForge triplet = makeFilterParam(constituent, performConditionPlanning, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, streamTypeService, raw, services);
+        FilterSpecPlanPathTripletForge triplet = makeFilterParam(constituent, performConditionPlanning, limitedExprExists, taggedEventTypes, arrayEventTypes, allTagNamesOrdered, statementName, streamTypeService, raw, services);
         if (triplet == null) {
             return null;
         }
