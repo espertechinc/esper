@@ -65,7 +65,28 @@ public class ResultSetQueryTypeLocalGroupBy {
         execs.add(new ResultSetLocalEnumMethods(true));
         execs.add(new ResultSetLocalUngroupedAggAdditionalAndPlugin());
         execs.add(new ResultSetLocalMultikeyWArray());
+        execs.add(new ResultSetLocalUngroupedOnlyWGroupBy());
         return execs;
+    }
+
+    public static class ResultSetLocalUngroupedOnlyWGroupBy implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select" +
+                    " first(*, group_by:()).intPrimitive as c0 " +
+                    " from SupportBean#keepall " +
+                    "group by theString, intPrimitive";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendAssert(env, 1, 1);
+            sendAssert(env, 2, 1);
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, int intPrimitive, int expected) {
+            env.sendEventBean(new SupportBean("E" + intPrimitive, intPrimitive));
+            env.assertEqualsNew("s0", "c0", expected);
+        }
     }
 
     public static class ResultSetLocalMultikeyWArray implements RegressionExecution {

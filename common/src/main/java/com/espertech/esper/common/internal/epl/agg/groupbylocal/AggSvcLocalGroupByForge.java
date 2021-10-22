@@ -207,7 +207,7 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
         if (!hasGroupBy) {
             // not applicable
         } else {
-            if (!localGroupByPlan.getAllLevelsForges()[0].isDefaultLevel()) {
+            if (localGroupByPlan.getAllLevelsForges().length == 0 || !localGroupByPlan.getAllLevelsForges()[0].isDefaultLevel()) {
                 return;
             }
             int indexDefault = -1;
