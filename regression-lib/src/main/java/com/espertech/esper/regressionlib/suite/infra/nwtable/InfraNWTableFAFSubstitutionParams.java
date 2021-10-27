@@ -18,15 +18,12 @@ import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportJavaVersionUtil;
 import com.espertech.esper.common.internal.util.CollectionUtil;
-import com.espertech.esper.compiler.client.CompilerArguments;
-import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.util.IndexBackingTableInfo;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -75,16 +72,16 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
             env.compileDeploy("@public create window MyWindow#keepall as SupportBean", path);
 
             // invalid mix or named and unnamed
-            tryInvalidCompileFAF(env, path, "select ? as c0,?:a as c1 from MyWindow",
-                "Inconsistent use of substitution parameters, expecting all substitutions to either all provide a name or provide no name");
+            env.tryInvalidCompileFAF(path, "select ? as c0,?:a as c1 from MyWindow",
+                    "Inconsistent use of substitution parameters, expecting all substitutions to either all provide a name or provide no name");
 
             // keyword used for name
-            tryInvalidCompileFAF(env, path, "select ?:select from MyWindow",
-                "Incorrect syntax near 'select' (a reserved keyword) at line 1 column 9");
+            env.tryInvalidCompileFAF(path, "select ?:select from MyWindow",
+                    "Incorrect syntax near 'select' (a reserved keyword) at line 1 column 9");
 
             // invalid type incompatible
-            tryInvalidCompileFAF(env, path, "select ?:p0:int as c0, ?:p0:long from MyWindow",
-                "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
+            env.tryInvalidCompileFAF(path, "select ?:p0:int as c0, ?:p0:long from MyWindow",
+                    "Substitution parameter 'p0' incompatible type assignment between types 'Integer' and 'Long'");
 
             env.undeployAll();
         }
@@ -234,21 +231,21 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
 
             // various combinations
             runParameterizedQuery(env, compilePrepare("select * from MyInfra where theString in (?::string[]) and longPrimitive = 4000", path, env),
-                new Object[]{new String[]{"E3", "E4", "E8"}}, new String[]{"E4"});
+                    new Object[]{new String[]{"E3", "E4", "E8"}}, new String[]{"E4"});
             runParameterizedQuery(env, compilePrepare("select * from MyInfra where longPrimitive > 8000", path, env),
-                new Object[]{}, new String[]{"E9"});
+                    new Object[]{}, new String[]{"E9"});
             runParameterizedQuery(env, compilePrepare("select * from MyInfra where longPrimitive < ?::long", path, env),
-                new Object[]{2000L}, new String[]{"E0", "E1"});
+                    new Object[]{2000L}, new String[]{"E0", "E1"});
             runParameterizedQuery(env, compilePrepare("select * from MyInfra where longPrimitive between ?::int and ?::int", path, env),
-                new Object[]{2000, 4000}, new String[]{"E2", "E3", "E4"});
+                    new Object[]{2000, 4000}, new String[]{"E2", "E3", "E4"});
 
             env.undeployAll();
         }
 
         public String name() {
             return this.getClass().getSimpleName() + "{" +
-                "namedWindow=" + namedWindow +
-                '}';
+                    "namedWindow=" + namedWindow +
+                    '}';
         }
 
         public EnumSet<RegressionFlag> flags() {
@@ -259,13 +256,13 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static RegressionPath setupInfra(RegressionEnvironment env, boolean namedWindow) {
         RegressionPath path = new RegressionPath();
         String eplCreate = namedWindow ?
-            "@Name('TheInfra') @public create window MyInfra#keepall as select * from SupportBean" :
-            "@Name('TheInfra') @public create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
+                "@Name('TheInfra') @public create window MyInfra#keepall as select * from SupportBean" :
+                "@Name('TheInfra') @public create table MyInfra as (theString string primary key, intPrimitive int primary key, longPrimitive long)";
         env.compileDeploy(eplCreate, path);
         String eplInsert = namedWindow ?
-            "@Name('Insert') insert into MyInfra select * from SupportBean" :
-            "@Name('Insert') on SupportBean sb merge MyInfra mi where mi.theString = sb.theString and mi.intPrimitive=sb.intPrimitive" +
-                " when not matched then insert select theString, intPrimitive, longPrimitive";
+                "@Name('Insert') insert into MyInfra select * from SupportBean" :
+                "@Name('Insert') on SupportBean sb merge MyInfra mi where mi.theString = sb.theString and mi.intPrimitive=sb.intPrimitive" +
+                        " when not matched then insert select theString, intPrimitive, longPrimitive";
         env.compileDeploy(eplInsert, path);
 
         for (int i = 0; i < 10; i++) {
@@ -320,17 +317,6 @@ public class InfraNWTableFAFSubstitutionParams implements IndexBackingTableInfo 
     private static EPFireAndForgetPreparedQueryParameterized compilePrepare(String faf, RegressionPath path, RegressionEnvironment env) {
         EPCompiled compiled = env.compileFAF(faf, path);
         return env.runtime().getFireAndForgetService().prepareQueryWithParameters(compiled);
-    }
-
-    private static void tryInvalidCompileFAF(RegressionEnvironment env, RegressionPath path, String faf, String expected) {
-        try {
-            CompilerArguments args = new CompilerArguments(env.getConfiguration());
-            args.getPath().addAll(path.getCompileds());
-            env.getCompiler().compileQuery(faf, args);
-            fail();
-        } catch (EPCompileException ex) {
-            assertMessage(ex, expected);
-        }
     }
 
     private static void tryInvalidlyParameterized(RegressionEnvironment env, EPCompiled compiled, Consumer<EPFireAndForgetPreparedQueryParameterized> query, String message) {

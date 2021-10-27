@@ -483,4 +483,5 @@ public interface RegressionEnvironment {
 
     void tryInvalidCompile(String epl, String message);
     void tryInvalidCompile(RegressionPath path, String epl, String message);
+    void tryInvalidCompileFAF(RegressionPath path, String epl, String message);
 }

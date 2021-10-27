@@ -1764,12 +1764,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitFafInsert(EsperEPL2GrammarParser.FafInsertContext ctx) {
-        List<EsperEPL2GrammarParser.ExpressionContext> valueExprs = ctx.expressionList().expression();
-        for (EsperEPL2GrammarParser.ExpressionContext valueExpr : valueExprs) {
-            ExprNode expr = ASTExprHelper.exprCollectSubNodes(valueExpr, 0, astExprNodeMap).get(0);
-            statementSpec.getSelectClauseSpec().add(new SelectClauseExprRawSpec(expr, null, false));
-        }
-        statementSpec.setFireAndForgetSpec(new FireAndForgetSpecInsert(true));
+        List<List<ExprNode>> rows = ASTFireAndForgetHelper.walkInsertInto(ctx, astExprNodeMap);
+        statementSpec.setFireAndForgetSpec(new FireAndForgetSpecInsert(true, rows));
     }
 
     protected void end() throws ASTWalkException {
@@ -1784,7 +1780,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
         // detect insert-into fire-and-forget query
         if (statementSpec.getInsertIntoDesc() != null && statementSpec.getStreamSpecs().isEmpty() && statementSpec.getFireAndForgetSpec() == null) {
-            statementSpec.setFireAndForgetSpec(new FireAndForgetSpecInsert(false));
+            statementSpec.setFireAndForgetSpec(new FireAndForgetSpecInsert(false, Collections.emptyList()));
         }
 
         statementSpec.setSubstitutionParameters(substitutionParamNodes);
@@ -3180,5 +3176,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitClassIdentifierNoDimensions(EsperEPL2GrammarParser.ClassIdentifierNoDimensionsContext ctx) {
+    }
+
+    public void enterFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx) {
+    }
+
+    public void exitFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx) {
     }
 }

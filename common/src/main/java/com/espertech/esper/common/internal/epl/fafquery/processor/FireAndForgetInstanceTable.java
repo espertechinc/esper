@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.processor;
 
+import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
@@ -40,10 +41,24 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
 
     public EventBean[] processInsert(FAFQueryMethodIUDInsertInto insert) {
         TableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().writeLock(), instance.getAgentInstanceContext().getTableExprEvaluatorContext());
-        EventBean theEvent = insert.getInsertHelper().process(new EventBean[0], true, true, instance.getAgentInstanceContext());
-        AggregationRow aggs = instance.getTable().getAggregationRowFactory().make();
-        ((Object[]) theEvent.getUnderlying())[0] = aggs;
-        instance.addEvent(theEvent);
+
+        EventBean[] inserted = new EventBean[insert.getInsertHelpers().length];
+        for (int i = 0; i < insert.getInsertHelpers().length; i++) {
+            inserted[i] = insert.getInsertHelpers()[i].process(new EventBean[0], true, true, instance.getAgentInstanceContext());
+        }
+
+        try {
+            for (EventBean event : inserted) {
+                AggregationRow aggs = instance.getTable().getAggregationRowFactory().make();
+                ((Object[]) event.getUnderlying())[0] = aggs;
+                instance.addEvent(event);
+            }
+        } catch (EPException ex) {
+            for (EventBean event : inserted) {
+                instance.deleteEvent(event);
+            }
+            throw ex;
+        }
         return CollectionUtil.EVENTBEANARRAY_EMPTY;
     }
 

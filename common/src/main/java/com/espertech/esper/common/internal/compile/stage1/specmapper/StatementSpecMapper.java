@@ -204,7 +204,15 @@ public class StatementSpecMapper {
             raw.setFireAndForgetSpec(new FireAndForgetSpecDelete());
         } else if (fireAndForgetClause instanceof FireAndForgetInsert) {
             FireAndForgetInsert insert = (FireAndForgetInsert) fireAndForgetClause;
-            raw.setFireAndForgetSpec(new FireAndForgetSpecInsert(insert.isUseValuesKeyword()));
+            List<List<ExprNode>> rows = new ArrayList<>(insert.getRows().size());
+            for (List<Expression> row : insert.getRows()) {
+                List<ExprNode> nodes = new ArrayList<>(row.size());
+                for (Expression expr : row) {
+                    nodes.add(mapExpressionDeep(expr, mapContext));
+                }
+                rows.add(nodes);
+            }
+            raw.setFireAndForgetSpec(new FireAndForgetSpecInsert(insert.isUseValuesKeyword(), rows));
         } else if (fireAndForgetClause instanceof FireAndForgetUpdate) {
             FireAndForgetUpdate upd = (FireAndForgetUpdate) fireAndForgetClause;
             List<OnTriggerSetAssignment> assignments = new ArrayList<>();
@@ -300,7 +308,17 @@ public class StatementSpecMapper {
             model.setFireAndForgetClause(new FireAndForgetDelete());
         } else if (fireAndForgetSpec instanceof FireAndForgetSpecInsert) {
             FireAndForgetSpecInsert insert = (FireAndForgetSpecInsert) fireAndForgetSpec;
-            model.setFireAndForgetClause(new FireAndForgetInsert(insert.isUseValuesKeyword()));
+            List<List<Expression>> rows = new ArrayList<>(insert.getMultirow().size());
+            for (List<ExprNode> exprRow : insert.getMultirow()) {
+                List<Expression> row = new ArrayList<>(exprRow.size());
+                for (ExprNode expr : exprRow) {
+                    row.add(unmapExpressionDeep(expr, unmapContext));
+                }
+                rows.add(row);
+            }
+            FireAndForgetInsert spec = new FireAndForgetInsert(insert.isUseValuesKeyword());
+            spec.setRows(rows);
+            model.setFireAndForgetClause(spec);
         } else if (fireAndForgetSpec instanceof FireAndForgetSpecUpdate) {
             FireAndForgetSpecUpdate upd = (FireAndForgetSpecUpdate) fireAndForgetSpec;
             FireAndForgetUpdate faf = new FireAndForgetUpdate();

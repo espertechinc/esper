@@ -46,6 +46,10 @@ public class TestSuiteInfraNWTable extends TestCase {
         RegressionRunner.run(session, InfraNWTableFAFResolve.executions());
     }
 
+    public void testInfraNWTableFAFInsertMultirow() {
+        RegressionRunner.run(session, InfraNWTableFAFInsertMultirow.executions());
+    }
+
     public void testInfraNWTableInfraOnDelete() {
         RegressionRunner.run(session, InfraNWTableOnDelete.executions());
     }

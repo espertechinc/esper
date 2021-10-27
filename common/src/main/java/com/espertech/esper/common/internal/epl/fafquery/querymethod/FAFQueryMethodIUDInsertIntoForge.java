@@ -27,33 +27,32 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.ontrigger.InfraOnMergeHelperForge;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorFactory;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorForge;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessorUtil;
-import com.espertech.esper.common.internal.epl.resultset.select.core.SelectProcessorArgs;
+import com.espertech.esper.common.internal.epl.resultset.select.core.*;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.util.UuidGenerator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Starts and provides the stop method for EPL statements.
  */
 public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge {
+    private final static int MAX_MULTIROW = 1000;
 
-    private SelectExprProcessorForge insertHelper;
+    private SelectExprProcessorForge[] insertHelpers;
 
     public FAFQueryMethodIUDInsertIntoForge(StatementSpecCompiled specCompiled, Compilable compilable, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         super(associatedFromClause(specCompiled, services), compilable, statementRawInfo, services);
     }
 
     protected void initExec(String aliasName, StatementSpecCompiled spec, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-
-        List<SelectClauseElementCompiled> selectNoWildcard = InfraOnMergeHelperForge.compileSelectNoWildcard(UuidGenerator.generate(), Arrays.asList(spec.getSelectClauseCompiled().getSelectExprList()));
 
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(true);
 
@@ -71,8 +70,38 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
             }
         }
 
+        FireAndForgetSpecInsert insertSpec = (FireAndForgetSpecInsert) spec.getRaw().getFireAndForgetSpec();
+        if (insertSpec.getMultirow().isEmpty()) {
+            List<SelectClauseElementCompiled> selectNoWildcard = InfraOnMergeHelperForge.compileSelectNoWildcard(UuidGenerator.generate(), Arrays.asList(spec.getSelectClauseCompiled().getSelectExprList()));
+            SelectExprProcessorForge insert = initExecRow(selectNoWildcard, spec, assignedSequentialNames, validationContext, streamTypeService, statementRawInfo, services);
+            insertHelpers = new SelectExprProcessorForge[]{insert};
+        } else {
+            int numRows = insertSpec.getMultirow().size();
+            if (numRows > MAX_MULTIROW) {
+                throw new ExprValidationException("Insert-into number-of-rows exceeds the maximum of " + MAX_MULTIROW + " rows as the query provides " + numRows + " rows");
+            }
+            int count = 0;
+            insertHelpers = new SelectExprProcessorForge[insertSpec.getMultirow().size()];
+            for (List<ExprNode> row : insertSpec.getMultirow()) {
+                List<SelectClauseElementCompiled> selected = new ArrayList<>(row.size());
+                for (ExprNode expr : row) {
+                    selected.add(new SelectClauseExprCompiledSpec(expr, null, null, false));
+                }
+                try {
+                    insertHelpers[count++] = initExecRow(selected, spec, assignedSequentialNames, validationContext, streamTypeService, statementRawInfo, services);
+                } catch (ExprValidationException ex) {
+                    if (insertSpec.getMultirow().size() == 1) {
+                        throw ex;
+                    }
+                    throw new ExprValidationException("Failed to validate multi-row insert at row " + count + " of " + insertHelpers.length + ": " + ex.getMessage(), ex);
+                }
+            }
+        }
+    }
+
+    private SelectExprProcessorForge initExecRow(List<SelectClauseElementCompiled> select, StatementSpecCompiled spec, String[] assignedSequentialNames, ExprValidationContext validationContext, StreamTypeService streamTypeService, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
         int count = -1;
-        for (SelectClauseElementCompiled compiled : spec.getSelectClauseCompiled().getSelectExprList()) {
+        for (SelectClauseElementCompiled compiled : select) {
             count++;
             if (compiled instanceof SelectClauseExprCompiledSpec) {
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) compiled;
@@ -91,13 +120,14 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
                 }
             }
         }
+        SelectClauseElementCompiled[] selected = select.toArray(new SelectClauseElementCompiled[0]);
 
         EventType optionalInsertIntoEventType = processor.getEventTypeRSPInputEvents();
-        SelectProcessorArgs args = new SelectProcessorArgs(selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]), null,
+        SelectProcessorArgs args = new SelectProcessorArgs(selected, null,
                 false, optionalInsertIntoEventType, null, streamTypeService,
                 statementRawInfo.getOptionalContextDescriptor(),
                 true, spec.getAnnotations(), statementRawInfo, services);
-        insertHelper = SelectExprProcessorFactory.getProcessor(args, spec.getRaw().getInsertIntoDesc(), false).getForge();
+        return SelectExprProcessorFactory.getProcessor(args, spec.getRaw().getInsertIntoDesc(), false).getForge();
     }
 
     protected EPTypeClass typeOfMethod() {
@@ -105,8 +135,12 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
     }
 
     protected void makeInlineSpecificSetter(CodegenExpressionRef queryMethod, CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
-        CodegenExpressionNewAnonymousClass anonymousSelect = SelectExprProcessorUtil.makeAnonymous(insertHelper, method, symbols.getAddInitSvc(method), classScope);
-        method.getBlock().exprDotMethod(queryMethod, "setInsertHelper", anonymousSelect);
+        method.getBlock().declareVar(SelectExprProcessor.EPTYPEARRAY, "helpers", newArrayByLength(SelectExprProcessor.EPTYPE, constant(insertHelpers.length)));
+        for (int i = 0; i < insertHelpers.length; i++) {
+            CodegenExpressionNewAnonymousClass select = SelectExprProcessorUtil.makeAnonymous(insertHelpers[i], method, symbols.getAddInitSvc(method), classScope);
+            method.getBlock().assignArrayElement("helpers", constant(i), select);
+        }
+        method.getBlock().exprDotMethod(queryMethod, "setInsertHelpers", ref("helpers"));
     }
 
     private static StatementSpecCompiled associatedFromClause(StatementSpecCompiled statementSpec, StatementCompileTimeServices services) throws ExprValidationException {

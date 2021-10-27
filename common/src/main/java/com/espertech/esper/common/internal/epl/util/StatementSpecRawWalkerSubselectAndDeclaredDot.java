@@ -70,6 +70,14 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
                 assignment.getExpression().accept(visitor);
             }
         }
+        if (fireAndForgetSpec instanceof FireAndForgetSpecInsert) {
+            FireAndForgetSpecInsert insert = (FireAndForgetSpecInsert) fireAndForgetSpec;
+            for (List<ExprNode> row : insert.getMultirow()) {
+                for (ExprNode col : row) {
+                    col.accept(visitor);
+                }
+            }
+        }
     }
 
     public static void walkStreamSpecs(StatementSpecRaw spec, ExprNodeSubselectDeclaredDotVisitor visitor) throws ExprValidationException {

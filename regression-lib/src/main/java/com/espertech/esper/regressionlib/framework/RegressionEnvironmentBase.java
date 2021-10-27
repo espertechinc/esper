@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import static com.espertech.esper.regressionlib.framework.SupportMessageAssertUtil.assertMessage;
 import static com.espertech.esper.regressionlib.support.util.SupportAdminUtil.*;
 import static org.junit.Assert.*;
 
@@ -682,7 +683,7 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             compileWCheckedEx(epl);
             fail();
         } catch (EPCompileException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, message);
+            assertMessage(ex, message);
         }
     }
 
@@ -691,7 +692,18 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
             compileWCheckedEx(epl, path);
             fail();
         } catch (EPCompileException ex) {
-            SupportMessageAssertUtil.assertMessage(ex, message);
+            assertMessage(ex, message);
+        }
+    }
+
+    public void tryInvalidCompileFAF(RegressionPath path, String faf, String expected) {
+        try {
+            CompilerArguments args = new CompilerArguments(getConfiguration());
+            args.getPath().addAll(path.getCompileds());
+            getCompiler().compileQuery(faf, args);
+            fail();
+        } catch (EPCompileException ex) {
+            assertMessage(ex, expected);
         }
     }
 

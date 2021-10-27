@@ -476,14 +476,7 @@ public class EPStatementObjectModel implements Serializable {
                 FireAndForgetInsert insert = (FireAndForgetInsert) fireAndForgetClause;
                 insertInto.toEPL(writer, formatter, true);
                 if (insert.isUseValuesKeyword()) {
-                    writer.append("values (");
-                    String delimiter = "";
-                    for (SelectClauseElement element : selectClause.getSelectList()) {
-                        writer.write(delimiter);
-                        element.toEPLElement(writer);
-                        delimiter = ", ";
-                    }
-                    writer.append(")");
+                    insert.toEPL(writer);
                 } else {
                     selectClause.toEPL(writer, formatter, false, false);
                 }
@@ -796,6 +789,7 @@ public class EPStatementObjectModel implements Serializable {
 
     /**
      * Returns the inlined-classes provided as part of the EPL statement
+     *
      * @return inlined-classes
      */
     public List<ClassProvidedExpression> getClassProvidedExpressions() {
@@ -804,6 +798,7 @@ public class EPStatementObjectModel implements Serializable {
 
     /**
      * Sets the inlined-classes provided as part of the EPL statement
+     *
      * @param classProvidedExpressions inlined-classes
      */
     public void setClassProvidedExpressions(List<ClassProvidedExpression> classProvidedExpressions) {
@@ -866,6 +861,7 @@ public class EPStatementObjectModel implements Serializable {
 
     /**
      * Returns the create-class clause or null if not present.
+     *
      * @return create-class clause
      */
     public CreateClassClause getCreateClass() {
@@ -874,6 +870,7 @@ public class EPStatementObjectModel implements Serializable {
 
     /**
      * Sets the create-class clause or null if not present.
+     *
      * @param createClass create-class clause
      */
     public void setCreateClass(CreateClassClause createClass) {

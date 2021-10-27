@@ -21,17 +21,17 @@ import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprP
 public class FAFQueryMethodIUDInsertInto extends FAFQueryMethodIUDBase {
     public final static EPTypeClass EPTYPE = new EPTypeClass(FAFQueryMethodIUDInsertInto.class);
 
-    private SelectExprProcessor insertHelper;
+    private SelectExprProcessor[] insertHelpers;
 
-    public void setInsertHelper(SelectExprProcessor insertHelper) {
-        this.insertHelper = insertHelper;
+    public void setInsertHelpers(SelectExprProcessor[] insertHelpers) {
+        this.insertHelpers = insertHelpers;
     }
 
     protected EventBean[] execute(FireAndForgetInstance fireAndForgetProcessorInstance) {
         return fireAndForgetProcessorInstance.processInsert(this);
     }
 
-    public SelectExprProcessor getInsertHelper() {
-        return insertHelper;
+    public SelectExprProcessor[] getInsertHelpers() {
+        return insertHelpers;
     }
 }

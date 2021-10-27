@@ -712,6 +712,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCreateDataflow(EsperEPL2GrammarParser.CreateDataflowContext ctx) { }
 	/**
 	 * {@inheritDoc}

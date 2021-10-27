@@ -10,14 +10,24 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+
+import java.util.List;
+
 public class FireAndForgetSpecInsert extends FireAndForgetSpec {
     private final boolean useValuesKeyword;
+    private final List<List<ExprNode>> multirow;
 
-    public FireAndForgetSpecInsert(boolean useValuesKeyword) {
+    public FireAndForgetSpecInsert(boolean useValuesKeyword, List<List<ExprNode>> multirow) {
         this.useValuesKeyword = useValuesKeyword;
+        this.multirow = multirow;
     }
 
     public boolean isUseValuesKeyword() {
         return useValuesKeyword;
+    }
+
+    public List<List<ExprNode>> getMultirow() {
+        return multirow;
     }
 }

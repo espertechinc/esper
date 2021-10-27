@@ -19,6 +19,7 @@ import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMeth
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodIUDUpdate;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowInstance;
+import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.view.core.Viewable;
 
 import java.lang.annotation.Annotation;
@@ -45,16 +46,27 @@ public class FireAndForgetInstanceNamedWindow extends FireAndForgetInstance {
 
     public EventBean[] processInsert(FAFQueryMethodIUDInsertInto insert) {
         AgentInstanceContext ctx = processorInstance.getTailViewInstance().getAgentInstanceContext();
-        try {
-            EventBean event = insert.getInsertHelper().process(new EventBean[0], true, true, ctx);
-            EventBean[] inserted = new EventBean[]{event};
 
+        EventBean[] inserted;
+        if (insert.getInsertHelpers().length == 1) {
+            EventBean event = insert.getInsertHelpers()[0].process(CollectionUtil.EVENTBEANARRAY_EMPTY, true, true, ctx);
+            inserted = new EventBean[]{event};
+        } else {
+            inserted = new EventBean[insert.getInsertHelpers().length];
+            for (int i = 0; i < insert.getInsertHelpers().length; i++) {
+                EventBean event = insert.getInsertHelpers()[i].process(CollectionUtil.EVENTBEANARRAY_EMPTY, true, true, ctx);
+                inserted[i] = event;
+            }
+        }
+
+        try {
             StatementAgentInstanceLock ailock = ctx.getAgentInstanceLock();
             ailock.acquireWriteLock();
             try {
                 processorInstance.getRootViewInstance().update(inserted, null);
             } catch (EPException ex) {
                 processorInstance.getRootViewInstance().update(null, inserted);
+                throw ex;
             } finally {
                 ailock.releaseWriteLock();
             }

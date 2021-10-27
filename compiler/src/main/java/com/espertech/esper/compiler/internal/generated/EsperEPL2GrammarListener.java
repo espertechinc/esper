@@ -590,6 +590,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitFafInsert(EsperEPL2GrammarParser.FafInsertContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#fafInsertRow}.
+	 * @param ctx the parse tree
+	 */
+	void enterFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#fafInsertRow}.
+	 * @param ctx the parse tree
+	 */
+	void exitFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#createDataflow}.
 	 * @param ctx the parse tree
 	 */

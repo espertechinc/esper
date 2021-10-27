@@ -451,7 +451,9 @@ fafDelete : DELETE FROM classIdentifier (AS identOrTicked | identOrTicked)? (WHE
 
 fafUpdate : UPDATE updateDetails;
 
-fafInsert : INSERT insertIntoExpr VALUES LPAREN expressionList RPAREN;
+fafInsert : INSERT insertIntoExpr VALUES fafInsertRow (COMMA fafInsertRow)*;
+
+fafInsertRow : LPAREN expressionList RPAREN;
 
 createDataflow : CREATE DATAFLOW name=IDENT AS? gopList;
 	
