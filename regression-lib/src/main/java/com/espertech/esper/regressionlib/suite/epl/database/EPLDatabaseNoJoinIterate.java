@@ -26,7 +26,19 @@ public class EPLDatabaseNoJoinIterate {
         List<RegressionExecution> execs = new ArrayList<>();
         execs.add(new EPLDatabaseExpressionPoll());
         execs.add(new EPLDatabaseVariablesPoll());
+        execs.add(new EPLDatabaseNullSelect());
         return execs;
+    }
+
+    private static class EPLDatabaseNullSelect implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from sql:MyDBPlain ['select null as a from mytesttable where myint = 1']";
+            env.compileDeploy(epl);
+
+            env.assertPropsPerRowIterator("s0", new String[]{"a"}, null);
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLDatabaseExpressionPoll implements RegressionExecution {

@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.util;
 
 
+import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.ClassForNameProviderDefault;
 import junit.framework.TestCase;
@@ -53,13 +54,15 @@ public class TestSQLTypeMapUtil extends TestCase {
         testData.put(Types.DATALINK, java.net.URL.class);
 
         for (int type : testData.keySet()) {
-            EPTypeClass result = SQLTypeMapUtil.sqlTypeToClass(type, null, ClassForNameProviderDefault.INSTANCE);
+            EPTypeClass result = (EPTypeClass) SQLTypeMapUtil.sqlTypeToClass(type, null, ClassForNameProviderDefault.INSTANCE);
             log.debug(".testMapping Mapping " + type + " to " + result.getType().getSimpleName());
             assertEquals(testData.get(type), result.getType());
         }
 
-        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.JAVA_OBJECT, "java.lang.String", ClassForNameProviderDefault.INSTANCE).getType());
-        assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.DISTINCT, "java.lang.String", ClassForNameProviderDefault.INSTANCE).getType());
+        for (int type : new int[] {Types.JAVA_OBJECT, Types.DISTINCT}) {
+            EPTypeClass typeClass = (EPTypeClass) SQLTypeMapUtil.sqlTypeToClass(type, "java.lang.String", ClassForNameProviderDefault.INSTANCE);
+            assertEquals(String.class, typeClass.getType());
+        }
     }
 
     public void testMappingInvalid() {

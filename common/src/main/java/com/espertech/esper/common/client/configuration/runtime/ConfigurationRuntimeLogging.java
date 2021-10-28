@@ -20,7 +20,7 @@ public class ConfigurationRuntimeLogging implements Serializable {
 
     private boolean enableExecutionDebug;
     private boolean enableTimerDebug;
-    private boolean enableLockActivity; // TODO XML and JavaDoc
+    private boolean enableLockActivity;
     private String auditPattern;
 
     /**

@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.common.internal.util;
 
-import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPType;
+import com.espertech.esper.common.client.type.EPTypeNull;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.ClassForNameProvider;
 
@@ -67,7 +68,7 @@ public class SQLTypeMapUtil {
      * @param classForNameProvider class-for-classname lookup
      * @return Java class for JDBC sql types
      */
-    public static EPTypeClass sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider) {
+    public static EPType sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider) {
         if ((sqlType == Types.BOOLEAN) ||
                 (sqlType == Types.BIT)) {
             return EPTypePremade.BOOLEANBOXED.getEPType();
@@ -143,6 +144,9 @@ public class SQLTypeMapUtil {
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Cannot load class for sql type " + sqlType + " and class " + className);
             }
+        }
+        if (sqlType == Types.NULL) {
+            return EPTypeNull.INSTANCE;
         }
         throw new IllegalArgumentException("Cannot map java.sql.Types type " + sqlType);
     }
