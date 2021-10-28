@@ -272,7 +272,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         }
         TimerService timerService = new TimerServiceImpl(epRuntime.getURI(), msecTimerResolution);
 
-        StatementAgentInstanceLockFactory statementAgentInstanceLockFactory = new StatementAgentInstanceLockFactoryImpl(configs.getRuntime().getExecution().isFairlock(), configs.getRuntime().getExecution().isDisableLocking());
+        StatementAgentInstanceLockFactory statementAgentInstanceLockFactory = new StatementAgentInstanceLockFactoryImpl(configs.getRuntime().getExecution().isFairlock(), configs.getRuntime().getExecution().isDisableLocking(), configs.getRuntime().getLogging().isEnableLockActivity());
 
         EventTableIndexService eventTableIndexService = makeEventTableIndexService(epServicesHA.getRuntimeExtensionServices());
         ExpressionResultCacheService expressionResultCacheSharable = new ExpressionResultCacheService(configs.getRuntime().getExecution().getDeclaredExprValueCacheSize());

@@ -28,6 +28,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.util.DOMUtil.*;
 
@@ -242,17 +243,16 @@ public class ConfigurationRuntimeParser {
         while (nodeIterator.hasNext()) {
             Element subElement = nodeIterator.next();
             if (subElement.getNodeName().equals("execution-path")) {
-                String valueText = getRequiredAttribute(subElement, "enabled");
-                Boolean value = Boolean.parseBoolean(valueText);
-                runtime.getLogging().setEnableExecutionDebug(value);
+                parseAttrEnabled(subElement, flag -> runtime.getLogging().setEnableExecutionDebug(flag));
             }
             if (subElement.getNodeName().equals("timer-debug")) {
-                String valueText = getRequiredAttribute(subElement, "enabled");
-                Boolean value = Boolean.parseBoolean(valueText);
-                runtime.getLogging().setEnableTimerDebug(value);
+                parseAttrEnabled(subElement, flag -> runtime.getLogging().setEnableTimerDebug(flag));
             }
             if (subElement.getNodeName().equals("audit")) {
                 runtime.getLogging().setAuditPattern(getOptionalAttribute(subElement, "pattern"));
+            }
+            if (subElement.getNodeName().equals("lock-activity")) {
+                parseAttrEnabled(subElement, flag -> runtime.getLogging().setEnableLockActivity(flag));
             }
         }
     }
@@ -430,6 +430,12 @@ public class ConfigurationRuntimeParser {
             }
         }
         return list;
+    }
+
+    private static void parseAttrEnabled(Element element, Consumer<Boolean> consumer) {
+        String valueText = getRequiredAttribute(element, "enabled");
+        boolean value = Boolean.parseBoolean(valueText);
+        consumer.accept(value);
     }
 
     private static class ThreadPoolConfig {

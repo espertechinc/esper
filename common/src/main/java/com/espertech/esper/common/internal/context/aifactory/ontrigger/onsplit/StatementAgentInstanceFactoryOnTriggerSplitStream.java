@@ -68,6 +68,6 @@ public class StatementAgentInstanceFactoryOnTriggerSplitStream extends Statement
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {
-        return AgentInstanceUtil.newLock(statementContext);
+        return AgentInstanceUtil.newLock(statementContext, agentInstanceId);
     }
 }

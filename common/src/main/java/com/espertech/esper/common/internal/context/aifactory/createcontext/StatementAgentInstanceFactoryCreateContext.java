@@ -81,6 +81,6 @@ public class StatementAgentInstanceFactoryCreateContext implements StatementAgen
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {
-        return AgentInstanceUtil.newLock(statementContext);
+        return AgentInstanceUtil.newLock(statementContext, agentInstanceId);
     }
 }

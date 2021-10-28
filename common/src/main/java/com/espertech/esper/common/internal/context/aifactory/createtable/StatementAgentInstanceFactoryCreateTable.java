@@ -135,6 +135,6 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {
-        return AgentInstanceUtil.newLock(statementContext);
+        return AgentInstanceUtil.newLock(statementContext, agentInstanceId);
     }
 }

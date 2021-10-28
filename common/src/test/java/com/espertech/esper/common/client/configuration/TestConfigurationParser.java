@@ -131,6 +131,7 @@ public class TestConfigurationParser extends TestCase {
         assertFalse(runtime.getLogging().isEnableExecutionDebug());
         assertTrue(runtime.getLogging().isEnableTimerDebug());
         assertNull(runtime.getLogging().getAuditPattern());
+        assertFalse(runtime.getLogging().isEnableLockActivity());
         assertEquals(15000, runtime.getVariables().getMsecVersionRelease());
         assertNull(runtime.getPatterns().getMaxSubexpressions());
         assertTrue(runtime.getPatterns().isMaxSubexpressionPreventStart());
@@ -567,6 +568,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(1234567, runtime.getThreading().getInternalTimerMsecResolution());
         assertTrue(runtime.getLogging().isEnableExecutionDebug());
         assertFalse(runtime.getLogging().isEnableTimerDebug());
+        assertTrue(runtime.getLogging().isEnableLockActivity());
         assertEquals("[%u] %m", runtime.getLogging().getAuditPattern());
         assertEquals(30000, runtime.getVariables().getMsecVersionRelease());
         assertEquals(3L, (long) runtime.getPatterns().getMaxSubexpressions());

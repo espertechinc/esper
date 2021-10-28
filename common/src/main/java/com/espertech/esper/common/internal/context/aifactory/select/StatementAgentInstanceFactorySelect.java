@@ -133,7 +133,7 @@ public class StatementAgentInstanceFactorySelect implements StatementAgentInstan
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {
-        return AgentInstanceUtil.newLock(statementContext);
+        return AgentInstanceUtil.newLock(statementContext, agentInstanceId);
     }
 
     public StatementAgentInstanceFactorySelectResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {

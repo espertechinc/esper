@@ -50,7 +50,7 @@ public class DataflowInstantiator {
         StatementContext statementContext = dataflow.getStatementContext();
 
         // allocate agent instance context
-        StatementAgentInstanceLock lock = statementContext.getStatementAgentInstanceLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect(), statementContext.getStatementType());
+        StatementAgentInstanceLock lock = statementContext.getStatementAgentInstanceLockFactory().getStatementLock(statementContext.getStatementName(), agentInstanceId, statementContext.getAnnotations(), statementContext.isStatelessSelect(), statementContext.getStatementType());
         EPStatementAgentInstanceHandle handle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceId, lock);
         AuditProvider auditProvider = statementContext.getStatementInformationals().getAuditProvider();
         InstrumentationCommon instrumentationProvider = statementContext.getStatementInformationals().getInstrumentationProvider();

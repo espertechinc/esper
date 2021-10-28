@@ -195,7 +195,7 @@ public class StatementAgentInstanceFactoryCreateNW implements StatementAgentInst
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {
-        return AgentInstanceUtil.newLock(statementContext);
+        return AgentInstanceUtil.newLock(statementContext, agentInstanceId);
     }
 
     private void handleInsertFrom(AgentInstanceContext agentInstanceContext, NamedWindowInstance processorInstance) {

@@ -57,6 +57,11 @@ public class AuditPath {
     public static final String AUDIT_LOG = "com.espertech.esper.audit";
 
     /**
+     * Logger destination for the Lock activity logging.
+     */
+    public static final String LOCK_LOG = "com.espertech.esper.lock";
+
+    /**
      * Public access.
      */
     public static boolean isAuditEnabled = false;

@@ -91,4 +91,8 @@ public class TestSuiteClientRuntimeWConfig extends TestCase {
         RegressionRunner.run(session, new ClientRuntimeSubscriberDisallowed());
         session.destroy();
     }
+
+    public void testClientRuntimeLockLogging() {
+        RegressionRunner.runConfigurable(new ClientRuntimeLockLogging());
+    }
 }

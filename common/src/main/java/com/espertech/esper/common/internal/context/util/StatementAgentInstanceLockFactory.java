@@ -22,10 +22,11 @@ public interface StatementAgentInstanceLockFactory {
      * Create lock for statement
      *
      * @param statementName is the statement name
+     * @param cpid          context partition id (also known as agent instance id)
      * @param annotations   annotation
      * @param stateless     indicator whether stateless
      * @param statementType statement type
      * @return lock
      */
-    public StatementAgentInstanceLock getStatementLock(String statementName, Annotation[] annotations, boolean stateless, StatementType statementType);
+    public StatementAgentInstanceLock getStatementLock(String statementName, int cpid, Annotation[] annotations, boolean stateless, StatementType statementType);
 }

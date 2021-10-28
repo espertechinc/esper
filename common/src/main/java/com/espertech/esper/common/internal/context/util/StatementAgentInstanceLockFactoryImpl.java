@@ -22,13 +22,15 @@ import java.lang.annotation.Annotation;
 public class StatementAgentInstanceLockFactoryImpl implements StatementAgentInstanceLockFactory {
     private final boolean fairlocks;
     private final boolean disableLocking;
+    private final boolean lockLogging;
 
-    public StatementAgentInstanceLockFactoryImpl(boolean fairlocks, boolean disableLocking) {
+    public StatementAgentInstanceLockFactoryImpl(boolean fairlocks, boolean disableLocking, boolean lockLogging) {
         this.fairlocks = fairlocks;
         this.disableLocking = disableLocking;
+        this.lockLogging = lockLogging;
     }
 
-    public StatementAgentInstanceLock getStatementLock(String statementName, Annotation[] annotations, boolean stateless, StatementType statementType) {
+    public StatementAgentInstanceLock getStatementLock(String statementName, int cpid, Annotation[] annotations, boolean stateless, StatementType statementType) {
         if (statementType.isOnTriggerInfra()) {
             throw new UnsupportedOperationException("Operation not available for statement type " + statementType);
         }
@@ -36,6 +38,9 @@ public class StatementAgentInstanceLockFactoryImpl implements StatementAgentInst
         if (disableLocking || foundNoLock || stateless) {
             return new StatementAgentInstanceLockNoLockImpl(statementName);
         }
-        return new StatementAgentInstanceLockRW(fairlocks);
+        if (!lockLogging) {
+            return new StatementAgentInstanceLockRW(fairlocks);
+        }
+        return new StatementAgentInstanceLockRWLogging(fairlocks, statementName, cpid);
     }
 }

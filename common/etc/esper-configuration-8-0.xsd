@@ -636,6 +636,7 @@
 				<xs:element ref="esper:execution-path" minOccurs="0"/>
 				<xs:element ref="esper:timer-debug" minOccurs="0"/>
 				<xs:element ref="esper:audit" minOccurs="0"/>
+				<xs:element ref="esper:lock-activity" minOccurs="0"/>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
@@ -724,6 +725,11 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="timer-debug">
+		<xs:complexType>
+			<xs:attribute name="enabled" type="xs:boolean" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="lock-activity">
 		<xs:complexType>
 			<xs:attribute name="enabled" type="xs:boolean" use="required"/>
 		</xs:complexType>

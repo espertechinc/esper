@@ -20,6 +20,7 @@ public class ConfigurationRuntimeLogging implements Serializable {
 
     private boolean enableExecutionDebug;
     private boolean enableTimerDebug;
+    private boolean enableLockActivity; // TODO XML and JavaDoc
     private String auditPattern;
 
     /**
@@ -98,5 +99,31 @@ public class ConfigurationRuntimeLogging implements Serializable {
      */
     public void setAuditPattern(String auditPattern) {
         this.auditPattern = auditPattern;
+    }
+
+    /**
+     * Returns indicator whether lock activity logging is enabled.
+     * <p>
+     *     When lock logging is enabled the runtime logs all activity
+     *     in respect to context partition read-write locks
+     *     at INFO level to the log destination "com.espertech.esper.lock".
+     * </p>
+     * @return indicator
+     */
+    public boolean isEnableLockActivity() {
+        return enableLockActivity;
+    }
+
+    /**
+     * Sets indicator whether lock activity logging is enabled.
+     * <p>
+     *     When lock logging is enabled the runtime logs all activity
+     *     in respect to context partition read-write locks
+     *     at INFO level to the log destination "com.espertech.esper.lock".
+     * </p>
+     * @param enableLockActivity parameter
+     */
+    public void setEnableLockActivity(boolean enableLockActivity) {
+        this.enableLockActivity = enableLockActivity;
     }
 }

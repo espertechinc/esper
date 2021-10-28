@@ -240,8 +240,8 @@ public class AgentInstanceUtil {
         return false;
     }
 
-    public static StatementAgentInstanceLock newLock(StatementContext statementContext) {
-        return statementContext.getStatementAgentInstanceLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect(), statementContext.getStatementType());
+    public static StatementAgentInstanceLock newLock(StatementContext statementContext, int cpid) {
+        return statementContext.getStatementAgentInstanceLockFactory().getStatementLock(statementContext.getStatementName(), cpid, statementContext.getAnnotations(), statementContext.isStatelessSelect(), statementContext.getStatementType());
     }
 
     public static class AgentInstanceFinalizedMgmtCallback implements AgentInstanceMgmtCallback {
