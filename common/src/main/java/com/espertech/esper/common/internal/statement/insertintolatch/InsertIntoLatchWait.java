@@ -18,10 +18,11 @@ import org.slf4j.LoggerFactory;
  * A suspend-and-notify implementation of a latch for use in guaranteeing delivery between
  * a single event produced by a single statement and consumable by another statement.
  */
-public class InsertIntoLatchWait {
+public class InsertIntoLatchWait implements InsertIntoLatch {
     private static final Logger log = LoggerFactory.getLogger(InsertIntoLatchWait.class);
 
     // The earlier latch is the latch generated before this latch
+    private final InsertIntoLatchFactory factory;
     private InsertIntoLatchWait earlier;
     private long msecTimeout;
     private EventBean payload;
@@ -37,7 +38,8 @@ public class InsertIntoLatchWait {
      * @param msecTimeout the timeout after which delivery occurs
      * @param payload     the payload is an event to deliver
      */
-    public InsertIntoLatchWait(InsertIntoLatchWait earlier, long msecTimeout, EventBean payload) {
+    public InsertIntoLatchWait(InsertIntoLatchFactory factory, InsertIntoLatchWait earlier, long msecTimeout, EventBean payload) {
+        this.factory = factory;
         this.earlier = earlier;
         this.msecTimeout = msecTimeout;
         this.payload = payload;
@@ -49,6 +51,7 @@ public class InsertIntoLatchWait {
      * @param factory the latch factory
      */
     public InsertIntoLatchWait(InsertIntoLatchFactory factory) {
+        this.factory = factory;
         isCompleted = true;
         earlier = null;
         msecTimeout = 0;
@@ -109,5 +112,17 @@ public class InsertIntoLatchWait {
         }
         earlier = null;
         later = null;
+    }
+
+    public InsertIntoLatchFactory getFactory() {
+        return factory;
+    }
+
+    public void setEvent(EventBean event) {
+        this.payload = event;
+    }
+
+    public EventBean getEvent() {
+        return payload;
     }
 }

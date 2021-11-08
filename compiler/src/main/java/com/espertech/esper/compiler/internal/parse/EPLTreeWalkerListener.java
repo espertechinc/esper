@@ -340,7 +340,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         List<SelectClauseElementRaw> expressions = new ArrayList<>(statementSpec.getSelectClauseSpec().getSelectExprList());
         statementSpec.getSelectClauseSpec().getSelectExprList().clear();
         List<String> columsList = ASTUtil.getIdentList(ctx.columnList());
-        mergeInsertNoMatch = new OnTriggerMergeActionInsert(null, null, columsList, expressions);
+        mergeInsertNoMatch = new OnTriggerMergeActionInsert(null, null, columsList, expressions, null);
     }
 
     public void exitMergeUnmatchedItem(EsperEPL2GrammarParser.MergeUnmatchedItemContext ctx) {
@@ -550,6 +550,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                     insertIntoDesc.add(node.getText());
                 }
             }
+        }
+
+        if (ctx.insertIntoEventPrecedence() != null) {
+            ExprNode node = ASTExprHelper.exprCollectSubNodes(ctx.insertIntoEventPrecedence(), 0, astExprNodeMap).get(0);
+            insertIntoDesc.setEventPrecedence(node);
         }
 
         statementSpec.setInsertIntoDesc(insertIntoDesc);
@@ -1740,7 +1745,12 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
         String optionalInsertName = mergeInsertContext.classIdentifier() != null ? ASTUtil.unescapeClassIdent(mergeInsertContext.classIdentifier()) : null;
         List<String> columsList = ASTUtil.getIdentList(mergeInsertContext.columnList());
-        mergeActions.add(new OnTriggerMergeActionInsert(whereCond, optionalInsertName, columsList, expressions));
+
+        ExprNode eventPrecedence = null;
+        if (mergeInsertContext.insertIntoEventPrecedence() != null) {
+            eventPrecedence = ASTExprHelper.exprCollectSubNodes(mergeInsertContext.insertIntoEventPrecedence(), 0, astExprNodeMap).get(0);
+        }
+        mergeActions.add(new OnTriggerMergeActionInsert(whereCond, optionalInsertName, columsList, expressions, eventPrecedence));
     }
 
     private void handleChainedFunction(ParserRuleContext parentCtx, EsperEPL2GrammarParser.ChainableElementsContext chainedCtx, ExprNode childExpression) {
@@ -3182,5 +3192,11 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitFafInsertRow(EsperEPL2GrammarParser.FafInsertRowContext ctx) {
+    }
+
+    public void enterInsertIntoEventPrecedence(EsperEPL2GrammarParser.InsertIntoEventPrecedenceContext ctx) {
+    }
+
+    public void exitInsertIntoEventPrecedence(EsperEPL2GrammarParser.InsertIntoEventPrecedenceContext ctx) {
     }
 }

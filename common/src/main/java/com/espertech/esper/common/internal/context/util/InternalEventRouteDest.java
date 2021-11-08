@@ -18,12 +18,12 @@ import com.espertech.esper.common.client.EventBean;
 public interface InternalEventRouteDest {
     /**
      * Route the event such that the event is processed as required.
-     *
-     * @param theEvent        to route
+     *  @param theEvent        to route
      * @param statementHandle provides statement resources
      * @param addToFront      whether to add to the front of the work queue
+     * @param precedence event precedence
      */
-    public void route(EventBean theEvent, EPStatementHandle statementHandle, boolean addToFront);
+    public void route(EventBean theEvent, EPStatementHandle statementHandle, boolean addToFront, int precedence);
 
     public void setInternalEventRouter(InternalEventRouter internalEventRouter);
 

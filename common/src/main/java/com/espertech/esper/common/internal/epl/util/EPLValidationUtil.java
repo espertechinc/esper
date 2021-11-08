@@ -14,6 +14,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeNull;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.*;
@@ -21,6 +22,7 @@ import com.espertech.esper.common.internal.epl.expression.time.node.ExprTimePeri
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzer;
 import com.espertech.esper.common.internal.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraphForge;
+import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableCompileTimeResolver;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
@@ -32,8 +34,33 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.espertech.esper.common.internal.epl.expression.core.ExprNodeOrigin.EVENTPRECEDENCE;
+
 public class EPLValidationUtil {
     private static final Logger log = LoggerFactory.getLogger(EPLValidationUtil.class);
+
+    public static ExprNode validateEventPrecedence(boolean insertingIntoTable, ExprNode eventPrecedence, EventType resultEventType, StatementRawInfo statementRawInfo, StatementCompileTimeServices services) throws ExprValidationException {
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(resultEventType, null, true);
+        ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, statementRawInfo, services).build();
+        ExprNode validated;
+        try {
+            validated = ExprNodeUtilityValidate.getValidatedSubtree(EVENTPRECEDENCE, eventPrecedence, validationContext);
+        } catch (ExprValidationException ex) {
+            throw new ExprValidationException("Failed to validate event-precedence considering only the output event type '" + resultEventType.getMetadata().getName() + "': " + ex.getMessage() + " (NOTE: this validation only considers the result event itself and not incoming streams)", ex);
+        }
+
+        EPType returned = JavaClassHelper.getBoxedType(validated.getForge().getEvaluationType());
+        if (!EPTypePremade.INTEGERBOXED.getEPType().equals(returned)) {
+            throw new ExprValidationException("Event-precedence expected an expression returning an integer value but the expression '" +
+                    ExprNodeUtilityPrint.toExpressionStringMinPrecedenceSafe(eventPrecedence) +
+                    "' returns " + returned.getTypeName());
+        }
+
+        if (insertingIntoTable) {
+            throw new ExprValidationException("Event-precedence is not allowed when inserting into a table");
+        }
+        return validated;
+    }
 
     public static void validateParametersTypePredefined(ExprNode[] expressions, String invocableName, String invocableCategory, EPLExpressionParamType type) throws ExprValidationException {
         for (int i = 0; i < expressions.length; i++) {

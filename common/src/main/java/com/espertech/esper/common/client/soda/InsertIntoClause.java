@@ -25,6 +25,7 @@ public class InsertIntoClause implements Serializable {
     private StreamSelector streamSelector;
     private String streamName;
     private List<String> columnNames;
+    private Expression eventPrecedence;
 
     /**
      * Ctor.
@@ -62,10 +63,22 @@ public class InsertIntoClause implements Serializable {
      * @return clause
      */
     public static InsertIntoClause create(String streamName, String[] columns, StreamSelector streamSelector) {
+        return create(streamName, columns, streamSelector, null);
+    }
+
+    /**
+     * Creates the insert-into clause.
+     *
+     * @param streamName     the name of the stream to insert into
+     * @param columns        is a list of column names
+     * @param streamSelector selects the stream
+     * @return clause
+     */
+    public static InsertIntoClause create(String streamName, String[] columns, StreamSelector streamSelector, Expression precedence) {
         if (streamSelector == StreamSelector.RSTREAM_ISTREAM_BOTH) {
             throw new IllegalArgumentException("Insert into only allows istream or rstream selection, not both");
         }
-        return new InsertIntoClause(streamName, Arrays.asList(columns), streamSelector);
+        return new InsertIntoClause(streamName, Arrays.asList(columns), streamSelector, precedence);
     }
 
     /**
@@ -99,9 +112,22 @@ public class InsertIntoClause implements Serializable {
      * @param streamSelector selector for either insert stream (the default) or remove stream or both
      */
     public InsertIntoClause(String streamName, List<String> columnNames, StreamSelector streamSelector) {
+        this(streamName, columnNames, streamSelector, null);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param streamName     is the stream name to insert into
+     * @param columnNames    column names
+     * @param streamSelector selector for either insert stream (the default) or remove stream or both
+     * @param eventPrecedence event precedence or null if none provided
+     */
+    public InsertIntoClause(String streamName, List<String> columnNames, StreamSelector streamSelector, Expression eventPrecedence) {
         this.streamSelector = streamSelector;
         this.streamName = streamName;
         this.columnNames = columnNames;
+        this.eventPrecedence = eventPrecedence;
     }
 
     /**
@@ -168,6 +194,24 @@ public class InsertIntoClause implements Serializable {
     }
 
     /**
+     * Returns null when no event-precedence is specified for the insert-into,
+     * or returns the expression returning the event-precedence
+     * @return event-precedence expression
+     */
+    public Expression getEventPrecedence() {
+        return eventPrecedence;
+    }
+
+    /**
+     * Set to null when no event-precedence is specified for the insert-into,
+     * or set an expression returning the event-precedence
+     * @param eventPrecedence event-precedence expression
+     */
+    public void setEventPrecedence(Expression eventPrecedence) {
+        this.eventPrecedence = eventPrecedence;
+    }
+
+    /**
      * Renders the clause in textual representation.
      *
      * @param writer     to output to
@@ -196,5 +240,10 @@ public class InsertIntoClause implements Serializable {
             writer.write(")");
         }
         writer.write(" ");
+        if (eventPrecedence != null) {
+            writer.write("event-precedence(");
+            eventPrecedence.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
+            writer.write(") ");
+        }
     }
 }

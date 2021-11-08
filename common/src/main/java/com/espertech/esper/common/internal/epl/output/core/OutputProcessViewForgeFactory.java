@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryFactory;
 import com.espertech.esper.common.internal.epl.output.condition.OutputConditionFactoryForge;
@@ -68,16 +69,21 @@ public class OutputProcessViewForgeFactory {
             SelectClauseStreamSelectorEnum insertIntoStreamSelector = null;
             TableMetaData table = null;
 
+            ExprNode eventPrecedence = null;
             if (insertIntoDesc != null) {
                 insertIntoStreamSelector = insertIntoDesc.getStreamSelector();
                 table = services.getTableCompileTimeResolver().resolve(statementSpec.getRaw().getInsertIntoDesc().getEventTypeName());
                 if (table != null) {
                     EPLValidationUtil.validateContextName(true, table.getTableName(), table.getOptionalContextName(), statementSpec.getRaw().getOptionalContextName(), true);
                 }
+
+                if (insertIntoDesc.getEventPrecedence() != null) {
+                    eventPrecedence = EPLValidationUtil.validateEventPrecedence(table != null, insertIntoDesc.getEventPrecedence(), resultEventType, statementRawInfo, services);
+                }
             }
 
             boolean audit = AuditEnum.INSERT.getAudit(statementSpec.getAnnotations()) != null;
-            outputStrategyPostProcessForge = new OutputStrategyPostProcessForge(isRouted, insertIntoStreamSelector, selectStreamSelector, routeToFront, table, audit);
+            outputStrategyPostProcessForge = new OutputStrategyPostProcessForge(isRouted, insertIntoStreamSelector, selectStreamSelector, routeToFront, table, audit, eventPrecedence);
         }
 
         MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(isDistinct, resultEventType, statementRawInfo, SerdeCompileTimeResolverNonHA.INSTANCE);

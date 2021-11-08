@@ -71,7 +71,7 @@ public class InsertIntoLatchFactory {
             currentLatchSpin = nextLatch;
             return nextLatch;
         } else {
-            InsertIntoLatchWait nextLatch = new InsertIntoLatchWait(currentLatchWait, msecWait, payload);
+            InsertIntoLatchWait nextLatch = new InsertIntoLatchWait(this, currentLatchWait, msecWait, payload);
             currentLatchWait.setLater(nextLatch);
             currentLatchWait = nextLatch;
             return nextLatch;

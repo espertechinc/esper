@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementResultService;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowRootViewInstance;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
@@ -38,14 +39,16 @@ public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
     private final boolean audit;
     private final boolean isDelete;
     private final TableInstance tableInstanceInsertInto;
+    private final ExprEvaluator eventPrecedence;
 
-    public OnExprViewNamedWindowSelect(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance rootView, AgentInstanceContext agentInstanceContext, InfraOnSelectViewFactory parent, ResultSetProcessor resultSetProcessor, boolean audit, boolean isDelete, TableInstance tableInstanceInsertInto) {
+    public OnExprViewNamedWindowSelect(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance rootView, AgentInstanceContext agentInstanceContext, InfraOnSelectViewFactory parent, ResultSetProcessor resultSetProcessor, boolean audit, boolean isDelete, TableInstance tableInstanceInsertInto, ExprEvaluator eventPrecedence) {
         super(lookupStrategy, rootView, agentInstanceContext);
         this.parent = parent;
         this.resultSetProcessor = resultSetProcessor;
         this.audit = audit;
         this.isDelete = isDelete;
         this.tableInstanceInsertInto = tableInstanceInsertInto;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
@@ -63,7 +66,7 @@ public class OnExprViewNamedWindowSelect extends OnExprViewNameWindowBase {
         EventBean[] newData = pair != null ? pair.getFirst() : null;
 
         // handle distinct and insert
-        newData = InfraOnSelectUtil.handleDistintAndInsert(newData, parent, agentInstanceContext, tableInstanceInsertInto, audit);
+        newData = InfraOnSelectUtil.handleDistintAndInsert(newData, parent, agentInstanceContext, tableInstanceInsertInto, audit, eventPrecedence);
 
         // The on-select listeners receive the events selected
         if ((newData != null) && (newData.length > 0)) {

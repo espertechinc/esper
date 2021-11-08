@@ -42,6 +42,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.update.TableUpdateStrategyFactory;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForge;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForgeFactory;
+import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.util.UuidGenerator;
@@ -182,7 +183,13 @@ public class InfraOnMergeHelperForge {
         boolean audit = AuditEnum.INSERT.getAudit(statementRawInfo.getAnnotations()) != null;
 
         TableMetaData insertIntoTable = services.getTableCompileTimeResolver().resolve(insertIntoDesc.getEventTypeName());
-        return new InfraOnMergeActionInsForge(filterEval, insertHelperForge, insertIntoTable, audit, route);
+
+        ExprNode eventPrecedence = null;
+        if (desc.getEventPrecedence() != null) {
+            eventPrecedence = EPLValidationUtil.validateEventPrecedence(insertIntoTable != null, desc.getEventPrecedence(), insertHelperForge.getResultEventType(), statementRawInfo, services);
+        }
+
+        return new InfraOnMergeActionInsForge(filterEval, insertHelperForge, insertIntoTable, audit, route, eventPrecedence);
     }
 
     public static List<SelectClauseElementCompiled> compileSelectNoWildcard(String triggeringStreamName, List<SelectClauseElementCompiled> selectClause) {

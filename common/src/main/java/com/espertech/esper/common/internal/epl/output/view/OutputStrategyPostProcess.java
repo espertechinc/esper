@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.table.core.TableEvalLockUtil;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.event.core.NaturalEventBean;
@@ -72,26 +73,24 @@ public class OutputStrategyPostProcess {
         for (EventBean routed : events) {
             if (routed instanceof NaturalEventBean) {
                 NaturalEventBean natural = (NaturalEventBean) routed;
-                if (audit) {
-                    agentInstanceContext.getAuditProvider().insert(natural.getOptionalSynthetic(), agentInstanceContext);
-                }
-                if (tableInstance != null) {
-                    TableEvalLockUtil.obtainLockUnless(tableInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
-                    tableInstance.addEventUnadorned(natural.getOptionalSynthetic());
-                } else {
-                    agentInstanceContext.getInternalEventRouter().route(natural.getOptionalSynthetic(), agentInstanceContext, parent.isAddToFront());
-                }
+                route(natural.getOptionalSynthetic(), exprEvaluatorContext);
             } else {
-                if (audit) {
-                    agentInstanceContext.getAuditProvider().insert(routed, agentInstanceContext);
-                }
-                if (tableInstance != null) {
-                    TableEvalLockUtil.obtainLockUnless(tableInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
-                    tableInstance.addEventUnadorned(routed);
-                } else {
-                    agentInstanceContext.getInternalEventRouter().route(routed, agentInstanceContext, parent.isAddToFront());
-                }
+                route(routed, exprEvaluatorContext);
             }
+        }
+    }
+
+    private void route(EventBean routed, ExprEvaluatorContext exprEvaluatorContext) {
+        if (audit) {
+            agentInstanceContext.getAuditProvider().insert(routed, agentInstanceContext);
+        }
+        if (tableInstance != null) {
+            TableEvalLockUtil.obtainLockUnless(tableInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
+            tableInstance.addEventUnadorned(routed);
+        } else {
+            // Evaluate event precedence
+            int precedence = ExprNodeUtilityEvaluate.evaluateIntOptional(parent.getEventPrecedence(), routed, 0, agentInstanceContext);
+            agentInstanceContext.getInternalEventRouter().route(routed, agentInstanceContext, parent.isAddToFront(), precedence);
         }
     }
 }

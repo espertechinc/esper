@@ -56,6 +56,12 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
         // walk streams
         walkStreamSpecs(spec, visitor);
 
+        if (spec.getInsertIntoDesc() != null) {
+            if (spec.getInsertIntoDesc().getEventPrecedence() != null) {
+                spec.getInsertIntoDesc().getEventPrecedence().accept(visitor);
+            }
+        }
+
         // walk FAF
         walkFAFSpec(spec.getFireAndForgetSpec(), visitor);
     }
@@ -137,6 +143,11 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
                 if (split.getSelectClause().getSelectExprList() != null) {
                     walkSubselectSelectClause(split.getSelectClause().getSelectExprList(), visitor);
                 }
+                if (split.getInsertInto() != null) {
+                    if (split.getInsertInto().getEventPrecedence() != null) {
+                        split.getInsertInto().getEventPrecedence().accept(visitor);
+                    }
+                }
             }
         } else if (onTriggerDesc instanceof OnTriggerMergeDesc) {
             OnTriggerMergeDesc merge = (OnTriggerMergeDesc) onTriggerDesc;
@@ -156,14 +167,20 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
                         }
                     }
                     if (action instanceof OnTriggerMergeActionInsert) {
-                        OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
-                        walkSubselectSelectClause(insert.getSelectClause(), visitor);
+                        walkOnMergeActionInsert((OnTriggerMergeActionInsert) action, visitor);
                     }
                 }
             }
             if (merge.getOptionalInsertNoMatch() != null) {
-                walkSubselectSelectClause(merge.getOptionalInsertNoMatch().getSelectClause(), visitor);
+                walkOnMergeActionInsert(merge.getOptionalInsertNoMatch(), visitor);
             }
+        }
+    }
+
+    private static void walkOnMergeActionInsert(OnTriggerMergeActionInsert action, ExprNodeSubselectDeclaredDotVisitor visitor) {
+        walkSubselectSelectClause(action.getSelectClause(), visitor);
+        if (action.getEventPrecedence() != null) {
+            action.getEventPrecedence().accept(visitor);
         }
     }
 

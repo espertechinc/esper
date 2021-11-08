@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.common.internal.compile.stage1.spec;
 
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class InsertIntoDesc implements Serializable {
     private final SelectClauseStreamSelectorEnum streamSelector;
     private final String eventTypeName;
     private List<String> columnNames;
+    private ExprNode eventPrecedence;
     private static final long serialVersionUID = 6204369134039715720L;
 
     /**
@@ -70,6 +73,14 @@ public class InsertIntoDesc implements Serializable {
      */
     public void add(String columnName) {
         columnNames.add(columnName);
+    }
+
+    public ExprNode getEventPrecedence() {
+        return eventPrecedence;
+    }
+
+    public void setEventPrecedence(ExprNode eventPrecedence) {
+        this.eventPrecedence = eventPrecedence;
     }
 
     public static InsertIntoDesc fromColumns(String streamName, List<String> columns) {

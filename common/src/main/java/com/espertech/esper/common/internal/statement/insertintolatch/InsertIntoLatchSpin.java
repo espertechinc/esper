@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
  * A spin-locking implementation of a latch for use in guaranteeing delivery between
  * a single event produced by a single statement and consumable by another statement.
  */
-public class InsertIntoLatchSpin {
+public class InsertIntoLatchSpin implements InsertIntoLatch {
     private static final Logger log = LoggerFactory.getLogger(InsertIntoLatchSpin.class);
 
     // The earlier latch is the latch generated before this latch
-    private InsertIntoLatchFactory factory;
+    private final InsertIntoLatchFactory factory;
     private InsertIntoLatchSpin earlier;
-    private long msecTimeout;
+    private final long msecTimeout;
     private EventBean payload;
 
     private volatile boolean isCompleted;
@@ -94,5 +94,17 @@ public class InsertIntoLatchSpin {
     public void done() {
         isCompleted = true;
         earlier = null;
+    }
+
+    public InsertIntoLatchFactory getFactory() {
+        return factory;
+    }
+
+    public EventBean getEvent() {
+        return payload;
+    }
+
+    public void setEvent(EventBean event) {
+        this.payload = event;
     }
 }

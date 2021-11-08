@@ -38,6 +38,7 @@ import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForge;
 import com.espertech.esper.common.internal.epl.updatehelper.EventBeanUpdateHelperForgeFactory;
+import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.event.core.EventTypeSPI;
 import com.espertech.esper.common.internal.fabric.FabricCharge;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -121,18 +122,22 @@ public class OnTriggerWindowUtil {
             TableMetaData optionalInsertIntoTable = null;
             InsertIntoDesc insertIntoDesc = base.getStatementSpec().getRaw().getInsertIntoDesc();
             boolean addToFront = false;
+            ExprNode eventPrecedence = null;
             if (insertIntoDesc != null) {
                 insertInto = true;
                 optionalInsertIntoTable = services.getTableCompileTimeResolver().resolve(insertIntoDesc.getEventTypeName());
                 NamedWindowMetaData optionalInsertIntoNamedWindow = services.getNamedWindowCompileTimeResolver().resolve(insertIntoDesc.getEventTypeName());
                 addToFront = optionalInsertIntoNamedWindow != null || optionalInsertIntoTable != null;
+                if (insertIntoDesc.getEventPrecedence() != null) {
+                    eventPrecedence = EPLValidationUtil.validateEventPrecedence(optionalInsertIntoTable != null, insertIntoDesc.getEventPrecedence(), resultSetProcessor.getResultEventType(), base.getStatementRawInfo(), services);
+                }
             }
 
             boolean selectAndDelete = planDesc.getOnTriggerDesc().isDeleteAndSelect();
             boolean distinct = base.getStatementSpec().getSelectClauseCompiled().isDistinct();
             MultiKeyPlan distinctMultiKeyPlan = MultiKeyPlanner.planMultiKeyDistinct(distinct, outputEventType, base.getStatementRawInfo(), services.getSerdeResolver());
             additionalForgeables.addAll(distinctMultiKeyPlan.getMultiKeyForgeables());
-            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct, distinctMultiKeyPlan.getClassRef());
+            forge = new StatementAgentInstanceFactoryOnTriggerInfraSelectForge(activator, outputEventType, subselectForges, tableAccessForges, namedWindow, table, queryPlan, classNameRSP, insertInto, addToFront, optionalInsertIntoTable, selectAndDelete, distinct, distinctMultiKeyPlan.getClassRef(), eventPrecedence);
         } else {
             StatementSpecCompiled defaultSelectAllSpec = new StatementSpecCompiled();
             defaultSelectAllSpec.getSelectClauseCompiled().setSelectExprList(new SelectClauseElementWildcard());

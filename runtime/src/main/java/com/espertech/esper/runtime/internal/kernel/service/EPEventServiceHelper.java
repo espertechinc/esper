@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerExceptionType;
 import com.espertech.esper.common.client.hook.expr.EventBeanService;
 import com.espertech.esper.common.internal.collection.ArrayBackedCollection;
-import com.espertech.esper.common.internal.collection.DualWorkQueue;
 import com.espertech.esper.common.internal.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.common.internal.context.util.EPStatementHandleCallbackSchedule;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
@@ -117,7 +116,6 @@ public class EPEventServiceHelper {
     public static ThreadLocal<EPEventServiceThreadLocalEntry> allocateThreadLocals(boolean isPrioritized, String runtimeURI, Configuration configuration, EventBeanService eventBeanService, ExceptionHandlingService exceptionHandlingService, SchedulingService schedulingService, TimeZone timeZone, TimeAbacus timeAbacus, VariableManagementService variableManagementService) {
         ExpressionResultCacheService expressionResultCacheService = new ExpressionResultCacheService(configuration.getRuntime().getExecution().getDeclaredExprValueCacheSize());
         return ThreadLocal.withInitial(() -> {
-            DualWorkQueue<Object> dualWorkQueue = new DualWorkQueue<>();
             ArrayBackedCollection<FilterHandle> filterHandles = new ArrayBackedCollection<>(100);
             ArrayBackedCollection<ScheduleHandle> scheduleHandles = new ArrayBackedCollection<>(100);
 
@@ -132,7 +130,26 @@ public class EPEventServiceHelper {
             }
 
             ExprEvaluatorContext runtimeFilterAndDispatchTimeContext = new EPEventServiceExprEvaluatorContext(runtimeURI, eventBeanService, exceptionHandlingService, expressionResultCacheService, schedulingService, timeZone, timeAbacus, variableManagementService);
-            return new EPEventServiceThreadLocalEntry(dualWorkQueue, filterHandles, scheduleHandles, matchesPerStmt, schedulesPerStmt, runtimeFilterAndDispatchTimeContext);
+
+            WorkQueue workQueue;
+            boolean eventPrecedence = configuration.getRuntime().getExecution().isPrecedenceEnabled();
+            boolean insertIntoLatching = configuration.getRuntime().getThreading().isInsertIntoDispatchPreserveOrder();
+            if (!eventPrecedence) {
+                if (insertIntoLatching) {
+                    // the default work queue may or may not latch depending on statement stateless ascpect and lock-type configuration
+                    workQueue = new WorkQueueNoPrecedenceMayLatch();
+                } else {
+                    workQueue = new WorkQueueNoPrecedenceNoLatch();
+                }
+            } else {
+                if (!insertIntoLatching) {
+                    workQueue = new WorkQueueWPrecedenceNoLatch();
+                } else {
+                    workQueue = new WorkQueueWPrecedenceMayLatch();
+                }
+            }
+
+            return new EPEventServiceThreadLocalEntry(workQueue, filterHandles, scheduleHandles, matchesPerStmt, schedulesPerStmt, runtimeFilterAndDispatchTimeContext);
         });
     }
 }

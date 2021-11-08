@@ -32,13 +32,15 @@ public class OnSplitItemForge {
     private final ResultSetProcessorDesc resultSetProcessorDesc;
     private final PropertyEvaluatorForge propertyEvaluator;
     private String resultSetProcessorClassName;
+    private final ExprNode eventPrecedence;
 
-    public OnSplitItemForge(ExprNode whereClause, boolean isNamedWindowInsert, TableMetaData insertIntoTable, ResultSetProcessorDesc resultSetProcessorDesc, PropertyEvaluatorForge propertyEvaluator) {
+    public OnSplitItemForge(ExprNode whereClause, boolean isNamedWindowInsert, TableMetaData insertIntoTable, ResultSetProcessorDesc resultSetProcessorDesc, PropertyEvaluatorForge propertyEvaluator, ExprNode eventPrecedence) {
         this.whereClause = whereClause;
         this.isNamedWindowInsert = isNamedWindowInsert;
         this.insertIntoTable = insertIntoTable;
         this.resultSetProcessorDesc = resultSetProcessorDesc;
         this.propertyEvaluator = propertyEvaluator;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public ExprNode getWhereClause() {
@@ -82,6 +84,7 @@ public class OnSplitItemForge {
                 .exprDotMethod(ref("eval"), "setInsertIntoTable", insertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(insertIntoTable, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("eval"), "setRspFactoryProvider", CodegenExpressionBuilder.newInstance(resultSetProcessorClassName, symbols.getAddInitSvc(method)))
                 .exprDotMethod(ref("eval"), "setPropertyEvaluator", propertyEvaluator == null ? constantNull() : propertyEvaluator.make(method, symbols, classScope))
+                .exprDotMethod(ref("eval"), "setEventPrecedence", eventPrecedence == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(eventPrecedence.getForge(), method, this.getClass(), classScope))
                 .methodReturn(ref("eval"));
         return localMethod(method);
     }

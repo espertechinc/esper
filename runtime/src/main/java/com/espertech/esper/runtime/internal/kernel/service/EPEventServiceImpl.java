@@ -11,9 +11,9 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.*;
+import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntime;
 import com.espertech.esper.common.client.hook.exception.ExceptionHandlerExceptionType;
 import com.espertech.esper.common.internal.collection.ArrayBackedCollection;
-import com.espertech.esper.common.internal.collection.DualWorkQueue;
 import com.espertech.esper.common.internal.context.util.*;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.event.arr.EventSenderObjectArray;
@@ -64,7 +64,7 @@ import static com.espertech.esper.runtime.internal.kernel.service.EPEventService
  * Implements runtime interface. Also accepts timer callbacks for synchronizing time events with regular events
  * sent in.
  */
-public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRouteDest, TimerCallback, EPRuntimeEventProcessWrapped {
+public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRouteDest, TimerCallback, EPRuntimeEventProcessWrapped, EPEventServiceQueueProcessor {
     protected static final Logger log = LoggerFactory.getLogger(EPEventServiceImpl.class);
     public static final int MAX_FILTER_FAULT_COUNT = 10;
 
@@ -72,7 +72,6 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
     private boolean inboundThreading;
     private boolean routeThreading;
     private boolean timerThreading;
-    private boolean isLatchStatementInsertStream;
     private boolean isUsingExternalClocking;
     protected boolean isPrioritized;
     protected volatile UnmatchedListener unmatchedListener;
@@ -91,9 +90,10 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         this.inboundThreading = services.getThreadingService().isInboundThreading();
         this.routeThreading = services.getThreadingService().isRouteThreading();
         this.timerThreading = services.getThreadingService().isTimerThreading();
-        isLatchStatementInsertStream = this.services.getRuntimeSettingsService().getConfigurationRuntime().getThreading().isInsertIntoDispatchPreserveOrder();
-        isUsingExternalClocking = !this.services.getRuntimeSettingsService().getConfigurationRuntime().getThreading().isInternalTimerEnabled();
-        isPrioritized = services.getRuntimeSettingsService().getConfigurationRuntime().getExecution().isPrioritized();
+
+        ConfigurationRuntime runtimeConfig = services.getRuntimeSettingsService().getConfigurationRuntime();
+        isUsingExternalClocking = !runtimeConfig.getThreading().isInternalTimerEnabled();
+        isPrioritized = runtimeConfig.getExecution().isPrioritized();
         routedInternal = new AtomicLong();
         routedExternal = new AtomicLong();
 
@@ -314,36 +314,22 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
     }
 
     public void routeEventBean(EventBean theEvent) {
-        threadLocals.get().getDualWorkQueue().getBackQueue().addLast(theEvent);
+        threadLocals.get().getWorkQueue().add(theEvent);
     }
 
     // Internal route of events via insert-into, holds a statement lock
-    public void route(EventBean theEvent, EPStatementHandle epStatementHandle, boolean addToFront) {
+    public void route(EventBean theEvent, EPStatementHandle epStatementHandle, boolean addToFront, int precedence) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qRouteBetweenStmt(theEvent, epStatementHandle, addToFront);
         }
 
-        DualWorkQueue<Object> threadWorkQueue = threadLocals.get().getDualWorkQueue();
         if (theEvent instanceof NaturalEventBean) {
             theEvent = ((NaturalEventBean) theEvent).getOptionalSynthetic();
         }
         routedInternal.incrementAndGet();
 
-        if (isLatchStatementInsertStream) {
-            if (addToFront) {
-                Object latch = epStatementHandle.getInsertIntoFrontLatchFactory().newLatch(theEvent);
-                threadWorkQueue.getFrontQueue().addLast(latch);
-            } else {
-                Object latch = epStatementHandle.getInsertIntoBackLatchFactory().newLatch(theEvent);
-                threadWorkQueue.getBackQueue().addLast(latch);
-            }
-        } else {
-            if (addToFront) {
-                threadWorkQueue.getFrontQueue().addLast(theEvent);
-            } else {
-                threadWorkQueue.getBackQueue().addLast(theEvent);
-            }
-        }
+        WorkQueue threadWorkQueue = threadLocals.get().getWorkQueue();
+        threadWorkQueue.add(theEvent, epStatementHandle, addToFront, precedence);
 
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aRouteBetweenStmt();
@@ -396,15 +382,15 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
      * Works off the thread's work queue.
      */
     public void processThreadWorkQueue() {
-        DualWorkQueue queues = threadLocals.get().getDualWorkQueue();
+        WorkQueue queues = threadLocals.get().getWorkQueue();
 
-        if (queues.getFrontQueue().isEmpty()) {
+        if (queues.isFrontEmpty()) {
             boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched) {
                 // Dispatch results to listeners
                 dispatch();
 
-                if (!queues.getFrontQueue().isEmpty()) {
+                if (!queues.isFrontEmpty()) {
                     processThreadWorkQueueFront(queues);
                 }
             }
@@ -412,38 +398,20 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
             processThreadWorkQueueFront(queues);
         }
 
-        Object item;
-        while ((item = queues.getBackQueue().poll()) != null) {
-            if (item instanceof InsertIntoLatchSpin) {
-                processThreadWorkQueueLatchedSpin((InsertIntoLatchSpin) item);
-            } else if (item instanceof InsertIntoLatchWait) {
-                processThreadWorkQueueLatchedWait((InsertIntoLatchWait) item);
-            } else {
-                processThreadWorkQueueUnlatched(item);
-            }
-
+        while (queues.processBack(this)) {
             boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched) {
                 dispatch();
             }
 
-            if (!queues.getFrontQueue().isEmpty()) {
+            if (!queues.isFrontEmpty()) {
                 processThreadWorkQueueFront(queues);
             }
         }
     }
 
-    private void processThreadWorkQueueFront(DualWorkQueue queues) {
-        Object item;
-        while ((item = queues.getFrontQueue().poll()) != null) {
-            if (item instanceof InsertIntoLatchSpin) {
-                processThreadWorkQueueLatchedSpin((InsertIntoLatchSpin) item);
-            } else if (item instanceof InsertIntoLatchWait) {
-                processThreadWorkQueueLatchedWait((InsertIntoLatchWait) item);
-            } else {
-                processThreadWorkQueueUnlatched(item);
-            }
-
+    private void processThreadWorkQueueFront(WorkQueue queues) {
+        while (queues.processFront(this)) {
             boolean haveDispatched = services.getNamedWindowDispatchService().dispatch();
             if (haveDispatched) {
                 dispatch();
@@ -451,7 +419,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         }
     }
 
-    private void processThreadWorkQueueLatchedWait(InsertIntoLatchWait insertIntoLatch) {
+    public void processThreadWorkQueueLatchedWait(InsertIntoLatchWait insertIntoLatch) {
         // wait for the latch to complete
         EventBean eventBean = insertIntoLatch.await();
 
@@ -475,7 +443,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         dispatch();
     }
 
-    private void processThreadWorkQueueLatchedSpin(InsertIntoLatchSpin insertIntoLatch) {
+    public void processThreadWorkQueueLatchedSpin(InsertIntoLatchSpin insertIntoLatch) {
         // wait for the latch to complete
         EventBean eventBean = insertIntoLatch.await();
 
@@ -499,7 +467,7 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
         dispatch();
     }
 
-    private void processThreadWorkQueueUnlatched(Object item) {
+    public void processThreadWorkQueueUnlatched(Object item) {
         EventBean eventBean;
         if (item instanceof EventBean) {
             eventBean = (EventBean) item;
@@ -1140,6 +1108,6 @@ public class EPEventServiceImpl implements EPEventServiceSPI, InternalEventRoute
                 return;
             }
         }
-        tlEntry.getDualWorkQueue().getBackQueue().addLast(theEvent);
+        tlEntry.getWorkQueue().add(theEvent);
     }
 }

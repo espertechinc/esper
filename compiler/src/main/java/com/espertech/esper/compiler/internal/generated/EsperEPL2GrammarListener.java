@@ -940,6 +940,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitInsertIntoExpr(EsperEPL2GrammarParser.InsertIntoExprContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#insertIntoEventPrecedence}.
+	 * @param ctx the parse tree
+	 */
+	void enterInsertIntoEventPrecedence(EsperEPL2GrammarParser.InsertIntoEventPrecedenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#insertIntoEventPrecedence}.
+	 * @param ctx the parse tree
+	 */
+	void exitInsertIntoEventPrecedence(EsperEPL2GrammarParser.InsertIntoEventPrecedenceContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#columnList}.
 	 * @param ctx the parse tree
 	 */

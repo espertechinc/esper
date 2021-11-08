@@ -139,6 +139,7 @@ public class TestConfigurationParser extends TestCase {
         assertTrue(runtime.getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(TimeSourceType.MILLI, runtime.getTimeSource().getTimeSourceType());
         assertFalse(runtime.getExecution().isPrioritized());
+        assertFalse(runtime.getExecution().isPrecedenceEnabled());
         assertFalse(runtime.getExecution().isDisableLocking());
         assertEquals(FilterServiceProfile.READMOSTLY, runtime.getExecution().getFilterServiceProfile());
         assertEquals(1, runtime.getExecution().getDeclaredExprValueCacheSize());
@@ -594,6 +595,7 @@ public class TestConfigurationParser extends TestCase {
 
         assertEquals(TimeSourceType.NANO, runtime.getTimeSource().getTimeSourceType());
         assertTrue(runtime.getExecution().isPrioritized());
+        assertTrue(runtime.getExecution().isPrecedenceEnabled());
         assertTrue(runtime.getExecution().isFairlock());
         assertTrue(runtime.getExecution().isDisableLocking());
         assertEquals(FilterServiceProfile.READWRITE, runtime.getExecution().getFilterServiceProfile());

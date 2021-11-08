@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.collection.OneEventCollection;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationRow;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.resultset.select.core.SelectExprProcessor;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
@@ -27,13 +28,15 @@ public class InfraOnMergeActionIns extends InfraOnMergeAction {
     private final Table insertIntoTable;
     private final boolean audit;
     private final boolean route;
+    private final ExprEvaluator eventPrecedence;
 
-    public InfraOnMergeActionIns(ExprEvaluator optionalFilter, SelectExprProcessor insertHelper, Table insertIntoTable, boolean audit, boolean route) {
+    public InfraOnMergeActionIns(ExprEvaluator optionalFilter, SelectExprProcessor insertHelper, Table insertIntoTable, boolean audit, boolean route, ExprEvaluator eventPrecedence) {
         super(optionalFilter);
         this.insertHelper = insertHelper;
         this.insertIntoTable = insertIntoTable;
         this.audit = audit;
         this.route = route;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public void apply(EventBean matchingEvent, EventBean[] eventsPerStream, OneEventCollection newData, OneEventCollection oldData, AgentInstanceContext agentInstanceContext) {
@@ -53,7 +56,16 @@ public class InfraOnMergeActionIns extends InfraOnMergeAction {
         if (audit) {
             agentInstanceContext.getAuditProvider().insert(theEvent, agentInstanceContext);
         }
-        agentInstanceContext.getInternalEventRouter().route(theEvent, agentInstanceContext, false);
+
+        int precedence = 0;
+        if (eventPrecedence != null) {
+            Integer result = (Integer) eventPrecedence.evaluate(new EventBean[] {theEvent}, true, agentInstanceContext);
+            if (result != null) {
+                precedence = result;
+            }
+        }
+
+        agentInstanceContext.getInternalEventRouter().route(theEvent, agentInstanceContext, false, precedence);
     }
 
     public void apply(EventBean matchingEvent, EventBean[] eventsPerStream, TableInstance tableStateInstance, OnExprViewTableChangeHandler changeHandlerAdded, OnExprViewTableChangeHandler changeHandlerRemoved, AgentInstanceContext agentInstanceContext) {
@@ -78,7 +90,10 @@ public class InfraOnMergeActionIns extends InfraOnMergeAction {
             agentInstanceContext.getAuditProvider().insert(theEvent, agentInstanceContext);
         }
 
-        agentInstanceContext.getInternalEventRouter().route(theEvent, agentInstanceContext, false);
+        // Evaluate event precedence
+        int precedence = ExprNodeUtilityEvaluate.evaluateIntOptional(eventPrecedence, theEvent, 0, agentInstanceContext);
+
+        agentInstanceContext.getInternalEventRouter().route(theEvent, agentInstanceContext, false, precedence);
     }
 
     public String getName() {

@@ -17,6 +17,7 @@ import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.OnTriggerType;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementResultService;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
@@ -31,15 +32,17 @@ public class OnExprViewTableSelect extends OnExprViewTableBase {
     private final boolean audit;
     private final boolean deleteAndSelect;
     private final TableInstance tableInstanceInsertInto;
+    private final ExprEvaluator eventPrecedence;
 
     public OnExprViewTableSelect(SubordWMatchExprLookupStrategy lookupStrategy, TableInstance tableInstance, AgentInstanceContext agentInstanceContext,
-                                 ResultSetProcessor resultSetProcessor, InfraOnSelectViewFactory parent, boolean audit, boolean deleteAndSelect, TableInstance tableInstanceInsertInto) {
+                                 ResultSetProcessor resultSetProcessor, InfraOnSelectViewFactory parent, boolean audit, boolean deleteAndSelect, TableInstance tableInstanceInsertInto, ExprEvaluator eventPrecedence) {
         super(lookupStrategy, tableInstance, agentInstanceContext, deleteAndSelect);
         this.parent = parent;
         this.resultSetProcessor = resultSetProcessor;
         this.audit = audit;
         this.deleteAndSelect = deleteAndSelect;
         this.tableInstanceInsertInto = tableInstanceInsertInto;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
@@ -57,7 +60,7 @@ public class OnExprViewTableSelect extends OnExprViewTableBase {
         EventBean[] newData = pair != null ? pair.getFirst() : null;
 
         // handle distinct and insert
-        newData = InfraOnSelectUtil.handleDistintAndInsert(newData, parent, agentInstanceContext, tableInstanceInsertInto, audit);
+        newData = InfraOnSelectUtil.handleDistintAndInsert(newData, parent, agentInstanceContext, tableInstanceInsertInto, audit, eventPrecedence);
 
         // The on-select listeners receive the events selected
         if ((newData != null) && (newData.length > 0)) {

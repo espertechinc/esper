@@ -25,6 +25,7 @@ import com.espertech.esper.common.internal.context.aifactory.ontrigger.ontrigger
 import com.espertech.esper.common.internal.context.util.ContextPropertyRegistry;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForge;
 import com.espertech.esper.common.internal.epl.contained.PropertyEvaluatorForgeFactory;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
@@ -41,6 +42,7 @@ import com.espertech.esper.common.internal.epl.subselect.SubSelectHelperForgePla
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalHelperPlan;
 import com.espertech.esper.common.internal.epl.table.strategy.ExprTableEvalStrategyFactoryForge;
+import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.statement.helper.EPStatementStartMethodHelperValidate;
 
 import java.util.ArrayList;
@@ -113,14 +115,19 @@ public class OnSplitStreamUtil {
     }
 
     private static OnSplitItemForge onSplitValidate(StreamTypeService typeServiceTrigger, StatementSpecCompiled statementSpecCompiled, ContextPropertyRegistry contextPropertyRegistry, PropertyEvaluatorForge optionalPropertyEval, StatementRawInfo rawInfo, StatementCompileTimeServices services) throws ExprValidationException {
-        String insertIntoName = statementSpecCompiled.getRaw().getInsertIntoDesc().getEventTypeName();
+        InsertIntoDesc insertIntoDesc = statementSpecCompiled.getRaw().getInsertIntoDesc();
+        String insertIntoName = insertIntoDesc.getEventTypeName();
         boolean isNamedWindowInsert = services.getNamedWindowCompileTimeResolver().resolve(insertIntoName) != null;
         TableMetaData table = services.getTableCompileTimeResolver().resolve(insertIntoName);
         EPStatementStartMethodHelperValidate.validateNodes(statementSpecCompiled.getRaw(), typeServiceTrigger, null, rawInfo, services);
         ResultSetSpec spec = new ResultSetSpec(statementSpecCompiled);
         ResultSetProcessorDesc factoryDescs = ResultSetProcessorFactoryFactory.getProcessorPrototype(ResultSetProcessorAttributionKeyStatement.INSTANCE, spec, typeServiceTrigger,
             null, new boolean[0], false, contextPropertyRegistry, false, true, rawInfo, services);
-        return new OnSplitItemForge(statementSpecCompiled.getRaw().getWhereClause(), isNamedWindowInsert, table, factoryDescs, optionalPropertyEval);
+        ExprNode optionalEventPrecedence = insertIntoDesc.getEventPrecedence();
+        if (optionalEventPrecedence != null) {
+            optionalEventPrecedence = EPLValidationUtil.validateEventPrecedence(table != null, optionalEventPrecedence, factoryDescs.getResultEventType(), rawInfo, services);
+        }
+        return new OnSplitItemForge(statementSpecCompiled.getRaw().getWhereClause(), isNamedWindowInsert, table, factoryDescs, optionalPropertyEval, optionalEventPrecedence);
     }
 
     /**

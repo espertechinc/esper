@@ -21,6 +21,7 @@ public class ConfigurationRuntimeExecution implements Serializable {
     private static final long serialVersionUID = -7222514049255015505L;
 
     private boolean prioritized;
+    private boolean precedenceEnabled;
     private boolean fairlock;
     private boolean disableLocking;
     private FilterServiceProfile filterServiceProfile = FilterServiceProfile.READMOSTLY;
@@ -31,6 +32,7 @@ public class ConfigurationRuntimeExecution implements Serializable {
      */
     protected ConfigurationRuntimeExecution() {
         prioritized = false;
+        precedenceEnabled = false;
     }
 
     /**
@@ -127,5 +129,25 @@ public class ConfigurationRuntimeExecution implements Serializable {
      */
     public void setDeclaredExprValueCacheSize(int declaredExprValueCacheSize) {
         this.declaredExprValueCacheSize = declaredExprValueCacheSize;
+    }
+
+    /**
+     * Returns false (the default) if the runtime does not consider insert-into event-precedence,
+     * or true to enable insert-into event-precedence execution order of inserted events.
+     *
+     * @return false by default to indicate insert-into-event no-precedence execution
+     */
+    public boolean isPrecedenceEnabled() {
+        return precedenceEnabled;
+    }
+
+    /**
+     * Set to false (the default) if the runtime does not consider insert-into event-precedence,
+     * or true to enable insert-into event-precedence execution order of inserted events.
+     *
+     * @param precedenceEnabled false by default to indicate insert-into-event no-precedence execution
+     */
+    public void setPrecedenceEnabled(boolean precedenceEnabled) {
+        this.precedenceEnabled = precedenceEnabled;
     }
 }

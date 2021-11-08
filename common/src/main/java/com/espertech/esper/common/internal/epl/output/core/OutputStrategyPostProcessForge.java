@@ -20,6 +20,10 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.collection.UniformPair;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.epl.expression.codegen.CodegenLegoMethodExpression;
+import com.espertech.esper.common.internal.epl.expression.core.ExprForgeConstantType;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.output.view.OutputStrategyPostProcessFactory;
 import com.espertech.esper.common.internal.epl.table.compiletime.TableMetaData;
 import com.espertech.esper.common.internal.epl.table.core.TableDeployTimeResolver;
@@ -35,14 +39,16 @@ public class OutputStrategyPostProcessForge {
     private final boolean routeToFront;
     private final TableMetaData table;
     private final boolean audit;
+    private final ExprNode eventPrecedence;
 
-    public OutputStrategyPostProcessForge(boolean isRouted, SelectClauseStreamSelectorEnum insertIntoStreamSelector, SelectClauseStreamSelectorEnum selectStreamSelector, boolean routeToFront, TableMetaData table, boolean audit) {
+    public OutputStrategyPostProcessForge(boolean isRouted, SelectClauseStreamSelectorEnum insertIntoStreamSelector, SelectClauseStreamSelectorEnum selectStreamSelector, boolean routeToFront, TableMetaData table, boolean audit, ExprNode eventPrecedence) {
         this.isRouted = isRouted;
         this.insertIntoStreamSelector = insertIntoStreamSelector;
         this.selectStreamSelector = selectStreamSelector;
         this.routeToFront = routeToFront;
         this.table = table;
         this.audit = audit;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public boolean hasTable() {
@@ -105,16 +111,33 @@ public class OutputStrategyPostProcessForge {
         if (audit) {
             forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getAuditProvider").add("insert", ref("routed"), MEMBER_AGENTINSTANCECONTEXT));
         }
-        forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getInternalEventRouter").add("route", ref("routed"), MEMBER_AGENTINSTANCECONTEXT, constant(routeToFront)));
+
+        // Evaluate event precedence
+        if (eventPrecedence != null) {
+            if (eventPrecedence.getForge().getForgeConstantType() == ExprForgeConstantType.COMPILETIMECONST) {
+                forEach.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "precedence", constant(eventPrecedence.getForge().getExprEvaluator().evaluate(null, true, null)));
+            } else {
+                CodegenMethod methodPrecedence = CodegenLegoMethodExpression.codegenExpression(eventPrecedence.getForge(), method, classScope);
+                CodegenExpression exprEventPrecedence = localMethod(methodPrecedence, newArrayWithInit(EventBean.EPTYPE, ref("routed")), constant(true), MEMBER_AGENTINSTANCECONTEXT);
+                forEach.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "precedence", constant(0))
+                        .declareVar(EPTypePremade.INTEGERBOXED.getEPType(), "precedenceResult", exprEventPrecedence)
+                        .ifRefNotNull("precedenceResult").assignRef("precedence", ref("precedenceResult"));
+            }
+        } else {
+            forEach.declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "precedence", constant(0));
+        }
+
+        forEach.expression(exprDotMethodChain(MEMBER_AGENTINSTANCECONTEXT).add("getInternalEventRouter").add("route", ref("routed"), MEMBER_AGENTINSTANCECONTEXT, constant(routeToFront), ref("precedence")));
 
         return method;
     }
 
     public CodegenExpression make(CodegenMethod method, SAIFFInitializeSymbol symbols, CodegenClassScope classScope) {
         CodegenExpression resolveTable = table == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(table, symbols.getAddInitSvc(method));
+        CodegenExpression eventPrecedenceEval = eventPrecedence == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(eventPrecedence.getForge(), method, this.getClass(), classScope);
         return newInstance(OutputStrategyPostProcessFactory.EPTYPE, constant(isRouted),
-            insertIntoStreamSelector == null ? constantNull() : enumValue(SelectClauseStreamSelectorEnum.class, insertIntoStreamSelector.name()),
+                insertIntoStreamSelector == null ? constantNull() : enumValue(SelectClauseStreamSelectorEnum.class, insertIntoStreamSelector.name()),
                 enumValue(SelectClauseStreamSelectorEnum.class, selectStreamSelector.name()),
-                constant(routeToFront), resolveTable);
+                constant(routeToFront), resolveTable, eventPrecedenceEval);
     }
 }

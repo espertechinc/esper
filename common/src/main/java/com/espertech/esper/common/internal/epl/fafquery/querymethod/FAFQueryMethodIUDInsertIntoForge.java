@@ -69,6 +69,9 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
                 assignedSequentialNames = processor.getEventTypePublic().getPropertyNames();
             }
         }
+        if (spec.getRaw().getInsertIntoDesc().getEventPrecedence() != null) {
+            throw new ExprValidationException("Fire-and-forget insert-queries do not allow event-precedence");
+        }
 
         FireAndForgetSpecInsert insertSpec = (FireAndForgetSpecInsert) spec.getRaw().getFireAndForgetSpec();
         if (insertSpec.getMultirow().isEmpty()) {

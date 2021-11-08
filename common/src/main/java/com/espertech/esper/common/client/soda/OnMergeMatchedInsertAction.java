@@ -24,6 +24,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
     private List<SelectClauseElement> selectList = Collections.emptyList();
     private Expression whereClause;
     private String optionalStreamName;
+    private Expression eventPrecedence;
 
     /**
      * Ctor.
@@ -34,7 +35,21 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
      * @param optionalStreamName optionally a stream name for insert-into
      */
     public OnMergeMatchedInsertAction(List<String> columnNames, List<SelectClauseElement> selectList, Expression whereClause, String optionalStreamName) {
+        this(columnNames, null, selectList, whereClause, optionalStreamName);
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param columnNames        insert-into column names, or empty list if none provided
+     * @param selectList         select expression list
+     * @param whereClause        optional condition or null
+     * @param optionalStreamName optionally a stream name for insert-into
+     * @param eventPrecedence event precedence or null
+     */
+    public OnMergeMatchedInsertAction(List<String> columnNames, Expression eventPrecedence, List<SelectClauseElement> selectList, Expression whereClause, String optionalStreamName) {
         this.columnNames = columnNames;
+        this.eventPrecedence = eventPrecedence;
         this.selectList = selectList;
         this.whereClause = whereClause;
         this.optionalStreamName = optionalStreamName;
@@ -118,6 +133,24 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
         this.optionalStreamName = optionalStreamName;
     }
 
+    /**
+     * Returns null when no event-precedence is specified for the insert-into,
+     * or returns the expression returning the event-precedence
+     * @return event-precedence expression
+     */
+    public Expression getEventPrecedence() {
+        return eventPrecedence;
+    }
+
+    /**
+     * Set to null when no event-precedence is specified for the insert-into,
+     * or set an expression returning the event-precedence
+     * @param eventPrecedence event-precedence expression
+     */
+    public void setEventPrecedence(Expression eventPrecedence) {
+        this.eventPrecedence = eventPrecedence;
+    }
+
     @Override
     public void toEPL(StringWriter writer) {
         writer.write("insert");
@@ -134,6 +167,11 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
                 writer.write(name);
                 delimiter = ", ";
             }
+            writer.write(")");
+        }
+        if (eventPrecedence != null) {
+            writer.write(" event-precedence(");
+            eventPrecedence.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(")");
         }
         writer.write(" select ");

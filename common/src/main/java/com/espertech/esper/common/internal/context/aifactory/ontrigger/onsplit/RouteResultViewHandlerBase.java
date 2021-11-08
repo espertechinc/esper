@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.context.util.EPStatementHandle;
 import com.espertech.esper.common.internal.context.util.InternalEventRouter;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 
@@ -59,17 +60,23 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
 
     boolean mayRouteCurrentEvent(int index, ExprEvaluatorContext exprEvaluatorContext) {
         agentInstanceContext.getInstrumentationProvider().qSplitStreamRoute(index);
+        OnSplitItemEval eval = items[index];
         UniformPair<EventBean[]> result = processors[index].processViewResult(eventsPerStream, null, false);
         boolean routed = false;
         if ((result != null) && (result.getFirst() != null) && (result.getFirst().length > 0)) {
-            route(result.getFirst()[0], index, exprEvaluatorContext);
+            EventBean routedEvent = result.getFirst()[0];
+
+            // Evaluate event precedence
+            int precedence = ExprNodeUtilityEvaluate.evaluateIntOptional(eval.getEventPrecedence(), routedEvent, 0, exprEvaluatorContext);
+
+            route(routedEvent, index, exprEvaluatorContext, precedence);
             routed = true;
         }
         agentInstanceContext.getInstrumentationProvider().aSplitStreamRoute();
         return routed;
     }
 
-    private void route(EventBean routed, int index, ExprEvaluatorContext exprEvaluatorContext) {
+    private void route(EventBean routed, int index, ExprEvaluatorContext exprEvaluatorContext, int priority) {
         if (audit) {
             exprEvaluatorContext.getAuditProvider().insert(routed, exprEvaluatorContext);
         }
@@ -78,7 +85,7 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
             tableStateInstance.addEventUnadorned(routed);
         } else {
             boolean isNamedWindowInsert = items[index].isNamedWindowInsert();
-            agentInstanceContext.getInternalEventRouter().route(routed, agentInstanceContext, isNamedWindowInsert);
+            agentInstanceContext.getInternalEventRouter().route(routed, agentInstanceContext, isNamedWindowInsert, priority);
         }
     }
 }

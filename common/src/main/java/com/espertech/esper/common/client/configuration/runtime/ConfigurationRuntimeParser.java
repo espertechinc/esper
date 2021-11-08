@@ -77,6 +77,7 @@ public class ConfigurationRuntimeParser {
 
     private static void handleExecution(ConfigurationRuntime runtime, Element parentElement) {
         parseOptionalBoolean(parentElement, "prioritized", b -> runtime.getExecution().setPrioritized(b));
+        parseOptionalBoolean(parentElement, "precedence-enabled", b -> runtime.getExecution().setPrecedenceEnabled(b));
         parseOptionalBoolean(parentElement, "fairlock", b -> runtime.getExecution().setFairlock(b));
         parseOptionalBoolean(parentElement, "disable-locking", b -> runtime.getExecution().setDisableLocking(b));
 

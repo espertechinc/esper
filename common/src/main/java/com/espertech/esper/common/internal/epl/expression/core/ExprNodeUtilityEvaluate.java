@@ -22,6 +22,17 @@ import java.util.Iterator;
 public class ExprNodeUtilityEvaluate {
     private static final Logger log = LoggerFactory.getLogger(ExprNodeUtilityEvaluate.class);
 
+    public static int evaluateIntOptional(ExprEvaluator evalOptional, EventBean event, int defaultValue, ExprEvaluatorContext exprEvaluatorContext) {
+        if (evalOptional == null) {
+            return defaultValue;
+        }
+        Integer precedenceResult = (Integer) evalOptional.evaluate(new EventBean[] {event}, true, exprEvaluatorContext);
+        if (precedenceResult != null) {
+            return precedenceResult;
+        }
+        return defaultValue;
+    }
+
     public static Object evaluateValidationTimeNoStreams(ExprEvaluator evaluator, ExprEvaluatorContext context, String expressionName) throws ExprValidationException {
         try {
             return evaluator.evaluate(null, true, context);

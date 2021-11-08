@@ -15,6 +15,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.util.StatementAgentInstanceLock;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindow;
 import com.espertech.esper.common.internal.epl.ontrigger.InfraOnExprBaseViewFactory;
 import com.espertech.esper.common.internal.epl.ontrigger.InfraOnSelectViewFactory;
@@ -31,6 +32,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends Statement
     private boolean selectAndDelete;
     private boolean isDistinct;
     private EventPropertyValueGetter distinctKeyGetter;
+    private ExprEvaluator eventPrecedence;
 
     public void setResultSetProcessorFactoryProvider(ResultSetProcessorFactoryProvider resultSetProcessorFactoryProvider) {
         this.resultSetProcessorFactoryProvider = resultSetProcessorFactoryProvider;
@@ -64,9 +66,13 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelect extends Statement
         this.addToFront = addToFront;
     }
 
+    public void setEventPrecedence(ExprEvaluator eventPrecedence) {
+        this.eventPrecedence = eventPrecedence;
+    }
+
     protected InfraOnExprBaseViewFactory setupFactory(EventType infraEventType, NamedWindow namedWindow, Table table, StatementContext statementContext) {
         return new InfraOnSelectViewFactory(infraEventType, addToFront,
-            isDistinct, distinctKeyGetter, selectAndDelete, null, optionalInsertIntoTable, insertInto, resultSetProcessorFactoryProvider);
+            isDistinct, distinctKeyGetter, selectAndDelete, null, optionalInsertIntoTable, insertInto, resultSetProcessorFactoryProvider, eventPrecedence);
     }
 
     public StatementAgentInstanceLock obtainAgentInstanceLock(StatementContext statementContext, int agentInstanceId) {

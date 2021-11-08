@@ -75,19 +75,19 @@ public class InternalEventRouterImpl implements InternalEventRouter {
         this.insertIntoListener = insertIntoListener;
     }
 
-    public void route(EventBean theEvent, AgentInstanceContext agentInstanceContext, boolean addToFront) {
-        route(theEvent, agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getInternalEventRouteDest(), agentInstanceContext, addToFront);
+    public void route(EventBean theEvent, AgentInstanceContext agentInstanceContext, boolean addToFront, int precedence) {
+        route(theEvent, agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getInternalEventRouteDest(), agentInstanceContext, addToFront, precedence);
     }
 
-    public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront) {
+    public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront, int precedence) {
         if (!hasPreprocessing) {
             if (insertIntoListener != null) {
                 boolean route = insertIntoListener.inserted(theEvent, statementHandle);
                 if (route) {
-                    routeDest.route(theEvent, statementHandle, addToFront);
+                    routeDest.route(theEvent, statementHandle, addToFront, precedence);
                 }
             } else {
-                routeDest.route(theEvent, statementHandle, addToFront);
+                routeDest.route(theEvent, statementHandle, addToFront, precedence);
             }
             return;
         }
@@ -97,10 +97,10 @@ public class InternalEventRouterImpl implements InternalEventRouter {
             if (insertIntoListener != null) {
                 boolean route = insertIntoListener.inserted(theEvent, statementHandle);
                 if (route) {
-                    routeDest.route(preprocessed, statementHandle, addToFront);
+                    routeDest.route(preprocessed, statementHandle, addToFront, precedence);
                 }
             } else {
-                routeDest.route(preprocessed, statementHandle, addToFront);
+                routeDest.route(preprocessed, statementHandle, addToFront, precedence);
             }
         }
     }

@@ -966,6 +966,7 @@
 	</xs:simpleType>
 	<xs:complexType name="runtime-execution-type">
 		<xs:attribute name="prioritized" type="xs:boolean" use="optional"/>
+		<xs:attribute name="precedence-enabled" type="xs:boolean" use="optional"/>
 		<xs:attribute name="fairlock" type="xs:boolean" use="optional"/>
 		<xs:attribute name="disable-locking" type="xs:boolean" use="optional"/>
 		<xs:attribute name="filter-service-profile" type="esper:filterServiceProfileEnum" use="optional"/>

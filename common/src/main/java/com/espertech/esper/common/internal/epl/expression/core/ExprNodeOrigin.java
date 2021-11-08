@@ -58,7 +58,8 @@ public enum ExprNodeOrigin {
     MERGEMATCHCOND("match condition"),
     MERGEMATCHWHERE("match where-clause"),
     HINT("hint"),
-    API("api");
+    API("api"),
+    EVENTPRECEDENCE("event-precedence clause");
 
     private final String clauseName;
 

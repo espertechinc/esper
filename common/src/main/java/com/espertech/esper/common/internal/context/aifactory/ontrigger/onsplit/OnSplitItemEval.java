@@ -24,6 +24,7 @@ public class OnSplitItemEval {
     private Table insertIntoTable;
     private ResultSetProcessorFactoryProvider rspFactoryProvider;
     private PropertyEvaluator propertyEvaluator;
+    private ExprEvaluator eventPrecedence;
 
     public ExprEvaluator getWhereClause() {
         return whereClause;
@@ -63,5 +64,13 @@ public class OnSplitItemEval {
 
     public void setPropertyEvaluator(PropertyEvaluator propertyEvaluator) {
         this.propertyEvaluator = propertyEvaluator;
+    }
+
+    public ExprEvaluator getEventPrecedence() {
+        return eventPrecedence;
+    }
+
+    public void setEventPrecedence(ExprEvaluator eventPrecedence) {
+        this.eventPrecedence = eventPrecedence;
     }
 }

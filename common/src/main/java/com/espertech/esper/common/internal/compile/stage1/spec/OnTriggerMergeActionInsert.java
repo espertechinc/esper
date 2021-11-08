@@ -23,12 +23,14 @@ public class OnTriggerMergeActionInsert extends OnTriggerMergeAction {
     private final List<String> columns;
     private final List<SelectClauseElementRaw> selectClause;
     private transient List<SelectClauseElementCompiled> selectClauseCompiled;
+    private final ExprNode eventPrecedence;
 
-    public OnTriggerMergeActionInsert(ExprNode optionalWhereClause, String optionalStreamName, List<String> columns, List<SelectClauseElementRaw> selectClause) {
+    public OnTriggerMergeActionInsert(ExprNode optionalWhereClause, String optionalStreamName, List<String> columns, List<SelectClauseElementRaw> selectClause, ExprNode eventPrecedence) {
         super(optionalWhereClause);
         this.optionalStreamName = optionalStreamName;
         this.columns = columns;
         this.selectClause = selectClause;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public String getOptionalStreamName() {
@@ -49,6 +51,10 @@ public class OnTriggerMergeActionInsert extends OnTriggerMergeAction {
 
     public List<SelectClauseElementCompiled> getSelectClauseCompiled() {
         return selectClauseCompiled;
+    }
+
+    public ExprNode getEventPrecedence() {
+        return eventPrecedence;
     }
 }
 

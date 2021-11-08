@@ -12,11 +12,13 @@ package com.espertech.esper.common.internal.epl.ontrigger;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityEvaluate;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 import com.espertech.esper.common.internal.event.core.EventBeanUtility;
 
 public class InfraOnSelectUtil {
-    public static EventBean[] handleDistintAndInsert(EventBean[] newData, InfraOnSelectViewFactory parent, AgentInstanceContext agentInstanceContext, TableInstance tableInstanceInsertInto, boolean audit) {
+    public static EventBean[] handleDistintAndInsert(EventBean[] newData, InfraOnSelectViewFactory parent, AgentInstanceContext agentInstanceContext, TableInstance tableInstanceInsertInto, boolean audit, ExprEvaluator eventPrecedence) {
         if (parent.isDistinct()) {
             newData = EventBeanUtility.getDistinctByProp(newData, parent.getDistinctKeyGetter());
         }
@@ -33,7 +35,11 @@ public class InfraOnSelectUtil {
                     if (audit) {
                         agentInstanceContext.getAuditProvider().insert(aNewData, agentInstanceContext);
                     }
-                    agentInstanceContext.getInternalEventRouter().route(aNewData, agentInstanceContext, parent.isAddToFront());
+
+                    // Evaluate event precedence
+                    int precedence = ExprNodeUtilityEvaluate.evaluateIntOptional(eventPrecedence, aNewData, 0, agentInstanceContext);
+
+                    agentInstanceContext.getInternalEventRouter().route(aNewData, agentInstanceContext, parent.isAddToFront(), precedence);
                 }
             }
         }

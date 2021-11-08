@@ -20,6 +20,8 @@ import com.espertech.esper.common.internal.compile.multikey.MultiKeyClassRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyCodegen;
 import com.espertech.esper.common.internal.context.activator.ViewableActivatorForge;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNodeUtilityCodegen;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.common.internal.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordinateWMatchExprQueryPlanForge;
@@ -42,8 +44,9 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
     private final boolean selectAndDelete;
     private final boolean distinct;
     private final MultiKeyClassRef distinctMultiKey;
+    private final ExprNode eventPrecedence;
 
-    public StatementAgentInstanceFactoryOnTriggerInfraSelectForge(ViewableActivatorForge activator, EventType resultEventType, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, NamedWindowMetaData namedWindow, TableMetaData table, SubordinateWMatchExprQueryPlanForge queryPlanForge, String resultSetProcessorProviderClassName, boolean insertInto, boolean addToFront, TableMetaData optionalInsertIntoTable, boolean selectAndDelete, boolean distinct, MultiKeyClassRef distinctMultiKey) {
+    public StatementAgentInstanceFactoryOnTriggerInfraSelectForge(ViewableActivatorForge activator, EventType resultEventType, Map<ExprSubselectNode, SubSelectFactoryForge> subselects, Map<ExprTableAccessNode, ExprTableEvalStrategyFactoryForge> tableAccesses, NamedWindowMetaData namedWindow, TableMetaData table, SubordinateWMatchExprQueryPlanForge queryPlanForge, String resultSetProcessorProviderClassName, boolean insertInto, boolean addToFront, TableMetaData optionalInsertIntoTable, boolean selectAndDelete, boolean distinct, MultiKeyClassRef distinctMultiKey, ExprNode eventPrecedence) {
         super(activator, resultEventType, subselects, tableAccesses, null, namedWindow, table, queryPlanForge);
         this.resultSetProcessorProviderClassName = resultSetProcessorProviderClassName;
         this.insertInto = insertInto;
@@ -52,6 +55,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
         this.selectAndDelete = selectAndDelete;
         this.distinct = distinct;
         this.distinctMultiKey = distinctMultiKey;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public EPTypeClass typeOfSubclass() {
@@ -66,7 +70,7 @@ public class StatementAgentInstanceFactoryOnTriggerInfraSelectForge extends Stat
                 .exprDotMethod(saiff, "setSelectAndDelete", constant(selectAndDelete))
                 .exprDotMethod(saiff, "setDistinct", constant(distinct))
                 .exprDotMethod(saiff, "setDistinctKeyGetter", MultiKeyCodegen.codegenGetterEventDistinct(distinct, getResultEventType(), distinctMultiKey, method, classScope))
-                .exprDotMethod(saiff, "setOptionalInsertIntoTable", optionalInsertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(optionalInsertIntoTable, symbols.getAddInitSvc(method)));
-
+                .exprDotMethod(saiff, "setOptionalInsertIntoTable", optionalInsertIntoTable == null ? constantNull() : TableDeployTimeResolver.makeResolveTable(optionalInsertIntoTable, symbols.getAddInitSvc(method)))
+                .exprDotMethod(saiff, "setEventPrecedence", eventPrecedence == null ? constantNull() : ExprNodeUtilityCodegen.codegenEvaluator(eventPrecedence.getForge(), method, this.getClass(), classScope));
     }
 }

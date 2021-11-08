@@ -221,6 +221,7 @@ package com.espertech.esper.compiler.internal.generated;
 	parserTokenParaphases.put(GROUPING, "'grouping'");
 	parserTokenParaphases.put(GROUPING_ID, "'grouping_id'");
 	parserTokenParaphases.put(SETS, "'sets'");
+	parserTokenParaphases.put(EVENTPRECEDENCE, "'event-precedence'");
 
 	parserKeywordSet = new java.util.TreeSet<String>(parserTokenParaphases.values());
     }
@@ -354,7 +355,7 @@ mergeUnmatched : WHEN NOT_EXPR MATCHED (AND_EXPR expression)? mergeUnmatchedItem
 	
 mergeUnmatchedItem : THEN mergeInsert;		
 	
-mergeInsert : INSERT (INTO classIdentifier)? (LPAREN columnList RPAREN)? SELECT selectionList (WHERE whereClause)?;
+mergeInsert : INSERT (INTO classIdentifier)? (LPAREN columnList RPAREN)? insertIntoEventPrecedence? SELECT selectionList (WHERE whereClause)?;
 	
 onSelectExpr	
 @init  { paraphrases.push("on-select clause"); }
@@ -538,7 +539,9 @@ intoTableExpr
 insertIntoExpr
 @init  { paraphrases.push("insert-into clause"); }
 @after { paraphrases.pop(); }
-		: (i=ISTREAM | r=RSTREAM | ir=IRSTREAM)? INTO classIdentifier (LPAREN columnList? RPAREN)?;
+		: (i=ISTREAM | r=RSTREAM | ir=IRSTREAM)? INTO classIdentifier (LPAREN columnList? RPAREN)? insertIntoEventPrecedence?;
+		
+insertIntoEventPrecedence : (EVENTPRECEDENCE LPAREN expression RPAREN);
 		
 columnList : IDENT (COMMA IDENT)*;
 
@@ -1307,6 +1310,7 @@ ROLLUP:'rollup';
 GROUPING:'grouping';
 GROUPING_ID:'grouping_id';
 SETS:'sets';
+EVENTPRECEDENCE:'event-precedence';
 
 // Operators
 FOLLOWMAX_BEGIN : '-[';

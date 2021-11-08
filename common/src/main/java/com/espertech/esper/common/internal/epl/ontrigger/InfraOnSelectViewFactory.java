@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.context.aifactory.core.StatementAgentInstanceFactoryUtil;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.epl.agg.core.AggregationService;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.lookupplansubord.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowRootViewInstance;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessor;
@@ -37,8 +38,9 @@ public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
     private final Table optionalInsertIntoTable;
     private final boolean insertInto;
     private final ResultSetProcessorFactoryProvider resultSetProcessorPrototype;
+    private final ExprEvaluator eventPrecedence;
 
-    public InfraOnSelectViewFactory(EventType infraEventType, boolean addToFront, boolean isDistinct, EventPropertyValueGetter distinctKeyGetter, boolean selectAndDelete, StreamSelector optionalStreamSelector, Table optionalInsertIntoTable, boolean insertInto, ResultSetProcessorFactoryProvider resultSetProcessorPrototype) {
+    public InfraOnSelectViewFactory(EventType infraEventType, boolean addToFront, boolean isDistinct, EventPropertyValueGetter distinctKeyGetter, boolean selectAndDelete, StreamSelector optionalStreamSelector, Table optionalInsertIntoTable, boolean insertInto, ResultSetProcessorFactoryProvider resultSetProcessorPrototype, ExprEvaluator eventPrecedence) {
         super(infraEventType);
         this.addToFront = addToFront;
         this.isDistinct = isDistinct;
@@ -48,6 +50,7 @@ public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
         this.optionalInsertIntoTable = optionalInsertIntoTable;
         this.insertInto = insertInto;
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public InfraOnExprBaseViewResult makeNamedWindow(SubordWMatchExprLookupStrategy lookupStrategy, NamedWindowRootViewInstance namedWindowRootViewInstance, AgentInstanceContext agentInstanceContext) {
@@ -59,7 +62,7 @@ public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
             tableInstanceInsertInto = optionalInsertIntoTable.getTableInstance(agentInstanceContext.getAgentInstanceId());
         }
 
-        OnExprViewNamedWindowSelect selectView = new OnExprViewNamedWindowSelect(lookupStrategy, namedWindowRootViewInstance, agentInstanceContext, this, pair.getFirst(), audit, selectAndDelete, tableInstanceInsertInto);
+        OnExprViewNamedWindowSelect selectView = new OnExprViewNamedWindowSelect(lookupStrategy, namedWindowRootViewInstance, agentInstanceContext, this, pair.getFirst(), audit, selectAndDelete, tableInstanceInsertInto, eventPrecedence);
         return new InfraOnExprBaseViewResult(selectView, pair.getSecond());
     }
 
@@ -72,7 +75,7 @@ public class InfraOnSelectViewFactory extends InfraOnExprBaseViewFactory {
             tableInstanceInsertInto = optionalInsertIntoTable.getTableInstance(agentInstanceContext.getAgentInstanceId());
         }
 
-        OnExprViewTableSelect selectView = new OnExprViewTableSelect(lookupStrategy, tableInstance, agentInstanceContext, pair.getFirst(), this, audit, selectAndDelete, tableInstanceInsertInto);
+        OnExprViewTableSelect selectView = new OnExprViewTableSelect(lookupStrategy, tableInstance, agentInstanceContext, pair.getFirst(), this, audit, selectAndDelete, tableInstanceInsertInto, eventPrecedence);
         return new InfraOnExprBaseViewResult(selectView, pair.getSecond());
     }
 

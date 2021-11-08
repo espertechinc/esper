@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.output.view;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.compile.stage1.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.table.core.Table;
 import com.espertech.esper.common.internal.epl.table.core.TableInstance;
 
@@ -27,13 +28,15 @@ public class OutputStrategyPostProcessFactory {
     private final SelectClauseStreamSelectorEnum selectStreamDirEnum;
     private final boolean addToFront;
     private final Table optionalTable;
+    private final ExprEvaluator eventPrecedence;
 
-    public OutputStrategyPostProcessFactory(boolean isRoute, SelectClauseStreamSelectorEnum insertIntoStreamSelector, SelectClauseStreamSelectorEnum selectStreamDirEnum, boolean addToFront, Table optionalTable) {
+    public OutputStrategyPostProcessFactory(boolean isRoute, SelectClauseStreamSelectorEnum insertIntoStreamSelector, SelectClauseStreamSelectorEnum selectStreamDirEnum, boolean addToFront, Table optionalTable, ExprEvaluator eventPrecedence) {
         this.isRoute = isRoute;
         this.insertIntoStreamSelector = insertIntoStreamSelector;
         this.selectStreamDirEnum = selectStreamDirEnum;
         this.addToFront = addToFront;
         this.optionalTable = optionalTable;
+        this.eventPrecedence = eventPrecedence;
     }
 
     public OutputStrategyPostProcess make(AgentInstanceContext agentInstanceContext) {
@@ -58,5 +61,9 @@ public class OutputStrategyPostProcessFactory {
 
     public boolean isAddToFront() {
         return addToFront;
+    }
+
+    public ExprEvaluator getEventPrecedence() {
+        return eventPrecedence;
     }
 }

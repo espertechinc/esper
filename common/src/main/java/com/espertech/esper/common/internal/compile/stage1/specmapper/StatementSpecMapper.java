@@ -176,7 +176,7 @@ public class StatementSpecMapper {
         mapCreateClass(sodaStatement.getCreateClass(), raw, mapContext);
         mapCreateGraph(sodaStatement.getCreateDataFlow(), raw, mapContext);
         mapOnTrigger(sodaStatement.getOnExpr(), raw, mapContext);
-        InsertIntoDesc desc = mapInsertInto(sodaStatement.getInsertInto());
+        InsertIntoDesc desc = mapInsertInto(sodaStatement.getInsertInto(), mapContext);
         raw.setInsertIntoDesc(desc);
         mapSelect(sodaStatement.getSelectClause(), raw, mapContext);
         mapFrom(sodaStatement.getFromClause(), raw, mapContext);
@@ -261,7 +261,7 @@ public class StatementSpecMapper {
         unmapCreateGraph(statementSpec.getCreateDataFlowDesc(), model, unmapContext);
         unmapUpdateClause(statementSpec.getStreamSpecs(), statementSpec.getUpdateDesc(), model, unmapContext);
         unmapOnClause(statementSpec.getOnTriggerDesc(), model, unmapContext);
-        InsertIntoClause insertIntoClause = unmapInsertInto(statementSpec.getInsertIntoDesc());
+        InsertIntoClause insertIntoClause = unmapInsertInto(statementSpec.getInsertIntoDesc(), unmapContext);
         model.setInsertInto(insertIntoClause);
         SelectClause selectClause = unmapSelect(statementSpec.getSelectClauseSpec(), statementSpec.getSelectStreamSelectorEnum(), unmapContext);
         model.setSelectClause(selectClause);
@@ -388,7 +388,7 @@ public class StatementSpecMapper {
                     propertySelects = unmapPropertySelects(stream.getFromClause().getPropertyEvalSpec(), unmapContext);
                     propertySelectStreamName = stream.getFromClause().getOptionalStreamName();
                 }
-                InsertIntoClause insertIntoClause = unmapInsertInto(stream.getInsertInto());
+                InsertIntoClause insertIntoClause = unmapInsertInto(stream.getInsertInto(), unmapContext);
                 SelectClause selectClause = unmapSelect(stream.getSelectClause(), SelectClauseStreamSelectorEnum.ISTREAM_ONLY, unmapContext);
                 clause.addItem(OnInsertSplitStreamItem.create(insertIntoClause, selectClause, propertySelects, propertySelectStreamName, whereClause));
             }
@@ -440,7 +440,8 @@ public class StatementSpecMapper {
         List<String> columnNames = new ArrayList<>(insert.getColumns());
         List<SelectClauseElement> select = unmapSelectClauseElements(insert.getSelectClause(), unmapContext);
         Expression optionalCondition = insert.getOptionalWhereClause() == null ? null : unmapExpressionDeep(insert.getOptionalWhereClause(), unmapContext);
-        return new OnMergeMatchedInsertAction(columnNames, select, optionalCondition, insert.getOptionalStreamName());
+        Expression optionalPrecedence = insert.getEventPrecedence() == null ? null : unmapExpressionDeep(insert.getEventPrecedence(), unmapContext);
+        return new OnMergeMatchedInsertAction(columnNames, optionalPrecedence, select, optionalCondition, insert.getOptionalStreamName());
     }
 
     private static void unmapUpdateClause(List<StreamSpecRaw> desc, UpdateDesc updateDesc, EPStatementObjectModel model, StatementSpecUnMapContext unmapContext) {
@@ -980,7 +981,7 @@ public class StatementSpecMapper {
                     whereClause = mapExpressionDeep(item.getWhereClause(), mapContext);
                 }
 
-                InsertIntoDesc insertDesc = mapInsertInto(item.getInsertInto());
+                InsertIntoDesc insertDesc = mapInsertInto(item.getInsertInto(), mapContext);
                 SelectClauseSpecRaw selectDesc = mapSelectRaw(item.getSelectClause(), mapContext);
 
                 streams.add(new OnTriggerSplitStream(insertDesc, selectDesc, fromClause, whereClause));
@@ -1029,7 +1030,8 @@ public class StatementSpecMapper {
         List<String> columnNames = new ArrayList<>(insert.getColumnNames());
         List<SelectClauseElementRaw> select = mapSelectClauseElements(insert.getSelectList(), mapContext);
         ExprNode optionalCondition = insert.getWhereClause() == null ? null : mapExpressionDeep(insert.getWhereClause(), mapContext);
-        return new OnTriggerMergeActionInsert(optionalCondition, insert.getOptionalStreamName(), columnNames, select);
+        ExprNode optionalPrecedence = insert.getEventPrecedence() == null ? null : mapExpressionDeep(insert.getEventPrecedence(), mapContext);
+        return new OnTriggerMergeActionInsert(optionalCondition, insert.getOptionalStreamName(), columnNames, select, optionalPrecedence);
     }
 
     private static void mapRowLimit(RowLimitClause rowLimitClause, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1307,13 +1309,14 @@ public class StatementSpecMapper {
         return elements;
     }
 
-    private static InsertIntoClause unmapInsertInto(InsertIntoDesc insertIntoDesc) {
+    private static InsertIntoClause unmapInsertInto(InsertIntoDesc insertIntoDesc, StatementSpecUnMapContext unmapContext) {
         if (insertIntoDesc == null) {
             return null;
         }
         StreamSelector selector = mapFromSODA(insertIntoDesc.getStreamSelector());
+        Expression precedence = unmapExpressionDeep(insertIntoDesc.getEventPrecedence(), unmapContext);
         return InsertIntoClause.create(insertIntoDesc.getEventTypeName(),
-            insertIntoDesc.getColumnNames().toArray(new String[0]), selector);
+            insertIntoDesc.getColumnNames().toArray(new String[0]), selector, precedence);
     }
 
     private static void mapCreateContext(CreateContextClause createContext, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1618,7 +1621,7 @@ public class StatementSpecMapper {
         return result;
     }
 
-    private static InsertIntoDesc mapInsertInto(InsertIntoClause insertInto) {
+    private static InsertIntoDesc mapInsertInto(InsertIntoClause insertInto, StatementSpecMapContext mapContext) {
         if (insertInto == null) {
             return null;
         }
@@ -1629,6 +1632,8 @@ public class StatementSpecMapper {
         for (String name : insertInto.getColumnNames()) {
             desc.add(name);
         }
+
+        desc.setEventPrecedence(mapExpressionDeep(insertInto.getEventPrecedence(), mapContext));
         return desc;
     }
 

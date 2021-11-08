@@ -11,7 +11,6 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.internal.collection.ArrayBackedCollection;
-import com.espertech.esper.common.internal.collection.DualWorkQueue;
 import com.espertech.esper.common.internal.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.filtersvc.FilterHandle;
@@ -20,15 +19,15 @@ import com.espertech.esper.common.internal.schedule.ScheduleHandle;
 import java.util.Map;
 
 public class EPEventServiceThreadLocalEntry {
-    private final DualWorkQueue<Object> dualWorkQueue;
+    private final WorkQueue workQueue;
     private final ArrayBackedCollection<FilterHandle> matchesArrayThreadLocal;
     private final ArrayBackedCollection<ScheduleHandle> scheduleArrayThreadLocal;
     private final Map<EPStatementAgentInstanceHandle, Object> matchesPerStmtThreadLocal;
     private final Map<EPStatementAgentInstanceHandle, Object> schedulePerStmtThreadLocal;
     private final ExprEvaluatorContext exprEvaluatorContext;
 
-    public EPEventServiceThreadLocalEntry(DualWorkQueue<Object> dualWorkQueue, ArrayBackedCollection<FilterHandle> matchesArrayThreadLocal, ArrayBackedCollection<ScheduleHandle> scheduleArrayThreadLocal, Map<EPStatementAgentInstanceHandle, Object> matchesPerStmtThreadLocal, Map<EPStatementAgentInstanceHandle, Object> schedulePerStmtThreadLocal, ExprEvaluatorContext exprEvaluatorContext) {
-        this.dualWorkQueue = dualWorkQueue;
+    public EPEventServiceThreadLocalEntry(WorkQueue workQueue, ArrayBackedCollection<FilterHandle> matchesArrayThreadLocal, ArrayBackedCollection<ScheduleHandle> scheduleArrayThreadLocal, Map<EPStatementAgentInstanceHandle, Object> matchesPerStmtThreadLocal, Map<EPStatementAgentInstanceHandle, Object> schedulePerStmtThreadLocal, ExprEvaluatorContext exprEvaluatorContext) {
+        this.workQueue = workQueue;
         this.matchesArrayThreadLocal = matchesArrayThreadLocal;
         this.scheduleArrayThreadLocal = scheduleArrayThreadLocal;
         this.matchesPerStmtThreadLocal = matchesPerStmtThreadLocal;
@@ -36,8 +35,8 @@ public class EPEventServiceThreadLocalEntry {
         this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
-    public DualWorkQueue<Object> getDualWorkQueue() {
-        return dualWorkQueue;
+    public WorkQueue getWorkQueue() {
+        return workQueue;
     }
 
     public ArrayBackedCollection<FilterHandle> getMatchesArrayThreadLocal() {
